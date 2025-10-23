@@ -12,10 +12,10 @@ import java.util.List;
 public class CashierView extends BaseView {
 
     public CashierView() {
-        super(); // Call the constructor of the BaseView
+        super();
         setViewTitle("Kassenansicht");
 
-        // Additional CashierView specific components can be added here
+        // Hier kommt die weitere Cashier-Implementierung hin
     }
 
 }

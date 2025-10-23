@@ -27,14 +27,11 @@ public class SecurityConfig {
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-        // Disable Spring Security's CSRF protection, as Vaadin handles it internally.
         http.csrf(AbstractHttpConfigurer::disable);
 
-        // Apply Vaadin security configurer for login
         http.with(VaadinSecurityConfigurer.vaadin(), configurer ->
                 configurer.loginView(LoginView.class));
 
-        // Configure the logout process using a lambda expression for the RequestMatcher
         http.logout(logout -> {
             logout.logoutRequestMatcher(request -> request.getMethod().equals(HttpMethod.GET.name()) && request.getRequestURI().equals("/logout"));
             logout.logoutSuccessUrl("/login?logout"); // Redirect to login page
@@ -43,6 +40,7 @@ public class SecurityConfig {
         return http.build();
     }
 
+    // Hier sind die UserDetails mit Passwort und Username
     @Bean
     public UserDetailsService userDetailsService(PasswordEncoder passwordEncoder) {
         UserDetails cashier = User.withUsername("cashier")

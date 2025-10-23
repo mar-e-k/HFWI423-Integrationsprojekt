@@ -8,9 +8,9 @@ import jakarta.annotation.security.RolesAllowed;
 public class AdminView extends BaseView {
 
     public AdminView() {
-        super(); // Call the constructor of the BaseView
+        super();
         setViewTitle("Admin-Dashboard");
 
-        // Additional AdminView specific components can be added here
+        // Hier kommt die weitere Admin-Implementierung hin
     }
 }

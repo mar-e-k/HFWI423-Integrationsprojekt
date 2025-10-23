@@ -8,7 +8,7 @@ import jakarta.annotation.security.PermitAll;
 import org.springframework.security.core.context.SecurityContextHolder;
 
 @Route("")
-@PermitAll // Allow any authenticated user to access this view
+@PermitAll
 public class MainView extends VerticalLayout implements BeforeEnterObserver {
 
     @Override
@@ -16,7 +16,7 @@ public class MainView extends VerticalLayout implements BeforeEnterObserver {
         boolean isAdmin = SecurityContextHolder.getContext().getAuthentication().getAuthorities().stream()
                 .anyMatch(r -> r.getAuthority().equals("ROLE_ADMIN"));
 
-        // Reroute to the correct view, changing the URL in the browser
+        // Weiterleitung zur richtigen View, falls Admin dann dahin, sonst immer zur CashierView
         if (isAdmin) {
             event.rerouteTo(AdminView.class);
         } else {
