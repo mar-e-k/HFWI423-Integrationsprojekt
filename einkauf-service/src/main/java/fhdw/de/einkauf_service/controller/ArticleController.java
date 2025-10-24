@@ -1,12 +1,12 @@
 package fhdw.de.einkauf_service.controller;
 
-import fhdw.de.einkauf_service.dto.ArticleRequest;
-import fhdw.de.einkauf_service.dto.ArticleResponse;
+import fhdw.de.einkauf_service.dto.ArticleRequestDTO;
+import fhdw.de.einkauf_service.dto.ArticleResponseDTO;
 import fhdw.de.einkauf_service.service.ArticleService;
+import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import jakarta.validation.Valid;
 
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -26,9 +26,9 @@ public class ArticleController {
     // Erwartet ArticleRequest, gibt ArticleResponse zurück
     // ==================================================================================
     @PostMapping
-    public ResponseEntity<ArticleResponse> createArticle(@Valid @RequestBody ArticleRequest articleRequest) {
+    public ResponseEntity<ArticleResponseDTO> createArticle(@Valid @RequestBody ArticleRequestDTO articleRequestDto) {
         try {
-            ArticleResponse createdArticle = articleService.createNewArticle(articleRequest);
+            ArticleResponseDTO createdArticle = articleService.createNewArticle(articleRequestDto);
             // HTTP 201 Created ist Standard für erfolgreiches Anlegen
             return new ResponseEntity<>(createdArticle, HttpStatus.CREATED);
         } catch (IllegalArgumentException e) {
@@ -42,8 +42,8 @@ public class ArticleController {
     // Gibt eine Liste von ArticleResponse zurück
     // ==================================================================================
     @GetMapping
-    public ResponseEntity<List<ArticleResponse>> getAllArticles() {
-        List<ArticleResponse> articles = articleService.findAllArticles();
+    public ResponseEntity<List<ArticleResponseDTO>> getAllArticles() {
+        List<ArticleResponseDTO> articles = articleService.findAllArticles();
         return ResponseEntity.ok(articles); // 200 OK
     }
 
@@ -52,9 +52,9 @@ public class ArticleController {
     // Gibt ArticleResponse zurück
     // ==================================================================================
     @GetMapping("/{id}")
-    public ResponseEntity<ArticleResponse> getArticleById(@PathVariable Long id) {
+    public ResponseEntity<ArticleResponseDTO> getArticleById(@PathVariable Long id) {
         try {
-            ArticleResponse article = articleService.findArticleById(id);
+            ArticleResponseDTO article = articleService.findArticleById(id);
             return ResponseEntity.ok(article); // 200 OK
         } catch (NoSuchElementException e) {
             return new ResponseEntity<>(null, HttpStatus.NOT_FOUND); // 404 Not Found
@@ -66,11 +66,11 @@ public class ArticleController {
     // Erwartet ArticleRequest, gibt ArticleResponse zurück
     // ==================================================================================
     @PutMapping("/{id}")
-    public ResponseEntity<ArticleResponse> updateArticle(
+    public ResponseEntity<ArticleResponseDTO> updateArticle(
             @PathVariable Long id,
-            @Valid @RequestBody ArticleRequest articleDetails) {
+            @Valid @RequestBody ArticleRequestDTO articleDetails) {
         try {
-            ArticleResponse updatedArticle = articleService.updateArticle(id, articleDetails);
+            ArticleResponseDTO updatedArticle = articleService.updateArticle(id, articleDetails);
             return ResponseEntity.ok(updatedArticle); // 200 OK
         } catch (NoSuchElementException e) {
             return new ResponseEntity<>(null, HttpStatus.NOT_FOUND); // 404 Not Found

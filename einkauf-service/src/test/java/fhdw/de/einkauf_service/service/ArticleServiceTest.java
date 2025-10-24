@@ -1,8 +1,9 @@
 package fhdw.de.einkauf_service.service;
 
-import fhdw.de.einkauf_service.dto.ArticleRequest;
-import fhdw.de.einkauf_service.model.Article;
+import fhdw.de.einkauf_service.dto.ArticleRequestDTO;
+import fhdw.de.einkauf_service.entity.Article;
 import fhdw.de.einkauf_service.repository.ArticleRepository;
+import fhdw.de.einkauf_service.serviceImpl.ArticleServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -26,17 +27,17 @@ public class ArticleServiceTest {
 
     // 2. Das Objekt, das getestet wird, mit den Mocks 'injizieren'
     @InjectMocks
-    private ArticleService articleService;
+    private ArticleServiceImpl articleServiceImpl;
 
     // Testdaten (DTO/Entity)
-    private ArticleRequest validRequest;
+    private ArticleRequestDTO validRequest;
     private Article savedEntity; // Entity, wie sie nach dem Speichern zurückkommen würde
 
     // Wird vor jedem Test ausgeführt
     @BeforeEach
     void setUp() {
         // Beispiel-Request-DTO erstellen
-        validRequest = new ArticleRequest(
+        validRequest = new ArticleRequestDTO(
                 "4008400403337", "Test Schokoriegel", "STK",
                 10.00, 19.0, "Hersteller X", "Lieferant Y", 100, "Beschreibung"
         );
@@ -62,7 +63,7 @@ public class ArticleServiceTest {
         when(articleRepository.save(any(Article.class))).thenReturn(savedEntity);
 
         // ACT: Die Methode ausführen, die getestet werden soll
-        var response = articleService.createNewArticle(validRequest);
+        var response = articleServiceImpl.createNewArticle(validRequest);
 
         // ASSERT: Ergebnisse überprüfen
         // 1. Prüfen, ob der Verkaufspreis korrekt ist (10.00 * 1.19 = 11.90)
@@ -80,7 +81,7 @@ public class ArticleServiceTest {
         // ACT & ASSERT: Prüfen, ob die erwartete Exception geworfen wird
         // Beim Aufruf der Methode sollte die IllegalArgumentException geworfen werden
         assertThrows(IllegalArgumentException.class, () -> {
-            articleService.createNewArticle(validRequest);
+            articleServiceImpl.createNewArticle(validRequest);
         });
 
         // Prüfen, ob die Speichermethode NICHT aufgerufen wurde
@@ -97,7 +98,7 @@ public class ArticleServiceTest {
 
         // ACT & ASSERT: Prüfen, ob die NoSuchElementException geworfen wird
         assertThrows(NoSuchElementException.class, () -> {
-            articleService.updateArticle(99L, validRequest); // 99L ist eine nicht existierende ID
+            articleServiceImpl.updateArticle(99L, validRequest); // 99L ist eine nicht existierende ID
         });
 
         // ASSERT: Prüfen, ob die Speicherung niemals aufgerufen wurde
@@ -107,7 +108,7 @@ public class ArticleServiceTest {
     @Test
     void shouldRecalculateSellingPriceOnUpdate() {
         // ARRANGE: Setze den neuen Einkaufspreis im Request für den Update-Test
-        ArticleRequest updateRequest = new ArticleRequest(
+        ArticleRequestDTO updateRequest = new ArticleRequestDTO(
                 "4008400403337", "Geänderter Name", "STK",
                 20.00, 10.0, "Hersteller X", "Lieferant Y", 100, "Beschreibung"
         );
@@ -126,7 +127,7 @@ public class ArticleServiceTest {
         when(articleRepository.save(any(Article.class))).thenReturn(updatedArticle);
 
         // ACT
-        var response = articleService.updateArticle(1L, updateRequest);
+        var response = articleServiceImpl.updateArticle(1L, updateRequest);
 
         // ASSERT: Prüfen, ob der neue Verkaufspreis korrekt ist (20.00 * 1.10 = 22.00)
         assertEquals(22.00, response.getSellingPrice(), 0.001);
@@ -143,7 +144,7 @@ public class ArticleServiceTest {
         when(articleRepository.existsById(1L)).thenReturn(true);
 
         // ACT
-        articleService.deleteArticle(1L);
+        articleServiceImpl.deleteArticle(1L);
 
         // ASSERT: Prüfen, ob die deleteById-Methode exakt einmal aufgerufen wurde
         verify(articleRepository, times(1)).deleteById(1L);
@@ -156,7 +157,7 @@ public class ArticleServiceTest {
 
         // ACT & ASSERT: Prüfen, ob die NoSuchElementException geworfen wird
         assertThrows(NoSuchElementException.class, () -> {
-            articleService.deleteArticle(99L);
+            articleServiceImpl.deleteArticle(99L);
         });
 
         // ASSERT: Prüfen, ob die Löschmethode niemals aufgerufen wurde

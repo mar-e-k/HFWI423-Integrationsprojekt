@@ -1,7 +1,7 @@
 package fhdw.de.einkauf_service.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import fhdw.de.einkauf_service.dto.ArticleRequest;
+import fhdw.de.einkauf_service.dto.ArticleRequestDTO;
 import fhdw.de.einkauf_service.repository.ArticleRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -28,14 +28,14 @@ public class ArticleControllerIntegrationTest {
     @Autowired
     private ArticleRepository articleRepository; // Zum Bereinigen der DB zwischen Tests
 
-    private ArticleRequest validRequest;
+    private ArticleRequestDTO validRequest;
 
     @BeforeEach
     void setUp() {
         // DB leeren, um Testisolation zu gewährleisten
         articleRepository.deleteAll();
 
-        validRequest = new ArticleRequest(
+        validRequest = new ArticleRequestDTO(
                 "4008400403337", "Integration Test Artikel", "STK",
                 5.00, 19.0, "Hersteller Test", "Lieferant Test", 50, "Beschreibung"
         );
@@ -59,7 +59,7 @@ public class ArticleControllerIntegrationTest {
 
     @Test
     void shouldReturnBadRequestWhenArticleNameIsMissing() throws Exception {
-        ArticleRequest invalidRequest = validRequest;
+        ArticleRequestDTO invalidRequest = validRequest;
         invalidRequest.setName(""); // Fehlende Validierung
 
         mockMvc.perform(post("/api/v1/articles")
@@ -107,7 +107,7 @@ public class ArticleControllerIntegrationTest {
         Long id = objectMapper.readTree(creationResponse).get("id").asLong();
 
         // 2. Update-Request vorbereiten (Preis ändern)
-        ArticleRequest updateRequest = validRequest;
+        ArticleRequestDTO updateRequest = validRequest;
         updateRequest.setPurchasePrice(10.00); // Neuer Preis
 
         // 3. PUT-Request ausführen

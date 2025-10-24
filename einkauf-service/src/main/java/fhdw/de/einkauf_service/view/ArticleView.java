@@ -1,10 +1,10 @@
-package fhdw.de.einkauf_service.ui;
+package fhdw.de.einkauf_service.view;
 
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.Route;
-import fhdw.de.einkauf_service.dto.ArticleResponse;
-import fhdw.de.einkauf_service.service.ArticleService;
+import fhdw.de.einkauf_service.dto.ArticleResponseDTO;
+import fhdw.de.einkauf_service.serviceImpl.ArticleServiceImpl;
 
 import java.util.List;
 
@@ -12,12 +12,12 @@ import java.util.List;
 @Route("")
 public class ArticleView extends VerticalLayout {
 
-    private final ArticleService articleService;
-    private final Grid<ArticleResponse> grid = new Grid<>(ArticleResponse.class);
+    private final ArticleServiceImpl articleServiceImpl;
+    private final Grid<ArticleResponseDTO> grid = new Grid<>(ArticleResponseDTO.class);
 
     // Vaadin verwendet Spring-Dependency-Injection über den Konstruktor
-    public ArticleView(ArticleService articleService) {
-        this.articleService = articleService;
+    public ArticleView(ArticleServiceImpl articleServiceImpl) {
+        this.articleServiceImpl = articleServiceImpl;
 
         // Layout-Einstellungen
         setSizeFull();
@@ -45,7 +45,7 @@ public class ArticleView extends VerticalLayout {
 
     private void updateList() {
         // Ruft den bestehenden Service auf, um alle Artikel zu holen
-        List<ArticleResponse> articles = articleService.findAllArticles();
+        List<ArticleResponseDTO> articles = articleServiceImpl.findAllArticles();
         grid.setItems(articles);
     }
 }

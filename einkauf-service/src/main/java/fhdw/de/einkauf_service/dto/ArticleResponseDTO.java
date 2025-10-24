@@ -8,7 +8,7 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class ArticleResponse {
+public class ArticleResponseDTO {
 
     // Eindeutige ID (vom Backend generiert)
     private Long id;
