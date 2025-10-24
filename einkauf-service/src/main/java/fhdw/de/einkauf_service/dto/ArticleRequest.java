@@ -4,7 +4,7 @@ import jakarta.validation.constraints.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
+//hier dto unbenennen
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
