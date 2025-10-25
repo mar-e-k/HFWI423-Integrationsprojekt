@@ -3,6 +3,7 @@ package fhdw.de.einkauf_service.view;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.Route;
+import fhdw.de.einkauf_service.dto.ArticleFilterDTO;
 import fhdw.de.einkauf_service.dto.ArticleResponseDTO;
 import fhdw.de.einkauf_service.serviceImpl.ArticleServiceImpl;
 
@@ -44,8 +45,12 @@ public class ArticleView extends VerticalLayout {
     }
 
     private void updateList() {
+        // Ein leeres Filter-DTO erstellen.
+        // Da alle Felder null sind, werden alle Artikel zurückgegeben.
+        ArticleFilterDTO emptyFilter = new ArticleFilterDTO();
+
         // Ruft den bestehenden Service auf, um alle Artikel zu holen
-        List<ArticleResponseDTO> articles = articleServiceImpl.findAllArticles();
+        List<ArticleResponseDTO> articles = articleServiceImpl.findFilteredArticles(emptyFilter);
         grid.setItems(articles);
     }
 }

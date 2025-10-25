@@ -1,12 +1,16 @@
 package fhdw.de.einkauf_service.serviceImpl;
 
+import fhdw.de.einkauf_service.dto.ArticleFilterDTO;
 import fhdw.de.einkauf_service.dto.ArticleRequestDTO;
 import fhdw.de.einkauf_service.dto.ArticleResponseDTO;
 import fhdw.de.einkauf_service.entity.Article;
+import fhdw.de.einkauf_service.query.ArticleSpecifications;
 import fhdw.de.einkauf_service.repository.ArticleRepository;
 import fhdw.de.einkauf_service.service.ArticleService;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.stream.Collectors;
@@ -58,11 +62,16 @@ public class ArticleServiceImpl implements ArticleService {
     }
 
     // ==================================================================================
-    // 3. READ ALL (GET)
+    // 3. READ (GET by Filterkriterien, get all ohne Angabe von Filtern)
     // ==================================================================================
     @Override
-    public List<ArticleResponseDTO> findAllArticles() {
-        return articleRepository.findAll().stream()
+    public List<ArticleResponseDTO> findFilteredArticles(ArticleFilterDTO filter) {
+        // 1. Abfrage durchführen
+        Specification<Article> spec = ArticleSpecifications.filterArticles(filter);
+        List<Article> articles = articleRepository.findAll(spec);
+
+        // 2. Mapping HIER im Service durchführen
+        return articles.stream()
                 .map(this::mapEntityToResponse)
                 .collect(Collectors.toList());
     }
@@ -132,6 +141,7 @@ public class ArticleServiceImpl implements ArticleService {
         entity.setSupplier(request.getSupplier());
         entity.setStockLevel(request.getStockLevel());
         entity.setDescription(request.getDescription());
+        entity.setIsAvailable(request.getIsAvailable());
         return entity;
     }
 
@@ -152,7 +162,8 @@ public class ArticleServiceImpl implements ArticleService {
                 entity.getManufacturer(),
                 entity.getSupplier(),
                 entity.getStockLevel(),
-                entity.getDescription()
+                entity.getDescription(),
+                entity.getIsAvailable()
         );
     }
 }

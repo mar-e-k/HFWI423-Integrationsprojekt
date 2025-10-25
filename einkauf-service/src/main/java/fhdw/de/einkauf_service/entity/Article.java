@@ -57,4 +57,7 @@ public class Article {
 
     @Column(length = 1024)
     private String description;
+
+    @Column(nullable = false)
+    private Boolean isAvailable;
 }

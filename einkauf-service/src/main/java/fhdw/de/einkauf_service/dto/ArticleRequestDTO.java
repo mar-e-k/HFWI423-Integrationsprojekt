@@ -4,7 +4,7 @@ import jakarta.validation.constraints.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-//hier dto unbenennen
+
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -42,4 +42,7 @@ public class ArticleRequestDTO {
 
     @Size(max = 1024, message = "Description cannot exceed 1024 characters.")
     private String description;
+
+    @NotNull(message = "Availability is mandatory.")
+    private Boolean isAvailable;
 }
