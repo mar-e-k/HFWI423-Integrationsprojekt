@@ -166,4 +166,20 @@ public class ArticleServiceImpl implements ArticleService {
                 entity.getIsAvailable()
         );
     }
+
+    /**
+     * Ermittelt alle unterschiedlichen Lieferantennamen von derzeit verfügbaren Artikeln.
+     * Wird für das Lieferanten-Dropdown im Frontend verwendet.
+     * @return Alphabetisch sortierte Liste aller eindeutigen Lieferanten, die mindestens einem verfügbaren Artikel zugeordnet sind.
+     */
+    public List<String> findAllSupplierNames() {
+        return articleRepository.findAll()
+                .stream()
+                .filter(Article::getIsAvailable)
+                .map(Article::getSupplier)
+                .distinct()
+                .sorted()
+                .collect(Collectors.toList());
+    }
+
 }
