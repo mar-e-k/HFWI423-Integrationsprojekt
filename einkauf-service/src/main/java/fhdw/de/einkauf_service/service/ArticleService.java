@@ -17,4 +17,6 @@ public interface ArticleService {
     void deleteArticle(Long id);
 
     List<ArticleResponseDTO> findFilteredArticles(ArticleFilterDTO filter);
+
+    List<String> findAllSupplierNames();
 }

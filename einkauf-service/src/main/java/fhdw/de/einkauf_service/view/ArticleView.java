@@ -13,7 +13,8 @@ import com.vaadin.flow.data.value.ValueChangeMode;
 import com.vaadin.flow.router.Route;
 import fhdw.de.einkauf_service.dto.ArticleFilterDTO;
 import fhdw.de.einkauf_service.dto.ArticleResponseDTO;
-import fhdw.de.einkauf_service.serviceImpl.ArticleServiceImpl;
+import fhdw.de.einkauf_service.service.ArticleService;
+
 import java.util.List;
 
 /**
@@ -26,8 +27,8 @@ import java.util.List;
 @Route("") // Startseite unter http://localhost:8080
 public class ArticleView extends VerticalLayout {
 
-    // Service wird per Dependency Injection bereitgestellt (Spring)
-    private final ArticleServiceImpl articleServiceImpl;
+    // Service-Interface wird per Dependency Injection bereitgestellt (Spring)
+    private final ArticleService articleService;
     // Grid für die Anzeige der Artikel
     private final Grid<ArticleResponseDTO> grid = new Grid<>(ArticleResponseDTO.class);
 
@@ -45,8 +46,8 @@ public class ArticleView extends VerticalLayout {
      * - Lädt alle Lieferanten als Auswahlmöglichkeiten in die ComboBox
      * - Setzt Daten und UI-Layout
      */
-    public ArticleView(ArticleServiceImpl articleServiceImpl) {
-        this.articleServiceImpl = articleServiceImpl;
+    public ArticleView(ArticleService articleService) {
+        this.articleService = articleService;
 
         setSizeFull();
         setAlignItems(Alignment.CENTER);
@@ -58,7 +59,7 @@ public class ArticleView extends VerticalLayout {
         configureGrid();
 
         // Lieferanten-Dropdown initial einmalig befüllen
-        supplierBox.setItems(articleServiceImpl.findAllSupplierNames());
+        supplierBox.setItems(articleService.findAllSupplierNames());
         supplierBox.setClearButtonVisible(true);
 
         // Filterfelder dynamisch verknüpfen
@@ -136,7 +137,7 @@ public class ArticleView extends VerticalLayout {
         filter.setSupplier(supplierBox.getValue());
         filter.setIsAvailable(true);
 
-        List<ArticleResponseDTO> articles = articleServiceImpl.findFilteredArticles(filter);
+        List<ArticleResponseDTO> articles = articleService.findFilteredArticles(filter);
         grid.setItems(articles);
     }
 

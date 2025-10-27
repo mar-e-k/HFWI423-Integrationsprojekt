@@ -172,6 +172,7 @@ public class ArticleServiceImpl implements ArticleService {
      * Wird für das Lieferanten-Dropdown im Frontend verwendet.
      * @return Alphabetisch sortierte Liste aller eindeutigen Lieferanten, die mindestens einem verfügbaren Artikel zugeordnet sind.
      */
+    @Override
     public List<String> findAllSupplierNames() {
         return articleRepository.findAll()
                 .stream()
