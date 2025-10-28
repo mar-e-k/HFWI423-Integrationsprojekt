@@ -15,6 +15,9 @@
         <java.version>21</java.version>
         <spring-boot.version>3.5.6</spring-boot.version>
         <vaadin.version>24.9.1</vaadin.version>
+        <maven.version>3.14.1</maven.version>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
     </properties>
 
     <dependencyManagement>
@@ -82,15 +85,32 @@
 
     <build>
         <plugins>
-            <!-- Java Compiler Plugin -->
+            <!-- Maven Compiler Plugin -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.11.0</version>
+                <version>${maven.version}</version>
                 <configuration>
                     <source>${java.version}</source>
                     <target>${java.version}</target>
-                    <release>${java.version}</release>
+                </configuration>
+            </plugin>
+            <!-- Spring Boot Plugin -->
+            <plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+                <version>${spring-boot.version}</version>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>repackage</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <image>
+                        <name>ghcr.io/caius00/iiprojekt:latest</name>
+                    </image>
                 </configuration>
             </plugin>
             <!-- Vaadin Plugin -->
