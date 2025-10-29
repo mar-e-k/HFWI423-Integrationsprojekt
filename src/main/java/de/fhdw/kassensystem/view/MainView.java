@@ -15,7 +15,7 @@ public class MainView extends VerticalLayout implements BeforeEnterObserver {
     @Override
     public void beforeEnter(BeforeEnterEvent event) {
         boolean isAdmin = SecurityContextHolder.getContext().getAuthentication().getAuthorities().stream()
-                .anyMatch(r -> r.getAuthority().equals(Roles.ADMIN.name()));
+                .anyMatch(r -> r.getAuthority().equals("ROLE_ADMIN"));
 
         // Weiterleitung zur richtigen View, falls Admin dann dahin, sonst immer zur CashierView
         if (isAdmin) {
