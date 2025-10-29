@@ -1,5 +1,8 @@
 package fhdw.de.einkauf_service.serviceImpl;
 
+import com.vaadin.flow.server.auth.AnonymousAllowed;
+import com.vaadin.hilla.BrowserCallable;
+import com.vaadin.hilla.crud.CrudRepositoryService;
 import fhdw.de.einkauf_service.dto.ArticleFilterDTO;
 import fhdw.de.einkauf_service.dto.ArticleRequestDTO;
 import fhdw.de.einkauf_service.dto.ArticleResponseDTO;
@@ -7,6 +10,8 @@ import fhdw.de.einkauf_service.entity.Article;
 import fhdw.de.einkauf_service.query.ArticleSpecifications;
 import fhdw.de.einkauf_service.repository.ArticleRepository;
 import fhdw.de.einkauf_service.service.ArticleService;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -15,8 +20,10 @@ import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.stream.Collectors;
 
+@BrowserCallable
+@AnonymousAllowed
 @Service
-public class ArticleServiceImpl implements ArticleService {
+public class ArticleServiceImpl extends CrudRepositoryService<Article, Long, ArticleRepository> implements ArticleService {
 
     private final ArticleRepository articleRepository;
 
@@ -29,6 +36,7 @@ public class ArticleServiceImpl implements ArticleService {
     // ==================================================================================
     @Transactional
     @Override
+    @CacheEvict(value = "articleSearch", allEntries = true)
     public ArticleResponseDTO createNewArticle(ArticleRequestDTO newArticleRequestDTO) {
 
         // 1. DTO zu Entity mappen
@@ -65,6 +73,7 @@ public class ArticleServiceImpl implements ArticleService {
     // 3. READ (GET by Filterkriterien, get all ohne Angabe von Filtern)
     // ==================================================================================
     @Override
+    @Cacheable(value = "articleSearch")
     public List<ArticleResponseDTO> findFilteredArticles(ArticleFilterDTO filter) {
         // 1. Abfrage durchführen
         Specification<Article> spec = ArticleSpecifications.filterArticles(filter);
@@ -81,6 +90,7 @@ public class ArticleServiceImpl implements ArticleService {
     // ==================================================================================
     @Transactional
     @Override
+    @CacheEvict(value = "articleSearch", allEntries = true)
     public ArticleResponseDTO updateArticle(Long id, ArticleRequestDTO updatedArticleRequestDTO) {
 
         // 1. Artikel finden (Sicherstellen, dass die ID existiert)
@@ -114,6 +124,7 @@ public class ArticleServiceImpl implements ArticleService {
     // ==================================================================================
     @Transactional
     @Override
+    @CacheEvict(value = "articleSearch", allEntries = true)
     public void deleteArticle(Long id) {
         if (!articleRepository.existsById(id)) {
             throw new NoSuchElementException("Article with ID " + id + " not found.");
@@ -173,6 +184,7 @@ public class ArticleServiceImpl implements ArticleService {
      * @return Alphabetisch sortierte Liste aller eindeutigen Lieferanten, die mindestens einem verfügbaren Artikel zugeordnet sind.
      */
     @Override
+    @CacheEvict(value = "allSuppliers", allEntries = true)
     public List<String> findAllSupplierNames() {
         return articleRepository.findAll()
                 .stream()
