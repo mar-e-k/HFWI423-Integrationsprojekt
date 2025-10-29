@@ -1,18 +1,29 @@
 package fhdw.de.einkauf_service.serviceImpl;
 
+import com.vaadin.flow.server.auth.AnonymousAllowed;
+import com.vaadin.hilla.BrowserCallable;
+import com.vaadin.hilla.crud.CrudRepositoryService;
+import fhdw.de.einkauf_service.dto.ArticleFilterDTO;
 import fhdw.de.einkauf_service.dto.ArticleRequestDTO;
 import fhdw.de.einkauf_service.dto.ArticleResponseDTO;
 import fhdw.de.einkauf_service.entity.Article;
+import fhdw.de.einkauf_service.query.ArticleSpecifications;
 import fhdw.de.einkauf_service.repository.ArticleRepository;
 import fhdw.de.einkauf_service.service.ArticleService;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.stream.Collectors;
 
+@BrowserCallable
+@AnonymousAllowed
 @Service
-public class ArticleServiceImpl implements ArticleService {
+public class ArticleServiceImpl extends CrudRepositoryService<Article, Long, ArticleRepository> implements ArticleService {
 
     private final ArticleRepository articleRepository;
 
@@ -25,6 +36,7 @@ public class ArticleServiceImpl implements ArticleService {
     // ==================================================================================
     @Transactional
     @Override
+    @CacheEvict(value = "articleSearch", allEntries = true)
     public ArticleResponseDTO createNewArticle(ArticleRequestDTO newArticleRequestDTO) {
 
         // 1. DTO zu Entity mappen
@@ -58,11 +70,17 @@ public class ArticleServiceImpl implements ArticleService {
     }
 
     // ==================================================================================
-    // 3. READ ALL (GET)
+    // 3. READ (GET by Filterkriterien, get all ohne Angabe von Filtern)
     // ==================================================================================
     @Override
-    public List<ArticleResponseDTO> findAllArticles() {
-        return articleRepository.findAll().stream()
+    @Cacheable(value = "articleSearch")
+    public List<ArticleResponseDTO> findFilteredArticles(ArticleFilterDTO filter) {
+        // 1. Abfrage durchführen
+        Specification<Article> spec = ArticleSpecifications.filterArticles(filter);
+        List<Article> articles = articleRepository.findAll(spec);
+
+        // 2. Mapping HIER im Service durchführen
+        return articles.stream()
                 .map(this::mapEntityToResponse)
                 .collect(Collectors.toList());
     }
@@ -72,6 +90,7 @@ public class ArticleServiceImpl implements ArticleService {
     // ==================================================================================
     @Transactional
     @Override
+    @CacheEvict(value = "articleSearch", allEntries = true)
     public ArticleResponseDTO updateArticle(Long id, ArticleRequestDTO updatedArticleRequestDTO) {
 
         // 1. Artikel finden (Sicherstellen, dass die ID existiert)
@@ -105,6 +124,7 @@ public class ArticleServiceImpl implements ArticleService {
     // ==================================================================================
     @Transactional
     @Override
+    @CacheEvict(value = "articleSearch", allEntries = true)
     public void deleteArticle(Long id) {
         if (!articleRepository.existsById(id)) {
             throw new NoSuchElementException("Article with ID " + id + " not found.");
@@ -132,6 +152,7 @@ public class ArticleServiceImpl implements ArticleService {
         entity.setSupplier(request.getSupplier());
         entity.setStockLevel(request.getStockLevel());
         entity.setDescription(request.getDescription());
+        entity.setIsAvailable(request.getIsAvailable());
         return entity;
     }
 
@@ -152,7 +173,26 @@ public class ArticleServiceImpl implements ArticleService {
                 entity.getManufacturer(),
                 entity.getSupplier(),
                 entity.getStockLevel(),
-                entity.getDescription()
+                entity.getDescription(),
+                entity.getIsAvailable()
         );
     }
+
+    /**
+     * Ermittelt alle unterschiedlichen Lieferantennamen von derzeit verfügbaren Artikeln.
+     * Wird für das Lieferanten-Dropdown im Frontend verwendet.
+     * @return Alphabetisch sortierte Liste aller eindeutigen Lieferanten, die mindestens einem verfügbaren Artikel zugeordnet sind.
+     */
+    @Override
+    @CacheEvict(value = "allSuppliers", allEntries = true)
+    public List<String> findAllSupplierNames() {
+        return articleRepository.findAll()
+                .stream()
+                .filter(Article::getIsAvailable)
+                .map(Article::getSupplier)
+                .distinct()
+                .sorted()
+                .collect(Collectors.toList());
+    }
+
 }

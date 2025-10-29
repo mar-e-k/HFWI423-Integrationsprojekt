@@ -39,7 +39,7 @@ public class ArticleServiceTest {
         // Beispiel-Request-DTO erstellen
         validRequest = new ArticleRequestDTO(
                 "4008400403337", "Test Schokoriegel", "STK",
-                10.00, 19.0, "Hersteller X", "Lieferant Y", 100, "Beschreibung"
+                10.00, 19.0, "Hersteller X", "Lieferant Y", 100, "Beschreibung", true
         );
 
         // Entität, die das Repository nach dem Speichern zurückgeben würde
@@ -110,7 +110,7 @@ public class ArticleServiceTest {
         // ARRANGE: Setze den neuen Einkaufspreis im Request für den Update-Test
         ArticleRequestDTO updateRequest = new ArticleRequestDTO(
                 "4008400403337", "Geänderter Name", "STK",
-                20.00, 10.0, "Hersteller X", "Lieferant Y", 100, "Beschreibung"
+                20.00, 10.0, "Hersteller X", "Lieferant Y", 100, "Beschreibung",true
         );
 
         // Die Entity, die das Mock-Repository beim findById zurückgibt (alter Zustand)

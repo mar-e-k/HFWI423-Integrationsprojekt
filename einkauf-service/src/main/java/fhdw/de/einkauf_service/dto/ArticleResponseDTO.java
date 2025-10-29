@@ -26,4 +26,5 @@ public class ArticleResponseDTO {
     private String supplier;
     private Integer stockLevel;
     private String description;
+    private Boolean isAvailable;
 }

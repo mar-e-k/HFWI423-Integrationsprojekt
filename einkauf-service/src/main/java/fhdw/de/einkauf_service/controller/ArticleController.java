@@ -1,5 +1,6 @@
 package fhdw.de.einkauf_service.controller;
 
+import fhdw.de.einkauf_service.dto.ArticleFilterDTO;
 import fhdw.de.einkauf_service.dto.ArticleRequestDTO;
 import fhdw.de.einkauf_service.dto.ArticleResponseDTO;
 import fhdw.de.einkauf_service.service.ArticleService;
@@ -38,13 +39,17 @@ public class ArticleController {
     }
 
     // ==================================================================================
-    // 2. READ ALL (GET)
+    // 2. READ by filter (GET)
     // Gibt eine Liste von ArticleResponse zurück
     // ==================================================================================
     @GetMapping
-    public ResponseEntity<List<ArticleResponseDTO>> getAllArticles() {
-        List<ArticleResponseDTO> articles = articleService.findAllArticles();
-        return ResponseEntity.ok(articles); // 200 OK
+    public ResponseEntity<List<ArticleResponseDTO>> searchArticles(ArticleFilterDTO filter) {
+
+        // 1. Service aufrufen: Der Service liefert bereits die gemappten DTOs
+        List<ArticleResponseDTO> responseDTOs = articleService.findFilteredArticles(filter);
+
+        // 2. Antwort zurückgeben (direkt)
+        return ResponseEntity.ok(responseDTOs);
     }
 
     // ==================================================================================
