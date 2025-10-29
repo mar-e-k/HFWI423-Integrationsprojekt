@@ -11,20 +11,18 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 public abstract class BaseView extends VerticalLayout {
 
     public BaseView() {
-        // Top Bar Setup
+        // Top Bar
         HorizontalLayout topBar = new HorizontalLayout();
         topBar.setWidthFull();
         topBar.setJustifyContentMode(FlexComponent.JustifyContentMode.BETWEEN);
         topBar.setAlignItems(FlexComponent.Alignment.CENTER);
 
-        // Title wird von der Subklasse geholt
+        // Titel wird von der Subklasse geholt
         H1 viewTitle = new H1(getViewTitle());
         topBar.add(viewTitle);
 
         // Logout Button
-        Button logoutButton = new Button("Logout", e -> {
-            UI.getCurrent().getPage().setLocation("/logout");
-        });
+        Button logoutButton = new Button("Logout", e -> UI.getCurrent().getPage().setLocation("/logout"));
         topBar.add(logoutButton);
 
         add(topBar);
