@@ -11,10 +11,13 @@ import java.util.List;
 @RolesAllowed("CASHIER")
 public class CashierView extends BaseView {
 
-    public CashierView() {
-        super();
-        setViewTitle("Kassenansicht");
+    @Override
+    protected String getViewTitle() {
+        return "Kassenansicht";
+    }
 
+    @Override
+    protected void initView() {
         // Hier kommt die weitere Cashier-Implementierung hin
     }
 

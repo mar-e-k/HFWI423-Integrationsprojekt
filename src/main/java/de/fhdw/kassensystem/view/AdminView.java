@@ -7,10 +7,13 @@ import jakarta.annotation.security.RolesAllowed;
 @RolesAllowed("ADMIN")
 public class AdminView extends BaseView {
 
-    public AdminView() {
-        super();
-        setViewTitle("Admin-Dashboard");
+    @Override
+    protected String getViewTitle() {
+        return "Admin-Dashboard";
+    }
 
+    @Override
+    protected void initView() {
         // Hier kommt die weitere Admin-Implementierung hin
     }
 }
