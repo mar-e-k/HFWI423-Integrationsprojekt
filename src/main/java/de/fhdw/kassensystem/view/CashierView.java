@@ -9,7 +9,7 @@ public class CashierView extends BaseView {
 
     @Override
     protected String getViewTitle() {
-        return "Kassenansicht";
+        return "Kassen-Dashboard";
     }
 
     @Override
