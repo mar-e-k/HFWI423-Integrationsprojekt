@@ -23,14 +23,10 @@ public class ArticleService {
     }
 
     public List<Article> findAll() {
-        List<Article> articles = articleRepository.findAll();
-        log.info("{} Artikel aus der Datenbank geladen.", articles.size());
-        return articles;
+        return articleRepository.findAll();
     }
 
     public List<Article> searchByName(String searchTerm) {
-        List<Article> articles = articleRepository.findByNameContainingIgnoreCase(searchTerm);
-        log.info("{} Artikel für den Suchbegriff '{}' gefunden.", articles.size(), searchTerm);
-        return articles;
+        return articleRepository.findByNameContainingIgnoreCase(searchTerm);
     }
 }
