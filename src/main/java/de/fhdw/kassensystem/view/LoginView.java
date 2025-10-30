@@ -4,11 +4,13 @@ import com.vaadin.flow.component.html.H1;
 import com.vaadin.flow.component.login.LoginForm;
 import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import jakarta.annotation.security.PermitAll;
 
-@Route("login")
+@Route("/login")
 @PermitAll // Wichtig: Erlaubt jedem, die Login-Seite zu sehen
+@PageTitle("Login View")
 public class LoginView extends VerticalLayout {
 
     public LoginView() {

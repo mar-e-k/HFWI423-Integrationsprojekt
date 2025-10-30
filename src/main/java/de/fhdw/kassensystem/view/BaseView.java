@@ -22,7 +22,7 @@ public abstract class BaseView extends VerticalLayout {
         topBar.setAlignItems(FlexComponent.Alignment.CENTER);
 
         // Titel wird von der Subklasse geholt
-        H1 viewTitle = new H1(getViewTitle());
+        H1 viewTitle = new H1(setTopbarTitle());
 
         // Live-Uhr und Datumsanzeige
         Span liveClockLabel = new Span();
@@ -68,16 +68,16 @@ public abstract class BaseView extends VerticalLayout {
         """);
 
         // Subklasse fügt ihren spezifischen Inhalt hinzu
-        initView();
+        init();
 
         setAlignItems(FlexComponent.Alignment.CENTER);
     }
 
      // Subklassen müssen diese Methode implementieren, um den Titel für die Ansicht zu erstellen.
 
-    protected abstract String getViewTitle();
+    protected abstract String setTopbarTitle();
 
     // Subklassen müssen diese Methode implementieren, um ihre spezifische UI hinzuzufügen.
 
-    protected abstract void initView();
+    protected abstract void init();
 }

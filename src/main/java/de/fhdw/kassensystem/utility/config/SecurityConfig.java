@@ -1,4 +1,4 @@
-package de.fhdw.kassensystem.config;
+package de.fhdw.kassensystem.utility.config;
 
 import com.vaadin.flow.spring.security.VaadinAwareSecurityContextHolderStrategyConfiguration;
 import com.vaadin.flow.spring.security.VaadinSecurityConfigurer;
@@ -45,12 +45,12 @@ public class SecurityConfig {
     public UserDetailsService userDetailsService(PasswordEncoder passwordEncoder) {
         UserDetails cashier = User.withUsername("cashier")
                 .password(passwordEncoder.encode("password"))
-                .roles(Roles.CASHIER.name())
+                .roles(Roles.Type.CASHIER)
                 .build();
 
         UserDetails admin = User.withUsername("admin")
                 .password(passwordEncoder.encode("password"))
-                .roles(Roles.ADMIN.name())
+                .roles(Roles.Type.ADMIN)
                 .build();
 
         return new InMemoryUserDetailsManager(cashier, admin);
