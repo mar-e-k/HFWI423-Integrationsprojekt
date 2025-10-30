@@ -2,10 +2,13 @@ package de.fhdw.kassensystem.view;
 
 import com.vaadin.flow.component.html.H1;
 import com.vaadin.flow.component.login.LoginForm;
+import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.Route;
+import jakarta.annotation.security.PermitAll;
 
 @Route("login")
+@PermitAll // Wichtig: Erlaubt jedem, die Login-Seite zu sehen
 public class LoginView extends VerticalLayout {
 
     public LoginView() {
@@ -13,6 +16,13 @@ public class LoginView extends VerticalLayout {
 
         LoginForm loginForm = new LoginForm();
         loginForm.setAction("login");
+
+        // Event-Listener für den "Passwort vergessen"-Button hinzufügen
+        loginForm.addForgotPasswordListener(event -> {
+            Notification.show("Pech gehabt! Spaß kontaktiere Erik oder Rohid um das Passwort zu erhalten",
+                              5000, // Dauer in Millisekunden
+                              Notification.Position.MIDDLE);
+        });
 
         add(title, loginForm);
         setAlignItems(Alignment.CENTER);
