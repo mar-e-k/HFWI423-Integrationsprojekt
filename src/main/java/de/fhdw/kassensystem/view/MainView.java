@@ -4,8 +4,8 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.BeforeEnterEvent;
 import com.vaadin.flow.router.BeforeEnterObserver;
 import com.vaadin.flow.router.Route;
-import de.fhdw.kassensystem.config.Roles;
 import jakarta.annotation.security.PermitAll;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 
 @Route("")
@@ -14,14 +14,22 @@ public class MainView extends VerticalLayout implements BeforeEnterObserver {
 
     @Override
     public void beforeEnter(BeforeEnterEvent event) {
-        boolean isAdmin = SecurityContextHolder.getContext().getAuthentication().getAuthorities().stream()
-                .anyMatch(r -> r.getAuthority().equals("ROLE_ADMIN"));
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 
-        // Weiterleitung zur richtigen View, falls Admin dann dahin, sonst immer zur CashierView
-        if (isAdmin) {
-            event.rerouteTo(AdminView.class);
+        // Prüfe, ob der Benutzer authentifiziert und kein anonymer Benutzer ist
+        if (auth != null && auth.isAuthenticated() && !auth.getName().equals("anonymousUser")) {
+            // Benutzer ist eingeloggt, prüfe die Rolle
+            boolean isAdmin = auth.getAuthorities().stream()
+                    .anyMatch(r -> r.getAuthority().equals("ROLE_ADMIN"));
+
+            if (isAdmin) {
+                event.rerouteTo(AdminView.class);
+            } else {
+                event.rerouteTo(CashierView.class);
+            }
         } else {
-            event.rerouteTo(CashierView.class);
+            // Benutzer ist nicht eingeloggt, leite direkt zum Login weiter
+            event.rerouteTo(LoginView.class);
         }
     }
 }
