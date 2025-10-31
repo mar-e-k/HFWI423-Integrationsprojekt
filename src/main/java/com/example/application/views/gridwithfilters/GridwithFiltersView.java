@@ -5,7 +5,6 @@ import com.example.application.services.ArticleInfoService;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
-import com.vaadin.flow.component.datepicker.DatePicker;
 import com.vaadin.flow.component.dependency.Uses;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.GridVariant;
@@ -14,11 +13,9 @@ import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
-import com.vaadin.flow.component.orderedlayout.FlexLayout;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
-import com.vaadin.flow.data.renderer.LocalDateRenderer;
 import com.vaadin.flow.router.Menu;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
@@ -31,7 +28,6 @@ import jakarta.persistence.criteria.Root;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Locale;
 
 import org.springframework.data.jpa.domain.Specification;
 import org.vaadin.lineawesome.LineAwesomeIconUrl;
@@ -272,92 +268,135 @@ public class GridwithFiltersView extends Div {
         }
     }
 
+    /**
+     * Erstellt das Grid zur Anzeige von {@link ArticleInfo}.
+     * Definiert Spalten, Header, Sortierung und Layout.
+     *
+     * @return das konfigurierte Grid als Component
+     */
     private Component createGrid() {
 
         grid = new Grid<>(ArticleInfo.class, false);
 
+        // Spalte: Artikelname (Text)
         grid.addColumn(ArticleInfo::getArticleName)
                 .setHeader("Artikelname")
-                .setKey("articleName")
-                .setAutoWidth(true)
+                .setKey("articleName")     // Key für spätere Referenzen/Tests
+                .setAutoWidth(true)        // passt sich Inhalt an, verhindert horizontales Scrollen
                 .setSortable(true);
 
+        // Spalte: Artikelnummer (Integer)
         grid.addColumn(ArticleInfo::getArticleNumber)
                 .setHeader("Artikelnummer")
                 .setKey("articleNumber")
                 .setAutoWidth(true)
                 .setSortable(true);
 
+        // Spalte: Bestand (Integer)
         grid.addColumn(ArticleInfo::getInventory)
                 .setHeader("Bestand")
                 .setKey("inventory")
                 .setAutoWidth(true)
                 .setSortable(true);
 
+        // Spalte: Lagerort (Text)
         grid.addColumn(ArticleInfo::getStorageLocation)
                 .setHeader("Lagerort")
                 .setKey("storageLocation")
                 .setAutoWidth(true)
                 .setSortable(true);
-        grid.addThemeVariants(GridVariant.LUMO_ROW_STRIPES, GridVariant.LUMO_WRAP_CELL_CONTENT);
+
+        // Optik/Lesbarkeit: verschiedenfarbige Streifen + Umbruch langer Inhalte
+        grid.addThemeVariants(
+                GridVariant.LUMO_ROW_STRIPES,
+                GridVariant.LUMO_WRAP_CELL_CONTENT
+        );
+
+        // Grid füllt verfügbaren Platz unter Div und Search feldern
         grid.setSizeFull();
+
         return grid;
     }
+
+    /**
+     * Baut den Dialog zum Anlegen eines neuen Artikels.
+     * Enthält Formularfelder, Binder-Validierungen sowie Save/Cancel-Buttons.
+     *
+     * WICHTIG: AddButton ist ein Temporäres Feature.
+     *          Aktuell nur zum hinzufügen eines Artikels zum testen.
+     *
+     * @return konfigurierter Dialog
+     */
     private Dialog buildAddDialog() {
         Dialog dialog = new Dialog();
         dialog.setHeaderTitle("Neuen Artikel anlegen");
 
-        TextField fName = new TextField("Artikelname");
-        fName.setRequired(true);
+        // === Formularfelder ===
 
-        // Zahl statt Text
+        TextField fName = new TextField("Artikelname");
+        fName.setRequired(true); // UI-Hinweis (optische Markierung)
+
+        // Artikelnummer als IntegerField (bessere Validierung & Step-Buttons)
         IntegerField fNumber = new IntegerField("Artikelnummer");
         fNumber.setRequiredIndicatorVisible(true);
-        fNumber.setMin(0);
+        fNumber.setMin(0);                // fachliche Annahme: keine negativen Nummern
         fNumber.setStepButtonsVisible(true);
 
         IntegerField fInventory = new IntegerField("Bestand");
-        fInventory.setMin(0);
+        fInventory.setMin(0);             // Bestand >= 0
         fInventory.setStepButtonsVisible(true);
-        fInventory.setValue(0);
+        fInventory.setValue(0);           // sinnvolle Voreinstellung
 
         TextField fStorage = new TextField("Lagerort");
 
+        // Kompakte Formular-Anordnung
         FormLayout form = new FormLayout(fName, fNumber, fInventory, fStorage);
         dialog.add(form);
 
+        // === Datenbindung & Validierung ===
+
         Binder<ArticleInfo> binder = new Binder<>(ArticleInfo.class);
 
+        // Name: Pflichtfeld
         binder.forField(fName)
                 .asRequired("Bitte Artikelnamen angeben")
                 .bind(ArticleInfo::getArticleName, ArticleInfo::setArticleName);
 
+        // Nummer: Pflichtfeld (IntegerField liefert Integer/Null)
         binder.forField(fNumber)
                 .asRequired("Bitte Artikelnummer angeben")
                 .bind(ArticleInfo::getArticleNumber, ArticleInfo::setArticleNumber);
 
+        // Bestand: >= 0, optional aber validiert, falls gesetzt
         binder.forField(fInventory)
                 .withValidator(v -> v != null && v >= 0, "Bestand ≥ 0")
                 .bind(ArticleInfo::getInventory, ArticleInfo::setInventory);
 
+        // Lagerort: Pflichtfeld
         binder.forField(fStorage)
                 .asRequired("Bitte Lagerort angeben")
                 .bind(ArticleInfo::getStorageLocation, ArticleInfo::setStorageLocation);
 
+        // === Aktionen ===
 
         Button cancel = new Button("Abbrechen", e -> dialog.close());
+
         Button save = new Button("Speichern", e -> {
+            // Neues Bean befüllen
             ArticleInfo bean = new ArticleInfo();
             if (binder.writeBeanIfValid(bean)) {
+                // Persistieren und UI aktualisieren
                 articleInfoService.save(bean);
                 dialog.close();
                 refreshGrid();
                 Notification.show("Artikel gespeichert");
             } else {
+                // Mindestens eine Validierung ist fehlgeschlagen --> Popup
                 Notification.show("Bitte Eingaben prüfen");
             }
         });
-        save.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
+        save.addThemeVariants(ButtonVariant.LUMO_PRIMARY); // visuelle Betonung
+
         dialog.getFooter().add(cancel, save);
         return dialog;
     }
