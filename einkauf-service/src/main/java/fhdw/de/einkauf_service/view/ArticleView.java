@@ -24,7 +24,9 @@ import java.util.List;
  * • Dynamisch filterbar nach Artikelnummer, Name und Lieferant (Dropdown aus allen Lieferanten).
  * • Detaildialog mit allen Feldern beim Klick auf eine Zeile.
  */
-@Route("") // Startseite unter http://localhost:8080
+
+
+@Route(value = "articles", layout =  MainLayout.class)
 public class ArticleView extends VerticalLayout {
 
     // Service-Interface wird per Dependency Injection bereitgestellt (Spring)
