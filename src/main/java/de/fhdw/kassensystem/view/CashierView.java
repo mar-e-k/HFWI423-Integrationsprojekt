@@ -15,6 +15,7 @@ import de.fhdw.kassensystem.persistence.entity.Article;
 import de.fhdw.kassensystem.persistence.service.ArticleService;
 import de.fhdw.kassensystem.utility.config.Roles;
 import jakarta.annotation.security.RolesAllowed;
+import com.vaadin.flow.component.Key;
 
 import java.util.Optional;
 
@@ -53,6 +54,13 @@ public class CashierView extends BaseView {
                 errorLabel.setText("Eingabe muss in Form von 'A-XXXX' oder 'XXXX' sein");
             } else {
                 errorLabel.setText("");
+            }
+        });
+
+        // Add KeyPressListener for Enter key
+        searchField.addKeyPressListener(Key.ENTER, event -> {
+            if (searchButton.isEnabled()) {
+                searchButton.click();
             }
         });
 
