@@ -21,7 +21,7 @@ public class MainView extends VerticalLayout implements BeforeEnterObserver {
         if (auth != null && auth.isAuthenticated() && !auth.getName().equals("anonymousUser")) {
             // Benutzer ist eingeloggt, prüfe die Rolle
             boolean isAdmin = auth.getAuthorities().stream()
-                    .anyMatch(r -> r.getAuthority().equals(Roles.Type.ADMIN));
+                    .anyMatch(r -> r.getAuthority().equals("ROLE_" + Roles.Type.ADMIN));
 
             if (isAdmin) {
                 event.rerouteTo(AdminView.class);
