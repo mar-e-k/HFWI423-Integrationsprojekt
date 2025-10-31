@@ -49,7 +49,7 @@ import com.vaadin.flow.data.binder.Binder;
  * - "Neuen Artikel"-Dialog (lazy initialisiert)
  * </p>
  */
-@PageTitle("Logistik")                 // Titel im Browser-Tab
+@PageTitle("Logistic")                 // Titel im Browser-Tab
 @Route("")                            // Root-Route
 @Menu(order = 0, icon = LineAwesomeIconUrl.FILTER_SOLID)
 @Uses(Icon.class)
@@ -77,7 +77,7 @@ public class GridwithFiltersView extends Div {
         setupDataProvider();
 
         // "Neuen Artikel" Button: öffnet (bzw. erzeugt + öffnet) das Dialogfenster
-        Button addBtn = new Button("Neuen Artikel", e -> {
+        Button addBtn = new Button("New Article", e -> {
             if (addDialog == null) {           // Lazy: nur bei Erstgebrauch bauen
                 addDialog = buildAddDialog();  // Kapselung in Methode hält den ctor schlank
             }
@@ -158,10 +158,10 @@ public class GridwithFiltersView extends Div {
     public static class Filters extends Div implements Specification<ArticleInfo> {
 
         // Eingabekomponenten (sichtbare Filterfelder)
-        private final TextField   articleName     = new TextField("Artikelname");       // Freitext, case-insensitive LIKE
-        private final IntegerField articleNumber  = new IntegerField("Artikelnummer");  // Exakt gleich (=)
-        private final TextField   inventory       = new TextField("Bestand");           // Numerisch, >= Mindestbestand
-        private final TextField   storageLocation = new TextField("Lagerort");          // Freitext, case-insensitive LIKE
+        private final TextField   articleName     = new TextField("Article Name");       // Freitext, case-insensitive LIKE
+        private final IntegerField articleNumber  = new IntegerField("Article Number");  // Exakt gleich (=)
+        private final TextField   inventory       = new TextField("Stock Level");           // Numerisch, >= Mindestbestand
+        private final TextField   storageLocation = new TextField("Storage Location");          // Freitext, case-insensitive LIKE
 
         /**
          * Erstellt die Filterleiste und verbindet die Buttons mit der onSearch Suchaktion.
@@ -181,21 +181,21 @@ public class GridwithFiltersView extends Div {
             );
 
             // === Feld-Konfiguration (Platzhalter & Validierung) ===
-            articleName.setPlaceholder("Name des Artikels");
+            articleName.setPlaceholder("Search Name");
 
-            articleNumber.setPlaceholder("z. B. 12345");
+            articleNumber.setPlaceholder("Search Number");
             articleNumber.setStepButtonsVisible(true); // Bessere Bedienbarkeit für Maus-/Touch-Nutzer
             articleNumber.setMin(0);                   // Fachliche Annahme: keine negativen Artikelnummern
 
-            inventory.setPlaceholder("Mindestbestand"); // Wird später als Integer geparst (mit Fallback)
+            inventory.setPlaceholder("Minimum Inventory"); // Wird später als Integer geparst (mit Fallback)
 
-            storageLocation.setPlaceholder("Lagerort eingeben");
+            storageLocation.setPlaceholder("Search Storage Location");
 
             // === Aktionen ===
 
             // Leert alle Felder. Aktualisiert sofort
             // Anwender sieht Ungefiltertes Ergebnis
-            Button resetBtn = new Button("Felder zurücksetzen", e -> {
+            Button resetBtn = new Button("Reset Search", e -> {
                 articleName.clear();
                 articleNumber.clear();
                 inventory.clear();
@@ -205,7 +205,7 @@ public class GridwithFiltersView extends Div {
             resetBtn.addThemeVariants(ButtonVariant.LUMO_TERTIARY); // Sekundäre/tertiäre Gewichtung im UI
 
             // Startet die Suche mit den aktuell eingegebenen Filterwerten.
-            Button searchBtn = new Button("Artikel suchen", e -> onSearch.run());
+            Button searchBtn = new Button("Search Article", e -> onSearch.run());
             searchBtn.addThemeVariants(ButtonVariant.LUMO_PRIMARY); // Primäre Aktion im UI
 
             // Buttons gruppieren (Abstand festlegen)
@@ -280,28 +280,28 @@ public class GridwithFiltersView extends Div {
 
         // Spalte: Artikelname (Text)
         grid.addColumn(ArticleInfo::getArticleName)
-                .setHeader("Artikelname")
+                .setHeader("Article Name")
                 .setKey("articleName")     // Key für spätere Referenzen/Tests
                 .setAutoWidth(true)        // passt sich Inhalt an, verhindert horizontales Scrollen
                 .setSortable(true);
 
         // Spalte: Artikelnummer (Integer)
         grid.addColumn(ArticleInfo::getArticleNumber)
-                .setHeader("Artikelnummer")
+                .setHeader("Article Number")
                 .setKey("articleNumber")
                 .setAutoWidth(true)
                 .setSortable(true);
 
         // Spalte: Bestand (Integer)
         grid.addColumn(ArticleInfo::getInventory)
-                .setHeader("Bestand")
+                .setHeader("Stock Level")
                 .setKey("inventory")
                 .setAutoWidth(true)
                 .setSortable(true);
 
         // Spalte: Lagerort (Text)
         grid.addColumn(ArticleInfo::getStorageLocation)
-                .setHeader("Lagerort")
+                .setHeader("Storage Location")
                 .setKey("storageLocation")
                 .setAutoWidth(true)
                 .setSortable(true);
@@ -329,25 +329,25 @@ public class GridwithFiltersView extends Div {
      */
     private Dialog buildAddDialog() {
         Dialog dialog = new Dialog();
-        dialog.setHeaderTitle("Neuen Artikel anlegen");
+        dialog.setHeaderTitle("Add new Article");
 
         // === Formularfelder ===
 
-        TextField fName = new TextField("Artikelname");
+        TextField fName = new TextField("Article Name");
         fName.setRequired(true); // UI-Hinweis (optische Markierung)
 
         // Artikelnummer als IntegerField (bessere Validierung & Step-Buttons)
-        IntegerField fNumber = new IntegerField("Artikelnummer");
+        IntegerField fNumber = new IntegerField("Article Number");
         fNumber.setRequiredIndicatorVisible(true);
         fNumber.setMin(0);                // fachliche Annahme: keine negativen Nummern
         fNumber.setStepButtonsVisible(true);
 
-        IntegerField fInventory = new IntegerField("Bestand");
+        IntegerField fInventory = new IntegerField("Stock Level");
         fInventory.setMin(0);             // Bestand >= 0
         fInventory.setStepButtonsVisible(true);
         fInventory.setValue(0);           // sinnvolle Voreinstellung
 
-        TextField fStorage = new TextField("Lagerort");
+        TextField fStorage = new TextField("Storage Location");
 
         // Kompakte Formular-Anordnung
         FormLayout form = new FormLayout(fName, fNumber, fInventory, fStorage);
@@ -359,29 +359,29 @@ public class GridwithFiltersView extends Div {
 
         // Name: Pflichtfeld
         binder.forField(fName)
-                .asRequired("Bitte Artikelnamen angeben")
+                .asRequired("Enter Article Name")
                 .bind(ArticleInfo::getArticleName, ArticleInfo::setArticleName);
 
         // Nummer: Pflichtfeld (IntegerField liefert Integer/Null)
         binder.forField(fNumber)
-                .asRequired("Bitte Artikelnummer angeben")
+                .asRequired("Enter Article Number")
                 .bind(ArticleInfo::getArticleNumber, ArticleInfo::setArticleNumber);
 
         // Bestand: >= 0, optional aber validiert, falls gesetzt
         binder.forField(fInventory)
-                .withValidator(v -> v != null && v >= 0, "Bestand ≥ 0")
+                .withValidator(v -> v != null && v >= 0, "Stock Level ≥ 0")
                 .bind(ArticleInfo::getInventory, ArticleInfo::setInventory);
 
         // Lagerort: Pflichtfeld
         binder.forField(fStorage)
-                .asRequired("Bitte Lagerort angeben")
+                .asRequired("Enter Storage Location")
                 .bind(ArticleInfo::getStorageLocation, ArticleInfo::setStorageLocation);
 
         // === Aktionen ===
 
-        Button cancel = new Button("Abbrechen", e -> dialog.close());
+        Button cancel = new Button("Cancel", e -> dialog.close());
 
-        Button save = new Button("Speichern", e -> {
+        Button save = new Button("Save", e -> {
             // Neues Bean befüllen
             ArticleInfo bean = new ArticleInfo();
             if (binder.writeBeanIfValid(bean)) {
@@ -389,10 +389,10 @@ public class GridwithFiltersView extends Div {
                 articleInfoService.save(bean);
                 dialog.close();
                 refreshGrid();
-                Notification.show("Artikel gespeichert");
+                Notification.show("Article Saved");
             } else {
                 // Mindestens eine Validierung ist fehlgeschlagen --> Popup
-                Notification.show("Bitte Eingaben prüfen");
+                Notification.show("Wrong Inputs. Please check Input fields");
             }
         });
         save.addThemeVariants(ButtonVariant.LUMO_PRIMARY); // visuelle Betonung

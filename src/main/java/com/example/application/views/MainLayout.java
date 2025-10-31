@@ -45,7 +45,7 @@ public class MainLayout extends AppLayout implements AfterNavigationObserver {
     }
 
     private void addDrawerContent() {
-        Span appName = new Span("Logistik");
+        Span appName = new Span("Logistic");
         appName.addClassNames(LumoUtility.FontWeight.SEMIBOLD, LumoUtility.FontSize.LARGE);
         Header header = new Header(appName);
 
