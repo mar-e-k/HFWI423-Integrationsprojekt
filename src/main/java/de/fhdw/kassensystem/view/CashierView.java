@@ -1,6 +1,7 @@
 package de.fhdw.kassensystem.view;
 
 import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
@@ -16,7 +17,7 @@ import de.fhdw.kassensystem.persistence.service.ArticleService;
 import de.fhdw.kassensystem.utility.config.Roles;
 import jakarta.annotation.security.RolesAllowed;
 import com.vaadin.flow.component.Key;
-
+import java.util.Collections;
 import java.util.Optional;
 
 @Route("/cashier")
@@ -25,6 +26,8 @@ import java.util.Optional;
 public class CashierView extends BaseView {
 
     private final ArticleService articleService;
+    private Grid<Article> articleGrid;
+    private TextArea descriptionOutputField;
 
     public CashierView(ArticleService articleService) {
         this.articleService = articleService;
@@ -37,13 +40,35 @@ public class CashierView extends BaseView {
 
     @Override
     protected void init() {
-        // --- Components ---
-        TextField searchField = new TextField("Artikelnummer Eingabefeld");
+        // Komponenten
+        TextField searchField = new TextField("Artikelnummer");
         Button searchButton = new Button("Suchen", new Icon(VaadinIcon.SEARCH));
-        TextArea outputField = new TextArea("Artikeldetails");
         Span errorLabel = new Span();
 
+        // Grid Initialisierung
+        articleGrid = new Grid<>(Article.class, false);
+        articleGrid.setHeight("auto"); // Setzt die Höhe automatisch
+        articleGrid.setAllRowsVisible(true); // Zeigt alle Zeilen an, ohne Scrollbalken
+        articleGrid.setSelectionMode(Grid.SelectionMode.NONE);
+        articleGrid.setVisible(false); // Initial unsichtbar
+
+        // Artikelbeschreibung Initialisierung
+        descriptionOutputField = new TextArea("Artikelbeschreibung"); // Titel angepasst
+        descriptionOutputField.setReadOnly(true);
+        descriptionOutputField.setWidth("965px"); // Feste Breite für das Beschreibungsfeld
+        descriptionOutputField.setHeight("60px"); // Höhe automatisch an Inhalt anpassen
+        descriptionOutputField.setVisible(false); // Initial unsichtbar
+
+        // Grid-Spalten Definierung
+        articleGrid.addColumn(Article::getName).setHeader("Artikelname");
+        articleGrid.addColumn(Article::getArticleNumber).setHeader("Artikelnummer");
+        articleGrid.addColumn(article -> article.getSellingPrice() + " €").setHeader("Verkaufspreis");
+        articleGrid.addColumn(article -> article.getStockLevel() + " Stück").setHeader("Lagerbestand");
+        articleGrid.addColumn(article -> article.getIsAvailable() ? "ja" : "nein").setHeader("Verfügbar");
+        articleGrid.addColumn(article -> article.getTaxRatePercent() + " %").setHeader("Steuersatz");
+
         searchField.setValueChangeMode(ValueChangeMode.LAZY);
+        searchField.setWidth("300px"); // Feste Breite für das Suchfeld
         searchButton.setEnabled(false);
         searchField.addValueChangeListener(event -> {
             String value = event.getValue();
@@ -52,12 +77,16 @@ public class CashierView extends BaseView {
 
             if (!validInput && !value.isEmpty()) {
                 errorLabel.setText("Eingabe muss in Form von 'A-XXXX' oder 'XXXX' sein");
+                descriptionOutputField.clear();
+                descriptionOutputField.setVisible(false); // Unsichtbar bei ungültiger Eingabe
+                articleGrid.setItems(Collections.emptyList()); // Grid leeren
+                articleGrid.setVisible(false); // Unsichtbar bei ungültiger Eingabe
             } else {
                 errorLabel.setText("");
             }
         });
 
-        // Add KeyPressListener for Enter key
+        // Enter-Taste Listener
         searchField.addKeyPressListener(Key.ENTER, event -> {
             if (searchButton.isEnabled()) {
                 searchButton.click();
@@ -68,42 +97,42 @@ public class CashierView extends BaseView {
             String input = searchField.getValue().trim();
             if (input.isEmpty()) {
                 errorLabel.setText("Eingabe darf nicht leer sein");
+                descriptionOutputField.clear();
+                descriptionOutputField.setVisible(false); // Unsichtbar bei leerer Eingabe
+                articleGrid.setItems(Collections.emptyList()); // Grid leeren
+                articleGrid.setVisible(false); // Unsichtbar bei leerer Eingabe
                 return;
-            } else {
-                input = input.matches("\\d+") ? "A-" + input : input; //Transform XXXX -> A-XXXX
             }
+            input = input.matches("\\d+") ? "A-" + input : input; //Transform XXXX -> A-XXXX
+
             Optional<Article> article = articleService.findByArticleNumber(input);
             if (article.isPresent()) {
                 searchField.clear();
                 errorLabel.setText("");
-                outputField.setVisible(true);
-                outputField.setValue(article.get().toString());
+                descriptionOutputField.setValue(article.get().getDescription());
+                descriptionOutputField.setVisible(true); // Sichtbar bei gefundenem Artikel
+                articleGrid.setItems(Collections.singletonList(article.get()));
+                articleGrid.setVisible(true); // Sichtbar bei gefundenem Artikel
             } else {
-                errorLabel.setText("Artikel nicht gefunden");
-                outputField.clear();
-                outputField.setVisible(false);
+                errorLabel.setText("Artikel nicht gefunden"); // Fehlermeldung in errorLabel
+                descriptionOutputField.clear(); // Beschreibung leeren
+                descriptionOutputField.setVisible(false); // Unsichtbar bei nicht gefundenem Artikel
+                articleGrid.setItems(Collections.emptyList());
+                articleGrid.setVisible(false); // Unsichtbar bei nicht gefundenem Artikel
             }
         });
-
-        outputField.setReadOnly(true);
-        outputField.setVisible(false);
-        outputField.setWidthFull();
 
         errorLabel.getStyle().set("color", "red");
         errorLabel.setWidthFull();
 
         // --- Layout ---
-        HorizontalLayout searchLayout = new HorizontalLayout(searchField, searchButton);
-
-        searchLayout.setAlignItems(Alignment.END);
-        searchLayout.setWidthFull();
-        searchField.setWidth("300px");
-        searchButton.setWidth("120px");
+        HorizontalLayout searchInputAndDescriptionLayout = new HorizontalLayout(searchField, searchButton, descriptionOutputField);
+        searchInputAndDescriptionLayout.setAlignItems(Alignment.END);
 
         VerticalLayout mainLayout = new VerticalLayout(
-                searchLayout,
+                searchInputAndDescriptionLayout,
                 errorLabel,
-                outputField
+                articleGrid
         );
 
         mainLayout.setWidthFull();
