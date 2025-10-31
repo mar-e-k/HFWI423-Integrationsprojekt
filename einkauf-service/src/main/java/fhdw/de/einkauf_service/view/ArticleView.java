@@ -38,6 +38,9 @@ public class ArticleView extends VerticalLayout {
     private final ComboBox<String> supplierBox = new ComboBox<>("Lieferant");
     // Button zum Zurücksetzen aller Suchfelder
     private final Button clearButton  = new Button("Suche abbrechen");
+    private final Button addButton = new Button("Artikel hinzufügen");
+    private final Button editButton = new Button("Bearbeiten");
+    private final Button deleteButton = new Button("Löschen");
 
     /**
      * Konstruktor – Initialisierung des Views.
@@ -69,12 +72,95 @@ public class ArticleView extends VerticalLayout {
         HorizontalLayout searchLayout = new HorizontalLayout(
                 articleNumberField, nameField, supplierBox, clearButton
         );
-        searchLayout.setAlignItems(Alignment.END);
 
+        HorizontalLayout crudButtons = new HorizontalLayout(addButton, editButton, deleteButton);
+        add(crudButtons);
+        configureCrudButtons();
+
+        searchLayout.setAlignItems(Alignment.END);
         add(searchLayout, grid);
+
+
+
 
         // Initial: alle Artikel anzeigen
         updateList();
+    }
+
+
+    private void openArticleForm(ArticleResponseDTO article) {
+        Dialog dialog = new Dialog();
+        dialog.setHeaderTitle(article == null ? "Neuen Artikel hinzufügen" : "Artikel bearbeiten");
+
+        // --- Input fields ---
+        TextField articleNumber = new TextField("Artikelnummer (GTIN)");
+        TextField name = new TextField("Name");
+        TextField unit = new TextField("Einheit");
+        TextField stockLevel = new TextField("Lagerbestand");
+        TextField purchasePrice = new TextField("EK Preis");
+        TextField taxRate = new TextField("MwSt (%)");
+        TextField manufacturer = new TextField("Hersteller");
+        ComboBox<String> supplier = new ComboBox<>("Lieferant");
+        supplier.setItems(articleService.findAllSupplierNames());
+        TextField description = new TextField("Beschreibung");
+
+        // --- Prefill fields for update ---
+        if (article != null) {
+            articleNumber.setValue(safe(article.getArticleNumber()));
+            name.setValue(safe(article.getName()));
+            unit.setValue(safe(article.getUnit()));
+            stockLevel.setValue(String.valueOf(article.getStockLevel()));
+            purchasePrice.setValue(String.valueOf(article.getPurchasePrice()));
+            taxRate.setValue(String.valueOf(article.getTaxRatePercent()));
+            manufacturer.setValue(safe(article.getManufacturer()));
+            supplier.setValue(article.getSupplier());
+            description.setValue(safe(article.getDescription()));
+        }
+
+        // --- Buttons ---
+        Button saveButton = new Button("Speichern", event -> {
+            try {
+                // Build request DTO
+                fhdw.de.einkauf_service.dto.ArticleRequestDTO req = new fhdw.de.einkauf_service.dto.ArticleRequestDTO();
+                req.setArticleNumber(articleNumber.getValue());
+                req.setName(name.getValue());
+                req.setUnit(unit.getValue());
+                req.setPurchasePrice(Double.parseDouble(purchasePrice.getValue()));
+                req.setTaxRatePercent(Double.parseDouble(taxRate.getValue()));
+                req.setManufacturer(manufacturer.getValue());
+                req.setSupplier(supplier.getValue());
+                req.setStockLevel(Integer.parseInt(stockLevel.getValue()));
+                req.setDescription(description.getValue());
+                req.setIsAvailable(true);
+
+                if (article == null) {
+                    // CREATE
+                    articleService.createNewArticle(req);
+                } else {
+                    // UPDATE
+                    articleService.updateArticle(article.getId(), req);
+                }
+
+                dialog.close();
+                updateList();
+            } catch (Exception ex) {
+                ex.printStackTrace();
+                dialog.add(new Span("Fehler: " + ex.getMessage()));
+            }
+        });
+
+        Button cancelButton = new Button("Abbrechen", e -> dialog.close());
+
+        HorizontalLayout buttons = new HorizontalLayout(saveButton, cancelButton);
+        VerticalLayout formLayout = new VerticalLayout(
+                articleNumber, name, unit, stockLevel, purchasePrice,
+                taxRate, manufacturer, supplier, description, buttons
+        );
+        formLayout.setPadding(false);
+        formLayout.setSpacing(true);
+
+        dialog.add(formLayout);
+        dialog.open();
     }
 
     /**
@@ -101,6 +187,33 @@ public class ArticleView extends VerticalLayout {
             nameField.clear();
             supplierBox.clear();
             updateList();
+        });
+    }
+
+    private void configureCrudButtons() {
+        addButton.addClickListener(e -> openArticleForm(null)); // Create new
+        editButton.addClickListener(e -> {
+            ArticleResponseDTO selected = grid.asSingleSelect().getValue();
+            if (selected != null) {
+                openArticleForm(selected);
+            }
+        });
+        deleteButton.addClickListener(e -> {
+            ArticleResponseDTO selected = grid.asSingleSelect().getValue();
+            if (selected != null) {
+                articleService.deleteArticle(selected.getId());
+                updateList();
+            }
+        });
+
+        // Initially disabled until an article is selected
+        editButton.setEnabled(false);
+        deleteButton.setEnabled(false);
+
+        grid.asSingleSelect().addValueChangeListener(event -> {
+            boolean hasSelection = event.getValue() != null;
+            editButton.setEnabled(hasSelection);
+            deleteButton.setEnabled(hasSelection);
         });
     }
 
