@@ -159,8 +159,8 @@ public class GridwithFiltersView extends Div {
 
         // Eingabekomponenten (sichtbare Filterfelder)
         private final TextField   articleName     = new TextField("Article Name");       // Freitext, case-insensitive LIKE
-        private final IntegerField articleNumber  = new IntegerField("Article Number");  // Exakt gleich (=)
-        private final TextField   inventory       = new TextField("Stock Level");           // Numerisch, >= Mindestbestand
+        private final TextField articleNumber  = new TextField("Article Number");  // Exakt gleich (=)
+        private final TextField stockLevel = new TextField("Stock Level");           // Numerisch, >= Mindestbestand
         private final TextField   storageLocation = new TextField("Storage Location");          // Freitext, case-insensitive LIKE
 
         /**
@@ -184,10 +184,7 @@ public class GridwithFiltersView extends Div {
             articleName.setPlaceholder("Search Name");
 
             articleNumber.setPlaceholder("Search Number");
-            articleNumber.setStepButtonsVisible(true); // Bessere Bedienbarkeit für Maus-/Touch-Nutzer
-            articleNumber.setMin(0);                   // Fachliche Annahme: keine negativen Artikelnummern
-
-            inventory.setPlaceholder("Minimum Inventory"); // Wird später als Integer geparst (mit Fallback)
+            stockLevel.setPlaceholder("Minimum Inventory"); // Wird später als Integer geparst (mit Fallback)
 
             storageLocation.setPlaceholder("Search Storage Location");
 
@@ -198,7 +195,7 @@ public class GridwithFiltersView extends Div {
             Button resetBtn = new Button("Reset Search", e -> {
                 articleName.clear();
                 articleNumber.clear();
-                inventory.clear();
+                stockLevel.clear();
                 storageLocation.clear();
                 onSearch.run();
             });
@@ -214,7 +211,7 @@ public class GridwithFiltersView extends Div {
             actions.addClassName("actions");
 
             // Komponenten der Ansicht hinzufügen (Reihenfolge = angezeigte Reihenfolge auf der UI)
-            add(articleName, articleNumber, inventory, storageLocation, actions);
+            add(articleName, articleNumber, stockLevel, storageLocation, actions);
         }
 
         @Override
@@ -238,19 +235,19 @@ public class GridwithFiltersView extends Div {
                 // Suchmuster: %eingabe%
                 String v = "%" + articleName.getValue().toLowerCase() + "%";
                 // LOWER(dbSpalte) LIKE lower(eingabe)
-                ps.add(cb.like(cb.lower(root.get("articleName")), v));
+                ps.add(cb.like(cb.lower(root.get("name")), v));
             }
 
             // Exakte Übereinstimmung der Artikelnummer (Integer)
-            if (articleNumber.getValue() != null) {
-                ps.add(cb.equal(root.get("articleNumber"), articleNumber.getValue()));
+            if (!articleNumber.isEmpty()) {
+                ps.add(cb.equal(root.get("articleNumber"), articleNumber.getValue().trim()));
             }
 
             // Mindestbestand: inventory >= eingegebener Wert
-            if (!inventory.isEmpty()) {
+            if (!stockLevel.isEmpty()) {
                 try {
-                    int inv = Integer.parseInt(inventory.getValue().trim());
-                    ps.add(cb.greaterThanOrEqualTo(root.get("inventory"), inv));
+                    int inv = Integer.parseInt(stockLevel.getValue().trim());
+                    ps.add(cb.greaterThanOrEqualTo(root.get("stockLevel"), inv));
                 } catch (NumberFormatException ignored) {
                     // Ungültige Zahl => Filter wird einfach nicht angewandt (kein Fehlerwurf)
                 }
@@ -279,7 +276,7 @@ public class GridwithFiltersView extends Div {
         grid = new Grid<>(ArticleInfo.class, false);
 
         // Spalte: Artikelname (Text)
-        grid.addColumn(ArticleInfo::getArticleName)
+        grid.addColumn(ArticleInfo::getName)
                 .setHeader("Article Name")
                 .setKey("articleName")     // Key für spätere Referenzen/Tests
                 .setAutoWidth(true)        // passt sich Inhalt an, verhindert horizontales Scrollen
@@ -293,9 +290,9 @@ public class GridwithFiltersView extends Div {
                 .setSortable(true);
 
         // Spalte: Bestand (Integer)
-        grid.addColumn(ArticleInfo::getInventory)
+        grid.addColumn(ArticleInfo::getStockLevel)
                 .setHeader("Stock Level")
-                .setKey("inventory")
+                .setKey("stockLevel")
                 .setAutoWidth(true)
                 .setSortable(true);
 
@@ -337,10 +334,8 @@ public class GridwithFiltersView extends Div {
         fName.setRequired(true); // UI-Hinweis (optische Markierung)
 
         // Artikelnummer als IntegerField (bessere Validierung & Step-Buttons)
-        IntegerField fNumber = new IntegerField("Article Number");
+        TextField fNumber = new TextField("Article Number");
         fNumber.setRequiredIndicatorVisible(true);
-        fNumber.setMin(0);                // fachliche Annahme: keine negativen Nummern
-        fNumber.setStepButtonsVisible(true);
 
         IntegerField fInventory = new IntegerField("Stock Level");
         fInventory.setMin(0);             // Bestand >= 0
@@ -360,7 +355,7 @@ public class GridwithFiltersView extends Div {
         // Name: Pflichtfeld
         binder.forField(fName)
                 .asRequired("Enter Article Name")
-                .bind(ArticleInfo::getArticleName, ArticleInfo::setArticleName);
+                .bind(ArticleInfo::getName, ArticleInfo::setName);
 
         // Nummer: Pflichtfeld (IntegerField liefert Integer/Null)
         binder.forField(fNumber)
@@ -370,7 +365,7 @@ public class GridwithFiltersView extends Div {
         // Bestand: >= 0, optional aber validiert, falls gesetzt
         binder.forField(fInventory)
                 .withValidator(v -> v != null && v >= 0, "Stock Level ≥ 0")
-                .bind(ArticleInfo::getInventory, ArticleInfo::setInventory);
+                .bind(ArticleInfo::getStockLevel, ArticleInfo::setStockLevel);
 
         // Lagerort: Pflichtfeld
         binder.forField(fStorage)

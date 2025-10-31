@@ -1,32 +1,44 @@
 package com.example.application.data;
 
-import jakarta.persistence.Entity;
-
-import java.time.LocalDate;
+import jakarta.persistence.*;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 
 @Entity
 public class ArticleInfo extends AbstractEntity {
 
-    private String articleName;
-    private Integer articleNumber;
-    private Integer inventory;
+    @Size(max = 255)
+    @NotNull
+    @Column(name = "name", nullable = false)
+    private String name;
+    @Size(max = 18)
+    @NotNull
+    @Column(name = "article_number", nullable = false, length = 18)
+    private String articleNumber;
+
+    @NotNull
+    @Column(name = "stock_level", nullable = false)
+    private Integer stockLevel;
+    @Size(max = 255)
+    @NotNull
+    @Column(name = "storage_location", nullable = false)
     private String storageLocation;
 
-    public String getArticleName() {
-        return articleName;
+    public String getName() {
+        return name;
     }
-    public void setArticleName(String articleName) {
-        this.articleName = articleName;
+    public void setName(String name) {
+        this.name = name;
     }
-    public Integer getArticleNumber() {
+    public String getArticleNumber() {
         return articleNumber;
     }
-    public void setArticleNumber(Integer articleNumber) {
+    public void setArticleNumber(String articleNumber) {
         this.articleNumber = articleNumber;
     }
-    public Integer getInventory() { return inventory; }
-    public void setInventory(Integer inventory) {
-        this.inventory = inventory;
+    public Integer getStockLevel() { return stockLevel; }
+    public void setStockLevel(Integer stockLevel) {
+        this.stockLevel = stockLevel;
     }
     public String getStorageLocation() {
         return storageLocation;
