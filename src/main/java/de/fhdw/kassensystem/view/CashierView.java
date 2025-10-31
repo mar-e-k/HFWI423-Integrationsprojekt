@@ -1,12 +1,15 @@
 package de.fhdw.kassensystem.view;
 
+import com.vaadin.flow.component.Key;
 import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.grid.ColumnTextAlign;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.notification.NotificationVariant;
+import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextArea;
@@ -18,7 +21,6 @@ import de.fhdw.kassensystem.persistence.entity.Article;
 import de.fhdw.kassensystem.persistence.service.ArticleService;
 import de.fhdw.kassensystem.utility.config.Roles;
 import jakarta.annotation.security.RolesAllowed;
-import com.vaadin.flow.component.Key;
 
 import java.util.*;
 
@@ -32,9 +34,10 @@ public class CashierView extends BaseView {
     private Grid<CartItem> cartGrid;
     private TextArea descriptionOutputField;
 
-    private final Map<Article, Integer> cartItems = new HashMap<>();
+    // Store items in cart using article number as key
+    private final Map<String, CartItem> cartItems = new LinkedHashMap<>();
 
-    // Label für Gesamtpreis & Artikelanzahl
+    private int nextPosition = 1;
     private Span totalLabel;
 
     public CashierView(ArticleService articleService) {
@@ -52,65 +55,14 @@ public class CashierView extends BaseView {
         Button searchButton = new Button("Suchen", new Icon(VaadinIcon.SEARCH));
         Span errorLabel = new Span();
 
-        // Artikel-Grid
+        // Article grid (search results)
         articleGrid = new Grid<>(Article.class, false);
-        articleGrid.setHeight("auto");
-        articleGrid.setAllRowsVisible(true);
         articleGrid.setSelectionMode(Grid.SelectionMode.NONE);
         articleGrid.setVisible(false);
+        articleGrid.setWidthFull();
+        articleGrid.setAllRowsVisible(true);
 
-        // Hinzufügen-Button
-        articleGrid.addComponentColumn(article -> {
-            Button addButton = new Button(new Icon(VaadinIcon.PLUS));
-            addButton.getElement().setProperty("title", "Zum Warenkorb hinzufügen");
-            addButton.addClickListener(e -> {
-                cartItems.merge(article, 1, Integer::sum);
-                updateCartGrid();
-                Notification notification = Notification.show(
-                        article.getName() + " wurde dem Warenkorb hinzugefügt", 2000,
-                        Notification.Position.MIDDLE
-                );
-                notification.addThemeVariants(NotificationVariant.LUMO_SUCCESS);
-            });
-            addButton.setEnabled(article.getIsAvailable());
-            return addButton;
-        }).setHeader("Hinzufügen");
-
-        // Warenkorb-Grid
-        cartGrid = new Grid<>(CartItem.class, false);
-        cartGrid.addColumn(item -> item.article().getName()).setHeader("Artikelname");
-        cartGrid.addColumn(item -> item.article().getArticleNumber()).setHeader("Artikelnummer");
-        cartGrid.addColumn(CartItem::quantity).setHeader("Menge");
-        cartGrid.addColumn(item -> String.format("%.2f €", item.article().getSellingPrice() * item.quantity()))
-                .setHeader("Gesamtpreis");
-
-        //  Entfernen-Button
-        cartGrid.addComponentColumn(item -> {
-            Button removeButton = new Button(new Icon(VaadinIcon.TRASH));
-            removeButton.getElement().setProperty("title", "Artikel entfernen");
-            removeButton.addClickListener(e -> {
-                Article article = item.article();
-                cartItems.computeIfPresent(article, (a, q) -> (q > 1) ? q - 1 : null);
-                updateCartGrid();
-            });
-            return removeButton;
-        }).setHeader("");
-
-        cartGrid.setWidth("400px");
-        cartGrid.setHeight("300px");
-        cartGrid.setVisible(true);
-
-        // Gesamtpreis + Anzahl
-        totalLabel = new Span("Gesamtanzahl: 0 | Gesamtpreis: 0,00 €");
-        totalLabel.getStyle().set("font-weight", "bold");
-
-        descriptionOutputField = new TextArea("Artikelbeschreibung");
-        descriptionOutputField.setReadOnly(true);
-        descriptionOutputField.setWidth("965px");
-        descriptionOutputField.setHeight("60px");
-        descriptionOutputField.setVisible(false);
-
-        // Artikel-Grid Spalten
+        // Columns
         articleGrid.addColumn(Article::getName).setHeader("Artikelname");
         articleGrid.addColumn(Article::getArticleNumber).setHeader("Artikelnummer");
         articleGrid.addColumn(article -> article.getSellingPrice() + " €").setHeader("Verkaufspreis");
@@ -118,16 +70,65 @@ public class CashierView extends BaseView {
         articleGrid.addColumn(article -> article.getIsAvailable() ? "ja" : "nein").setHeader("Verfügbar");
         articleGrid.addColumn(article -> article.getTaxRatePercent() + " %").setHeader("Steuersatz");
 
-        // Suche
+        // Add-to-cart button
+        articleGrid.addComponentColumn(article -> {
+                    Button addButton = new Button(new Icon(VaadinIcon.PLUS));
+                    addButton.getElement().setProperty("title", "Add to cart");
+                    addButton.addClickListener(e -> addToCart(article));
+                    addButton.setEnabled(article.getIsAvailable());
+                    return addButton;
+                }).setHeader("Add")
+                .setAutoWidth(true)
+                .setTextAlign(ColumnTextAlign.END);
+
+        // Cart grid
+        cartGrid = new Grid<>(CartItem.class, false);
+        cartGrid.addColumn(CartItem::position).setHeader("Pos.").setAutoWidth(true);
+        cartGrid.addColumn(item -> item.article().getName()).setHeader("Article name");
+        cartGrid.addColumn(item -> item.article().getArticleNumber()).setHeader("Article number");
+        cartGrid.addColumn(item -> String.format("%.2f €", item.article().getSellingPrice()))
+                .setHeader("Unit price");
+        cartGrid.addColumn(CartItem::quantity).setHeader("Quantity");
+        cartGrid.addColumn(item -> String.format("%.2f €", item.article().getSellingPrice() * item.quantity()))
+                .setHeader("Total price");
+
+        // Remove button
+        cartGrid.addComponentColumn(item -> {
+            Button removeButton = new Button(new Icon(VaadinIcon.TRASH));
+            removeButton.getElement().setProperty("title", "Remove article");
+            removeButton.addClickListener(e -> removeFromCart(item.article().getArticleNumber()));
+            return removeButton;
+        }).setHeader("");
+
+        cartGrid.setWidthFull();
+        cartGrid.getStyle().set("max-height", "50vh");
+        cartGrid.getStyle().set("overflow-y", "auto");
+
+        // Total label (sum of prices and quantities)
+        totalLabel = new Span("Total quantity: 0 | Total price: 0,00 €");
+        totalLabel.getStyle().set("font-weight", "bold");
+
+        // Article description box
+        descriptionOutputField = new TextArea("Article description");
+        descriptionOutputField.setReadOnly(true);
+        descriptionOutputField.setWidthFull();
+        descriptionOutputField.setMinHeight("30px");
+        descriptionOutputField.setMaxHeight("60px");
+        descriptionOutputField.getStyle().set("resize", "none");
+        descriptionOutputField.getStyle().set("white-space", "normal");
+        descriptionOutputField.getStyle().set("font-size", "var(--lumo-font-size-s)");
+        descriptionOutputField.setVisible(false);
+
+        // Search field behavior
         searchField.setValueChangeMode(ValueChangeMode.LAZY);
-        searchField.setWidth("300px");
+        searchField.setWidth("250px");
         searchButton.setEnabled(false);
         searchField.addValueChangeListener(event -> {
             String value = event.getValue();
             boolean validInput = value.matches("^(A-\\d+|\\d+)$");
             searchButton.setEnabled(validInput);
             if (!validInput && !value.isEmpty()) {
-                errorLabel.setText("Eingabe muss in Form von 'A-XXXX' oder 'XXXX' sein");
+                errorLabel.setText("Input must be in the form 'A-XXXX' or 'XXXX'");
                 descriptionOutputField.clear();
                 descriptionOutputField.setVisible(false);
                 articleGrid.setItems(Collections.emptyList());
@@ -137,15 +138,16 @@ public class CashierView extends BaseView {
             }
         });
 
+        // ENTER key triggers search
         searchField.addKeyPressListener(Key.ENTER, event -> {
             if (searchButton.isEnabled()) searchButton.click();
         });
 
-        // Suchlogik
+        // Search button logic
         searchButton.addClickListener(event -> {
             String input = searchField.getValue().trim();
             if (input.isEmpty()) {
-                errorLabel.setText("Eingabe darf nicht leer sein");
+                errorLabel.setText("Input cannot be empty");
                 descriptionOutputField.clear();
                 descriptionOutputField.setVisible(false);
                 articleGrid.setItems(Collections.emptyList());
@@ -165,7 +167,7 @@ public class CashierView extends BaseView {
                 articleGrid.setItems(Collections.singletonList(article));
                 articleGrid.setVisible(true);
             } else {
-                errorLabel.setText("Artikel nicht gefunden");
+                errorLabel.setText("Article not found");
                 descriptionOutputField.clear();
                 descriptionOutputField.setVisible(false);
                 articleGrid.setItems(Collections.emptyList());
@@ -176,36 +178,84 @@ public class CashierView extends BaseView {
         errorLabel.getStyle().set("color", "red");
         errorLabel.setWidthFull();
 
-        // Layouts
+        // Layout: Search field + description
         HorizontalLayout searchInputAndDescriptionLayout =
                 new HorizontalLayout(searchField, searchButton, descriptionOutputField);
-        searchInputAndDescriptionLayout.setAlignItems(Alignment.END);
+        searchInputAndDescriptionLayout.setAlignItems(FlexComponent.Alignment.END);
+        searchInputAndDescriptionLayout.setSpacing(true);
+        searchInputAndDescriptionLayout.setWidthFull();
 
-        // Warenkorb + Gesamtanzeige
+        // Cart section
         VerticalLayout cartSection = new VerticalLayout(cartGrid, totalLabel);
-        cartSection.setPadding(false);
+        cartSection.setWidthFull();
+        cartSection.setPadding(true);
         cartSection.setSpacing(false);
+        cartSection.setAlignItems(FlexComponent.Alignment.STRETCH);
+        cartSection.getStyle().set("margin-top", "20px");
 
+        // Main layout
         VerticalLayout mainLayout = new VerticalLayout(
                 searchInputAndDescriptionLayout,
                 errorLabel,
                 articleGrid,
                 cartSection
         );
-
-        mainLayout.setWidthFull();
-        mainLayout.setPadding(false);
+        mainLayout.setPadding(true);
         mainLayout.setSpacing(true);
+        mainLayout.setAlignItems(FlexComponent.Alignment.STRETCH);
+        mainLayout.setWidthFull();
+
         add(mainLayout);
     }
 
-    // interne Hilfsklasse
-    private record CartItem(Article article, int quantity) {}
+    // Simple record for items in the cart
+    private record CartItem(int position, Article article, int quantity) {}
 
-    // Warenkorb aktualisieren + Gesamtanzeige
+    // Add article to the cart (merge by article number)
+    private void addToCart(Article article) {
+        String key = article.getArticleNumber();
+        if (cartItems.containsKey(key)) {
+            CartItem existing = cartItems.get(key);
+            CartItem updated = new CartItem(
+                    existing.position(),
+                    article,
+                    existing.quantity() + 1
+            );
+            cartItems.put(key, updated);
+        } else {
+            cartItems.put(key, new CartItem(nextPosition++, article, 1));
+        }
+
+        updateCartGrid();
+
+        Notification notification = Notification.show(
+                article.getName() + " was added to the cart", 2000,
+                Notification.Position.MIDDLE
+        );
+        notification.addThemeVariants(NotificationVariant.LUMO_SUCCESS);
+    }
+
+    // Remove one quantity from the cart, or remove the article completely if count is 0
+    private void removeFromCart(String articleNumber) {
+        CartItem existing = cartItems.get(articleNumber);
+        if (existing != null) {
+            if (existing.quantity() > 1) {
+                cartItems.put(articleNumber, new CartItem(
+                        existing.position(),
+                        existing.article(),
+                        existing.quantity() - 1
+                ));
+            } else {
+                cartItems.remove(articleNumber);
+            }
+            updateCartGrid();
+        }
+    }
+
+    // Refresh the cart grid and total label
     private void updateCartGrid() {
-        List<CartItem> items = cartItems.entrySet().stream()
-                .map(entry -> new CartItem(entry.getKey(), entry.getValue()))
+        List<CartItem> items = cartItems.values().stream()
+                .sorted(Comparator.comparingInt(CartItem::position))
                 .toList();
         cartGrid.setItems(items);
 
@@ -214,6 +264,6 @@ public class CashierView extends BaseView {
                 .mapToDouble(item -> item.article().getSellingPrice() * item.quantity())
                 .sum();
 
-        totalLabel.setText(String.format("Gesamtanzahl: %d | Gesamtpreis: %.2f €", totalQuantity, totalPrice));
+        totalLabel.setText(String.format("Total quantity: %d | Total price: %.2f €", totalQuantity, totalPrice));
     }
 }
