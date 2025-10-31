@@ -34,7 +34,7 @@ public class CashierView extends BaseView {
     private Grid<CartItem> cartGrid;
     private TextArea descriptionOutputField;
 
-    // Store items in cart using article number as key
+    // Map nach Artikelnummer statt Article-Objekt
     private final Map<String, CartItem> cartItems = new LinkedHashMap<>();
 
     private int nextPosition = 1;
@@ -51,18 +51,19 @@ public class CashierView extends BaseView {
 
     @Override
     protected void init() {
+        // Komponenten
         TextField searchField = new TextField("Artikelnummer");
         Button searchButton = new Button("Suchen", new Icon(VaadinIcon.SEARCH));
         Span errorLabel = new Span();
 
-        // Article grid (search results)
+        // Grid Initialisierung (Artikelanzeige)
         articleGrid = new Grid<>(Article.class, false);
+        articleGrid.setHeight("auto"); // Setzt die Höhe automatisch
+        articleGrid.setAllRowsVisible(true); // Zeigt alle Zeilen an, ohne Scrollbalken
         articleGrid.setSelectionMode(Grid.SelectionMode.NONE);
-        articleGrid.setVisible(false);
-        articleGrid.setWidthFull();
-        articleGrid.setAllRowsVisible(true);
+        articleGrid.setVisible(false); // Initial unsichtbar
 
-        // Columns
+        // Grid-Spalten Definierung
         articleGrid.addColumn(Article::getName).setHeader("Artikelname");
         articleGrid.addColumn(Article::getArticleNumber).setHeader("Artikelnummer");
         articleGrid.addColumn(article -> article.getSellingPrice() + " €").setHeader("Verkaufspreis");
@@ -70,148 +71,144 @@ public class CashierView extends BaseView {
         articleGrid.addColumn(article -> article.getIsAvailable() ? "ja" : "nein").setHeader("Verfügbar");
         articleGrid.addColumn(article -> article.getTaxRatePercent() + " %").setHeader("Steuersatz");
 
-        // Add-to-cart button
+        // Hinzufügen-Button (für Warenkorb)
         articleGrid.addComponentColumn(article -> {
                     Button addButton = new Button(new Icon(VaadinIcon.PLUS));
-                    addButton.getElement().setProperty("title", "Add to cart");
-                    addButton.addClickListener(e -> addToCart(article));
+                    addButton.getElement().setProperty("title", "Zum Warenkorb hinzufügen");
+                    addButton.addClickListener(e -> addToCart(article)); // Artikel wird dem Warenkorb hinzugefügt
                     addButton.setEnabled(article.getIsAvailable());
                     return addButton;
-                }).setHeader("Add")
+                }).setHeader("Hinzufügen")
                 .setAutoWidth(true)
                 .setTextAlign(ColumnTextAlign.END);
 
-        // Cart grid
+        // Warenkorb-Grid Initialisierung
         cartGrid = new Grid<>(CartItem.class, false);
         cartGrid.addColumn(CartItem::position).setHeader("Pos.").setAutoWidth(true);
-        cartGrid.addColumn(item -> item.article().getName()).setHeader("Article name");
-        cartGrid.addColumn(item -> item.article().getArticleNumber()).setHeader("Article number");
+        cartGrid.addColumn(item -> item.article().getName()).setHeader("Artikelname");
+        cartGrid.addColumn(item -> item.article().getArticleNumber()).setHeader("Artikelnummer");
         cartGrid.addColumn(item -> String.format("%.2f €", item.article().getSellingPrice()))
-                .setHeader("Unit price");
-        cartGrid.addColumn(CartItem::quantity).setHeader("Quantity");
+                .setHeader("Stückpreis");
+        cartGrid.addColumn(CartItem::quantity).setHeader("Menge");
         cartGrid.addColumn(item -> String.format("%.2f €", item.article().getSellingPrice() * item.quantity()))
-                .setHeader("Total price");
+                .setHeader("Gesamtpreis");
 
-        // Remove button
+        // Entfernen-Button für Warenkorb
         cartGrid.addComponentColumn(item -> {
             Button removeButton = new Button(new Icon(VaadinIcon.TRASH));
-            removeButton.getElement().setProperty("title", "Remove article");
-            removeButton.addClickListener(e -> removeFromCart(item.article().getArticleNumber()));
+            removeButton.getElement().setProperty("title", "Artikel entfernen");
+            removeButton.addClickListener(e -> removeFromCart(item.article().getArticleNumber())); // Entfernt Artikel oder reduziert Menge
             return removeButton;
         }).setHeader("");
 
         cartGrid.setWidthFull();
-        cartGrid.getStyle().set("max-height", "50vh");
-        cartGrid.getStyle().set("overflow-y", "auto");
+        cartGrid.getStyle().set("max-height", "50vh"); // Maximale Höhe: halbe Bildschirmhöhe
+        cartGrid.getStyle().set("overflow-y", "auto"); // Scrollbar, wenn zu viele Einträge vorhanden sind
 
-        // Total label (sum of prices and quantities)
-        totalLabel = new Span("Total quantity: 0 | Total price: 0,00 €");
+        // Gesamtpreis + Gesamtanzahl Anzeige
+        totalLabel = new Span("Gesamtanzahl: 0 | Gesamtpreis: 0,00 €");
         totalLabel.getStyle().set("font-weight", "bold");
 
-        // Article description box
-        descriptionOutputField = new TextArea("Article description");
+        // Artikelbeschreibung Initialisierung
+        descriptionOutputField = new TextArea("Artikelbeschreibung");
         descriptionOutputField.setReadOnly(true);
-        descriptionOutputField.setWidthFull();
+        descriptionOutputField.setWidthFull(); // Passt sich der verfügbaren Breite an
         descriptionOutputField.setMinHeight("30px");
-        descriptionOutputField.setMaxHeight("60px");
+        descriptionOutputField.setMaxHeight("60px"); // Beschränkung auf sinnvolle Höhe
         descriptionOutputField.getStyle().set("resize", "none");
         descriptionOutputField.getStyle().set("white-space", "normal");
         descriptionOutputField.getStyle().set("font-size", "var(--lumo-font-size-s)");
-        descriptionOutputField.setVisible(false);
+        descriptionOutputField.setVisible(false); // Initial unsichtbar
 
-        // Search field behavior
+        // Sucheingabe Validierung
         searchField.setValueChangeMode(ValueChangeMode.LAZY);
-        searchField.setWidth("250px");
+        searchField.setWidth("300px"); // Feste Breite für das Suchfeld
         searchButton.setEnabled(false);
         searchField.addValueChangeListener(event -> {
             String value = event.getValue();
-            boolean validInput = value.matches("^(A-\\d+|\\d+)$");
+            boolean validInput = value.matches("^(A-\\d+|\\d+)$"); // Akzeptiert A-123 oder 123
             searchButton.setEnabled(validInput);
             if (!validInput && !value.isEmpty()) {
-                errorLabel.setText("Input must be in the form 'A-XXXX' or 'XXXX'");
+                errorLabel.setText("Eingabe muss in Form von 'A-XXXX' oder 'XXXX' sein");
                 descriptionOutputField.clear();
-                descriptionOutputField.setVisible(false);
-                articleGrid.setItems(Collections.emptyList());
-                articleGrid.setVisible(false);
+                descriptionOutputField.setVisible(false); // Unsichtbar bei ungültiger Eingabe
+                articleGrid.setItems(Collections.emptyList()); // Grid leeren
+                articleGrid.setVisible(false); // Unsichtbar bei ungültiger Eingabe
             } else {
                 errorLabel.setText("");
             }
         });
 
-        // ENTER key triggers search
+        // Enter-Taste Listener
         searchField.addKeyPressListener(Key.ENTER, event -> {
-            if (searchButton.isEnabled()) searchButton.click();
+            if (searchButton.isEnabled()) {
+                searchButton.click();
+            }
         });
 
-        // Search button logic
+        // Suchlogik (Artikelabfrage aus DB)
         searchButton.addClickListener(event -> {
             String input = searchField.getValue().trim();
             if (input.isEmpty()) {
-                errorLabel.setText("Input cannot be empty");
+                errorLabel.setText("Eingabe darf nicht leer sein");
                 descriptionOutputField.clear();
-                descriptionOutputField.setVisible(false);
-                articleGrid.setItems(Collections.emptyList());
-                articleGrid.setVisible(false);
+                descriptionOutputField.setVisible(false); // Unsichtbar bei leerer Eingabe
+                articleGrid.setItems(Collections.emptyList()); // Grid leeren
+                articleGrid.setVisible(false); // Unsichtbar bei leerer Eingabe
                 return;
             }
+            input = input.matches("\\d+") ? "A-" + input : input; // Transform XXXX -> A-XXXX
 
-            input = input.matches("\\d+") ? "A-" + input : input;
-            Optional<Article> articleOpt = articleService.findByArticleNumber(input);
-
-            if (articleOpt.isPresent()) {
-                Article article = articleOpt.get();
+            Optional<Article> article = articleService.findByArticleNumber(input);
+            if (article.isPresent()) {
                 searchField.clear();
                 errorLabel.setText("");
-                descriptionOutputField.setValue(article.getDescription());
-                descriptionOutputField.setVisible(true);
-                articleGrid.setItems(Collections.singletonList(article));
-                articleGrid.setVisible(true);
+                descriptionOutputField.setValue(article.get().getDescription());
+                descriptionOutputField.setVisible(true); // Sichtbar bei gefundenem Artikel
+                articleGrid.setItems(Collections.singletonList(article.get()));
+                articleGrid.setVisible(true); // Sichtbar bei gefundenem Artikel
             } else {
-                errorLabel.setText("Article not found");
-                descriptionOutputField.clear();
-                descriptionOutputField.setVisible(false);
+                errorLabel.setText("Artikel nicht gefunden"); // Fehlermeldung in errorLabel
+                descriptionOutputField.clear(); // Beschreibung leeren
+                descriptionOutputField.setVisible(false); // Unsichtbar bei nicht gefundenem Artikel
                 articleGrid.setItems(Collections.emptyList());
-                articleGrid.setVisible(false);
+                articleGrid.setVisible(false); // Unsichtbar bei nicht gefundenem Artikel
             }
         });
 
         errorLabel.getStyle().set("color", "red");
         errorLabel.setWidthFull();
 
-        // Layout: Search field + description
-        HorizontalLayout searchInputAndDescriptionLayout =
-                new HorizontalLayout(searchField, searchButton, descriptionOutputField);
-        searchInputAndDescriptionLayout.setAlignItems(FlexComponent.Alignment.END);
-        searchInputAndDescriptionLayout.setSpacing(true);
-        searchInputAndDescriptionLayout.setWidthFull();
+        // --- Layout ---
+        HorizontalLayout searchInputAndDescriptionLayout = new HorizontalLayout(searchField, searchButton, descriptionOutputField);
+        searchInputAndDescriptionLayout.setAlignItems(Alignment.END);
 
-        // Cart section
+        // Warenkorb-Bereich mit Gesamtanzeige
         VerticalLayout cartSection = new VerticalLayout(cartGrid, totalLabel);
         cartSection.setWidthFull();
         cartSection.setPadding(true);
         cartSection.setSpacing(false);
-        cartSection.setAlignItems(FlexComponent.Alignment.STRETCH);
-        cartSection.getStyle().set("margin-top", "20px");
+        cartSection.setAlignItems(Alignment.STRETCH);
 
-        // Main layout
+        // Hauptlayout
         VerticalLayout mainLayout = new VerticalLayout(
                 searchInputAndDescriptionLayout,
                 errorLabel,
                 articleGrid,
                 cartSection
         );
-        mainLayout.setPadding(true);
-        mainLayout.setSpacing(true);
-        mainLayout.setAlignItems(FlexComponent.Alignment.STRETCH);
+
         mainLayout.setWidthFull();
+        mainLayout.setPadding(false);
+        mainLayout.setSpacing(true);
 
         add(mainLayout);
     }
 
-    // Simple record for items in the cart
+    // interne Hilfsklasse für Warenkorb
     private record CartItem(int position, Article article, int quantity) {}
 
-    // Add article to the cart (merge by article number)
+    // Artikel hinzufügen (nach Artikelnummer zusammenfassen)
     private void addToCart(Article article) {
         String key = article.getArticleNumber();
         if (cartItems.containsKey(key)) {
@@ -228,14 +225,15 @@ public class CashierView extends BaseView {
 
         updateCartGrid();
 
+        // Visuelle Rückmeldung
         Notification notification = Notification.show(
-                article.getName() + " was added to the cart", 2000,
+                article.getName() + " wurde dem Warenkorb hinzugefügt", 2000,
                 Notification.Position.MIDDLE
         );
         notification.addThemeVariants(NotificationVariant.LUMO_SUCCESS);
     }
 
-    // Remove one quantity from the cart, or remove the article completely if count is 0
+    // Artikel entfernen oder Menge reduzieren
     private void removeFromCart(String articleNumber) {
         CartItem existing = cartItems.get(articleNumber);
         if (existing != null) {
@@ -246,13 +244,13 @@ public class CashierView extends BaseView {
                         existing.quantity() - 1
                 ));
             } else {
-                cartItems.remove(articleNumber);
+                cartItems.remove(articleNumber); // Entfernt komplett bei letzter Einheit
             }
             updateCartGrid();
         }
     }
 
-    // Refresh the cart grid and total label
+    // Warenkorb aktualisieren + Gesamtwerte berechnen
     private void updateCartGrid() {
         List<CartItem> items = cartItems.values().stream()
                 .sorted(Comparator.comparingInt(CartItem::position))
@@ -264,6 +262,6 @@ public class CashierView extends BaseView {
                 .mapToDouble(item -> item.article().getSellingPrice() * item.quantity())
                 .sum();
 
-        totalLabel.setText(String.format("Total quantity: %d | Total price: %.2f €", totalQuantity, totalPrice));
+        totalLabel.setText(String.format("Gesamtanzahl: %d | Gesamtpreis: %.2f €", totalQuantity, totalPrice));
     }
 }
