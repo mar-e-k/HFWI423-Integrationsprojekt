@@ -102,24 +102,6 @@
                     <target>${java.version}</target>
                 </configuration>
             </plugin>
-            <!-- Spring Boot Plugin -->
-            <plugin>
-                <groupId>org.springframework.boot</groupId>
-                <artifactId>spring-boot-maven-plugin</artifactId>
-                <version>${spring-boot.version}</version>
-                <executions>
-                    <execution>
-                        <goals>
-                            <goal>repackage</goal>
-                        </goals>
-                    </execution>
-                </executions>
-                <configuration>
-                    <image>
-                        <name>ghcr.io/caius00/iiprojekt:latest</name>
-                    </image>
-                </configuration>
-            </plugin>
             <!-- Vaadin Plugin -->
             <plugin>
                 <groupId>com.vaadin</groupId>
