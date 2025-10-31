@@ -15,6 +15,28 @@ import com.vaadin.flow.theme.lumo.Lumo;
 public abstract class BaseView extends VerticalLayout {
 
     public BaseView() {
+        UI.getCurrent().getPage().executeJs(
+            "const storedTheme = localStorage.getItem('theme');" +
+            "if (storedTheme === 'dark') {" +
+            "    document.documentElement.setAttribute('theme', 'dark');" +
+            "}"
+        );
+
+        // Synchronisierung des serverseitigen Themes mit clienseitigen Localstorage
+        UI.getCurrent().getPage().executeJs("return localStorage.getItem('theme');")
+            .then(String.class, storedTheme -> {
+                var themeList = UI.getCurrent().getElement().getThemeList();
+                if ("dark".equals(storedTheme)) {
+                    if (!themeList.contains(Lumo.DARK)) {
+                        themeList.add(Lumo.DARK);
+                    }
+                } else { // hell oder null
+                    if (themeList.contains(Lumo.DARK)) {
+                        themeList.remove(Lumo.DARK);
+                    }
+                }
+            });
+
         // Top Bar
         HorizontalLayout topBar = new HorizontalLayout();
         topBar.setWidthFull();
@@ -22,7 +44,7 @@ public abstract class BaseView extends VerticalLayout {
         topBar.setAlignItems(FlexComponent.Alignment.CENTER);
 
         // Titel wird von der Subklasse geholt
-        H1 viewTitle = new H1(getViewTitle());
+        H1 viewTitle = new H1(setTopbarTitle());
 
         // Live-Uhr und Datumsanzeige
         Span liveClockLabel = new Span();
@@ -32,12 +54,22 @@ public abstract class BaseView extends VerticalLayout {
 
         // Dark Mode Button
         Button themeToggleButton = new Button(new Icon(VaadinIcon.ADJUST), click -> {
-            var themeList = UI.getCurrent().getElement().getThemeList();
-            if (themeList.contains(Lumo.DARK)) {
-                themeList.remove(Lumo.DARK);
-            } else {
-                themeList.add(Lumo.DARK);
-            }
+            // Query für aktuellen theme status zur Synchronisierung
+            UI.getCurrent().getPage().executeJs("return document.documentElement.getAttribute('theme');")
+                .then(String.class, currentClientTheme -> {
+                    var themeList = UI.getCurrent().getElement().getThemeList();
+                    boolean isClientDark = "dark".equals(currentClientTheme);
+
+                    if (isClientDark) {
+                        themeList.remove(Lumo.DARK);
+                        UI.getCurrent().getPage().executeJs("localStorage.setItem('theme', 'light');");
+                        UI.getCurrent().getPage().executeJs("document.documentElement.removeAttribute('theme');");
+                    } else {
+                        themeList.add(Lumo.DARK);
+                        UI.getCurrent().getPage().executeJs("localStorage.setItem('theme', 'dark');");
+                        UI.getCurrent().getPage().executeJs("document.documentElement.setAttribute('theme', 'dark');");
+                    }
+                });
         });
         themeToggleButton.setTooltipText("Toggle dark mode");
 
@@ -68,16 +100,16 @@ public abstract class BaseView extends VerticalLayout {
         """);
 
         // Subklasse fügt ihren spezifischen Inhalt hinzu
-        initView();
+        init();
 
         setAlignItems(FlexComponent.Alignment.CENTER);
     }
 
      // Subklassen müssen diese Methode implementieren, um den Titel für die Ansicht zu erstellen.
 
-    protected abstract String getViewTitle();
+    protected abstract String setTopbarTitle();
 
     // Subklassen müssen diese Methode implementieren, um ihre spezifische UI hinzuzufügen.
 
-    protected abstract void initView();
+    protected abstract void init();
 }

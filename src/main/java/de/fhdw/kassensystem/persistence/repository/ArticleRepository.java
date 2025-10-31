@@ -4,11 +4,9 @@ import de.fhdw.kassensystem.persistence.entity.Article;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface ArticleRepository extends JpaRepository<Article,Long> {
-
-    // Diese Methode wird von Spring Data JPA automatisch implementiert.
-    // Sie sucht nach allen Artikeln, deren 'name'-Feld den übergebenen
     List<Article> findByNameContainingIgnoreCase(String searchTerm);
-
+    Optional<Article> findByArticleNumber(String articleNumber);
 }
