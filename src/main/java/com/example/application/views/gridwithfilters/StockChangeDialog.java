@@ -33,6 +33,7 @@ public class StockChangeDialog extends Dialog {
         number.setReadOnly(true);
 
         // bearbeitbarer Bestand
+        // WICHTIG: gelb unterstrichenes != null und == null nicht entfernen!!! sonst klappts nicht. Intellij ist zu optimistisch
         IntegerField stock = new IntegerField("Stock");
         stock.setMin(0);
         stock.setStepButtonsVisible(true);
@@ -42,25 +43,27 @@ public class StockChangeDialog extends Dialog {
         add(form);
 
         Button cancel = new Button("Cancel", e -> close());
-        Button save = new Button("Speichern", e -> {
+        Button save = new Button("Save", e -> {
             Integer v = stock.getValue();
             if (v == null || v < 0) {
-                Notification.show("Bitte gültigen Bestand eingeben");
+                Notification.show("Please enter valid Stock ( >= 0");
                 return;
             }
 
             article.setStockLevel(v);
 
-            // Schutz: alte Daten hatten evtl. NULL
+            // Sicherstellung, dass die Daten nicht null sind
+            // WICHTIG: siehe oberes WICHTIG
             if (article.getStorageLocation() == null) {
-                article.setStorageLocation("");   // oder "unbekannt"
+                article.setStorageLocation("");   // oder unbekannt
             }
+            // WICHTIG: siehe oberes WICHTIG
             if (article.getName() == null) {
-                article.setName("Unbenannt");
+                article.setName("No Name");
             }
 
             articleInfoService.save(article);
-            Notification.show("Bestand aktualisiert");
+            Notification.show("Stock updated");
             if (onSuccess != null) onSuccess.run();
             close();
         });

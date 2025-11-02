@@ -304,7 +304,7 @@ public class GridwithFiltersView extends Div {
                 .setSortable(true);
 
         grid.addComponentColumn(item -> {
-            Button editStock = new Button("Bestand");
+            Button editStock = new Button("Edit stock");
             editStock.addClickListener(e -> {
                 StockChangeDialog dlg = new StockChangeDialog(
                         articleInfoService,
@@ -314,7 +314,7 @@ public class GridwithFiltersView extends Div {
                 dlg.open();
             });
             return editStock;
-        }).setHeader("Aktionen");
+        }).setHeader("Actions");
 
         // Optik/Lesbarkeit: verschiedenfarbige Streifen + Umbruch langer Inhalte
         grid.addThemeVariants(
