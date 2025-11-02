@@ -9,7 +9,6 @@ import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.notification.NotificationVariant;
-import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextArea;
@@ -84,20 +83,104 @@ public class CashierView extends BaseView {
 
         // Warenkorb-Grid Initialisierung
         cartGrid = new Grid<>(CartItem.class, false);
-        cartGrid.addColumn(CartItem::position).setHeader("Pos.").setAutoWidth(true);
-        cartGrid.addColumn(item -> item.article().getName()).setHeader("Artikelname");
-        cartGrid.addColumn(item -> item.article().getArticleNumber()).setHeader("Artikelnummer");
-        cartGrid.addColumn(item -> String.format("%.2f €", item.article().getSellingPrice()))
-                .setHeader("Stückpreis");
-        cartGrid.addColumn(CartItem::quantity).setHeader("Menge");
-        cartGrid.addColumn(item -> String.format("%.2f €", item.article().getSellingPrice() * item.quantity()))
+        cartGrid.addColumn(CartItem::getPosition).setHeader("Pos.").setAutoWidth(true);
+        cartGrid.addColumn(item -> item.getArticle().getName()).setHeader("Artikelname");
+        cartGrid.addColumn(item -> item.getArticle().getArticleNumber()).setHeader("Artikelnummer");
+
+        // Editor für Preisänderung
+        var editor = cartGrid.getEditor();
+        var binder = new com.vaadin.flow.data.binder.Binder<CartItem>(CartItem.class);
+        editor.setBinder(binder);
+
+        // TextField für den Preis-Editor
+        TextField priceEditor = new TextField();
+        priceEditor.setSuffixComponent(new Span("€"));
+        priceEditor.setWidth("80px");
+        priceEditor.getStyle().set("text-align", "right");
+
+       // Binder
+        binder.forField(priceEditor)
+                .withConverter(
+                        value -> {
+                            if (value == null || value.isBlank()) return null; // leer -> null
+                            try {
+                                return Double.parseDouble(value.replace(",", "."));
+                            } catch (NumberFormatException e) {
+                                return null;
+                            }
+                        },
+                        value -> value != null ? String.format("%.2f", value) : ""
+                )
+                .bind(CartItem::getOverriddenPrice, CartItem::setOverriddenPrice);
+
+        // Spalte Stückpreis
+        cartGrid.addColumn(item -> String.format("%.2f €", item.getEffectivePrice()))
+                .setHeader("Stückpreis")
+                .setEditorComponent(priceEditor);
+
+        // Editor öffnen beim Doppelklick
+        cartGrid.addItemDoubleClickListener(event -> {
+            CartItem item = event.getItem();
+            editor.editItem(item);
+
+            // Originalpreis beim ersten Öffnen übernehmen, falls leer
+            Double currentPrice = item.getOverriddenPrice();
+            priceEditor.setValue(currentPrice != null
+                    ? String.format("%.2f", currentPrice)
+                    : String.format("%.2f", item.getArticle().getSellingPrice()));
+
+            priceEditor.focus();
+        });
+
+        // Enter-Taste im Editor
+        priceEditor.addKeyDownListener(Key.ENTER, event -> {
+            if (editor.isOpen()) {
+                String input = priceEditor.getValue().trim().replace(",", ".");
+                CartItem item = editor.getItem();
+
+                // Leeres Feld → Originalpreis wieder setzen
+                if (input.isEmpty()) {
+                    item.setOverriddenPrice(null);
+                    editor.save();
+                    editor.cancel();
+                    updateCartGrid();
+                    return;
+                }
+
+                // Nur gültige Zahlen zulassen
+                if (!input.matches("\\d+(\\.\\d{0,2})?")) {
+                    Notification.show("Bitte nur gültige Zahlen eingeben!", 2000, Notification.Position.MIDDLE)
+                            .addThemeVariants(NotificationVariant.LUMO_ERROR);
+                    return;
+                }
+
+                // Eingabe speichern
+                item.setOverriddenPrice(Double.parseDouble(input));
+                editor.save();
+                editor.cancel();
+                updateCartGrid();
+
+                // Hier kommt die Bestätigung
+                Notification.show(
+                        "Der Preis von " + item.getArticle().getName() + " wurde auf "
+                                + String.format("%.2f €", item.getEffectivePrice()) + " geändert",
+                        2000,
+                        Notification.Position.MIDDLE
+                ).addThemeVariants(NotificationVariant.LUMO_SUCCESS);
+            }
+        });
+
+
+        // Menge und Gesamtpreis
+        cartGrid.addColumn(CartItem::getQuantity).setHeader("Menge");
+        cartGrid.addColumn(item -> String.format("%.2f €", item.getEffectivePrice() * item.getQuantity()))
                 .setHeader("Gesamtpreis");
 
-        // Entfernen-Button für Warenkorb
+        // Entfernen-Button
         cartGrid.addComponentColumn(item -> {
             Button removeButton = new Button(new Icon(VaadinIcon.TRASH));
             removeButton.getElement().setProperty("title", "Artikel entfernen");
-            removeButton.addClickListener(e -> removeFromCart(item.article().getArticleNumber())); // Entfernt Artikel oder reduziert Menge
+            removeButton.addClickListener(e -> removeFromCart(item.getArticle().getArticleNumber()));
             return removeButton;
         }).setHeader("");
 
@@ -205,20 +288,61 @@ public class CashierView extends BaseView {
         add(mainLayout);
     }
 
-    // interne Hilfsklasse für Warenkorb
-    private record CartItem(int position, Article article, int quantity) {}
+    // Hilfsklasse für Warenkorb
+    private static class CartItem {
+
+        private final int position;
+        private final Article article;
+        private int quantity;
+        private Double overriddenPrice; // null = kein manueller Preis
+
+        public CartItem(int position, Article article, int quantity) {
+            this.position = position;
+            this.article = article;
+            this.quantity = quantity;
+        }
+
+        public int getPosition() {
+            return position;
+        }
+
+        public Article getArticle() {
+            return article;
+        }
+
+        public int getQuantity() {
+            return quantity;
+        }
+
+        public void setQuantity(int quantity) {
+            this.quantity = quantity;
+        }
+
+        public Double getOverriddenPrice() {
+            return overriddenPrice;
+        }
+
+        public void setOverriddenPrice(Double overriddenPrice) {
+            this.overriddenPrice = overriddenPrice;
+        }
+
+        public double getEffectivePrice() {
+            return overriddenPrice != null ? overriddenPrice : article.getSellingPrice();
+        }
+
+        public boolean isPriceOverridden() {
+            return overriddenPrice != null;
+        }
+    }
+
 
     // Artikel hinzufügen (nach Artikelnummer zusammenfassen)
     private void addToCart(Article article) {
         String key = article.getArticleNumber();
         if (cartItems.containsKey(key)) {
             CartItem existing = cartItems.get(key);
-            CartItem updated = new CartItem(
-                    existing.position(),
-                    article,
-                    existing.quantity() + 1
-            );
-            cartItems.put(key, updated);
+            // Menge direkt erhöhen (nicht neues Objekt erzeugen!)
+            existing.setQuantity(existing.getQuantity() + 1);
         } else {
             cartItems.put(key, new CartItem(nextPosition++, article, 1));
         }
@@ -233,35 +357,36 @@ public class CashierView extends BaseView {
         notification.addThemeVariants(NotificationVariant.LUMO_SUCCESS);
     }
 
+
     // Artikel entfernen oder Menge reduzieren
     private void removeFromCart(String articleNumber) {
         CartItem existing = cartItems.get(articleNumber);
         if (existing != null) {
-            if (existing.quantity() > 1) {
-                cartItems.put(articleNumber, new CartItem(
-                        existing.position(),
-                        existing.article(),
-                        existing.quantity() - 1
-                ));
+            if (existing.getQuantity() > 1) {
+                // Menge einfach um 1 verringern
+                existing.setQuantity(existing.getQuantity() - 1);
             } else {
-                cartItems.remove(articleNumber); // Entfernt komplett bei letzter Einheit
+                // Wenn nur noch 1 vorhanden war → ganz entfernen
+                cartItems.remove(articleNumber);
             }
             updateCartGrid();
         }
     }
 
+
     // Warenkorb aktualisieren + Gesamtwerte berechnen
     private void updateCartGrid() {
         List<CartItem> items = cartItems.values().stream()
-                .sorted(Comparator.comparingInt(CartItem::position))
+                .sorted(Comparator.comparingInt(CartItem::getPosition))
                 .toList();
         cartGrid.setItems(items);
 
-        int totalQuantity = items.stream().mapToInt(CartItem::quantity).sum();
+        int totalQuantity = items.stream().mapToInt(CartItem::getQuantity).sum();
         double totalPrice = items.stream()
-                .mapToDouble(item -> item.article().getSellingPrice() * item.quantity())
+                .mapToDouble(item -> item.getEffectivePrice() * item.getQuantity())
                 .sum();
 
         totalLabel.setText(String.format("Gesamtanzahl: %d | Gesamtpreis: %.2f €", totalQuantity, totalPrice));
     }
+
 }
