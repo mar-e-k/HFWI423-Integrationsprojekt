@@ -1,14 +1,20 @@
 package fhdw.de.einkauf_service.serviceImpl;
 
 import fhdw.de.einkauf_service.dto.*;
-import fhdw.de.einkauf_service.entity.*;
+import fhdw.de.einkauf_service.entity.ContactPerson;
+import fhdw.de.einkauf_service.entity.PaymentTerm;
+import fhdw.de.einkauf_service.entity.Supplier;
+import fhdw.de.einkauf_service.repository.ContactPersonRepository;
 import fhdw.de.einkauf_service.repository.PaymentTermRepository;
 import fhdw.de.einkauf_service.repository.SupplierRepository;
 import fhdw.de.einkauf_service.service.SupplierService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.*;
+import java.util.HashSet;
+import java.util.List;
+import java.util.NoSuchElementException;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
@@ -16,11 +22,13 @@ public class SupplierServiceImpl implements SupplierService {
 
     private final SupplierRepository supplierRepository;
     private final PaymentTermRepository paymentTermRepository;
+    private final ContactPersonRepository contactPersonRepository;
 
     public SupplierServiceImpl(SupplierRepository supplierRepository,
-                               PaymentTermRepository paymentTermRepository) {
+                               PaymentTermRepository paymentTermRepository, ContactPersonRepository contactPersonRepository) {
         this.supplierRepository = supplierRepository;
         this.paymentTermRepository = paymentTermRepository;
+        this.contactPersonRepository = contactPersonRepository;
     }
 
     // ==================================================================================
@@ -47,6 +55,7 @@ public class SupplierServiceImpl implements SupplierService {
     // ==================================================================================
     // 2. READ Supplier nach ID
     // ==================================================================================
+    @Transactional(readOnly = true)
     @Override
     public SupplierResponseDTO findSupplierById(Long id) {
         Supplier supplier = supplierRepository.findById(id)
@@ -57,6 +66,7 @@ public class SupplierServiceImpl implements SupplierService {
     // ==================================================================================
     // 3. READ ALL Suppliers
     // ==================================================================================
+    @Transactional(readOnly = true)
     @Override
     public List<SupplierResponseDTO> findAllSuppliers() {
         return supplierRepository.findAll().stream()
@@ -141,12 +151,23 @@ public class SupplierServiceImpl implements SupplierService {
     }
 
     private ContactPerson toContactPersonEntity(ContactPersonRequestDTO dto) {
-        ContactPerson entity = new ContactPerson();
-        entity.setFirstName(dto.getFirstName());
-        entity.setLastName(dto.getLastName());
-        entity.setRole(dto.getRole());
-        entity.setPhone(dto.getPhone());
-        entity.setEmail(dto.getEmail());
+        ContactPerson entity;
+
+        // If ID is set, try to fetch existing contact person
+        if (dto.getId() != null) {
+            entity = contactPersonRepository.findById(dto.getId())
+                    .orElseThrow(() -> new NoSuchElementException(
+                            "ContactPerson with ID " + dto.getId() + " not found."));
+        } else {
+            // Create new contact person
+            entity = new ContactPerson();
+            entity.setFirstName(dto.getFirstName());
+            entity.setLastName(dto.getLastName());
+            entity.setRole(dto.getRole());
+            entity.setPhone(dto.getPhone());
+            entity.setEmail(dto.getEmail());
+        }
+
         return entity;
     }
 
