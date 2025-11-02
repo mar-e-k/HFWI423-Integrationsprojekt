@@ -21,6 +21,7 @@ import de.fhdw.kassensystem.persistence.service.ArticleService;
 import de.fhdw.kassensystem.utility.config.Roles;
 import jakarta.annotation.security.RolesAllowed;
 
+import java.math.BigDecimal;
 import java.util.*;
 
 @Route("/cashier")
@@ -240,6 +241,18 @@ public class CashierView extends BaseView {
 
             Optional<Article> article = articleService.findByArticleNumber(input);
             if (article.isPresent()) {
+
+                //Implementierung der Fehlermeldung bei keinem Verkaufspreis (selling price == null)
+                Double price = article.get().getSellingPrice();
+                if (price == null || price < 0) {
+                    errorLabel.setText("Artikel hat keinen oder einen ungültigen Verkaufspreis");
+                    descriptionOutputField.clear();
+                    descriptionOutputField.setVisible(false);
+                    articleGrid.setItems(Collections.emptyList());
+                    articleGrid.setVisible(false);
+                    return; // Abbruch – Artikel nicht anzeigen
+                }
+
                 searchField.clear();
                 errorLabel.setText("");
                 descriptionOutputField.setValue(article.get().getDescription());
