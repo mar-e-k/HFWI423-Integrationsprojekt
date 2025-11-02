@@ -387,6 +387,14 @@ public class CashierView extends BaseView {
                 cartItems.remove(articleNumber);
             }
             updateCartGrid();
+
+            // Visuelle Rückmeldung beim Entfernen
+            Notification notification = Notification.show(
+                    existing.getArticle().getName() + " wurde aus dem Warenkorb entfernt",
+                    2000,
+                    Notification.Position.MIDDLE
+            );
+            notification.addThemeVariants(NotificationVariant.LUMO_ERROR);
         }
     }
 
