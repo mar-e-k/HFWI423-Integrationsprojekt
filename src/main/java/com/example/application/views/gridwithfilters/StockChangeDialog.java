@@ -41,11 +41,11 @@ public class StockChangeDialog extends Dialog {
         change.setValue(0);
 
         // Angabe der Änderung mithilfe eines Drop down menüs -> Combo Box. Nur vorgefertigte eingaben
-        ComboBox<String> changeReason = new ComboBox<>("Change reason");
-        changeReason.setItems("Issue", "Transfer", "Correction", "Receipt");
-        changeReason.setRequired(true);
+        ComboBox<String> changeType = new ComboBox<>("Type of Change");
+        changeType.setItems("Issue", "Transfer", "Correction", "Receipt");
+        changeType.setRequired(true);
 
-        FormLayout form = new FormLayout(name, number, current, change, changeReason);
+        FormLayout form = new FormLayout(name, number, current, change, changeType);
         add(form);
 
         Button cancel = new Button("Cancel", e -> close());
@@ -64,15 +64,15 @@ public class StockChangeDialog extends Dialog {
             // Wegen oben im "WICHTIG:" genannten Problem con Intellij
             // WICHTIG: siehe oberes WICHTIG
             if (article.getStorageLocation() == null || article.getStorageLocation().isBlank()) {
-                article.setStorageLocation("unknown");
+                article.setStorageLocation("Unknown");
             }
             // WICHTIG: siehe oberes WICHTIG
             if (article.getName() == null || article.getName().isBlank()) {
                 article.setName("Unnamed");
             }
             // Wenn nicht vorgefertigte eingaben dann == Empty -> fehler
-            if (changeReason.isEmpty()) {
-                Notification.show("Please select a change reason");
+            if (changeType.isEmpty()) {
+                Notification.show("Please select a type of change");
                 return;
             }
 

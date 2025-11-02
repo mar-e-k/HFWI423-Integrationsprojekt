@@ -11,7 +11,7 @@ import java.time.Instant;
 /*
 * Tabelle zum Dokumentieren der Änderung am Bestand
 * speichert alten bestand, Bestandsänderung, neuen Bestand
-* speichert Art der Änderung (TBD) und Grund der Änderung (ComboBox -> feste Types)
+* speichert Art der Änderung (ComboBox -> feste Types) und Grund der Änderung (TBD)
  */
 @Entity
 public class StockChangeLog {
