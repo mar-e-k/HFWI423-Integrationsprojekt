@@ -303,6 +303,19 @@ public class GridwithFiltersView extends Div {
                 .setAutoWidth(true)
                 .setSortable(true);
 
+        grid.addComponentColumn(item -> {
+            Button editStock = new Button("Bestand");
+            editStock.addClickListener(e -> {
+                StockChangeDialog dlg = new StockChangeDialog(
+                        articleInfoService,
+                        item,
+                        this::refreshGrid   // damit das Grid danach aktualisiert wird
+                );
+                dlg.open();
+            });
+            return editStock;
+        }).setHeader("Aktionen");
+
         // Optik/Lesbarkeit: verschiedenfarbige Streifen + Umbruch langer Inhalte
         grid.addThemeVariants(
                 GridVariant.LUMO_ROW_STRIPES,
