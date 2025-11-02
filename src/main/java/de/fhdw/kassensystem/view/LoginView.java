@@ -20,11 +20,9 @@ public class LoginView extends VerticalLayout {
         loginForm.setAction("login");
 
         // Event-Listener für den "Passwort vergessen"-Button hinzufügen
-        loginForm.addForgotPasswordListener(event -> {
-            Notification.show("Pech gehabt! Spaß kontaktiere Erik oder Rohid um das Passwort zu erhalten",
-                              5000, // Dauer in Millisekunden
-                              Notification.Position.MIDDLE);
-        });
+        loginForm.addForgotPasswordListener(event -> Notification.show("Pech gehabt! Spaß kontaktiere Erik oder Rohid um das Passwort zu erhalten",
+                          5000, // Dauer in Millisekunden
+                          Notification.Position.MIDDLE));
 
         add(title, loginForm);
         setAlignItems(Alignment.CENTER);
