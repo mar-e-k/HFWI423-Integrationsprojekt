@@ -10,7 +10,7 @@ import java.time.Instant;
 
 /*
 * Tabelle zum Dokumentieren der Änderung am Bestand
-* speichert alten bestand, Bestandsänderung, neuen Bestand
+* speichert alten bestand, Bestandsänderung, neuen Bestand (noch nicht, hat aber benötigte attribute)
 * speichert Art der Änderung (ComboBox -> feste Types) und Grund der Änderung (TBD)
  */
 @Entity

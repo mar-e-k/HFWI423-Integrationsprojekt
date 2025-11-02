@@ -6,23 +6,30 @@ import jakarta.validation.constraints.Size;
 
 @Entity
 public class ArticleInfo extends AbstractEntity {
-
+    // Name des Artikels
     @Size(max = 255)
     @NotNull
     @Column(name = "name", nullable = false)
     private String name;
+    // Artikelnummer
     @Size(max = 18)
     @NotNull
     @Column(name = "article_number", nullable = false, length = 18)
     private String articleNumber;
-
+    // Lagerbestand des Artikels
     @NotNull
     @Column(name = "stock_level", nullable = false)
     private Integer stockLevel;
+    // Lagerort des Artikels
     @Size(max = 255)
     @NotNull
     @Column(name = "storage_location", nullable = false)
     private String storageLocation;
+    // Artikelgruppe
+    @Size(max = 255)
+    @NotNull
+    @Column(name = "article_group", nullable = false)
+    private String articleGroup;
 
     public String getName() {
         return name;
@@ -45,6 +52,12 @@ public class ArticleInfo extends AbstractEntity {
     }
     public void setStorageLocation(String storageLocation) {
         this.storageLocation = storageLocation;
+    }
+    public String getArticleGroup() {
+        return articleGroup;
+    }
+    public void setArticleGroup(String name) {
+        this.articleGroup = articleGroup;
     }
 
 }
