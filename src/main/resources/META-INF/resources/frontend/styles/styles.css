@@ -1,0 +1,9 @@
+/* --- 1. Grid-FadeIn --- */
+@keyframes fadeInGrid {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.fade-in {
+    animation: fadeInGrid 0.5s ease-out;
+}

@@ -2,6 +2,7 @@ package de.fhdw.kassensystem.view;
 
 import com.vaadin.flow.component.Key;
 import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.dependency.CssImport;
 import com.vaadin.flow.component.grid.ColumnTextAlign;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.html.Span;
@@ -20,9 +21,11 @@ import de.fhdw.kassensystem.persistence.entity.Article;
 import de.fhdw.kassensystem.persistence.service.ArticleService;
 import de.fhdw.kassensystem.utility.config.Roles;
 import jakarta.annotation.security.RolesAllowed;
+
 import java.util.*;
 
 @Route("/cashier")
+@CssImport("./styles/styles.css")
 @RolesAllowed({Roles.Type.CASHIER, Roles.Type.ADMIN})
 @PageTitle("Cashier View")
 public class CashierView extends BaseView {
@@ -96,7 +99,7 @@ public class CashierView extends BaseView {
         priceEditor.setWidth("80px");
         priceEditor.getStyle().set("text-align", "right");
 
-       // Binder
+        // Binder
         binder.forField(priceEditor)
                 .withConverter(
                         value -> {
@@ -176,12 +179,12 @@ public class CashierView extends BaseView {
 
         // Entfernen-Button
         cartGrid.addComponentColumn(item -> {
-            Button removeButton = new Button(new Icon(VaadinIcon.TRASH));
-            removeButton.getElement().setProperty("title", "Artikel entfernen");
-            removeButton.addClickListener(e -> removeFromCart(item.getArticle().getArticleNumber()));
-            return removeButton;
-        }).setHeader("Löschen")
-        .setAutoWidth(true).setTextAlign(ColumnTextAlign.END);
+                    Button removeButton = new Button(new Icon(VaadinIcon.TRASH));
+                    removeButton.getElement().setProperty("title", "Artikel entfernen");
+                    removeButton.addClickListener(e -> removeFromCart(item.getArticle().getArticleNumber()));
+                    return removeButton;
+                }).setHeader("Löschen")
+                .setAutoWidth(true).setTextAlign(ColumnTextAlign.END);
 
         cartGrid.setWidthFull();
         cartGrid.getStyle().set("max-height", "50vh"); // Maximale Höhe: halbe Bildschirmhöhe
@@ -257,6 +260,11 @@ public class CashierView extends BaseView {
                 descriptionOutputField.setVisible(true); // Sichtbar bei gefundenem Artikel
                 articleGrid.setItems(Collections.singletonList(article.get()));
                 articleGrid.setVisible(true); // Sichtbar bei gefundenem Artikel
+                articleGrid.getElement().executeJs("""
+                        this.classList.remove('fade-in');
+                        void this.offsetWidth; // Reflow trick to restart animation
+                        this.classList.add('fade-in');
+                        """);
             } else {
                 errorLabel.setText("Artikel nicht gefunden"); // Fehlermeldung in errorLabel
                 descriptionOutputField.clear(); // Beschreibung leeren
