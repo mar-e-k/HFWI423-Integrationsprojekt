@@ -63,12 +63,12 @@ public class CashierView extends BaseView {
         articleGrid.setVisible(false); // Initial unsichtbar
 
         // Grid-Spalten Definierung
-        articleGrid.addColumn(Article::getName).setHeader("Artikelname");
-        articleGrid.addColumn(Article::getArticleNumber).setHeader("Artikelnummer");
-        articleGrid.addColumn(article -> article.getSellingPrice() + " €").setHeader("Verkaufspreis");
-        articleGrid.addColumn(article -> article.getStockLevel() + " Stück").setHeader("Lagerbestand");
-        articleGrid.addColumn(article -> article.getIsAvailable() ? "ja" : "nein").setHeader("Verfügbar");
-        articleGrid.addColumn(article -> article.getTaxRatePercent() + " %").setHeader("Steuersatz");
+        articleGrid.addColumn(article -> article.getIsAvailable() ? "ja" : "nein").setHeader("Verfügbar").setWidth("70px");
+        articleGrid.addColumn(Article::getName).setHeader("Artikelname").setWidth("200px");
+        articleGrid.addColumn(Article::getArticleNumber).setHeader("Artikelnummer").setAutoWidth(true);
+        articleGrid.addColumn(article -> article.getSellingPrice() + " €").setHeader("Verkaufspreis").setAutoWidth(true);
+        articleGrid.addColumn(article -> article.getStockLevel() + " Stück").setHeader("Lagerbestand").setAutoWidth(true);
+        articleGrid.addColumn(article -> article.getTaxRatePercent() + " %").setHeader("Steuersatz").setAutoWidth(true);
 
         // Hinzufügen-Button (für Warenkorb)
         articleGrid.addComponentColumn(article -> {
@@ -84,8 +84,8 @@ public class CashierView extends BaseView {
         // Warenkorb-Grid Initialisierung
         cartGrid = new Grid<>(CartItem.class, false);
         cartGrid.addColumn(CartItem::getPosition).setHeader("Pos.").setAutoWidth(true);
-        cartGrid.addColumn(item -> item.getArticle().getName()).setHeader("Artikelname");
-        cartGrid.addColumn(item -> item.getArticle().getArticleNumber()).setHeader("Artikelnummer");
+        cartGrid.addColumn(item -> item.getArticle().getName()).setHeader("Artikelname").setWidth("200px");
+        cartGrid.addColumn(item -> item.getArticle().getArticleNumber()).setHeader("Artikelnummer").setAutoWidth(true);
 
         // Editor für Preisänderung
         var editor = cartGrid.getEditor();
@@ -116,6 +116,7 @@ public class CashierView extends BaseView {
         // Spalte Stückpreis
         cartGrid.addColumn(item -> String.format("%.2f €", item.getEffectivePrice()))
                 .setHeader("Stückpreis")
+                .setAutoWidth(true)
                 .setEditorComponent(priceEditor);
 
         // Editor öffnen beim Doppelklick
@@ -170,11 +171,10 @@ public class CashierView extends BaseView {
             }
         });
 
-
         // Menge und Gesamtpreis
-        cartGrid.addColumn(CartItem::getQuantity).setHeader("Menge");
+        cartGrid.addColumn(CartItem::getQuantity).setHeader("Menge").setAutoWidth(true);
         cartGrid.addColumn(item -> String.format("%.2f €", item.getEffectivePrice() * item.getQuantity()))
-                .setHeader("Gesamtpreis");
+                .setHeader("Gesamtpreis").setAutoWidth(true);
 
         // Entfernen-Button
         cartGrid.addComponentColumn(item -> {
@@ -182,7 +182,8 @@ public class CashierView extends BaseView {
             removeButton.getElement().setProperty("title", "Artikel entfernen");
             removeButton.addClickListener(e -> removeFromCart(item.getArticle().getArticleNumber()));
             return removeButton;
-        }).setHeader("");
+        }).setHeader("Löschen")
+        .setAutoWidth(true).setTextAlign(ColumnTextAlign.END);
 
         cartGrid.setWidthFull();
         cartGrid.getStyle().set("max-height", "50vh"); // Maximale Höhe: halbe Bildschirmhöhe
@@ -193,14 +194,10 @@ public class CashierView extends BaseView {
         totalLabel.getStyle().set("font-weight", "bold");
 
         // Artikelbeschreibung Initialisierung
-        descriptionOutputField = new TextArea("Artikelbeschreibung");
+        descriptionOutputField = new TextArea("Artikelbeschreibung"); // Titel angepasst
         descriptionOutputField.setReadOnly(true);
-        descriptionOutputField.setWidthFull(); // Passt sich der verfügbaren Breite an
-        descriptionOutputField.setMinHeight("30px");
-        descriptionOutputField.setMaxHeight("60px"); // Beschränkung auf sinnvolle Höhe
-        descriptionOutputField.getStyle().set("resize", "none");
-        descriptionOutputField.getStyle().set("white-space", "normal");
-        descriptionOutputField.getStyle().set("font-size", "var(--lumo-font-size-s)");
+        descriptionOutputField.setWidth("965px"); // Feste Breite für das Beschreibungsfeld
+        descriptionOutputField.setHeight("60px"); // Höhe automatisch an Inhalt anpassen
         descriptionOutputField.setVisible(false); // Initial unsichtbar
 
         // Sucheingabe Validierung
@@ -269,8 +266,8 @@ public class CashierView extends BaseView {
         // Warenkorb-Bereich mit Gesamtanzeige
         VerticalLayout cartSection = new VerticalLayout(cartGrid, totalLabel);
         cartSection.setWidthFull();
-        cartSection.setPadding(true);
-        cartSection.setSpacing(false);
+        cartSection.setPadding(false);
+        cartSection.setSpacing(true);
         cartSection.setAlignItems(Alignment.STRETCH);
 
         // Hauptlayout
@@ -335,7 +332,6 @@ public class CashierView extends BaseView {
         }
     }
 
-
     // Artikel hinzufügen (nach Artikelnummer zusammenfassen)
     private void addToCart(Article article) {
         String key = article.getArticleNumber();
@@ -357,7 +353,6 @@ public class CashierView extends BaseView {
         notification.addThemeVariants(NotificationVariant.LUMO_SUCCESS);
     }
 
-
     // Artikel entfernen oder Menge reduzieren
     private void removeFromCart(String articleNumber) {
         CartItem existing = cartItems.get(articleNumber);
@@ -373,7 +368,6 @@ public class CashierView extends BaseView {
         }
     }
 
-
     // Warenkorb aktualisieren + Gesamtwerte berechnen
     private void updateCartGrid() {
         List<CartItem> items = cartItems.values().stream()
@@ -386,7 +380,7 @@ public class CashierView extends BaseView {
                 .mapToDouble(item -> item.getEffectivePrice() * item.getQuantity())
                 .sum();
 
-        totalLabel.setText(String.format("Gesamtanzahl: %d | Gesamtpreis: %.2f €", totalQuantity, totalPrice));
+        totalLabel.setText(String.format("Gesamtanzahl: %d  |  Gesamtpreis: %.2f €", totalQuantity, totalPrice));
     }
 
 }
