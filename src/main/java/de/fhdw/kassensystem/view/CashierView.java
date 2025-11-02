@@ -36,7 +36,6 @@ public class CashierView extends BaseView {
     // Map nach Artikelnummer statt Article-Objekt
     private final Map<String, CartItem> cartItems = new LinkedHashMap<>();
 
-    private int nextPosition = 1;
     private Span totalLabel;
 
     public CashierView(ArticleService articleService) {
@@ -288,7 +287,7 @@ public class CashierView extends BaseView {
     // Hilfsklasse für Warenkorb
     private static class CartItem {
 
-        private final int position;
+        private int position;
         private final Article article;
         private int quantity;
         private Double overriddenPrice; // null = kein manueller Preis
@@ -301,6 +300,10 @@ public class CashierView extends BaseView {
 
         public int getPosition() {
             return position;
+        }
+
+        public void setPosition(int position) {
+            this.position = position;
         }
 
         public Article getArticle() {
@@ -340,7 +343,7 @@ public class CashierView extends BaseView {
             // Menge direkt erhöhen (nicht neues Objekt erzeugen!)
             existing.setQuantity(existing.getQuantity() + 1);
         } else {
-            cartItems.put(key, new CartItem(nextPosition++, article, 1));
+            cartItems.put(key, new CartItem(cartItems.size() + 1, article, 1));
         }
 
         updateCartGrid();
@@ -370,9 +373,14 @@ public class CashierView extends BaseView {
 
     // Warenkorb aktualisieren + Gesamtwerte berechnen
     private void updateCartGrid() {
-        List<CartItem> items = cartItems.values().stream()
-                .sorted(Comparator.comparingInt(CartItem::getPosition))
-                .toList();
+        List<CartItem> items = new ArrayList<>(cartItems.values());
+        items.sort(Comparator.comparingInt(CartItem::getPosition));
+
+        int pos = 1;
+        for (CartItem item : items) {
+            item.setPosition(pos++);
+        }
+
         cartGrid.setItems(items);
 
         int totalQuantity = items.stream().mapToInt(CartItem::getQuantity).sum();
@@ -380,7 +388,7 @@ public class CashierView extends BaseView {
                 .mapToDouble(item -> item.getEffectivePrice() * item.getQuantity())
                 .sum();
 
-        totalLabel.setText(String.format("Gesamtanzahl: %d  |  Gesamtpreis: %.2f €", totalQuantity, totalPrice));
+        totalLabel.setText(String.format("Gesamtanzahl: %d | Gesamtpreis: %.2f €", totalQuantity, totalPrice));
     }
 
 }
