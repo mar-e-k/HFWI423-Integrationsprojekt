@@ -23,7 +23,6 @@ public class StockChangeDialog extends Dialog {
 
         setHeaderTitle("Change Stock");
 
-        // read only --> man kanns nicht bearbeiten
         TextField name = new TextField("Article");
         name.setValue(article.getName());
         name.setReadOnly(true);
@@ -32,38 +31,43 @@ public class StockChangeDialog extends Dialog {
         number.setValue(article.getArticleNumber());
         number.setReadOnly(true);
 
-        // bearbeitbarer Bestand
-        // WICHTIG: gelb unterstrichenes != null und == null nicht entfernen!!! sonst klappts nicht. Intellij ist zu optimistisch
-        IntegerField stock = new IntegerField("Stock");
-        stock.setMin(0);
-        stock.setStepButtonsVisible(true);
-        stock.setValue(article.getStockLevel() != null ? article.getStockLevel() : 0);
+        IntegerField current = new IntegerField("Current Stock");
+        current.setValue(article.getStockLevel());
+        current.setReadOnly(true);
 
-        FormLayout form = new FormLayout(name, number, stock);
+        // addiert die änderung zu aktuellem Bestand
+        IntegerField change = new IntegerField("Change (+/-)");
+        change.setValue(0);
+
+        FormLayout form = new FormLayout(name, number, current, change);
         add(form);
 
         Button cancel = new Button("Cancel", e -> close());
         Button save = new Button("Save", e -> {
-            Integer v = stock.getValue();
-            if (v == null || v < 0) {
-                Notification.show("Please enter valid Stock ( >= 0");
+            // WICHTIG: gelb unterstrichende != null und == null nicht entfernen!!! sonst klappts nicht. Intellij ist zu optimistisch
+            // wärend der runtime könnte "null" existieren
+            int oldStock = article.getStockLevel() != null ? article.getStockLevel() : 0;
+            int delta = change.getValue() != null ? change.getValue() : 0;
+            int newStock = oldStock + delta;
+
+            if (newStock < 0) {
+                Notification.show("Stock cannot be negative.");
                 return;
             }
 
-            article.setStockLevel(v);
-
-            // Sicherstellung, dass die Daten nicht null sind
+            // Wegen oben im "WICHTIG:" genannten Problem con Intellij
             // WICHTIG: siehe oberes WICHTIG
-            if (article.getStorageLocation() == null) {
-                article.setStorageLocation("");   // oder unbekannt
+            if (article.getStorageLocation() == null || article.getStorageLocation().isBlank()) {
+                article.setStorageLocation("unknown");
             }
             // WICHTIG: siehe oberes WICHTIG
-            if (article.getName() == null) {
-                article.setName("No Name");
+            if (article.getName() == null || article.getName().isBlank()) {
+                article.setName("Unnamed");
             }
 
+            article.setStockLevel(newStock);
             articleInfoService.save(article);
-            Notification.show("Stock updated");
+            Notification.show("Stock updated: " + oldStock + " → " + newStock);
             if (onSuccess != null) onSuccess.run();
             close();
         });
