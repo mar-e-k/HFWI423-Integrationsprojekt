@@ -4,6 +4,7 @@ import com.example.application.data.ArticleInfo;
 import com.example.application.services.ArticleInfoService;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
+import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.notification.Notification;
@@ -39,7 +40,12 @@ public class StockChangeDialog extends Dialog {
         IntegerField change = new IntegerField("Change (+/-)");
         change.setValue(0);
 
-        FormLayout form = new FormLayout(name, number, current, change);
+        // Angabe der Änderung mithilfe eines Drop down menüs -> Combo Box. Nur vorgefertigte eingaben
+        ComboBox<String> changeReason = new ComboBox<>("Change reason");
+        changeReason.setItems("Issue", "Transfer", "Correction", "Receipt");
+        changeReason.setRequired(true);
+
+        FormLayout form = new FormLayout(name, number, current, change, changeReason);
         add(form);
 
         Button cancel = new Button("Cancel", e -> close());
@@ -63,6 +69,11 @@ public class StockChangeDialog extends Dialog {
             // WICHTIG: siehe oberes WICHTIG
             if (article.getName() == null || article.getName().isBlank()) {
                 article.setName("Unnamed");
+            }
+            // Wenn nicht vorgefertigte eingaben dann == Empty -> fehler
+            if (changeReason.isEmpty()) {
+                Notification.show("Please select a change reason");
+                return;
             }
 
             article.setStockLevel(newStock);
