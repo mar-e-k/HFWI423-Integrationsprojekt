@@ -38,9 +38,18 @@ Das Projekt ist eine Spring-Boot-Anwendung, die ein Kassensystem implementiert.
 ### Bisherige Funktionalität:
 
 *   **Login-Ansicht:** Eine einfache Anmeldemaske (`LoginView.java`).
-*   **Hauptansicht:** Eine Basis-Ansicht (`MainView.java`), die nach dem Login erscheint.
-*   **Kassenansicht:** Eine geschützte Ansicht (`CashierView.java`), die nur für Benutzer mit der Rolle "CASHIER" zugänglich ist.
-*   **Sicherheit:** Spring Security ist grundlegend konfiguriert, um die Ansichten zu schützen.
+*   **Basis-Ansicht:** Eine `BaseView` dient als Vorlage für alle anderen Ansichten und sorgt für ein einheitliches Erscheinungsbild.
+*   **Kassenansicht (`CashierView`):** Diese Ansicht ist für Kassierer und Administratoren zugänglich. Sie ermöglicht:
+    *   Die Suche nach Artikeln über ihre Artikelnummer.
+    *   Das Hinzufügen von Artikeln zu einem Warenkorb. Bei wiederholtem Hinzufügen wird die Menge erhöht.
+    *   Die manuelle Anpassung des Preises für jeden Artikel im Warenkorb.
+    *   Das Entfernen von Artikeln aus dem Warenkorb oder die Reduzierung der Menge.
+    *   Eine Live-Anzeige der Gesamtanzahl der Artikel und des Gesamtpreises.
+*   **Admin-Ansicht (`AdminView`):** Diese Ansicht ist nur für Administratoren zugänglich. Sie bietet:
+    *   Eine Übersicht aller im System erfassten Artikel in einer Tabelle.
+    *   Eine Suchfunktion, um die Artikelliste nach dem Namen zu filtern.
+    *   Einen Button, um die Daten in der Tabelle manuell zu aktualisieren.
+*   **Sicherheit:** Spring Security ist grundlegend konfiguriert, um die Ansichten basierend auf den Benutzerrollen (`CASHIER`, `ADMIN`) zu schützen.
 
 ## 3. Live-Reload für die Entwicklung aktivieren
 
