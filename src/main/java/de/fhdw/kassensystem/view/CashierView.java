@@ -20,8 +20,6 @@ import de.fhdw.kassensystem.persistence.entity.Article;
 import de.fhdw.kassensystem.persistence.service.ArticleService;
 import de.fhdw.kassensystem.utility.config.Roles;
 import jakarta.annotation.security.RolesAllowed;
-
-import java.math.BigDecimal;
 import java.util.*;
 
 @Route("/cashier")
