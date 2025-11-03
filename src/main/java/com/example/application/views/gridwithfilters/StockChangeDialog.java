@@ -23,35 +23,35 @@ public class StockChangeDialog extends Dialog {
         this.article = article;
 
         setHeaderTitle("Change Stock");
-
+        // Textfeld zum einsehen des Artikelnamens --> keine Änderung zugelassen
         TextField name = new TextField("Article");
         name.setValue(article.getName());
         name.setReadOnly(true);
-
+        // Textfeld zum einsehen der Artikelnummer --> keine Änderung zugelassen
         TextField number = new TextField("Article Number");
         number.setValue(article.getArticleNumber());
         number.setReadOnly(true);
-
+        // Zahlenfeld zum einsehen des aktuellen Bestandes --> keine Änderung zugelassen
         IntegerField current = new IntegerField("Current Stock");
         current.setValue(article.getStockLevel());
         current.setReadOnly(true);
 
-        // addiert die änderung zu aktuellem Bestand
+        // Feld zum addieren einer Änderung zum aktuellem Bestand
         IntegerField change = new IntegerField("Change (+/-)");
         change.setValue(0);
 
-        // Angabe der Änderung mithilfe eines Drop down menüs -> Combo Box. Nur vorgefertigte eingaben
+        // Angabe der Änderungsart mithilfe eines Drop down menüs -> Combo Box. Nur vorgefertigte eingaben
         ComboBox<String> changeType = new ComboBox<>("Type of Change");
         changeType.setItems("Issue", "Transfer", "Correction", "Receipt");
         changeType.setRequired(true);
-
+        // Layout des Dialogs
         FormLayout form = new FormLayout(name, number, current, change, changeType);
         add(form);
 
         Button cancel = new Button("Cancel", e -> close());
         Button save = new Button("Save", e -> {
-            // WICHTIG: gelb unterstrichende != null und == null nicht entfernen!!! sonst klappts nicht. Intellij ist zu optimistisch
-            // wärend der runtime könnte "null" existieren
+            // WICHTIG: gelb unterstrichenes != null und == null nicht entfernen!!! sonst klappts nicht. Intellij ist zu optimistisch
+            // \_> während der runtime könnte "null" existieren
             int oldStock = article.getStockLevel() != null ? article.getStockLevel() : 0;
             int delta = change.getValue() != null ? change.getValue() : 0;
             int newStock = oldStock + delta;
@@ -61,7 +61,7 @@ public class StockChangeDialog extends Dialog {
                 return;
             }
 
-            // Wegen oben im "WICHTIG:" genannten Problem con Intellij
+            // Wegen oben im "WICHTIG:" genannten Problem von Intellij
             // WICHTIG: siehe oberes WICHTIG
             if (article.getStorageLocation() == null || article.getStorageLocation().isBlank()) {
                 article.setStorageLocation("Unknown");
@@ -75,10 +75,11 @@ public class StockChangeDialog extends Dialog {
                 Notification.show("Please select a type of change");
                 return;
             }
-
+            // Aktualisierung der Daten und des Grids
             article.setStockLevel(newStock);
             articleInfoService.save(article);
-            Notification.show("Stock updated: " + oldStock + " → " + newStock);
+            // Popup nach der Aktualisierung
+            Notification.show("Stock updated: " + oldStock + " → " + newStock + " | Of Article: " + article.getName() +" | Number: "+ article.getArticleNumber() );
             if (onSuccess != null) onSuccess.run();
             close();
         });
