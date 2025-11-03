@@ -39,11 +39,19 @@ Das Projekt ist eine Spring-Boot-Anwendung, die ein Kassensystem implementiert.
 
 *   **Login-Ansicht:** Eine einfache Anmeldemaske (`LoginView.java`).
 *   **Basis-Ansicht:** Eine `BaseView` dient als Vorlage für alle anderen Ansichten und sorgt für ein einheitliches Erscheinungsbild.
-*   **Kassenansicht (`CashierView`):** Diese Ansicht ist für Kassierer und Administratoren zugänglich. Sie ermöglicht:
+*   **Kassenansicht (`CashierView`):** Diese Ansicht ist für Kassierer und Administratoren zugänglich und wurde um erweiterte Funktionen und Sicherheitsmechanismen ergänzt. Sie ermöglicht:
     *   Die Suche nach Artikeln über ihre Artikelnummer.
     *   Das Hinzufügen von Artikeln zu einem Warenkorb. Bei wiederholtem Hinzufügen wird die Menge erhöht.
-    *   Die manuelle Anpassung des Preises für jeden Artikel im Warenkorb.
-    *   Das Entfernen von Artikeln aus dem Warenkorb oder die Reduzierung der Menge.
+    *   **Gezielte Bearbeitung im Warenkorb:**
+        *   **Preisänderung:** Eine manuelle Preisänderung ist nur durch einen Klick auf die Preis-Spalte möglich.
+        *   **Passwort-Freigabe:** Jede Preisänderung muss durch die Eingabe eines Passworts (`Initial: 1234`) in einem Dialog bestätigt werden.
+        *   **Mengenänderung:** Die Menge kann durch einen direkten Klick auf die Mengen-Spalte angepasst werden.
+        *   **Automatische Aktualisierung:** Änderungen an Preis oder Menge werden sofort übernommen und die Gesamtwerte (Anzahl, Preis) werden automatisch neu berechnet.
+    *   **Erweiterter Lösch-Dialog:**
+        *   Ein Klick auf den Löschen-Button öffnet einen Dialog.
+        *   Der Dialog bietet die Wahl, die gesamte Position oder nur eine bestimmte Menge des Artikels zu entfernen.
+        *   Die zu löschende Menge wird validiert und kann die im Warenkorb vorhandene Menge nicht überschreiten.
+    *   **Robuste Eingabevalidierung:** Ungültige Eingaben bei Preis- oder Mengenänderungen (z.B. Text statt Zahlen) werden mit klaren Fehlermeldungen direkt am Feld verhindert.
     *   Eine Live-Anzeige der Gesamtanzahl der Artikel und des Gesamtpreises.
 *   **Admin-Ansicht (`AdminView`):** Diese Ansicht ist nur für Administratoren zugänglich. Sie bietet:
     *   Eine Übersicht aller im System erfassten Artikel in einer Tabelle.
