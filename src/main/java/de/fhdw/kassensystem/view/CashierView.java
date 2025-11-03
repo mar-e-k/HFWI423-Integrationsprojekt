@@ -46,7 +46,7 @@ public class CashierView extends BaseView {
 
     @Override
     protected String setTopbarTitle() {
-        return this.getClass().getSimpleName();
+        return "Kassen-Dashboard";
     }
 
     @Override
