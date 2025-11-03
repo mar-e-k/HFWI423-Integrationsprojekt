@@ -115,7 +115,8 @@ public class CashierView extends BaseView {
                     }
                 },
                 value -> value != null ? String.format("%.2f", value) : ""
-        ).bind(CartItem::getOverriddenPrice, CartItem::setOverriddenPrice);
+        ).withValidator(price -> price == null || price >= 0, "Preis darf nicht negativ sein")
+        .bind(CartItem::getOverriddenPrice, CartItem::setOverriddenPrice);
 
         // Automatisches Speichern bei Enter oder Verlassen des Feldes (Blur)
         priceEditor.getElement().addEventListener("blur", e -> {
