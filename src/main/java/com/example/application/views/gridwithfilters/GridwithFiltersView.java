@@ -410,11 +410,9 @@ public class GridwithFiltersView extends Div {
     }
     private void setupDataProvider() {
         DataProvider<ArticleInfo, Void> dataProvider = DataProvider.fromCallbacks(
-                // FETCH
                 (Query<ArticleInfo, Void> q) -> articleInfoService
                         .list(VaadinSpringDataHelpers.toSpringPageRequest(q), filters)
                         .stream(),
-                // COUNT
                 (Query<ArticleInfo, Void> q) -> (int) articleInfoService.count(filters)
         );
 
@@ -423,5 +421,4 @@ public class GridwithFiltersView extends Div {
     private void refreshGrid() {
         grid.getDataProvider().refreshAll();
     }
-
 }

@@ -1,6 +1,7 @@
 package com.example.application.views.gridwithfilters;
 
 import com.example.application.data.ArticleInfo;
+import com.example.application.data.ChangeType;
 import com.example.application.services.ArticleInfoService;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
@@ -41,8 +42,14 @@ public class StockChangeDialog extends Dialog {
         change.setValue(0);
 
         // Angabe der Änderungsart mithilfe eines Drop down menüs -> Combo Box. Nur vorgefertigte eingaben
-        ComboBox<String> changeType = new ComboBox<>("Type of Change");
-        changeType.setItems("Issue", "Transfer", "Correction", "Receipt");
+        ComboBox<ChangeType> changeType = new ComboBox<>("Type of Change");
+        changeType.setItems(ChangeType.values());
+        changeType.setItemLabelGenerator(ct -> switch (ct) {
+            case ISSUE -> "Issue";
+            case TRANSFER -> "Transfer";
+            case ADJUSTMENT -> "Correction";
+            case RECEIPT -> "Receipt";
+        });
         changeType.setRequired(true);
         // Layout des Dialogs
         FormLayout form = new FormLayout(name, number, current, change, changeType);
@@ -75,9 +82,8 @@ public class StockChangeDialog extends Dialog {
                 Notification.show("Please select a type of change");
                 return;
             }
-            // Aktualisierung der Daten und des Grids
-            article.setStockLevel(newStock);
-            articleInfoService.save(article);
+            // Aktualisierung der Daten und des Grids. Leitet Änderungen an Dokumentation weiter
+            articleInfoService.applyStockChange(article, delta, changeType.getValue(), null, null);
             // Popup nach der Aktualisierung
             Notification.show("Stock updated: " + oldStock + " → " + newStock + " | Of Article: " + article.getName() +" | Number: "+ article.getArticleNumber() );
             if (onSuccess != null) onSuccess.run();
