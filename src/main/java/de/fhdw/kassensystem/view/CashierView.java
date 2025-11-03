@@ -39,6 +39,8 @@ public class CashierView extends BaseView {
     private Grid<Article> articleGrid;
     private Grid<CartItem> cartGrid;
     private TextArea descriptionOutputField;
+    private TextField priceEditor;
+    private IntegerField quantityEditor;
 
     private final Map<String, CartItem> cartItems = new LinkedHashMap<>();
     private Span totalLabel;
@@ -99,7 +101,7 @@ public class CashierView extends BaseView {
         editor.setBuffered(true);
 
         // Editor für Preis
-        TextField priceEditor = new TextField();
+        priceEditor = new TextField();
         priceEditor.setSuffixComponent(new Span("€"));
         priceEditor.setWidth("100px");
         priceEditor.getStyle().set("text-align", "right");
@@ -130,7 +132,7 @@ public class CashierView extends BaseView {
                 .setKey("price");
 
         // Editor für Menge
-        IntegerField quantityEditor = new IntegerField();
+        quantityEditor = new IntegerField();
         quantityEditor.setWidth("80px");
         binder.forField(quantityEditor).bind(CartItem::getQuantity, CartItem::setQuantity);
 
@@ -167,9 +169,11 @@ public class CashierView extends BaseView {
             if (!editor.isOpen()) {
                 String columnKey = event.getColumn().getKey();
                 if ("price".equals(columnKey)) {
-                    showPasswordDialogForPriceChange(item, priceEditor);
+                    showPasswordDialogForPriceChange(item);
                 } else if ("quantity".equals(columnKey)) {
                     editor.editItem(item);
+                    priceEditor.setReadOnly(true);
+                    quantityEditor.setReadOnly(false);
                     quantityEditor.focus();
                 }
             }
@@ -185,6 +189,11 @@ public class CashierView extends BaseView {
             }
             updateCartGrid(); // Aktualisiert das Grid und die Summen
             editor.cancel(); // Schließt den Editor nach dem Speichern
+        });
+
+        editor.addCancelListener(e -> {
+            priceEditor.setReadOnly(true);
+            quantityEditor.setReadOnly(true);
         });
 
         // Entfernen-Button
@@ -302,7 +311,7 @@ public class CashierView extends BaseView {
         add(mainLayout);
     }
 
-    private void showPasswordDialogForPriceChange(CartItem item, TextField priceEditor) {
+    private void showPasswordDialogForPriceChange(CartItem item) {
         Dialog dialog = new Dialog();
         dialog.setHeaderTitle("Preisänderung-Freigabe");
 
@@ -315,6 +324,8 @@ public class CashierView extends BaseView {
             if (passwordField.getValue().equals(password)) {
                 dialog.close();
                 cartGrid.getEditor().editItem(item);
+                priceEditor.setReadOnly(false);
+                quantityEditor.setReadOnly(true);
                 Double currentPrice = item.getOverriddenPrice();
                 priceEditor.setValue(currentPrice != null
                         ? String.format("%.2f", currentPrice)
