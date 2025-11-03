@@ -25,6 +25,7 @@ import de.fhdw.kassensystem.persistence.entity.Article;
 import de.fhdw.kassensystem.persistence.service.ArticleService;
 import de.fhdw.kassensystem.utility.config.Roles;
 import jakarta.annotation.security.RolesAllowed;
+import org.springframework.beans.factory.annotation.Value;
 
 import java.util.*;
 
@@ -41,7 +42,9 @@ public class CashierView extends BaseView {
 
     private final Map<String, CartItem> cartItems = new LinkedHashMap<>();
     private Span totalLabel;
-    private static final String PASSWORD = "1234";
+    
+    @Value("${spring.cashier.password}")
+    private String password;
 
     public CashierView(ArticleService articleService) {
         this.articleService = articleService;
@@ -309,7 +312,7 @@ public class CashierView extends BaseView {
         dialog.add(passwordField);
 
         Button confirmButton = new Button("Bestätigen", e -> {
-            if (passwordField.getValue().equals(PASSWORD)) {
+            if (passwordField.getValue().equals(password)) {
                 dialog.close();
                 cartGrid.getEditor().editItem(item);
                 Double currentPrice = item.getOverriddenPrice();
