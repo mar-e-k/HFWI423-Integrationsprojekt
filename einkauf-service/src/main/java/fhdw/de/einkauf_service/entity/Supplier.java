@@ -46,11 +46,15 @@ public class Supplier {
     @JoinColumn(name = "payment_term_id", nullable = false)
     private PaymentTerm paymentTerm;
 
-    @ManyToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE})
+    @ManyToMany(
+            cascade = {CascadeType.PERSIST, CascadeType.MERGE},
+            fetch = FetchType.EAGER
+    )
     @JoinTable(
             name = "connector_supplier_cp",
             joinColumns = @JoinColumn(name = "supplier_id"),
             inverseJoinColumns = @JoinColumn(name = "cp_id")
     )
     private Set<ContactPerson> contactPeople = new HashSet<>();
+
 }

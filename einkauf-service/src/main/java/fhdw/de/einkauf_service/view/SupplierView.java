@@ -122,15 +122,7 @@ public class SupplierView extends VerticalLayout {
         deleteButton.addClickListener(e -> {
             SupplierResponseDTO selected = grid.asSingleSelect().getValue();
             if (selected != null) {
-                try {
-                    supplierService.deleteSupplier(selected.getId());
-                    updateList();
-                } catch (Exception ex) {
-                    // Show error to user
-                    Span errorMsg = new Span("Fehler beim Löschen: " + ex.getMessage());
-                    errorMsg.getStyle().set("color", "red");
-                    add(errorMsg);
-                }
+                showDeleteConfirmationDialog(selected);
             }
         });
 
@@ -328,8 +320,10 @@ public class SupplierView extends VerticalLayout {
 
                 if (supplier == null) {
                     supplierService.createNewSupplier(req);
+                    showSuccessNotification("Lieferant wurde erfolgreich gespeichert!");
                 } else {
                     supplierService.updateSupplier(supplier.getId(), req);
+                    showSuccessNotification("Lieferant wurde erfolgreich aktualisiert!");
                 }
 
                 dialog.close();
@@ -375,6 +369,7 @@ public class SupplierView extends VerticalLayout {
 
         // Show contact persons
         if (supplier.getContactPeople() != null && !supplier.getContactPeople().isEmpty()) {
+            System.out.println("Contact persons gefunden ");
             detailsLayout.add(new H3("Kontaktpersonen:"));
             for (ContactPersonResponseDTO cp : supplier.getContactPeople()) {
                 VerticalLayout cpLayout = new VerticalLayout(
@@ -398,6 +393,89 @@ public class SupplierView extends VerticalLayout {
 
     private String safe(Object value) {
         return value == null || value.toString().isEmpty() ? "-" : value.toString();
+    }
+
+    /**
+     * Shows a confirmation dialog before deleting a supplier
+     */
+    private void showDeleteConfirmationDialog(SupplierResponseDTO supplier) {
+        Dialog confirmDialog = new Dialog();
+        confirmDialog.setHeaderTitle("Löschen bestätigen");
+
+        VerticalLayout content = new VerticalLayout(
+                new Span("Möchten Sie den Lieferanten \"" + supplier.getName() + "\" wirklich endgültig löschen?"),
+                new Span("Diese Aktion kann nicht rückgängig gemacht werden.")
+        );
+        content.setPadding(false);
+
+        Button confirmButton = new Button("Löschen", event -> {
+            try {
+                supplierService.deleteSupplier(supplier.getId());
+                confirmDialog.close();
+                updateList();
+                showSuccessNotification("Lieferant wurde erfolgreich gelöscht!");
+            } catch (Exception ex) {
+                confirmDialog.close();
+                showErrorNotification("Fehler beim Löschen: " + ex.getMessage());
+            }
+        });
+        confirmButton.getStyle().set("color", "white");
+        confirmButton.getStyle().set("background-color", "#d32f2f");
+
+        Button cancelButton = new Button("Abbrechen", event -> confirmDialog.close());
+
+        HorizontalLayout buttons = new HorizontalLayout(confirmButton, cancelButton);
+        content.add(buttons);
+
+        confirmDialog.add(content);
+        confirmDialog.open();
+    }
+
+    /**
+     * Shows a success notification to the user
+     */
+    private void showSuccessNotification(String message) {
+        Dialog notification = new Dialog();
+        notification.setWidth("400px");
+
+        VerticalLayout content = new VerticalLayout(new Span(message));
+        content.setPadding(true);
+        content.getStyle().set("color", "#2e7d32");
+        content.getStyle().set("font-weight", "bold");
+
+        Button closeButton = new Button("OK", e -> notification.close());
+        closeButton.getStyle().set("background-color", "#4caf50");
+        closeButton.getStyle().set("color", "white");
+
+        content.add(closeButton);
+        notification.add(content);
+        notification.open();
+
+        // Auto-close after 3 seconds
+        notification.getElement().executeJs(
+                "setTimeout(() => $0.opened = false, 3000)", notification.getElement()
+        );
+    }
+
+    /**
+     * Shows an error notification to the user
+     */
+    private void showErrorNotification(String message) {
+        Dialog notification = new Dialog();
+        notification.setWidth("400px");
+
+        VerticalLayout content = new VerticalLayout(new Span(message));
+        content.setPadding(true);
+        content.getStyle().set("color", "#c62828");
+        content.getStyle().set("font-weight", "bold");
+
+        Button closeButton = new Button("OK", e -> notification.close());
+        closeButton.getStyle().set("background-color", "#f44336");
+        closeButton.getStyle().set("color", "white");
+
+        content.add(closeButton);
+        notification.add(content);
+        notification.open();
     }
 
     /**
