@@ -325,25 +325,36 @@ public class GridwithFiltersView extends Div {
 
                 String newVal = e.getValue();
                 if (newVal == null || newVal.isBlank()) {
-                    // nicht erlaubt -> alten Wert wiederherstellen
                     cb.setValue(last[0]);
                     Notification.show("Storage Location darf nicht leer sein");
                     return;
                 }
 
-                item.setStorageLocation(newVal);
                 try {
-                    articleInfoService.save(item);         // JPA
-                    last[0] = newVal;                      // neuen Stand merken
+                    // 1) Server: frisch laden + speichern (vermeidet OptimisticLock)
+                    ArticleInfo updated = articleInfoService.updateStorageLocation(item.getId(), newVal);
+
+                    // 2) UI-Instanz synchronisieren (sonst springt's zurück)
+                    item.setStorageLocation(updated.getStorageLocation()); // oder: item.setStorageLocation(newVal);
+                    last[0] = updated.getStorageLocation();
+
+                    // 3) Grid refreshen (zur Not: refreshAll())
                     grid.getDataProvider().refreshItem(item);
+                    // grid.getDataProvider().refreshAll();
+
+                    // 4) ComboBox auf finalen Wert setzen (programmatic; triggert keinen Client-Event)
+                    cb.setValue(last[0]);
+
                     Notification.show("Storage Location aktualisiert");
+                } catch (org.springframework.orm.ObjectOptimisticLockingFailureException ex) {
+                    Notification.show("Datensatz wurde geändert. Ansicht wird aktualisiert.");
+                    grid.getDataProvider().refreshAll();
+                    cb.setValue(last[0]);
                 } catch (Exception ex) {
-                    // rollback UI-Zustand
                     cb.setValue(last[0]);
                     Notification.show("Speichern fehlgeschlagen: " + ex.getClass().getSimpleName());
                 }
             });
-
             return cb;
         }).setHeader("Assign Location").setAutoWidth(true);
 

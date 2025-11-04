@@ -91,4 +91,10 @@ public class ArticleInfoService {
 
         return new ListDataProvider<>(locations);
     }
+    public ArticleInfo updateStorageLocation(Long id, String newLocation) {
+        ArticleInfo db = repository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Article not found: " + id));
+        db.setStorageLocation(newLocation);
+        return repository.save(db);
+    }
 }
