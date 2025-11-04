@@ -48,7 +48,7 @@ public class Supplier {
 
     @ManyToMany(
             cascade = {CascadeType.PERSIST, CascadeType.MERGE},
-            fetch = FetchType.EAGER
+            fetch = FetchType.LAZY
     )
     @JoinTable(
             name = "connector_supplier_cp",
