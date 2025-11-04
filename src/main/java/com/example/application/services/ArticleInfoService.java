@@ -3,8 +3,10 @@ package com.example.application.services;
 import com.example.application.data.ArticleInfo;
 import com.example.application.data.ArticleInfoRepository;
 
+import java.util.List;
 import java.util.Optional;
 import com.example.application.data.StockChangeLogRepository;
+import com.vaadin.flow.data.provider.ListDataProvider;
 import org.springframework.transaction.annotation.Transactional;
 import com.example.application.data.StockChangeLog;
 import org.springframework.data.domain.Page;
@@ -77,5 +79,16 @@ public class ArticleInfoService {
         logRepository.save(log);
 
         return saved;
+    }
+
+    public ListDataProvider<String> findAllStorageLocations() {
+        // Holt DISTINCT-Lagerorte aus dem Repository
+        List<String> locations = repository.findDistinctStorageLocations();
+
+        // Aufräumen & sortieren (optional, aber praktisch)
+        locations.removeIf(s -> s == null || s.isBlank());
+        locations.sort(String::compareToIgnoreCase);
+
+        return new ListDataProvider<>(locations);
     }
 }

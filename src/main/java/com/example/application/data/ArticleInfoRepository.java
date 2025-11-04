@@ -7,6 +7,8 @@ import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.util.List;
+
 @Repository
 public interface ArticleInfoRepository
         extends JpaRepository<ArticleInfo, Long>, JpaSpecificationExecutor<ArticleInfo> {
@@ -18,4 +20,6 @@ public interface ArticleInfoRepository
           and (a.stockLevel + :delta) >= 0
        """)
     int applyStockDelta(@Param("id") Long id, @Param("delta") int delta);
+    @Query("select distinct a.storageLocation from ArticleInfo a order by a.storageLocation")
+    List<String> findDistinctStorageLocations();
 }

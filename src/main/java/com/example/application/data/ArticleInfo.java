@@ -34,29 +34,40 @@ public class ArticleInfo extends AbstractEntity {
     public String getName() {
         return name;
     }
+
     public void setName(String name) {
         this.name = name;
     }
+
     public String getArticleNumber() {
         return articleNumber;
     }
+
     public void setArticleNumber(String articleNumber) {
         this.articleNumber = articleNumber;
     }
-    public Integer getStockLevel() { return stockLevel; }
+
+    public Integer getStockLevel() {
+        return stockLevel;
+    }
+
     public void setStockLevel(Integer stockLevel) {
         this.stockLevel = stockLevel;
     }
+
     public String getStorageLocation() {
         return storageLocation;
     }
+
     public void setStorageLocation(String storageLocation) {
         this.storageLocation = storageLocation;
     }
+
     public String getArticleGroup() {
         return articleGroup;
     }
-    public void setArticleGroup(String name) {
+
+    public void setArticleGroup(String articleGroup) {
         this.articleGroup = articleGroup;
     }
 

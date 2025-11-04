@@ -25,7 +25,7 @@ import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaQuery;
 import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
-
+import com.vaadin.flow.component.combobox.ComboBox;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -282,6 +282,7 @@ public class GridwithFiltersView extends Div {
                 .setAutoWidth(true)        // passt sich Inhalt an, verhindert horizontales Scrollen
                 .setSortable(true);
 
+
         // Spalte: Artikelnummer (Integer)
         grid.addColumn(ArticleInfo::getArticleNumber)
                 .setHeader("Article Number")
@@ -302,6 +303,49 @@ public class GridwithFiltersView extends Div {
                 .setKey("storageLocation")
                 .setAutoWidth(true)
                 .setSortable(true);
+
+        grid.addComponentColumn(item -> {
+            ComboBox<String> cb = new ComboBox<>();
+            cb.setItems(articleInfoService.findAllStorageLocations());
+            cb.setValue(item.getStorageLocation());
+            cb.setPlaceholder("Select location");
+            cb.setAllowCustomValue(true);
+            cb.addCustomValueSetListener(ev -> cb.setValue(ev.getDetail()));
+
+            // Variante 1: Clear-Button aus (kein null möglich)
+            cb.setClearButtonVisible(false);
+
+            // Falls du Clear-Button behalten willst, nutze stattdessen:
+            // cb.setClearButtonVisible(true);
+
+            final String[] last = { item.getStorageLocation() };
+
+            cb.addValueChangeListener(e -> {
+                if (!e.isFromClient()) return;
+
+                String newVal = e.getValue();
+                if (newVal == null || newVal.isBlank()) {
+                    // nicht erlaubt -> alten Wert wiederherstellen
+                    cb.setValue(last[0]);
+                    Notification.show("Storage Location darf nicht leer sein");
+                    return;
+                }
+
+                item.setStorageLocation(newVal);
+                try {
+                    articleInfoService.save(item);         // JPA
+                    last[0] = newVal;                      // neuen Stand merken
+                    grid.getDataProvider().refreshItem(item);
+                    Notification.show("Storage Location aktualisiert");
+                } catch (Exception ex) {
+                    // rollback UI-Zustand
+                    cb.setValue(last[0]);
+                    Notification.show("Speichern fehlgeschlagen: " + ex.getClass().getSimpleName());
+                }
+            });
+
+            return cb;
+        }).setHeader("Assign Location").setAutoWidth(true);
 
         grid.addComponentColumn(item -> {
             Button editStock = new Button("Edit stock");
@@ -357,9 +401,12 @@ public class GridwithFiltersView extends Div {
 
         TextField fStorage = new TextField("Storage Location");
 
-        // Kompakte Formular-Anordnung
-        FormLayout form = new FormLayout(fName, fNumber, fInventory, fStorage);
+        TextField fGroup = new TextField("Article Group");
+        fGroup.setRequiredIndicatorVisible(true);
+
+        FormLayout form = new FormLayout(fName, fNumber, fInventory, fStorage, fGroup);
         dialog.add(form);
+
 
         // === Datenbindung & Validierung ===
 
@@ -369,6 +416,10 @@ public class GridwithFiltersView extends Div {
         binder.forField(fName)
                 .asRequired("Enter Article Name")
                 .bind(ArticleInfo::getName, ArticleInfo::setName);
+
+        binder.forField(fGroup)
+                .asRequired("Enter Article Group")
+                .bind(ArticleInfo::getArticleGroup, ArticleInfo::setArticleGroup);
 
         // Nummer: Pflichtfeld (IntegerField liefert Integer/Null)
         binder.forField(fNumber)
@@ -390,16 +441,25 @@ public class GridwithFiltersView extends Div {
         Button cancel = new Button("Cancel", e -> dialog.close());
 
         Button save = new Button("Save", e -> {
-            // Neues Bean befüllen
             ArticleInfo bean = new ArticleInfo();
+
+            // Debug: zeigt, was im UI steht
+            System.out.println("DBG group=" + fGroup.getValue() + ", storage=" + fStorage.getValue());
+
             if (binder.writeBeanIfValid(bean)) {
-                // Persistieren und UI aktualisieren
+                // Fallbacks für @NotNull:
+                if (bean.getArticleGroup() == null || bean.getArticleGroup().isBlank()) {
+                    bean.setArticleGroup("DEFAULT");
+                }
+                if (bean.getStorageLocation() == null || bean.getStorageLocation().isBlank()) {
+                    bean.setStorageLocation("TBD");
+                }
+
                 articleInfoService.save(bean);
                 dialog.close();
                 refreshGrid();
                 Notification.show("Article Saved");
             } else {
-                // Mindestens eine Validierung ist fehlgeschlagen --> Popup
                 Notification.show("Wrong Inputs. Please check Input fields");
             }
         });
