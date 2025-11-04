@@ -331,18 +331,17 @@ public class GridwithFiltersView extends Div {
                 }
 
                 try {
-                    // 1) Server: frisch laden + speichern (vermeidet OptimisticLock)
+                    // laden + speichern (vermeidet OptimisticLock)
                     ArticleInfo updated = articleInfoService.updateStorageLocation(item.getId(), newVal);
 
-                    // 2) UI-Instanz synchronisieren (sonst springt's zurück)
+                    // UI-Instanz synchronisieren (sonst springt's zurück)
                     item.setStorageLocation(updated.getStorageLocation()); // oder: item.setStorageLocation(newVal);
                     last[0] = updated.getStorageLocation();
 
-                    // 3) Grid refreshen (zur Not: refreshAll())
+                    // Grid refreshen
                     grid.getDataProvider().refreshItem(item);
-                    // grid.getDataProvider().refreshAll();
 
-                    // 4) ComboBox auf finalen Wert setzen (programmatic; triggert keinen Client-Event)
+                    // ComboBox auf finalen Wert setzen
                     cb.setValue(last[0]);
 
                     Notification.show("Storage Location aktualisiert");
@@ -371,7 +370,7 @@ public class GridwithFiltersView extends Div {
             return editStock;
         }).setHeader("Actions");
 
-        // Optik/Lesbarkeit: verschiedenfarbige Streifen + Umbruch langer Inhalte
+        //verschiedenfarbige Streifen + Umbruch langer Inhalte
         grid.addThemeVariants(
                 GridVariant.LUMO_ROW_STRIPES,
                 GridVariant.LUMO_WRAP_CELL_CONTENT
@@ -399,9 +398,9 @@ public class GridwithFiltersView extends Div {
         // === Formularfelder ===
 
         TextField fName = new TextField("Article Name");
-        fName.setRequired(true); // UI-Hinweis (optische Markierung)
+        fName.setRequired(true); // UI-Hinweis (optische Markierung in rot)
 
-        // Artikelnummer als IntegerField (bessere Validierung & Step-Buttons)
+        // Artikelnummer als IntegerField
         TextField fNumber = new TextField("Article Number");
         fNumber.setRequiredIndicatorVisible(true);
 

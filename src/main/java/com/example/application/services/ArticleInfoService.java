@@ -73,7 +73,7 @@ public class ArticleInfoService {
         log.setOldStock(oldStock);
         log.setDelta(delta);
         log.setNewStock(newStock);
-        log.setChangeType(type);      // Enum als String (per @Enumerated in Entity)
+        log.setChangeType(type);
         log.setReason(reason);        // kann null sein
         log.setChangedBy(changedBy);  // kann null sein
         logRepository.save(log);
@@ -82,10 +82,10 @@ public class ArticleInfoService {
     }
 
     public ListDataProvider<String> findAllStorageLocations() {
-        // Holt DISTINCT-Lagerorte aus dem Repository
+        // Holt Lagerorte aus dem Repository
         List<String> locations = repository.findDistinctStorageLocations();
 
-        // Aufräumen & sortieren (optional, aber praktisch)
+        // Aufräumen & sortieren
         locations.removeIf(s -> s == null || s.isBlank());
         locations.sort(String::compareToIgnoreCase);
 
