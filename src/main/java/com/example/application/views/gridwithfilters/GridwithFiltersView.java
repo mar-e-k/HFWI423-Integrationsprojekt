@@ -427,10 +427,6 @@ public class GridwithFiltersView extends Div {
                 .asRequired("Enter Article Name")
                 .bind(ArticleInfo::getName, ArticleInfo::setName);
 
-        binder.forField(fGroup)
-                .asRequired("Enter Article Group")
-                .bind(ArticleInfo::getArticleGroup, ArticleInfo::setArticleGroup);
-
         // Nummer: Pflichtfeld (IntegerField liefert Integer/Null)
         binder.forField(fNumber)
                 .asRequired("Enter Article Number")
@@ -456,22 +452,7 @@ public class GridwithFiltersView extends Div {
             // Debug: zeigt, was im UI steht
             System.out.println("DBG group=" + fGroup.getValue() + ", storage=" + fStorage.getValue());
 
-            if (binder.writeBeanIfValid(bean)) {
-                // Fallbacks für @NotNull:
-                if (bean.getArticleGroup() == null || bean.getArticleGroup().isBlank()) {
-                    bean.setArticleGroup("DEFAULT");
-                }
-                if (bean.getStorageLocation() == null || bean.getStorageLocation().isBlank()) {
-                    bean.setStorageLocation("TBD");
-                }
 
-                articleInfoService.save(bean);
-                dialog.close();
-                refreshGrid();
-                Notification.show("Article Saved");
-            } else {
-                Notification.show("Wrong Inputs. Please check Input fields");
-            }
         });
         save.addThemeVariants(ButtonVariant.LUMO_PRIMARY); // visuelle Betonung
 

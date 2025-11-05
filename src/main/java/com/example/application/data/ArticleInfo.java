@@ -25,11 +25,6 @@ public class ArticleInfo extends AbstractEntity {
     @NotNull
     @Column(name = "storage_location", nullable = false)
     private String storageLocation;
-    // Artikelgruppe
-    @Size(max = 255)
-    @NotNull
-    @Column(name = "article_group", nullable = false)
-    private String articleGroup;
 
     public String getName() {
         return name;
@@ -62,13 +57,4 @@ public class ArticleInfo extends AbstractEntity {
     public void setStorageLocation(String storageLocation) {
         this.storageLocation = storageLocation;
     }
-
-    public String getArticleGroup() {
-        return articleGroup;
-    }
-
-    public void setArticleGroup(String articleGroup) {
-        this.articleGroup = articleGroup;
-    }
-
 }
