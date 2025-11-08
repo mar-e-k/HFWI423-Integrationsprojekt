@@ -9,15 +9,15 @@ import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.value.ValueChangeMode;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
-import de.fhdw.kassensystem.persistence.entity.Article;
+import de.fhdw.kassensystem.persistence.entity.AccountRoleEnum;
+import de.fhdw.kassensystem.persistence.entity.imported.Article;
 import de.fhdw.kassensystem.persistence.service.ArticleService;
-import de.fhdw.kassensystem.utility.config.Roles;
 import jakarta.annotation.PostConstruct;
 import jakarta.annotation.security.RolesAllowed;
 
 @Route("/admin")
-@RolesAllowed(Roles.Type.ADMIN)
 @PageTitle("Admin View")
+@RolesAllowed(AccountRoleEnum.ROLE_ADMIN)
 public class AdminView extends BaseView {
 
     private final ArticleService articleService;

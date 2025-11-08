@@ -11,12 +11,8 @@ import org.springframework.security.config.annotation.method.configuration.Enabl
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
-import org.springframework.security.core.userdetails.User;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
 
 @Configuration
@@ -33,27 +29,13 @@ public class SecurityConfig {
                 configurer.loginView(LoginView.class));
 
         http.logout(logout -> {
-            logout.logoutRequestMatcher(request -> request.getMethod().equals(HttpMethod.GET.name()) && request.getRequestURI().equals("/logout"));
-            logout.logoutSuccessUrl("/login?logout"); // Redirect to login page
+            logout.logoutRequestMatcher(request ->
+                    request.getMethod().equals(HttpMethod.GET.name()) &&
+                            request.getRequestURI().equals("/logout"));
+            logout.logoutSuccessUrl("/login?logout");
         });
 
         return http.build();
-    }
-
-    // Hier sind die UserDetails mit Passwort und Username
-    @Bean
-    public UserDetailsService userDetailsService(PasswordEncoder passwordEncoder) {
-        UserDetails cashier = User.withUsername("cashier")
-                .password(passwordEncoder.encode("password"))
-                .roles(Roles.Type.CASHIER)
-                .build();
-
-        UserDetails admin = User.withUsername("admin")
-                .password(passwordEncoder.encode("password"))
-                .roles(Roles.Type.ADMIN)
-                .build();
-
-        return new InMemoryUserDetailsManager(cashier, admin);
     }
 
     @Bean
