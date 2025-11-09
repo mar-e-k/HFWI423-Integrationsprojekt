@@ -1,12 +1,18 @@
 package de.fhdw.kassensystem.view;
 
 import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.confirmdialog.ConfirmDialog;
 import com.vaadin.flow.component.formlayout.FormLayout;
+import com.vaadin.flow.component.grid.Grid;
+import com.vaadin.flow.component.grid.ColumnTextAlign;
 import com.vaadin.flow.component.notification.Notification;
+import com.vaadin.flow.component.notification.NotificationVariant;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+import com.vaadin.flow.component.select.Select;
 import com.vaadin.flow.component.textfield.PasswordField;
 import com.vaadin.flow.component.textfield.TextField;
-import com.vaadin.flow.component.select.Select;
+import com.vaadin.flow.component.icon.Icon;
+import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import de.fhdw.kassensystem.persistence.entity.Account;
@@ -26,6 +32,8 @@ public class RoleView extends BaseView {
     private final AccountService accountService;
     private final AccountRoleService accountRoleService;
 
+    private final Grid<Account> accountGrid = new Grid<>(Account.class, false);
+
     public RoleView(AccountService accountService, AccountRoleService accountRoleService) {
         this.accountService = accountService;
         this.accountRoleService = accountRoleService;
@@ -38,8 +46,9 @@ public class RoleView extends BaseView {
 
     @Override
     protected void init() {
-
-        // --- Eingabefelder ---
+        //----------------------------------------------------------
+        // FORM BEREICH
+        //----------------------------------------------------------
         TextField accountIdField = new TextField("Personalnummer");
         accountIdField.setRequired(true);
 
@@ -56,7 +65,6 @@ public class RoleView extends BaseView {
 
         Button createUserBtn = new Button("Neuen Benutzer anlegen");
 
-        // --- Layout ---
         FormLayout formLayout = new FormLayout(
                 accountIdField,
                 usernameField,
@@ -67,13 +75,60 @@ public class RoleView extends BaseView {
 
         VerticalLayout wrapper = new VerticalLayout(formLayout);
         wrapper.setWidth("400px");
-
         add(wrapper);
 
-        // --- Event: Benutzer anlegen ---
+        //----------------------------------------------------------
+        // TABELLE MIT ACCOUNTS
+        //----------------------------------------------------------
+        accountGrid.addColumn(Account::getAccountId)
+                .setHeader("Personalnummer")
+                .setAutoWidth(true);
+
+        accountGrid.addColumn(Account::getUsername)
+                .setHeader("Username")
+                .setAutoWidth(true);
+
+        accountGrid.addColumn(acc -> acc.getAccountRole().getRole().name())
+                .setHeader("Rolle")
+                .setAutoWidth(true);
+
+        // Löschen-Button-Spalte
+        accountGrid.addComponentColumn(account -> {
+            Button deleteButton = new Button(new Icon(VaadinIcon.TRASH));
+            deleteButton.getElement().setProperty("title", "Benutzer löschen");
+
+            deleteButton.addClickListener(e -> {
+                ConfirmDialog dialog = new ConfirmDialog();
+                dialog.setHeader("Benutzer löschen?");
+                dialog.setText("Möchten Sie den Benutzer '" + account.getUsername() + "' wirklich löschen?");
+                dialog.setConfirmText("Ja");
+                dialog.setCancelText("Nein");
+                dialog.addConfirmListener(event -> {
+                    try {
+                        // Hier ID statt Objekt übergeben
+                        accountService.delete(account.getId());
+                        Notification.show("Benutzer erfolgreich gelöscht!", 2000, Notification.Position.MIDDLE)
+                                .addThemeVariants(NotificationVariant.LUMO_SUCCESS);
+                        refreshGrid();
+                    } catch (Exception ex) {
+                        Notification.show("Fehler beim Löschen: " + ex.getMessage(), 3000, Notification.Position.MIDDLE)
+                                .addThemeVariants(NotificationVariant.LUMO_ERROR);
+                    }
+                });
+                dialog.open();
+            });
+
+            return deleteButton;
+        }).setHeader("Löschen").setAutoWidth(true).setTextAlign(ColumnTextAlign.END);
+
+        refreshGrid();
+        add(accountGrid);
+
+        //----------------------------------------------------------
+        // EVENT: BENUTZER ANLEGEN
+        //----------------------------------------------------------
         createUserBtn.addClickListener(e -> {
 
-            // Validierung
             if (accountIdField.isEmpty()
                     || usernameField.isEmpty()
                     || passwordField.isEmpty()
@@ -83,7 +138,6 @@ public class RoleView extends BaseView {
                 return;
             }
 
-            // Personalnummer validieren
             int personalNumber;
             try {
                 personalNumber = Integer.parseInt(accountIdField.getValue());
@@ -92,7 +146,6 @@ public class RoleView extends BaseView {
                 return;
             }
 
-            // AccountRole holen oder anlegen
             Optional<AccountRole> existingRole =
                     accountRoleService.findByRole(roleSelect.getValue());
 
@@ -100,26 +153,31 @@ public class RoleView extends BaseView {
                     accountRoleService.create(new AccountRole(null, roleSelect.getValue()))
             );
 
-            // Account erstellen
             Account account = new Account();
-            account.setAccountId(personalNumber);             // Personalnummer setzen
+            account.setAccountId(personalNumber);
             account.setUsername(usernameField.getValue());
-            account.setPassword(passwordField.getValue());    // später verschlüsseln!
+            account.setPassword(passwordField.getValue());
             account.setAccountRole(role);
 
             try {
                 accountService.create(account);
                 Notification.show("Benutzer erfolgreich angelegt!");
 
-                // Felder leeren
+                // Felder leeren nach erfolgreicher Eingabe
                 accountIdField.clear();
                 usernameField.clear();
                 passwordField.clear();
                 roleSelect.clear();
 
+                refreshGrid();
+
             } catch (Exception ex) {
                 Notification.show("Fehler beim Anlegen: " + ex.getMessage());
             }
         });
+    }
+
+    private void refreshGrid() {
+        accountGrid.setItems(accountService.findAll());
     }
 }
