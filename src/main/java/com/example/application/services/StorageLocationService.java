@@ -8,14 +8,10 @@ import java.util.List;
 
 @Service
 public class StorageLocationService {
+    private final StorageLocationRepository repo;
+    public StorageLocationService(StorageLocationRepository repo) { this.repo = repo; }
 
-    private final StorageLocationRepository repository;
-
-    public StorageLocationService(StorageLocationRepository repository) {
-        this.repository = repository;
-    }
-
-    public List<StorageLocation> findAll() {
-        return repository.findAll();
-    }
+    public List<StorageLocation> findAll() { return repo.findAll(); }
+    public StorageLocation save(StorageLocation s) { return repo.save(s); }
 }
+
