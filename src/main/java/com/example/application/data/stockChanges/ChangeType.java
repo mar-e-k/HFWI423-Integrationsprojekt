@@ -1,4 +1,4 @@
-package com.example.application.data;
+package com.example.application.data.stockChanges;
     public enum ChangeType {
         ISSUE,       // Entnahme
         TRANSFER,    // Umlagerung

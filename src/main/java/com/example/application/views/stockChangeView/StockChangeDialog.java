@@ -1,7 +1,7 @@
-package com.example.application.views.gridwithfilters;
+package com.example.application.views.stockChangeView;
 
-import com.example.application.data.ArticleInfo;
-import com.example.application.data.ChangeType;
+import com.example.application.data.article.ArticleInfo;
+import com.example.application.data.stockChanges.ChangeType;
 import com.example.application.services.ArticleInfoService;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;

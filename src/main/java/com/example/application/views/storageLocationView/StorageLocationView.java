@@ -1,4 +1,4 @@
-package com.example.application.views.gridwithfilters;
+package com.example.application.views.storageLocationView;
 
 import com.vaadin.flow.component.dependency.Uses;
 import com.vaadin.flow.component.html.Div;
@@ -10,7 +10,7 @@ import org.vaadin.lineawesome.LineAwesomeIconUrl;
 
 @PageTitle("Storage Location")
 @Route("storage-location")
-@Menu(order = 1, icon = LineAwesomeIconUrl.STORE_SOLID) // erscheint unter „Logistic“
+@Menu(order = 2, icon = LineAwesomeIconUrl.STORE_SOLID) // erscheint unter „Logistic“
 @Uses(Icon.class)
 public class StorageLocationView extends Div {
 

@@ -1,5 +1,6 @@
-package com.example.application.data;
+package com.example.application.data.article;
 
+import com.example.application.data.AbstractEntity;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;

@@ -1,19 +1,19 @@
 package com.example.application.services;
 
-import com.example.application.data.ArticleInfo;
-import com.example.application.data.ArticleInfoRepository;
+import com.example.application.data.article.ArticleInfo;
+import com.example.application.data.article.ArticleInfoRepository;
 
 import java.util.List;
 import java.util.Optional;
-import com.example.application.data.StockChangeLogRepository;
+import com.example.application.data.stockChanges.StockChangeLogRepository;
 import com.vaadin.flow.data.provider.ListDataProvider;
 import org.springframework.transaction.annotation.Transactional;
-import com.example.application.data.StockChangeLog;
+import com.example.application.data.stockChanges.StockChangeLog;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
-import com.example.application.data.ChangeType;
+import com.example.application.data.stockChanges.ChangeType;
 
 @Service
 public class ArticleInfoService {

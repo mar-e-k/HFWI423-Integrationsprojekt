@@ -1,8 +1,8 @@
-package com.example.application.views.gridwithfilters;
+package com.example.application.views.stockChangeView;
 
 import com.vaadin.flow.data.provider.ListDataProvider;
 import org.springframework.data.domain.Sort;
-import com.example.application.data.StockChangeLog;
+import com.example.application.data.stockChanges.StockChangeLog;
 import com.example.application.services.StockChangeLogService;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.Text;
@@ -20,7 +20,7 @@ import org.vaadin.lineawesome.LineAwesomeIconUrl;
 
 @PageTitle("Stock Changes")
 @Route("stock-changes")
-@Menu(order = 1, icon = LineAwesomeIconUrl.HISTORY_SOLID) // erscheint unter „Logistic“
+@Menu(order = 3, icon = LineAwesomeIconUrl.HISTORY_SOLID) // erscheint unter „Logistic“
 @Uses(Icon.class)
 public class StockChangeLogView extends Div {
 

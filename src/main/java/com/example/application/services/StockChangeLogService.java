@@ -1,7 +1,7 @@
 package com.example.application.services;
 
-import com.example.application.data.StockChangeLog;
-import com.example.application.data.StockChangeLogRepository;
+import com.example.application.data.stockChanges.StockChangeLog;
+import com.example.application.data.stockChanges.StockChangeLogRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;

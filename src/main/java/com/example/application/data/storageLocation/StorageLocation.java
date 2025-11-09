@@ -1,9 +1,10 @@
-package com.example.application.data;
+package com.example.application.data.storageLocation;
 
+import com.example.application.data.AbstractEntity;
 import jakarta.persistence.Entity;
 
 @Entity
-public class StoragePlaceInfo extends AbstractEntity {
+public class StorageLocation extends AbstractEntity {
 
     private String storageZone;
     private Integer storagePlaceID;

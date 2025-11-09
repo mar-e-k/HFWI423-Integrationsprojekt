@@ -1,7 +1,8 @@
-package com.example.application.views.gridwithfilters;
+package com.example.application.views.logisticMainView;
 
-import com.example.application.data.ArticleInfo;
+import com.example.application.data.article.ArticleInfo;
 import com.example.application.services.ArticleInfoService;
+import com.example.application.views.stockChangeView.StockChangeDialog;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
@@ -12,7 +13,6 @@ import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.notification.Notification;
-import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
@@ -34,11 +34,6 @@ import org.vaadin.lineawesome.LineAwesomeIconUrl;
 import com.vaadin.flow.data.provider.DataProvider;
 import com.vaadin.flow.data.provider.Query;
 
-import com.vaadin.flow.component.dialog.Dialog;
-import com.vaadin.flow.component.formlayout.FormLayout;
-import com.vaadin.flow.component.textfield.IntegerField;
-import com.vaadin.flow.data.binder.Binder;
-
 
 /**
  * Hauptansicht "Logistik" mit Filterleiste und Grid für {@link ArticleInfo}.
@@ -53,14 +48,14 @@ import com.vaadin.flow.data.binder.Binder;
 @Route("")                            // Root-Route
 @Menu(order = 0, icon = LineAwesomeIconUrl.FILTER_SOLID)
 @Uses(Icon.class)
-public class GridwithFiltersView extends Div {
+public class LogisticMainView extends Div {
 
     private Grid<ArticleInfo> grid;
     private com.vaadin.flow.component.dialog.Dialog addDialog; // Lazy init für geringere Initialkosten
     private Filters filters;
     private final ArticleInfoService articleInfoService;
 
-    public GridwithFiltersView(ArticleInfoService articleInfoService) {
+    public LogisticMainView(ArticleInfoService articleInfoService) {
         this.articleInfoService = articleInfoService;
 
         // === Grundlayout der Seite ===
@@ -72,23 +67,7 @@ public class GridwithFiltersView extends Div {
 
         // Datengrid erzeugen (Spalten/Renderer/Selektor etc. im Helper kapseln)
         Component gridComponent = createGrid();
-
-        // Datenquelle (Lazy/DataProvider) mit Grid verknüpfen
         setupDataProvider();
-
-        // "Neuen Artikel" Button: öffnet (bzw. erzeugt + öffnet) das Dialogfenster
-        Button addBtn = new Button("New Article", e -> {
-            if (addDialog == null) {           // Lazy: nur bei Erstgebrauch bauen
-                addDialog = buildAddDialog();  // Kapselung in Methode hält den ctor schlank
-            }
-            addDialog.open();
-        });
-        addBtn.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
-
-        // Toolbar rechtsbündig (Platz für weitere Aktionen)
-        HorizontalLayout toolbar = new HorizontalLayout(addBtn);
-        toolbar.setWidthFull();
-        toolbar.setJustifyContentMode(FlexComponent.JustifyContentMode.END);
 
         // === Seite zusammensetzen ===
         // 1) Mobile Filter-Kopf (toggle), 2) volle Filterleiste (Desktop/ausklappbar mobil),
@@ -96,7 +75,6 @@ public class GridwithFiltersView extends Div {
         VerticalLayout layout = new VerticalLayout(
                 createMobileFilters(),
                 filters,
-                toolbar,
                 gridComponent
         );
         layout.setSizeFull();
@@ -382,83 +360,6 @@ public class GridwithFiltersView extends Div {
         return grid;
     }
 
-    /**
-     * Baut den Dialog zum Anlegen eines neuen Artikels.
-     * Enthält Formularfelder, Binder-Validierungen sowie Save/Cancel-Buttons.
-     *
-     * WICHTIG: AddButton ist ein Temporäres Feature.
-     *          Aktuell nur zum hinzufügen eines Artikels zum testen.
-     *
-     * @return konfigurierter Dialog
-     */
-    private Dialog buildAddDialog() {
-        Dialog dialog = new Dialog();
-        dialog.setHeaderTitle("Add new Article");
-
-        // === Formularfelder ===
-
-        TextField fName = new TextField("Article Name");
-        fName.setRequired(true); // UI-Hinweis (optische Markierung in rot)
-
-        // Artikelnummer als IntegerField
-        TextField fNumber = new TextField("Article Number");
-        fNumber.setRequiredIndicatorVisible(true);
-
-        IntegerField fInventory = new IntegerField("Stock Level");
-        fInventory.setMin(0);             // Bestand >= 0
-        fInventory.setStepButtonsVisible(true);
-        fInventory.setValue(0);           // sinnvolle Voreinstellung
-
-        TextField fStorage = new TextField("Storage Location");
-
-        TextField fGroup = new TextField("Article Group");
-        fGroup.setRequiredIndicatorVisible(true);
-
-        FormLayout form = new FormLayout(fName, fNumber, fInventory, fStorage, fGroup);
-        dialog.add(form);
-
-
-        // === Datenbindung & Validierung ===
-
-        Binder<ArticleInfo> binder = new Binder<>(ArticleInfo.class);
-
-        // Name: Pflichtfeld
-        binder.forField(fName)
-                .asRequired("Enter Article Name")
-                .bind(ArticleInfo::getName, ArticleInfo::setName);
-
-        // Nummer: Pflichtfeld (IntegerField liefert Integer/Null)
-        binder.forField(fNumber)
-                .asRequired("Enter Article Number")
-                .bind(ArticleInfo::getArticleNumber, ArticleInfo::setArticleNumber);
-
-        // Bestand: >= 0, optional aber validiert, falls gesetzt
-        binder.forField(fInventory)
-                .withValidator(v -> v != null && v >= 0, "Stock Level ≥ 0")
-                .bind(ArticleInfo::getStockLevel, ArticleInfo::setStockLevel);
-
-        // Lagerort: Pflichtfeld
-        binder.forField(fStorage)
-                .asRequired("Enter Storage Location")
-                .bind(ArticleInfo::getStorageLocation, ArticleInfo::setStorageLocation);
-
-        // === Aktionen ===
-
-        Button cancel = new Button("Cancel", e -> dialog.close());
-
-        Button save = new Button("Save", e -> {
-            ArticleInfo bean = new ArticleInfo();
-
-            // Debug: zeigt, was im UI steht
-            System.out.println("DBG group=" + fGroup.getValue() + ", storage=" + fStorage.getValue());
-
-
-        });
-        save.addThemeVariants(ButtonVariant.LUMO_PRIMARY); // visuelle Betonung
-
-        dialog.getFooter().add(cancel, save);
-        return dialog;
-    }
     private void setupDataProvider() {
         DataProvider<ArticleInfo, Void> dataProvider = DataProvider.fromCallbacks(
                 (Query<ArticleInfo, Void> q) -> articleInfoService
