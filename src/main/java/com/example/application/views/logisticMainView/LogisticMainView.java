@@ -52,7 +52,6 @@ import com.vaadin.flow.data.provider.Query;
 public class LogisticMainView extends Div {
 
     private Grid<ArticleInfo> grid;
-    private com.vaadin.flow.component.dialog.Dialog addDialog; // Lazy init für geringere Initialkosten
     private Filters filters;
     private final ArticleInfoService articleInfoService;
 
