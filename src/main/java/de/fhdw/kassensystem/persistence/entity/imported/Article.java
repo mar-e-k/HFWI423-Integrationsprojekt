@@ -1,5 +1,6 @@
-package de.fhdw.kassensystem.persistence.entity;
+package de.fhdw.kassensystem.persistence.entity.imported;
 
+import de.fhdw.kassensystem.persistence.entity.Identifiable;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
@@ -7,7 +8,7 @@ import org.hibernate.annotations.ColumnDefault;
 
 @Entity
 @Table(name = "article")
-public class Article {
+public class Article implements Identifiable<Long> {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id", nullable = false)
@@ -63,29 +64,12 @@ public class Article {
     @Column(name = "is_available", nullable = false)
     private Boolean isAvailable = false;
 
-    public Article() {
-        super();
-    }
-
-    public Article(Long id, String articleNumber, String description, String manufacturer, String name, Double purchasePrice, Double sellingPrice, Integer stockLevel, String supplier, Double taxRatePercent, String unit, Boolean isAvailable) {
-        this.id = id;
-        this.articleNumber = articleNumber;
-        this.description = description;
-        this.manufacturer = manufacturer;
-        this.name = name;
-        this.purchasePrice = purchasePrice;
-        this.sellingPrice = sellingPrice;
-        this.stockLevel = stockLevel;
-        this.supplier = supplier;
-        this.taxRatePercent = taxRatePercent;
-        this.unit = unit;
-        this.isAvailable = isAvailable;
-    }
-
+    @Override
     public Long getId() {
         return id;
     }
 
+    @Override
     public void setId(Long id) {
         this.id = id;
     }
@@ -178,21 +162,4 @@ public class Article {
         this.isAvailable = isAvailable;
     }
 
-    @Override
-    public String toString() {
-        return "Article{" +
-                "id=" + id +
-                ", articleNumber='" + articleNumber + '\'' +
-                ", description='" + description + '\'' +
-                ", manufacturer='" + manufacturer + '\'' +
-                ", name='" + name + '\'' +
-                ", purchasePrice=" + purchasePrice +
-                ", sellingPrice=" + sellingPrice +
-                ", stockLevel=" + stockLevel +
-                ", supplier='" + supplier + '\'' +
-                ", taxRatePercent=" + taxRatePercent +
-                ", unit='" + unit + '\'' +
-                ", isAvailable=" + isAvailable +
-                '}';
-    }
 }

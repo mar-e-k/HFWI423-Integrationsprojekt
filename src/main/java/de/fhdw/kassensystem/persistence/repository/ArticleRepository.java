@@ -1,6 +1,6 @@
 package de.fhdw.kassensystem.persistence.repository;
 
-import de.fhdw.kassensystem.persistence.entity.Article;
+import de.fhdw.kassensystem.persistence.entity.imported.Article;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;

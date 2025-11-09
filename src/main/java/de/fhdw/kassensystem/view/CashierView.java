@@ -21,18 +21,18 @@ import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.data.value.ValueChangeMode;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
-import de.fhdw.kassensystem.persistence.entity.Article;
+import de.fhdw.kassensystem.persistence.entity.AccountRoleEnum;
+import de.fhdw.kassensystem.persistence.entity.imported.Article;
 import de.fhdw.kassensystem.persistence.service.ArticleService;
-import de.fhdw.kassensystem.utility.config.Roles;
 import jakarta.annotation.security.RolesAllowed;
 import org.springframework.beans.factory.annotation.Value;
 
 import java.util.*;
 
 @Route("/cashier")
-@CssImport("./styles/styles.css")
-@RolesAllowed({Roles.Type.CASHIER, Roles.Type.ADMIN})
 @PageTitle("Cashier View")
+@CssImport("./styles/styles.css")
+@RolesAllowed({AccountRoleEnum.ROLE_CASHIER, AccountRoleEnum.ROLE_ADMIN})
 public class CashierView extends BaseView {
 
     private final ArticleService articleService;
@@ -45,7 +45,7 @@ public class CashierView extends BaseView {
     private final Map<String, CartItem> cartItems = new LinkedHashMap<>();
     private Span totalLabel;
     
-    @Value("${spring.cashier.password}")
+    @Value("${spring.kassensystem.cashier.password}")
     private String password;
 
     public CashierView(ArticleService articleService) {
@@ -96,7 +96,7 @@ public class CashierView extends BaseView {
 
         // Editor für Preis- und Mengenänderung
         var editor = cartGrid.getEditor();
-        var binder = new Binder<CartItem>(CartItem.class);
+        var binder = new Binder<>(CartItem.class);
         editor.setBinder(binder);
         editor.setBuffered(true);
 

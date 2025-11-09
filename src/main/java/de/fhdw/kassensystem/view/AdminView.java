@@ -1,5 +1,6 @@
 package de.fhdw.kassensystem.view;
 
+import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.icon.Icon;
@@ -9,15 +10,15 @@ import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.value.ValueChangeMode;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
-import de.fhdw.kassensystem.persistence.entity.Article;
+import de.fhdw.kassensystem.persistence.entity.AccountRoleEnum;
+import de.fhdw.kassensystem.persistence.entity.imported.Article;
 import de.fhdw.kassensystem.persistence.service.ArticleService;
-import de.fhdw.kassensystem.utility.config.Roles;
 import jakarta.annotation.PostConstruct;
 import jakarta.annotation.security.RolesAllowed;
 
 @Route("/admin")
-@RolesAllowed(Roles.Type.ADMIN)
 @PageTitle("Admin View")
+@RolesAllowed(AccountRoleEnum.ROLE_ADMIN)
 public class AdminView extends BaseView {
 
     private final ArticleService articleService;
@@ -53,13 +54,18 @@ public class AdminView extends BaseView {
         searchField.setValueChangeMode(ValueChangeMode.LAZY);
         searchField.addValueChangeListener(e -> updateGrid());
 
+        // Button zur Rollenverwaltung
+        Button roleManagementButton = new Button("Rollenverwaltung");
+        roleManagementButton.addClickListener(e -> UI.getCurrent().navigate("roles"));
+
+
         // Aktualisierungs-Button
         Button refreshButton = new Button(new Icon(VaadinIcon.REFRESH));
         refreshButton.setTooltipText("Tabelle aktualisieren");
         refreshButton.addClickListener(e -> updateGrid());
 
         // Toolbar für Suchfeld und Button
-        HorizontalLayout toolbar = new HorizontalLayout(searchField, refreshButton);
+        HorizontalLayout toolbar = new HorizontalLayout(searchField, roleManagementButton, refreshButton);
         toolbar.setAlignItems(Alignment.CENTER);
         toolbar.setFlexGrow(1, searchField); // Suchfeld nimmt den meisten Platz ein
 
