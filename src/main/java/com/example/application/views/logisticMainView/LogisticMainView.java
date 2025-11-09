@@ -35,7 +35,7 @@ import org.vaadin.lineawesome.LineAwesomeIconUrl;
 import com.vaadin.flow.data.provider.DataProvider;
 import com.vaadin.flow.data.provider.Query;
 
-
+//Test zum zeigen
 /**
  * Hauptansicht "Logistik" mit Filterleiste und Grid für {@link ArticleInfo}.
  *
