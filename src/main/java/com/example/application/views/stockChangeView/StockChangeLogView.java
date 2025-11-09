@@ -2,7 +2,7 @@ package com.example.application.views.stockChangeView;
 
 import com.vaadin.flow.data.provider.ListDataProvider;
 import org.springframework.data.domain.Sort;
-import com.example.application.data.stockChanges.StockChangeLog;
+import com.example.application.data.stockChangeLog.StockChangeLog;
 import com.example.application.services.StockChangeLogService;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.Text;

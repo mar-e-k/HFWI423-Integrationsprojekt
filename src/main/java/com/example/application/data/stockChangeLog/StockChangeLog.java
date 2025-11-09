@@ -1,4 +1,4 @@
-package com.example.application.data.stockChanges;
+package com.example.application.data.stockChangeLog;
 
 import jakarta.persistence.*;
 import java.time.OffsetDateTime;

@@ -26,6 +26,7 @@ import jakarta.persistence.criteria.CriteriaQuery;
 import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
 import com.vaadin.flow.component.combobox.ComboBox;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -122,30 +123,29 @@ public class LogisticMainView extends Div {
 
     /**
      * UI-Filterleiste für die Artikelsuche.
-     *
+     * <p>
      * Stellt Eingabefelder für Artikelname, Artikelnummer, Mindestbestand
      * und Lagerort bereit sowie Aktionen zum Suchen und Zurücksetzen.
      * Diese Klasse implementiert außerdem {@link Specification} für ArticleInfo,
      * sodass dieselben Feldwerte für die Datenbank-Filterung (JPA Criteria) genutzt werden können.
-     *
+     * <p>
      * - Platzhalter geben Beispielwerte an und reduzieren Fehleingaben.
      * - "Zurücksetzen" leert alle Felder und triggert sofort eine neue Suche.
      * - Artikelnummer nutzt ein IntegerField mit Step-Buttons und Min=0.
-     *
      */
     public static class Filters extends Div implements Specification<ArticleInfo> {
 
         // Eingabekomponenten (sichtbare Filterfelder)
-        private final TextField   articleName     = new TextField("Article Name");       // Freitext, case-insensitive LIKE
-        private final TextField articleNumber  = new TextField("Article Number");  // Exakt gleich (=)
+        private final TextField articleName = new TextField("Article Name");       // Freitext, case-insensitive LIKE
+        private final TextField articleNumber = new TextField("Article Number");  // Exakt gleich (=)
         private final TextField stockLevel = new TextField("Stock Level");           // Numerisch, >= Mindestbestand
-        private final TextField   storageLocation = new TextField("Storage Location");          // Freitext, case-insensitive LIKE
+        private final TextField storageLocation = new TextField("Storage Location");          // Freitext, case-insensitive LIKE
 
         /**
          * Erstellt die Filterleiste und verbindet die Buttons mit der onSearch Suchaktion.
-         *
+         * <p>
          * onSearch Callback, der ausgeführt wird, wenn der Nutzer sucht oder zurücksetzt.
-         *                 Lädt die Liste/Grids neu.
+         * Lädt die Liste/Grids neu.
          */
         public Filters(Runnable onSearch) {
             // === Layout-Basis ===
@@ -296,7 +296,7 @@ public class LogisticMainView extends Div {
             // Falls du Clear-Button behalten willst, nutze stattdessen:
             // cb.setClearButtonVisible(true);
 
-            final String[] last = { item.getStorageLocation() };
+            final String[] last = {item.getStorageLocation()};
 
             cb.addValueChangeListener(e -> {
                 if (!e.isFromClient()) return;
@@ -370,6 +370,7 @@ public class LogisticMainView extends Div {
 
         grid.setDataProvider(dataProvider);
     }
+
     private void refreshGrid() {
         grid.getDataProvider().refreshAll();
     }
