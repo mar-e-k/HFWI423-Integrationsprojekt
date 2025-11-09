@@ -1,10 +1,6 @@
 package de.fhdw.kassensystem.persistence.entity;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
-import jakarta.validation.constraints.NotBlank;
+import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 
 @Entity
@@ -12,34 +8,21 @@ public class Account extends AbstractEntity {
 
     @ManyToOne(optional = false)
     @JoinColumn(name = "account_role_id", nullable = false)
-    @NotNull(message = "Account role cannot be null")
     private AccountRole accountRole;
 
-    @Column(nullable = false, unique = true)
-    @NotNull(message = "Account id cannot be null")
+    @Column(name = "account_id", unique = true, nullable = false)
+    @NotNull(message = "Account ID cannot be null")
     private Integer accountId;
 
     @Column(nullable = false, unique = true)
-    @NotBlank(message = "Username cannot be blank")
     private String username;
 
-    @Column(nullable = false, unique = true)
-    @NotBlank(message = "Password cannot be blank")
+    @Column(nullable = false)
     private String password;
 
-    public Account() {
-        super();
-    }
+    public Account() {}
 
     public Account(AccountRole accountRole, Integer accountId, String username, String password) {
-        this.accountRole = accountRole;
-        this.accountId = accountId;
-        this.username = username;
-        this.password = password;
-    }
-
-    public Account(Long id, AccountRole accountRole, Integer accountId, String username, String password) {
-        super(id);
         this.accountRole = accountRole;
         this.accountId = accountId;
         this.username = username;
