@@ -4,6 +4,8 @@ import de.fhdw.kassensystem.persistence.entity.Account;
 import de.fhdw.kassensystem.persistence.repository.AccountRepository;
 import org.springframework.stereotype.Service;
 
+import java.util.Optional;
+
 @Service
 public class AccountService extends CrudService<Account, Long> {
 
@@ -12,5 +14,9 @@ public class AccountService extends CrudService<Account, Long> {
     public AccountService(AccountRepository accountRepository) {
         super(accountRepository, Account.class);
         this.accountRepository = accountRepository;
+    }
+
+    public Optional<Account> findByAccountId(Integer accountId) {
+        return accountRepository.findByAccountId(accountId);
     }
 }

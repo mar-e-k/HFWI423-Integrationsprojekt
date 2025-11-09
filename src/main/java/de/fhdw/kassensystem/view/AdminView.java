@@ -1,5 +1,6 @@
 package de.fhdw.kassensystem.view;
 
+import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.icon.Icon;
@@ -53,13 +54,18 @@ public class AdminView extends BaseView {
         searchField.setValueChangeMode(ValueChangeMode.LAZY);
         searchField.addValueChangeListener(e -> updateGrid());
 
+        // Button zur Rollenverwaltung
+        Button roleManagementButton = new Button("Rollenverwaltung");
+        roleManagementButton.addClickListener(e -> UI.getCurrent().navigate("roles"));
+
+
         // Aktualisierungs-Button
         Button refreshButton = new Button(new Icon(VaadinIcon.REFRESH));
         refreshButton.setTooltipText("Tabelle aktualisieren");
         refreshButton.addClickListener(e -> updateGrid());
 
         // Toolbar für Suchfeld und Button
-        HorizontalLayout toolbar = new HorizontalLayout(searchField, refreshButton);
+        HorizontalLayout toolbar = new HorizontalLayout(searchField, roleManagementButton, refreshButton);
         toolbar.setAlignItems(Alignment.CENTER);
         toolbar.setFlexGrow(1, searchField); // Suchfeld nimmt den meisten Platz ein
 

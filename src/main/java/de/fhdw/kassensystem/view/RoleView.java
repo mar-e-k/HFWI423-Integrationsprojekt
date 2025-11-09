@@ -1,5 +1,6 @@
 package de.fhdw.kassensystem.view;
 
+import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.confirmdialog.ConfirmDialog;
 import com.vaadin.flow.component.formlayout.FormLayout;
@@ -24,9 +25,9 @@ import jakarta.annotation.security.RolesAllowed;
 
 import java.util.Optional;
 
-@Route("/role")
+@Route("/roles")
 @PageTitle("Roles View")
-@RolesAllowed({AccountRoleEnum.ROLE_CASHIER, AccountRoleEnum.ROLE_ADMIN})
+@RolesAllowed(AccountRoleEnum.ROLE_ADMIN)
 public class RoleView extends BaseView {
 
     private final AccountService accountService;
@@ -64,13 +65,16 @@ public class RoleView extends BaseView {
         roleSelect.setRequiredIndicatorVisible(true);
 
         Button createUserBtn = new Button("Neuen Benutzer anlegen");
+        Button backToAdminBtn = new Button("Zurück zur Admin-Ansicht");
+        backToAdminBtn.addClickListener(e -> UI.getCurrent().navigate("admin"));
 
         FormLayout formLayout = new FormLayout(
                 accountIdField,
                 usernameField,
                 passwordField,
                 roleSelect,
-                createUserBtn
+                createUserBtn,
+                backToAdminBtn
         );
 
         VerticalLayout wrapper = new VerticalLayout(formLayout);
@@ -143,6 +147,11 @@ public class RoleView extends BaseView {
                 personalNumber = Integer.parseInt(accountIdField.getValue());
             } catch (NumberFormatException ex) {
                 Notification.show("Personalnummer muss eine Zahl sein!");
+                return;
+            }
+
+            if (accountService.findByAccountId(personalNumber).isPresent()) {
+                Notification.show("Ein Benutzer mit dieser Personalnummer existiert bereits!");
                 return;
             }
 
