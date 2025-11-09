@@ -8,6 +8,7 @@ import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.ColumnTextAlign;
 import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.notification.NotificationVariant;
+import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.select.Select;
 import com.vaadin.flow.component.textfield.PasswordField;
@@ -47,9 +48,7 @@ public class RoleView extends BaseView {
 
     @Override
     protected void init() {
-        //----------------------------------------------------------
         // FORM BEREICH
-        //----------------------------------------------------------
         TextField accountIdField = new TextField("Personalnummer");
         accountIdField.setRequired(true);
 
@@ -81,9 +80,7 @@ public class RoleView extends BaseView {
         wrapper.setWidth("400px");
         add(wrapper);
 
-        //----------------------------------------------------------
         // TABELLE MIT ACCOUNTS
-        //----------------------------------------------------------
         accountGrid.addColumn(Account::getAccountId)
                 .setHeader("Personalnummer")
                 .setAutoWidth(true);
@@ -92,9 +89,37 @@ public class RoleView extends BaseView {
                 .setHeader("Username")
                 .setAutoWidth(true);
 
-        accountGrid.addColumn(acc -> acc.getAccountRole().getRole().name())
-                .setHeader("Rolle")
-                .setAutoWidth(true);
+        // Rollen-Spalte mit Bearbeitungsmöglichkeit
+        accountGrid.addComponentColumn(account -> {
+            Select<AccountRoleEnum> roleEditor = new Select<>();
+            roleEditor.setItems(AccountRoleEnum.values());
+            roleEditor.setValue(account.getAccountRole().getRole());
+
+            Button saveButton = new Button("Speichern");
+            saveButton.setVisible(false);
+
+            roleEditor.addValueChangeListener(event -> saveButton.setVisible(true));
+
+            saveButton.addClickListener(e -> {
+                Optional<AccountRole> newRoleOpt = accountRoleService.findByRole(roleEditor.getValue());
+                if (newRoleOpt.isPresent()) {
+                    account.setAccountRole(newRoleOpt.get());
+                    accountService.update(account.getId(), account);
+                    Notification.show("Rolle aktualisiert!", 2000, Notification.Position.MIDDLE)
+                            .addThemeVariants(NotificationVariant.LUMO_SUCCESS);
+                    saveButton.setVisible(false);
+                    refreshGrid();
+                } else {
+                    Notification.show("Fehler: Rolle nicht gefunden!", 3000, Notification.Position.MIDDLE)
+                            .addThemeVariants(NotificationVariant.LUMO_ERROR);
+                }
+            });
+
+            HorizontalLayout editorLayout = new HorizontalLayout(roleEditor, saveButton);
+            editorLayout.setAlignItems(Alignment.CENTER);
+            return editorLayout;
+        }).setHeader("Rolle").setAutoWidth(true);
+
 
         // Löschen-Button-Spalte
         accountGrid.addComponentColumn(account -> {
@@ -128,9 +153,7 @@ public class RoleView extends BaseView {
         refreshGrid();
         add(accountGrid);
 
-        //----------------------------------------------------------
         // EVENT: BENUTZER ANLEGEN
-        //----------------------------------------------------------
         createUserBtn.addClickListener(e -> {
 
             if (accountIdField.isEmpty()
