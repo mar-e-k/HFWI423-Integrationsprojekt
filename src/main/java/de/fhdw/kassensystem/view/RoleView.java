@@ -24,6 +24,7 @@ import de.fhdw.kassensystem.persistence.service.AccountRoleService;
 import de.fhdw.kassensystem.persistence.service.AccountService;
 import jakarta.annotation.security.RolesAllowed;
 
+import java.util.Comparator;
 import java.util.Optional;
 
 @Route("/roles")
@@ -48,7 +49,9 @@ public class RoleView extends BaseView {
 
     @Override
     protected void init() {
+        //----------------------------------------------------------
         // FORM BEREICH
+        //----------------------------------------------------------
         TextField accountIdField = new TextField("Personalnummer");
         accountIdField.setRequired(true);
 
@@ -80,13 +83,17 @@ public class RoleView extends BaseView {
         wrapper.setWidth("400px");
         add(wrapper);
 
+        //----------------------------------------------------------
         // TABELLE MIT ACCOUNTS
+        //----------------------------------------------------------
         accountGrid.addColumn(Account::getAccountId)
                 .setHeader("Personalnummer")
+                .setSortable(true)
                 .setAutoWidth(true);
 
         accountGrid.addColumn(Account::getUsername)
                 .setHeader("Username")
+                .setSortable(true)
                 .setAutoWidth(true);
 
         // Rollen-Spalte mit Bearbeitungsmöglichkeit
@@ -118,7 +125,7 @@ public class RoleView extends BaseView {
             HorizontalLayout editorLayout = new HorizontalLayout(roleEditor, saveButton);
             editorLayout.setAlignItems(Alignment.CENTER);
             return editorLayout;
-        }).setHeader("Rolle").setAutoWidth(true);
+        }).setHeader("Rolle").setSortable(true).setComparator(Comparator.comparing(account -> account.getAccountRole().getRole().name())).setAutoWidth(true);
 
 
         // Löschen-Button-Spalte
@@ -153,7 +160,9 @@ public class RoleView extends BaseView {
         refreshGrid();
         add(accountGrid);
 
+        //----------------------------------------------------------
         // EVENT: BENUTZER ANLEGEN
+        //----------------------------------------------------------
         createUserBtn.addClickListener(e -> {
 
             if (accountIdField.isEmpty()
