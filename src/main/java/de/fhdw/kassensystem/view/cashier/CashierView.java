@@ -68,9 +68,16 @@ public class CashierView extends BaseView implements BeforeEnterObserver {
 
     @Override
     protected HorizontalLayout createTopBarButtons() {
-        Button backToCartButton = new Button("Kauf abschließen");
-        backToCartButton.addClickListener(e -> UI.getCurrent().navigate(PaymentView.class));
-        return new HorizontalLayout(backToCartButton);
+        Button paymentButton = new Button("Kauf abschließen");
+        paymentButton.addClickListener(e -> {
+            if (cartItemsManager.getCart().isEmpty()) {
+                Notification.show("Der Warenkorb ist leer.", 3000, Notification.Position.MIDDLE)
+                        .addThemeVariants(NotificationVariant.LUMO_ERROR);
+            } else {
+                UI.getCurrent().navigate(PaymentView.class);
+            }
+        });
+        return new HorizontalLayout(paymentButton);
     }
 
     @Override
