@@ -10,40 +10,37 @@ import com.vaadin.flow.router.BeforeEnterEvent;
 import com.vaadin.flow.router.BeforeEnterObserver;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
-import com.vaadin.flow.server.VaadinSession;
 import de.fhdw.kassensystem.persistence.entity.AccountRoleEnum;
+import de.fhdw.kassensystem.view.cashier.CartItem;
+import de.fhdw.kassensystem.view.cashier.CartItemsManager;
+import de.fhdw.kassensystem.view.cashier.CashierView;
 import jakarta.annotation.security.RolesAllowed;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Comparator;
-import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
 
 @Route("/payment")
 @PageTitle("Bezahlung")
 @RolesAllowed(AccountRoleEnum.ROLE_CASHIER)
 public class PaymentView extends BaseView implements BeforeEnterObserver {
 
+    private final CartItemsManager cartItemsManager;
+
     private Grid<CartItem> cartGrid;
-    private Map<String, CartItem> cartItems = new LinkedHashMap<>();
     private Span totalLabel;
 
-    public PaymentView() {
-        // Konstruktor
+    public PaymentView(CartItemsManager cartItemsManager) {
+        this.cartItemsManager = cartItemsManager;
     }
 
     @Override
     public void beforeEnter(BeforeEnterEvent event) {
-        Map<String, CartItem> cartData = (Map<String, CartItem>) VaadinSession.getCurrent().getAttribute("cartDataForPayment");
-
-        if (cartData == null || cartData.isEmpty()) {
+        if (cartItemsManager.getCart().isEmpty()) {
             // Wenn keine Daten vorhanden sind, zur Kasse zurückleiten
             event.rerouteTo(CashierView.class);
         } else {
-            // Daten laden und aus der Session entfernen, um Wiederverwendung zu verhindern
-            this.cartItems = cartData;
-            VaadinSession.getCurrent().setAttribute("cartDataForPayment", null);
             updateCartGrid();
         }
     }
@@ -62,7 +59,7 @@ public class PaymentView extends BaseView implements BeforeEnterObserver {
         cartGrid.addColumn(item -> item.getArticle().getArticleNumber()).setHeader("Artikelnummer").setAutoWidth(true);
         cartGrid.addColumn(item -> String.format("%.2f €", item.getEffectivePrice())).setHeader("Stückpreis").setAutoWidth(true);
         cartGrid.addColumn(CartItem::getQuantity).setHeader("Menge").setAutoWidth(true);
-        cartGrid.addColumn(item -> String.format("%.2f €", item.getEffectivePrice() * item.getQuantity())).setHeader("Gesamtpreis").setAutoWidth(true);
+        cartGrid.addColumn(item -> String.format("%.2f €", item.getEffectivePrice().multiply(BigDecimal.valueOf(item.getQuantity())))).setHeader("Gesamtpreis").setAutoWidth(true);
 
         cartGrid.setWidthFull();
         cartGrid.getStyle().set("max-height", "50vh");
@@ -88,22 +85,31 @@ public class PaymentView extends BaseView implements BeforeEnterObserver {
     }
 
     private void updateCartGrid() {
-        if (cartItems == null) return;
-        
-        List<CartItem> items = new ArrayList<>(cartItems.values());
+        List<CartItem> items = new ArrayList<>(cartItemsManager.getCart());
+
         items.sort(Comparator.comparingInt(CartItem::getPosition));
+
         int pos = 1;
         for (CartItem item : items) {
             item.setPosition(pos++);
         }
 
         cartGrid.setItems(items);
+        cartGrid.getDataProvider().refreshAll();
 
-        int totalQuantity = items.stream().mapToInt(CartItem::getQuantity).sum();
-        double totalPrice = items.stream()
-                .mapToDouble(item -> item.getEffectivePrice() * item.getQuantity())
+        int totalQuantity = items.stream()
+                .mapToInt(CartItem::getQuantity)
                 .sum();
 
-        totalLabel.setText(String.format("Gesamtanzahl: %d | Gesamtpreis: %.2f €", totalQuantity, totalPrice));
+        BigDecimal totalPrice = items.stream()
+                .map(item -> item.getOverriddenPrice().multiply(BigDecimal.valueOf(item.getQuantity())))
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+
+        totalLabel.setText(
+                String.format("Gesamtanzahl: %d | Gesamtpreis: %s €",
+                        totalQuantity,
+                        totalPrice.toPlainString()
+                )
+        );
     }
 }
