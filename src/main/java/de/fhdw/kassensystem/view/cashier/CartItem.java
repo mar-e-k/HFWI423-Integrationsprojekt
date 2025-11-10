@@ -52,5 +52,4 @@ public class CartItem {
     public BigDecimal getEffectivePrice() {
         return overriddenPrice != null ? overriddenPrice : BigDecimal.valueOf(article.getSellingPrice());
     }
-
 }

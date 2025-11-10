@@ -3,36 +3,42 @@ package de.fhdw.kassensystem.view.admin;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.grid.Grid;
-import com.vaadin.flow.component.icon.Icon;
-import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
-import com.vaadin.flow.component.textfield.TextField;
-import com.vaadin.flow.data.value.ValueChangeMode;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
+import de.fhdw.kassensystem.persistence.entity.Account;
 import de.fhdw.kassensystem.persistence.entity.AccountRoleEnum;
-import de.fhdw.kassensystem.persistence.entity.imported.Article;
-import de.fhdw.kassensystem.persistence.service.ArticleService;
+import de.fhdw.kassensystem.persistence.service.AccountService;
 import de.fhdw.kassensystem.view.BaseView;
 import jakarta.annotation.PostConstruct;
 import jakarta.annotation.security.RolesAllowed;
+
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 
 @Route("/admin")
 @PageTitle("Admin View")
 @RolesAllowed(AccountRoleEnum.ROLE_ADMIN)
 public class AdminView extends BaseView {
 
-    private final ArticleService articleService;
-    private Grid<Article> grid;
-    private TextField searchField;
+    private final AccountService accountService;
+    private Grid<Account> grid;
+    private final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm:ss").withZone(ZoneId.systemDefault());
 
-    public AdminView(ArticleService articleService) {
-        this.articleService = articleService;
+    public AdminView(AccountService accountService) {
+        this.accountService = accountService;
     }
 
     @Override
     protected String setTopbarTitle() {
         return "Admin-Dashboard";
+    }
+
+    @Override
+    protected HorizontalLayout createTopBarButtons() {
+        Button roleManagementButton = new Button("Zur Rollenverwaltung");
+        roleManagementButton.addClickListener(e -> UI.getCurrent().navigate("roles"));
+        return new HorizontalLayout(roleManagementButton);
     }
 
     @Override
@@ -48,56 +54,32 @@ public class AdminView extends BaseView {
         // Zentrierung aus der BaseView aufheben, damit die Komponenten sich strecken
         setAlignItems(Alignment.STRETCH);
 
-        // Suchfeld initialisieren
-        searchField = new TextField();
-        searchField.setPlaceholder("Nach Artikelnamen suchen...");
-        searchField.setClearButtonVisible(true);
-        searchField.setValueChangeMode(ValueChangeMode.LAZY);
-        searchField.addValueChangeListener(e -> updateGrid());
-
-        // Button zur Rollenverwaltung
-        Button roleManagementButton = new Button("Rollenverwaltung");
-        roleManagementButton.addClickListener(e -> UI.getCurrent().navigate("roles"));
-
-
-        // Aktualisierungs-Button
-        Button refreshButton = new Button(new Icon(VaadinIcon.REFRESH));
-        refreshButton.setTooltipText("Tabelle aktualisieren");
-        refreshButton.addClickListener(e -> updateGrid());
-
-        // Toolbar für Suchfeld und Button
-        HorizontalLayout toolbar = new HorizontalLayout(searchField, roleManagementButton, refreshButton);
-        toolbar.setAlignItems(Alignment.CENTER);
-        toolbar.setFlexGrow(1, searchField); // Suchfeld nimmt den meisten Platz ein
-
         // Grid initialisieren und auf volle Größe einstellen
-        grid = new Grid<>(Article.class, false);
+        grid = new Grid<>(Account.class, false);
         grid.setSizeFull(); // Wichtig: Grid soll den verfügbaren Platz füllen
+        grid.getStyle().set("margin-top", "5em");
+
 
         // Spalten definieren
-        grid.addColumn(Article::getArticleNumber).setHeader("Artikelnummer").setSortable(true);
-        grid.addColumn(Article::getName).setHeader("Name").setSortable(true);
-        grid.addColumn(Article::getManufacturer).setHeader("Hersteller").setSortable(true);
-        grid.addColumn(Article::getSellingPrice).setHeader("Verkaufspreis").setSortable(true);
-        grid.addColumn(Article::getStockLevel).setHeader("Lagerbestand").setSortable(true);
-        grid.addColumn(Article::getIsAvailable).setHeader("Verfügbar").setSortable(true);
+        grid.addColumn(account -> formatter.format(account.getCreatedAt())).setHeader("Erstellt am").setSortable(true);
+        grid.addColumn(Account::getCreatedBy).setHeader("Erstellt von").setSortable(true);
+        grid.addColumn(account -> formatter.format(account.getChangedAt())).setHeader("Geändert am").setSortable(true);
+        grid.addColumn(Account::getChangedBy).setHeader("Geändert von").setSortable(true);
+        grid.addColumn(Account::getAccountId).setHeader("Account ID").setSortable(true);
+        grid.addColumn(Account::getUsername).setHeader("Username").setSortable(true);
+        grid.addColumn(account -> account.getAccountRole().getRole().name()).setHeader("Rolle").setSortable(true);
 
         // Initiales Laden der Daten
         updateGrid();
 
         // Komponenten zum Layout hinzufügen
-        add(toolbar, grid);
+        add(grid);
         
         // Das Grid soll den restlichen Platz einnehmen
         setFlexGrow(1, grid);
     }
 
     private void updateGrid() {
-        String searchTerm = searchField.getValue();
-        if (searchTerm == null || searchTerm.isEmpty()) {
-            grid.setItems(articleService.findAll());
-        } else {
-            grid.setItems(articleService.findByNameContainingIgnoreCase(searchTerm));
-        }
+        grid.setItems(accountService.findAll());
     }
 }

@@ -1,6 +1,7 @@
 package de.fhdw.kassensystem.view.cashier;
 
 import com.vaadin.flow.component.Key;
+import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.dependency.CssImport;
 import com.vaadin.flow.component.dialog.Dialog;
@@ -28,6 +29,7 @@ import de.fhdw.kassensystem.persistence.entity.AccountRoleEnum;
 import de.fhdw.kassensystem.persistence.entity.imported.Article;
 import de.fhdw.kassensystem.persistence.service.ArticleService;
 import de.fhdw.kassensystem.view.BaseView;
+import de.fhdw.kassensystem.view.PaymentView;
 import jakarta.annotation.security.RolesAllowed;
 import org.springframework.beans.factory.annotation.Value;
 
@@ -62,6 +64,20 @@ public class CashierView extends BaseView implements BeforeEnterObserver {
     @Override
     protected String setTopbarTitle() {
         return "Kassen-Dashboard";
+    }
+
+    @Override
+    protected HorizontalLayout createTopBarButtons() {
+        Button paymentButton = new Button("Kauf abschließen");
+        paymentButton.addClickListener(e -> {
+            if (cartItemsManager.getCart().isEmpty()) {
+                Notification.show("Der Warenkorb ist leer.", 3000, Notification.Position.MIDDLE)
+                        .addThemeVariants(NotificationVariant.LUMO_ERROR);
+            } else {
+                UI.getCurrent().navigate(PaymentView.class);
+            }
+        });
+        return new HorizontalLayout(paymentButton);
     }
 
     @Override
