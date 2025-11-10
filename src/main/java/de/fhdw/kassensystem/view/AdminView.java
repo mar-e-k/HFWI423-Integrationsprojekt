@@ -35,6 +35,13 @@ public class AdminView extends BaseView {
     }
 
     @Override
+    protected HorizontalLayout createTopBarButtons() {
+        Button roleManagementButton = new Button("Zur Rollenverwaltung");
+        roleManagementButton.addClickListener(e -> UI.getCurrent().navigate("roles"));
+        return new HorizontalLayout(roleManagementButton);
+    }
+
+    @Override
     protected void init() {
         // Die UI-Initialisierung wird in initUI() verschoben, um sicherzustellen,
         // dass der Service injiziert ist.
@@ -54,18 +61,13 @@ public class AdminView extends BaseView {
         searchField.setValueChangeMode(ValueChangeMode.LAZY);
         searchField.addValueChangeListener(e -> updateGrid());
 
-        // Button zur Rollenverwaltung
-        Button roleManagementButton = new Button("Rollenverwaltung");
-        roleManagementButton.addClickListener(e -> UI.getCurrent().navigate("roles"));
-
-
         // Aktualisierungs-Button
         Button refreshButton = new Button(new Icon(VaadinIcon.REFRESH));
         refreshButton.setTooltipText("Tabelle aktualisieren");
         refreshButton.addClickListener(e -> updateGrid());
 
         // Toolbar für Suchfeld und Button
-        HorizontalLayout toolbar = new HorizontalLayout(searchField, roleManagementButton, refreshButton);
+        HorizontalLayout toolbar = new HorizontalLayout(searchField, refreshButton);
         toolbar.setAlignItems(Alignment.CENTER);
         toolbar.setFlexGrow(1, searchField); // Suchfeld nimmt den meisten Platz ein
 

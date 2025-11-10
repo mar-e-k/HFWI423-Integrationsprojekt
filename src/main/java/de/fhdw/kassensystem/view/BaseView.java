@@ -30,13 +30,23 @@ public abstract class BaseView extends VerticalLayout {
     }
 
     private void setupTopBar() {
+        // Haupt-Container für die Top-Bar
         HorizontalLayout topBar = new HorizontalLayout();
         topBar.setWidthFull();
         topBar.setJustifyContentMode(FlexComponent.JustifyContentMode.BETWEEN);
         topBar.setAlignItems(FlexComponent.Alignment.CENTER);
 
-        H1 viewTitle = new H1(setTopbarTitle());
+        // Linker Bereich: Titel
+        HorizontalLayout leftSection = new HorizontalLayout(new H1(setTopbarTitle()));
+        leftSection.setJustifyContentMode(FlexComponent.JustifyContentMode.START);
+        leftSection.setWidth("33.33%");
 
+        // Mittlerer Bereich: Optionale Buttons
+        HorizontalLayout centerSection = createTopBarButtons();
+        centerSection.setJustifyContentMode(FlexComponent.JustifyContentMode.CENTER);
+        centerSection.setWidth("33.33%");
+
+        // Rechter Bereich: Uhr, Theme-Toggle, Logout
         Span liveClockLabel = new Span();
         liveClockLabel.setId("live-clock-label");
         liveClockLabel.getStyle().set("font-size", "var(--lumo-font-size-l)");
@@ -63,11 +73,14 @@ public abstract class BaseView extends VerticalLayout {
 
         Button logoutButton = new Button("Logout", e -> UI.getCurrent().getPage().setLocation("/logout"));
 
-        HorizontalLayout rightSide = new HorizontalLayout(liveClockLabel, themeToggleButton, logoutButton);
-        rightSide.setAlignItems(FlexComponent.Alignment.CENTER);
-        rightSide.setSpacing(true);
+        HorizontalLayout rightSection = new HorizontalLayout(liveClockLabel, themeToggleButton, logoutButton);
+        rightSection.setAlignItems(FlexComponent.Alignment.CENTER);
+        rightSection.setJustifyContentMode(FlexComponent.JustifyContentMode.END);
+        rightSection.setSpacing(true);
+        rightSection.setWidth("33.33%");
 
-        topBar.add(viewTitle, rightSide);
+        // Alle Sektionen zur Top-Bar hinzufügen
+        topBar.add(leftSection, centerSection, rightSection);
         add(topBar);
 
         // JavaScript Live-Uhr
@@ -83,6 +96,10 @@ public abstract class BaseView extends VerticalLayout {
                 }, 1000);
             }
         """);
+    }
+
+    protected HorizontalLayout createTopBarButtons() {
+        return new HorizontalLayout(); // Standardmäßig leer
     }
 
     protected abstract String setTopbarTitle();

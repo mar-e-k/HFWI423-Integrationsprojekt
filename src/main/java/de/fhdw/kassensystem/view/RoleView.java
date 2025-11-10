@@ -44,7 +44,14 @@ public class RoleView extends BaseView {
 
     @Override
     protected String setTopbarTitle() {
-        return "Role Management";
+        return "Rollenverwaltung";
+    }
+
+    @Override
+    protected HorizontalLayout createTopBarButtons() {
+        Button backToAdminBtn = new Button("Zum Admin-Dashboard");
+        backToAdminBtn.addClickListener(e -> UI.getCurrent().navigate("admin"));
+        return new HorizontalLayout(backToAdminBtn);
     }
 
     @Override
@@ -67,16 +74,13 @@ public class RoleView extends BaseView {
         roleSelect.setRequiredIndicatorVisible(true);
 
         Button createUserBtn = new Button("Neuen Benutzer anlegen");
-        Button backToAdminBtn = new Button("Zurück zur Admin-Ansicht");
-        backToAdminBtn.addClickListener(e -> UI.getCurrent().navigate("admin"));
 
         FormLayout formLayout = new FormLayout(
                 accountIdField,
                 usernameField,
                 passwordField,
                 roleSelect,
-                createUserBtn,
-                backToAdminBtn
+                createUserBtn
         );
 
         VerticalLayout wrapper = new VerticalLayout(formLayout);
