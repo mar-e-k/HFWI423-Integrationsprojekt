@@ -1,4 +1,4 @@
-package de.fhdw.kassensystem.view;
+package de.fhdw.kassensystem.view.admin;
 
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
@@ -13,6 +13,7 @@ import com.vaadin.flow.router.Route;
 import de.fhdw.kassensystem.persistence.entity.AccountRoleEnum;
 import de.fhdw.kassensystem.persistence.entity.imported.Article;
 import de.fhdw.kassensystem.persistence.service.ArticleService;
+import de.fhdw.kassensystem.view.BaseView;
 import jakarta.annotation.PostConstruct;
 import jakarta.annotation.security.RolesAllowed;
 
