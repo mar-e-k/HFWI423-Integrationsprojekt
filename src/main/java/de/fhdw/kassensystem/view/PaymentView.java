@@ -3,23 +3,32 @@ package de.fhdw.kassensystem.view;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.grid.Grid;
+import com.vaadin.flow.component.html.Anchor;
 import com.vaadin.flow.component.html.Span;
+import com.vaadin.flow.component.notification.Notification;
+import com.vaadin.flow.component.notification.NotificationVariant;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.BeforeEnterEvent;
 import com.vaadin.flow.router.BeforeEnterObserver;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
+import com.vaadin.flow.server.VaadinSession;
+import com.vaadin.flow.server.streams.DownloadHandler;
+import com.vaadin.flow.server.streams.DownloadResponse;
 import de.fhdw.kassensystem.persistence.entity.AccountRoleEnum;
+import de.fhdw.kassensystem.service.ReceiptService;
 import de.fhdw.kassensystem.view.cashier.CartItem;
 import de.fhdw.kassensystem.view.cashier.CartItemsManager;
 import de.fhdw.kassensystem.view.cashier.CashierView;
 import jakarta.annotation.security.RolesAllowed;
 
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.*;
 
 @Route("/payment")
 @PageTitle("Bezahlung")
@@ -27,18 +36,21 @@ import java.util.List;
 public class PaymentView extends BaseView implements BeforeEnterObserver {
 
     private final CartItemsManager cartItemsManager;
+    private final ReceiptService receiptService;
 
     private Grid<CartItem> cartGrid;
     private Span totalLabel;
 
-    public PaymentView(CartItemsManager cartItemsManager) {
+    private Anchor downloadLink;
+
+    public PaymentView(CartItemsManager cartItemsManager, ReceiptService receiptService) {
         this.cartItemsManager = cartItemsManager;
+        this.receiptService = receiptService;
     }
 
     @Override
     public void beforeEnter(BeforeEnterEvent event) {
         if (cartItemsManager.getCart().isEmpty()) {
-            // Wenn keine Daten vorhanden sind, zur Kasse zurückleiten
             event.rerouteTo(CashierView.class);
         } else {
             updateCartGrid();
@@ -52,64 +64,100 @@ public class PaymentView extends BaseView implements BeforeEnterObserver {
 
     @Override
     protected void init() {
-        // Warenkorb-Grid Initialisierung
         cartGrid = new Grid<>(CartItem.class, false);
-        cartGrid.addColumn(CartItem::getPosition).setHeader("Pos.").setAutoWidth(true);
-        cartGrid.addColumn(item -> item.getArticle().getName()).setHeader("Artikelname").setWidth("200px");
-        cartGrid.addColumn(item -> item.getArticle().getArticleNumber()).setHeader("Artikelnummer").setAutoWidth(true);
-        cartGrid.addColumn(item -> String.format("%.2f €", item.getEffectivePrice())).setHeader("Stückpreis").setAutoWidth(true);
-        cartGrid.addColumn(CartItem::getQuantity).setHeader("Menge").setAutoWidth(true);
-        cartGrid.addColumn(item -> String.format("%.2f €", item.getEffectivePrice().multiply(BigDecimal.valueOf(item.getQuantity())))).setHeader("Gesamtpreis").setAutoWidth(true);
+        cartGrid.addColumn(CartItem::getPosition).setHeader("Pos.");
+        cartGrid.addColumn(i -> i.getArticle().getName()).setHeader("Artikelname");
+        cartGrid.addColumn(i -> i.getArticle().getArticleNumber()).setHeader("Artikelnummer");
+        cartGrid.addColumn(i -> String.format("%.2f €", i.getEffectivePrice())).setHeader("Stückpreis");
+        cartGrid.addColumn(CartItem::getQuantity).setHeader("Menge");
+        cartGrid.addColumn(i ->
+                String.format("%.2f €", i.getEffectivePrice().multiply(BigDecimal.valueOf(i.getQuantity())))
+        ).setHeader("Gesamtpreis");
 
         cartGrid.setWidthFull();
-        cartGrid.getStyle().set("max-height", "50vh");
-        cartGrid.getStyle().set("overflow-y", "auto");
 
         totalLabel = new Span("Gesamtanzahl: 0 | Gesamtpreis: 0,00 €");
         totalLabel.getStyle().set("font-weight", "bold");
 
+        Button paymentButton = new Button("Zahlung", e -> handlePayment());
+
+        downloadLink = new Anchor();
+        downloadLink.setText("Bon herunterladen");
+        downloadLink.getStyle().set("display", "none");
+
         VerticalLayout cartSection = new VerticalLayout(cartGrid, totalLabel);
         cartSection.setWidthFull();
-        cartSection.setPadding(false);
-        cartSection.setSpacing(true);
-        cartSection.setAlignItems(Alignment.STRETCH);
 
-        add(cartSection);
+        add(cartSection, paymentButton, downloadLink);
     }
 
-    @Override
-    protected HorizontalLayout createTopBarButtons() {
-        Button backToCartButton = new Button("Zurück zum Warenkorb");
-        backToCartButton.addClickListener(e -> UI.getCurrent().navigate("cashier"));
-        return new HorizontalLayout(backToCartButton);
+    private void handlePayment() {
+        try {
+            String fileName = "Bon-" +
+                    LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMdd-HHmmss")) + ".pdf";
+
+            ByteArrayInputStream generatedPdfStream = receiptService.generateReceipt(cartItemsManager.getCart());
+            byte[] pdfBytes = generatedPdfStream.readAllBytes();
+
+            DownloadHandler handler = DownloadHandler.fromInputStream(
+                    event -> new DownloadResponse(
+                            new ByteArrayInputStream(pdfBytes),
+                            fileName,
+                            "application/pdf",
+                            pdfBytes.length
+                    )
+            );
+
+            com.vaadin.flow.server.StreamResourceRegistry.ElementStreamResource resource =
+                    new com.vaadin.flow.server.StreamResourceRegistry.ElementStreamResource(handler, this.getElement());
+
+            String url = VaadinSession.getCurrent()
+                    .getResourceRegistry()
+                    .registerResource(resource)
+                    .getResourceUri()
+                    .toString();
+
+            // Direkt herunterladen
+            downloadLink.setHref(url);
+            downloadLink.getElement().setAttribute("download", fileName);
+            downloadLink.getElement().callJsFunction("click");
+
+            Notification.show("Zahlung abgeschlossen — Bon wird heruntergeladen.",
+                            2500, Notification.Position.TOP_CENTER)
+                    .addThemeVariants(NotificationVariant.LUMO_SUCCESS);
+
+            cartItemsManager.clearCart();
+            updateCartGrid();
+
+        } catch (IOException ex) {
+            Notification.show("Fehler beim Erstellen des Bons: " + ex.getMessage(),
+                            5000, Notification.Position.MIDDLE)
+                    .addThemeVariants(NotificationVariant.LUMO_ERROR);
+        }
     }
 
     private void updateCartGrid() {
         List<CartItem> items = new ArrayList<>(cartItemsManager.getCart());
-
         items.sort(Comparator.comparingInt(CartItem::getPosition));
 
         int pos = 1;
-        for (CartItem item : items) {
-            item.setPosition(pos++);
-        }
+        for (CartItem item : items) item.setPosition(pos++);
 
         cartGrid.setItems(items);
-        cartGrid.getDataProvider().refreshAll();
 
-        int totalQuantity = items.stream()
-                .mapToInt(CartItem::getQuantity)
-                .sum();
-
+        int totalQuantity = items.stream().mapToInt(CartItem::getQuantity).sum();
         BigDecimal totalPrice = items.stream()
-                .map(item -> item.getOverriddenPrice().multiply(BigDecimal.valueOf(item.getQuantity())))
+                .map(i -> i.getEffectivePrice().multiply(BigDecimal.valueOf(i.getQuantity())))
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
 
-        totalLabel.setText(
-                String.format("Gesamtanzahl: %d | Gesamtpreis: %s €",
-                        totalQuantity,
-                        totalPrice.toPlainString()
-                )
-        );
+        totalLabel.setText(String.format("Gesamtanzahl: %d | Gesamtpreis: %s €",
+                totalQuantity, totalPrice.toPlainString()));
+    }
+
+    @Override
+    protected HorizontalLayout createTopBarButtons() {
+        Button backToCart = new Button("Zurück");
+        backToCart.addClickListener(e -> UI.getCurrent().navigate("cashier"));
+        return new HorizontalLayout(backToCart);
     }
 }
