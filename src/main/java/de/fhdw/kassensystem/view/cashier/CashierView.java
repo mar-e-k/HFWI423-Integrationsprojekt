@@ -1,7 +1,6 @@
-package de.fhdw.kassensystem.view;
+package de.fhdw.kassensystem.view.cashier;
 
 import com.vaadin.flow.component.Key;
-import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.dependency.CssImport;
 import com.vaadin.flow.component.dialog.Dialog;
@@ -19,59 +18,50 @@ import com.vaadin.flow.component.textfield.PasswordField;
 import com.vaadin.flow.component.textfield.TextArea;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.Binder;
+import com.vaadin.flow.data.converter.StringToBigDecimalConverter;
 import com.vaadin.flow.data.value.ValueChangeMode;
+import com.vaadin.flow.router.BeforeEnterEvent;
+import com.vaadin.flow.router.BeforeEnterObserver;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
-import com.vaadin.flow.server.VaadinSession;
 import de.fhdw.kassensystem.persistence.entity.AccountRoleEnum;
 import de.fhdw.kassensystem.persistence.entity.imported.Article;
 import de.fhdw.kassensystem.persistence.service.ArticleService;
+import de.fhdw.kassensystem.view.BaseView;
 import jakarta.annotation.security.RolesAllowed;
 import org.springframework.beans.factory.annotation.Value;
 
+import java.math.BigDecimal;
 import java.util.*;
 
 @Route("/cashier")
 @PageTitle("Cashier View")
 @CssImport("./styles/styles.css")
 @RolesAllowed({AccountRoleEnum.ROLE_CASHIER, AccountRoleEnum.ROLE_ADMIN})
-public class CashierView extends BaseView {
+public class CashierView extends BaseView implements BeforeEnterObserver {
 
     private final ArticleService articleService;
+    private final CartItemsManager cartItemsManager;
+
     private Grid<Article> articleGrid;
     private Grid<CartItem> cartGrid;
+
     private TextArea descriptionOutputField;
     private TextField priceEditor;
     private IntegerField quantityEditor;
-
-    private final Map<String, CartItem> cartItems = new LinkedHashMap<>();
     private Span totalLabel;
-    
+
     @Value("${spring.kassensystem.cashier.password}")
     private String password;
 
-    public CashierView(ArticleService articleService) {
+    public CashierView(ArticleService articleService, CartItemsManager cartItemsManager) {
         this.articleService = articleService;
+        this.cartItemsManager = cartItemsManager;
     }
 
     @Override
     protected String setTopbarTitle() {
         return "Kassen-Dashboard";
-    }
-
-    @Override
-    protected HorizontalLayout createTopBarButtons() {
-        Button paymentButton = new Button("Kauf abschließen");
-        paymentButton.addClickListener(e -> {
-            if (cartItems.isEmpty()) {
-                Notification.show("Der Warenkorb ist leer.", 3000, Notification.Position.MIDDLE)
-                        .addThemeVariants(NotificationVariant.LUMO_ERROR);
-            } else {
-                VaadinSession.getCurrent().setAttribute("cartDataForPayment", new LinkedHashMap<>(cartItems));
-                UI.getCurrent().navigate("payment");
-            }
-        });
-        return new HorizontalLayout(paymentButton);
     }
 
     @Override
@@ -122,18 +112,12 @@ public class CashierView extends BaseView {
         priceEditor.setSuffixComponent(new Span("€"));
         priceEditor.setWidth("100px");
         priceEditor.getStyle().set("text-align", "right");
-        binder.forField(priceEditor).withConverter(
-                value -> {
-                    if (value == null || value.isBlank()) return null;
-                    try {
-                        return Double.parseDouble(value.replace(",", "."));
-                    } catch (NumberFormatException e) {
-                        return null;
-                    }
-                },
-                value -> value != null ? String.format("%.2f", value) : ""
-        ).withValidator(price -> price == null || price >= 0, "Preis darf nicht negativ sein")
-        .bind(CartItem::getOverriddenPrice, CartItem::setOverriddenPrice);
+        binder.forField(priceEditor)
+                .withConverter(new StringToBigDecimalConverter("Bitte eine gültige Zahl eingeben"))
+                .withValidator(price -> price == null || price.compareTo(BigDecimal.ZERO) >= 0,
+                        "Preis darf nicht negativ sein")
+                .bind(CartItem::getOverriddenPrice, CartItem::setOverriddenPrice);
+
 
         // Automatisches Speichern bei Enter oder Verlassen des Feldes (Blur)
         priceEditor.getElement().addEventListener("blur", e -> {
@@ -169,7 +153,7 @@ public class CashierView extends BaseView {
                 .setKey("quantity");
 
         // Gesamtpreis
-        cartGrid.addColumn(item -> String.format("%.2f €", item.getEffectivePrice() * item.getQuantity()))
+        cartGrid.addColumn(item -> String.format("%.2f €", item.getEffectivePrice().multiply(BigDecimal.valueOf(item.getQuantity()))))
                 .setHeader("Gesamtpreis").setAutoWidth(true);
 
         // Klick-Listener für die Zellen
@@ -291,8 +275,8 @@ public class CashierView extends BaseView {
                 articleGrid.setVisible(true);
                 articleGrid.getElement().executeJs(
                         "this.classList.remove('fade-in');" +
-                        "void this.offsetWidth;" +
-                        "this.classList.add('fade-in');"
+                                "void this.offsetWidth;" +
+                                "this.classList.add('fade-in');"
                 );
             } else {
                 errorLabel.setText("Artikel nicht gefunden");
@@ -344,7 +328,7 @@ public class CashierView extends BaseView {
                 cartGrid.getEditor().editItem(item);
                 priceEditor.setReadOnly(false);
                 quantityEditor.setReadOnly(true);
-                Double currentPrice = item.getOverriddenPrice();
+                BigDecimal currentPrice = item.getOverriddenPrice();
                 priceEditor.setValue(currentPrice != null
                         ? String.format("%.2f", currentPrice)
                         : String.format("%.2f", item.getArticle().getSellingPrice()));
@@ -355,7 +339,7 @@ public class CashierView extends BaseView {
             }
         });
         Button cancelButton = new Button("Abbrechen", e -> dialog.close());
-        
+
         passwordField.addKeyPressListener(Key.ENTER, e -> confirmButton.click());
 
         dialog.getFooter().add(cancelButton, confirmButton);
@@ -376,7 +360,7 @@ public class CashierView extends BaseView {
             removeCartItemCompletely(item.getArticle().getArticleNumber());
             dialog.close();
         });
-        
+
         dialogLayout.add(deleteAllButton);
 
         if (item.getQuantity() > 1) {
@@ -410,8 +394,13 @@ public class CashierView extends BaseView {
     }
 
     private void removeCartItemCompletely(String articleNumber) {
-        CartItem removedItem = cartItems.remove(articleNumber);
+        CartItem removedItem = cartItemsManager.getCart().stream()
+                .filter(item -> item.getArticle().getArticleNumber().equals(articleNumber))
+                .findFirst()
+                .orElse(null);
+
         if (removedItem != null) {
+            cartItemsManager.getCart().remove(removedItem);
             updateCartGrid();
             Notification.show(
                     "Position '" + removedItem.getArticle().getName() + "' wurde entfernt.",
@@ -422,48 +411,80 @@ public class CashierView extends BaseView {
     }
 
     private void reduceCartItemQuantity(String articleNumber, int quantityToRemove) {
-        CartItem existing = cartItems.get(articleNumber);
-        if (existing != null) {
-            int newQuantity = existing.getQuantity() - quantityToRemove;
-            if (newQuantity > 0) {
-                existing.setQuantity(newQuantity);
-            } else {
-                removeCartItemCompletely(articleNumber);
-            }
-            updateCartGrid();
-        }
+        cartItemsManager.getCart().stream()
+                .filter(item -> item.getArticle().getArticleNumber().equals(articleNumber))
+                .findFirst()
+                .ifPresent(item -> {
+                    int newQuantity = item.getQuantity() - quantityToRemove;
+
+                    if (newQuantity > 0) {
+                        item.setQuantity(newQuantity);
+                    } else {
+                        cartItemsManager.getCart().remove(item);
+                    }
+
+                    updateCartGrid();
+                });
     }
 
     private void addToCart(Article article) {
-        String key = article.getArticleNumber();
-        if (cartItems.containsKey(key)) {
-            CartItem existing = cartItems.get(key);
+        List<CartItem> items = cartItemsManager.getCart();
+        String articleNumber = article.getArticleNumber();
+
+        CartItem existing = items.stream()
+                .filter(item -> item.getArticle().getArticleNumber().equals(articleNumber))
+                .findFirst()
+                .orElse(null);
+
+        if (existing != null) {
             existing.setQuantity(existing.getQuantity() + 1);
         } else {
-            cartItems.put(key, new CartItem(cartItems.size() + 1, article, 1));
+            items.add(new CartItem(article, items.size() + 1, 1, BigDecimal.valueOf(article.getPurchasePrice())));
         }
+
         updateCartGrid();
+
         Notification.show(
-                article.getName() + " wurde dem Warenkorb hinzugefügt", 2000,
+                article.getName() + " wurde dem Warenkorb hinzugefügt",
+                2000,
                 Notification.Position.MIDDLE
         ).addThemeVariants(NotificationVariant.LUMO_SUCCESS);
     }
-    
+
     private void updateCartGrid() {
-        List<CartItem> items = new ArrayList<>(cartItems.values());
+        List<CartItem> items = new ArrayList<>(cartItemsManager.getCart());
+
         items.sort(Comparator.comparingInt(CartItem::getPosition));
+
         int pos = 1;
         for (CartItem item : items) {
             item.setPosition(pos++);
         }
 
         cartGrid.setItems(items);
+        cartGrid.getDataProvider().refreshAll();
 
-        int totalQuantity = items.stream().mapToInt(CartItem::getQuantity).sum();
-        double totalPrice = items.stream()
-                .mapToDouble(item -> item.getEffectivePrice() * item.getQuantity())
+        int totalQuantity = items.stream()
+                .mapToInt(CartItem::getQuantity)
                 .sum();
 
-        totalLabel.setText(String.format("Gesamtanzahl: %d | Gesamtpreis: %.2f €", totalQuantity, totalPrice));
+        BigDecimal totalPrice = items.stream()
+                .map(item -> item.getOverriddenPrice().multiply(BigDecimal.valueOf(item.getQuantity())))
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+
+        totalLabel.setText(
+                String.format("Gesamtanzahl: %d | Gesamtpreis: %s €",
+                        totalQuantity,
+                        totalPrice.toPlainString()
+                )
+        );
+    }
+
+    @Override
+    public void beforeEnter(BeforeEnterEvent beforeEnterEvent) {
+        if (!cartItemsManager.getCart().isEmpty()) {
+            cartGrid.setItems(cartItemsManager.getCart());
+            updateCartGrid();
+        }
     }
 }
