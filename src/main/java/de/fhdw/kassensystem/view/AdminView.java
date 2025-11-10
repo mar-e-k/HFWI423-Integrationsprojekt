@@ -35,7 +35,7 @@ public class AdminView extends BaseView {
 
     @Override
     protected HorizontalLayout createTopBarButtons() {
-        Button roleManagementButton = new Button("Rollenverwaltung");
+        Button roleManagementButton = new Button("Zur Rollenverwaltung");
         roleManagementButton.addClickListener(e -> UI.getCurrent().navigate("roles"));
         return new HorizontalLayout(roleManagementButton);
     }

@@ -1,6 +1,7 @@
 package de.fhdw.kassensystem.view;
 
 import com.vaadin.flow.component.Key;
+import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.dependency.CssImport;
 import com.vaadin.flow.component.dialog.Dialog;
@@ -21,6 +22,7 @@ import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.data.value.ValueChangeMode;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
+import com.vaadin.flow.server.VaadinSession;
 import de.fhdw.kassensystem.persistence.entity.AccountRoleEnum;
 import de.fhdw.kassensystem.persistence.entity.imported.Article;
 import de.fhdw.kassensystem.persistence.service.ArticleService;
@@ -55,6 +57,21 @@ public class CashierView extends BaseView {
     @Override
     protected String setTopbarTitle() {
         return "Kassen-Dashboard";
+    }
+
+    @Override
+    protected HorizontalLayout createTopBarButtons() {
+        Button paymentButton = new Button("Kauf abschließen");
+        paymentButton.addClickListener(e -> {
+            if (cartItems.isEmpty()) {
+                Notification.show("Der Warenkorb ist leer.", 3000, Notification.Position.MIDDLE)
+                        .addThemeVariants(NotificationVariant.LUMO_ERROR);
+            } else {
+                VaadinSession.getCurrent().setAttribute("cartDataForPayment", new LinkedHashMap<>(cartItems));
+                UI.getCurrent().navigate("payment");
+            }
+        });
+        return new HorizontalLayout(paymentButton);
     }
 
     @Override
@@ -414,30 +431,6 @@ public class CashierView extends BaseView {
                 removeCartItemCompletely(articleNumber);
             }
             updateCartGrid();
-        }
-    }
-
-    public static class CartItem {
-        private int position;
-        private final Article article;
-        private int quantity;
-        private Double overriddenPrice;
-
-        public CartItem(int position, Article article, int quantity) {
-            this.position = position;
-            this.article = article;
-            this.quantity = quantity;
-        }
-
-        public int getPosition() { return position; }
-        public void setPosition(int position) { this.position = position; }
-        public Article getArticle() { return article; }
-        public int getQuantity() { return quantity; }
-        public void setQuantity(int quantity) { this.quantity = quantity; }
-        public Double getOverriddenPrice() { return overriddenPrice; }
-        public void setOverriddenPrice(Double overriddenPrice) { this.overriddenPrice = overriddenPrice; }
-        public double getEffectivePrice() {
-            return overriddenPrice != null ? overriddenPrice : article.getSellingPrice();
         }
     }
 
