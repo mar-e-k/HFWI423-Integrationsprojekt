@@ -100,7 +100,6 @@ public class ArticleServiceImpl extends CrudRepositoryService<Article, Long, Art
         // 2. Felder aus dem Request DTO auf die existierende Entity übertragen
         //    Artikelnummer wird nicht aktualisiert
         existingArticle.setName(updatedArticleRequestDTO.getName());
-        existingArticle.setUnit(updatedArticleRequestDTO.getUnit());
         existingArticle.setPurchasePrice(updatedArticleRequestDTO.getPurchasePrice());
         existingArticle.setTaxRatePercent(updatedArticleRequestDTO.getTaxRatePercent());
         existingArticle.setManufacturer(updatedArticleRequestDTO.getManufacturer());
@@ -145,7 +144,6 @@ public class ArticleServiceImpl extends CrudRepositoryService<Article, Long, Art
         Article entity = new Article();
         entity.setArticleNumber(request.getArticleNumber());
         entity.setName(request.getName());
-        entity.setUnit(request.getUnit());
         entity.setPurchasePrice(request.getPurchasePrice());
         entity.setTaxRatePercent(request.getTaxRatePercent());
         entity.setManufacturer(request.getManufacturer());
@@ -166,7 +164,6 @@ public class ArticleServiceImpl extends CrudRepositoryService<Article, Long, Art
                 entity.getId(),
                 entity.getArticleNumber(),
                 entity.getName(),
-                entity.getUnit(),
                 entity.getPurchasePrice(),
                 entity.getTaxRatePercent(),
                 entity.getSellingPrice(),

@@ -15,7 +15,6 @@ public class ArticleResponseDTO {
 
     private String articleNumber;
     private String name;
-    private String unit;
     private Double purchasePrice;
     private Double taxRatePercent;
 

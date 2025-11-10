@@ -97,7 +97,6 @@ public class ArticleView extends VerticalLayout {
         // --- Input fields ---
         TextField articleNumber = new TextField("Artikelnummer (GTIN)");
         TextField name = new TextField("Name");
-        TextField unit = new TextField("Einheit");
         TextField stockLevel = new TextField("Lagerbestand");
         TextField purchasePrice = new TextField("EK Preis");
         TextField taxRate = new TextField("MwSt (%)");
@@ -110,7 +109,6 @@ public class ArticleView extends VerticalLayout {
         if (article != null) {
             articleNumber.setValue(safe(article.getArticleNumber()));
             name.setValue(safe(article.getName()));
-            unit.setValue(safe(article.getUnit()));
             stockLevel.setValue(String.valueOf(article.getStockLevel()));
             purchasePrice.setValue(String.valueOf(article.getPurchasePrice()));
             taxRate.setValue(String.valueOf(article.getTaxRatePercent()));
@@ -126,7 +124,6 @@ public class ArticleView extends VerticalLayout {
                 fhdw.de.einkauf_service.dto.ArticleRequestDTO req = new fhdw.de.einkauf_service.dto.ArticleRequestDTO();
                 req.setArticleNumber(articleNumber.getValue());
                 req.setName(name.getValue());
-                req.setUnit(unit.getValue());
                 req.setPurchasePrice(Double.parseDouble(purchasePrice.getValue()));
                 req.setTaxRatePercent(Double.parseDouble(taxRate.getValue()));
                 req.setManufacturer(manufacturer.getValue());
@@ -155,7 +152,7 @@ public class ArticleView extends VerticalLayout {
 
         HorizontalLayout buttons = new HorizontalLayout(saveButton, cancelButton);
         VerticalLayout formLayout = new VerticalLayout(
-                articleNumber, name, unit, stockLevel, purchasePrice,
+                articleNumber, name, stockLevel, purchasePrice,
                 taxRate, manufacturer, supplier, description, buttons
         );
         formLayout.setPadding(false);
@@ -220,7 +217,7 @@ public class ArticleView extends VerticalLayout {
     }
 
     /**
-     * Konfiguration des Grids: Es werden nur Artikelnummer, Name, Einheit und Lagerbestand angezeigt.
+     * Konfiguration des Grids: Es werden nur Artikelnummer, Name und Lagerbestand angezeigt.
      * Bei Klick auf eine Zeile öffnet sich der Detail-Dialog mit ALLEN Infos.
      */
     private void configureGrid() {
@@ -228,7 +225,6 @@ public class ArticleView extends VerticalLayout {
         grid.setColumns();
         grid.addColumn(ArticleResponseDTO::getArticleNumber).setHeader("Artikelnummer (GTIN)").setAutoWidth(true).setSortable(true);
         grid.addColumn(ArticleResponseDTO::getName).setHeader("Artikelname").setAutoWidth(true).setSortable(true);
-        grid.addColumn(ArticleResponseDTO::getUnit).setHeader("Einheit").setAutoWidth(true).setSortable(true);
         grid.addColumn(ArticleResponseDTO::getStockLevel).setHeader("Lagerbestand").setAutoWidth(true).setSortable(true);
 
         // Detailansicht öffnen bei Klick
@@ -267,7 +263,6 @@ public class ArticleView extends VerticalLayout {
         VerticalLayout detailsLayout = new VerticalLayout(
                 new Span("Artikelnummer (GTIN): "       + safe(article.getArticleNumber())),
                 new Span("Artikelname: "                + safe(article.getName())),
-                new Span("Einheit: "                    + safe(article.getUnit())),
                 new Span("Lagerbestand: "               + safe(article.getStockLevel())),
                 new Span("EK Preis: "                   + safe(article.getPurchasePrice())),
                 new Span("VK Preis: "                   + safe(article.getSellingPrice())),
