@@ -1,4 +1,4 @@
-package de.fhdw.kassensystem.service;
+package de.fhdw.kassensystem.persistence.service;
 
 import de.fhdw.kassensystem.view.cashier.CartItem;
 import org.apache.pdfbox.pdmodel.PDDocument;

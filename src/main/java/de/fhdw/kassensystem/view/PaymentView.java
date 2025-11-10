@@ -17,7 +17,7 @@ import com.vaadin.flow.server.VaadinSession;
 import com.vaadin.flow.server.streams.DownloadHandler;
 import com.vaadin.flow.server.streams.DownloadResponse;
 import de.fhdw.kassensystem.persistence.entity.AccountRoleEnum;
-import de.fhdw.kassensystem.service.ReceiptService;
+import de.fhdw.kassensystem.persistence.service.ReceiptService;
 import de.fhdw.kassensystem.view.cashier.CartItem;
 import de.fhdw.kassensystem.view.cashier.CartItemsManager;
 import de.fhdw.kassensystem.view.cashier.CashierView;
@@ -156,7 +156,7 @@ public class PaymentView extends BaseView implements BeforeEnterObserver {
 
     @Override
     protected HorizontalLayout createTopBarButtons() {
-        Button backToCart = new Button("Zurück");
+        Button backToCart = new Button("Zurück zum Warenkorb");
         backToCart.addClickListener(e -> UI.getCurrent().navigate("cashier"));
         return new HorizontalLayout(backToCart);
     }
