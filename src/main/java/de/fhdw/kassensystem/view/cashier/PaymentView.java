@@ -1,4 +1,4 @@
-package de.fhdw.kassensystem.view;
+package de.fhdw.kassensystem.view.cashier;
 
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
@@ -18,9 +18,7 @@ import com.vaadin.flow.server.streams.DownloadHandler;
 import com.vaadin.flow.server.streams.DownloadResponse;
 import de.fhdw.kassensystem.persistence.entity.AccountRoleEnum;
 import de.fhdw.kassensystem.persistence.service.ReceiptService;
-import de.fhdw.kassensystem.view.cashier.CartItem;
-import de.fhdw.kassensystem.view.cashier.CartItemsManager;
-import de.fhdw.kassensystem.view.cashier.CashierView;
+import de.fhdw.kassensystem.view.BaseView;
 import jakarta.annotation.security.RolesAllowed;
 
 import java.io.ByteArrayInputStream;
@@ -28,7 +26,6 @@ import java.io.IOException;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.*;
 
 @Route("/payment")
 @PageTitle("Bezahlung")
@@ -53,7 +50,7 @@ public class PaymentView extends BaseView implements BeforeEnterObserver {
         if (cartItemsManager.getCart().isEmpty()) {
             event.rerouteTo(CashierView.class);
         } else {
-            updateCartGrid();
+            cartItemsManager.updateGrid(cartGrid, totalLabel);
         }
     }
 
@@ -96,20 +93,7 @@ public class PaymentView extends BaseView implements BeforeEnterObserver {
             String fileName = "Bon-" +
                     LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMdd-HHmmss")) + ".pdf";
 
-            ByteArrayInputStream generatedPdfStream = receiptService.generateReceipt(cartItemsManager.getCart());
-            byte[] pdfBytes = generatedPdfStream.readAllBytes();
-
-            DownloadHandler handler = DownloadHandler.fromInputStream(
-                    event -> new DownloadResponse(
-                            new ByteArrayInputStream(pdfBytes),
-                            fileName,
-                            "application/pdf",
-                            pdfBytes.length
-                    )
-            );
-
-            com.vaadin.flow.server.StreamResourceRegistry.ElementStreamResource resource =
-                    new com.vaadin.flow.server.StreamResourceRegistry.ElementStreamResource(handler, this.getElement());
+            com.vaadin.flow.server.StreamResourceRegistry.ElementStreamResource resource = createResource(fileName);
 
             String url = VaadinSession.getCurrent()
                     .getResourceRegistry()
@@ -127,7 +111,7 @@ public class PaymentView extends BaseView implements BeforeEnterObserver {
                     .addThemeVariants(NotificationVariant.LUMO_SUCCESS);
 
             cartItemsManager.clearCart();
-            updateCartGrid();
+            cartItemsManager.updateGrid(cartGrid, totalLabel);
 
         } catch (IOException ex) {
             Notification.show("Fehler beim Erstellen des Bons: " + ex.getMessage(),
@@ -136,22 +120,20 @@ public class PaymentView extends BaseView implements BeforeEnterObserver {
         }
     }
 
-    private void updateCartGrid() {
-        List<CartItem> items = new ArrayList<>(cartItemsManager.getCart());
-        items.sort(Comparator.comparingInt(CartItem::getPosition));
+    private com.vaadin.flow.server.StreamResourceRegistry.ElementStreamResource createResource(String fileName) throws IOException {
+        ByteArrayInputStream generatedPdfStream = receiptService.generateReceipt(cartItemsManager.getCart());
+        byte[] pdfBytes = generatedPdfStream.readAllBytes();
 
-        int pos = 1;
-        for (CartItem item : items) item.setPosition(pos++);
+        DownloadHandler handler = DownloadHandler.fromInputStream(
+                event -> new DownloadResponse(
+                        new ByteArrayInputStream(pdfBytes),
+                        fileName,
+                        "application/pdf",
+                        pdfBytes.length
+                )
+        );
 
-        cartGrid.setItems(items);
-
-        int totalQuantity = items.stream().mapToInt(CartItem::getQuantity).sum();
-        BigDecimal totalPrice = items.stream()
-                .map(i -> i.getEffectivePrice().multiply(BigDecimal.valueOf(i.getQuantity())))
-                .reduce(BigDecimal.ZERO, BigDecimal::add);
-
-        totalLabel.setText(String.format("Gesamtanzahl: %d | Gesamtpreis: %s €",
-                totalQuantity, totalPrice.toPlainString()));
+        return new com.vaadin.flow.server.StreamResourceRegistry.ElementStreamResource(handler, this.getElement());
     }
 
     @Override

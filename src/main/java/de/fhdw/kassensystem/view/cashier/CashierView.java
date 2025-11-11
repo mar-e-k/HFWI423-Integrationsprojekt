@@ -29,7 +29,6 @@ import de.fhdw.kassensystem.persistence.entity.AccountRoleEnum;
 import de.fhdw.kassensystem.persistence.entity.imported.Article;
 import de.fhdw.kassensystem.persistence.service.ArticleService;
 import de.fhdw.kassensystem.view.BaseView;
-import de.fhdw.kassensystem.view.PaymentView;
 import jakarta.annotation.security.RolesAllowed;
 import org.springframework.beans.factory.annotation.Value;
 
@@ -99,7 +98,21 @@ public class CashierView extends BaseView implements BeforeEnterObserver {
         articleGrid.addColumn(Article::getName).setHeader("Artikelname").setWidth("200px");
         articleGrid.addColumn(Article::getArticleNumber).setHeader("Artikelnummer").setAutoWidth(true);
         articleGrid.addColumn(article -> article.getSellingPrice() + " €").setHeader("Verkaufspreis").setAutoWidth(true);
-        articleGrid.addColumn(article -> article.getStockLevel() + " Stück").setHeader("Lagerbestand").setAutoWidth(true);
+        
+        // Spalte für Lagerbestand mit Warnung
+        articleGrid.addComponentColumn(article -> {
+            Span stockLabel = new Span(article.getStockLevel() + " Stück");
+            HorizontalLayout layout = new HorizontalLayout(stockLabel);
+            layout.setAlignItems(Alignment.CENTER);
+            if (article.getStockLevel() < 5) {
+                Icon warningIcon = new Icon(VaadinIcon.EXCLAMATION_CIRCLE_O);
+                warningIcon.setColor("orange");
+                warningIcon.setTooltipText("Geringer Bestand");
+                layout.add(warningIcon);
+            }
+            return layout;
+        }).setHeader("Lagerbestand").setAutoWidth(true);
+
         articleGrid.addColumn(article -> article.getTaxRatePercent() + " %").setHeader("Steuersatz").setAutoWidth(true);
 
         // Hinzufügen-Button (für Warenkorb)
@@ -205,7 +218,7 @@ public class CashierView extends BaseView implements BeforeEnterObserver {
                 Notification.show("Menge muss größer als 0 sein.", 2000, Notification.Position.MIDDLE)
                         .addThemeVariants(NotificationVariant.LUMO_ERROR);
             }
-            updateCartGrid(); // Aktualisiert das Grid und die Summen
+            cartItemsManager.updateGrid(cartGrid, totalLabel); // Aktualisiert das Grid und die Summen
             editor.cancel(); // Schließt den Editor nach dem Speichern
         });
 
@@ -417,7 +430,7 @@ public class CashierView extends BaseView implements BeforeEnterObserver {
 
         if (removedItem != null) {
             cartItemsManager.getCart().remove(removedItem);
-            updateCartGrid();
+            cartItemsManager.updateGrid(cartGrid, totalLabel);
             Notification.show(
                     "Position '" + removedItem.getArticle().getName() + "' wurde entfernt.",
                     2000,
@@ -439,7 +452,7 @@ public class CashierView extends BaseView implements BeforeEnterObserver {
                         cartItemsManager.getCart().remove(item);
                     }
 
-                    updateCartGrid();
+                    cartItemsManager.updateGrid(cartGrid, totalLabel);
                 });
     }
 
@@ -458,7 +471,7 @@ public class CashierView extends BaseView implements BeforeEnterObserver {
             items.add(new CartItem(article, items.size() + 1, 1, BigDecimal.valueOf(article.getPurchasePrice())));
         }
 
-        updateCartGrid();
+        cartItemsManager.updateGrid(cartGrid, totalLabel);
 
         Notification.show(
                 article.getName() + " wurde dem Warenkorb hinzugefügt",
@@ -467,40 +480,10 @@ public class CashierView extends BaseView implements BeforeEnterObserver {
         ).addThemeVariants(NotificationVariant.LUMO_SUCCESS);
     }
 
-    private void updateCartGrid() {
-        List<CartItem> items = new ArrayList<>(cartItemsManager.getCart());
-
-        items.sort(Comparator.comparingInt(CartItem::getPosition));
-
-        int pos = 1;
-        for (CartItem item : items) {
-            item.setPosition(pos++);
-        }
-
-        cartGrid.setItems(items);
-        cartGrid.getDataProvider().refreshAll();
-
-        int totalQuantity = items.stream()
-                .mapToInt(CartItem::getQuantity)
-                .sum();
-
-        BigDecimal totalPrice = items.stream()
-                .map(item -> item.getOverriddenPrice().multiply(BigDecimal.valueOf(item.getQuantity())))
-                .reduce(BigDecimal.ZERO, BigDecimal::add);
-
-        totalLabel.setText(
-                String.format("Gesamtanzahl: %d | Gesamtpreis: %s €",
-                        totalQuantity,
-                        totalPrice.toPlainString()
-                )
-        );
-    }
-
     @Override
     public void beforeEnter(BeforeEnterEvent beforeEnterEvent) {
         if (!cartItemsManager.getCart().isEmpty()) {
-            cartGrid.setItems(cartItemsManager.getCart());
-            updateCartGrid();
+            cartItemsManager.updateGrid(cartGrid, totalLabel);
         }
     }
 }
