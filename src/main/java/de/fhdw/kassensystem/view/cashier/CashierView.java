@@ -99,7 +99,21 @@ public class CashierView extends BaseView implements BeforeEnterObserver {
         articleGrid.addColumn(Article::getName).setHeader("Artikelname").setWidth("200px");
         articleGrid.addColumn(Article::getArticleNumber).setHeader("Artikelnummer").setAutoWidth(true);
         articleGrid.addColumn(article -> article.getSellingPrice() + " €").setHeader("Verkaufspreis").setAutoWidth(true);
-        articleGrid.addColumn(article -> article.getStockLevel() + " Stück").setHeader("Lagerbestand").setAutoWidth(true);
+        
+        // Spalte für Lagerbestand mit Warnung
+        articleGrid.addComponentColumn(article -> {
+            Span stockLabel = new Span(article.getStockLevel() + " Stück");
+            HorizontalLayout layout = new HorizontalLayout(stockLabel);
+            layout.setAlignItems(Alignment.CENTER);
+            if (article.getStockLevel() < 5) {
+                Icon warningIcon = new Icon(VaadinIcon.EXCLAMATION_CIRCLE_O);
+                warningIcon.setColor("orange");
+                warningIcon.setTooltipText("Geringer Bestand");
+                layout.add(warningIcon);
+            }
+            return layout;
+        }).setHeader("Lagerbestand").setAutoWidth(true);
+
         articleGrid.addColumn(article -> article.getTaxRatePercent() + " %").setHeader("Steuersatz").setAutoWidth(true);
 
         // Hinzufügen-Button (für Warenkorb)

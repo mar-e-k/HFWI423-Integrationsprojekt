@@ -75,7 +75,7 @@ public class ReceiptService {
                 total = total.add(itemTotal);
 
                 contentStream.beginText();
-                contentStream.setFont(font, 12);
+                contentStream.setFont(font, 10);
                 contentStream.newLineAtOffset(margin, y);
                 contentStream.showText(String.valueOf(item.getPosition()));
                 contentStream.newLineAtOffset(50, 0);
