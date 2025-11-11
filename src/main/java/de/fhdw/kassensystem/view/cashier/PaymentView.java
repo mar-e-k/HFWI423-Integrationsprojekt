@@ -1,4 +1,4 @@
-package de.fhdw.kassensystem.view;
+package de.fhdw.kassensystem.view.cashier;
 
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
@@ -18,9 +18,7 @@ import com.vaadin.flow.server.streams.DownloadHandler;
 import com.vaadin.flow.server.streams.DownloadResponse;
 import de.fhdw.kassensystem.persistence.entity.AccountRoleEnum;
 import de.fhdw.kassensystem.persistence.service.ReceiptService;
-import de.fhdw.kassensystem.view.cashier.CartItem;
-import de.fhdw.kassensystem.view.cashier.CartItemsManager;
-import de.fhdw.kassensystem.view.cashier.CashierView;
+import de.fhdw.kassensystem.view.BaseView;
 import jakarta.annotation.security.RolesAllowed;
 
 import java.io.ByteArrayInputStream;
