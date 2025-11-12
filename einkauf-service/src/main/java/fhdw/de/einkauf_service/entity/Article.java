@@ -27,7 +27,7 @@ public class Article {
     @Column(nullable = false)
     @NotNull(message = "Purchase price is mandatory.")
     @Positive(message = "Purchase price must be positive.")
-    private Double purchasePrice;
+    private double purchasePrice;
 
     @Column(nullable = false)
     @NotNull(message = "Tax rate is mandatory.")
