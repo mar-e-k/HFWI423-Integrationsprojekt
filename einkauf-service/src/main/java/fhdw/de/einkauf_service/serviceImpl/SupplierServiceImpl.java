@@ -8,6 +8,8 @@ import fhdw.de.einkauf_service.repository.ContactPersonRepository;
 import fhdw.de.einkauf_service.repository.PaymentTermRepository;
 import fhdw.de.einkauf_service.repository.SupplierRepository;
 import fhdw.de.einkauf_service.service.SupplierService;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -36,6 +38,7 @@ public class SupplierServiceImpl implements SupplierService {
     // ==================================================================================
     @Transactional
     @Override
+    @CacheEvict(value = "supplierSearch", allEntries = true)
     public SupplierResponseDTO createNewSupplier(SupplierRequestDTO requestDTO) {
         PaymentTerm paymentTerm = paymentTermRepository.findById(requestDTO.getPaymentTermId())
                 .orElseThrow(() -> new NoSuchElementException(
@@ -68,6 +71,7 @@ public class SupplierServiceImpl implements SupplierService {
     // ==================================================================================
     @Transactional(readOnly = true)
     @Override
+    @Cacheable(value = "supplierSearch")
     public List<SupplierResponseDTO> findAllSuppliers() {
         return supplierRepository.findAll().stream()
                 .map(this::toResponseDTO)
@@ -79,6 +83,7 @@ public class SupplierServiceImpl implements SupplierService {
     // ==================================================================================
     @Transactional
     @Override
+    @CacheEvict(value = "supplierSearch", allEntries = true)
     public SupplierResponseDTO updateSupplier(Long id, SupplierRequestDTO updatedSupplierRequestDTO) {
         Supplier existingSupplier = supplierRepository.findById(id)
                 .orElseThrow(() -> new NoSuchElementException("Supplier with ID " + id + " not found."));
@@ -119,6 +124,7 @@ public class SupplierServiceImpl implements SupplierService {
     // ==================================================================================
     @Transactional
     @Override
+    @CacheEvict(value = "supplierSearch", allEntries = true)
     public void deleteSupplier(Long id) {
         if (!supplierRepository.existsById(id)) {
             throw new NoSuchElementException("Supplier with ID " + id + " not found.");

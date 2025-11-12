@@ -18,9 +18,6 @@ public class ArticleRequestDTO {
     @NotBlank(message = "Article name is mandatory.")
     private String name;
 
-    @NotBlank(message = "Unit is mandatory.")
-    private String unit;
-
     @NotNull(message = "Purchase price is mandatory.")
     @Positive(message = "Purchase price must be positive.")
     private Double purchasePrice;

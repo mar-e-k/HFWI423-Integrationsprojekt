@@ -23,10 +23,6 @@ public class Article {
     @NotBlank(message = "Article name is mandatory.")
     private String name;
 
-    @Column(nullable = false)
-    @NotBlank(message = "Unit is mandatory.")
-    private String unit;
-
     // Price Fields with Validation
     @Column(nullable = false)
     @NotNull(message = "Purchase price is mandatory.")
