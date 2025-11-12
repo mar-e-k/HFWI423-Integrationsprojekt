@@ -43,9 +43,9 @@ public class Article {
     @NotBlank(message = "Manufacturer is mandatory.")
     private String manufacturer;
 
-    @Column(nullable = false)
-    @NotBlank(message = "Supplier is mandatory.")
-    private String supplier;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "supplier_id")
+    private Supplier supplier;
 
     @NotNull(message = "Stock level is mandatory.")
     @Min(value = 0, message = "Stock level cannot be negative.")
