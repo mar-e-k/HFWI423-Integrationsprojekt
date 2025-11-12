@@ -7,8 +7,10 @@ import fhdw.de.einkauf_service.dto.ArticleFilterDTO;
 import fhdw.de.einkauf_service.dto.ArticleRequestDTO;
 import fhdw.de.einkauf_service.dto.ArticleResponseDTO;
 import fhdw.de.einkauf_service.entity.Article;
+import fhdw.de.einkauf_service.entity.Supplier;
 import fhdw.de.einkauf_service.query.ArticleSpecifications;
 import fhdw.de.einkauf_service.repository.ArticleRepository;
+import fhdw.de.einkauf_service.repository.SupplierRepository;
 import fhdw.de.einkauf_service.service.ArticleService;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
@@ -25,10 +27,13 @@ import java.util.stream.Collectors;
 @Service
 public class ArticleServiceImpl extends CrudRepositoryService<Article, Long, ArticleRepository> implements ArticleService {
 
+    private final SupplierRepository supplierRepository;
     private final ArticleRepository articleRepository;
 
-    public ArticleServiceImpl(ArticleRepository articleRepository) {
+    public ArticleServiceImpl(ArticleRepository articleRepository, SupplierRepository supplierRepository) {
+        super(articleRepository);
         this.articleRepository = articleRepository;
+        this.supplierRepository = supplierRepository;
     }
 
     // ==================================================================================
@@ -181,15 +186,17 @@ public class ArticleServiceImpl extends CrudRepositoryService<Article, Long, Art
      * @return Alphabetisch sortierte Liste aller eindeutigen Lieferanten, die mindestens einem verfügbaren Artikel zugeordnet sind.
      */
     @Override
-    @CacheEvict(value = "allSuppliers", allEntries = true)
     public List<String> findAllSupplierNames() {
-        return articleRepository.findAll()
-                .stream()
-                .filter(Article::getIsAvailable)
-                .map(Article::getSupplier)
-                .distinct()
-                .sorted()
+
+        List<Supplier> suppliers = supplierRepository.findAll();
+
+        // Die Umformung von Supplier-Objekt auf den String (Namen)
+        List<String> supplierNames = suppliers.stream()
+                .map(Supplier::getName)
                 .collect(Collectors.toList());
+
+        return supplierNames;
     }
+
 
 }

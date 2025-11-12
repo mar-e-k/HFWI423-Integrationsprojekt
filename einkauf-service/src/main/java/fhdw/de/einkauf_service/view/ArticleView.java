@@ -113,7 +113,7 @@ public class ArticleView extends VerticalLayout {
             purchasePrice.setValue(String.valueOf(article.getPurchasePrice()));
             taxRate.setValue(String.valueOf(article.getTaxRatePercent()));
             manufacturer.setValue(safe(article.getManufacturer()));
-            supplier.setValue(article.getSupplier());
+            supplier.setValue(article.getSupplier().getName());
             description.setValue(safe(article.getDescription()));
         }
 
@@ -127,7 +127,6 @@ public class ArticleView extends VerticalLayout {
                 req.setPurchasePrice(Double.parseDouble(purchasePrice.getValue()));
                 req.setTaxRatePercent(Double.parseDouble(taxRate.getValue()));
                 req.setManufacturer(manufacturer.getValue());
-                req.setSupplier(supplier.getValue());
                 req.setStockLevel(Integer.parseInt(stockLevel.getValue()));
                 req.setDescription(description.getValue());
                 req.setIsAvailable(true);
