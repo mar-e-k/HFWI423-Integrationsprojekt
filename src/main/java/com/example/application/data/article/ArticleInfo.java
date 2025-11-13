@@ -26,6 +26,10 @@ public class ArticleInfo extends AbstractEntity {
     @NotNull
     @Column(name = "storage_location", nullable = false)
     private String storageLocation;
+    // Mindestbestand des Artikels (ab wann nachbestellt werden muss)
+    @NotNull
+    @Column(name = "min_stock", nullable = false)
+    private Integer minStock;
 
     public String getName() {
         return name;
@@ -58,4 +62,8 @@ public class ArticleInfo extends AbstractEntity {
     public void setStorageLocation(String storageLocation) {
         this.storageLocation = storageLocation;
     }
+
+    public Integer getMinStock() {return minStock;}
+
+    public void setMinStock(Integer minStock) {this.minStock = minStock;}
 }
