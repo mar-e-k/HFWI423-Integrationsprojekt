@@ -16,10 +16,10 @@ public class SupplierRequestDTO {
     private String zip;
     private String city;
 
-    private String country; // ✅ hinzugefügt, für Adressdaten
+    private String country;
     @Email
     private String email;
-    private String phone; // ✅ hinzugefügt, für Kontaktdaten
+    private String phone;
 
     @NotNull
     private Long paymentTermId;

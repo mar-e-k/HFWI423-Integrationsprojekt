@@ -45,10 +45,12 @@ public class ArticleSpecifications {
             }
 
             // 4. Filtern nach LIEFERANT / HERSTELLER (Exakte Übereinstimmung)
-            if (StringUtils.hasText(filter.getSupplier())) {
+            if (filter.getSupplierId() != null) {
+                // 1. Zugriff auf die Supplier-Entität des Artikels: root.get("supplier")
+                // 2. Zugriff auf das ID-Feld des Suppliers: .get("id")
                 predicates.add(criteriaBuilder.equal(
-                        root.get("supplier"),
-                        filter.getSupplier()
+                        root.get("supplier").get("id"),
+                        filter.getSupplierId()
                 ));
             }
 

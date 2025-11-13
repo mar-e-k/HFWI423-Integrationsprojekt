@@ -1,17 +1,24 @@
 package fhdw.de.einkauf_service.entity;
 
 import jakarta.persistence.*;
-import jakarta.validation.constraints.*;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
 import lombok.Data;
-import java.util.*;
+import lombok.EqualsAndHashCode;
+
+import java.util.HashSet;
+import java.util.Set;
 
 @Entity
 @Table(name = "supplier")
 @Data
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
 public class Supplier {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @EqualsAndHashCode.Include
     private Long id;
 
     @NotBlank(message = "Supplier name is mandatory.")

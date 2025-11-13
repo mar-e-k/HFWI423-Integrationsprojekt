@@ -1,6 +1,5 @@
 package fhdw.de.einkauf_service.dto;
 
-import fhdw.de.einkauf_service.entity.Supplier;
 import jakarta.validation.constraints.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -31,8 +30,8 @@ public class ArticleRequestDTO {
     @NotBlank(message = "Manufacturer is mandatory.")
     private String manufacturer;
 
-    @NotBlank(message = "Supplier is mandatory.")
-    private Supplier supplier;
+    @NotNull(message = "Supplier ID must not be null")
+    private Long supplierId;
 
     @NotNull(message = "Stock level is mandatory.")
     @Min(value = 0, message = "Stock level cannot be negative.")

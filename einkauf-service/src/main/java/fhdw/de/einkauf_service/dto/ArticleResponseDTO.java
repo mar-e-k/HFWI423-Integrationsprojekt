@@ -1,6 +1,5 @@
 package fhdw.de.einkauf_service.dto;
 
-import fhdw.de.einkauf_service.entity.Supplier;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -23,7 +22,8 @@ public class ArticleResponseDTO {
     private Double sellingPrice;
 
     private String manufacturer;
-    private Supplier supplier;
+    private Long supplierId;
+    private String supplierName;
     private Integer stockLevel;
     private String description;
     private Boolean isAvailable;

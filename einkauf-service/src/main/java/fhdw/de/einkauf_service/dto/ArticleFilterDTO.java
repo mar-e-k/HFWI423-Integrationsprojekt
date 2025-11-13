@@ -15,7 +15,7 @@ public class ArticleFilterDTO {
     private String category;
 
     // Filterfelder
-    private String supplier;
+    private Long supplierId;
     private String manufacturer;
 
     // Statusfilter

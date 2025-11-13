@@ -2,6 +2,7 @@ package fhdw.de.einkauf_service.service;
 
 import fhdw.de.einkauf_service.dto.SupplierRequestDTO;
 import fhdw.de.einkauf_service.dto.SupplierResponseDTO;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -15,6 +16,7 @@ public interface SupplierService {
     /**
      * Liefert eine Liste aller Lieferanten.
      */
+    @Transactional(readOnly = true)
     List<SupplierResponseDTO> findAllSuppliers();
 
     /**

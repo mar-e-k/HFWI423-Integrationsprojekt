@@ -12,6 +12,7 @@ import fhdw.de.einkauf_service.query.ArticleSpecifications;
 import fhdw.de.einkauf_service.repository.ArticleRepository;
 import fhdw.de.einkauf_service.repository.SupplierRepository;
 import fhdw.de.einkauf_service.service.ArticleService;
+import jakarta.persistence.EntityNotFoundException;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.jpa.domain.Specification;
@@ -44,21 +45,24 @@ public class ArticleServiceImpl extends CrudRepositoryService<Article, Long, Art
     @CacheEvict(value = "articleSearch", allEntries = true)
     public ArticleResponseDTO createNewArticle(ArticleRequestDTO newArticleRequestDTO) {
 
-        // 1. DTO zu Entity mappen
-        Article newArticle = mapRequestToEntity(newArticleRequestDTO);
+        Supplier supplier = supplierRepository.findById(newArticleRequestDTO.getSupplierId())
+                .orElseThrow(() -> new EntityNotFoundException("Lieferant mit ID " + newArticleRequestDTO.getSupplierId() + " nicht gefunden."));
 
-        // 2. Validation: Check for duplicate article number
+        // DTO zu Entity mappen
+        Article newArticle = mapRequestToEntity(newArticleRequestDTO, supplier);
+
+        // Validation: Check for duplicate article number
         if (articleRepository.findByArticleNumber(newArticle.getArticleNumber()).isPresent()) {
             throw new IllegalArgumentException("Article number (GTIN) already exists. Duplicates are not allowed.");
         }
 
-        // 3. Business Logic: Calculate Selling Price
+        // Business Logic: Calculate Selling Price
         Double purchasePrice = newArticle.getPurchasePrice();
         Double taxRatePercent = newArticle.getTaxRatePercent();
         Double sellingPrice = purchasePrice * (1 + (taxRatePercent / 100.0));
         newArticle.setSellingPrice(sellingPrice);
-
-        // 4. Save and return the persisted entity, mapped back to Response DTO
+        newArticle.setSupplier(supplier);
+        // Save and return the persisted entity, mapped back to Response DTO
         Article savedArticle = articleRepository.save(newArticle);
         return mapEntityToResponse(savedArticle);
     }
@@ -79,6 +83,7 @@ public class ArticleServiceImpl extends CrudRepositoryService<Article, Long, Art
     // ==================================================================================
     @Override
     @Cacheable(value = "articleSearch")
+    @Transactional(readOnly = true)
     public List<ArticleResponseDTO> findFilteredArticles(ArticleFilterDTO filter) {
         // 1. Abfrage durchführen
         Specification<Article> spec = ArticleSpecifications.filterArticles(filter);
@@ -98,27 +103,30 @@ public class ArticleServiceImpl extends CrudRepositoryService<Article, Long, Art
     @CacheEvict(value = "articleSearch", allEntries = true)
     public ArticleResponseDTO updateArticle(Long id, ArticleRequestDTO updatedArticleRequestDTO) {
 
-        // 1. Artikel finden (Sicherstellen, dass die ID existiert)
+        // Artikel finden (Sicherstellen, dass die ID existiert)
         Article existingArticle = articleRepository.findById(id)
                 .orElseThrow(() -> new NoSuchElementException("Article with ID " + id + " not found."));
 
-        // 2. Felder aus dem Request DTO auf die existierende Entity übertragen
+        Supplier supplier = supplierRepository.findById(updatedArticleRequestDTO.getSupplierId())
+                .orElseThrow(() -> new EntityNotFoundException("Lieferant mit ID " + updatedArticleRequestDTO.getSupplierId() + " nicht gefunden."));
+
+        // Felder aus dem Request DTO auf die existierende Entity übertragen
         //    Artikelnummer wird nicht aktualisiert
         existingArticle.setName(updatedArticleRequestDTO.getName());
         existingArticle.setPurchasePrice(updatedArticleRequestDTO.getPurchasePrice());
         existingArticle.setTaxRatePercent(updatedArticleRequestDTO.getTaxRatePercent());
         existingArticle.setManufacturer(updatedArticleRequestDTO.getManufacturer());
-        existingArticle.setSupplier(updatedArticleRequestDTO.getSupplier());
+        existingArticle.setSupplier(supplier);
         existingArticle.setStockLevel(updatedArticleRequestDTO.getStockLevel());
         existingArticle.setDescription(updatedArticleRequestDTO.getDescription());
 
-        // 3. Preis neu berechnen
+        // Preis neu berechnen
         Double purchasePrice = updatedArticleRequestDTO.getPurchasePrice();
         Double taxRatePercent = updatedArticleRequestDTO.getTaxRatePercent();
         Double newSellingPrice = purchasePrice * (1 + (taxRatePercent / 100.0));
         existingArticle.setSellingPrice(newSellingPrice);
 
-        // 4. Speichern und Entity zu Response DTO mappen
+        // Speichern und Entity zu Response DTO mappen
         Article savedArticle = articleRepository.save(existingArticle);
         return mapEntityToResponse(savedArticle);
     }
@@ -145,14 +153,14 @@ public class ArticleServiceImpl extends CrudRepositoryService<Article, Long, Art
      * @param request Das eingehende DTO.
      * @return Die neue Article Entity.
      */
-    private Article mapRequestToEntity(ArticleRequestDTO request) {
+    private Article mapRequestToEntity(ArticleRequestDTO request, Supplier supplier) {
         Article entity = new Article();
         entity.setArticleNumber(request.getArticleNumber());
         entity.setName(request.getName());
         entity.setPurchasePrice(request.getPurchasePrice());
         entity.setTaxRatePercent(request.getTaxRatePercent());
         entity.setManufacturer(request.getManufacturer());
-        entity.setSupplier(request.getSupplier());
+        entity.setSupplier(supplier);
         entity.setStockLevel(request.getStockLevel());
         entity.setDescription(request.getDescription());
         entity.setIsAvailable(request.getIsAvailable());
@@ -165,38 +173,31 @@ public class ArticleServiceImpl extends CrudRepositoryService<Article, Long, Art
      * @return Das ausgehende Response DTO.
      */
     private ArticleResponseDTO mapEntityToResponse(Article entity) {
-        return new ArticleResponseDTO(
-                entity.getId(),
-                entity.getArticleNumber(),
-                entity.getName(),
-                entity.getPurchasePrice(),
-                entity.getTaxRatePercent(),
-                entity.getSellingPrice(),
-                entity.getManufacturer(),
-                entity.getSupplier(),
-                entity.getStockLevel(),
-                entity.getDescription(),
-                entity.getIsAvailable()
-        );
+
+        ArticleResponseDTO dto = new ArticleResponseDTO();
+
+        dto.setId(entity.getId());
+        dto.setArticleNumber(entity.getArticleNumber());
+        dto.setName(entity.getName());
+        dto.setPurchasePrice(entity.getPurchasePrice());
+        dto.setTaxRatePercent(entity.getTaxRatePercent());
+        dto.setSellingPrice(entity.getSellingPrice());
+        dto.setManufacturer(entity.getManufacturer());
+        dto.setStockLevel(entity.getStockLevel());
+        dto.setDescription(entity.getDescription());
+        dto.setIsAvailable(entity.getIsAvailable());
+
+        // --- Logik für den Supplier (Relation) ---
+        Supplier supplier = entity.getSupplier();
+
+        if (supplier != null) {
+            dto.setSupplierId(supplier.getId());
+            dto.setSupplierName(supplier.getName());
+        } else {
+            dto.setSupplierName("-");
+            dto.setSupplierId(null);
+        }
+
+        return dto;
     }
-
-    /**
-     * Ermittelt alle unterschiedlichen Lieferantennamen von derzeit verfügbaren Artikeln.
-     * Wird für das Lieferanten-Dropdown im Frontend verwendet.
-     * @return Alphabetisch sortierte Liste aller eindeutigen Lieferanten, die mindestens einem verfügbaren Artikel zugeordnet sind.
-     */
-    @Override
-    public List<String> findAllSupplierNames() {
-
-        List<Supplier> suppliers = supplierRepository.findAll();
-
-        // Die Umformung von Supplier-Objekt auf den String (Namen)
-        List<String> supplierNames = suppliers.stream()
-                .map(Supplier::getName)
-                .collect(Collectors.toList());
-
-        return supplierNames;
-    }
-
-
 }
