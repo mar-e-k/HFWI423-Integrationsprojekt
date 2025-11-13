@@ -25,6 +25,7 @@ public class ArticleInfo extends AbstractEntity {
     @Size(max = 255)
     @NotNull
     @Column(name = "storage_location", nullable = false)
+    
     private String storageLocation;
 
     public String getName() {
