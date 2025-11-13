@@ -4,7 +4,7 @@ import com.example.application.data.AbstractEntity;
 import jakarta.persistence.*;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-
+//hetuhghueghusghueguhieguhiegiuhe
 @Entity
 @Table(name = "goods_receipt")
 public class GoodsReceipt extends AbstractEntity {
