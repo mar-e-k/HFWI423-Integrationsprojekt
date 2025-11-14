@@ -37,7 +37,7 @@ public class CartItemsManager { //This whole construct runs in in-memory. on app
 
         int totalQuantity = items.stream().mapToInt(CartItem::getQuantity).sum();
         BigDecimal totalPrice = items.stream()
-                .map(i -> i.getEffectivePrice().multiply(BigDecimal.valueOf(i.getQuantity())))
+                .map(CartItem::getTotalPriceWithDiscount)
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
 
         totalLabel.setText(String.format("Gesamtanzahl: %d | Gesamtpreis: %s €",

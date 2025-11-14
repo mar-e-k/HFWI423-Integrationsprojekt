@@ -33,7 +33,9 @@ import jakarta.annotation.security.RolesAllowed;
 import org.springframework.beans.factory.annotation.Value;
 
 import java.math.BigDecimal;
-import java.util.*;
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
 
 @Route("/cashier")
 @PageTitle("Cashier View")
@@ -166,7 +168,6 @@ public class CashierView extends BaseView implements BeforeEnterObserver {
                 }, "Preis muss größer als 0 sein.")
                 .bind(CartItem::getOverriddenPrice, CartItem::setOverriddenPrice);
 
-
         // Automatisches Speichern bei Enter oder Verlassen des Feldes (Blur)
         priceEditor.getElement().addEventListener("blur", e -> {
             if (editor.isOpen()) editor.save();
@@ -175,7 +176,35 @@ public class CashierView extends BaseView implements BeforeEnterObserver {
             if (editor.isOpen()) editor.save();
         });
 
-        Grid.Column<CartItem> priceColumn = cartGrid.addColumn(item -> String.format("%.2f €", item.getEffectivePrice()))
+        // Stückpreis-Spalte mit vorher/nachher Anzeige (bei Rabatt)
+        Grid.Column<CartItem> priceColumn = cartGrid.addComponentColumn(item -> {
+                    Span container = new Span();
+
+                    BigDecimal base = item.getBaseUnitPrice();
+                    BigDecimal discounted = item.getDiscountedUnitPrice();
+
+                    if (item.hasDiscount() && item.getDiscountedQuantity() != null
+                            && item.getDiscountedQuantity() >= item.getQuantity()) {
+                        // gesamte Menge rabattiert -> klar vorher/nachher anzeigen
+                        Span oldPrice = new Span(String.format("%.2f €", base));
+                        oldPrice.getStyle().set("text-decoration", "line-through");
+
+                        Span arrow = new Span(" → ");
+                        Span newPrice = new Span(String.format("%.2f €", discounted));
+
+                        container.add(oldPrice, arrow, newPrice);
+                    } else if (item.hasDiscount()) {
+                        // nur Teilmenge rabattiert -> kurze Info
+                        Span baseSpan = new Span(String.format("%.2f €", base) + " / ");
+                        Span discSpan = new Span(String.format("%.2f €", discounted) +
+                                " (" + item.getDiscountedQuantity() + "x)");
+                        container.add(baseSpan, discSpan);
+                    } else {
+                        container.setText(String.format("%.2f €", base));
+                    }
+
+                    return container;
+                })
                 .setHeader("Stückpreis")
                 .setAutoWidth(true)
                 .setEditorComponent(priceEditor)
@@ -200,9 +229,27 @@ public class CashierView extends BaseView implements BeforeEnterObserver {
                 .setEditorComponent(quantityEditor)
                 .setKey("quantity");
 
-        // Gesamtpreis
-        cartGrid.addColumn(item -> String.format("%.2f €", item.getEffectivePrice().multiply(BigDecimal.valueOf(item.getQuantity()))))
-                .setHeader("Gesamtpreis").setAutoWidth(true);
+        // Gesamtpreis (mit Rabatt berücksichtigt)
+        cartGrid.addColumn(item -> String.format("%.2f €", item.getTotalPriceWithDiscount()))
+                .setHeader("Gesamtpreis")
+                .setAutoWidth(true);
+
+        // Rabatt-Button pro Position (zwischen Gesamtpreis und Löschen)
+        cartGrid.addComponentColumn(item -> {
+                    Button discountButton = new Button("Rabatt");
+                    discountButton.getElement().setProperty("title", "Rabatt für diese Position festlegen");
+
+                    discountButton.addClickListener(e -> {
+                        BigDecimal defaultPercent = item.getDiscountPercent() != null
+                                ? item.getDiscountPercent()
+                                : new BigDecimal("30");
+                        showDiscountDialog(item, defaultPercent);
+                    });
+
+                    return discountButton;
+                }).setHeader("Rabatt")
+                .setAutoWidth(true)
+                .setTextAlign(ColumnTextAlign.END);
 
         // Klick-Listener für die Zellen
         cartGrid.addItemClickListener(event -> {
@@ -373,6 +420,87 @@ public class CashierView extends BaseView implements BeforeEnterObserver {
         mainLayout.setSpacing(true);
 
         add(mainLayout);
+    }
+
+    /**
+     * Dialog zur Bearbeitung des Rabatts:
+     * - Prozentsatz
+     * - Menge der rabattierten Artikel
+     * - Entfernen des Rabatts
+     */
+    private void showDiscountDialog(CartItem item, BigDecimal defaultPercent) {
+        Dialog dialog = new Dialog();
+        dialog.setHeaderTitle("Rabatt für '" + item.getArticle().getName() + "'");
+
+        IntegerField percentField = new IntegerField("Rabatt in %");
+        percentField.setMin(0);
+        percentField.setMax(100);
+        percentField.setStepButtonsVisible(true);
+
+        IntegerField quantityField = new IntegerField("Menge mit Rabatt");
+        quantityField.setMin(1);
+        quantityField.setMax(item.getQuantity());
+        quantityField.setStepButtonsVisible(true);
+
+        // Vorbelegung
+        if (item.getDiscountPercent() != null) {
+            percentField.setValue(item.getDiscountPercent().intValue());
+        } else {
+            percentField.setValue(defaultPercent.intValue());
+        }
+
+        if (item.getDiscountedQuantity() != null) {
+            quantityField.setValue(item.getDiscountedQuantity());
+        } else {
+            quantityField.setValue(item.getQuantity());
+        }
+
+        VerticalLayout layout = new VerticalLayout(percentField, quantityField);
+        layout.setPadding(false);
+        dialog.add(layout);
+
+        Button removeButton = new Button("Rabatt entfernen", e -> {
+            item.clearDiscount();
+            cartItemsManager.updateGrid(cartGrid, totalLabel);
+            dialog.close();
+        });
+
+        Button confirmButton = new Button("Anwenden", e -> {
+            Integer percent = percentField.getValue();
+            Integer qty = quantityField.getValue();
+
+            if (percent == null || percent < 0 || percent > 100) {
+                Notification.show("Bitte einen gültigen Prozentsatz zwischen 0 und 100 eingeben.",
+                                3000, Notification.Position.MIDDLE)
+                        .addThemeVariants(NotificationVariant.LUMO_ERROR);
+                return;
+            }
+
+            if (qty == null || qty < 1 || qty > item.getQuantity()) {
+                Notification.show("Menge muss zwischen 1 und " + item.getQuantity() + " liegen.",
+                                3000, Notification.Position.MIDDLE)
+                        .addThemeVariants(NotificationVariant.LUMO_ERROR);
+                return;
+            }
+
+            if (percent == 0) {
+                item.clearDiscount();
+            } else {
+                item.setDiscountPercent(BigDecimal.valueOf(percent));
+                item.setDiscountedQuantity(qty);
+            }
+
+            cartItemsManager.updateGrid(cartGrid, totalLabel);
+            dialog.close();
+        });
+
+        Button cancelButton = new Button("Abbrechen", e -> dialog.close());
+
+        percentField.addKeyPressListener(Key.ENTER, e -> confirmButton.click());
+        quantityField.addKeyPressListener(Key.ENTER, e -> confirmButton.click());
+
+        dialog.getFooter().add(removeButton, cancelButton, confirmButton);
+        dialog.open();
     }
 
     private void showPasswordDialogForPriceChange(CartItem item) {
