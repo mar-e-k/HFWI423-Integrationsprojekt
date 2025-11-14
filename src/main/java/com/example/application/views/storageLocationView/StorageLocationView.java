@@ -3,12 +3,14 @@ package com.example.application.views.storageLocationView;
 import com.example.application.data.storageLocation.StorageLocation;
 import com.example.application.services.StorageLocationService;
 import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.dependency.Uses;
 import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.icon.Icon;
+import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
@@ -42,6 +44,36 @@ public class StorageLocationView extends Div {
         grid.addColumn(StorageLocation::getCompartmentID).setHeader("Compartment-ID").setSortable(true).setAutoWidth(true);
         grid.addColumn(StorageLocation::getShelfID).setHeader("Shelf-ID").setSortable(true).setAutoWidth(true);
         grid.addColumn(StorageLocation::getStorageStatus).setHeader("Status").setSortable(true).setAutoWidth(true);
+
+        grid.addComponentColumn(storageLocation -> {
+            Button deleteButton = new Button(VaadinIcon.TRASH.create(), click -> {
+
+                // Optional: kleine Sicherheitsabfrage
+                Dialog confirm = new Dialog();
+                confirm.setHeaderTitle("Delete Storage Location");
+
+                confirm.add("Really delete this storage location?");
+
+                Button cancel = new Button("Cancel", e -> confirm.close());
+                Button confirmDelete = new Button("Delete", e -> {
+                    service.delete(storageLocation);
+                    refreshGrid();
+                    confirm.close();
+                    Notification.show("Storage Location deleted");
+                });
+
+                confirm.getFooter().add(new HorizontalLayout(cancel, confirmDelete));
+                confirm.open();
+            });
+
+            // etwas Styling
+            deleteButton.addThemeVariants(
+                    ButtonVariant.LUMO_ERROR,
+                    ButtonVariant.LUMO_TERTIARY_INLINE
+            );
+
+            return deleteButton;
+        }).setHeader("Actions").setAutoWidth(true).setFlexGrow(0);
         grid.setSizeFull();
         refreshGrid();
 
@@ -70,9 +102,9 @@ public class StorageLocationView extends Div {
         TextField zone = new TextField("Zone");
         zone.setRequired(true);
 
-        IntegerField placeId = new IntegerField("Compartment-ID");
-        placeId.setStepButtonsVisible(true);
-        placeId.setRequiredIndicatorVisible(true);
+        IntegerField compartmentId = new IntegerField("Compartment-ID");
+        compartmentId.setStepButtonsVisible(true);
+        compartmentId.setRequiredIndicatorVisible(true);
 
         IntegerField shelfId = new IntegerField("Shelf-ID");
         shelfId.setStepButtonsVisible(true);
@@ -80,8 +112,9 @@ public class StorageLocationView extends Div {
 
         TextField status = new TextField("Status");
 
-        FormLayout form = new FormLayout(zone, placeId, shelfId, status);
+        FormLayout form = new FormLayout(zone, shelfId, compartmentId, status);
         form.setWidth("480px");
+        dialog.isDraggable();
         dialog.add(form);
 
         // Binder
@@ -91,7 +124,7 @@ public class StorageLocationView extends Div {
         binder.forField(zone).asRequired("Zone is mandatory")
                 .bind(StorageLocation::getStorageZone, StorageLocation::setStorageZone);
 
-        binder.forField(placeId).asRequired("Compartment-ID is mandatory")
+        binder.forField(compartmentId).asRequired("Compartment-ID is mandatory")
                 .bind(StorageLocation::getCompartmentID, StorageLocation::setCompartmentID);
 
         binder.forField(shelfId).asRequired("Shelf-ID is mandatory")

@@ -25,5 +25,8 @@ public class StorageLocationService {
     public boolean existsByZoneShelfCompartment(String zone, Integer shelfId, Integer compartmentID) {
         return repo.existsByStorageZoneAndShelfIDAndCompartmentID(zone, shelfId, compartmentID);
     }
+    public void delete(StorageLocation s) {
+        repo.delete(s);
+    }
 }
 
