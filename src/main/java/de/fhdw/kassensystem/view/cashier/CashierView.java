@@ -468,7 +468,7 @@ public class CashierView extends BaseView implements BeforeEnterObserver {
         if (existing != null) {
             existing.setQuantity(existing.getQuantity() + 1);
         } else {
-            items.add(new CartItem(article, items.size() + 1, 1, BigDecimal.valueOf(article.getPurchasePrice())));
+            items.add(new CartItem(article, items.size() + 1, 1, BigDecimal.valueOf(article.getSellingPrice())));
         }
 
         cartItemsManager.updateGrid(cartGrid, totalLabel);
