@@ -4,6 +4,7 @@ import com.example.application.data.storageLocation.StorageLocation;
 import com.example.application.services.StorageLocationService;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
+import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.dependency.Uses;
 import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.formlayout.FormLayout;
@@ -46,6 +47,18 @@ public class StorageLocationView extends Div {
         grid.addColumn(StorageLocation::getStorageStatus).setHeader("Status").setSortable(true).setAutoWidth(true);
 
         grid.addComponentColumn(storageLocation -> {
+            Button editButton = new Button(VaadinIcon.EDIT.create(), click -> {
+                openEditDialog(storageLocation);
+            });
+            editButton.getElement().setProperty("title", "Edit");
+            editButton.addThemeVariants(ButtonVariant.LUMO_TERTIARY_INLINE);
+            editButton.getStyle().set("background-color", "gold");
+            editButton.getStyle().set("color", "black");
+
+            return editButton;
+        }).setHeader("Edit").setAutoWidth(true);
+
+        grid.addComponentColumn(storageLocation -> {
             Button deleteButton = new Button(VaadinIcon.TRASH.create(), click -> {
 
                 // Optional: kleine Sicherheitsabfrage
@@ -73,7 +86,7 @@ public class StorageLocationView extends Div {
             );
 
             return deleteButton;
-        }).setHeader("Actions").setAutoWidth(true).setFlexGrow(0);
+        }).setHeader("Delete").setAutoWidth(true).setFlexGrow(0);
         grid.setSizeFull();
         refreshGrid();
 
@@ -99,8 +112,9 @@ public class StorageLocationView extends Div {
         dialog.setHeaderTitle("New Storage Location");
 
         // Felder
-        TextField zone = new TextField("Zone");
-        zone.setRequired(true);
+        ComboBox<String> zone = new ComboBox<>("Zone");
+        zone.setItems("Zone 1", "Zone 2", "Zone 3", "Zone 4");
+        zone.setRequiredIndicatorVisible(true);
 
         IntegerField compartmentId = new IntegerField("Compartment-ID");
         compartmentId.setStepButtonsVisible(true);
@@ -111,6 +125,8 @@ public class StorageLocationView extends Div {
         shelfId.setRequiredIndicatorVisible(true);
 
         TextField status = new TextField("Status");
+        status.setValue("Available");
+        status.setReadOnly(true);       // Nutzer kann nichts ändern
 
         FormLayout form = new FormLayout(zone, shelfId, compartmentId, status);
         form.setWidth("480px");
@@ -121,7 +137,8 @@ public class StorageLocationView extends Div {
         Binder<StorageLocation> binder = new Binder<>(StorageLocation.class);
         StorageLocation bean = new StorageLocation();
 
-        binder.forField(zone).asRequired("Zone is mandatory")
+        binder.forField(zone)
+                .asRequired("Zone is mandatory")
                 .bind(StorageLocation::getStorageZone, StorageLocation::setStorageZone);
 
         binder.forField(compartmentId).asRequired("Compartment-ID is mandatory")
@@ -155,6 +172,60 @@ public class StorageLocationView extends Div {
 
                 service.save(bean);
                 Notification.show("Storage Location Saved");
+                dialog.close();
+                refreshGrid();
+            } catch (ValidationException ex) {
+                Notification.show("Please Check Inputs");
+            }
+        });
+
+        dialog.getFooter().add(new HorizontalLayout(cancel, save));
+        dialog.open();
+    }
+
+    private void openEditDialog(StorageLocation existing) {
+        Dialog dialog = new Dialog();
+        dialog.setHeaderTitle("Edit Storage Location");
+
+        ComboBox<String> zone = new ComboBox<>("Zone");
+        zone.setItems("Zone 1", "Zone 2", "Zone 3", "Zone 4");
+        zone.setRequiredIndicatorVisible(true);
+        IntegerField compartmentId = new IntegerField("Compartment-ID");
+        IntegerField shelfId = new IntegerField("Shelf-ID");
+        TextField status = new TextField("Status");
+        status.setReadOnly(true); // Status NICHT änderbar
+
+        FormLayout form = new FormLayout(zone, compartmentId, shelfId, status);
+        form.setWidth("480px");
+        dialog.add(form);
+
+        Binder<StorageLocation> binder = new Binder<>(StorageLocation.class);
+
+        binder.forField(zone)
+                .asRequired("Zone is mandatory")
+                .bind(StorageLocation::getStorageZone, StorageLocation::setStorageZone);
+        
+        binder.forField(compartmentId)
+                .asRequired("Compartment-ID is mandatory")
+                .bind(StorageLocation::getCompartmentID, StorageLocation::setCompartmentID);
+
+        binder.forField(shelfId)
+                .asRequired("Shelf-ID is mandatory")
+                .bind(StorageLocation::getShelfID, StorageLocation::setShelfID);
+
+        // Status nur anzeigen, nicht ändern
+        binder.forField(status)
+                .bind(StorageLocation::getStorageStatus, (bean, value) -> {
+                });
+
+        binder.readBean(existing);
+
+        Button cancel = new Button("Cancel", e -> dialog.close());
+        Button save = new Button("Save", e -> {
+            try {
+                binder.writeBean(existing);
+                service.save(existing);
+                Notification.show("Storage Location Updated");
                 dialog.close();
                 refreshGrid();
             } catch (ValidationException ex) {
