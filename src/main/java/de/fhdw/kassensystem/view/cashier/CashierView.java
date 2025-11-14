@@ -653,6 +653,64 @@ public class CashierView extends BaseView implements BeforeEnterObserver {
         ).addThemeVariants(NotificationVariant.LUMO_SUCCESS);
     }
 
+    private void showInitialPriceDialog(Article article) {
+        Dialog dialog = new Dialog();
+        dialog.setHeaderTitle("Preis für '" + article.getName() + "' festlegen");
+
+        TextField priceField = new TextField("Verkaufspreis");
+        priceField.setSuffixComponent(new Span("€"));
+        priceField.setWidth("150px");
+
+        Button cancelButton = new Button("Abbrechen", e -> dialog.close());
+
+        Button confirmButton = new Button("Übernehmen", e -> {
+            String value = priceField.getValue();
+            if (value == null || value.trim().isEmpty()) {
+                Notification.show("Bitte einen Preis eingeben.", 3000, Notification.Position.MIDDLE)
+                        .addThemeVariants(NotificationVariant.LUMO_ERROR);
+                return;
+            }
+
+            try {
+                // Komma oder Punkt erlauben
+                String normalized = value.replace(",", ".").trim();
+                BigDecimal price = new BigDecimal(normalized);
+
+                if (price.compareTo(BigDecimal.ZERO) <= 0) {
+                    Notification.show("Preis muss größer als 0 sein.", 3000, Notification.Position.MIDDLE)
+                            .addThemeVariants(NotificationVariant.LUMO_ERROR);
+                    return;
+                }
+
+                // Artikel mit diesem Preis in den Warenkorb aufnehmen
+                List<CartItem> items = cartItemsManager.getCart();
+                CartItem newItem = new CartItem(article, items.size() + 1, 1, price);
+                items.add(newItem);
+                cartItemsManager.updateGrid(cartGrid, totalLabel);
+
+                Notification.show(
+                        article.getName() + " wurde dem Warenkorb hinzugefügt",
+                        2000,
+                        Notification.Position.MIDDLE
+                ).addThemeVariants(NotificationVariant.LUMO_SUCCESS);
+
+                dialog.close();
+            } catch (NumberFormatException ex) {
+                Notification.show("Bitte einen gültigen Preis eingeben.", 3000, Notification.Position.MIDDLE)
+                        .addThemeVariants(NotificationVariant.LUMO_ERROR);
+            }
+        });
+
+        // Enter im Feld löst Bestätigen aus
+        priceField.addKeyPressListener(Key.ENTER, e -> confirmButton.click());
+
+        dialog.add(priceField);
+        dialog.getFooter().add(cancelButton, confirmButton);
+        dialog.open();
+        priceField.focus();
+    }
+
+
     @Override
     public void beforeEnter(BeforeEnterEvent beforeEnterEvent) {
         if (!cartItemsManager.getCart().isEmpty()) {
