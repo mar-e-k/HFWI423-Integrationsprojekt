@@ -19,7 +19,7 @@ import java.util.List;
 @Service
 public class ReceiptService {
 
-    public ByteArrayInputStream generateReceipt(List<CartItem> cartItems) throws IOException {
+    public ByteArrayInputStream generateReceipt(List<CartItem> cartItems, boolean isCashPayment) throws IOException {
         try (PDDocument document = new PDDocument()) {
             PDPage page = new PDPage();
             document.addPage(page);
@@ -101,6 +101,13 @@ public class ReceiptService {
             contentStream.setFont(boldFont, 14);
             contentStream.newLineAtOffset(350, y);
             contentStream.showText("Gesamtbetrag: " + String.format("%.2f EUR", total));
+            contentStream.endText();
+
+            contentStream.beginText();
+            contentStream.setFont(font, 12);
+            contentStream.newLineAtOffset(50, y);
+            String paymentText = isCashPayment ? "Bargeldzahlung" : "Kartenzahlung";
+            contentStream.showText(paymentText);
             contentStream.endText();
             y -= 30;
 
