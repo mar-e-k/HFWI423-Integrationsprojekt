@@ -98,7 +98,7 @@ public class CashierView extends BaseView implements BeforeEnterObserver {
         articleGrid.addColumn(Article::getName).setHeader("Artikelname").setWidth("200px");
         articleGrid.addColumn(Article::getArticleNumber).setHeader("Artikelnummer").setAutoWidth(true);
         articleGrid.addColumn(article -> article.getSellingPrice() + " €").setHeader("Verkaufspreis").setAutoWidth(true);
-        
+
         // Spalte für Lagerbestand mit Warnung
         articleGrid.addComponentColumn(article -> {
             Span stockLabel = new Span(article.getStockLevel() + " Stück");
@@ -141,10 +141,29 @@ public class CashierView extends BaseView implements BeforeEnterObserver {
         priceEditor.setSuffixComponent(new Span("€"));
         priceEditor.setWidth("100px");
         priceEditor.getStyle().set("text-align", "right");
+
+        // Validator abhängig davon, ob Artikel schon einen Verkaufspreis hat
         binder.forField(priceEditor)
+                // Null im Modell -> "" im Textfeld
+                .withNullRepresentation("")
                 .withConverter(new StringToBigDecimalConverter("Bitte eine gültige Zahl eingeben"))
-                .withValidator(price -> price == null || price.compareTo(BigDecimal.ZERO) >= 0,
-                        "Preis darf nicht negativ sein")
+                .withValidator(price -> {
+                    CartItem current = editor.getItem();
+                    if (current == null) return true;
+
+                    // Preis MUSS gesetzt sein
+                    if (price == null) {
+                        return false;
+                    }
+
+                    // Preis darf NICHT 0 sein
+                    if (price.compareTo(BigDecimal.ZERO) == 0) {
+                        return false;
+                    }
+
+                    // Preis muss > 0 sein
+                    return price.compareTo(BigDecimal.ZERO) > 0;
+                }, "Preis muss größer als 0 sein.")
                 .bind(CartItem::getOverriddenPrice, CartItem::setOverriddenPrice);
 
 
@@ -200,7 +219,19 @@ public class CashierView extends BaseView implements BeforeEnterObserver {
             if (!editor.isOpen()) {
                 String columnKey = event.getColumn().getKey();
                 if ("price".equals(columnKey)) {
-                    showPasswordDialogForPriceChange(item);
+                    boolean hasSellingPrice = item.getArticle().getSellingPrice() != null;
+                    if (hasSellingPrice) {
+                        // Artikel mit bestehendem Verkaufspreis -> Passwort nötig
+                        showPasswordDialogForPriceChange(item);
+                    } else {
+                        // Artikel ohne Verkaufspreis -> Kassierer darf direkt Preis setzen
+                        editor.editItem(item);
+                        priceEditor.setReadOnly(false);
+                        quantityEditor.setReadOnly(true);
+                        BigDecimal currentPrice = item.getOverriddenPrice();
+                        priceEditor.setValue(currentPrice != null ? currentPrice.toPlainString() : "");
+                        priceEditor.focus();
+                    }
                 } else if ("quantity".equals(columnKey)) {
                     editor.editItem(item);
                     priceEditor.setReadOnly(true);
@@ -287,8 +318,10 @@ public class CashierView extends BaseView implements BeforeEnterObserver {
             Optional<Article> article = articleService.findByArticleNumber(input);
             if (article.isPresent()) {
                 Double price = article.get().getSellingPrice();
-                if (price == null || price < 0) {
-                    errorLabel.setText("Artikel hat keinen oder einen ungültigen Verkaufspreis");
+
+                // Nur negative Preise blocken – null ist erlaubt (Kassierer kann später setzen)
+                if (price != null && price < 0) {
+                    errorLabel.setText("Artikel hat einen ungültigen (negativen) Verkaufspreis");
                     descriptionOutputField.clear();
                     descriptionOutputField.setVisible(false);
                     articleGrid.setItems(Collections.emptyList());
@@ -468,7 +501,13 @@ public class CashierView extends BaseView implements BeforeEnterObserver {
         if (existing != null) {
             existing.setQuantity(existing.getQuantity() + 1);
         } else {
-            items.add(new CartItem(article, items.size() + 1, 1, BigDecimal.valueOf(article.getPurchasePrice())));
+            // purchasePrice kann null sein -> null-sicher behandeln
+            Double purchasePrice = article.getPurchasePrice();
+            BigDecimal overriddenPrice = purchasePrice != null
+                    ? BigDecimal.valueOf(purchasePrice)
+                    : null; // Kassierer kann später einen Preis setzen
+
+            items.add(new CartItem(article, items.size() + 1, 1, overriddenPrice));
         }
 
         cartItemsManager.updateGrid(cartGrid, totalLabel);

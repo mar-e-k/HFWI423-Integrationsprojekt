@@ -50,6 +50,11 @@ public class CartItem {
     }
 
     public BigDecimal getEffectivePrice() {
-        return overriddenPrice != null ? overriddenPrice : BigDecimal.valueOf(article.getSellingPrice());
+        if (overriddenPrice != null) {
+            return overriddenPrice;
+        }
+
+        Double sellingPrice = article.getSellingPrice();
+        return sellingPrice != null ? BigDecimal.valueOf(sellingPrice) : BigDecimal.ZERO;
     }
 }
