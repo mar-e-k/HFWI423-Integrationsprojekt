@@ -618,6 +618,12 @@ public class CashierView extends BaseView implements BeforeEnterObserver {
     }
 
     private void addToCart(Article article) {
+        // Wenn der Artikel keinen Verkaufspreis hat, muss der Kassierer einen eingeben
+        if (article.getSellingPrice() == null) {
+            showInitialPriceDialog(article);
+            return;
+        }
+
         List<CartItem> items = cartItemsManager.getCart();
         String articleNumber = article.getArticleNumber();
 
@@ -633,7 +639,7 @@ public class CashierView extends BaseView implements BeforeEnterObserver {
             Double purchasePrice = article.getPurchasePrice();
             BigDecimal overriddenPrice = purchasePrice != null
                     ? BigDecimal.valueOf(purchasePrice)
-                    : null; // Kassierer kann später einen Preis setzen
+                    : null; // Kassierer kann später bei Bedarf überschreiben
 
             items.add(new CartItem(article, items.size() + 1, 1, overriddenPrice));
         }
