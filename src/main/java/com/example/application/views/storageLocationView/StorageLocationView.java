@@ -39,7 +39,7 @@ public class StorageLocationView extends Div {
 
         // Grid-Spalten
         grid.addColumn(StorageLocation::getStorageZone).setHeader("Zone").setSortable(true).setAutoWidth(true);
-        grid.addColumn(StorageLocation::getStoragePlaceID).setHeader("Place-ID").setSortable(true).setAutoWidth(true);
+        grid.addColumn(StorageLocation::getCompartmentID).setHeader("Compartment-ID").setSortable(true).setAutoWidth(true);
         grid.addColumn(StorageLocation::getShelfID).setHeader("Shelf-ID").setSortable(true).setAutoWidth(true);
         grid.addColumn(StorageLocation::getStorageStatus).setHeader("Status").setSortable(true).setAutoWidth(true);
         grid.setSizeFull();
@@ -64,13 +64,13 @@ public class StorageLocationView extends Div {
 
     private void openAddDialog() {
         Dialog dialog = new Dialog();
-        dialog.setHeaderTitle("Neuen Lagerplatz anlegen");
+        dialog.setHeaderTitle("New Storage Location");
 
         // Felder
         TextField zone = new TextField("Zone");
         zone.setRequired(true);
 
-        IntegerField placeId = new IntegerField("Place-ID");
+        IntegerField placeId = new IntegerField("Compartment-ID");
         placeId.setStepButtonsVisible(true);
         placeId.setRequiredIndicatorVisible(true);
 
@@ -91,8 +91,8 @@ public class StorageLocationView extends Div {
         binder.forField(zone).asRequired("Zone is mandatory")
                 .bind(StorageLocation::getStorageZone, StorageLocation::setStorageZone);
 
-        binder.forField(placeId).asRequired("Place-ID is mandatory")
-                .bind(StorageLocation::getStoragePlaceID, StorageLocation::setStoragePlaceID);
+        binder.forField(placeId).asRequired("Compartment-ID is mandatory")
+                .bind(StorageLocation::getCompartmentID, StorageLocation::setCompartmentID);
 
         binder.forField(shelfId).asRequired("Shelf-ID is mandatory")
                 .bind(StorageLocation::getShelfID, StorageLocation::setShelfID);
@@ -102,8 +102,25 @@ public class StorageLocationView extends Div {
         Button cancel = new Button("Cancel", e -> dialog.close());
         Button save = new Button("Save", e -> {
             try {
-                binder.writeBean(bean);     // überträgt Felder
-                service.save(bean);         // persistiert in DB
+                binder.writeBean(bean); // Felder -> Bean
+
+                // 2) Zone + Shelf + Place darf nicht doppelt sein
+                if (service.existsByZoneShelfCompartment(
+                        bean.getStorageZone(),
+                        bean.getShelfID(),
+                        bean.getCompartmentID()
+                )) {
+                    Notification.show(
+                            "In Zone '" + bean.getStorageZone() +
+                                    "', Shelf '" + bean.getShelfID() +
+                                    "' existiert Compartment-ID '" + bean.getCompartmentID() + "' bereits.",
+                            4000,
+                            Notification.Position.MIDDLE
+                    );
+                    return;
+                }
+
+                service.save(bean);
                 Notification.show("Storage Location Saved");
                 dialog.close();
                 refreshGrid();
