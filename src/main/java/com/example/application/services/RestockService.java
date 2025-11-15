@@ -2,7 +2,9 @@ package com.example.application.services;
 
 import com.example.application.data.article.ArticleInfo;
 import com.example.application.data.article.ArticleInfoRepository;
+import com.example.application.data.article.RestockItem;
 import org.springframework.stereotype.Service;
+import java.util.stream.Collectors;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -19,9 +21,10 @@ public class RestockService {
     /**
      * Gibt alle Artikel zurück, deren Lagerbestand unter dem Mindestbestand liegt.
      */
-    public List<ArticleInfo> getArticlesToRestock() {
+    public List<RestockItem> getArticlesToRestock() {
         return articleInfoRepository.findAll().stream()
                 .filter(a -> a.getStockLevel() < a.getMinStock())
+                .map(RestockItem::new)
                 .collect(Collectors.toList());
     }
 }

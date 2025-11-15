@@ -1,24 +1,17 @@
 package com.example.application.views.restockView;
 
-import com.vaadin.flow.data.provider.ListDataProvider;
-import org.springframework.data.domain.Sort;
-import com.example.application.data.stockChangeLog.StockChangeLog;
-import com.example.application.services.StockChangeLogService;
-import com.vaadin.flow.component.Component;
-import com.vaadin.flow.component.Text;
+import com.example.application.data.article.RestockItem;
 import com.vaadin.flow.component.dependency.Uses;
 import com.vaadin.flow.component.grid.Grid;
-import com.vaadin.flow.component.grid.GridVariant;
 import com.vaadin.flow.component.html.Div;
+import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
-import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.router.Menu;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import org.vaadin.lineawesome.LineAwesomeIconUrl;
 
-import com.example.application.data.article.ArticleInfo;
 import com.example.application.services.RestockService;
 
 import com.vaadin.flow.component.button.Button;
@@ -27,7 +20,6 @@ import com.vaadin.flow.component.html.Anchor;
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 import java.util.List;
-import java.util.ArrayList;
 
 
 @PageTitle("Restock")
@@ -36,7 +28,8 @@ import java.util.ArrayList;
 @Uses(Icon.class)
 public class RestockView extends Div {
     private final RestockService restockService;
-    private final Grid<ArticleInfo> grid = new Grid<>();
+    private final Grid<RestockItem> grid = new Grid<>(RestockItem.class, false);
+    private final Span emptyMessage = new Span("Es müssen aktuell keine Artikel nachbestellt werden.");
 
     public RestockView(RestockService restockService) {
         this.restockService = restockService;
@@ -59,16 +52,21 @@ public class RestockView extends Div {
 
 
         // Grid-Spalten definieren
-        grid.addColumn(ArticleInfo::getArticleNumber).setHeader("Artikelnummer");
-        grid.addColumn(ArticleInfo::getName).setHeader("Name");
-        grid.addColumn(ArticleInfo::getStockLevel).setHeader("Bestand");
-        grid.addColumn(ArticleInfo::getMinStock).setHeader("Mindestbestand");
+        grid.addColumn(RestockItem::getArticleNumber).setHeader("Artikelnummer");
+        grid.addColumn(RestockItem::getName).setHeader("Name");
+        grid.addColumn(RestockItem::getStockLevel).setHeader("Bestand");
+        grid.addColumn(RestockItem::getMinStock).setHeader("Mindestbestand");
+        grid.addColumn(RestockItem::getOrderAmount).setHeader("Nachbestellmenge");
 
         grid.setHeight("300px");
 
 
+        emptyMessage.getStyle().set("color", "gray");
+        emptyMessage.getStyle().set("font-style", "italic");
+        emptyMessage.setVisible(false); // Start: unsichtbar
+
         // Komponenten ins Layout
-        layout.add(refreshButton, exportButton, grid);
+        layout.add(refreshButton, exportButton, emptyMessage, grid);
         add(layout);
 
         // Initial Daten laden
@@ -77,9 +75,16 @@ public class RestockView extends Div {
     }
 
     private void updateGrid() {
-        List<ArticleInfo> items = restockService.getArticlesToRestock();
-        grid.setItems(new ArrayList<>(items));
+        List<RestockItem> items = restockService.getArticlesToRestock();
+        grid.setItems(items);
 
+        if (items.isEmpty()) {
+            grid.setVisible(false);
+            emptyMessage.setVisible(true);
+        } else {
+            grid.setVisible(true);
+            emptyMessage.setVisible(false);
+        }
     }
 
     private void updateCsvDownload(Anchor exportButton) {
@@ -93,14 +98,15 @@ public class RestockView extends Div {
     }
 
     private String buildCsv() {
-        List<ArticleInfo> items = restockService.getArticlesToRestock();
-        StringBuilder sb = new StringBuilder("Artikelnummer;Name;Bestand;Mindestbestand\n");
+        List<RestockItem> items = restockService.getArticlesToRestock();
+        StringBuilder sb = new StringBuilder("Artikelnummer;Name;Bestand;Mindestbestand;Nachbestellmenge\n");
 
-        for (ArticleInfo a : items) {
+        for (RestockItem a : items) {
             sb.append(a.getArticleNumber()).append(";")
                     .append(a.getName()).append(";")
                     .append(a.getStockLevel()).append(";")
-                    .append(a.getMinStock()).append("\n");
+                    .append(a.getMinStock()).append(";")
+                    .append(a.getOrderAmount()).append("\n");
         }
 
         return sb.toString();
