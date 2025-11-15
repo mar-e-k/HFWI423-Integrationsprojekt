@@ -3,6 +3,7 @@ package com.example.application.services;
 import com.example.application.data.storageLocation.StorageLocation;
 import com.example.application.data.storageLocation.StorageLocationRepository;
 import org.springframework.stereotype.Service;
+import java.util.Optional;
 
 import java.util.List;
 
@@ -31,6 +32,10 @@ public class StorageLocationService {
 
     public List<StorageLocation> findAllAvailable() {
         return repo.findByStorageStatus("Available");
+    }
+
+    public Optional<StorageLocation> findByZoneShelfCompartment(String zone, Integer shelfId, Integer compartmentId) {
+        return repo.findByStorageZoneAndShelfIDAndCompartmentID(zone, shelfId, compartmentId);
     }
 
 

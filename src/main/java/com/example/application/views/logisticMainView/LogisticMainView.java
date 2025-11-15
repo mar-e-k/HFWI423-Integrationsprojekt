@@ -350,12 +350,12 @@ public class LogisticMainView extends Div {
                 .setHeader("Zone")
                 .setAutoWidth(true);
 
-        locGrid.addColumn(StorageLocation::getCompartmentID)
-                .setHeader("Compartment")
-                .setAutoWidth(true);
-
         locGrid.addColumn(StorageLocation::getShelfID)
                 .setHeader("Shelf")
+                .setAutoWidth(true);
+
+        locGrid.addColumn(StorageLocation::getCompartmentID)
+                .setHeader("Compartment")
                 .setAutoWidth(true);
 
         locGrid.addColumn(StorageLocation::getStorageStatus)
@@ -374,19 +374,36 @@ public class LogisticMainView extends Div {
         locGrid.addItemClickListener(event -> {
             StorageLocation selected = event.getItem();
 
-            // String bauen, der im Article gespeichert werden soll
             String generalId = buildGeneralId(selected);
 
             try {
-                // 1) Artikel-StorageLocation aktualisieren (Service gibt's bei dir ja schon)
-                articleInfoService.updateStorageLocation(article.getId(), generalId);
-                article.setStorageLocation(generalId);   // UI-Objekt synchron halten
+                // 1) Alte Location (falls vorhanden) wieder auf Available setzen
+                String oldGeneralId = article.getStorageLocation();
+                if (oldGeneralId != null && !oldGeneralId.isBlank()) {
+                    StorageLocation parsed = parseGeneralIdToLocation(oldGeneralId);
+                    if (parsed != null) {
+                        storageLocationService
+                                .findByZoneShelfCompartment(
+                                        parsed.getStorageZone(),
+                                        parsed.getShelfID(),
+                                        parsed.getCompartmentID()
+                                )
+                                .ifPresent(oldLoc -> {
+                                    oldLoc.setStorageStatus("Available");
+                                    storageLocationService.save(oldLoc);
+                                });
+                    }
+                }
 
-                // 2) Lagerplatz auf "Used" setzen
+                // 2) Artikel auf neue General-ID setzen
+                articleInfoService.updateStorageLocation(article.getId(), generalId);
+                article.setStorageLocation(generalId);
+
+                // 3) neue Location auf Used setzen
                 selected.setStorageStatus("Used");
                 storageLocationService.save(selected);
 
-                // 3) Grid refreshen (damit der Article die neue Location anzeigt)
+                // 4) Article-Grid refreshen
                 grid.getDataProvider().refreshItem(article);
 
                 Notification.show("Location assigned: " + generalId);
@@ -408,7 +425,6 @@ public class LogisticMainView extends Div {
         dialog.open();
     }
 
-
     private void setupDataProvider() {
         DataProvider<ArticleInfo, Void> dataProvider = DataProvider.fromCallbacks(
                 (Query<ArticleInfo, Void> q) -> articleInfoService
@@ -418,6 +434,39 @@ public class LogisticMainView extends Div {
         );
 
         grid.setDataProvider(dataProvider);
+    }
+
+    private com.example.application.data.storageLocation.StorageLocation parseGeneralIdToLocation(String generalId) {
+        if (generalId == null || generalId.isBlank()) {
+            return null;
+        }
+
+        // Erwartetes Format: Z3.S2.C4
+        try {
+            String[] parts = generalId.split("\\.");
+            if (parts.length != 3) {
+                return null;
+            }
+
+            String zonePart = parts[0]; // "Z3"
+            String shelfPart = parts[1]; // "S2"
+            String compPart = parts[2]; // "C4"
+
+            int zoneNumber = Integer.parseInt(zonePart.substring(1));
+            int shelfId = Integer.parseInt(shelfPart.substring(1));
+            int compId = Integer.parseInt(compPart.substring(1));
+
+            String zoneString = "Zone " + zoneNumber;
+
+            // Nur als Transport-Objekt verwenden, um die drei Werte zu halten
+            StorageLocation tmp = new StorageLocation();
+            tmp.setStorageZone(zoneString);
+            tmp.setShelfID(shelfId);
+            tmp.setCompartmentID(compId);
+            return tmp;
+        } catch (Exception e) {
+            return null;
+        }
     }
 
     private void refreshGrid() {
