@@ -87,7 +87,6 @@ public class StorageLocationView extends Div {
             editButton.addThemeVariants(ButtonVariant.LUMO_TERTIARY_INLINE);
             editButton.getStyle().set("background-color", "gold");
             editButton.getStyle().set("color", "black");
-
             return editButton;
         }).setHeader("Edit").setAutoWidth(true);
 

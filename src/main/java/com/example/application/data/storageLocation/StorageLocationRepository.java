@@ -2,6 +2,8 @@ package com.example.application.data.storageLocation;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 
+import java.util.List;
+
 public interface StorageLocationRepository extends JpaRepository<StorageLocation, Long> {
     boolean existsByStorageZoneAndShelfIDAndCompartmentID(
             String storageZone,
@@ -15,4 +17,6 @@ public interface StorageLocationRepository extends JpaRepository<StorageLocation
             Integer compartmentID,
             Long id
     );
+
+    List<StorageLocation> findByStorageStatus(String storageStatus);
 }

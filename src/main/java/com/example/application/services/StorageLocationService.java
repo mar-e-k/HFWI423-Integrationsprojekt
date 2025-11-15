@@ -29,6 +29,11 @@ public class StorageLocationService {
         repo.delete(s);
     }
 
+    public List<StorageLocation> findAllAvailable() {
+        return repo.findByStorageStatus("Available");
+    }
+
+
     public boolean existsDuplicateForEdit(StorageLocation s) {
         // Falls aus irgendeinem Grund noch keine ID da ist, verhalten wie "neu"
         if (s.getId() == null) {

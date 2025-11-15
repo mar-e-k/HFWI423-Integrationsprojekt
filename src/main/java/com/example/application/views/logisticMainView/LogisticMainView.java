@@ -2,9 +2,12 @@ package com.example.application.views.logisticMainView;
 
 import com.example.application.data.article.ArticleInfo;
 import com.example.application.services.ArticleInfoService;
+import com.vaadin.flow.component.dialog.Dialog;
+import com.vaadin.flow.component.button.Button;
+import com.example.application.services.StorageLocationService;
+import com.example.application.data.storageLocation.StorageLocation;
 import com.example.application.views.stockChangeView.StockChangeDialog;
 import com.vaadin.flow.component.Component;
-import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.dependency.Uses;
 import com.vaadin.flow.component.grid.Grid;
@@ -25,7 +28,6 @@ import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaQuery;
 import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
-import com.vaadin.flow.component.combobox.ComboBox;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -50,12 +52,14 @@ import com.vaadin.flow.data.provider.Query;
 @Uses(Icon.class)
 public class LogisticMainView extends Div {
 
+    private final StorageLocationService storageLocationService;
     private Grid<ArticleInfo> grid;
     private Filters filters;
     private final ArticleInfoService articleInfoService;
 
-    public LogisticMainView(ArticleInfoService articleInfoService) {
+    public LogisticMainView(ArticleInfoService articleInfoService, StorageLocationService storageLocationService) {
         this.articleInfoService = articleInfoService;
+        this.storageLocationService = storageLocationService;
 
         // === Grundlayout der Seite ===
         setSizeFull();
@@ -81,6 +85,7 @@ public class LogisticMainView extends Div {
         layout.setSpacing(false);
 
         add(layout);
+
     }
 
     /**
@@ -241,6 +246,7 @@ public class LogisticMainView extends Div {
         }
     }
 
+
     /**
      * Erstellt das Grid zur Anzeige von {@link ArticleInfo}.
      * Definiert Spalten, Header, Sortierung und Layout.
@@ -248,6 +254,7 @@ public class LogisticMainView extends Div {
      * @return das konfigurierte Grid als Component
      */
     private Component createGrid() {
+
 
         grid = new Grid<>(ArticleInfo.class, false);
 
@@ -274,64 +281,20 @@ public class LogisticMainView extends Div {
                 .setSortable(true);
 
         // Spalte: Lagerort (Text)
-        grid.addColumn(ArticleInfo::getStorageLocation)
-                .setHeader("Storage Location")
+        grid.addComponentColumn(item -> {
+                    String label = item.getStorageLocation() != null && !item.getStorageLocation().isBlank()
+                            ? item.getStorageLocation()
+                            : "Select location";
+
+                    Button link = new Button(label);
+                    link.addThemeVariants(ButtonVariant.LUMO_TERTIARY_INLINE);
+                    link.addClickListener(e -> openAvailableLocationsDialog(item));
+
+                    return link;
+                }).setHeader("Storage Location")
                 .setKey("storageLocation")
                 .setAutoWidth(true)
-                .setSortable(true);
-
-        grid.addComponentColumn(item -> {
-            ComboBox<String> cb = new ComboBox<>();
-            cb.setItems(articleInfoService.findAllStorageLocations());
-            cb.setValue(item.getStorageLocation());
-            cb.setPlaceholder("Select location");
-            cb.setAllowCustomValue(true);
-            cb.addCustomValueSetListener(ev -> cb.setValue(ev.getDetail()));
-
-            // Variante 1: Clear-Button aus (kein null möglich)
-            cb.setClearButtonVisible(false);
-
-            // Falls du Clear-Button behalten willst, nutze stattdessen:
-            // cb.setClearButtonVisible(true);
-
-            final String[] last = {item.getStorageLocation()};
-
-            cb.addValueChangeListener(e -> {
-                if (!e.isFromClient()) return;
-
-                String newVal = e.getValue();
-                if (newVal == null || newVal.isBlank()) {
-                    cb.setValue(last[0]);
-                    Notification.show("Storage Location darf nicht leer sein");
-                    return;
-                }
-
-                try {
-                    // laden + speichern (vermeidet OptimisticLock)
-                    ArticleInfo updated = articleInfoService.updateStorageLocation(item.getId(), newVal);
-
-                    // UI-Instanz synchronisieren (sonst springt's zurück)
-                    item.setStorageLocation(updated.getStorageLocation()); // oder: item.setStorageLocation(newVal);
-                    last[0] = updated.getStorageLocation();
-
-                    // Grid refreshen
-                    grid.getDataProvider().refreshItem(item);
-
-                    // ComboBox auf finalen Wert setzen
-                    cb.setValue(last[0]);
-
-                    Notification.show("Storage Location aktualisiert");
-                } catch (org.springframework.orm.ObjectOptimisticLockingFailureException ex) {
-                    Notification.show("Datensatz wurde geändert. Ansicht wird aktualisiert.");
-                    grid.getDataProvider().refreshAll();
-                    cb.setValue(last[0]);
-                } catch (Exception ex) {
-                    cb.setValue(last[0]);
-                    Notification.show("Speichern fehlgeschlagen: " + ex.getClass().getSimpleName());
-                }
-            });
-            return cb;
-        }).setHeader("Assign Location").setAutoWidth(true);
+                .setSortable(false);
 
         grid.addComponentColumn(item -> {
             Button editStock = new Button("Edit stock");
@@ -358,6 +321,94 @@ public class LogisticMainView extends Div {
         return grid;
     }
 
+    private String buildGeneralId(com.example.application.data.storageLocation.StorageLocation s) {
+        if (s == null) {
+            return "";
+        }
+
+        String zone = s.getStorageZone();           // z.B. "Zone 3"
+        String zoneNumber = "";
+        if (zone != null) {
+            zoneNumber = zone.replace("Zone", "").trim(); // -> "3"
+        }
+
+        Integer shelf = s.getShelfID();
+        Integer compartment = s.getCompartmentID();
+
+        return "Z" + zoneNumber
+                + ".S" + (shelf != null ? shelf : 0)
+                + ".C" + (compartment != null ? compartment : 0);
+    }
+
+    private void openAvailableLocationsDialog(ArticleInfo article) {
+        Dialog dialog = new Dialog();
+        dialog.setHeaderTitle("Available locations for: " + article.getName());
+
+        Grid<StorageLocation> locGrid = new Grid<>(StorageLocation.class, false);
+
+        locGrid.addColumn(StorageLocation::getStorageZone)
+                .setHeader("Zone")
+                .setAutoWidth(true);
+
+        locGrid.addColumn(StorageLocation::getCompartmentID)
+                .setHeader("Compartment")
+                .setAutoWidth(true);
+
+        locGrid.addColumn(StorageLocation::getShelfID)
+                .setHeader("Shelf")
+                .setAutoWidth(true);
+
+        locGrid.addColumn(StorageLocation::getStorageStatus)
+                .setHeader("Status")
+                .setAutoWidth(true);
+
+        locGrid.addColumn(this::buildGeneralId)
+                .setHeader("General ID")
+                .setAutoWidth(true);
+
+        // Nur "Available"-Plätze zeigen
+        locGrid.setItems(storageLocationService.findAllAvailable());
+        locGrid.setSizeFull();
+
+        // >>> HIER: Klick auf Lagerplatz übernimmt ihn für den Artikel
+        locGrid.addItemClickListener(event -> {
+            StorageLocation selected = event.getItem();
+
+            // String bauen, der im Article gespeichert werden soll
+            String generalId = buildGeneralId(selected);
+
+            try {
+                // 1) Artikel-StorageLocation aktualisieren (Service gibt's bei dir ja schon)
+                articleInfoService.updateStorageLocation(article.getId(), generalId);
+                article.setStorageLocation(generalId);   // UI-Objekt synchron halten
+
+                // 2) Lagerplatz auf "Used" setzen
+                selected.setStorageStatus("Used");
+                storageLocationService.save(selected);
+
+                // 3) Grid refreshen (damit der Article die neue Location anzeigt)
+                grid.getDataProvider().refreshItem(article);
+
+                Notification.show("Location assigned: " + generalId);
+                dialog.close();
+            } catch (Exception ex) {
+                Notification.show("Could not assign location");
+                ex.printStackTrace();
+            }
+        });
+
+        dialog.add(locGrid);
+
+        Button close = new Button("Close", e -> dialog.close());
+        dialog.getFooter().add(close);
+
+        dialog.setWidth("800px");
+        dialog.setHeight("400px");
+
+        dialog.open();
+    }
+
+
     private void setupDataProvider() {
         DataProvider<ArticleInfo, Void> dataProvider = DataProvider.fromCallbacks(
                 (Query<ArticleInfo, Void> q) -> articleInfoService
@@ -372,4 +423,5 @@ public class LogisticMainView extends Div {
     private void refreshGrid() {
         grid.getDataProvider().refreshAll();
     }
+
 }
