@@ -22,8 +22,18 @@ public class RestockService {
      * Gibt alle Artikel zurück, deren Lagerbestand unter dem Mindestbestand liegt.
      */
     public List<RestockItem> getArticlesToRestock() {
+
         return articleInfoRepository.findAll().stream()
-                .filter(a -> a.getStockLevel() < a.getMinStock())
+
+                .filter(a -> {
+                    Integer min = a.getMinStock();
+                    if (min == null) {
+                        // Wenn kein Mindestbestand gesetzt ist → trotzdem anzeigen
+                        return true;
+                    }
+                    return a.getStockLevel() < min;
+                })
+
                 .map(RestockItem::new)
                 .collect(Collectors.toList());
     }

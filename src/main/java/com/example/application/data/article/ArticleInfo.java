@@ -28,8 +28,8 @@ public class ArticleInfo extends AbstractEntity {
     private String storageLocation;
 
     // Mindestbestand des Artikels (ab wann nachbestellt werden muss)
-    @NotNull
-    @Column(name = "min_stock", nullable = false)
+    //@NotNull
+    @Column(name = "min_stock")//, nullable = false
     private Integer minStock;
 
     public String getName() {

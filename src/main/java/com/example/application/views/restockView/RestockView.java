@@ -30,6 +30,7 @@ public class RestockView extends Div {
     private final RestockService restockService;
     private final Grid<RestockItem> grid = new Grid<>(RestockItem.class, false);
     private final Span emptyMessage = new Span("Es müssen aktuell keine Artikel nachbestellt werden.");
+    private final Span minStockWarning = new Span("Warnung: Für einige Artikel ist kein Mindestbestand eingetragen.");
 
     public RestockView(RestockService restockService) {
         this.restockService = restockService;
@@ -55,18 +56,37 @@ public class RestockView extends Div {
         grid.addColumn(RestockItem::getArticleNumber).setHeader("Artikelnummer");
         grid.addColumn(RestockItem::getName).setHeader("Name");
         grid.addColumn(RestockItem::getStockLevel).setHeader("Bestand");
-        grid.addColumn(RestockItem::getMinStock).setHeader("Mindestbestand");
-        grid.addColumn(RestockItem::getOrderAmount).setHeader("Nachbestellmenge");
+        grid.addColumn(RestockItem::getMinStockDisplay)
+                .setHeader("Mindestbestand");
+
+        grid.addColumn(RestockItem::getOrderAmountDisplay)
+                .setHeader("Nachbestellmenge");
+
+        //Artikel hervorheben, wenn kein Mindestbestand eingetragen ist
+        grid.setPartNameGenerator(item -> {
+            if (item.getMinStock() == null) {
+                return "missing-minstock-row";
+            }
+            return "";
+        });
+
+
 
         grid.setHeight("300px");
 
-
+        //Message wenn Liste leer ist
         emptyMessage.getStyle().set("color", "gray");
         emptyMessage.getStyle().set("font-style", "italic");
         emptyMessage.setVisible(false); // Start: unsichtbar
 
+        //Warning Message wenn kein Wert für Mindestbestand gesetzt ist
+        minStockWarning.getStyle().set("color", "var(--lumo-error-color)");
+        minStockWarning.getStyle().set("font-weight", "600");
+        minStockWarning.setVisible(false);
+
+
         // Komponenten ins Layout
-        layout.add(refreshButton, exportButton, emptyMessage, grid);
+        layout.add(refreshButton, exportButton, emptyMessage, grid, minStockWarning);
         add(layout);
 
         // Initial Daten laden
@@ -77,6 +97,10 @@ public class RestockView extends Div {
     private void updateGrid() {
         List<RestockItem> items = restockService.getArticlesToRestock();
         grid.setItems(items);
+
+        boolean missingMin = items.stream().anyMatch(i -> i.getMinStock() == null);
+
+        minStockWarning.setVisible(missingMin);
 
         if (items.isEmpty()) {
             grid.setVisible(false);
@@ -105,8 +129,14 @@ public class RestockView extends Div {
             sb.append(a.getArticleNumber()).append(";")
                     .append(a.getName()).append(";")
                     .append(a.getStockLevel()).append(";")
-                    .append(a.getMinStock()).append(";")
-                    .append(a.getOrderAmount()).append("\n");
+                    .append(a.getMinStockDisplay()).append(";")
+                    .append(a.getOrderAmountDisplay()).append(";")
+
+                    // Warnhinweis-Spalte
+                    .append(a.getMinStock() == null
+                            ? "Kein Mindestbestand eingetragen"
+                            : "")
+                    .append("\n");
         }
 
         return sb.toString();

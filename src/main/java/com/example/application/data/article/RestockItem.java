@@ -2,14 +2,19 @@ package com.example.application.data.article;
 
 public class RestockItem {
     private final ArticleInfo article;
-    private final int orderAmount;
+    private final Integer orderAmount;
 
     public RestockItem(ArticleInfo article) {
         this.article = article;
-        // Formel: (minStock * 2) - stockLevel
-        this.orderAmount = (article.getMinStock() * 2) - article.getStockLevel();
+        Integer min = article.getMinStock(); // darf null sein
+        if (min == null) {
+            // Kein Mindestbestand gesetzt → keine Nachbestellmenge berechenbar
+            this.orderAmount = null;
+        } else {
+            // Formel: (minStock * 2) - stockLevel
+            this.orderAmount = (min * 2) - article.getStockLevel();
+        }
     }
-
     public ArticleInfo getArticle() {
         return article;
     }
@@ -26,12 +31,21 @@ public class RestockItem {
         return article.getStockLevel();
     }
 
-    public int getMinStock() {
+    public Integer getMinStock() {
         return article.getMinStock();
     }
 
-    public int getOrderAmount() {
+    public Integer getOrderAmount() {
         return orderAmount;
+    }
+
+    public String getMinStockDisplay() {
+        Integer min = article.getMinStock();
+        return (min == null) ? "-" : String.valueOf(min);
+    }
+
+    public String getOrderAmountDisplay() {
+        return (orderAmount == null) ? "-" : String.valueOf(orderAmount);
     }
 }
 

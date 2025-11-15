@@ -1,2 +1,11 @@
 @import url('./main-layout.css');
 @import url('./views/gridwith-filters-view.css');
+
+vaadin-grid::part(missing-minstock-row) {
+    background-color: #ffcccc !important; /* hellrot */
+}
+
+vaadin-grid::part(missing-minstock-row):hover {
+    background-color: #ff9999 !important;
+}
+
