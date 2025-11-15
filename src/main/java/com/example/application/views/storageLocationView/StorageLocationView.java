@@ -141,144 +141,139 @@ public class StorageLocationView extends Div {
 
     private void openAddDialog() {
         Dialog dialog = new Dialog();
-        dialog.setHeaderTitle("New Storage Location");
+        dialog.setHeaderTitle("Add storage location");
 
-        // Felder
         ComboBox<String> zone = new ComboBox<>("Zone");
         zone.setItems("Zone 1", "Zone 2", "Zone 3", "Zone 4");
-        zone.setRequiredIndicatorVisible(true);
-
-        IntegerField compartmentId = new IntegerField("Compartment-ID");
-        compartmentId.setStepButtonsVisible(true);
-        compartmentId.setRequiredIndicatorVisible(true);
+        zone.setRequired(true);
 
         IntegerField shelfId = new IntegerField("Shelf-ID");
-        shelfId.setStepButtonsVisible(true);
         shelfId.setRequiredIndicatorVisible(true);
+
+        IntegerField compartmentId = new IntegerField("Compartment-ID");
+        compartmentId.setRequiredIndicatorVisible(true);
 
         TextField status = new TextField("Status");
         status.setValue("Available");
-        status.setReadOnly(true);       // Nutzer kann nichts ändern
+        status.setReadOnly(true);
 
-        FormLayout form = new FormLayout(zone, shelfId, compartmentId, status);
-        form.setWidth("480px");
-        dialog.isDraggable();
-        dialog.add(form);
-
-        // Binder
         Binder<StorageLocation> binder = new Binder<>(StorageLocation.class);
         StorageLocation bean = new StorageLocation();
 
         binder.forField(zone)
-                .asRequired("Zone is mandatory")
+                .asRequired("Zone is required")
                 .bind(StorageLocation::getStorageZone, StorageLocation::setStorageZone);
 
-        binder.forField(compartmentId).asRequired("Compartment-ID is mandatory")
-                .bind(StorageLocation::getCompartmentID, StorageLocation::setCompartmentID);
-
-        binder.forField(shelfId).asRequired("Shelf-ID is mandatory")
+        binder.forField(shelfId)
+                .asRequired("Shelf is required")
+                .withConverter(
+                        Integer::valueOf,
+                        Integer::valueOf,
+                        "Invalid number"
+                )
                 .bind(StorageLocation::getShelfID, StorageLocation::setShelfID);
 
-        binder.forField(status).bind(StorageLocation::getStorageStatus, StorageLocation::setStorageStatus);
+        binder.forField(compartmentId)
+                .asRequired("Compartment is required")
+                .withConverter(
+                        Integer::valueOf,
+                        Integer::valueOf,
+                        "Invalid number"
+                )
+                .bind(StorageLocation::getCompartmentID, StorageLocation::setCompartmentID);
 
-        Button cancel = new Button("Cancel", e -> dialog.close());
+        // Status: nur lesend, aber Wert im Bean behalten
+        binder.forField(status)
+                .bind(StorageLocation::getStorageStatus, (loc, v) -> {
+                    if (loc.getStorageStatus() == null) {
+                        loc.setStorageStatus("Available");
+                    }
+                });
+
+        FormLayout formLayout = new FormLayout(zone, shelfId, compartmentId, status);
+        dialog.add(formLayout);
+
         Button save = new Button("Save", e -> {
-            try {
-                binder.writeBean(bean); // Felder -> Bean
-
-                // 2) Zone + Shelf + Place darf nicht doppelt sein
-                if (service.existsByZoneShelfCompartment(
-                        bean.getStorageZone(),
-                        bean.getShelfID(),
-                        bean.getCompartmentID()
-                )) {
-                    Notification.show(
-                            "In Zone '" + bean.getStorageZone() +
-                                    "', Shelf '" + bean.getShelfID() +
-                                    "' existiert Compartment-ID '" + bean.getCompartmentID() + "' bereits.",
-                            4000,
-                            Notification.Position.MIDDLE
-                    );
-                    return;
+            if (binder.writeBeanIfValid(bean)) {
+                try {
+                    service.saveWithDuplicateCheck(bean);
+                    Notification.show("Storage location saved");
+                    refreshGrid();
+                    dialog.close();
+                } catch (IllegalStateException ex) {
+                    Notification.show(ex.getMessage(), 4000, Notification.Position.BOTTOM_CENTER);
                 }
-
-                service.save(bean);
-                Notification.show("Storage Location Saved");
-                dialog.close();
-                refreshGrid();
-            } catch (ValidationException ex) {
-                Notification.show("Please Check Inputs");
+            } else {
+                Notification.show("Please check the entered values");
             }
         });
 
-        dialog.getFooter().add(new HorizontalLayout(cancel, save));
+        Button cancel = new Button("Cancel", e -> dialog.close());
+
+        dialog.getFooter().add(cancel, save);
         dialog.open();
     }
 
     private void openEditDialog(StorageLocation existing) {
         Dialog dialog = new Dialog();
-        dialog.setHeaderTitle("Edit Storage Location");
+        dialog.setHeaderTitle("Edit storage location: " + existing.getGeneralId());
 
         ComboBox<String> zone = new ComboBox<>("Zone");
         zone.setItems("Zone 1", "Zone 2", "Zone 3", "Zone 4");
-        zone.setRequiredIndicatorVisible(true);
-        IntegerField compartmentId = new IntegerField("Compartment-ID");
-        IntegerField shelfId = new IntegerField("Shelf-ID");
-        TextField status = new TextField("Status");
-        status.setReadOnly(true); // Status NICHT änderbar
+        zone.setRequired(true);
 
-        FormLayout form = new FormLayout(zone, shelfId, compartmentId, status);
-        form.setWidth("480px");
-        dialog.add(form);
+        IntegerField shelfId = new IntegerField("Shelf-ID");
+        shelfId.setRequiredIndicatorVisible(true);
+
+        IntegerField compartmentId = new IntegerField("Compartment-ID");
+        compartmentId.setRequiredIndicatorVisible(true);
+
+        TextField status = new TextField("Status");
+        status.setReadOnly(true);
 
         Binder<StorageLocation> binder = new Binder<>(StorageLocation.class);
-
-        binder.forField(zone)
-                .asRequired("Zone is mandatory")
-                .bind(StorageLocation::getStorageZone, StorageLocation::setStorageZone);
-
-        binder.forField(compartmentId)
-                .asRequired("Compartment-ID is mandatory")
-                .bind(StorageLocation::getCompartmentID, StorageLocation::setCompartmentID);
-
-        binder.forField(shelfId)
-                .asRequired("Shelf-ID is mandatory")
-                .bind(StorageLocation::getShelfID, StorageLocation::setShelfID);
-
-        // Status nur anzeigen, nicht ändern
-        binder.forField(status)
-                .bind(StorageLocation::getStorageStatus, (bean, value) -> {
-                });
+        binder.bind(zone, StorageLocation::getStorageZone, StorageLocation::setStorageZone);
+        binder.bind(shelfId, StorageLocation::getShelfID, StorageLocation::setShelfID);
+        binder.bind(compartmentId, StorageLocation::getCompartmentID, StorageLocation::setCompartmentID);
+        binder.bind(status, StorageLocation::getStorageStatus, (loc, v) -> {
+            // noop – read-only im UI, aber binder braucht einen Setter
+        });
 
         binder.readBean(existing);
 
-        Button cancel = new Button("Cancel", e -> dialog.close());
+        FormLayout formLayout = new FormLayout(zone, shelfId, compartmentId, status);
+        dialog.add(formLayout);
+
         Button save = new Button("Save", e -> {
-            try {
-                binder.writeBean(existing);
-
-                // Duplikat-Check: gleiche Zone + Shelf + Compartment, aber andere ID
-                if (service.existsDuplicateForEdit(existing)) {
+            if (binder.writeBeanIfValid(existing)) {
+                try {
+                    service.saveWithDuplicateCheck(existing);
                     Notification.show(
-                            "In Zone '" + existing.getStorageZone() +
-                                    "', Shelf '" + existing.getShelfID() +
-                                    "' existiert Compartment-ID '" + existing.getCompartmentID() + "' bereits.",
+                            "Storage location updated",
                             4000,
-                            Notification.Position.MIDDLE
+                            Notification.Position.BOTTOM_CENTER
                     );
-                    return;
+                    refreshGrid();
+                    dialog.close();
+                } catch (IllegalStateException ex) {
+                    Notification.show(
+                            ex.getMessage(),
+                            4000,
+                            Notification.Position.BOTTOM_CENTER
+                    );
                 }
-
-                service.save(existing);
-                Notification.show("Storage Location Updated");
-                dialog.close();
-                refreshGrid();
-            } catch (ValidationException ex) {
-                Notification.show("Please Check Inputs");
+            } else {
+                Notification.show(
+                        "Please check the entered values",
+                        4000,
+                        Notification.Position.BOTTOM_CENTER
+                );
             }
         });
 
-        dialog.getFooter().add(new HorizontalLayout(cancel, save));
+        Button cancel = new Button("Cancel", e -> dialog.close());
+
+        dialog.getFooter().add(cancel, save);
         dialog.open();
     }
 

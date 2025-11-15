@@ -2,6 +2,8 @@ package com.example.application.views.logisticMainView;
 
 import com.example.application.data.article.ArticleInfo;
 import com.example.application.services.ArticleInfoService;
+import com.vaadin.flow.component.combobox.ComboBox;
+import com.vaadin.flow.component.confirmdialog.ConfirmDialog;
 import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.button.Button;
 import com.example.application.services.StorageLocationService;
@@ -344,83 +346,108 @@ public class LogisticMainView extends Div {
         Dialog dialog = new Dialog();
         dialog.setHeaderTitle("Available locations for: " + article.getName());
 
+        VerticalLayout layout = new VerticalLayout();
+        layout.setSizeFull();
+        layout.setPadding(false);
+        layout.setSpacing(false);
+
+        // Filter: Zone
+        ComboBox<String> zoneFilter = new ComboBox<>("Zone");
+        zoneFilter.setItems("All zones", "Zone 1", "Zone 2", "Zone 3", "Zone 4");
+        zoneFilter.setValue("All zones");
+
         Grid<StorageLocation> locGrid = new Grid<>(StorageLocation.class, false);
+        locGrid.addColumn(StorageLocation::getStorageZone).setHeader("Zone").setAutoWidth(true);
+        locGrid.addColumn(StorageLocation::getCompartmentID).setHeader("Compartment").setAutoWidth(true);
+        locGrid.addColumn(StorageLocation::getShelfID).setHeader("Shelf").setAutoWidth(true);
+        locGrid.addColumn(StorageLocation::getStorageStatus).setHeader("Status").setAutoWidth(true);
+        locGrid.addColumn(StorageLocation::getGeneralId).setHeader("General ID").setAutoWidth(true);
 
-        locGrid.addColumn(StorageLocation::getStorageZone)
-                .setHeader("Zone")
-                .setAutoWidth(true);
-
-        locGrid.addColumn(StorageLocation::getShelfID)
-                .setHeader("Shelf")
-                .setAutoWidth(true);
-
-        locGrid.addColumn(StorageLocation::getCompartmentID)
-                .setHeader("Compartment")
-                .setAutoWidth(true);
-
-        locGrid.addColumn(StorageLocation::getStorageStatus)
-                .setHeader("Status")
-                .setAutoWidth(true);
-
-        locGrid.addColumn(this::buildGeneralId)
-                .setHeader("General ID")
-                .setAutoWidth(true);
-
-        // Nur "Available"-Plätze zeigen
-        locGrid.setItems(storageLocationService.findAllAvailable());
+        List<StorageLocation> allAvailable = storageLocationService.findAllAvailable();
+        locGrid.setItems(allAvailable);
         locGrid.setSizeFull();
 
-        // >>> HIER: Klick auf Lagerplatz übernimmt ihn für den Artikel
-        locGrid.addItemClickListener(event -> {
-            StorageLocation selected = event.getItem();
-
-            String generalId = buildGeneralId(selected);
-
-            try {
-                // 1) Alte Location (falls vorhanden) wieder auf Available setzen
-                String oldGeneralId = article.getStorageLocation();
-                if (oldGeneralId != null && !oldGeneralId.isBlank()) {
-                    StorageLocation parsed = parseGeneralIdToLocation(oldGeneralId);
-                    if (parsed != null) {
-                        storageLocationService
-                                .findByZoneShelfCompartment(
-                                        parsed.getStorageZone(),
-                                        parsed.getShelfID(),
-                                        parsed.getCompartmentID()
-                                )
-                                .ifPresent(oldLoc -> {
-                                    oldLoc.setStorageStatus("Available");
-                                    storageLocationService.save(oldLoc);
-                                });
-                    }
-                }
-
-                // 2) Artikel auf neue General-ID setzen
-                articleInfoService.updateStorageLocation(article.getId(), generalId);
-                article.setStorageLocation(generalId);
-
-                // 3) neue Location auf Used setzen
-                selected.setStorageStatus("Used");
-                storageLocationService.save(selected);
-
-                // 4) Article-Grid refreshen
-                grid.getDataProvider().refreshItem(article);
-
-                Notification.show("Location assigned: " + generalId);
-                dialog.close();
-            } catch (Exception ex) {
-                Notification.show("Could not assign location");
-                ex.printStackTrace();
+        zoneFilter.addValueChangeListener(e -> {
+            String value = e.getValue();
+            if (value == null || "All zones".equals(value)) {
+                locGrid.setItems(allAvailable);
+            } else {
+                locGrid.setItems(
+                        allAvailable.stream()
+                                .filter(loc -> value.equals(loc.getStorageZone()))
+                                .toList()
+                );
             }
         });
 
-        dialog.add(locGrid);
+        // Klick → Bestätigung + Zuweisung
+        locGrid.addItemClickListener(event -> {
+            StorageLocation selected = event.getItem();
+            String generalId = selected.getGeneralId();
+
+            ConfirmDialog confirm = new ConfirmDialog();
+            confirm.setHeader("Assign location");
+            String existingLoc = article.getStorageLocation();
+            if (existingLoc != null && !existingLoc.isBlank()) {
+                confirm.setText("Article already has location " + existingLoc
+                        + ". Do you want to move it to " + generalId + "?");
+            } else {
+                confirm.setText("Assign location " + generalId + " to article " + article.getName() + "?");
+            }
+
+            confirm.setCancelable(true);
+            confirm.setConfirmText("Assign");
+            confirm.addConfirmListener(ev -> {
+                try {
+                    // 1) Alte Location zurück auf Available
+                    String oldGeneralId = article.getStorageLocation();
+                    if (oldGeneralId != null && !oldGeneralId.isBlank()) {
+                        StorageLocation parsed = parseGeneralIdToLocation(oldGeneralId);
+                        if (parsed != null) {
+                            storageLocationService
+                                    .findByZoneShelfCompartment(
+                                            parsed.getStorageZone(),
+                                            parsed.getShelfID(),
+                                            parsed.getCompartmentID()
+                                    )
+                                    .ifPresent(oldLoc -> {
+                                        oldLoc.setStorageStatus("Available");
+                                        storageLocationService.save(oldLoc);
+                                    });
+                        }
+                    }
+
+                    // 2) Artikel-Location updaten (Backend + UI)
+                    articleInfoService.updateStorageLocation(article.getId(), generalId);
+                    article.setStorageLocation(generalId);
+
+                    // 3) neuen Lagerplatz auf Used
+                    selected.setStorageStatus("Used");
+                    storageLocationService.save(selected);
+
+                    // 4) Zeile im Article-Grid aktualisieren
+                    grid.getDataProvider().refreshItem(article);
+
+                    Notification.show("Location assigned: " + generalId);
+                    dialog.close();
+                } catch (Exception ex) {
+                    Notification.show("Could not assign location");
+                    ex.printStackTrace();
+                }
+            });
+
+            confirm.open();
+        });
+
+        layout.add(zoneFilter, locGrid);
+        layout.setFlexGrow(1, locGrid);
+        dialog.add(layout);
 
         Button close = new Button("Close", e -> dialog.close());
         dialog.getFooter().add(close);
 
-        dialog.setWidth("800px");
-        dialog.setHeight("400px");
+        dialog.setWidth("900px");
+        dialog.setHeight("500px");
 
         dialog.open();
     }
