@@ -4,6 +4,7 @@ import com.example.application.data.storageLocation.StorageLocation;
 import com.example.application.data.storageLocation.StorageLocationRepository;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
+
 import java.util.Optional;
 
 import java.util.List;
@@ -12,9 +13,11 @@ import java.util.List;
 public class StorageLocationService {
 
     private final StorageLocationRepository repo;
+    private final ArticleInfoService articleInfoService;
 
-    public StorageLocationService(StorageLocationRepository repo) {
+    public StorageLocationService(StorageLocationRepository repo,ArticleInfoService articleInfoService) {
         this.repo = repo;
+        this.articleInfoService = articleInfoService;
     }
 
     public List<StorageLocation> findAll() {
@@ -26,6 +29,23 @@ public class StorageLocationService {
     }
 
     public void delete(StorageLocation s) {
+        // 1) Status-Check
+        if ("Used".equalsIgnoreCase(s.getStorageStatus())) {
+            throw new IllegalStateException(
+                    "Storage location " + s.getGeneralId()
+                            + " is currently assigned and cannot be deleted."
+            );
+        }
+
+        // 2) Sicherheitsnetz über ArticleInfo
+        String generalId = s.getGeneralId();
+        if (articleInfoService.existsForLocation(generalId)) {
+            throw new IllegalStateException(
+                    "Storage location " + generalId
+                            + " is assigned to one or more articles and cannot be deleted."
+            );
+        }
+
         repo.delete(s);
     }
 

@@ -101,4 +101,10 @@ public class ArticleInfoService {
     public int updateStorageLocationForAll(String oldLocation, String newLocation) {
         return repository.bulkUpdateStorageLocation(oldLocation, newLocation);
     }
+    public boolean existsForLocation(String generalId) {
+        if (generalId == null || generalId.isBlank()) {
+            return false;
+        }
+        return repository.existsByStorageLocation(generalId);
+    }
 }

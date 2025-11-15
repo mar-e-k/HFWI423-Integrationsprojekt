@@ -75,15 +75,6 @@ public class StorageLocationView extends Div {
             return status;
         }).setHeader("Status").setAutoWidth(true);
 
-//        grid.setClassNameGenerator(storageLocation -> {
-//            if ("Available".equalsIgnoreCase(storageLocation.getStorageStatus())) {
-//                return "status-available";
-//            } else if ("Used".equalsIgnoreCase(storageLocation.getStorageStatus())) {
-//                return "status-used";
-//            }
-//            return null; // keine Extra-Klasse
-//        });
-
         grid.addComponentColumn(storageLocation -> {
             Button editButton = new Button(VaadinIcon.EDIT.create(), click -> {
                 openEditDialog(storageLocation);
@@ -96,31 +87,51 @@ public class StorageLocationView extends Div {
         }).setHeader("Edit").setAutoWidth(true);
 
         grid.addComponentColumn(storageLocation -> {
-            Button deleteButton = new Button(VaadinIcon.TRASH.create(), click -> {
-
-                // Optional: kleine Sicherheitsabfrage
-                Dialog confirm = new Dialog();
-                confirm.setHeaderTitle("Delete Storage Location");
-
-                confirm.add("Really delete this storage location?");
-
-                Button cancel = new Button("Cancel", e -> confirm.close());
-                Button confirmDelete = new Button("Delete", e -> {
-                    service.delete(storageLocation);
-                    refreshGrid();
-                    confirm.close();
-                    Notification.show("Storage Location deleted");
-                });
-
-                confirm.getFooter().add(new HorizontalLayout(cancel, confirmDelete));
-                confirm.open();
-            });
-
-            // etwas Styling
+            Button deleteButton = new Button(VaadinIcon.TRASH.create());
             deleteButton.addThemeVariants(
                     ButtonVariant.LUMO_ERROR,
                     ButtonVariant.LUMO_TERTIARY_INLINE
             );
+
+            // Basis-Tooltip
+            deleteButton.getElement().setProperty("title", "Delete");
+
+            // Wenn Lagerplatz "Used" ist -> Button ausgrauen & deaktivieren
+            if ("Used".equalsIgnoreCase(storageLocation.getStorageStatus())) {
+                deleteButton.setEnabled(false);
+                deleteButton.getElement().setProperty("title",
+                        "This storage location is assigned and cannot be deleted");
+
+                // Optisch etwas „disabled“ machen
+                deleteButton.getStyle().set("opacity", "0.5");
+                deleteButton.getStyle().set("cursor", "not-allowed");
+            } else {
+                // Nur für löschbare Locations den Click-Listener registrieren
+                deleteButton.addClickListener(click -> {
+                    // Sicherheitsabfrage wie bisher
+                    Dialog confirm = new Dialog();
+                    confirm.setHeaderTitle("Delete Storage Location");
+
+                    confirm.add("Really delete this storage location?");
+
+                    Button cancel = new Button("Cancel", e -> confirm.close());
+                    Button confirmDelete = new Button("Delete", e -> {
+                        try {
+                            service.delete(storageLocation);
+                            refreshGrid();
+                            confirm.close();
+                            Notification.show("Storage Location deleted");
+                        } catch (IllegalStateException ex) {
+                            Notification.show(ex.getMessage(), 4000, Notification.Position.BOTTOM_CENTER);
+                        }
+                    });
+
+                    confirmDelete.addThemeVariants(ButtonVariant.LUMO_ERROR);
+
+                    confirm.getFooter().add(new HorizontalLayout(cancel, confirmDelete));
+                    confirm.open();
+                });
+            }
 
             return deleteButton;
         }).setHeader("Delete").setAutoWidth(true).setFlexGrow(0);

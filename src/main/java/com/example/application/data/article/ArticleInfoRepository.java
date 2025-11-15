@@ -29,4 +29,5 @@ public interface ArticleInfoRepository
     int bulkUpdateStorageLocation(@Param("oldLocation") String oldLocation,
                                   @Param("newLocation") String newLocation);
 
+    boolean existsByStorageLocation(String storageLocation);
 }
