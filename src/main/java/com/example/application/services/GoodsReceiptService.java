@@ -1,5 +1,8 @@
-package com.example.application.data.goodsreceipts;
+package com.example.application.services;
 
+import com.example.application.data.goodsreceipts.GoodsReceipt;
+import com.example.application.data.goodsreceipts.GoodsReceiptRepository;
+import com.example.application.data.goodsreceipts.GoodsReceiptStatus;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

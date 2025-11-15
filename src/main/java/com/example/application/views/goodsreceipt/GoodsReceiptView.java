@@ -2,7 +2,7 @@ package com.example.application.views.goodsreceipt;
 
 import com.example.application.views.MainLayout;
 import com.example.application.data.goodsreceipts.GoodsReceipt;
-import com.example.application.data.goodsreceipts.GoodsReceiptService;
+import com.example.application.services.GoodsReceiptService;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.datepicker.DatePicker;
 import com.vaadin.flow.component.dialog.Dialog;
