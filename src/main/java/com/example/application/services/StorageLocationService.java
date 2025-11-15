@@ -28,5 +28,19 @@ public class StorageLocationService {
     public void delete(StorageLocation s) {
         repo.delete(s);
     }
+
+    public boolean existsDuplicateForEdit(StorageLocation s) {
+        // Falls aus irgendeinem Grund noch keine ID da ist, verhalten wie "neu"
+        if (s.getId() == null) {
+            return existsByZoneShelfCompartment(s.getStorageZone(), s.getShelfID(), s.getCompartmentID());
+        }
+
+        return repo.existsByStorageZoneAndShelfIDAndCompartmentIDAndIdNot(
+                s.getStorageZone(),
+                s.getShelfID(),
+                s.getCompartmentID(),
+                s.getId()
+        );
+    }
 }
 

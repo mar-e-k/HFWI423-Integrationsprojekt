@@ -10,6 +10,7 @@ import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.html.Div;
+import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.notification.Notification;
@@ -41,10 +42,42 @@ public class StorageLocationView extends Div {
         addClassName("storage-location-view");
 
         // Grid-Spalten
+
+        grid.addColumn(this::buildGeneralId)
+                .setHeader("General ID")
+                .setAutoWidth(true)
+                .setSortable(false);
         grid.addColumn(StorageLocation::getStorageZone).setHeader("Zone").setSortable(true).setAutoWidth(true);
-        grid.addColumn(StorageLocation::getCompartmentID).setHeader("Compartment-ID").setSortable(true).setAutoWidth(true);
         grid.addColumn(StorageLocation::getShelfID).setHeader("Shelf-ID").setSortable(true).setAutoWidth(true);
-        grid.addColumn(StorageLocation::getStorageStatus).setHeader("Status").setSortable(true).setAutoWidth(true);
+        grid.addColumn(StorageLocation::getCompartmentID).setHeader("Compartment-ID").setSortable(true).setAutoWidth(true);
+
+        grid.addComponentColumn(item -> {
+            Span status = new Span(item.getStorageStatus());
+
+            status.getStyle().set("padding", "0.1rem 0.4rem");
+            status.getStyle().set("border-radius", "0.25rem");
+            status.getStyle().set("font-size", "var(--lumo-font-size-s)");
+            status.getStyle().set("font-weight", "600");
+
+            if ("Available".equalsIgnoreCase(item.getStorageStatus())) {
+                status.getStyle().set("background-color", "#2ecc71");
+                status.getStyle().set("color", "white");
+            } else if ("Used".equalsIgnoreCase(item.getStorageStatus())) {
+                status.getStyle().set("background-color", "#e74c3c");
+                status.getStyle().set("color", "white");
+            }
+
+            return status;
+        }).setHeader("Status").setAutoWidth(true);
+
+//        grid.setClassNameGenerator(storageLocation -> {
+//            if ("Available".equalsIgnoreCase(storageLocation.getStorageStatus())) {
+//                return "status-available";
+//            } else if ("Used".equalsIgnoreCase(storageLocation.getStorageStatus())) {
+//                return "status-used";
+//            }
+//            return null; // keine Extra-Klasse
+//        });
 
         grid.addComponentColumn(storageLocation -> {
             Button editButton = new Button(VaadinIcon.EDIT.create(), click -> {
@@ -195,7 +228,7 @@ public class StorageLocationView extends Div {
         TextField status = new TextField("Status");
         status.setReadOnly(true); // Status NICHT änderbar
 
-        FormLayout form = new FormLayout(zone, compartmentId, shelfId, status);
+        FormLayout form = new FormLayout(zone, shelfId, compartmentId, status);
         form.setWidth("480px");
         dialog.add(form);
 
@@ -204,7 +237,7 @@ public class StorageLocationView extends Div {
         binder.forField(zone)
                 .asRequired("Zone is mandatory")
                 .bind(StorageLocation::getStorageZone, StorageLocation::setStorageZone);
-        
+
         binder.forField(compartmentId)
                 .asRequired("Compartment-ID is mandatory")
                 .bind(StorageLocation::getCompartmentID, StorageLocation::setCompartmentID);
@@ -224,6 +257,19 @@ public class StorageLocationView extends Div {
         Button save = new Button("Save", e -> {
             try {
                 binder.writeBean(existing);
+
+                // Duplikat-Check: gleiche Zone + Shelf + Compartment, aber andere ID
+                if (service.existsDuplicateForEdit(existing)) {
+                    Notification.show(
+                            "In Zone '" + existing.getStorageZone() +
+                                    "', Shelf '" + existing.getShelfID() +
+                                    "' existiert Compartment-ID '" + existing.getCompartmentID() + "' bereits.",
+                            4000,
+                            Notification.Position.MIDDLE
+                    );
+                    return;
+                }
+
                 service.save(existing);
                 Notification.show("Storage Location Updated");
                 dialog.close();
@@ -235,5 +281,22 @@ public class StorageLocationView extends Div {
 
         dialog.getFooter().add(new HorizontalLayout(cancel, save));
         dialog.open();
+    }
+
+    private String buildGeneralId(StorageLocation s) {
+        if (s == null) return "";
+
+        String zone = s.getStorageZone();
+        // "Zone 3" -> "3"
+        String zoneNumber = "";
+        if (zone != null) {
+            zoneNumber = zone.replace("Zone", "").trim();
+        }
+
+        Integer shelf = s.getShelfID();
+        Integer compartment = s.getCompartmentID();
+
+        return "Z" + zoneNumber + ".S" + (shelf != null ? shelf : 0)
+                + ".C" + (compartment != null ? compartment : 0);
     }
 }

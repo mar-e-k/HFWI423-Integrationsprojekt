@@ -8,4 +8,11 @@ public interface StorageLocationRepository extends JpaRepository<StorageLocation
             Integer shelfID,
             Integer compartmentID
     );
+
+    boolean existsByStorageZoneAndShelfIDAndCompartmentIDAndIdNot(
+            String storageZone,
+            Integer shelfID,
+            Integer compartmentID,
+            Long id
+    );
 }
