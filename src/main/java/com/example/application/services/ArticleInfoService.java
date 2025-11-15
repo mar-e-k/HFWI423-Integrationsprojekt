@@ -97,4 +97,8 @@ public class ArticleInfoService {
         db.setStorageLocation(newLocation);
         return repository.save(db);
     }
+    @Transactional
+    public int updateStorageLocationForAll(String oldLocation, String newLocation) {
+        return repository.bulkUpdateStorageLocation(oldLocation, newLocation);
+    }
 }

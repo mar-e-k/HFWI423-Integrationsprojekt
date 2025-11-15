@@ -1,6 +1,7 @@
 package com.example.application.views.storageLocationView;
 
 import com.example.application.data.storageLocation.StorageLocation;
+import com.example.application.services.ArticleInfoService;
 import com.example.application.services.StorageLocationService;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
@@ -26,6 +27,8 @@ import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import org.vaadin.lineawesome.LineAwesomeIconUrl;
 
+import java.util.Objects;
+
 @PageTitle("Storage Location")
 @Route("storage-location")
 @Menu(order = 2, icon = LineAwesomeIconUrl.STORE_SOLID) // erscheint unter „Logistic“
@@ -33,10 +36,12 @@ import org.vaadin.lineawesome.LineAwesomeIconUrl;
 public class StorageLocationView extends Div {
 
     private final StorageLocationService service;
+    private final ArticleInfoService articleInfoService;
     private final Grid<StorageLocation> grid = new Grid<>(StorageLocation.class, false);
 
-    public StorageLocationView(StorageLocationService service) {
+    public StorageLocationView(StorageLocationService service, ArticleInfoService articleInfoService) {
         this.service = service;
+        this.articleInfoService = articleInfoService;
 
         setSizeFull();
         addClassName("storage-location-view");
@@ -245,16 +250,37 @@ public class StorageLocationView extends Div {
         dialog.add(formLayout);
 
         Button save = new Button("Save", e -> {
+            // General-ID vor der Änderung merken
+            String oldGeneralId = existing.getGeneralId();
+
             if (binder.writeBeanIfValid(existing)) {
                 try {
+                    // Speichern der geänderten StorageLocation
                     service.saveWithDuplicateCheck(existing);
-                    Notification.show(
-                            "Storage location updated",
-                            4000,
-                            Notification.Position.BOTTOM_CENTER
-                    );
+
+                    // Neue General-ID nach der Änderung
+                    String newGeneralId = existing.getGeneralId();
+
+                    // Wenn sich die General-ID geändert hat → alle Artikel updaten
+                    if (!Objects.equals(oldGeneralId, newGeneralId)) {
+                        int updated = articleInfoService
+                                .updateStorageLocationForAll(oldGeneralId, newGeneralId);
+                        Notification.show(
+                                "Storage location updated (" + updated + " article(s) adjusted)",
+                                4000,
+                                Notification.Position.BOTTOM_CENTER
+                        );
+                    } else {
+                        Notification.show(
+                                "Storage location updated",
+                                4000,
+                                Notification.Position.BOTTOM_CENTER
+                        );
+                    }
+
                     refreshGrid();
                     dialog.close();
+
                 } catch (IllegalStateException ex) {
                     Notification.show(
                             ex.getMessage(),

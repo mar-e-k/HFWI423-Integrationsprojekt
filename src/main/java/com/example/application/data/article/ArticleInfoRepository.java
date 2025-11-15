@@ -22,4 +22,11 @@ public interface ArticleInfoRepository
     int applyStockDelta(@Param("id") Long id, @Param("delta") int delta);
     @Query("select distinct a.storageLocation from ArticleInfo a order by a.storageLocation")
     List<String> findDistinctStorageLocations();
+
+    @Modifying
+    @Query("update ArticleInfo a set a.storageLocation = :newLocation " +
+            "where a.storageLocation = :oldLocation")
+    int bulkUpdateStorageLocation(@Param("oldLocation") String oldLocation,
+                                  @Param("newLocation") String newLocation);
+
 }

@@ -358,8 +358,8 @@ public class LogisticMainView extends Div {
 
         Grid<StorageLocation> locGrid = new Grid<>(StorageLocation.class, false);
         locGrid.addColumn(StorageLocation::getStorageZone).setHeader("Zone").setAutoWidth(true);
-        locGrid.addColumn(StorageLocation::getCompartmentID).setHeader("Compartment").setAutoWidth(true);
         locGrid.addColumn(StorageLocation::getShelfID).setHeader("Shelf").setAutoWidth(true);
+        locGrid.addColumn(StorageLocation::getCompartmentID).setHeader("Compartment").setAutoWidth(true);
         locGrid.addColumn(StorageLocation::getStorageStatus).setHeader("Status").setAutoWidth(true);
         locGrid.addColumn(StorageLocation::getGeneralId).setHeader("General ID").setAutoWidth(true);
 
