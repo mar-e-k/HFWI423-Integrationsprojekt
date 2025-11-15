@@ -64,14 +64,14 @@ public class ReceiptService {
             contentStream.newLineAtOffset(100, 0);
             contentStream.showText("Preis");
             contentStream.newLineAtOffset(80, 0);
-            contentStream.showText("Gesamt");
+            contentStream.showText("Rabatt");
             contentStream.endText();
             y -= 20;
 
             BigDecimal total = BigDecimal.ZERO;
 
             for (CartItem item : cartItems) {
-                BigDecimal itemTotal = item.getEffectivePrice().multiply(BigDecimal.valueOf(item.getQuantity()));
+                BigDecimal itemTotal = item.getTotalPriceWithDiscount();
                 total = total.add(itemTotal);
 
                 contentStream.beginText();
@@ -85,9 +85,9 @@ public class ReceiptService {
                 contentStream.newLineAtOffset(70, 0);
                 contentStream.showText(String.format("%d %%", item.getArticle().getTaxRatePercent().intValue()));
                 contentStream.newLineAtOffset(100, 0);
-                contentStream.showText(String.format("%.2f EUR", item.getEffectivePrice()));
+                contentStream.showText(String.format("%.2f EUR", item.getBaseUnitPrice().doubleValue()));
                 contentStream.newLineAtOffset(80, 0);
-                contentStream.showText(String.format("%.2f EUR", itemTotal));
+                contentStream.showText(String.format("%d %% x %d", item.getDiscountPercent().intValue(), item.getDiscountedQuantity()));
                 contentStream.endText();
                 y -= 20;
             }

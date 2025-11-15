@@ -20,6 +20,9 @@ public class CartItem {
         this.position = position;
         this.quantity = quantity;
         this.overriddenPrice = overriddenPrice;
+        this.discountedQuantity = 0;
+        this.discountPercent = BigDecimal.ZERO;
+
     }
 
     public Article getArticle() {
@@ -52,15 +55,6 @@ public class CartItem {
 
     public void setOverriddenPrice(BigDecimal overriddenPrice) {
         this.overriddenPrice = overriddenPrice;
-    }
-
-    public BigDecimal getEffectivePrice() {
-        if (overriddenPrice != null) {
-            return overriddenPrice;
-        }
-
-        Double sellingPrice = article.getSellingPrice();
-        return sellingPrice != null ? BigDecimal.valueOf(sellingPrice) : BigDecimal.ZERO;
     }
 
     // -----------------------------

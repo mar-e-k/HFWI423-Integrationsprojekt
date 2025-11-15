@@ -68,16 +68,75 @@ public class PaymentView extends BaseView implements BeforeEnterObserver {
         return "Bezahlung";
     }
 
+//            cartGrid.addComponentColumn(item -> {
+//        Span container = new Span();
+//
+//        BigDecimal base = item.getBaseUnitPrice();
+//        BigDecimal discounted = item.getDiscountedUnitPrice();
+//
+//        if (item.hasDiscount() && item.getDiscountedQuantity() != null
+//                && item.getDiscountedQuantity() >= item.getQuantity()) {
+//            // gesamte Menge rabattiert -> klar vorher/nachher anzeigen
+//            Span oldPrice = new Span(String.format("%.2f €", base));
+//            oldPrice.getStyle().set("text-decoration", "line-through");
+//
+//            Span arrow = new Span(" → ");
+//            Span newPrice = new Span(String.format("%.2f €", discounted));
+//
+//            container.add(oldPrice, arrow, newPrice);
+//        } else if (item.hasDiscount()) {
+//            // nur Teilmenge rabattiert -> kurze Info
+//            Span baseSpan = new Span(String.format("%.2f €", base) + " / ");
+//            Span discSpan = new Span(String.format("%.2f €", discounted) +
+//                    " (" + item.getDiscountedQuantity() + "x)");
+//            container.add(baseSpan, discSpan);
+//        } else {
+//            container.setText(String.format("%.2f €", base));
+//        }
+//
+//        return container;
+//    })
+//            .setHeader("Stückpreis")
+//                .setAutoWidth(true)
+//                .setEditorComponent(priceEditor)
+//                .setKey("price");
+
+
     @Override
     protected void init() {
         cartGrid = new Grid<>(CartItem.class, false);
         cartGrid.addColumn(CartItem::getPosition).setHeader("Pos.");
         cartGrid.addColumn(i -> i.getArticle().getName()).setHeader("Artikelname");
         cartGrid.addColumn(i -> i.getArticle().getArticleNumber()).setHeader("Artikelnummer");
-        cartGrid.addColumn(i -> String.format("%.2f €", i.getEffectivePrice())).setHeader("Stückpreis");
+        cartGrid.addComponentColumn(i -> {
+            Span container = new Span();
+            BigDecimal base = i.getBaseUnitPrice();
+            BigDecimal discounted = i.getDiscountedUnitPrice();
+
+            if (i.hasDiscount() && i.getDiscountedQuantity() != null
+                    && i.getDiscountedQuantity() >= i.getQuantity()) {
+                // gesamte Menge rabattiert -> klar vorher/nachher anzeigen
+                Span oldPrice = new Span(String.format("%.2f €", base));
+                oldPrice.getStyle().set("text-decoration", "line-through");
+
+                Span arrow = new Span(" → ");
+                Span newPrice = new Span(String.format("%.2f €", discounted));
+
+                container.add(oldPrice, arrow, newPrice);
+            } else if (i.hasDiscount()) {
+                // nur Teilmenge rabattiert -> kurze Info
+                Span baseSpan = new Span(String.format("%.2f €", base) + " / ");
+                Span discSpan = new Span(String.format("%.2f €", discounted) +
+                        " (" + i.getDiscountedQuantity() + "x)");
+                container.add(baseSpan, discSpan);
+            } else {
+                container.setText(String.format("%.2f €", base));
+            }
+            return container;
+        }).setHeader("Stückpreis");
         cartGrid.addColumn(CartItem::getQuantity).setHeader("Menge");
         cartGrid.addColumn(i ->
-                String.format("%.2f €", i.getEffectivePrice().multiply(BigDecimal.valueOf(i.getQuantity())))
+                String.format("%.2f €", i.getTotalPriceWithDiscount())
         ).setHeader("Gesamtpreis");
 
         cartGrid.setWidthFull();
@@ -107,7 +166,7 @@ public class PaymentView extends BaseView implements BeforeEnterObserver {
             Notification.show("Warenkorb ist leer!", 3000, Notification.Position.MIDDLE)
                     .addThemeVariants(NotificationVariant.LUMO_ERROR);
             return;
-            }
+        }
         openCashDialog();
     }
 
@@ -214,7 +273,7 @@ public class PaymentView extends BaseView implements BeforeEnterObserver {
         payButton.addClickListener(e -> {
             if (isCashPayment) {
                 BigDecimal cashGiven;
-                if (cashGivenField.isEmpty()){
+                if (cashGivenField.isEmpty()) {
                     Notification.show("Bargeldmenge angeben!", 3000, Notification.Position.MIDDLE)
                             .addThemeVariants(NotificationVariant.LUMO_ERROR);
                     return;
@@ -230,9 +289,9 @@ public class PaymentView extends BaseView implements BeforeEnterObserver {
                 BigDecimal totalAmount = BigDecimal.ZERO;
                 for (CartItem item : cartItemsManager.getCart()) {
                     totalAmount = totalAmount.add(
-                            item.getEffectivePrice().multiply(BigDecimal.valueOf(item.getQuantity()))
-                    );
+                            item.getDiscountedUnitPrice());
                 }
+
                 BigDecimal change = cashGiven.subtract(totalAmount);
 
                 if (change.compareTo(BigDecimal.ZERO) < 0) {

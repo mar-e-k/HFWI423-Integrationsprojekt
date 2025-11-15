@@ -177,7 +177,7 @@ public class CashierView extends BaseView implements BeforeEnterObserver {
         });
 
         // Stückpreis-Spalte mit vorher/nachher Anzeige (bei Rabatt)
-        Grid.Column<CartItem> priceColumn = cartGrid.addComponentColumn(item -> {
+        cartGrid.addComponentColumn(item -> {
                     Span container = new Span();
 
                     BigDecimal base = item.getBaseUnitPrice();
@@ -635,10 +635,10 @@ public class CashierView extends BaseView implements BeforeEnterObserver {
         if (existing != null) {
             existing.setQuantity(existing.getQuantity() + 1);
         } else {
-            // purchasePrice kann null sein -> null-sicher behandeln
-            Double purchasePrice = article.getPurchasePrice();
-            BigDecimal overriddenPrice = purchasePrice != null
-                    ? BigDecimal.valueOf(purchasePrice)
+            // sellingPrice kann null sein -> null-sicher behandeln
+            Double sellingPrice = article.getSellingPrice();
+            BigDecimal overriddenPrice = sellingPrice != null
+                    ? BigDecimal.valueOf(sellingPrice)
                     : null; // Kassierer kann später bei Bedarf überschreiben
 
             items.add(new CartItem(article, items.size() + 1, 1, overriddenPrice));
