@@ -78,8 +78,8 @@ public class CartItem {
     }
 
     public void clearDiscount() {
-        this.discountPercent = null;
-        this.discountedQuantity = null;
+        this.discountPercent = BigDecimal.ZERO;
+        this.discountedQuantity = 0;
     }
 
     public boolean hasDiscount() {
