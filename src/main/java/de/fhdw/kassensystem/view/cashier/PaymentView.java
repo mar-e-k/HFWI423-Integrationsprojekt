@@ -113,20 +113,21 @@ public class PaymentView extends BaseView implements BeforeEnterObserver {
         totalLabel.getStyle().set("font-weight", "bold");
 
         Button paymentButton = new Button("Zahlung", e -> handlePayment());
+        paymentButton.addThemeVariants(ButtonVariant.LUMO_LARGE, ButtonVariant.LUMO_PRIMARY);
 
         downloadLink = new Anchor();
         downloadLink.setText("Bon herunterladen");
         downloadLink.getStyle().set("display", "none");
 
-        HorizontalLayout buttonLayout = new HorizontalLayout();
-        buttonLayout.setWidthFull();
-        buttonLayout.setJustifyContentMode(JustifyContentMode.END);
-        buttonLayout.add(paymentButton);
+        HorizontalLayout footerLayout = new HorizontalLayout(totalLabel, paymentButton);
+        footerLayout.setWidthFull();
+        footerLayout.setJustifyContentMode(JustifyContentMode.BETWEEN);
+        footerLayout.setAlignItems(FlexComponent.Alignment.CENTER);
 
-        VerticalLayout cartSection = new VerticalLayout(cartGrid, totalLabel);
+        VerticalLayout cartSection = new VerticalLayout(cartGrid, footerLayout);
         cartSection.setWidthFull();
 
-        add(cartSection, buttonLayout, downloadLink);
+        add(cartSection, downloadLink);
     }
 
     private void handlePayment() {
@@ -331,11 +332,6 @@ public class PaymentView extends BaseView implements BeforeEnterObserver {
             dialog.close();
             showCardProcessingDialog();
         }
-    }
-
-    @ClientCallable
-    private void autoFinishCash() {
-        finishPayment();
     }
 
     private void showCardProcessingDialog() {

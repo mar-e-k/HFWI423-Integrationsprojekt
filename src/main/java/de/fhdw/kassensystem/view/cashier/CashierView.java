@@ -98,13 +98,13 @@ public class CashierView extends BaseView implements BeforeEnterObserver {
         articleGrid.setVisible(false);
 
         // Grid-Spalten Definierung
-        articleGrid.addColumn(article -> article.getIsAvailable() ? "ja" : "nein").setHeader("Verfügbar").setWidth("70px");
-        articleGrid.addColumn(Article::getName).setHeader("Artikelname").setWidth("200px");
-        articleGrid.addColumn(Article::getArticleNumber).setHeader("Artikelnummer").setAutoWidth(true);
+        articleGrid.addColumn(article -> article.getIsAvailable() ? "ja" : "nein").setHeader("Verfügbar").setWidth("30px");
+        articleGrid.addColumn(Article::getName).setHeader("Artikelname").setWidth("150px");
+        articleGrid.addColumn(Article::getArticleNumber).setHeader("Artikelnummer").setWidth("90px");
         articleGrid.addColumn(article -> {
             Double sellingPrice = article.getSellingPrice();
             return sellingPrice == null ? "kein Verkaufspreis" : String.format("%.2f €", sellingPrice);
-        }).setHeader("Verkaufspreis").setAutoWidth(true);
+        }).setHeader("Verkaufspreis").setWidth("60px");
 
         // Spalte für Lagerbestand mit Warnung
         articleGrid.addComponentColumn(article -> {
@@ -118,7 +118,7 @@ public class CashierView extends BaseView implements BeforeEnterObserver {
                 layout.add(warningIcon);
             }
             return layout;
-        }).setHeader("Lagerbestand").setAutoWidth(true);
+        }).setHeader("Lagerbestand").setWidth("60px");
 
         articleGrid.addColumn(article -> article.getTaxRatePercent() + " %").setHeader("Steuersatz").setAutoWidth(true);
 
@@ -133,7 +133,7 @@ public class CashierView extends BaseView implements BeforeEnterObserver {
 
         // Warenkorb-Grid Initialisierung
         cartGrid = new Grid<>(CartItem.class, false);
-        cartGrid.addColumn(CartItem::getPosition).setHeader("Pos.").setAutoWidth(true);
+        cartGrid.addColumn(CartItem::getPosition).setHeader("Pos.").setWidth("70px");
         cartGrid.addColumn(item -> item.getArticle().getName()).setHeader("Artikelname").setWidth("200px");
         cartGrid.addColumn(item -> item.getArticle().getArticleNumber()).setHeader("Artikelnummer").setAutoWidth(true);
 
