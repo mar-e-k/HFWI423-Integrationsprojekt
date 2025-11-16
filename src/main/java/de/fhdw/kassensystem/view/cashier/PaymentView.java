@@ -76,10 +76,35 @@ public class PaymentView extends BaseView implements BeforeEnterObserver {
         cartGrid.addColumn(CartItem::getPosition).setHeader("Pos.");
         cartGrid.addColumn(i -> i.getArticle().getName()).setHeader("Artikelname");
         cartGrid.addColumn(i -> i.getArticle().getArticleNumber()).setHeader("Artikelnummer");
-        cartGrid.addColumn(i -> String.format("%.2f €", i.getEffectivePrice())).setHeader("Stückpreis");
+        cartGrid.addComponentColumn(i -> {
+            Span container = new Span();
+            BigDecimal base = i.getBaseUnitPrice();
+            BigDecimal discounted = i.getDiscountedUnitPrice();
+
+            if (i.hasDiscount() && i.getDiscountedQuantity() != null
+                    && i.getDiscountedQuantity() >= i.getQuantity()) {
+                // gesamte Menge rabattiert -> klar vorher/nachher anzeigen
+                Span oldPrice = new Span(String.format("%.2f €", base));
+                oldPrice.getStyle().set("text-decoration", "line-through");
+
+                Span arrow = new Span(" → ");
+                Span newPrice = new Span(String.format("%.2f €", discounted));
+
+                container.add(oldPrice, arrow, newPrice);
+            } else if (i.hasDiscount()) {
+                // nur Teilmenge rabattiert -> kurze Info
+                Span baseSpan = new Span(String.format("%.2f €", base) + " / ");
+                Span discSpan = new Span(String.format("%.2f €", discounted) +
+                        " (" + i.getDiscountedQuantity() + "x)");
+                container.add(baseSpan, discSpan);
+            } else {
+                container.setText(String.format("%.2f €", base));
+            }
+            return container;
+        }).setHeader("Stückpreis");
         cartGrid.addColumn(CartItem::getQuantity).setHeader("Menge");
         cartGrid.addColumn(i ->
-                String.format("%.2f €", i.getEffectivePrice().multiply(BigDecimal.valueOf(i.getQuantity())))
+                String.format("%.2f €", i.getTotalPriceWithDiscount())
         ).setHeader("Gesamtpreis");
 
         cartGrid.setWidthFull();
@@ -88,20 +113,21 @@ public class PaymentView extends BaseView implements BeforeEnterObserver {
         totalLabel.getStyle().set("font-weight", "bold");
 
         Button paymentButton = new Button("Zahlung", e -> handlePayment());
+        paymentButton.addThemeVariants(ButtonVariant.LUMO_LARGE, ButtonVariant.LUMO_PRIMARY);
 
         downloadLink = new Anchor();
         downloadLink.setText("Bon herunterladen");
         downloadLink.getStyle().set("display", "none");
 
-        HorizontalLayout buttonLayout = new HorizontalLayout();
-        buttonLayout.setWidthFull();
-        buttonLayout.setJustifyContentMode(JustifyContentMode.END);
-        buttonLayout.add(paymentButton);
+        HorizontalLayout footerLayout = new HorizontalLayout(totalLabel, paymentButton);
+        footerLayout.setWidthFull();
+        footerLayout.setJustifyContentMode(JustifyContentMode.BETWEEN);
+        footerLayout.setAlignItems(FlexComponent.Alignment.CENTER);
 
-        VerticalLayout cartSection = new VerticalLayout(cartGrid, totalLabel);
+        VerticalLayout cartSection = new VerticalLayout(cartGrid, footerLayout);
         cartSection.setWidthFull();
 
-        add(cartSection, buttonLayout, downloadLink);
+        add(cartSection, downloadLink);
     }
 
     private void handlePayment() {
@@ -109,7 +135,7 @@ public class PaymentView extends BaseView implements BeforeEnterObserver {
             Notification.show("Warenkorb ist leer!", 3000, Notification.Position.MIDDLE)
                     .addThemeVariants(NotificationVariant.LUMO_ERROR);
             return;
-            }
+        }
         openCashDialog();
     }
 
@@ -249,15 +275,16 @@ public class PaymentView extends BaseView implements BeforeEnterObserver {
     }
 
     private void handlePayButtonClick(Dialog dialog, TextField cashGivenField) {
-        if (isCashPayment) {
-            BigDecimal cashGiven;
 
-            if (cashGivenField.isEmpty()){
+        if (isCashPayment) {
+
+            if (cashGivenField.isEmpty()) {
                 Notification.show("Bargeldmenge angeben!", 3000, Notification.Position.MIDDLE)
                         .addThemeVariants(NotificationVariant.LUMO_ERROR);
                 return;
             }
 
+            BigDecimal cashGiven;
             try {
                 cashGiven = new BigDecimal(cashGivenField.getValue().replace(",", "."));
             } catch (NumberFormatException ex) {
@@ -266,11 +293,10 @@ public class PaymentView extends BaseView implements BeforeEnterObserver {
                 return;
             }
 
+            // Totalbetrag korrekt berechnen
             BigDecimal totalAmount = BigDecimal.ZERO;
             for (CartItem item : cartItemsManager.getCart()) {
-                totalAmount = totalAmount.add(
-                        item.getEffectivePrice().multiply(BigDecimal.valueOf(item.getQuantity()))
-                );
+                totalAmount = totalAmount.add(item.getTotalPriceWithDiscount());
             }
 
             BigDecimal change = cashGiven.subtract(totalAmount);
@@ -281,23 +307,30 @@ public class PaymentView extends BaseView implements BeforeEnterObserver {
                 return;
             }
 
+            // Rückgeld anzeigen – AUTOMATISCH abschließen
             Notification changeNotification = new Notification();
             changeNotification.setPosition(Notification.Position.MIDDLE);
-            changeNotification.setDuration(0);
+            changeNotification.setDuration(2000); // <- AUTOMATISCH schließen
+            changeNotification.addThemeVariants(NotificationVariant.LUMO_SUCCESS);
 
             Span text = new Span("Kunde bekommt " + String.format("%.2f €", change) + " Rückgeld.");
-            Button closeNotificationBtn = new Button("OK", ev -> changeNotification.close());
-            HorizontalLayout layout = new HorizontalLayout(text, closeNotificationBtn);
-            layout.setAlignItems(FlexComponent.Alignment.CENTER);
-            changeNotification.add(layout);
-            changeNotification.open();
-        }
-        dialog.close();
 
-        if (!isCashPayment) {
-            showCardProcessingDialog();
+            changeNotification.add(text);
+            changeNotification.open();
+
+            // Dialog schließen
+            dialog.close();
+
+            // AUTOMATISCH nach 2 Sekunden den Bon drucken (wie Kartenzahlung)
+            UI.getCurrent().getPage().executeJs(
+                    "setTimeout(() => $0.$server.autoFinishCash(), 1000);",
+                    getElement()
+            );
+
         } else {
-            finishPayment();
+            // Kartenzahlung
+            dialog.close();
+            showCardProcessingDialog();
         }
     }
 
