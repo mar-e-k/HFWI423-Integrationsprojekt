@@ -1,3 +1,5 @@
 {
-  "lumoImports" : [ "typography", "color", "spacing", "badge", "utility" ]
+  "name": "my-theme",
+  "favicon": "icons/warehouse-icon.png",
+  "version": 3
 }

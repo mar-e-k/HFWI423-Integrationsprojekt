@@ -48,7 +48,7 @@ import com.vaadin.flow.data.provider.Query;
  * - "Neuen Artikel"-Dialog (lazy initialisiert)
  * </p>
  */
-@PageTitle("Logistic Main View")                 // Titel im Browser-Tab
+@PageTitle("Logistik - Artikel & Lagerplätze")                 // Titel im Browser-Tab
 @Route("")                            // Root-Route
 @Menu(order = 0, icon = LineAwesomeIconUrl.FILTER_SOLID)
 @Uses(Icon.class)
