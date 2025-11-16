@@ -43,6 +43,8 @@ import java.util.Optional;
 @RolesAllowed({AccountRoleEnum.ROLE_CASHIER, AccountRoleEnum.ROLE_ADMIN})
 public class CashierView extends BaseView implements BeforeEnterObserver {
 
+    private static final BigDecimal MIN_PRICE = new BigDecimal("0.01");
+
     private final ArticleService articleService;
     private final CartItemsManager cartItemsManager;
 
@@ -99,7 +101,10 @@ public class CashierView extends BaseView implements BeforeEnterObserver {
         articleGrid.addColumn(article -> article.getIsAvailable() ? "ja" : "nein").setHeader("Verfügbar").setWidth("70px");
         articleGrid.addColumn(Article::getName).setHeader("Artikelname").setWidth("200px");
         articleGrid.addColumn(Article::getArticleNumber).setHeader("Artikelnummer").setAutoWidth(true);
-        articleGrid.addColumn(article -> article.getSellingPrice() + " €").setHeader("Verkaufspreis").setAutoWidth(true);
+        articleGrid.addColumn(article -> {
+            Double sellingPrice = article.getSellingPrice();
+            return sellingPrice == null ? "kein Verkaufspreis" : String.format("%.2f €", sellingPrice);
+        }).setHeader("Verkaufspreis").setAutoWidth(true);
 
         // Spalte für Lagerbestand mit Warnung
         articleGrid.addComponentColumn(article -> {
@@ -150,22 +155,14 @@ public class CashierView extends BaseView implements BeforeEnterObserver {
                 .withNullRepresentation("")
                 .withConverter(new StringToBigDecimalConverter("Bitte eine gültige Zahl eingeben"))
                 .withValidator(price -> {
-                    CartItem current = editor.getItem();
-                    if (current == null) return true;
+                    if (editor.getItem() == null) return true;
 
-                    // Preis MUSS gesetzt sein
                     if (price == null) {
                         return false;
                     }
 
-                    // Preis darf NICHT 0 sein
-                    if (price.compareTo(BigDecimal.ZERO) == 0) {
-                        return false;
-                    }
-
-                    // Preis muss > 0 sein
-                    return price.compareTo(BigDecimal.ZERO) > 0;
-                }, "Preis muss größer als 0 sein.")
+                    return price.compareTo(MIN_PRICE) >= 0;
+                }, "Preis muss mindestens 0,01 € betragen.")
                 .bind(CartItem::getOverriddenPrice, CartItem::setOverriddenPrice);
 
         // Automatisches Speichern bei Enter oder Verlassen des Feldes (Blur)
@@ -676,8 +673,8 @@ public class CashierView extends BaseView implements BeforeEnterObserver {
                 String normalized = value.replace(",", ".").trim();
                 BigDecimal price = new BigDecimal(normalized);
 
-                if (price.compareTo(BigDecimal.ZERO) <= 0) {
-                    Notification.show("Preis muss größer als 0 sein.", 3000, Notification.Position.MIDDLE)
+                if (price.compareTo(MIN_PRICE) < 0) {
+                    Notification.show("Preis muss mindestens 0,01 € betragen.", 3000, Notification.Position.MIDDLE)
                             .addThemeVariants(NotificationVariant.LUMO_ERROR);
                     return;
                 }
