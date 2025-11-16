@@ -1,23 +1,29 @@
 package fhdw.de.einkauf_service.view;
 
 import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.checkbox.Checkbox;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.html.Span;
+import com.vaadin.flow.component.icon.Icon;
+import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.value.ValueChangeMode;
 import com.vaadin.flow.router.Route;
+
+import fhdw.de.einkauf_service.config.ShoppingCartSession;
 import fhdw.de.einkauf_service.dto.ArticleFilterDTO;
 import fhdw.de.einkauf_service.dto.ArticleResponseDTO;
 import fhdw.de.einkauf_service.dto.SupplierResponseDTO;
 import fhdw.de.einkauf_service.service.ArticleService;
 import fhdw.de.einkauf_service.service.SupplierService;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
@@ -27,6 +33,7 @@ import java.util.stream.Collectors;
 public class ArticleView extends VerticalLayout {
 
     private final ArticleService articleService;
+    private final ShoppingCartSession cartSession;
     private final Grid<ArticleResponseDTO> grid = new Grid<>(ArticleResponseDTO.class);
 
     private final TextField articleNumberField = createSearchField("Artikelnummer (GTIN)");
@@ -38,11 +45,15 @@ public class ArticleView extends VerticalLayout {
     private final Button addButton = new Button("Artikel hinzufügen");
     private final Button editButton = new Button("Bearbeiten");
     private final Button deleteButton = new Button("Löschen");
+    private final Button addToCartButton = new Button("Zum Warenkorb hinzufügen", new Icon(VaadinIcon.CART));
+
 
     private final Map<Long, SupplierResponseDTO> supplierCache;
+    private final Map<Long, Integer> selectedArticles = new HashMap<>();
 
-    public ArticleView(ArticleService articleService, SupplierService supplierService) {
+    public ArticleView(ArticleService articleService, SupplierService supplierService, ShoppingCartSession cartSession) {
         this.articleService = articleService;
+        this.cartSession = cartSession;
         this.supplierCache = supplierService.findAllSuppliers().stream()
                 .collect(Collectors.toMap(SupplierResponseDTO::getId, Function.identity(), (a, b) -> a));
 
@@ -63,7 +74,7 @@ public class ArticleView extends VerticalLayout {
                 articleNumberField, nameField, supplierBox, clearButton
         );
 
-        HorizontalLayout crudButtons = new HorizontalLayout(addButton, editButton, deleteButton);
+        HorizontalLayout crudButtons = new HorizontalLayout(addButton, editButton, deleteButton,addToCartButton);
         add(crudButtons);
         configureCrudButtons();
 
@@ -198,6 +209,22 @@ public class ArticleView extends VerticalLayout {
     private void configureGrid() {
         grid.setSizeFull();
         grid.setColumns();
+                //Checkbox Spalte
+        grid.addComponentColumn(article -> {
+        Checkbox checkbox = new Checkbox();
+        checkbox.setValue(selectedArticles.containsKey(article.getId()));
+        
+        checkbox.addValueChangeListener(event -> {
+            if (event.getValue()) {
+                selectedArticles.put(article.getId(), 1);
+            } else {
+                selectedArticles.remove(article.getId());
+            }
+            grid.getDataProvider().refreshItem(article);
+        });
+        
+        return checkbox;
+    }).setHeader("✓").setAutoWidth(true).setFlexGrow(0);
         grid.addColumn(ArticleResponseDTO::getArticleNumber).setHeader("Artikelnummer (GTIN)").setAutoWidth(true).setSortable(true);
         grid.addColumn(ArticleResponseDTO::getName).setHeader("Artikelname").setAutoWidth(true).setSortable(true);
         grid.addColumn(ArticleResponseDTO::getStockLevel).setHeader("Lagerbestand").setAutoWidth(true).setSortable(true);
@@ -212,7 +239,10 @@ public class ArticleView extends VerticalLayout {
                 showArticleDetails(selected);
             }
         });
+
+
     }
+
 
     private void showArticleDetails(ArticleResponseDTO article) {
         Dialog dialog = new Dialog();
@@ -270,6 +300,7 @@ public class ArticleView extends VerticalLayout {
                 updateList();
             }
         });
+        addToCartButton.addClickListener(e -> addSelectedToCart());
 
         editButton.setEnabled(false);
         deleteButton.setEnabled(false);
@@ -280,6 +311,23 @@ public class ArticleView extends VerticalLayout {
             deleteButton.setEnabled(hasSelection);
         });
     }
+    private void addSelectedToCart() {
+    if (selectedArticles.isEmpty()) {
+        Notification.show("Bitte wählen Sie mindestens einen Artikel aus", 3000, Notification.Position.MIDDLE);
+        return;
+    }
+
+    // Alle ausgewählten Artikel  in den Warenkorb
+    for (Long articleId : selectedArticles.keySet()) {
+        cartSession.addItem(articleId, 1);
+    }
+
+    Notification.show("Artikel zum Warenkorb hinzugefügt", 2000, Notification.Position.BOTTOM_START);
+
+    // Auswahl zurücksetzen und Grid aktualisieren
+    selectedArticles.clear();
+    grid.getDataProvider().refreshAll();
+}
 
     private String safe(Object value) {
         return value == null ? "-" : value.toString();
