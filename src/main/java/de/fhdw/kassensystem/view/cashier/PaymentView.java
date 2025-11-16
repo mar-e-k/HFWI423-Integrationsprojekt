@@ -70,40 +70,6 @@ public class PaymentView extends BaseView implements BeforeEnterObserver {
         return "Bezahlung";
     }
 
-//            cartGrid.addComponentColumn(item -> {
-//        Span container = new Span();
-//
-//        BigDecimal base = item.getBaseUnitPrice();
-//        BigDecimal discounted = item.getDiscountedUnitPrice();
-//
-//        if (item.hasDiscount() && item.getDiscountedQuantity() != null
-//                && item.getDiscountedQuantity() >= item.getQuantity()) {
-//            // gesamte Menge rabattiert -> klar vorher/nachher anzeigen
-//            Span oldPrice = new Span(String.format("%.2f €", base));
-//            oldPrice.getStyle().set("text-decoration", "line-through");
-//
-//            Span arrow = new Span(" → ");
-//            Span newPrice = new Span(String.format("%.2f €", discounted));
-//
-//            container.add(oldPrice, arrow, newPrice);
-//        } else if (item.hasDiscount()) {
-//            // nur Teilmenge rabattiert -> kurze Info
-//            Span baseSpan = new Span(String.format("%.2f €", base) + " / ");
-//            Span discSpan = new Span(String.format("%.2f €", discounted) +
-//                    " (" + item.getDiscountedQuantity() + "x)");
-//            container.add(baseSpan, discSpan);
-//        } else {
-//            container.setText(String.format("%.2f €", base));
-//        }
-//
-//        return container;
-//    })
-//            .setHeader("Stückpreis")
-//                .setAutoWidth(true)
-//                .setEditorComponent(priceEditor)
-//                .setKey("price");
-
-
     @Override
     protected void init() {
         cartGrid = new Grid<>(CartItem.class, false);
@@ -308,15 +274,16 @@ public class PaymentView extends BaseView implements BeforeEnterObserver {
     }
 
     private void handlePayButtonClick(Dialog dialog, TextField cashGivenField) {
-        if (isCashPayment) {
-            BigDecimal cashGiven;
 
-            if (cashGivenField.isEmpty()){
+        if (isCashPayment) {
+
+            if (cashGivenField.isEmpty()) {
                 Notification.show("Bargeldmenge angeben!", 3000, Notification.Position.MIDDLE)
                         .addThemeVariants(NotificationVariant.LUMO_ERROR);
                 return;
             }
 
+            BigDecimal cashGiven;
             try {
                 cashGiven = new BigDecimal(cashGivenField.getValue().replace(",", "."));
             } catch (NumberFormatException ex) {
@@ -324,37 +291,14 @@ public class PaymentView extends BaseView implements BeforeEnterObserver {
                         .addThemeVariants(NotificationVariant.LUMO_ERROR);
                 return;
             }
-        payButton.addClickListener(e -> {
-            if (isCashPayment) {
-                BigDecimal cashGiven;
-                if (cashGivenField.isEmpty()) {
-                    Notification.show("Bargeldmenge angeben!", 3000, Notification.Position.MIDDLE)
-                            .addThemeVariants(NotificationVariant.LUMO_ERROR);
-                    return;
-                }
-                try {
-                    cashGiven = new BigDecimal(cashGivenField.getValue().replace(",", "."));
-                } catch (NumberFormatException ex) {
-                    Notification.show("Gültige Zahl angeben!", 3000, Notification.Position.MIDDLE)
-                            .addThemeVariants(NotificationVariant.LUMO_ERROR);
-                    return;
-                }
 
+            // Totalbetrag korrekt berechnen
             BigDecimal totalAmount = BigDecimal.ZERO;
             for (CartItem item : cartItemsManager.getCart()) {
-                totalAmount = totalAmount.add(
-                        item.getEffectivePrice().multiply(BigDecimal.valueOf(item.getQuantity()))
-                );
+                totalAmount = totalAmount.add(item.getTotalPriceWithDiscount());
             }
 
             BigDecimal change = cashGiven.subtract(totalAmount);
-                BigDecimal totalAmount = BigDecimal.ZERO;
-                for (CartItem item : cartItemsManager.getCart()) {
-                    totalAmount = totalAmount.add(
-                            item.getDiscountedUnitPrice());
-                }
-
-                BigDecimal change = cashGiven.subtract(totalAmount);
 
             if (change.compareTo(BigDecimal.ZERO) < 0) {
                 Notification.show("Betrag zu niedrig!", 3000, Notification.Position.MIDDLE)
@@ -362,24 +306,36 @@ public class PaymentView extends BaseView implements BeforeEnterObserver {
                 return;
             }
 
+            // Rückgeld anzeigen – AUTOMATISCH abschließen
             Notification changeNotification = new Notification();
             changeNotification.setPosition(Notification.Position.MIDDLE);
-            changeNotification.setDuration(0);
+            changeNotification.setDuration(2000); // <- AUTOMATISCH schließen
+            changeNotification.addThemeVariants(NotificationVariant.LUMO_SUCCESS);
 
             Span text = new Span("Kunde bekommt " + String.format("%.2f €", change) + " Rückgeld.");
-            Button closeNotificationBtn = new Button("OK", ev -> changeNotification.close());
-            HorizontalLayout layout = new HorizontalLayout(text, closeNotificationBtn);
-            layout.setAlignItems(FlexComponent.Alignment.CENTER);
-            changeNotification.add(layout);
-            changeNotification.open();
-        }
-        dialog.close();
 
-        if (!isCashPayment) {
-            showCardProcessingDialog();
+            changeNotification.add(text);
+            changeNotification.open();
+
+            // Dialog schließen
+            dialog.close();
+
+            // AUTOMATISCH nach 2 Sekunden den Bon drucken (wie Kartenzahlung)
+            UI.getCurrent().getPage().executeJs(
+                    "setTimeout(() => $0.$server.autoFinishCash(), 1000);",
+                    getElement()
+            );
+
         } else {
-            finishPayment();
+            // Kartenzahlung
+            dialog.close();
+            showCardProcessingDialog();
         }
+    }
+
+    @ClientCallable
+    private void autoFinishCash() {
+        finishPayment();
     }
 
     private void showCardProcessingDialog() {
