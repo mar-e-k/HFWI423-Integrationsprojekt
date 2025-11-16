@@ -257,7 +257,6 @@ public class LogisticMainView extends Div {
      */
     private Component createGrid() {
 
-
         grid = new Grid<>(ArticleInfo.class, false);
 
         // Spalte: Artikelname (Text)
@@ -266,7 +265,6 @@ public class LogisticMainView extends Div {
                 .setKey("articleName")     // Key für spätere Referenzen/Tests
                 .setAutoWidth(true)        // passt sich Inhalt an, verhindert horizontales Scrollen
                 .setSortable(true);
-
 
         // Spalte: Artikelnummer (Integer)
         grid.addColumn(ArticleInfo::getArticleNumber)
@@ -281,6 +279,19 @@ public class LogisticMainView extends Div {
                 .setKey("stockLevel")
                 .setAutoWidth(true)
                 .setSortable(true);
+
+        grid.addComponentColumn(item -> {
+            Button editStock = new Button("Edit stock");
+            editStock.addClickListener(e -> {
+                StockChangeDialog dlg = new StockChangeDialog(
+                        articleInfoService,
+                        item,
+                        this::refreshGrid   // damit das Grid danach aktualisiert wird
+                );
+                dlg.open();
+            });
+            return editStock;
+        }).setHeader("Actions");
 
         // Spalte: Lagerort (Text)
         grid.addComponentColumn(item -> {
@@ -298,18 +309,11 @@ public class LogisticMainView extends Div {
                 .setAutoWidth(true)
                 .setSortable(false);
 
-        grid.addComponentColumn(item -> {
-            Button editStock = new Button("Edit stock");
-            editStock.addClickListener(e -> {
-                StockChangeDialog dlg = new StockChangeDialog(
-                        articleInfoService,
-                        item,
-                        this::refreshGrid   // damit das Grid danach aktualisiert wird
-                );
-                dlg.open();
-            });
-            return editStock;
-        }).setHeader("Actions");
+        grid.addColumn(ArticleInfo::getReserveStorageLocation)
+                .setHeader("Reserve Storage Location")
+                .setKey("reserveStorageLocation")
+                .setAutoWidth(true)
+                .setSortable(true);
 
         //verschiedenfarbige Streifen + Umbruch langer Inhalte
         grid.addThemeVariants(
