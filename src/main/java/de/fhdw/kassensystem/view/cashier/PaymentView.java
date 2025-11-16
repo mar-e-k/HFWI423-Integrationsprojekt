@@ -16,6 +16,8 @@ import com.vaadin.flow.router.Route;
 import com.vaadin.flow.server.VaadinSession;
 import com.vaadin.flow.server.streams.DownloadHandler;
 import com.vaadin.flow.server.streams.DownloadResponse;
+import com.vaadin.flow.component.ClientCallable;
+import com.vaadin.flow.component.html.Div;
 
 import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.html.H3;
@@ -226,7 +228,7 @@ public class PaymentView extends BaseView implements BeforeEnterObserver {
         return new HorizontalLayout(backToCart);
     }
 
-    private boolean isCashPayment = false; // Boolean für Bargeld-/Kartenzahlung
+    private boolean isCashPayment = false;
 
     private void openCashDialog() {
         Dialog dialog = new Dialog();
@@ -244,12 +246,17 @@ public class PaymentView extends BaseView implements BeforeEnterObserver {
         header.setAlignItems(FlexComponent.Alignment.CENTER);
 
         Button payButton = new Button("Bestätigen");
-
+        Button cardButton = new Button("Kartenzahlung");
         Button cashButton = new Button("Bargeldzahlung");
-        cashButton.setWidthFull();
+
+        cardButton.setWidth("218px");
+        cashButton.setWidth("218px");
+        cardButton.setHeight("200px");
         cashButton.setHeight("200px");
         if (isCashPayment) {
             cashButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
+        } else {
+            cardButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
         }
 
         TextField cashGivenField = new TextField("Gegebenes Bargeld");
@@ -257,19 +264,66 @@ public class PaymentView extends BaseView implements BeforeEnterObserver {
         cashGivenField.setSuffixComponent(new Span("€"));
         cashGivenField.setVisible(isCashPayment);
 
-        cashButton.addClickListener(e -> {
-            isCashPayment = !isCashPayment;
-            cashGivenField.setVisible(isCashPayment);
-            if (isCashPayment) {
-                cashButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
-            } else {
-                cashButton.removeThemeVariants(ButtonVariant.LUMO_PRIMARY);
-                cashGivenField.clear();
-                payButton.setEnabled(true);
-            }
+        cardButton.addClickListener(e -> {
+            isCashPayment = false;
+            cashGivenField.setVisible(false);
+            cardButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
+            cashButton.removeThemeVariants(ButtonVariant.LUMO_PRIMARY);
         });
 
+        cashButton.addClickListener(e -> {
+            isCashPayment = true;
+            cashGivenField.setVisible(true);
+            cashButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
+            cardButton.removeThemeVariants(ButtonVariant.LUMO_PRIMARY);
+        });
 
+        HorizontalLayout paymentSelection = new HorizontalLayout(cardButton, cashButton);
+        paymentSelection.setWidthFull();
+        paymentSelection.setSpacing(true);
+
+        HorizontalLayout footer = new HorizontalLayout(cashGivenField, payButton);
+        footer.setWidthFull();
+        footer.setJustifyContentMode(FlexComponent.JustifyContentMode.END);
+        footer.setAlignItems(FlexComponent.Alignment.END);
+        footer.getStyle().set("margin-top", "auto");
+
+        VerticalLayout bodyLayout = new VerticalLayout(paymentSelection);
+        bodyLayout.setPadding(false);
+        bodyLayout.setSpacing(true);
+        bodyLayout.setWidthFull();
+        bodyLayout.getStyle().set("margin-top", "10px");
+
+        VerticalLayout wrapper = new VerticalLayout(header, bodyLayout, footer);
+        wrapper.setPadding(false);
+        wrapper.setSpacing(false);
+        wrapper.setWidthFull();
+        wrapper.getStyle().set("height", "100%");
+        wrapper.getStyle().set("display", "flex");
+        wrapper.getStyle().set("flex-direction", "column");
+
+        payButton.addClickListener(e -> handlePayButtonClick(dialog, cashGivenField));
+        dialog.add(wrapper);
+        dialog.open();
+    }
+
+    private void handlePayButtonClick(Dialog dialog, TextField cashGivenField) {
+        if (isCashPayment) {
+            BigDecimal cashGiven;
+
+            if (cashGivenField.isEmpty()){
+                Notification.show("Bargeldmenge angeben!", 3000, Notification.Position.MIDDLE)
+                        .addThemeVariants(NotificationVariant.LUMO_ERROR);
+                return;
+            }
+
+            try {
+                cashGiven = new BigDecimal(cashGivenField.getValue().replace(",", "."));
+            } catch (NumberFormatException ex) {
+                Notification.show("Gültige Zahl angeben!", 3000, Notification.Position.MIDDLE)
+                        .addThemeVariants(NotificationVariant.LUMO_ERROR);
+                return;
+            }
         payButton.addClickListener(e -> {
             if (isCashPayment) {
                 BigDecimal cashGiven;
@@ -286,6 +340,14 @@ public class PaymentView extends BaseView implements BeforeEnterObserver {
                     return;
                 }
 
+            BigDecimal totalAmount = BigDecimal.ZERO;
+            for (CartItem item : cartItemsManager.getCart()) {
+                totalAmount = totalAmount.add(
+                        item.getEffectivePrice().multiply(BigDecimal.valueOf(item.getQuantity()))
+                );
+            }
+
+            BigDecimal change = cashGiven.subtract(totalAmount);
                 BigDecimal totalAmount = BigDecimal.ZERO;
                 for (CartItem item : cartItemsManager.getCart()) {
                     totalAmount = totalAmount.add(
@@ -294,49 +356,65 @@ public class PaymentView extends BaseView implements BeforeEnterObserver {
 
                 BigDecimal change = cashGiven.subtract(totalAmount);
 
-                if (change.compareTo(BigDecimal.ZERO) < 0) {
-                    Notification.show("Betrag zu niedrig!", 3000, Notification.Position.MIDDLE)
-                            .addThemeVariants(NotificationVariant.LUMO_ERROR);
-                    return;
-                }
-
-                Notification changeNotification = new Notification();
-                changeNotification.setPosition(Notification.Position.MIDDLE);
-                changeNotification.setDuration(0);
-
-                Span text = new Span("Kunde bekommt " + String.format("%.2f €", change) + " Rückgeld.");
-                Button closeNotificationBtn = new Button("OK", ev -> changeNotification.close());
-                HorizontalLayout layout = new HorizontalLayout(text, closeNotificationBtn);
-                layout.setAlignItems(FlexComponent.Alignment.CENTER);
-                changeNotification.add(layout);
-                changeNotification.open();
+            if (change.compareTo(BigDecimal.ZERO) < 0) {
+                Notification.show("Betrag zu niedrig!", 3000, Notification.Position.MIDDLE)
+                        .addThemeVariants(NotificationVariant.LUMO_ERROR);
+                return;
             }
 
-            dialog.close();
+            Notification changeNotification = new Notification();
+            changeNotification.setPosition(Notification.Position.MIDDLE);
+            changeNotification.setDuration(0);
+
+            Span text = new Span("Kunde bekommt " + String.format("%.2f €", change) + " Rückgeld.");
+            Button closeNotificationBtn = new Button("OK", ev -> changeNotification.close());
+            HorizontalLayout layout = new HorizontalLayout(text, closeNotificationBtn);
+            layout.setAlignItems(FlexComponent.Alignment.CENTER);
+            changeNotification.add(layout);
+            changeNotification.open();
+        }
+        dialog.close();
+
+        if (!isCashPayment) {
+            showCardProcessingDialog();
+        } else {
             finishPayment();
-        });
+        }
+    }
 
-        HorizontalLayout footer = new HorizontalLayout(cashGivenField, payButton);
-        footer.setWidthFull();
-        footer.setJustifyContentMode(FlexComponent.JustifyContentMode.END);
-        footer.setAlignItems(FlexComponent.Alignment.END);
-        footer.getStyle().set("margin-top", "auto");
+    private void showCardProcessingDialog() {
+        final Dialog processing = new Dialog();
+        processing.setModal(true);
+        processing.setCloseOnEsc(false);
+        processing.setCloseOnOutsideClick(false);
+        VerticalLayout layout = new VerticalLayout();
+        layout.setDefaultHorizontalComponentAlignment(FlexComponent.Alignment.CENTER);
+        H3 message = new H3("Folge den Schritten auf dem Kartelesegerät...");
+        message.getStyle().set("text-align", "center");
+        layout.add(message);
+        processing.add(layout);
 
-        VerticalLayout bodyLayout = new VerticalLayout(cashButton);
-        bodyLayout.setPadding(false);
-        bodyLayout.setSpacing(true);
-        bodyLayout.setWidthFull();
-        bodyLayout.getStyle().set("margin-top", "10px");
+        Div serverRpc = new Div() {
+            @ClientCallable
+            public void closeDialogAndFinish() {
+                processing.close();
+                finishPayment();
+            }
+        };
 
-        VerticalLayout wrapper = new VerticalLayout(header, bodyLayout, footer);
-        wrapper.setPadding(false);
-        wrapper.setSpacing(false);
-        wrapper.setWidthFull();
-        wrapper.getStyle().set("height", "100%");
-        wrapper.getStyle().set("display", "flex");
-        wrapper.getStyle().set("flex-direction", "column");
+        serverRpc.getStyle().set("display", "none");
+        processing.add(serverRpc);
+        processing.open();
+        UI ui = UI.getCurrent();
 
-        dialog.add(wrapper);
-        dialog.open();
+        ui.getPage().executeJs(
+                "setTimeout(() => { $0.textContent = 'Prozess war erfolgreich!'; }, 5000);",
+                message.getElement()
+        );
+
+        ui.getPage().executeJs(
+                "setTimeout(() => { $0.$server.closeDialogAndFinish(); }, 7000);",
+                serverRpc.getElement()
+        );
     }
 }
