@@ -10,82 +10,80 @@ import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.theme.lumo.Lumo;
+import jakarta.annotation.PostConstruct;
 
-//BaseView ist die abstrakte Klasse, die das Basis-Layout der Seiten implementiert und von der die anderen Views erben
+// BaseView ist die abstrakte Klasse, die das Basis-Layout der Seiten implementiert und von der die anderen Views erben
 public abstract class BaseView extends VerticalLayout {
 
     public BaseView() {
         UI.getCurrent().getPage().executeJs(
-            "const storedTheme = localStorage.getItem('theme');" +
-            "if (storedTheme === 'dark') {" +
-            "    document.documentElement.setAttribute('theme', 'dark');" +
-            "}"
+                "const storedTheme = localStorage.getItem('theme');" +
+                        "if (storedTheme === 'dark') {" +
+                        "    document.documentElement.setAttribute('theme', 'dark');" +
+                        "}"
         );
 
-        // Synchronisierung des serverseitigen Themes mit clienseitigen Localstorage
-        UI.getCurrent().getPage().executeJs("return localStorage.getItem('theme');")
-            .then(String.class, storedTheme -> {
-                var themeList = UI.getCurrent().getElement().getThemeList();
-                if ("dark".equals(storedTheme)) {
-                    if (!themeList.contains(Lumo.DARK)) {
-                        themeList.add(Lumo.DARK);
-                    }
-                } else { // hell oder null
-                    if (themeList.contains(Lumo.DARK)) {
-                        themeList.remove(Lumo.DARK);
-                    }
-                }
-            });
+        // Top Bar vorbereiten
+        setupTopBar();
 
-        // Top Bar
+        setAlignItems(FlexComponent.Alignment.CENTER);
+    }
+
+    private void setupTopBar() {
+        // Haupt-Container für die Top-Bar
         HorizontalLayout topBar = new HorizontalLayout();
         topBar.setWidthFull();
         topBar.setJustifyContentMode(FlexComponent.JustifyContentMode.BETWEEN);
         topBar.setAlignItems(FlexComponent.Alignment.CENTER);
 
-        // Titel wird von der Subklasse geholt
-        H1 viewTitle = new H1(setTopbarTitle());
+        // Linker Bereich: Titel
+        HorizontalLayout leftSection = new HorizontalLayout(new H1(setTopbarTitle()));
+        leftSection.setJustifyContentMode(FlexComponent.JustifyContentMode.START);
+        leftSection.setWidth("33.33%");
 
-        // Live-Uhr und Datumsanzeige
+        // Mittlerer Bereich: Optionale Buttons
+        HorizontalLayout centerSection = createTopBarButtons();
+        centerSection.setJustifyContentMode(FlexComponent.JustifyContentMode.CENTER);
+        centerSection.setWidth("33.33%");
+
+        // Rechter Bereich: Uhr, Theme-Toggle, Logout
         Span liveClockLabel = new Span();
-        liveClockLabel.setId("live-clock-label"); // ID für JavaScript-Zugriff
-        liveClockLabel.getStyle().set("font-size", "var(--lumo-font-size-l)"); // Etwas größer
-        liveClockLabel.getStyle().set("font-weight", "bold"); // Fettgedruckt
+        liveClockLabel.setId("live-clock-label");
+        liveClockLabel.getStyle().set("font-size", "var(--lumo-font-size-l)");
+        liveClockLabel.getStyle().set("font-weight", "bold");
 
-        // Dark Mode Button
         Button themeToggleButton = new Button(new Icon(VaadinIcon.ADJUST), click -> {
-            // Query für aktuellen theme status zur Synchronisierung
             UI.getCurrent().getPage().executeJs("return document.documentElement.getAttribute('theme');")
-                .then(String.class, currentClientTheme -> {
-                    var themeList = UI.getCurrent().getElement().getThemeList();
-                    boolean isClientDark = "dark".equals(currentClientTheme);
+                    .then(String.class, currentClientTheme -> {
+                        var themeList = UI.getCurrent().getElement().getThemeList();
+                        boolean isClientDark = "dark".equals(currentClientTheme);
 
-                    if (isClientDark) {
-                        themeList.remove(Lumo.DARK);
-                        UI.getCurrent().getPage().executeJs("localStorage.setItem('theme', 'light');");
-                        UI.getCurrent().getPage().executeJs("document.documentElement.removeAttribute('theme');");
-                    } else {
-                        themeList.add(Lumo.DARK);
-                        UI.getCurrent().getPage().executeJs("localStorage.setItem('theme', 'dark');");
-                        UI.getCurrent().getPage().executeJs("document.documentElement.setAttribute('theme', 'dark');");
-                    }
-                });
+                        if (isClientDark) {
+                            themeList.remove(Lumo.DARK);
+                            UI.getCurrent().getPage().executeJs("localStorage.setItem('theme', 'light');");
+                            UI.getCurrent().getPage().executeJs("document.documentElement.removeAttribute('theme');");
+                        } else {
+                            themeList.add(Lumo.DARK);
+                            UI.getCurrent().getPage().executeJs("localStorage.setItem('theme', 'dark');");
+                            UI.getCurrent().getPage().executeJs("document.documentElement.setAttribute('theme', 'dark');");
+                        }
+                    });
         });
         themeToggleButton.setTooltipText("Toggle dark mode");
 
-        // Logout Button
         Button logoutButton = new Button("Logout", e -> UI.getCurrent().getPage().setLocation("/logout"));
 
-        // Rechte Seite der Top Bar: Uhr, Toggle, Logout
-        HorizontalLayout rightSide = new HorizontalLayout(liveClockLabel, themeToggleButton, logoutButton);
-        rightSide.setAlignItems(FlexComponent.Alignment.CENTER);
-        rightSide.setSpacing(true);
+        HorizontalLayout rightSection = new HorizontalLayout(liveClockLabel, themeToggleButton, logoutButton);
+        rightSection.setAlignItems(FlexComponent.Alignment.CENTER);
+        rightSection.setJustifyContentMode(FlexComponent.JustifyContentMode.END);
+        rightSection.setSpacing(true);
+        rightSection.setWidth("33.33%");
 
-        topBar.add(viewTitle, rightSide);
-
+        // Alle Sektionen zur Top-Bar hinzufügen
+        topBar.add(leftSection, centerSection, rightSection);
         add(topBar);
 
-        // JavaScript für die Live-Uhr
+        // JavaScript Live-Uhr
         UI.getCurrent().getPage().executeJs("""
             const label = document.getElementById('live-clock-label');
             if (label) {
@@ -98,18 +96,18 @@ public abstract class BaseView extends VerticalLayout {
                 }, 1000);
             }
         """);
-
-        // Subklasse fügt ihren spezifischen Inhalt hinzu
-        init();
-
-        setAlignItems(FlexComponent.Alignment.CENTER);
     }
 
-     // Subklassen müssen diese Methode implementieren, um den Titel für die Ansicht zu erstellen.
+    protected HorizontalLayout createTopBarButtons() {
+        return new HorizontalLayout(); // Standardmäßig leer
+    }
 
     protected abstract String setTopbarTitle();
 
-    // Subklassen müssen diese Methode implementieren, um ihre spezifische UI hinzuzufügen.
-
     protected abstract void init();
+
+    @PostConstruct
+    private void postConstructInit() {
+        init(); // init() wird erst nach kompletter Bean-Erstellung ausgeführt
+    }
 }
