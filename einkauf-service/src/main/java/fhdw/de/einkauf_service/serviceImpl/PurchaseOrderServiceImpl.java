@@ -1,6 +1,8 @@
 package fhdw.de.einkauf_service.serviceImpl;
 
 import fhdw.de.einkauf_service.config.ShoppingCartSession;
+import fhdw.de.einkauf_service.dto.ArticleRequestDTO;
+import fhdw.de.einkauf_service.dto.ArticleResponseDTO;
 import fhdw.de.einkauf_service.dto.OrderItemRequestDTO;
 import fhdw.de.einkauf_service.dto.OrderResponseDTO;
 import fhdw.de.einkauf_service.entity.Article;
@@ -10,6 +12,7 @@ import fhdw.de.einkauf_service.entity.Supplier;
 import fhdw.de.einkauf_service.repository.ArticleRepository;
 import fhdw.de.einkauf_service.repository.OrderItemRepository;
 import fhdw.de.einkauf_service.repository.OrderRepository;
+import fhdw.de.einkauf_service.service.ArticleService;
 import fhdw.de.einkauf_service.service.PurchaseOrderService;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityNotFoundException;
@@ -32,6 +35,7 @@ public class PurchaseOrderServiceImpl implements PurchaseOrderService {
     private final ArticleRepository articleRepository;
     private final EntityManager entityManager;
     private final ShoppingCartSession cartSession;
+    private final ArticleService articleService;
 
     private String getNextOrderNumber() {
         Long nextValue = (Long) entityManager.createNativeQuery(
@@ -116,6 +120,24 @@ public class PurchaseOrderServiceImpl implements PurchaseOrderService {
 
             orderItemRepository.save(item);
             totalAmount = totalAmount + itemTotal;
+
+            // 1. Aktuellen Artikel als DTO laden
+            ArticleResponseDTO currentArticle = articleService.findArticleById(itemDto.articleId());
+            
+            // 2. Neues RequestDTO erstellen mit ALLEN Feldern
+            ArticleRequestDTO updateRequest = new ArticleRequestDTO();
+            updateRequest.setArticleNumber(currentArticle.getArticleNumber());
+            updateRequest.setName(currentArticle.getName());
+            updateRequest.setStockLevel(currentArticle.getStockLevel() + itemDto.quantity()); // ← HIER wird erhöht!
+            updateRequest.setPurchasePrice(currentArticle.getPurchasePrice());
+            updateRequest.setTaxRatePercent(currentArticle.getTaxRatePercent());
+            updateRequest.setManufacturer(currentArticle.getManufacturer());
+            updateRequest.setSupplierId(currentArticle.getSupplierId());
+            updateRequest.setDescription(currentArticle.getDescription());
+            updateRequest.setIsAvailable(currentArticle.getIsAvailable());
+            
+            // 3. Artikel mit neuem Lagerbestand speichern
+            articleService.updateArticle(itemDto.articleId(), updateRequest);
         }
 
         savedOrder.setTotalAmount(totalAmount);
