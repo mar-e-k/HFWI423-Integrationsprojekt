@@ -334,6 +334,11 @@ public class PaymentView extends BaseView implements BeforeEnterObserver {
         }
     }
 
+    @ClientCallable
+    private void autoFinishCash() {
+        finishPayment();
+    }
+
     private void showCardProcessingDialog() {
         final Dialog processing = new Dialog();
         processing.setModal(true);
