@@ -64,4 +64,8 @@ public class Supplier {
     )
     private Set<ContactPerson> contactPeople = new HashSet<>();
 
+    @Column(name = "is_active", nullable = false)
+    private Boolean isActive = true;  // Standard: aktiv
+
+
 }

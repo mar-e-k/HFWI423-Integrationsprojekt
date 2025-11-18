@@ -17,6 +17,7 @@ public class SupplierResponseDTO {
     private String phone;
     private PaymentTermResponseDTO paymentTerm;
     private List<ContactPersonResponseDTO> contactPeople;
+    private Boolean isActive;
 
     private Long paymentTermId;
     private String paymentTermDefinition;
