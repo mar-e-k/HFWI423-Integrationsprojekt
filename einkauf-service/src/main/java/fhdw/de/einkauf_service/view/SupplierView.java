@@ -64,8 +64,9 @@ public class SupplierView extends VerticalLayout {
         add(new H2("Lieferantenverwaltung"));
 
         configureGrid();
-        configureSearchFields();
         configureCrudButtons();
+        configureSearchFields();
+
 
         HorizontalLayout searchLayout = new HorizontalLayout(
                 nameField, cityField, statusFilter, clearButton
@@ -201,7 +202,10 @@ public class SupplierView extends VerticalLayout {
         name.setRequired(true);
 
         TextField street = new TextField("Straße");
+        street.setRequired(true);
+
         TextField houseNumber = new TextField("Hausnummer");
+        houseNumber.setRequired(true);
         HorizontalLayout addressLine1 = new HorizontalLayout(street, houseNumber);
         addressLine1.setWidthFull();
         street.setWidth("70%");
@@ -213,15 +217,23 @@ public class SupplierView extends VerticalLayout {
         addressLine2.setWidthFull();
         zip.setWidth("30%");
         city.setWidth("70%");
+        zip.setRequired(true);
+        city.setRequired(true);
+
 
         TextField country = new TextField("Land");
         country.setWidthFull();
+        country.setRequired(true);
+
 
         EmailField email = new EmailField("E-Mail");
         email.setWidthFull();
+        email.setRequired(true);
+
 
         TextField phone = new TextField("Telefon");
         phone.setWidthFull();
+        phone.setRequired(true);
 
         Checkbox activeCheckbox = new Checkbox("Aktiv");
         activeCheckbox.setWidthFull();
@@ -327,8 +339,9 @@ public class SupplierView extends VerticalLayout {
         Button saveButton = new Button("Speichern", event -> {
             try {
                 // Validation
-                if (name.isEmpty() || paymentTermBox.isEmpty()) {
-                    throw new IllegalArgumentException("Name und Zahlungsbedingungen sind Pflichtfelder.");
+                if (name.isEmpty() || street.isEmpty() || houseNumber.isEmpty() || zip.isEmpty() || city.isEmpty()
+                        || country.isEmpty() || email.isEmpty() || phone.isEmpty() || paymentTermBox.isEmpty()) {
+                    throw new IllegalArgumentException("Alle Pflichtfelder müssen ausgefüllt werden.");
                 }
 
                 SupplierRequestDTO req = new SupplierRequestDTO();
