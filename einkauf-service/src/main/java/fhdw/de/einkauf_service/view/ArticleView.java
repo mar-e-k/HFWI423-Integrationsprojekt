@@ -10,6 +10,7 @@ import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.notification.Notification;
+import com.vaadin.flow.component.notification.NotificationVariant;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
@@ -94,16 +95,23 @@ public class ArticleView extends VerticalLayout {
 
         // --- Input fields ---
         TextField articleNumber = new TextField("Artikelnummer (GTIN)");
+        articleNumber.setRequired(true);
         TextField name = new TextField("Name");
+        name.setRequired(true);
         TextField stockLevel = new TextField("Lagerbestand");
+        stockLevel.setRequired(true);
         TextField purchasePrice = new TextField("EK Preis");
+        purchasePrice.setRequired(true);
         TextField taxRate = new TextField("MwSt (%)");
+        taxRate.setRequired(true);
         TextField manufacturer = new TextField("Hersteller");
+        manufacturer.setRequired(true);
 
         // Formular-ComboBox verwaltet SupplierResponseDTOs
-        ComboBox<SupplierResponseDTO> supplierBoxForm = new ComboBox<>("Lieferant");
+        ComboBox<SupplierResponseDTO> supplierBoxForm = new ComboBox<>("Lieferant*");
         supplierBoxForm.setItems(supplierCache.values());
         supplierBoxForm.setItemLabelGenerator(SupplierResponseDTO::getName);
+        supplierBoxForm.setRequired(true);
 
         TextField description = new TextField("Beschreibung");
 
@@ -130,6 +138,11 @@ public class ArticleView extends VerticalLayout {
         // --- Buttons ---
         Button saveButton = new Button("Speichern", event -> {
             try {
+                if (articleNumber.isEmpty() || name.isEmpty() || stockLevel.isEmpty() || purchasePrice.isEmpty()
+                || taxRate.isEmpty() || manufacturer.isEmpty() || supplierBoxForm.isEmpty() || description.isEmpty()) {
+                 throw new IllegalArgumentException("Alle Pflichtfelder müssen ausgefüllt werden.");
+        }
+
                 // Build request DTO
                 fhdw.de.einkauf_service.dto.ArticleRequestDTO req = new fhdw.de.einkauf_service.dto.ArticleRequestDTO();
                 req.setArticleNumber(articleNumber.getValue());
@@ -160,8 +173,11 @@ public class ArticleView extends VerticalLayout {
                 dialog.close();
                 updateList();
             } catch (Exception ex) {
-                ex.printStackTrace();
-                dialog.add(new Span("Fehler: " + ex.getMessage()));
+             ex.printStackTrace();
+                Span errorMsg = new Span("Fehler: " + ex.getMessage());
+                errorMsg.getStyle().set("color", "red");
+                dialog.add(errorMsg);
+
             }
         });
 
