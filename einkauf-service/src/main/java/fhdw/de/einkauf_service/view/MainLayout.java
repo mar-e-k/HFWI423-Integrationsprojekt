@@ -26,14 +26,16 @@ public class MainLayout extends AppLayout {
         RouterLink homeLink = new RouterLink("Home", HomeView.class);
         RouterLink articlesLink = new RouterLink("Artikel", ArticleView.class);
         RouterLink suppliersLink = new RouterLink("Lieferanten", SupplierView.class);
+        RouterLink cartLink = new RouterLink("Warenkorb", ShoppingCartView.class);
 
         // Highlight active route
         homeLink.setHighlightCondition(HighlightConditions.sameLocation());
         articlesLink.setHighlightCondition(HighlightConditions.sameLocation());
         suppliersLink.setHighlightCondition(HighlightConditions.sameLocation());
+        cartLink.setHighlightCondition(HighlightConditions.sameLocation());
 
         // Navigation layout
-        HorizontalLayout navLinks = new HorizontalLayout(homeLink, articlesLink, suppliersLink);
+        HorizontalLayout navLinks = new HorizontalLayout(homeLink, articlesLink, suppliersLink, cartLink);
         navLinks.setSpacing(true);
         navLinks.setPadding(true);
         navLinks.setAlignItems(FlexComponent.Alignment.CENTER);
