@@ -13,6 +13,7 @@ import com.vaadin.flow.component.textfield.EmailField;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.value.ValueChangeMode;
 import com.vaadin.flow.router.Route;
+import com.vaadin.flow.component.checkbox.Checkbox;
 import fhdw.de.einkauf_service.dto.*;
 import fhdw.de.einkauf_service.service.SupplierService;
 import fhdw.de.einkauf_service.repository.PaymentTermRepository;
@@ -37,6 +38,8 @@ public class SupplierView extends VerticalLayout {
     private final ContactPersonRepository contactPersonRepository;
 
     private final Grid<SupplierResponseDTO> grid = new Grid<>(SupplierResponseDTO.class);
+
+    private final ComboBox<String> statusFilter = new ComboBox<>("Status");
 
     // Search fields
     private final TextField nameField = createSearchField("Lieferantenname");
@@ -65,11 +68,16 @@ public class SupplierView extends VerticalLayout {
         configureCrudButtons();
 
         HorizontalLayout searchLayout = new HorizontalLayout(
-                nameField, cityField, clearButton
+                nameField, cityField, statusFilter, clearButton
         );
         searchLayout.setAlignItems(Alignment.END);
 
         HorizontalLayout crudButtons = new HorizontalLayout(addButton, editButton, deleteButton);
+
+        // configure statusFilter (class field)
+        statusFilter.setItems("Alle", "Aktiv", "Inaktiv");
+        statusFilter.setValue("Alle");
+        statusFilter.addValueChangeListener(e -> updateList());
 
         add(searchLayout, crudButtons, grid);
 
@@ -90,6 +98,11 @@ public class SupplierView extends VerticalLayout {
         grid.addColumn(SupplierResponseDTO::getCity).setHeader("Stadt").setAutoWidth(true).setSortable(true);
         grid.addColumn(SupplierResponseDTO::getPhone).setHeader("Telefon").setAutoWidth(true).setSortable(true);
         grid.addColumn(SupplierResponseDTO::getEmail).setHeader("E-Mail").setAutoWidth(true).setSortable(true);
+        grid.addColumn(s -> s.getIsActive() != null && s.getIsActive()
+                        ? "Aktiv"
+                        : "Inaktiv")
+                .setHeader("Status")
+                .setAutoWidth(true).setSortable(true);
 
         grid.asSingleSelect().addValueChangeListener(event -> {
             SupplierResponseDTO selected = event.getValue();
@@ -142,7 +155,23 @@ public class SupplierView extends VerticalLayout {
 
         List<SupplierResponseDTO> suppliers = supplierService.findAllSuppliers();
 
-        // Client-side filtering
+        // Statusfilter anwenden (falls gesetzt)
+        String status = statusFilter.getValue();
+        if (status == null) {
+            status = "Alle";
+        }
+
+        if ("Aktiv".equals(status)) {
+            suppliers = suppliers.stream()
+                    .filter(s -> Boolean.TRUE.equals(s.getIsActive()))
+                    .toList();
+        } else if ("Inaktiv".equals(status)) {
+            suppliers = suppliers.stream()
+                    .filter(s -> Boolean.FALSE.equals(s.getIsActive()))
+                    .toList();
+        }
+
+        // Client-side filtering nach name
         if (nameFilter != null && !nameFilter.isEmpty()) {
             suppliers = suppliers.stream()
                     .filter(s -> s.getName() != null &&
@@ -150,6 +179,7 @@ public class SupplierView extends VerticalLayout {
                     .toList();
         }
 
+        // Client-side filtering nach city
         if (cityFilter != null && !cityFilter.isEmpty()) {
             suppliers = suppliers.stream()
                     .filter(s -> s.getCity() != null &&
@@ -192,6 +222,9 @@ public class SupplierView extends VerticalLayout {
 
         TextField phone = new TextField("Telefon");
         phone.setWidthFull();
+
+        Checkbox activeCheckbox = new Checkbox("Aktiv");
+        activeCheckbox.setWidthFull();
 
         // Payment term selection
         ComboBox<PaymentTermResponseDTO> paymentTermBox = new ComboBox<>("Zahlungsbedingungen");
@@ -258,6 +291,7 @@ public class SupplierView extends VerticalLayout {
             country.setValue(safe(supplier.getCountry()));
             email.setValue(safe(supplier.getEmail()));
             phone.setValue(safe(supplier.getPhone()));
+            activeCheckbox.setValue(supplier.getIsActive());
 
             if (supplier.getPaymentTerm() != null) {
                 paymentTermBox.setValue(supplier.getPaymentTerm());
@@ -307,6 +341,7 @@ public class SupplierView extends VerticalLayout {
                 req.setEmail(email.getValue());
                 req.setPhone(phone.getValue());
                 req.setPaymentTermId(paymentTermBox.getValue().getId());
+                req.setIsActive(activeCheckbox.getValue());
 
                 // Collect contact persons
                 List<ContactPersonRequestDTO> contactPersonRequests = new ArrayList<>();
@@ -342,6 +377,7 @@ public class SupplierView extends VerticalLayout {
 
         VerticalLayout formLayout = new VerticalLayout(
                 name, addressLine1, addressLine2, country, email, phone,
+                activeCheckbox,
                 paymentTermBox, contactPersonsLayout, buttons
         );
         formLayout.setPadding(false);
@@ -363,9 +399,9 @@ public class SupplierView extends VerticalLayout {
                 new Span("Land: " + safe(supplier.getCountry())),
                 new Span("E-Mail: " + safe(supplier.getEmail())),
                 new Span("Telefon: " + safe(supplier.getPhone())),
+                new Span("Status: " + (supplier.getIsActive() != null && supplier.getIsActive() ? "Aktiv" : "Inaktiv")),
                 new Span("Zahlungsbedingungen: " +
-                        (supplier.getPaymentTerm() != null ? supplier.getPaymentTerm().getDefinition() : "-"))
-        );
+                        (supplier.getPaymentTerm() != null ? supplier.getPaymentTerm().getDefinition() : "-")));
 
         // Show contact persons
         if (supplier.getContactPeople() != null && !supplier.getContactPeople().isEmpty()) {
