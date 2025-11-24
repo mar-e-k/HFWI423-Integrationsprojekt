@@ -6,10 +6,17 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>de.fhdw</groupId>
-    <artifactId>kassensystem</artifactId>
+    <artifactId>kassenprojekt</artifactId>
     <version>0.0.1-SNAPSHOT</version>
-    <name>kassensystem</name>
-    <description>kassensystem</description>
+    <packaging>pom</packaging>
+    <name>kassenprojekt</name>
+    <description>kassenprojekt</description>
+
+    <modules>
+        <module>kassensystem</module>
+        <module>filialensystem</module>
+        <module>commons</module>
+    </modules>
 
     <properties>
         <java.version>21</java.version>
@@ -61,12 +68,12 @@
 
         <dependency>
             <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-data-jpa</artifactId>
+            <artifactId>spring-boot-starter-amqp</artifactId>
         </dependency>
 
         <dependency>
             <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-amqp</artifactId>
+            <artifactId>spring-boot-starter-webflux</artifactId>
         </dependency>
 
         <dependency>
@@ -74,18 +81,14 @@
             <artifactId>spring-boot-starter-security</artifactId>
         </dependency>
 
-
-        <!-- Vaadin Spring Boot Starter -->
         <dependency>
             <groupId>com.vaadin</groupId>
             <artifactId>vaadin-spring-boot-starter</artifactId>
         </dependency>
 
-        <!-- https://mvnrepository.com/artifact/org.postgresql/postgresql -->
         <dependency>
-            <groupId>org.postgresql</groupId>
-            <artifactId>postgresql</artifactId>
-            <version>42.7.8</version>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-actuator</artifactId>
         </dependency>
 
         <dependency>
@@ -95,7 +98,6 @@
             <optional>true</optional>
         </dependency>
 
-        <!-- Apache PDFBox -->
         <dependency>
             <groupId>org.apache.pdfbox</groupId>
             <artifactId>pdfbox</artifactId>
@@ -115,6 +117,7 @@
                     <target>${java.version}</target>
                 </configuration>
             </plugin>
+
             <!-- Vaadin Plugin -->
             <plugin>
                 <groupId>com.vaadin</groupId>
