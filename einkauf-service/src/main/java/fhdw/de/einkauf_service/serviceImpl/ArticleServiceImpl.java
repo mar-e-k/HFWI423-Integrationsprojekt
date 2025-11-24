@@ -119,6 +119,7 @@ public class ArticleServiceImpl extends CrudRepositoryService<Article, Long, Art
         existingArticle.setSupplier(supplier);
         existingArticle.setStockLevel(updatedArticleRequestDTO.getStockLevel());
         existingArticle.setDescription(updatedArticleRequestDTO.getDescription());
+        existingArticle.setHasDeposit(updatedArticleRequestDTO.getHasDeposit());
 
         // Preis neu berechnen
         Double purchasePrice = updatedArticleRequestDTO.getPurchasePrice();
@@ -164,6 +165,7 @@ public class ArticleServiceImpl extends CrudRepositoryService<Article, Long, Art
         entity.setStockLevel(request.getStockLevel());
         entity.setDescription(request.getDescription());
         entity.setIsAvailable(request.getIsAvailable());
+        entity.setHasDeposit(request.getHasDeposit());
         return entity;
     }
 
@@ -186,6 +188,7 @@ public class ArticleServiceImpl extends CrudRepositoryService<Article, Long, Art
         dto.setStockLevel(entity.getStockLevel());
         dto.setDescription(entity.getDescription());
         dto.setIsAvailable(entity.getIsAvailable());
+        dto.setHasDeposit(entity.getHasDeposit());
 
         // --- Logik für den Supplier (Relation) ---
         Supplier supplier = entity.getSupplier();

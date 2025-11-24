@@ -13,6 +13,7 @@ import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.notification.NotificationVariant;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+import com.vaadin.flow.component.radiobutton.RadioButtonGroup;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.value.ValueChangeMode;
 import com.vaadin.flow.router.Route;
@@ -108,10 +109,19 @@ public class ArticleView extends VerticalLayout {
         manufacturer.setRequired(true);
 
         // Formular-ComboBox verwaltet SupplierResponseDTOs
-        ComboBox<SupplierResponseDTO> supplierBoxForm = new ComboBox<>("Lieferant*");
+        ComboBox<SupplierResponseDTO> supplierBoxForm = new ComboBox<>("Lieferant");
         supplierBoxForm.setItems(supplierCache.values());
         supplierBoxForm.setItemLabelGenerator(SupplierResponseDTO::getName);
         supplierBoxForm.setRequired(true);
+
+        RadioButtonGroup<String> pfandRadio = new RadioButtonGroup<>("Pfand");
+        pfandRadio.setItems("Ja", "Nein");
+        if (article != null) {
+            pfandRadio.setValue(Boolean.TRUE.equals(article.getHasDeposit()) ? "Ja" : "Nein");
+        } else {
+            pfandRadio.setValue("Nein");
+        }
+        pfandRadio.setRequired(true);
 
         TextField description = new TextField("Beschreibung");
 
@@ -163,6 +173,7 @@ public class ArticleView extends VerticalLayout {
                 req.setStockLevel(Integer.parseInt(stockLevel.getValue()));
                 req.setDescription(description.getValue());
                 req.setIsAvailable(true);
+                req.setHasDeposit("Ja".equals(pfandRadio.getValue()));
 
                 if (article == null) {
                     articleService.createNewArticle(req);
@@ -186,7 +197,7 @@ public class ArticleView extends VerticalLayout {
         HorizontalLayout buttons = new HorizontalLayout(saveButton, cancelButton);
         VerticalLayout formLayout = new VerticalLayout(
                 articleNumber, name, stockLevel, purchasePrice,
-                taxRate, manufacturer, supplierBoxForm, description, buttons
+                taxRate, manufacturer, supplierBoxForm, pfandRadio, description, buttons
         );
         formLayout.setPadding(false);
         formLayout.setSpacing(true);
@@ -245,18 +256,22 @@ public class ArticleView extends VerticalLayout {
         grid.addColumn(ArticleResponseDTO::getName).setHeader("Artikelname").setAutoWidth(true).setSortable(true);
         grid.addColumn(ArticleResponseDTO::getStockLevel).setHeader("Lagerbestand").setAutoWidth(true).setSortable(true);
 
-        // KORRIGIERT: Zeigt den DTO-Namen an (Backend MUSS nun getSupplierName im ArticleResponseDTO liefern)
         grid.addColumn(ArticleResponseDTO::getSupplierName).setHeader("Lieferant").setAutoWidth(true).setSortable(true);
 
-        // Detailansicht öffnen bei Klick
+        grid.addComponentColumn(article -> {
+                    Button infoButton = new Button(new Icon(VaadinIcon.ELLIPSIS_DOTS_H));
+                    infoButton.getStyle().set("background", "transparent");
+                    infoButton.getElement().setAttribute("title", "Weitere Artikelinfos anzeigen");
+                    infoButton.addClickListener(e -> showArticleDetails(article));
+                    return infoButton;
+                })
+                .setHeader("Weitere Infos") // --- NEU: Spaltenüberschrift ---
+                .setAutoWidth(true)
+                .setFlexGrow(0);
+
         grid.asSingleSelect().addValueChangeListener(event -> {
             ArticleResponseDTO selected = event.getValue();
-            if (selected != null) {
-                showArticleDetails(selected);
-            }
         });
-
-
     }
 
 
@@ -264,16 +279,32 @@ public class ArticleView extends VerticalLayout {
         Dialog dialog = new Dialog();
         dialog.setHeaderTitle("Artikeldetails");
 
+        Icon pfandIcon;
+        if (Boolean.TRUE.equals(article.getHasDeposit())) {
+            pfandIcon = VaadinIcon.CHECK.create();
+            pfandIcon.getStyle().set("color", "#1C873B");
+            pfandIcon.getElement().setAttribute("title", "Pfand");
+        } else {
+            pfandIcon = VaadinIcon.CLOSE_CIRCLE.create();
+            pfandIcon.getStyle().set("color", "#C92525");
+            pfandIcon.getElement().setAttribute("title", "Kein Pfand");
+        }
+        HorizontalLayout pfandLayout = new HorizontalLayout(
+                new Span("Pfand:"),
+                pfandIcon
+        );
+        pfandLayout.setAlignItems(Alignment.CENTER);
+
         VerticalLayout detailsLayout = new VerticalLayout(
                 new Span("Artikelnummer (GTIN): " + safe(article.getArticleNumber())),
                 new Span("Artikelname: " + safe(article.getName())),
                 new Span("Lagerbestand: " + safe(article.getStockLevel())),
-                new Span("EK Preis: " + safe(article.getPurchasePrice())),
-                new Span("VK Preis: " + safe(article.getSellingPrice())),
+                new Span("EK-Preis (€): " + safe(article.getPurchasePrice())),
+                new Span("VK-Preis (€): " + safe(article.getSellingPrice())),
                 new Span("MwSt (%): " + safe(article.getTaxRatePercent())),
-                // KORRIGIERT: Nutzt den String supplierName aus dem ArticleResponseDTO
                 new Span("Lieferant: " + safe(article.getSupplierName())),
-                new Span("Verfügbar: " + safe(article.getIsAvailable())),
+                new Span("Verfügbar: " + safe(Boolean.TRUE.equals(article.getIsAvailable()) ? "Ja" : "Nein")),
+                pfandLayout,
                 new Span("Beschreibung / Produktdetails: " + safe(article.getDescription()))
         );
 
@@ -340,7 +371,7 @@ public class ArticleView extends VerticalLayout {
 
     Notification.show("Artikel zum Warenkorb hinzugefügt", 2000, Notification.Position.BOTTOM_START);
 
-    // Auswahl zurücksetzen und Grid aktualisieren
+
     selectedArticles.clear();
     grid.getDataProvider().refreshAll();
 }

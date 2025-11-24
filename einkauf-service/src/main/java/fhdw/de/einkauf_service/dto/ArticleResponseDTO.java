@@ -27,4 +27,5 @@ public class ArticleResponseDTO {
     private Integer stockLevel;
     private String description;
     private Boolean isAvailable;
+    private Boolean hasDeposit;
 }

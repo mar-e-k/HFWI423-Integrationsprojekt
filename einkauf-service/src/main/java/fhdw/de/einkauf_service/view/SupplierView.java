@@ -7,6 +7,7 @@ import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.html.H3;
 import com.vaadin.flow.component.html.Span;
+import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.EmailField;
@@ -105,11 +106,19 @@ public class SupplierView extends VerticalLayout {
                 .setHeader("Status")
                 .setAutoWidth(true).setSortable(true);
 
+        grid.addComponentColumn(supplier -> {
+                    Button infoButton = new Button(new Icon(com.vaadin.flow.component.icon.VaadinIcon.ELLIPSIS_DOTS_H));
+                    infoButton.getStyle().set("background", "transparent");
+                    infoButton.getElement().setAttribute("title", "Weitere Lieferanteninfos anzeigen");
+                    infoButton.addClickListener(e -> showSupplierDetails(supplier));
+                    return infoButton;
+                })
+                .setHeader("Weitere Infos")
+                .setAutoWidth(true)
+                .setFlexGrow(0);
+
         grid.asSingleSelect().addValueChangeListener(event -> {
             SupplierResponseDTO selected = event.getValue();
-            if (selected != null) {
-                showSupplierDetails(selected);
-            }
         });
     }
 
