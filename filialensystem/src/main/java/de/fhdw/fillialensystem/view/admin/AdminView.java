@@ -7,7 +7,7 @@ import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import de.fhdw.fillialensystem.persistence.entity.Account;
-import de.fhdw.fillialensystem.persistence.entity.AccountRoleEnum;
+import de.fhdw.commons.persistence.entity.AccountRoleEnum;
 import de.fhdw.fillialensystem.persistence.service.AccountService;
 import de.fhdw.fillialensystem.view.BaseView;
 import jakarta.annotation.PostConstruct;
@@ -65,7 +65,7 @@ public class AdminView extends BaseView {
         grid.addColumn(Account::getCreatedBy).setHeader("Erstellt von").setSortable(true);
         grid.addColumn(account -> formatter.format(account.getChangedAt())).setHeader("Geändert am").setSortable(true);
         grid.addColumn(Account::getChangedBy).setHeader("Geändert von").setSortable(true);
-        grid.addColumn(Account::getAccountId).setHeader("Account ID").setSortable(true);
+        grid.addColumn(Account::getUuid).setHeader("Account ID").setSortable(true);
         grid.addColumn(Account::getUsername).setHeader("Username").setSortable(true);
         grid.addColumn(account -> account.getAccountRole().getRole().name()).setHeader("Rolle").setSortable(true);
 

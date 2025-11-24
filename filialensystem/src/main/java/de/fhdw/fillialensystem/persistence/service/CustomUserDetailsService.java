@@ -2,7 +2,7 @@ package de.fhdw.fillialensystem.persistence.service;
 
 import de.fhdw.fillialensystem.persistence.entity.Account;
 import de.fhdw.fillialensystem.persistence.entity.AccountRole;
-import de.fhdw.fillialensystem.persistence.entity.AccountRoleEnum;
+import de.fhdw.commons.persistence.entity.AccountRoleEnum;
 import de.fhdw.fillialensystem.persistence.repository.AccountRepository;
 import de.fhdw.fillialensystem.persistence.repository.AccountRoleRepository;
 import org.springframework.security.core.userdetails.User;

@@ -19,7 +19,7 @@ import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import de.fhdw.fillialensystem.persistence.entity.Account;
 import de.fhdw.fillialensystem.persistence.entity.AccountRole;
-import de.fhdw.fillialensystem.persistence.entity.AccountRoleEnum;
+import de.fhdw.commons.persistence.entity.AccountRoleEnum;
 import de.fhdw.fillialensystem.persistence.service.AccountRoleService;
 import de.fhdw.fillialensystem.persistence.service.AccountService;
 import de.fhdw.fillialensystem.view.BaseView;
@@ -91,7 +91,7 @@ public class RoleView extends BaseView {
         //----------------------------------------------------------
         // TABELLE MIT ACCOUNTS
         //----------------------------------------------------------
-        accountGrid.addColumn(Account::getAccountId)
+        accountGrid.addColumn(Account::getUuid)
                 .setHeader("Personalnummer")
                 .setSortable(true)
                 .setAutoWidth(true);
@@ -200,7 +200,7 @@ public class RoleView extends BaseView {
             );
 
             Account account = new Account();
-            account.setAccountId(personalNumber);
+            account.setUuid(personalNumber);
             account.setUsername(usernameField.getValue());
             account.setPassword(passwordField.getValue());
             account.setAccountRole(role);

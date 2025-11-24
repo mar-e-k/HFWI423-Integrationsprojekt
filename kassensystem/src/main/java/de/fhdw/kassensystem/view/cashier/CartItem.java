@@ -1,7 +1,5 @@
 package de.fhdw.kassensystem.view.cashier;
 
-import de.fhdw.kassensystem.persistence.entity.imported.Article;
-
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 

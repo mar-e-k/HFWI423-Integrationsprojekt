@@ -1,5 +1,6 @@
 package de.fhdw.fillialensystem.persistence.entity;
 
+import de.fhdw.commons.persistence.entity.AccountRoleEnum;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 

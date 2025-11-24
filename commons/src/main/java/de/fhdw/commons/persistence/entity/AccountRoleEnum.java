@@ -1,4 +1,4 @@
-package de.fhdw.fillialensystem.persistence.entity;
+package de.fhdw.commons.persistence.entity;
 
 import org.springframework.security.core.GrantedAuthority;
 
