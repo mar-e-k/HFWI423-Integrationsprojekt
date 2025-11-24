@@ -56,4 +56,7 @@ public class Article {
 
     @Column(nullable = false)
     private Boolean isAvailable;
+
+    @Column(nullable = false)
+    private Boolean hasDeposit;
 }
