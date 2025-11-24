@@ -42,4 +42,7 @@ public class ArticleRequestDTO {
 
     @NotNull(message = "Availability is mandatory.")
     private Boolean isAvailable;
+
+    @NotNull(message = "Deposit information is mandatory.")
+    private Boolean hasDeposit;
 }
