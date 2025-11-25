@@ -1,6 +1,6 @@
 package de.fhdw.fillialensystem.persistence.entity.imported;
 
-import de.fhdw.fillialensystem.persistence.entity.Identifiable;
+import de.fhdw.commons.persistence.entity.GenericEntity;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
@@ -8,7 +8,8 @@ import org.hibernate.annotations.ColumnDefault;
 
 @Entity
 @Table(name = "article")
-public class Article implements Identifiable<Long> {
+public class Article implements GenericEntity<Long> {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id", nullable = false)

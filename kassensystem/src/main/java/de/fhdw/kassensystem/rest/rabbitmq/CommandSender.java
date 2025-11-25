@@ -1,10 +1,10 @@
 package de.fhdw.kassensystem.rest.rabbitmq;
 
-import de.fhdw.commons.rest.dto.GenericDTO;
-import de.fhdw.commons.rest.rabbitmq.CommandMessage;
-import de.fhdw.commons.rest.rabbitmq.CommandResult;
-import de.fhdw.commons.rest.rabbitmq.DomainCommand;
-import de.fhdw.commons.rest.rabbitmq.DomainQueue;
+import de.fhdw.commons.api.dto.GenericDTO;
+import de.fhdw.commons.api.rabbitmq.CommandMessage;
+import de.fhdw.commons.api.rabbitmq.CommandResult;
+import de.fhdw.commons.api.rabbitmq.DomainCommand;
+import de.fhdw.commons.api.rabbitmq.DomainQueue;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.amqp.core.MessagePostProcessor;

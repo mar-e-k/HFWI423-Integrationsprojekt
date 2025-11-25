@@ -4,7 +4,7 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.BeforeEnterEvent;
 import com.vaadin.flow.router.BeforeEnterObserver;
 import com.vaadin.flow.router.Route;
-import de.fhdw.kassensystem.persistence.entity.AccountRoleEnum;
+import de.fhdw.commons.persistence.entity.AccountRoleEnum;
 import de.fhdw.kassensystem.view.cashier.CashierView;
 import jakarta.annotation.security.PermitAll;
 import org.springframework.security.core.Authentication;

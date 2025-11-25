@@ -25,10 +25,10 @@ import com.vaadin.flow.router.BeforeEnterEvent;
 import com.vaadin.flow.router.BeforeEnterObserver;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
-import de.fhdw.kassensystem.persistence.entity.AccountRoleEnum;
-import de.fhdw.kassensystem.persistence.entity.imported.Article;
-import de.fhdw.kassensystem.persistence.service.ArticleService;
-import de.fhdw.kassensystem.view.BaseView;
+import de.fhdw.commons.api.dto.ArticleDTO;
+import de.fhdw.commons.persistence.entity.AccountRoleEnum;
+import de.fhdw.commons.view.BaseView;
+import de.fhdw.kassensystem.rest.proxy.services.ArticleProxyService;
 import jakarta.annotation.security.RolesAllowed;
 import org.springframework.beans.factory.annotation.Value;
 
@@ -45,10 +45,10 @@ public class CashierView extends BaseView implements BeforeEnterObserver {
 
     private static final BigDecimal MIN_PRICE = new BigDecimal("0.01");
 
-    private final ArticleService articleService;
+    private final ArticleProxyService articleService;
     private final CartItemsManager cartItemsManager;
 
-    private Grid<Article> articleGrid;
+    private Grid<ArticleDTO> articleGrid;
     private Grid<CartItem> cartGrid;
 
     private TextArea descriptionOutputField;
@@ -59,7 +59,7 @@ public class CashierView extends BaseView implements BeforeEnterObserver {
     @Value("${spring.kassensystem.cashier.password}")
     private String password;
 
-    public CashierView(ArticleService articleService, CartItemsManager cartItemsManager) {
+    public CashierView(ArticleProxyService articleService, CartItemsManager cartItemsManager) {
         this.articleService = articleService;
         this.cartItemsManager = cartItemsManager;
     }
@@ -91,16 +91,16 @@ public class CashierView extends BaseView implements BeforeEnterObserver {
         Span errorLabel = new Span();
 
         // Grid Initialisierung (Artikelanzeige)
-        articleGrid = new Grid<>(Article.class, false);
+        articleGrid = new Grid<>(ArticleDTO.class, false);
         articleGrid.setHeight("auto");
         articleGrid.setAllRowsVisible(true);
         articleGrid.setSelectionMode(Grid.SelectionMode.NONE);
         articleGrid.setVisible(false);
 
         // Grid-Spalten Definierung
-        articleGrid.addColumn(article -> article.getIsAvailable() ? "ja" : "nein").setHeader("Verfügbar").setWidth("30px");
-        articleGrid.addColumn(Article::getName).setHeader("Artikelname").setWidth("150px");
-        articleGrid.addColumn(Article::getArticleNumber).setHeader("Artikelnummer").setWidth("90px");
+        articleGrid.addColumn(article -> article.getAvailable() ? "ja" : "nein").setHeader("Verfügbar").setWidth("30px");
+        articleGrid.addColumn(ArticleDTO::getName).setHeader("Artikelname").setWidth("150px");
+        articleGrid.addColumn(ArticleDTO::getArticleNumber).setHeader("Artikelnummer").setWidth("90px");
         articleGrid.addColumn(article -> {
             Double sellingPrice = article.getSellingPrice();
             return sellingPrice == null ? "kein Verkaufspreis" : String.format("%.2f €", sellingPrice);
@@ -127,7 +127,7 @@ public class CashierView extends BaseView implements BeforeEnterObserver {
             Button addButton = new Button(new Icon(VaadinIcon.PLUS));
             addButton.getElement().setProperty("title", "Zum Warenkorb hinzufügen");
             addButton.addClickListener(e -> addToCart(article));
-            addButton.setEnabled(article.getIsAvailable());
+            addButton.setEnabled(article.getAvailable());
             return addButton;
         }).setHeader("Hinzufügen").setAutoWidth(true).setTextAlign(ColumnTextAlign.END);
 
@@ -359,7 +359,7 @@ public class CashierView extends BaseView implements BeforeEnterObserver {
             }
             input = input.matches("\\d+") ? "A-" + input : input;
 
-            Optional<Article> article = articleService.findByArticleNumber(input);
+            Optional<ArticleDTO> article = articleService.findByArticleNumber(input);
             if (article.isPresent()) {
                 Double price = article.get().getSellingPrice();
 
@@ -614,7 +614,7 @@ public class CashierView extends BaseView implements BeforeEnterObserver {
                 });
     }
 
-    private void addToCart(Article article) {
+    private void addToCart(ArticleDTO article) {
         // Wenn der Artikel keinen Verkaufspreis hat, muss der Kassierer einen eingeben
         if (article.getSellingPrice() == null) {
             showInitialPriceDialog(article);
@@ -650,7 +650,7 @@ public class CashierView extends BaseView implements BeforeEnterObserver {
         ).addThemeVariants(NotificationVariant.LUMO_SUCCESS);
     }
 
-    private void showInitialPriceDialog(Article article) {
+    private void showInitialPriceDialog(ArticleDTO article) {
         Dialog dialog = new Dialog();
         dialog.setHeaderTitle("Preis für '" + article.getName() + "' festlegen");
 

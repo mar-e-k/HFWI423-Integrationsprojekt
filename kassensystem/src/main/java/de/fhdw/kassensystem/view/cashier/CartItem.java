@@ -1,10 +1,12 @@
 package de.fhdw.kassensystem.view.cashier;
 
+import de.fhdw.commons.api.dto.ArticleDTO;
+
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 
 public class CartItem {
-    private Article article;
+    private ArticleDTO article;
     private int position;
     private int quantity;
     private BigDecimal overriddenPrice;
@@ -13,7 +15,7 @@ public class CartItem {
     private BigDecimal discountPercent;   // z.B. 30 für 30 %
     private Integer discountedQuantity;   // wie viele Stück der Position bekommen Rabatt
 
-    public CartItem(Article article, int position, int quantity, BigDecimal overriddenPrice) {
+    public CartItem(ArticleDTO article, int position, int quantity, BigDecimal overriddenPrice) {
         this.article = article;
         this.position = position;
         this.quantity = quantity;
@@ -23,11 +25,11 @@ public class CartItem {
 
     }
 
-    public Article getArticle() {
+    public ArticleDTO getArticle() {
         return article;
     }
 
-    public void setArticle(Article article) {
+    public void setArticle(ArticleDTO article) {
         this.article = article;
     }
 

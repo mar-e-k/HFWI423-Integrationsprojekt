@@ -26,9 +26,8 @@ import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.textfield.TextField;
 
-import de.fhdw.kassensystem.persistence.entity.AccountRoleEnum;
-import de.fhdw.kassensystem.persistence.service.ReceiptService;
-import de.fhdw.kassensystem.view.BaseView;
+import de.fhdw.commons.persistence.entity.AccountRoleEnum;
+import de.fhdw.commons.view.BaseView;
 import jakarta.annotation.security.RolesAllowed;
 
 import java.io.ByteArrayInputStream;

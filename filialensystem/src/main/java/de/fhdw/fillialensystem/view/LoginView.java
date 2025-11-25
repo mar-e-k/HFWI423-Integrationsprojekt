@@ -10,7 +10,7 @@ import com.vaadin.flow.router.BeforeEnterObserver;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.server.auth.AnonymousAllowed;
-import de.fhdw.fillialensystem.persistence.service.CustomUserDetailsService;
+import de.fhdw.fillialensystem.utility.CustomUserDetails;
 
 @Route("/login")
 @PageTitle("Login View")
@@ -19,7 +19,7 @@ public class LoginView extends VerticalLayout implements BeforeEnterObserver {
 
     private final LoginForm login = new LoginForm();
 
-    public LoginView(CustomUserDetailsService customUserDetailsService) {
+    public LoginView(CustomUserDetails customUserDetails) {
 
         setSizeFull();
         setAlignItems(Alignment.CENTER);
@@ -34,7 +34,7 @@ public class LoginView extends VerticalLayout implements BeforeEnterObserver {
 
         add(title, login);
 
-        if (!customUserDetailsService.hasAdminAccount()) {
+        if (!customUserDetails.hasAdminAccount()) {
             NativeLabel warning = new NativeLabel(
                     "⚠ Kein Admin in der Datenbank vorhanden. Temporärer Admin aktiv. " +
                             "Bitte logge dich mit admin/admin ein und lege sofort einen echten Admin an."

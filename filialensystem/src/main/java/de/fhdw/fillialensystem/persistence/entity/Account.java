@@ -12,7 +12,7 @@ public class Account extends AbstractEntity {
 
     @Column(name = "account_id", unique = true, nullable = false)
     @NotNull(message = "Account Uuid cannot be null")
-    private Integer uuid;
+    private String uuid;
 
     @Column(nullable = false, unique = true)
     private String username;
@@ -22,7 +22,7 @@ public class Account extends AbstractEntity {
 
     public Account() {}
 
-    public Account(AccountRole accountRole, Integer uuid, String username, String password) {
+    public Account(AccountRole accountRole, String uuid, String username, String password) {
         this.accountRole = accountRole;
         this.uuid = uuid;
         this.username = username;
@@ -37,11 +37,11 @@ public class Account extends AbstractEntity {
         this.accountRole = accountRole;
     }
 
-    public Integer getUuid() {
+    public String getUuid() {
         return uuid;
     }
 
-    public void setUuid(Integer accountId) {
+    public void setUuid(String accountId) {
         this.uuid = accountId;
     }
 

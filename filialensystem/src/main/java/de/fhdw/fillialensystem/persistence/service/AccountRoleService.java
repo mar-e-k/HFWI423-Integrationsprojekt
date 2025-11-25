@@ -9,12 +9,12 @@ import java.util.Optional;
 
 
 @Service
-public class AccountRoleService extends CrudService<AccountRole, Long> {
+public class AccountRoleService extends AbstractCrudService<AccountRole, Long> {
 
     private final AccountRoleRepository accountRoleRepository;
 
     public AccountRoleService(AccountRoleRepository accountRoleRepository) {
-        super(accountRoleRepository, AccountRole.class);
+        super(accountRoleRepository);
         this.accountRoleRepository = accountRoleRepository;
     }
 

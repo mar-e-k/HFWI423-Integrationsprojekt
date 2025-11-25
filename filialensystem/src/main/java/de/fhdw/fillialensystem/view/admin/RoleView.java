@@ -27,6 +27,7 @@ import jakarta.annotation.security.RolesAllowed;
 
 import java.util.Comparator;
 import java.util.Optional;
+import java.util.UUID;
 
 @Route("/roles")
 @PageTitle("Roles View")
@@ -179,19 +180,6 @@ public class RoleView extends BaseView {
                 return;
             }
 
-            int personalNumber;
-            try {
-                personalNumber = Integer.parseInt(accountIdField.getValue());
-            } catch (NumberFormatException ex) {
-                Notification.show("Personalnummer muss eine Zahl sein!");
-                return;
-            }
-
-            if (accountService.findByAccountId(personalNumber).isPresent()) {
-                Notification.show("Ein Benutzer mit dieser Personalnummer existiert bereits!");
-                return;
-            }
-
             Optional<AccountRole> existingRole =
                     accountRoleService.findByRole(roleSelect.getValue());
 
@@ -200,7 +188,7 @@ public class RoleView extends BaseView {
             );
 
             Account account = new Account();
-            account.setUuid(personalNumber);
+            account.setUuid(UUID.randomUUID().toString());
             account.setUsername(usernameField.getValue());
             account.setPassword(passwordField.getValue());
             account.setAccountRole(role);

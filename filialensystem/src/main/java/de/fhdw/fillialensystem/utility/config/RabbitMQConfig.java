@@ -1,6 +1,6 @@
 package de.fhdw.fillialensystem.utility.config;
 
-import de.fhdw.commons.rest.rabbitmq.DomainQueue;
+import de.fhdw.commons.api.rabbitmq.DomainQueue;
 import org.springframework.amqp.core.*;
 import org.springframework.amqp.rabbit.connection.ConnectionFactory;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
