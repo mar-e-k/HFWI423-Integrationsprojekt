@@ -24,7 +24,7 @@ public class KommissionService {
      * Liefert alle Kommissionen, die noch nicht abgeschlossen sind.
      */
     public List<Kommission> getOffeneKommissionen() {
-        return komRepo.findByErledigtFalseOrderByDateAsc();
+        return komRepo.findByFinishedFalseOrderByDateAsc();
     }
 
     /**

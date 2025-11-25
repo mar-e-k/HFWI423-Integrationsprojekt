@@ -77,7 +77,7 @@ public class orderPickingDetailView extends VerticalLayout{
             getUI().ifPresent(ui -> ui.navigate(orderPickingMainView.class));
         });
 
-        if (Boolean.TRUE.equals(kommission.isFinished())) {
+        if (Boolean.TRUE.equals(kommission.getFinished())) {
             erledigtBtn.setEnabled(false);
             addClassName("erledigt"); // CSS: ausgegraut
         }

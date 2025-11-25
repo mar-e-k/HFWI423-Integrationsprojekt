@@ -107,4 +107,8 @@ public class ArticleInfoService {
         }
         return repository.existsByStorageLocation(generalId);
     }
+
+    public void reduceStock(ArticleInfo artikel, int gelieferteMenge) {
+         artikel.setStockLevel(artikel.getStockLevel() - gelieferteMenge);
+    }
 }
