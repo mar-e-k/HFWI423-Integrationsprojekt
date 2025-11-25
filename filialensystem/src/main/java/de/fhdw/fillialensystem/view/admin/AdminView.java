@@ -6,10 +6,10 @@ import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
+import de.fhdw.commons.view.BaseView;
 import de.fhdw.fillialensystem.persistence.entity.Account;
 import de.fhdw.commons.persistence.entity.AccountRoleEnum;
 import de.fhdw.fillialensystem.persistence.service.AccountService;
-import de.fhdw.fillialensystem.view.BaseView;
 import jakarta.annotation.PostConstruct;
 import jakarta.annotation.security.RolesAllowed;
 

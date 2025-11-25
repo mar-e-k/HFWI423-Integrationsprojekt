@@ -17,12 +17,12 @@ import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
+import de.fhdw.commons.view.BaseView;
 import de.fhdw.fillialensystem.persistence.entity.Account;
 import de.fhdw.fillialensystem.persistence.entity.AccountRole;
 import de.fhdw.commons.persistence.entity.AccountRoleEnum;
 import de.fhdw.fillialensystem.persistence.service.AccountRoleService;
 import de.fhdw.fillialensystem.persistence.service.AccountService;
-import de.fhdw.fillialensystem.view.BaseView;
 import jakarta.annotation.security.RolesAllowed;
 
 import java.util.Comparator;

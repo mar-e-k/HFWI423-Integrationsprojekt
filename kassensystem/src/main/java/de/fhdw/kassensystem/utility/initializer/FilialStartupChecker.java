@@ -8,6 +8,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
+import org.springframework.context.annotation.Profile;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
@@ -15,30 +16,38 @@ import java.util.UUID;
 
 @Order(1)
 @Component
-public class FilialStartupChecker implements ApplicationRunner {
+    public class FilialStartupChecker implements ApplicationRunner {
 
     private static final Logger log = LoggerFactory.getLogger(FilialStartupChecker.class);
 
+    private final String applicationName;
     private final String activeProfile;
-    private final ServerPortProvider serverPortProvider;
+    private final boolean connectToFilialOnStartup;
 
     private final FilialClient filialClient;
-    private final String applicationName;
+    private final ServerPortProvider serverPortProvider;
 
     public FilialStartupChecker(
             @Value("${spring.application.name:fallback}") String applicationName,
             @Value("${spring.profiles.active:fallback}") String activeProfile,
+            @Value("${spring.kassensystem.connect-to-filial-on-startup:true}") boolean connectToFilialOnStartup,
             FilialClient filialClient,
             ServerPortProvider serverPortProvider) {
-
-        this.filialClient = filialClient;
         this.applicationName = applicationName;
         this.activeProfile = activeProfile;
+        this.connectToFilialOnStartup = connectToFilialOnStartup;
+        this.filialClient = filialClient;
         this.serverPortProvider = serverPortProvider;
     }
 
     @Override
     public void run(ApplicationArguments args) {
+        log.atInfo().log("spring.kassensystem.connect-to-filial-on-startup: {}", connectToFilialOnStartup);
+
+        if (!connectToFilialOnStartup) {
+            return;
+        }
+
         SystemClientDTO dto = new SystemClientDTO(
                 "%s-%s-%s".formatted(applicationName, activeProfile, UUID.randomUUID()),
                 "localhost",
