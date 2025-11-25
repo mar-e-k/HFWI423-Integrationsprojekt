@@ -31,6 +31,7 @@ public class CustomUserDetailsService implements UserDetailsService {
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
 
         if ("admin".equals(username) && !hasAdminAccount()) {
+
             // Rolle prüfen oder erstellen
             AccountRole adminRole = accountRoleRepository.findByRole(AccountRoleEnum.ADMIN)
                     .orElseGet(() -> accountRoleRepository.save(new AccountRole(null, AccountRoleEnum.ADMIN)));
