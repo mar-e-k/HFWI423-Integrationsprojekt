@@ -5,6 +5,8 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.Set;
+
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -45,4 +47,7 @@ public class ArticleRequestDTO {
 
     @NotNull(message = "Deposit information is mandatory.")
     private Boolean hasDeposit;
+
+    @NotNull(message = "Category IDs set must not be null.")
+    private Set<Long> categoryIds;
 }

@@ -6,9 +6,12 @@ import com.vaadin.hilla.crud.CrudRepositoryService;
 import fhdw.de.einkauf_service.dto.ArticleFilterDTO;
 import fhdw.de.einkauf_service.dto.ArticleRequestDTO;
 import fhdw.de.einkauf_service.dto.ArticleResponseDTO;
+import fhdw.de.einkauf_service.dto.CategoryResponseDTO;
 import fhdw.de.einkauf_service.entity.Article;
+import fhdw.de.einkauf_service.entity.Category;
 import fhdw.de.einkauf_service.entity.Supplier;
 import fhdw.de.einkauf_service.query.ArticleSpecifications;
+import fhdw.de.einkauf_service.repository.ArticleCategoryRepository;
 import fhdw.de.einkauf_service.repository.ArticleRepository;
 import fhdw.de.einkauf_service.repository.SupplierRepository;
 import fhdw.de.einkauf_service.service.ArticleService;
@@ -19,8 +22,7 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
-import java.util.NoSuchElementException;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @BrowserCallable
@@ -30,11 +32,13 @@ public class ArticleServiceImpl extends CrudRepositoryService<Article, Long, Art
 
     private final SupplierRepository supplierRepository;
     private final ArticleRepository articleRepository;
+    private final ArticleCategoryRepository categoryRepository;
 
-    public ArticleServiceImpl(ArticleRepository articleRepository, SupplierRepository supplierRepository) {
+    public ArticleServiceImpl(ArticleRepository articleRepository, SupplierRepository supplierRepository, ArticleCategoryRepository categoryRepository) {
         super(articleRepository);
         this.articleRepository = articleRepository;
         this.supplierRepository = supplierRepository;
+        this.categoryRepository = categoryRepository;
     }
 
     // ==================================================================================
@@ -166,6 +170,8 @@ public class ArticleServiceImpl extends CrudRepositoryService<Article, Long, Art
         entity.setDescription(request.getDescription());
         entity.setIsAvailable(request.getIsAvailable());
         entity.setHasDeposit(request.getHasDeposit());
+        entity.setCategories(mapCategoryIdsToEntities(request.getCategoryIds()));
+
         return entity;
     }
 
@@ -200,7 +206,53 @@ public class ArticleServiceImpl extends CrudRepositoryService<Article, Long, Art
             dto.setSupplierName("-");
             dto.setSupplierId(null);
         }
+        dto.setCategoryIds(mapCategoriesToResponseDTOs(entity.getCategories()));
 
         return dto;
+    }
+
+    private Set<Category> mapCategoryIdsToEntities(Set<Long> categoryIds) {
+        if (categoryIds == null || categoryIds.isEmpty()) {
+            // Sicherstellen, dass ein leeres Set zurückgegeben wird, nicht null
+            return Collections.emptySet();
+        }
+
+        // findAllById ruft alle Entitäten in einem Batch-Query ab
+        List<Category> categories = categoryRepository.findAllById(categoryIds);
+
+        // WICHTIG: Prüfen, ob alle IDs gefunden wurden
+        if (categories.size() != categoryIds.size()) {
+            // Dies signalisiert, dass der Request ungültige IDs enthielt
+            Set<Long> foundIds = categories.stream().map(Category::getId).collect(Collectors.toSet());
+
+            // Findet die fehlenden IDs für eine bessere Fehlermeldung
+            Set<Long> missingIds = new HashSet<>(categoryIds);
+            missingIds.removeAll(foundIds);
+
+            throw new IllegalArgumentException(
+                    "One or more category IDs are invalid or do not exist: " + missingIds
+            );
+        }
+
+        return new HashSet<>(categories);
+    }
+
+    private CategoryResponseDTO mapCategoryToResponseDTO(Category category) {
+        CategoryResponseDTO dto = new CategoryResponseDTO();
+        dto.setId(category.getId());
+        dto.setName(category.getName());
+        // Fügen Sie hier weitere Felder hinzu, falls CategoryResponseDTO mehr enthält
+        return dto;
+    }
+
+    private Set<CategoryResponseDTO> mapCategoriesToResponseDTOs(Set<Category> categories) {
+        if (categories == null || categories.isEmpty()) {
+            return Collections.emptySet();
+        }
+
+        // Streamen, Mappen und Sammeln in einem Set
+        return categories.stream()
+                .map(this::mapCategoryToResponseDTO) // Verwende die separate Funktion für ein einzelnes Objekt
+                .collect(Collectors.toSet());
     }
 }

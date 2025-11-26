@@ -4,6 +4,9 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
 import lombok.Data;
 
+import java.util.HashSet;
+import java.util.Set;
+
 @Entity
 @Table(name = "article")
 @Data // Lombok: Generates Getters, Setters, toString, equals, and hashCode
@@ -35,7 +38,6 @@ public class Article {
     @Max(value = 100, message = "Tax rate cannot exceed 100%.")
     private Double taxRatePercent;
 
-    // Calculated field (will be set in Service layer, but persisted)
     @Column(nullable = false)
     private Double sellingPrice;
 
@@ -59,4 +61,16 @@ public class Article {
 
     @Column(nullable = false)
     private Boolean hasDeposit;
+
+    @ManyToMany(fetch = FetchType.LAZY, cascade = {
+            CascadeType.PERSIST,
+            CascadeType.MERGE
+    })
+
+    @JoinTable(
+            name = "connector_article_category",
+            joinColumns = @JoinColumn(name = "article_id"),
+            inverseJoinColumns = @JoinColumn(name = "category_id")
+    )
+    private Set<Category> categories = new HashSet<>();
 }
