@@ -59,4 +59,16 @@ public class ArticleRequestDTO {
     private String productImage;
 
     private LocalDate expirationDate;
+
+    @NotNull(message = "Width (Cm) is mandatory.")
+    @Positive(message = "Width must be positive.")
+    private Double widthCm;
+
+    @NotNull(message = "Height (Cm) is mandatory.")
+    @Positive(message = "Height must be positive.")
+    private Double heightCm;
+
+    @NotNull(message = "Depth (Cm) is mandatory.")
+    @Positive(message = "Depth must be positive.")
+    private Double depthCm;
 }
