@@ -33,4 +33,7 @@ public class ArticleResponseDTO {
     private String productImage;
     private LocalDateTime dateCreated;
     private LocalDate expirationDate;
+    private Double widthCm;
+    private Double heightCm;
+    private Double depthCm;
 }

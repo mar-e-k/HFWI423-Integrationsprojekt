@@ -84,6 +84,21 @@ public class Article {
 
     private LocalDate expirationDate;
 
+    @Column(nullable = false)
+    @NotNull(message = "Width is mandatory.")
+    @Positive(message = "Width must be positive.")
+    private Double widthCm;
+
+    @Column(nullable = false)
+    @NotNull(message = "Height is mandatory.")
+    @Positive(message = "Height must be positive.")
+    private Double heightCm;
+
+    @Column(nullable = false)
+    @NotNull(message = "Depth is mandatory.")
+    @Positive(message = "Depth must be positive.")
+    private Double depthCm;
+
     @PrePersist
     protected void onCreate() {
         this.dateCreated = LocalDateTime.now();

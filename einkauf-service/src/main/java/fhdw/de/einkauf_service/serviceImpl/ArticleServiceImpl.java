@@ -123,6 +123,9 @@ public class ArticleServiceImpl extends CrudRepositoryService<Article, Long, Art
         existingArticle.setCategories(mapCategoryIdsToEntities(updatedArticleRequestDTO.getCategoryIds()));
         existingArticle.setProductImage(updatedArticleRequestDTO.getProductImage());
         existingArticle.setExpirationDate(updatedArticleRequestDTO.getExpirationDate());
+        existingArticle.setWidthCm(updatedArticleRequestDTO.getWidthCm());
+        existingArticle.setHeightCm(updatedArticleRequestDTO.getHeightCm());
+        existingArticle.setDepthCm(updatedArticleRequestDTO.getDepthCm());
 
 
         // Speichern und Entity zu Response DTO mappen
@@ -169,6 +172,9 @@ public class ArticleServiceImpl extends CrudRepositoryService<Article, Long, Art
         entity.setCategories(mapCategoryIdsToEntities(request.getCategoryIds()));
         entity.setProductImage(request.getProductImage());
         entity.setExpirationDate(request.getExpirationDate());
+        entity.setWidthCm(request.getWidthCm());
+        entity.setHeightCm(request.getHeightCm());
+        entity.setDepthCm(request.getDepthCm());
 
 
         return entity;
@@ -194,6 +200,9 @@ public class ArticleServiceImpl extends CrudRepositoryService<Article, Long, Art
         dto.setDescription(entity.getDescription());
         dto.setIsAvailable(entity.getIsAvailable());
         dto.setHasDeposit(entity.getHasDeposit());
+        dto.setWidthCm(entity.getWidthCm());
+        dto.setHeightCm(entity.getHeightCm());
+        dto.setDepthCm(entity.getDepthCm());
 
         // --- Logik für den Supplier (Relation) ---
         Supplier supplier = entity.getSupplier();
