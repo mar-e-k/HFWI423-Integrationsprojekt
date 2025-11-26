@@ -1,5 +1,17 @@
 package fhdw.de.einkauf_service.dto;
 
-import java.time.LocalDate;
+import fhdw.de.einkauf_service.enums.OrderStatus;
 
-public record OrderResponseDTO(String orderNumber, LocalDate expectedDeliveryDate) {}
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.List;
+
+public record OrderResponseDTO(Long id,
+                               String orderNumber,
+                               LocalDateTime orderDate,
+                               String supplierName,
+                               Long supplierId,
+                               OrderStatus status,
+                               Double totalAmount,
+                               LocalDate expectedDeliveryDate,
+                               List<OrderItemResponseDTO> items) {}
