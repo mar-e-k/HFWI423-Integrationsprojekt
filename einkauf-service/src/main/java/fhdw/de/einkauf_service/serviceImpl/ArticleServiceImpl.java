@@ -60,12 +60,6 @@ public class ArticleServiceImpl extends CrudRepositoryService<Article, Long, Art
             throw new IllegalArgumentException("Article number (GTIN) already exists. Duplicates are not allowed.");
         }
 
-        // Business Logic: Calculate Selling Price
-        Double purchasePrice = newArticle.getPurchasePrice();
-        Double taxRatePercent = newArticle.getTaxRatePercent();
-        Double sellingPrice = purchasePrice * (1 + (taxRatePercent / 100.0));
-        newArticle.setSellingPrice(sellingPrice);
-        newArticle.setSupplier(supplier);
         // Save and return the persisted entity, mapped back to Response DTO
         Article savedArticle = articleRepository.save(newArticle);
         return mapEntityToResponse(savedArticle);
@@ -119,17 +113,17 @@ public class ArticleServiceImpl extends CrudRepositoryService<Article, Long, Art
         existingArticle.setName(updatedArticleRequestDTO.getName());
         existingArticle.setPurchasePrice(updatedArticleRequestDTO.getPurchasePrice());
         existingArticle.setTaxRatePercent(updatedArticleRequestDTO.getTaxRatePercent());
+        existingArticle.setSellingPrice(updatedArticleRequestDTO.getSellingPrice());
         existingArticle.setManufacturer(updatedArticleRequestDTO.getManufacturer());
         existingArticle.setSupplier(supplier);
         existingArticle.setStockLevel(updatedArticleRequestDTO.getStockLevel());
         existingArticle.setDescription(updatedArticleRequestDTO.getDescription());
+        existingArticle.setIsAvailable(updatedArticleRequestDTO.getIsAvailable());
         existingArticle.setHasDeposit(updatedArticleRequestDTO.getHasDeposit());
+        existingArticle.setCategories(mapCategoryIdsToEntities(updatedArticleRequestDTO.getCategoryIds()));
+        existingArticle.setProductImage(updatedArticleRequestDTO.getProductImage());
+        existingArticle.setExpirationDate(updatedArticleRequestDTO.getExpirationDate());
 
-        // Preis neu berechnen
-        Double purchasePrice = updatedArticleRequestDTO.getPurchasePrice();
-        Double taxRatePercent = updatedArticleRequestDTO.getTaxRatePercent();
-        Double newSellingPrice = purchasePrice * (1 + (taxRatePercent / 100.0));
-        existingArticle.setSellingPrice(newSellingPrice);
 
         // Speichern und Entity zu Response DTO mappen
         Article savedArticle = articleRepository.save(existingArticle);
@@ -164,13 +158,18 @@ public class ArticleServiceImpl extends CrudRepositoryService<Article, Long, Art
         entity.setName(request.getName());
         entity.setPurchasePrice(request.getPurchasePrice());
         entity.setTaxRatePercent(request.getTaxRatePercent());
+        entity.setSellingPrice(request.getSellingPrice());
         entity.setManufacturer(request.getManufacturer());
         entity.setSupplier(supplier);
         entity.setStockLevel(request.getStockLevel());
         entity.setDescription(request.getDescription());
-        entity.setIsAvailable(request.getIsAvailable());
+        // kein setIsAvailable, da Standardwert false ist, soll bei Erstellung nicht gesetzt werden dürfen
+        // → muss dann manuell nochmal auf true gesetzt werden
         entity.setHasDeposit(request.getHasDeposit());
         entity.setCategories(mapCategoryIdsToEntities(request.getCategoryIds()));
+        entity.setProductImage(request.getProductImage());
+        entity.setExpirationDate(request.getExpirationDate());
+
 
         return entity;
     }
@@ -207,6 +206,9 @@ public class ArticleServiceImpl extends CrudRepositoryService<Article, Long, Art
             dto.setSupplierId(null);
         }
         dto.setCategoryIds(mapCategoriesToResponseDTOs(entity.getCategories()));
+        dto.setProductImage(entity.getProductImage());
+        dto.setExpirationDate(entity.getExpirationDate());
+        dto.setDateCreated(entity.getDateCreated());
 
         return dto;
     }
@@ -220,7 +222,7 @@ public class ArticleServiceImpl extends CrudRepositoryService<Article, Long, Art
         // findAllById ruft alle Entitäten in einem Batch-Query ab
         List<Category> categories = categoryRepository.findAllById(categoryIds);
 
-        // WICHTIG: Prüfen, ob alle IDs gefunden wurden
+        // Prüfen, ob alle IDs gefunden wurden
         if (categories.size() != categoryIds.size()) {
             // Dies signalisiert, dass der Request ungültige IDs enthielt
             Set<Long> foundIds = categories.stream().map(Category::getId).collect(Collectors.toSet());
@@ -241,7 +243,6 @@ public class ArticleServiceImpl extends CrudRepositoryService<Article, Long, Art
         CategoryResponseDTO dto = new CategoryResponseDTO();
         dto.setId(category.getId());
         dto.setName(category.getName());
-        // Fügen Sie hier weitere Felder hinzu, falls CategoryResponseDTO mehr enthält
         return dto;
     }
 
@@ -252,7 +253,7 @@ public class ArticleServiceImpl extends CrudRepositoryService<Article, Long, Art
 
         // Streamen, Mappen und Sammeln in einem Set
         return categories.stream()
-                .map(this::mapCategoryToResponseDTO) // Verwende die separate Funktion für ein einzelnes Objekt
+                .map(this::mapCategoryToResponseDTO)
                 .collect(Collectors.toSet());
     }
 }

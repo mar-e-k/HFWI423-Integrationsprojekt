@@ -5,6 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDate;
 import java.util.Set;
 
 @Data
@@ -29,6 +30,10 @@ public class ArticleRequestDTO {
     @Max(value = 100, message = "Tax rate cannot exceed 100%.")
     private Double taxRatePercent;
 
+    @NotNull(message = "Selling price is mandatory.")
+    @Positive(message = "Selling price must be positive.")
+    private Double sellingPrice;
+
     @NotBlank(message = "Manufacturer is mandatory.")
     private String manufacturer;
 
@@ -50,4 +55,8 @@ public class ArticleRequestDTO {
 
     @NotNull(message = "Category IDs set must not be null.")
     private Set<Long> categoryIds;
+
+    private String productImage;
+
+    private LocalDate expirationDate;
 }
