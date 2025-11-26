@@ -4,6 +4,8 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
 import lombok.Data;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -57,7 +59,7 @@ public class Article {
     private String description;
 
     @Column(nullable = false)
-    private Boolean isAvailable;
+    private Boolean isAvailable = false;
 
     @Column(nullable = false)
     private Boolean hasDeposit;
@@ -73,4 +75,17 @@ public class Article {
             inverseJoinColumns = @JoinColumn(name = "category_id")
     )
     private Set<Category> categories = new HashSet<>();
+
+    @Column(length = 2048)
+    private String productImage;
+
+    @Column(nullable = false, updatable = false)
+    private LocalDateTime dateCreated;
+
+    private LocalDate expirationDate;
+
+    @PrePersist
+    protected void onCreate() {
+        this.dateCreated = LocalDateTime.now();
+    }
 }

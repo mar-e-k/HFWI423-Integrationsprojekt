@@ -4,6 +4,8 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.Set;
 
 // Dieses DTO benötigt keine Validierungs-Annotationen, da es nur ausgegeben wird.
@@ -28,4 +30,7 @@ public class ArticleResponseDTO {
     private Boolean isAvailable;
     private Boolean hasDeposit;
     private Set<CategoryResponseDTO> categoryIds;
+    private String productImage;
+    private LocalDateTime dateCreated;
+    private LocalDate expirationDate;
 }
