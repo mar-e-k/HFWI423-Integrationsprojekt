@@ -1,22 +1,23 @@
 package fhdw.de.einkauf_service.serviceImpl;
 
 import fhdw.de.einkauf_service.config.ShoppingCartSession;
-import fhdw.de.einkauf_service.dto.ArticleRequestDTO;
-import fhdw.de.einkauf_service.dto.ArticleResponseDTO;
+import fhdw.de.einkauf_service.dto.OrderFilterDTO;
 import fhdw.de.einkauf_service.dto.OrderItemRequestDTO;
+import fhdw.de.einkauf_service.dto.OrderItemResponseDTO;
 import fhdw.de.einkauf_service.dto.OrderResponseDTO;
 import fhdw.de.einkauf_service.entity.Article;
 import fhdw.de.einkauf_service.entity.Order;
 import fhdw.de.einkauf_service.entity.OrderItem;
 import fhdw.de.einkauf_service.entity.Supplier;
+import fhdw.de.einkauf_service.query.OrderSpecifications;
 import fhdw.de.einkauf_service.repository.ArticleRepository;
 import fhdw.de.einkauf_service.repository.OrderItemRepository;
 import fhdw.de.einkauf_service.repository.OrderRepository;
-import fhdw.de.einkauf_service.service.ArticleService;
 import fhdw.de.einkauf_service.service.PurchaseOrderService;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -35,7 +36,6 @@ public class PurchaseOrderServiceImpl implements PurchaseOrderService {
     private final ArticleRepository articleRepository;
     private final EntityManager entityManager;
     private final ShoppingCartSession cartSession;
-    private final ArticleService articleService;
 
     private String getNextOrderNumber() {
         Long nextValue = (Long) entityManager.createNativeQuery(
@@ -120,29 +120,104 @@ public class PurchaseOrderServiceImpl implements PurchaseOrderService {
 
             orderItemRepository.save(item);
             totalAmount = totalAmount + itemTotal;
-
-            // 1. Aktuellen Artikel als DTO laden
-            ArticleResponseDTO currentArticle = articleService.findArticleById(itemDto.articleId());
-            
-            // 2. Neues RequestDTO erstellen mit ALLEN Feldern
-            ArticleRequestDTO updateRequest = new ArticleRequestDTO();
-            updateRequest.setArticleNumber(currentArticle.getArticleNumber());
-            updateRequest.setName(currentArticle.getName());
-            updateRequest.setStockLevel(currentArticle.getStockLevel() + itemDto.quantity()); // ← HIER wird erhöht!
-            updateRequest.setPurchasePrice(currentArticle.getPurchasePrice());
-            updateRequest.setTaxRatePercent(currentArticle.getTaxRatePercent());
-            updateRequest.setManufacturer(currentArticle.getManufacturer());
-            updateRequest.setSupplierId(currentArticle.getSupplierId());
-            updateRequest.setDescription(currentArticle.getDescription());
-            updateRequest.setIsAvailable(currentArticle.getIsAvailable());
-            
-            // 3. Artikel mit neuem Lagerbestand speichern
-            articleService.updateArticle(itemDto.articleId(), updateRequest);
         }
 
         savedOrder.setTotalAmount(totalAmount);
         orderRepository.save(savedOrder);
+        return mapOrderToResponseDTO(savedOrder);
+    }
 
-        return new OrderResponseDTO(savedOrder.getOrderNumber(), expectedDeliveryDate);
+
+    @Transactional(readOnly = true)
+    @Override
+    public List<OrderResponseDTO> getOrderHistory(OrderFilterDTO filter) {
+
+        // 1. Spezifikation erstellen
+        Specification<Order> specification = OrderSpecifications.filterOrders(filter);
+
+        // 2. Repository mit Spezifikation aufrufen
+        return orderRepository.findAll(specification).stream()
+                .map(this::mapOrderToResponseDTO)
+                .toList();
+    }
+
+    @Transactional(readOnly = true)
+    @Override
+    public OrderResponseDTO getOrderDetails(Long id) {
+        Order order = orderRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Bestellung mit ID " + id + " nicht gefunden."));
+        return mapOrderToResponseDTO(order);
+    }
+
+    @Transactional
+    @Override
+    public OrderResponseDTO reorder(Long originalOrderId, List<OrderItemRequestDTO> itemsToReorder) {
+
+        // 1. Ursprüngliche Bestellung und Lieferant finden
+        Order originalOrder = orderRepository.findById(originalOrderId)
+                .orElseThrow(() -> new EntityNotFoundException("Ursprüngliche Bestellung " + originalOrderId + " nicht gefunden."));
+
+        Supplier supplier = originalOrder.getSupplier();
+
+        // --- PRÜFUNG DER VERFÜGBARKEIT
+        if (!supplier.getIsActive()) {
+            throw new IllegalStateException("Lieferant " + supplier.getName() + " ist nicht mehr aktiv.");
+        }
+
+        // 2. Artikelprüfungen und Mapping zur Vorbereitung der Bestellung
+        List<OrderItemRequestDTO> validItems = itemsToReorder.stream()
+                .filter(itemDto -> {
+                    Article article = articleRepository.findById(itemDto.articleId())
+                            .orElseThrow(() -> new EntityNotFoundException("Artikel " + itemDto.articleId() + " nicht gefunden."));
+
+                    // Prüfen, ob Artikel noch verfügbar ist (angenommen, das Feld existiert in Article)
+                    if (Boolean.FALSE.equals(article.getIsAvailable())) {
+                        System.out.println("WARNUNG: Artikel " + article.getName() + " ist nicht mehr verfügbar und wird übersprungen.");
+                        return false;
+                    }
+                    return true;
+                })
+                .toList();
+
+        if (validItems.isEmpty()) {
+            throw new IllegalStateException("Keine gültigen Positionen zum Wiederbestellen vorhanden.");
+        }
+
+        // 3. Auslösen der neuen Bestellung
+        return placeSingleOrder(supplier, validItems);
+    }
+
+
+
+
+    /**
+     *
+     * Mapper
+     *
+     */
+
+    private OrderResponseDTO mapOrderToResponseDTO(Order order) {
+
+        List<OrderItem> items = orderItemRepository.findAllByOrderId(order.getId());
+
+        List<OrderItemResponseDTO> itemDtos = items.stream()
+                .map(item -> new OrderItemResponseDTO(
+                        item.getArticle().getId(),
+                        item.getArticle().getName(),
+                        item.getQuantity(),
+                        item.getPurchasePrice()
+                )).toList();
+
+        return new OrderResponseDTO(
+                order.getId(),
+                order.getOrderNumber(),
+                order.getOrderDate(),
+                order.getSupplier().getName(),
+                order.getSupplier().getId(),
+                order.getStatus(),
+                order.getTotalAmount(),
+                order.getExpectedDeliveryDate(),
+                itemDtos
+        );
     }
 }
