@@ -5,12 +5,10 @@ import fhdw.de.einkauf_service.dto.OrderFilterDTO;
 import fhdw.de.einkauf_service.dto.OrderItemRequestDTO;
 import fhdw.de.einkauf_service.dto.OrderItemResponseDTO;
 import fhdw.de.einkauf_service.dto.OrderResponseDTO;
-import fhdw.de.einkauf_service.entity.Article;
-import fhdw.de.einkauf_service.entity.Order;
-import fhdw.de.einkauf_service.entity.OrderItem;
-import fhdw.de.einkauf_service.entity.Supplier;
+import fhdw.de.einkauf_service.entity.*;
 import fhdw.de.einkauf_service.query.OrderSpecifications;
 import fhdw.de.einkauf_service.repository.ArticleRepository;
+import fhdw.de.einkauf_service.repository.ContingentRepository;
 import fhdw.de.einkauf_service.repository.OrderItemRepository;
 import fhdw.de.einkauf_service.repository.OrderRepository;
 import fhdw.de.einkauf_service.service.PurchaseOrderService;
@@ -36,6 +34,7 @@ public class PurchaseOrderServiceImpl implements PurchaseOrderService {
     private final ArticleRepository articleRepository;
     private final EntityManager entityManager;
     private final ShoppingCartSession cartSession;
+    private final ContingentRepository contingentRepository;
 
     private String getNextOrderNumber() {
         Long nextValue = (Long) entityManager.createNativeQuery(
@@ -120,6 +119,14 @@ public class PurchaseOrderServiceImpl implements PurchaseOrderService {
 
             orderItemRepository.save(item);
             totalAmount = totalAmount + itemTotal;
+
+            Contingent contingent = new Contingent();
+            contingent.setOrderId(savedOrder.getId());
+            contingent.setSupplierId(supplier.getId());
+            contingent.setArticleId(itemDto.articleId());
+            contingent.setAvailableQuantity(itemDto.quantity());
+
+            contingentRepository.save(contingent);
         }
 
         savedOrder.setTotalAmount(totalAmount);
