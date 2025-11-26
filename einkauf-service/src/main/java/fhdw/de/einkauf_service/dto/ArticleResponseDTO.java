@@ -4,6 +4,8 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.Set;
+
 // Dieses DTO benötigt keine Validierungs-Annotationen, da es nur ausgegeben wird.
 @Data
 @NoArgsConstructor
@@ -17,10 +19,7 @@ public class ArticleResponseDTO {
     private String name;
     private Double purchasePrice;
     private Double taxRatePercent;
-
-    // Berechneter Preis (vom Backend generiert)
     private Double sellingPrice;
-
     private String manufacturer;
     private Long supplierId;
     private String supplierName;
@@ -28,4 +27,5 @@ public class ArticleResponseDTO {
     private String description;
     private Boolean isAvailable;
     private Boolean hasDeposit;
+    private Set<CategoryResponseDTO> categoryIds;
 }

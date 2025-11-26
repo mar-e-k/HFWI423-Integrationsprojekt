@@ -2,6 +2,8 @@ package fhdw.de.einkauf_service.dto;
 
 import lombok.Data;
 
+import java.util.List;
+
 /**
  * Data Transfer Object zum Halten der dynamischen Such- und Filterkriterien
  * für Artikel.
@@ -12,14 +14,15 @@ public class ArticleFilterDTO {
     // Suchfelder
     private String name;
     private String articleNumber;
-    private String category;
+
 
     // Filterfelder
     private Long supplierId;
     private String manufacturer;
+    private List<Long> categoryIds;
 
     // Statusfilter
-    // Wird als Boolean (Wrapper-Klasse) definiert, um null zu erlauben, wenn der Filter nicht gesetzt ist.
+    // Wird als Boolean definiert, um null zu erlauben, wenn der Filter nicht gesetzt ist.
     private Boolean isAvailable;
 
 }

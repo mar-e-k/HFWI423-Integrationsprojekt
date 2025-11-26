@@ -1,10 +1,14 @@
 package fhdw.de.einkauf_service.query;
 
 import fhdw.de.einkauf_service.dto.ArticleFilterDTO;
+import fhdw.de.einkauf_service.entity.Article;
+import fhdw.de.einkauf_service.entity.Category;
+import jakarta.persistence.criteria.Join;
+import jakarta.persistence.criteria.JoinType;
 import jakarta.persistence.criteria.Predicate;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.util.StringUtils;
-import fhdw.de.einkauf_service.entity.Article;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -37,12 +41,14 @@ public class ArticleSpecifications {
             }
 
             // 3. Filtern nach KATEGORIE (Exakte Übereinstimmung)
-            if (StringUtils.hasText(filter.getCategory())) {
-                predicates.add(criteriaBuilder.equal(
-                        root.get("category"),
-                        filter.getCategory()
-                ));
+            if (filter.getCategoryIds() != null && !filter.getCategoryIds().isEmpty()) {
+
+                Join<Article, Category> categoryJoin = root.join("categories", JoinType.INNER);
+                Predicate categoryPredicate = categoryJoin.get("id").in(filter.getCategoryIds());
+                predicates.add(categoryPredicate);
+                query.distinct(true);
             }
+
 
             // 4. Filtern nach LIEFERANT / HERSTELLER (Exakte Übereinstimmung)
             if (filter.getSupplierId() != null) {
