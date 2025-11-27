@@ -3,6 +3,7 @@ package fhdw.de.einkauf_service.view;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.checkbox.Checkbox;
 import com.vaadin.flow.component.combobox.ComboBox;
+import com.vaadin.flow.component.combobox.MultiSelectComboBox;
 import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.html.H2;
@@ -21,13 +22,16 @@ import com.vaadin.flow.router.Route;
 import fhdw.de.einkauf_service.config.ShoppingCartSession;
 import fhdw.de.einkauf_service.dto.ArticleFilterDTO;
 import fhdw.de.einkauf_service.dto.ArticleResponseDTO;
+import fhdw.de.einkauf_service.dto.CategoryResponseDTO;
 import fhdw.de.einkauf_service.dto.SupplierResponseDTO;
+import fhdw.de.einkauf_service.service.ArticleCategoryService;
 import fhdw.de.einkauf_service.service.ArticleService;
 import fhdw.de.einkauf_service.service.SupplierService;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -43,6 +47,8 @@ public class ArticleView extends VerticalLayout {
 
     private final ComboBox<SupplierResponseDTO> supplierBox = new ComboBox<>("Lieferant");
 
+    private final MultiSelectComboBox<CategoryResponseDTO> categoryBox = new MultiSelectComboBox<>("Kategorie");
+
     private final Button clearButton = new Button("Suche abbrechen");
     private final Button addButton = new Button("Artikel hinzufügen");
     private final Button editButton = new Button("Bearbeiten");
@@ -53,9 +59,12 @@ public class ArticleView extends VerticalLayout {
     private final Map<Long, SupplierResponseDTO> supplierCache;
     private final Map<Long, Integer> selectedArticles = new HashMap<>();
 
-    public ArticleView(ArticleService articleService, SupplierService supplierService, ShoppingCartSession cartSession) {
+    private final ArticleCategoryService categoryService;
+
+    public ArticleView(ArticleService articleService, SupplierService supplierService, ShoppingCartSession cartSession, ArticleCategoryService categoryService) {
         this.articleService = articleService;
         this.cartSession = cartSession;
+        this.categoryService = categoryService;
         this.supplierCache = supplierService.findAllSuppliers().stream()
                 .collect(Collectors.toMap(SupplierResponseDTO::getId, Function.identity(), (a, b) -> a));
 
@@ -70,13 +79,17 @@ public class ArticleView extends VerticalLayout {
         supplierBox.setItemLabelGenerator(SupplierResponseDTO::getName);
         supplierBox.setClearButtonVisible(true);
 
+        categoryBox.setItems(categoryService.getAllCategories());
+        categoryBox.setItemLabelGenerator(CategoryResponseDTO::getName);
+        categoryBox.setClearButtonVisible(true);
+
         configureSearchFields();
 
         HorizontalLayout searchLayout = new HorizontalLayout(
-                articleNumberField, nameField, supplierBox, clearButton
+                articleNumberField, nameField, supplierBox, categoryBox, clearButton
         );
 
-        HorizontalLayout crudButtons = new HorizontalLayout(addButton, editButton, deleteButton,addToCartButton);
+        HorizontalLayout crudButtons = new HorizontalLayout(addButton, editButton, deleteButton, addToCartButton);
         add(crudButtons);
         configureCrudButtons();
 
@@ -101,8 +114,10 @@ public class ArticleView extends VerticalLayout {
         name.setRequired(true);
         TextField stockLevel = new TextField("Lagerbestand");
         stockLevel.setRequired(true);
-        TextField purchasePrice = new TextField("EK Preis");
+        TextField purchasePrice = new TextField("EK-Preis (€)");
         purchasePrice.setRequired(true);
+        TextField sellingPrice = new TextField("VK-Preis (€)");
+        sellingPrice.setRequired(true);
         TextField taxRate = new TextField("MwSt (%)");
         taxRate.setRequired(true);
         TextField manufacturer = new TextField("Hersteller");
@@ -123,6 +138,16 @@ public class ArticleView extends VerticalLayout {
         }
         pfandRadio.setRequired(true);
 
+        MultiSelectComboBox<CategoryResponseDTO> categorySelect =
+                new MultiSelectComboBox<>("Kategorie");
+        categorySelect.setItems(categoryService.getAllCategories());
+        categorySelect.setItemLabelGenerator(CategoryResponseDTO::getName);
+
+        Button newCategoryButton = new Button("Neue Kategorie", e -> openNewCategoryDialog(categorySelect));
+
+        HorizontalLayout categoryLayout = new HorizontalLayout(categorySelect, newCategoryButton);
+        categoryLayout.setAlignItems(Alignment.END);
+
         TextField description = new TextField("Beschreibung");
 
         // --- Prefill fields for update ---
@@ -131,6 +156,7 @@ public class ArticleView extends VerticalLayout {
             name.setValue(safe(article.getName()));
             stockLevel.setValue(String.valueOf(article.getStockLevel()));
             purchasePrice.setValue(String.valueOf(article.getPurchasePrice()));
+            sellingPrice.setValue(String.valueOf(article.getSellingPrice()));
             taxRate.setValue(String.valueOf(article.getTaxRatePercent()));
             manufacturer.setValue(safe(article.getManufacturer()));
 
@@ -142,14 +168,21 @@ public class ArticleView extends VerticalLayout {
                 }
                 supplierBoxForm.setValue(currentSupplierDto);
             }
+
+            if (article.getCategoryIds() != null) {
+                categorySelect.setValue(article.getCategoryIds());
+            }
+
             description.setValue(safe(article.getDescription()));
         }
 
         // --- Buttons ---
         Button saveButton = new Button("Speichern", event -> {
             try {
-                if (articleNumber.isEmpty() || name.isEmpty() || stockLevel.isEmpty() || purchasePrice.isEmpty()
-                || taxRate.isEmpty() || manufacturer.isEmpty() || supplierBoxForm.isEmpty() || description.isEmpty()) {
+                if (articleNumber.isEmpty() || name.isEmpty() || stockLevel.isEmpty()
+                        || purchasePrice.isEmpty() || sellingPrice.isEmpty()   // <- HIER eingefügt
+                        || taxRate.isEmpty() || manufacturer.isEmpty()
+                        || supplierBoxForm.isEmpty() || description.isEmpty()) {
                  throw new IllegalArgumentException("Alle Pflichtfelder müssen ausgefüllt werden.");
         }
 
@@ -158,6 +191,7 @@ public class ArticleView extends VerticalLayout {
                 req.setArticleNumber(articleNumber.getValue());
                 req.setName(name.getValue());
                 req.setPurchasePrice(Double.parseDouble(purchasePrice.getValue()));
+                req.setSellingPrice(Double.parseDouble(sellingPrice.getValue()));
                 req.setTaxRatePercent(Double.parseDouble(taxRate.getValue()));
                 req.setManufacturer(manufacturer.getValue());
 
@@ -174,6 +208,11 @@ public class ArticleView extends VerticalLayout {
                 req.setDescription(description.getValue());
                 req.setIsAvailable(true);
                 req.setHasDeposit("Ja".equals(pfandRadio.getValue()));
+
+                Set<Long> categoryIds = categorySelect.getSelectedItems().stream()
+                        .map(CategoryResponseDTO::getId)
+                        .collect(Collectors.toSet());
+                req.setCategoryIds(categoryIds);
 
                 if (article == null) {
                     articleService.createNewArticle(req);
@@ -196,8 +235,9 @@ public class ArticleView extends VerticalLayout {
 
         HorizontalLayout buttons = new HorizontalLayout(saveButton, cancelButton);
         VerticalLayout formLayout = new VerticalLayout(
-                articleNumber, name, stockLevel, purchasePrice,
-                taxRate, manufacturer, supplierBoxForm, pfandRadio, description, buttons
+                articleNumber, name, stockLevel, purchasePrice, sellingPrice,
+                taxRate, manufacturer, supplierBoxForm, pfandRadio,
+                categoryLayout, description, buttons
         );
         formLayout.setPadding(false);
         formLayout.setSpacing(true);
@@ -214,13 +254,22 @@ public class ArticleView extends VerticalLayout {
         filter.setArticleNumber(articleNumberField.getValue());
         filter.setName(nameField.getValue());
 
-        // KORRIGIERT: Filterung übergibt die ID an das Backend
         SupplierResponseDTO selectedSupplierFilter = supplierBox.getValue();
         if (selectedSupplierFilter != null) {
-            // Annahme: ArticleFilterDTO hat ein Long supplierId Feld
             filter.setSupplierId(selectedSupplierFilter.getId());
         } else {
             filter.setSupplierId(null);
+        }
+
+        Set<CategoryResponseDTO> selectedCategories = categoryBox.getSelectedItems();
+        if (selectedCategories != null && !selectedCategories.isEmpty()) {
+            filter.setCategoryIds(
+                    selectedCategories.stream()
+                            .map(CategoryResponseDTO::getId)
+                            .collect(Collectors.toList())
+            );
+        } else {
+            filter.setCategoryIds(null);
         }
 
         filter.setIsAvailable(true);
@@ -240,7 +289,7 @@ public class ArticleView extends VerticalLayout {
         grid.addComponentColumn(article -> {
         Checkbox checkbox = new Checkbox();
         checkbox.setValue(selectedArticles.containsKey(article.getId()));
-        
+
         checkbox.addValueChangeListener(event -> {
             if (event.getValue()) {
                 selectedArticles.put(article.getId(), 1);
@@ -249,7 +298,7 @@ public class ArticleView extends VerticalLayout {
             }
             grid.getDataProvider().refreshItem(article);
         });
-        
+
         return checkbox;
     }).setHeader("✓").setAutoWidth(true).setFlexGrow(0);
         grid.addColumn(ArticleResponseDTO::getArticleNumber).setHeader("Artikelnummer (GTIN)").setAutoWidth(true).setSortable(true);
@@ -258,6 +307,15 @@ public class ArticleView extends VerticalLayout {
 
         grid.addColumn(ArticleResponseDTO::getSupplierName).setHeader("Lieferant").setAutoWidth(true).setSortable(true);
 
+        grid.addColumn(article -> {
+            if (article.getCategoryIds() == null || article.getCategoryIds().isEmpty()) {
+                return "-";
+            }
+            return article.getCategoryIds().stream()
+                    .map(CategoryResponseDTO::getName)
+                    .collect(Collectors.joining(", "));
+        }).setHeader("Kategorie").setAutoWidth(true).setSortable(true);
+
         grid.addComponentColumn(article -> {
                     Button infoButton = new Button(new Icon(VaadinIcon.ELLIPSIS_DOTS_H));
                     infoButton.getStyle().set("background", "transparent");
@@ -265,7 +323,7 @@ public class ArticleView extends VerticalLayout {
                     infoButton.addClickListener(e -> showArticleDetails(article));
                     return infoButton;
                 })
-                .setHeader("Weitere Infos") // --- NEU: Spaltenüberschrift ---
+                .setHeader("Weitere Infos")
                 .setAutoWidth(true)
                 .setFlexGrow(0);
 
@@ -295,6 +353,12 @@ public class ArticleView extends VerticalLayout {
         );
         pfandLayout.setAlignItems(Alignment.CENTER);
 
+        String kategorieText = (article.getCategoryIds() == null || article.getCategoryIds().isEmpty())
+                ? "-"
+                : article.getCategoryIds().stream()
+                .map(CategoryResponseDTO::getName)
+                .collect(Collectors.joining(", "));
+
         VerticalLayout detailsLayout = new VerticalLayout(
                 new Span("Artikelnummer (GTIN): " + safe(article.getArticleNumber())),
                 new Span("Artikelname: " + safe(article.getName())),
@@ -303,6 +367,7 @@ public class ArticleView extends VerticalLayout {
                 new Span("VK-Preis (€): " + safe(article.getSellingPrice())),
                 new Span("MwSt (%): " + safe(article.getTaxRatePercent())),
                 new Span("Lieferant: " + safe(article.getSupplierName())),
+                new Span("Kategorie: " + kategorieText),
                 new Span("Verfügbar: " + safe(Boolean.TRUE.equals(article.getIsAvailable()) ? "Ja" : "Nein")),
                 pfandLayout,
                 new Span("Beschreibung / Produktdetails: " + safe(article.getDescription()))
@@ -324,10 +389,12 @@ public class ArticleView extends VerticalLayout {
         articleNumberField.addValueChangeListener(e -> updateList());
         nameField.addValueChangeListener(e -> updateList());
         supplierBox.addValueChangeListener(e -> updateList());
+        categoryBox.addValueChangeListener(e -> updateList());
         clearButton.addClickListener(e -> {
             articleNumberField.clear();
             nameField.clear();
             supplierBox.clear();
+            categoryBox.clear();
             updateList();
         });
     }
@@ -378,5 +445,46 @@ public class ArticleView extends VerticalLayout {
 
     private String safe(Object value) {
         return value == null ? "-" : value.toString();
+    }
+
+    private void openNewCategoryDialog(MultiSelectComboBox<CategoryResponseDTO> categorySelect) {
+        Dialog dialog = new Dialog();
+        dialog.setHeaderTitle("Neue Kategorie anlegen");
+
+        TextField nameField = new TextField("Name");
+        nameField.setRequired(true);
+        TextField descriptionField = new TextField("Beschreibung");
+
+        Button save = new Button("Speichern", e -> {
+            if (nameField.isEmpty()) {
+                Notification.show("Name darf nicht leer sein");
+                return;
+            }
+
+            fhdw.de.einkauf_service.dto.CategoryRequestDTO req =
+                    new fhdw.de.einkauf_service.dto.CategoryRequestDTO();
+            req.setName(nameField.getValue());
+            req.setDescription(descriptionField.getValue());
+
+            CategoryResponseDTO created = categoryService.createCategory(req);
+
+            List<CategoryResponseDTO> all = categoryService.getAllCategories();
+            categorySelect.setItems(all);
+            categorySelect.setItemLabelGenerator(CategoryResponseDTO::getName);
+
+            categorySelect.select(created);
+
+            dialog.close();
+        });
+
+        Button cancel = new Button("Abbrechen", e -> dialog.close());
+
+        HorizontalLayout buttons = new HorizontalLayout(save, cancel);
+        VerticalLayout layout = new VerticalLayout(nameField, descriptionField, buttons);
+        layout.setPadding(false);
+        layout.setSpacing(true);
+
+        dialog.add(layout);
+        dialog.open();
     }
 }
