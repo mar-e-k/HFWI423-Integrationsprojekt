@@ -40,6 +40,7 @@ public class ArticleView extends VerticalLayout {
 
     private final TextField articleNumberField = createSearchField("Artikelnummer (GTIN)");
     private final TextField nameField = createSearchField("Name");
+    private final RadioButtonGroup<String> availabilityFilter = new RadioButtonGroup<>("Verfügbarkeit");
 
     private final ComboBox<SupplierResponseDTO> supplierBox = new ComboBox<>("Lieferant");
 
@@ -70,10 +71,13 @@ public class ArticleView extends VerticalLayout {
         supplierBox.setItemLabelGenerator(SupplierResponseDTO::getName);
         supplierBox.setClearButtonVisible(true);
 
+        availabilityFilter.setItems("Verfügbar", "Nicht verfügbar");
+        availabilityFilter.setValue("Verfügbar");
+
         configureSearchFields();
 
         HorizontalLayout searchLayout = new HorizontalLayout(
-                articleNumberField, nameField, supplierBox, clearButton
+                articleNumberField, nameField, supplierBox, availabilityFilter, clearButton
         );
 
         HorizontalLayout crudButtons = new HorizontalLayout(addButton, editButton, deleteButton,addToCartButton);
@@ -124,6 +128,12 @@ public class ArticleView extends VerticalLayout {
         pfandRadio.setRequired(true);
 
         TextField description = new TextField("Beschreibung");
+        TextField depthCm = new TextField("Tiefe (cm)");
+        depthCm.setRequired(true);
+        TextField heightCm = new TextField("Höhe (cm)");
+        heightCm.setRequired(true);
+        TextField widthCm = new TextField("Breite (cm)");
+        widthCm.setRequired(true);
 
         // --- Prefill fields for update ---
         if (article != null) {
@@ -143,13 +153,17 @@ public class ArticleView extends VerticalLayout {
                 supplierBoxForm.setValue(currentSupplierDto);
             }
             description.setValue(safe(article.getDescription()));
+            depthCm.setValue(String.valueOf(article.getDepthCm()));
+            heightCm.setValue(String.valueOf(article.getHeightCm()));
+            widthCm.setValue(String.valueOf(article.getWidthCm()));
         }
 
         // --- Buttons ---
         Button saveButton = new Button("Speichern", event -> {
             try {
                 if (articleNumber.isEmpty() || name.isEmpty() || stockLevel.isEmpty() || purchasePrice.isEmpty()
-                || taxRate.isEmpty() || manufacturer.isEmpty() || supplierBoxForm.isEmpty() || description.isEmpty()) {
+                || taxRate.isEmpty() || manufacturer.isEmpty() || supplierBoxForm.isEmpty()
+                || depthCm.isEmpty() || heightCm.isEmpty() || widthCm.isEmpty()) {
                  throw new IllegalArgumentException("Alle Pflichtfelder müssen ausgefüllt werden.");
         }
 
@@ -174,6 +188,15 @@ public class ArticleView extends VerticalLayout {
                 req.setDescription(description.getValue());
                 req.setIsAvailable(true);
                 req.setHasDeposit("Ja".equals(pfandRadio.getValue()));
+                req.setDepthCm(Double.parseDouble(depthCm.getValue()));
+                req.setHeightCm(Double.parseDouble(heightCm.getValue()));
+                req.setWidthCm(Double.parseDouble(widthCm.getValue()));
+
+                // Berechne Verkaufspreis: Einkaufspreis * (1 + Steuersatz/100)
+                double purchasePriceValue = Double.parseDouble(purchasePrice.getValue());
+                double taxRateValue = Double.parseDouble(taxRate.getValue());
+                double sellingPrice = purchasePriceValue * (1 + taxRateValue / 100);
+                req.setSellingPrice(sellingPrice);
 
                 if (article == null) {
                     articleService.createNewArticle(req);
@@ -197,7 +220,8 @@ public class ArticleView extends VerticalLayout {
         HorizontalLayout buttons = new HorizontalLayout(saveButton, cancelButton);
         VerticalLayout formLayout = new VerticalLayout(
                 articleNumber, name, stockLevel, purchasePrice,
-                taxRate, manufacturer, supplierBoxForm, pfandRadio, description, buttons
+                taxRate, manufacturer, supplierBoxForm, pfandRadio, description,
+                widthCm, heightCm, depthCm, buttons
         );
         formLayout.setPadding(false);
         formLayout.setSpacing(true);
@@ -223,7 +247,13 @@ public class ArticleView extends VerticalLayout {
             filter.setSupplierId(null);
         }
 
-        filter.setIsAvailable(true);
+        // Setze Verfügbarkeitsfilter basierend auf der Auswahl
+        String selectedAvailability = availabilityFilter.getValue();
+        if ("Verfügbar".equals(selectedAvailability)) {
+            filter.setIsAvailable(true);
+        } else if ("Nicht verfügbar".equals(selectedAvailability)) {
+            filter.setIsAvailable(false);
+        }
 
         List<ArticleResponseDTO> articles = articleService.findFilteredArticles(filter);
         grid.setItems(articles);
@@ -324,10 +354,12 @@ public class ArticleView extends VerticalLayout {
         articleNumberField.addValueChangeListener(e -> updateList());
         nameField.addValueChangeListener(e -> updateList());
         supplierBox.addValueChangeListener(e -> updateList());
+        availabilityFilter.addValueChangeListener(e -> updateList());
         clearButton.addClickListener(e -> {
             articleNumberField.clear();
             nameField.clear();
             supplierBox.clear();
+            availabilityFilter.setValue("Verfügbar");
             updateList();
         });
     }
