@@ -9,15 +9,12 @@ import java.util.Optional;
 @Service
 public class ArticleService extends AbstractCrudService<Article,Long> {
 
-    private final ArticleRepository articleRepository;
-
     public ArticleService(ArticleRepository articleRepository) {
         super(articleRepository);
-        this.articleRepository = articleRepository;
     }
 
     public Optional<Article> findByArticleNumber(String articleNumber) {
-        return articleRepository.findByArticleNumber(articleNumber);
+        return ((ArticleRepository) repository).findByArticleNumber(articleNumber);
     }
 
     @Override
@@ -28,13 +25,25 @@ public class ArticleService extends AbstractCrudService<Article,Long> {
 
     @Override
     @Deprecated
-    public Article update(Long aLong, Article updateToEntity) {
+    public Article update(Long id, Article entity) {
         throw new UnsupportedOperationException("Operation 'Update' is not supported for articles");
     }
 
     @Override
     @Deprecated
-    public void delete(Long aLong) {
+    public Article update(Article entity) {
+        throw new UnsupportedOperationException("Operation 'Update' is not supported for articles");
+    }
+
+    @Override
+    @Deprecated
+    public void delete(Long id) {
+        throw new UnsupportedOperationException("Operation 'Delete' is not supported for articles");
+    }
+
+    @Override
+    @Deprecated
+    public void delete(Article entity) {
         throw new UnsupportedOperationException("Operation 'Delete' is not supported for articles");
     }
 }

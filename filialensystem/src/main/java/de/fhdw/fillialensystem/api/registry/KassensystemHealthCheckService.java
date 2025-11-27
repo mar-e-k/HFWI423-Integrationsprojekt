@@ -23,22 +23,21 @@ public class KassensystemHealthCheckService {
         this.webClient = WebClient.builder().build();
     }
 
-    @Scheduled(fixedDelay = 6_000)
+    @Scheduled(fixedDelay = 60000)
     public void performPingChecks() {
-        log.atDebug().log("Performing ping checks...");
-        registry.findAllRegistries().forEach(instance -> pingInstance(instance)
+        log.atInfo().log("Performing ping checks...");
+        registry.findAllActiveRegistries().forEach(instance -> pingInstance(instance)
                 .doOnSuccess(v -> {
                     instance.setOnline(true);
                     instance.setLastSeen(Instant.now());
                 })
-                .doOnError(ex -> {
-                    if (!instance.isOnline()) {
-                        instance.setOnline(false);
-                        log.atWarn().log("Kassensystem offline: {}; Reason: {}", instance.getSystemClientDTO().getId(), ex.getMessage());
-                    }
+                .onErrorResume(ex -> {
+                    instance.setOnline(false);
+                    log.atWarn().log("Kassensystem offline: {}; Reason: {}", instance.getSystemClientDTO().getId(), ex.getMessage());
+                    return Mono.empty();
                 })
                 .subscribe());
-        log.atDebug().log("Successfully performed ping checks");
+        log.atInfo().log("Successfully performed ping checks");
     }
 
     private Mono<Void> pingInstance(KassensystemInstance instance) {

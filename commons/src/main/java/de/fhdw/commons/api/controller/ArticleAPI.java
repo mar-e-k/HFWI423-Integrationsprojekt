@@ -5,7 +5,7 @@ import de.fhdw.commons.api.dto.ArticleDTO;
 import java.util.List;
 import java.util.Optional;
 
-public interface ArticleApi {
+public interface ArticleAPI {
     List<ArticleDTO> findAll();
     Optional<ArticleDTO> findById(Long id);
     Optional<ArticleDTO> findByArticleNumber(String articleNumber);

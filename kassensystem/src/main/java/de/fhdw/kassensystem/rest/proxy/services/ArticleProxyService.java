@@ -1,6 +1,6 @@
 package de.fhdw.kassensystem.rest.proxy.services;
 
-import de.fhdw.commons.api.controller.ArticleApi;
+import de.fhdw.commons.api.controller.ArticleAPI;
 import de.fhdw.commons.api.dto.ArticleDTO;
 import de.fhdw.kassensystem.utility.FilialClient;
 import org.springframework.core.ParameterizedTypeReference;
@@ -10,12 +10,10 @@ import java.util.List;
 import java.util.Optional;
 
 @Service
-public class ArticleProxyService implements ArticleApi {
-
-    private final FilialClient filialClient;
+public class ArticleProxyService extends AbstractProxyService implements ArticleAPI {
 
     public ArticleProxyService(FilialClient filialClient) {
-        this.filialClient = filialClient;
+        super(filialClient);
     }
 
     @Override
@@ -39,10 +37,10 @@ public class ArticleProxyService implements ArticleApi {
     }
 
     @Override
-    public Optional<ArticleDTO> findByArticleNumber(String articleNumber) {
+    public Optional<ArticleDTO> findByArticleNumber(String gtin) {
         return Optional.ofNullable(filialClient.getWebClient()
                 .get()
-                .uri("/api/article/number/{articleNumber}", articleNumber)
+                .uri("/api/article/gtin/{gtin}", gtin)
                 .retrieve()
                 .bodyToMono(ArticleDTO.class)
                 .block());

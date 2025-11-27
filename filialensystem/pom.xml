@@ -11,6 +11,11 @@
     <artifactId>filialensystem</artifactId>
     <packaging>jar</packaging>
 
+    <properties>
+        <jwt.version>0.13.0</jwt.version>
+    </properties>
+
+
     <dependencies>
         <!-- Shared DTOs, events, etc. -->
         <dependency>
@@ -77,9 +82,21 @@
 
         <!-- Other -->
         <dependency>
-            <groupId>org.apache.pdfbox</groupId>
-            <artifactId>pdfbox</artifactId>
-            <version>3.0.2</version>
+            <groupId>io.jsonwebtoken</groupId>
+            <artifactId>jjwt-api</artifactId>
+            <version>${jwt.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>io.jsonwebtoken</groupId>
+            <artifactId>jjwt-impl</artifactId>
+            <version>${jwt.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>io.jsonwebtoken</groupId>
+            <artifactId>jjwt-jackson</artifactId>
+            <version>${jwt.version}</version>
         </dependency>
     </dependencies>
 

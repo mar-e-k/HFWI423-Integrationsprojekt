@@ -18,8 +18,8 @@ public class ArticleDTO extends AbstractDTO<Long> {
         super();
     }
 
-    public ArticleDTO(Long aLong, String articleNumber, String description, String manufacturer, String name, Double purchasePrice, Double sellingPrice, Integer stockLevel, String supplier, Double taxRatePercent, String unit, Boolean isAvailable) {
-        super(aLong);
+    public ArticleDTO(Long id, String articleNumber, String description, String manufacturer, String name, Double purchasePrice, Double sellingPrice, Integer stockLevel, String supplier, Double taxRatePercent, String unit, Boolean isAvailable) {
+        super(id);
         this.articleNumber = articleNumber;
         this.description = description;
         this.manufacturer = manufacturer;

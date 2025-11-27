@@ -34,6 +34,10 @@ public class KassensystemRegistryService {
         return new ArrayList<>(kassensystemInstanceMap.values());
     }
 
+    public List<KassensystemInstance> findAllActiveRegistries() {
+        return new ArrayList<>(kassensystemInstanceMap.values().stream().filter(KassensystemInstance::isOnline).toList());
+    }
+
     public void addRegistry(SystemClientDTO systemClientDTO) {
         if (kassensystemInstanceMap.containsKey(systemClientDTO.getId())) {
             throw new IllegalStateException("Kassensystem instance with id {%s} already exists".formatted(systemClientDTO.getId()));

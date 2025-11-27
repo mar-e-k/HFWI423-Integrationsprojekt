@@ -40,7 +40,7 @@ import java.util.Optional;
 @Route("/cashier")
 @PageTitle("Cashier View")
 @CssImport("./styles/styles.css")
-@RolesAllowed({AccountRoleEnum.ROLE_CASHIER, AccountRoleEnum.ROLE_ADMIN})
+@RolesAllowed({AccountRoleEnum.ROLE_CASHIER})
 public class CashierView extends BaseView implements BeforeEnterObserver {
 
     private static final BigDecimal MIN_PRICE = new BigDecimal("0.01");

@@ -9,7 +9,6 @@ import com.vaadin.flow.router.BeforeEnterObserver;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.server.auth.AnonymousAllowed;
-import de.fhdw.kassensystem.utility.CustomUserDetails;
 
 @Route("/login")
 @PageTitle("Login View")
@@ -18,7 +17,7 @@ public class LoginView extends VerticalLayout implements BeforeEnterObserver {
 
     private final LoginForm login = new LoginForm();
 
-    public LoginView(CustomUserDetails customUserDetails) {
+    public LoginView() {
 
         setSizeFull();
         setAlignItems(Alignment.CENTER);
@@ -28,7 +27,7 @@ public class LoginView extends VerticalLayout implements BeforeEnterObserver {
 
         login.setAction("login");
         login.addForgotPasswordListener(event -> Notification.show("Pech gehabt! Spaß kontaktiere Erik oder Rohid um das Passwort zu erhalten",
-                5000, // Dauer in Millisekunden
+                5000,
                 Notification.Position.MIDDLE));
 
         add(title, login);

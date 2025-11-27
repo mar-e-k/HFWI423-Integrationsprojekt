@@ -1,21 +1,21 @@
 package de.fhdw.kassensystem.utility.config;
 
 import com.vaadin.flow.spring.security.VaadinAwareSecurityContextHolderStrategyConfiguration;
-import com.vaadin.flow.spring.security.VaadinSecurityConfigurer;
-import de.fhdw.kassensystem.view.LoginView;
+import de.fhdw.kassensystem.utility.security.JwtAuthenticationFilter;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
-import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.annotation.web.configurers.HeadersConfigurer;
+import org.springframework.security.config.annotation.web.configurers.RememberMeConfigurer;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 @Configuration
 @EnableWebSecurity
@@ -27,6 +27,7 @@ public class SecurityConfig {
 
     private static final String[] WHITELIST = {
             "/",
+            "/login",
             "/favicon.ico",
             "/robots.txt",
             "/manifest.webmanifest",
@@ -48,7 +49,7 @@ public class SecurityConfig {
     }
 
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+    public SecurityFilterChain securityFilterChain(HttpSecurity http, JwtAuthenticationFilter jwtAuthenticationFilter) throws Exception {
         if (!springSecurityEnabled) {
             return http
                     .csrf(AbstractHttpConfigurer::disable)
@@ -57,20 +58,19 @@ public class SecurityConfig {
         } else {
             return http
                     .csrf(AbstractHttpConfigurer::disable)
-                    .headers(h -> h.frameOptions(HeadersConfigurer.FrameOptionsConfig::disable))
+                    .headers(headers -> headers.frameOptions(HeadersConfigurer.FrameOptionsConfig::disable))
                     .authorizeHttpRequests(auth -> auth
                             .requestMatchers(WHITELIST).permitAll()
-                            .requestMatchers("/view/**").permitAll()
                             .requestMatchers("/api/**").authenticated()
-                            .anyRequest().permitAll())
-                    .with(VaadinSecurityConfigurer.vaadin(), configurer ->
-                            configurer.loginView(LoginView.class))
-                    .logout(logout -> {
-                        logout.logoutRequestMatcher(request ->
-                                request.getMethod().equals(HttpMethod.GET.name()) &&
-                                        request.getRequestURI().equals("/logout"));
-                        logout.logoutSuccessUrl("/login?logout");
-                    })
+                            .anyRequest().fullyAuthenticated())
+                    .formLogin(form -> form
+                            .loginPage("/login")
+                            .permitAll())
+                    .logout(logout -> logout
+                            .logoutUrl("/logout")
+                            .logoutSuccessUrl("/login?logout"))
+                    .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
+                    .rememberMe(RememberMeConfigurer::disable)
                     .build();
         }
     }

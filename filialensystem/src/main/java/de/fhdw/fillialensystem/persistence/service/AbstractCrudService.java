@@ -3,12 +3,13 @@ package de.fhdw.fillialensystem.persistence.service;
 import de.fhdw.commons.persistence.entity.GenericEntity;
 import de.fhdw.commons.persistence.service.GenericService;
 import jakarta.persistence.EntityNotFoundException;
-import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.aop.support.AopUtils;
 import org.springframework.data.repository.CrudRepository;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 
 import java.util.List;
@@ -22,7 +23,7 @@ public abstract class AbstractCrudService<T extends GenericEntity<ID>, ID> imple
 
     private static final Logger log = LoggerFactory.getLogger(AbstractCrudService.class);
 
-    private final CrudRepository<T, ID> repository;
+    protected final CrudRepository<T, ID> repository;
 
     public AbstractCrudService(CrudRepository<T, ID> repository) {
         this.repository = repository;
@@ -34,7 +35,7 @@ public abstract class AbstractCrudService<T extends GenericEntity<ID>, ID> imple
     }
 
     @Override
-    public Optional<T> findById(ID id) {
+    public Optional<T> findById(@NotNull ID id) {
         return repository.findById(id);
     }
 
@@ -48,20 +49,18 @@ public abstract class AbstractCrudService<T extends GenericEntity<ID>, ID> imple
 
     @Override
     @Transactional
-    public T update(ID id, @Valid T updateToEntity) {
-        if (updateToEntity.getId() == null) {
-            updateToEntity.setId(id);
-        } else if (!Objects.equals(id, updateToEntity.getId())) {
-            throw new IllegalArgumentException(String.format(
-                    "Entity with id [%s] cannot be updated to have id [%s]", updateToEntity.getId(), id));
+    public T update(@NotNull ID id, @Valid T entity) {
+        if (entity.getId() == null) {
+            entity.setId(id);
+        } else if (!Objects.equals(id, entity.getId())) {
+            throw new IllegalArgumentException("Entity with id [%s] cannot be updated to have id [%s]".formatted(entity.getId(), id));
         }
         if (!repository.existsById(id)) {
-            throw new EntityNotFoundException(
-                    String.format("Entity from [%s] with id [%s] does not exist", AopUtils.getTargetClass(this).getSimpleName(), id));
+            throw new EntityNotFoundException("Entity from [%s] with id [%s] does not exist".formatted(AopUtils.getTargetClass(this).getSimpleName(), id));
         }
-        T updatedEntity = repository.save(updateToEntity);
+        T saved = repository.save(entity);
         log.atInfo().log("[UPDATED] [{}] with id [{}]", AopUtils.getTargetClass(this).getSimpleName(), id);
-        return updatedEntity;
+        return saved;
     }
 
     @Override
@@ -72,10 +71,9 @@ public abstract class AbstractCrudService<T extends GenericEntity<ID>, ID> imple
 
     @Override
     @Transactional
-    public void delete(ID id) {
+    public void delete(@NotNull ID id) {
         if (!repository.existsById(id)) {
-            throw new EntityNotFoundException(
-                    String.format("Entity from [%s] with id [%s] does not exist", AopUtils.getTargetClass(this).getSimpleName(), id));
+            throw new EntityNotFoundException("Entity from [%s] with id [%s] does not exist".formatted(AopUtils.getTargetClass(this).getSimpleName(), id));
         }
 
         repository.deleteById(id);

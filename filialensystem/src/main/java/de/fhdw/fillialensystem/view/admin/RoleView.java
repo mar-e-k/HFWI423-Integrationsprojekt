@@ -24,6 +24,7 @@ import de.fhdw.commons.persistence.entity.AccountRoleEnum;
 import de.fhdw.fillialensystem.persistence.service.AccountRoleService;
 import de.fhdw.fillialensystem.persistence.service.AccountService;
 import jakarta.annotation.security.RolesAllowed;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.util.Comparator;
 import java.util.Optional;
@@ -36,12 +37,14 @@ public class RoleView extends BaseView {
 
     private final AccountService accountService;
     private final AccountRoleService accountRoleService;
+    private final PasswordEncoder passwordEncoder;
 
     private final Grid<Account> accountGrid = new Grid<>(Account.class, false);
 
-    public RoleView(AccountService accountService, AccountRoleService accountRoleService) {
+    public RoleView(AccountService accountService, AccountRoleService accountRoleService, PasswordEncoder passwordEncoder) {
         this.accountService = accountService;
         this.accountRoleService = accountRoleService;
+        this.passwordEncoder = passwordEncoder;
     }
 
     @Override
@@ -61,9 +64,6 @@ public class RoleView extends BaseView {
         //----------------------------------------------------------
         // FORM BEREICH
         //----------------------------------------------------------
-        TextField accountIdField = new TextField("Personalnummer");
-        accountIdField.setRequired(true);
-
         TextField usernameField = new TextField("Username");
         usernameField.setRequired(true);
 
@@ -78,7 +78,6 @@ public class RoleView extends BaseView {
         Button createUserBtn = new Button("Neuen Benutzer anlegen");
 
         FormLayout formLayout = new FormLayout(
-                accountIdField,
                 usernameField,
                 passwordField,
                 roleSelect,
@@ -171,8 +170,7 @@ public class RoleView extends BaseView {
         //----------------------------------------------------------
         createUserBtn.addClickListener(e -> {
 
-            if (accountIdField.isEmpty()
-                    || usernameField.isEmpty()
+            if (usernameField.isEmpty()
                     || passwordField.isEmpty()
                     || roleSelect.isEmpty()) {
 
@@ -190,7 +188,7 @@ public class RoleView extends BaseView {
             Account account = new Account();
             account.setUuid(UUID.randomUUID().toString());
             account.setUsername(usernameField.getValue());
-            account.setPassword(passwordField.getValue());
+            account.setPassword(passwordEncoder.encode(passwordField.getValue()));
             account.setAccountRole(role);
 
             try {
@@ -198,7 +196,6 @@ public class RoleView extends BaseView {
                 Notification.show("Benutzer erfolgreich angelegt!");
 
                 // Felder leeren nach erfolgreicher Eingabe
-                accountIdField.clear();
                 usernameField.clear();
                 passwordField.clear();
                 roleSelect.clear();

@@ -1,24 +1,33 @@
 package de.fhdw.commons.api.dto;
 
 import de.fhdw.commons.persistence.entity.AccountRoleEnum;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
 
-public class AccountDTO extends AbstractDTO<Long> {
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+
+public class AccountDTO extends AbstractDTO<Long> implements UserDetails {
 
     private AccountRoleEnum role;
     private String uuid;
     private String username;
     private String password;
+    private List<AuthorityDTO> authorities = new ArrayList<>();
 
     public AccountDTO() {
         super();
     }
 
-    public AccountDTO(Long id, AccountRoleEnum role, String uuid, String username, String password) {
+    public AccountDTO(Long id, AccountRoleEnum role, String uuid, String username, String password,  List<AuthorityDTO> authorities) {
         super(id);
         this.role = role;
         this.uuid = uuid;
         this.username = username;
         this.password = password;
+        this.authorities = authorities;
     }
 
     public AccountRoleEnum getRole() {
@@ -51,5 +60,42 @@ public class AccountDTO extends AbstractDTO<Long> {
 
     public void setPassword(String password) {
         this.password = password;
+    }
+
+
+
+    @Override
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        if (authorities == null) {
+            return List.of();
+        }
+
+        return authorities.stream()
+                .map(a -> new SimpleGrantedAuthority(a.getId()))
+                .toList();
+    }
+
+    public void setAuthorities(List<AuthorityDTO> authorities) {
+        this.authorities = authorities;
+    }
+
+    @Override
+    public boolean isAccountNonExpired() {
+        return true;
+    }
+
+    @Override
+    public boolean isAccountNonLocked() {
+        return true;
+    }
+
+    @Override
+    public boolean isCredentialsNonExpired() {
+        return true;
+    }
+
+    @Override
+    public boolean isEnabled() {
+        return true;
     }
 }

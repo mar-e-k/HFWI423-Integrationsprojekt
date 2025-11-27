@@ -1,32 +1,39 @@
 package de.fhdw.kassensystem.view;
 
-import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+import com.vaadin.flow.component.html.H1;
 import com.vaadin.flow.router.BeforeEnterEvent;
 import com.vaadin.flow.router.BeforeEnterObserver;
 import com.vaadin.flow.router.Route;
+import de.fhdw.commons.api.dto.AccountDTO;
 import de.fhdw.commons.persistence.entity.AccountRoleEnum;
+import de.fhdw.commons.view.BaseView;
 import de.fhdw.kassensystem.view.cashier.CashierView;
-import jakarta.annotation.security.PermitAll;
+import jakarta.annotation.security.RolesAllowed;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 
 @Route("")
-@PermitAll
-public class MainView extends VerticalLayout implements BeforeEnterObserver {
+@RolesAllowed({AccountRoleEnum.ROLE_CASHIER})
+public class MainView extends BaseView implements BeforeEnterObserver {
+    public MainView() {
+        add(new H1("MainView"));
+    }
 
     @Override
-    public void beforeEnter(BeforeEnterEvent event) {
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+    protected String setTopbarTitle() {
+        return MainView.class.getSimpleName();
+    }
 
-        if (auth != null && auth.isAuthenticated()) {
-            if (auth.getAuthorities().stream()
-                    .anyMatch(r -> r.getAuthority().equals(AccountRoleEnum.ADMIN.getAuthority()))) {
-                event.rerouteTo(CashierView.class);
-            } else {
-                event.rerouteTo(CashierView.class);
-            }
+    @Override
+    protected void init() {}
+
+    @Override
+    public void beforeEnter(BeforeEnterEvent beforeEnterEvent) {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        if (auth == null || !(auth.getPrincipal() instanceof AccountDTO)) {
+            beforeEnterEvent.rerouteTo(LoginView.class);
         } else {
-            event.rerouteTo(LoginView.class);
+            beforeEnterEvent.rerouteTo(CashierView.class);
         }
     }
 }

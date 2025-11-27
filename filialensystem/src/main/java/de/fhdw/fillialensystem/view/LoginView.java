@@ -9,12 +9,12 @@ import com.vaadin.flow.router.BeforeEnterEvent;
 import com.vaadin.flow.router.BeforeEnterObserver;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
-import com.vaadin.flow.server.auth.AnonymousAllowed;
-import de.fhdw.fillialensystem.utility.CustomUserDetails;
+import de.fhdw.fillialensystem.utility.security.CustomUserDetails;
+import jakarta.annotation.security.PermitAll;
 
 @Route("/login")
 @PageTitle("Login View")
-@AnonymousAllowed
+@PermitAll
 public class LoginView extends VerticalLayout implements BeforeEnterObserver {
 
     private final LoginForm login = new LoginForm();
@@ -34,7 +34,7 @@ public class LoginView extends VerticalLayout implements BeforeEnterObserver {
 
         add(title, login);
 
-        if (!customUserDetails.hasAdminAccount()) {
+        if (!customUserDetails.existsAdminAccount()) {
             NativeLabel warning = new NativeLabel(
                     "⚠ Kein Admin in der Datenbank vorhanden. Temporärer Admin aktiv. " +
                             "Bitte logge dich mit admin/admin ein und lege sofort einen echten Admin an."
@@ -49,7 +49,7 @@ public class LoginView extends VerticalLayout implements BeforeEnterObserver {
     @Override
     public void beforeEnter(BeforeEnterEvent event) {
         if (event.getLocation().getQueryParameters().getParameters().containsKey("error")) {
-            login.setError(true); // <-- shows "Incorrect username or password"
+            login.setError(true);
         }
     }
 }
