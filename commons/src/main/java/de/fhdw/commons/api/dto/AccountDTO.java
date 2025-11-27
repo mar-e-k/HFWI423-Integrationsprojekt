@@ -5,7 +5,6 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
@@ -15,19 +14,19 @@ public class AccountDTO extends AbstractDTO<Long> implements UserDetails {
     private String uuid;
     private String username;
     private String password;
-    private List<AuthorityDTO> authorities = new ArrayList<>();
+    private List<AuthorityDTO> authorities;
 
     public AccountDTO() {
         super();
     }
 
-    public AccountDTO(Long id, AccountRoleEnum role, String uuid, String username, String password,  List<AuthorityDTO> authorities) {
+    public AccountDTO(Long id, AccountRoleEnum role, String uuid, String username, String password) {
         super(id);
         this.role = role;
         this.uuid = uuid;
         this.username = username;
         this.password = password;
-        this.authorities = authorities;
+        this.authorities = List.of(new AuthorityDTO(role));
     }
 
     public AccountRoleEnum getRole() {
@@ -71,7 +70,7 @@ public class AccountDTO extends AbstractDTO<Long> implements UserDetails {
         }
 
         return authorities.stream()
-                .map(a -> new SimpleGrantedAuthority(a.getId()))
+                .map(a -> new SimpleGrantedAuthority(a.getId())) //id=role here
                 .toList();
     }
 

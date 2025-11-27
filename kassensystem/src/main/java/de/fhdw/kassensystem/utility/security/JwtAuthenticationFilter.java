@@ -45,8 +45,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                             AccountRoleEnum.SYSTEM,
                             claims.getSubject(),
                             "system",
-                            "system",
-                            null);
+                            "system");
                 } else {
                     String uuid = claims.getSubject();
                     account = accountProxyService.findByUuid(uuid)

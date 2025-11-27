@@ -27,7 +27,7 @@ import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.textfield.TextField;
 
 import de.fhdw.commons.persistence.entity.AccountRoleEnum;
-import de.fhdw.commons.view.BaseView;
+import de.fhdw.commons.view.AbstractMainView;
 import jakarta.annotation.security.RolesAllowed;
 
 import java.io.ByteArrayInputStream;
@@ -39,7 +39,7 @@ import java.time.format.DateTimeFormatter;
 @Route("/payment")
 @PageTitle("Bezahlung")
 @RolesAllowed(AccountRoleEnum.ROLE_CASHIER)
-public class PaymentView extends BaseView implements BeforeEnterObserver {
+public class PaymentView extends AbstractMainView implements BeforeEnterObserver {
 
     private final CartItemsManager cartItemsManager;
     private final ReceiptService receiptService;
@@ -61,11 +61,6 @@ public class PaymentView extends BaseView implements BeforeEnterObserver {
         } else {
             cartItemsManager.updateGrid(cartGrid, totalLabel);
         }
-    }
-
-    @Override
-    protected String setTopbarTitle() {
-        return "Bezahlung";
     }
 
     @Override

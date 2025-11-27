@@ -17,7 +17,7 @@ import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
-import de.fhdw.commons.view.BaseView;
+import de.fhdw.commons.view.AbstractMainView;
 import de.fhdw.fillialensystem.persistence.entity.Account;
 import de.fhdw.fillialensystem.persistence.entity.AccountRole;
 import de.fhdw.commons.persistence.entity.AccountRoleEnum;
@@ -26,6 +26,7 @@ import de.fhdw.fillialensystem.persistence.service.AccountService;
 import jakarta.annotation.security.RolesAllowed;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
+import java.util.Arrays;
 import java.util.Comparator;
 import java.util.Optional;
 import java.util.UUID;
@@ -33,7 +34,7 @@ import java.util.UUID;
 @Route("/roles")
 @PageTitle("Roles View")
 @RolesAllowed(AccountRoleEnum.ROLE_ADMIN)
-public class RoleView extends BaseView {
+public class RoleView extends AbstractMainView {
 
     private final AccountService accountService;
     private final AccountRoleService accountRoleService;
@@ -45,11 +46,6 @@ public class RoleView extends BaseView {
         this.accountService = accountService;
         this.accountRoleService = accountRoleService;
         this.passwordEncoder = passwordEncoder;
-    }
-
-    @Override
-    protected String setTopbarTitle() {
-        return "Rollenverwaltung";
     }
 
     @Override
@@ -71,7 +67,10 @@ public class RoleView extends BaseView {
         passwordField.setRequired(true);
 
         Select<AccountRoleEnum> roleSelect = new Select<>();
-        roleSelect.setItems(AccountRoleEnum.values());
+        roleSelect.setItems(Arrays.stream(AccountRoleEnum.values())
+                .filter(role -> role != AccountRoleEnum.SYSTEM)
+                .toList()
+        );
         roleSelect.setLabel("Rolle");
         roleSelect.setRequiredIndicatorVisible(true);
 

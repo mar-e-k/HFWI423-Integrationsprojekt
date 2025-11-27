@@ -8,12 +8,22 @@ import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+import com.vaadin.flow.router.BeforeEnterEvent;
+import com.vaadin.flow.router.BeforeEnterObserver;
+import com.vaadin.flow.router.QueryParameters;
 import com.vaadin.flow.theme.lumo.Lumo;
 import jakarta.annotation.PostConstruct;
+import jakarta.annotation.security.RolesAllowed;
+import org.springframework.aop.support.AopUtils;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
 
-public abstract class BaseView extends VerticalLayout {
+import java.util.Map;
 
-    public BaseView() {
+public abstract class AbstractMainView extends VerticalLayout implements BeforeEnterObserver {
+
+    public AbstractMainView() {
         UI.getCurrent().getPage().executeJs(
                 "const storedTheme = localStorage.getItem('theme');" +
                         "if (storedTheme === 'dark') {" +
@@ -35,7 +45,7 @@ public abstract class BaseView extends VerticalLayout {
         topBar.setAlignItems(Alignment.CENTER);
 
         // Linker Bereich: Titel
-        HorizontalLayout leftSection = new HorizontalLayout(new H1(setTopbarTitle()));
+        HorizontalLayout leftSection = new HorizontalLayout(new H1(AopUtils.getTargetClass(this).getSimpleName()));
         leftSection.setJustifyContentMode(JustifyContentMode.START);
         leftSection.setWidth("33.33%");
 
@@ -97,15 +107,50 @@ public abstract class BaseView extends VerticalLayout {
     }
 
     protected HorizontalLayout createTopBarButtons() {
-        return new HorizontalLayout(); // Standardmäßig leer
+        return new HorizontalLayout();
     }
-
-    protected abstract String setTopbarTitle();
 
     protected abstract void init();
 
     @PostConstruct
     private void postConstructInit() {
-        init(); // init() wird erst nach kompletter Bean-Erstellung ausgeführt
+        init();
+    }
+
+    @Override
+    public void beforeEnter(BeforeEnterEvent beforeEnterEvent) {
+        Class<?> targetView = beforeEnterEvent.getNavigationTarget();
+
+        RolesAllowed rolesAllowed = targetView.getAnnotation(RolesAllowed.class);
+        if (rolesAllowed == null) {
+            return;
+        }
+
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+
+        if (auth == null || auth.getPrincipal() == null || auth.getPrincipal().toString().equalsIgnoreCase("anonymousUser")) {
+            beforeEnterEvent.rerouteTo("login", QueryParameters.simple(Map.of("error", ErrorQueryParameter.LOGIN_REQUIRED.value())));
+            return;
+        }
+
+        if (auth.getAuthorities().isEmpty()) {
+            beforeEnterEvent.rerouteTo("login", QueryParameters.simple(Map.of("error", ErrorQueryParameter.ROLES_MISSING.value())));
+            return;
+        }
+
+        boolean authorized = auth.getAuthorities().stream()
+                .map(GrantedAuthority::getAuthority)
+                .anyMatch(authRole -> {
+                    for (String requiredRole : rolesAllowed.value()) {
+                        if (authRole.equals(requiredRole)) {
+                            return true;
+                        }
+                    }
+                    return false;
+                });
+
+        if (!authorized) {
+            beforeEnterEvent.rerouteTo("login", QueryParameters.simple(Map.of("error", ErrorQueryParameter.ACCESS_DENIED.value())));
+        }
     }
 }

@@ -6,7 +6,7 @@ import com.vaadin.flow.router.BeforeEnterObserver;
 import com.vaadin.flow.router.Route;
 import de.fhdw.commons.api.dto.AccountDTO;
 import de.fhdw.commons.persistence.entity.AccountRoleEnum;
-import de.fhdw.commons.view.BaseView;
+import de.fhdw.commons.view.AbstractMainView;
 import de.fhdw.kassensystem.view.cashier.CashierView;
 import jakarta.annotation.security.RolesAllowed;
 import org.springframework.security.core.Authentication;
@@ -14,14 +14,9 @@ import org.springframework.security.core.context.SecurityContextHolder;
 
 @Route("")
 @RolesAllowed({AccountRoleEnum.ROLE_CASHIER})
-public class MainView extends BaseView implements BeforeEnterObserver {
+public class MainView extends AbstractMainView implements BeforeEnterObserver {
     public MainView() {
         add(new H1("MainView"));
-    }
-
-    @Override
-    protected String setTopbarTitle() {
-        return MainView.class.getSimpleName();
     }
 
     @Override

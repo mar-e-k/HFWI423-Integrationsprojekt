@@ -49,21 +49,16 @@ public class JwtService {
                 .getPayload();
     }
 
-    public String getUuidFromToken(String token) {
-        return parseToken(token).getSubject();
-    }
-
     private AccountDTO getCurrentAccount() {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        if (auth == null) {
+        if (auth == null || !auth.isAuthenticated() || auth.getPrincipal().toString().equalsIgnoreCase("anonymousUser")) {
             log.atWarn().log("Getting fallback system account for Token generation");
             return new AccountDTO(
                     null,
                     AccountRoleEnum.SYSTEM,
                     UUID.randomUUID().toString(),
                     "system",
-                    "system,",
-                    null);
+                    "system");
         }
         if (auth.getPrincipal() instanceof AccountDTO account) {
             return account;

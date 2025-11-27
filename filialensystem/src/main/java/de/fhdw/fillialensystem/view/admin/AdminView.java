@@ -6,7 +6,7 @@ import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
-import de.fhdw.commons.view.BaseView;
+import de.fhdw.commons.view.AbstractMainView;
 import de.fhdw.fillialensystem.persistence.entity.Account;
 import de.fhdw.commons.persistence.entity.AccountRoleEnum;
 import de.fhdw.fillialensystem.persistence.service.AccountService;
@@ -19,19 +19,15 @@ import java.time.format.DateTimeFormatter;
 @Route("/admin")
 @PageTitle("Admin View")
 @RolesAllowed(AccountRoleEnum.ROLE_ADMIN)
-public class AdminView extends BaseView {
+public class AdminView extends AbstractMainView {
 
     private final AccountService accountService;
+
     private Grid<Account> grid;
     private final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm:ss").withZone(ZoneId.systemDefault());
 
     public AdminView(AccountService accountService) {
         this.accountService = accountService;
-    }
-
-    @Override
-    protected String setTopbarTitle() {
-        return "Admin-Dashboard";
     }
 
     @Override

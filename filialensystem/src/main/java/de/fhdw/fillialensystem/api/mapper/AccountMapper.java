@@ -1,9 +1,12 @@
 package de.fhdw.fillialensystem.api.mapper;
 
 import de.fhdw.commons.api.dto.AccountDTO;
+import de.fhdw.commons.api.dto.AuthorityDTO;
 import de.fhdw.fillialensystem.persistence.entity.Account;
 import de.fhdw.fillialensystem.persistence.entity.AccountRole;
 import org.springframework.stereotype.Component;
+
+import java.util.List;
 
 @Component
 @SuppressWarnings("DuplicatedCode")
@@ -34,6 +37,7 @@ public class AccountMapper implements GenericMapper<Account, AccountDTO> {
         dto.setUuid(account.getUuid());
         dto.setUsername(account.getUsername());
         dto.setPassword(account.getPassword());
+        dto.setAuthorities(List.of(new AuthorityDTO(account.getAccountRole().getRole())));
         return dto;
     }
 }

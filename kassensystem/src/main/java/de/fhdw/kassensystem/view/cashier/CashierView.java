@@ -27,7 +27,7 @@ import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import de.fhdw.commons.api.dto.ArticleDTO;
 import de.fhdw.commons.persistence.entity.AccountRoleEnum;
-import de.fhdw.commons.view.BaseView;
+import de.fhdw.commons.view.AbstractMainView;
 import de.fhdw.kassensystem.rest.proxy.services.ArticleProxyService;
 import jakarta.annotation.security.RolesAllowed;
 import org.springframework.beans.factory.annotation.Value;
@@ -41,7 +41,7 @@ import java.util.Optional;
 @PageTitle("Cashier View")
 @CssImport("./styles/styles.css")
 @RolesAllowed({AccountRoleEnum.ROLE_CASHIER})
-public class CashierView extends BaseView implements BeforeEnterObserver {
+public class CashierView extends AbstractMainView implements BeforeEnterObserver {
 
     private static final BigDecimal MIN_PRICE = new BigDecimal("0.01");
 
@@ -62,11 +62,6 @@ public class CashierView extends BaseView implements BeforeEnterObserver {
     public CashierView(ArticleProxyService articleService, CartItemsManager cartItemsManager) {
         this.articleService = articleService;
         this.cartItemsManager = cartItemsManager;
-    }
-
-    @Override
-    protected String setTopbarTitle() {
-        return "Kassen-Dashboard";
     }
 
     @Override

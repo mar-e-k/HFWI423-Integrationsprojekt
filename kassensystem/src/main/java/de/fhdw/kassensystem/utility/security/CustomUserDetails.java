@@ -1,5 +1,7 @@
 package de.fhdw.kassensystem.utility.security;
 
+import de.fhdw.commons.api.dto.AccountDTO;
+import de.fhdw.commons.persistence.entity.AccountRoleEnum;
 import de.fhdw.kassensystem.rest.proxy.services.AccountProxyService;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -19,5 +21,13 @@ public class CustomUserDetails implements UserDetailsService {
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         return accountProxyService.findByUsername(username)
                 .orElseThrow(() -> new UsernameNotFoundException("User not found: [%s]".formatted(username)));
+    }
+
+    public boolean existsAtLeastOneAdminAccount() {
+        return accountProxyService.findAll().stream().map(AccountDTO::getRole).anyMatch(role -> role == AccountRoleEnum.ADMIN);
+    }
+
+    public boolean existsAtLeastOneCashierAccount() {
+        return accountProxyService.findAll().stream().map(AccountDTO::getRole).anyMatch(role -> role == AccountRoleEnum.ADMIN);
     }
 }
