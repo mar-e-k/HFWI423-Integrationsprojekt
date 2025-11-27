@@ -8,4 +8,13 @@ vaadin-grid::part(missing-minstock-row) {
 vaadin-grid::part(missing-minstock-row):hover {
     background-color: #ff9999 !important;
 }
+/* Restock: Zeile grau, wenn Bestellung offen */
+:host ::part(body-row).restock-order-open {
+    background-color: #f3f3f3 !important;
+    color: #666666 !important;
+}
+
+:host ::part(body-row).restock-order-open:hover {
+    background-color: #e0e0e0 !important;
+}
 
