@@ -44,6 +44,7 @@ public class ArticleView extends VerticalLayout {
 
     private final TextField articleNumberField = createSearchField("Artikelnummer (GTIN)");
     private final TextField nameField = createSearchField("Name");
+    private final RadioButtonGroup<String> availabilityFilter = new RadioButtonGroup<>("Verfügbarkeit");
 
     private final ComboBox<SupplierResponseDTO> supplierBox = new ComboBox<>("Lieferant");
 
@@ -80,6 +81,9 @@ public class ArticleView extends VerticalLayout {
         supplierBox.setItemLabelGenerator(SupplierResponseDTO::getName);
         supplierBox.setClearButtonVisible(true);
 
+        availabilityFilter.setItems("Verfügbar", "Nicht verfügbar");
+        availabilityFilter.setValue("Verfügbar");
+
         categoryBox.setItems(categoryService.getAllCategories());
         categoryBox.setItemLabelGenerator(CategoryResponseDTO::getName);
         categoryBox.setClearButtonVisible(true);
@@ -87,7 +91,7 @@ public class ArticleView extends VerticalLayout {
         configureSearchFields();
 
         HorizontalLayout searchLayout = new HorizontalLayout(
-                articleNumberField, nameField, supplierBox, categoryBox, clearButton
+                articleNumberField, nameField, supplierBox, availabilityFilter, categoryBox, clearButton
         );
 
         HorizontalLayout crudButtons = new HorizontalLayout(addButton, editButton, deleteButton, addToCartButton, manageCategoriesButton);
@@ -149,6 +153,12 @@ public class ArticleView extends VerticalLayout {
         categorySelect.setRequiredIndicatorVisible(true);
 
         TextField description = new TextField("Beschreibung");
+        TextField depthCm = new TextField("Tiefe (cm)");
+        depthCm.setRequired(true);
+        TextField heightCm = new TextField("Höhe (cm)");
+        heightCm.setRequired(true);
+        TextField widthCm = new TextField("Breite (cm)");
+        widthCm.setRequired(true);
 
         if (article != null) {
             articleNumber.setValue(safe(article.getArticleNumber()));
@@ -181,17 +191,19 @@ public class ArticleView extends VerticalLayout {
             }
 
             description.setValue(safe(article.getDescription()));
+            depthCm.setValue(String.valueOf(article.getDepthCm()));
+            heightCm.setValue(String.valueOf(article.getHeightCm()));
+            widthCm.setValue(String.valueOf(article.getWidthCm()));
         }
 
         // --- Buttons ---
         Button saveButton = new Button("Speichern", event -> {
             try {
-                if (articleNumber.isEmpty() || name.isEmpty() || stockLevel.isEmpty()
-                        || purchasePrice.isEmpty() || sellingPrice.isEmpty()
-                        || taxRate.isEmpty() || manufacturer.isEmpty()
-                        || supplierBoxForm.isEmpty() || description.isEmpty()) {
-                    throw new IllegalArgumentException("Alle Pflichtfelder müssen ausgefüllt werden.");
-                }
+                if (articleNumber.isEmpty() || name.isEmpty() || stockLevel.isEmpty() || purchasePrice.isEmpty() || sellingPrice.isEmpty()
+                || taxRate.isEmpty() || manufacturer.isEmpty() || supplierBoxForm.isEmpty()
+                || depthCm.isEmpty() || heightCm.isEmpty() || widthCm.isEmpty()) {
+                 throw new IllegalArgumentException("Alle Pflichtfelder müssen ausgefüllt werden.");
+        }
 
                 if (categorySelect.getSelectedItems() == null
                         || categorySelect.getSelectedItems().isEmpty()) {
@@ -222,6 +234,15 @@ public class ArticleView extends VerticalLayout {
                 req.setDescription(description.getValue());
                 req.setIsAvailable(true);
                 req.setHasDeposit("Ja".equals(pfandRadio.getValue()));
+                req.setDepthCm(Double.parseDouble(depthCm.getValue()));
+                req.setHeightCm(Double.parseDouble(heightCm.getValue()));
+                req.setWidthCm(Double.parseDouble(widthCm.getValue()));
+
+                // Berechne Verkaufspreis: Einkaufspreis * (1 + Steuersatz/100)
+                double purchasePriceValue = Double.parseDouble(purchasePrice.getValue());
+                double taxRateValue = Double.parseDouble(taxRate.getValue());
+                double sellingPrice = purchasePriceValue * (1 + taxRateValue / 100);
+                req.setSellingPrice(sellingPrice);
 
                 Set<Long> categoryIds = categorySelect.getSelectedItems().stream()
                         .map(CategoryResponseDTO::getId)
@@ -250,8 +271,8 @@ public class ArticleView extends VerticalLayout {
         HorizontalLayout buttons = new HorizontalLayout(saveButton, cancelButton);
         VerticalLayout formLayout = new VerticalLayout(
                 articleNumber, name, stockLevel, purchasePrice, sellingPrice,
-                taxRate, manufacturer, supplierBoxForm, pfandRadio,
-                categorySelect, description, buttons
+                taxRate, manufacturer, supplierBoxForm, pfandRadio, categorySelect, description,
+                widthCm, heightCm, depthCm, buttons
         );
         formLayout.setPadding(false);
         formLayout.setSpacing(true);
@@ -273,6 +294,14 @@ public class ArticleView extends VerticalLayout {
             filter.setSupplierId(selectedSupplierFilter.getId());
         } else {
             filter.setSupplierId(null);
+        }
+
+        // Setze Verfügbarkeitsfilter basierend auf der Auswahl
+        String selectedAvailability = availabilityFilter.getValue();
+        if ("Verfügbar".equals(selectedAvailability)) {
+            filter.setIsAvailable(true);
+        } else if ("Nicht verfügbar".equals(selectedAvailability)) {
+            filter.setIsAvailable(false);
         }
 
         Set<CategoryResponseDTO> selectedCategories = categoryBox.getSelectedItems();
@@ -400,11 +429,13 @@ public class ArticleView extends VerticalLayout {
         articleNumberField.addValueChangeListener(e -> updateList());
         nameField.addValueChangeListener(e -> updateList());
         supplierBox.addValueChangeListener(e -> updateList());
+        availabilityFilter.addValueChangeListener(e -> updateList());
         categoryBox.addValueChangeListener(e -> updateList());
         clearButton.addClickListener(e -> {
             articleNumberField.clear();
             nameField.clear();
             supplierBox.clear();
+            availabilityFilter.setValue("Verfügbar");
             categoryBox.clear();
             updateList();
         });

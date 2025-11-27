@@ -44,10 +44,20 @@ public class ArticleServiceTest {
     @BeforeEach
     void setUp() {
         // Beispiel-Request-DTO erstellen
-        validRequest = new ArticleRequestDTO(
-                "4008400403337", "Test Schokoriegel",
-                10.00, 19.0, "Hersteller X", SUPPLIER_ID, 100, "Beschreibung", true
-        );
+        validRequest = new ArticleRequestDTO();
+        validRequest.setArticleNumber("4008400403337");
+        validRequest.setName("Test Schokoriegel");
+        validRequest.setPurchasePrice(10.00);
+        validRequest.setTaxRatePercent(19.0);
+        validRequest.setManufacturer("Hersteller X");
+        validRequest.setSupplierId(SUPPLIER_ID);
+        validRequest.setStockLevel(100);
+        validRequest.setDescription("Beschreibung");
+        validRequest.setIsAvailable(true);
+        validRequest.setHasDeposit(false);
+        validRequest.setDepthCm(10.0);
+        validRequest.setHeightCm(10.0);
+        validRequest.setWidthCm(10.0);
 
         // Mock Supplier erstellen
         mockSupplier = new Supplier();
@@ -127,10 +137,20 @@ public class ArticleServiceTest {
     @Test
     void shouldRecalculateSellingPriceOnUpdate() {
         // ARRANGE
-        ArticleRequestDTO updateRequest = new ArticleRequestDTO(
-                "4008400403337", "Geänderter Name",
-                20.00, 10.0, "Hersteller X", SUPPLIER_ID, 100, "Beschreibung",true
-        );
+        ArticleRequestDTO updateRequest = new ArticleRequestDTO();
+        updateRequest.setArticleNumber("4008400403337");
+        updateRequest.setName("Geänderter Name");
+        updateRequest.setPurchasePrice(20.00);
+        updateRequest.setTaxRatePercent(10.0);
+        updateRequest.setManufacturer("Hersteller X");
+        updateRequest.setSupplierId(SUPPLIER_ID);
+        updateRequest.setStockLevel(100);
+        updateRequest.setDescription("Beschreibung");
+        updateRequest.setIsAvailable(true);
+        updateRequest.setHasDeposit(false);
+        updateRequest.setDepthCm(10.0);
+        updateRequest.setHeightCm(10.0);
+        updateRequest.setWidthCm(10.0);
 
         Article existingArticle = new Article();
         existingArticle.setId(savedEntity.getId());
