@@ -5,6 +5,8 @@ import de.fhdw.commons.api.dto.AccountDTO;
 import de.fhdw.kassensystem.utility.FilialClient;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.stereotype.Service;
+import org.springframework.web.reactive.function.client.WebClientResponseException;
+import reactor.core.publisher.Mono;
 
 import java.util.List;
 import java.util.Optional;
@@ -28,31 +30,34 @@ public class AccountProxyService extends AbstractProxyService implements Account
 
     @Override
     public Optional<AccountDTO> findById(Long id) {
-        return Optional.ofNullable(filialClient.getWebClient()
+        return filialClient.getWebClient()
                 .get()
                 .uri("/api/account/id/{id}", id)
                 .retrieve()
                 .bodyToMono(AccountDTO.class)
-                .block());
+                .onErrorResume(WebClientResponseException.NotFound.class, e -> Mono.empty())
+                .blockOptional();
     }
 
     @Override
     public Optional<AccountDTO> findByUuid(String uuid) {
-        return Optional.ofNullable(filialClient.getWebClient()
+        return filialClient.getWebClient()
                 .get()
                 .uri("/api/account/uuid/{uuid}", uuid)
                 .retrieve()
                 .bodyToMono(AccountDTO.class)
-                .block());
+                .onErrorResume(WebClientResponseException.NotFound.class, e -> Mono.empty())
+                .blockOptional();
     }
 
     @Override
     public Optional<AccountDTO> findByUsername(String username) {
-        return Optional.ofNullable(filialClient.getWebClient()
+        return filialClient.getWebClient()
                 .get()
                 .uri("/api/account/name/{username}", username)
                 .retrieve()
                 .bodyToMono(AccountDTO.class)
-                .block());
+                .onErrorResume(WebClientResponseException.NotFound.class, e -> Mono.empty())
+                .blockOptional();
     }
 }

@@ -25,7 +25,7 @@ public class MainView extends AbstractMainView {
         add(title);
 
         Grid<KassensystemInstance> grid = createGrid();
-        grid.setItems(kassensystemRegistryService.findAllActiveRegistries());
+        grid.setItems(kassensystemRegistryService.findAllRegistries());
 
         add(grid);
     }
