@@ -47,6 +47,13 @@ public abstract class AbstractCrudService<T extends GenericEntity<ID>, ID> imple
         return saved;
     }
 
+    @Transactional
+    public T save(@Valid T entity) {
+        T saved = repository.save(entity);
+        log.atInfo().log("[SAVED] [{}] with id [{}]", AopUtils.getTargetClass(this).getSimpleName(), entity.getId());
+        return saved;
+    }
+
     @Override
     @Transactional
     public T update(@NotNull ID id, @Valid T entity) {
@@ -84,5 +91,9 @@ public abstract class AbstractCrudService<T extends GenericEntity<ID>, ID> imple
     @Transactional
     public void delete(@Valid T entity) {
         delete(entity.getId());
+    }
+
+    public long count() {
+        return repository.count();
     }
 }
