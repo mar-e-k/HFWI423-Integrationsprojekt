@@ -11,7 +11,6 @@ import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.notification.Notification;
-import com.vaadin.flow.component.notification.NotificationVariant;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.radiobutton.RadioButtonGroup;
@@ -91,7 +90,7 @@ public class ArticleView extends VerticalLayout {
         configureSearchFields();
 
         HorizontalLayout searchLayout = new HorizontalLayout(
-                articleNumberField, nameField, supplierBox, availabilityFilter, categoryBox, clearButton
+                articleNumberField, nameField, supplierBox, categoryBox, availabilityFilter, clearButton
         );
 
         HorizontalLayout crudButtons = new HorizontalLayout(addButton, editButton, deleteButton, addToCartButton, manageCategoriesButton);
@@ -113,7 +112,6 @@ public class ArticleView extends VerticalLayout {
         Dialog dialog = new Dialog();
         dialog.setHeaderTitle(article == null ? "Neuen Artikel hinzufügen" : "Artikel bearbeiten");
 
-        // --- Input fields ---
         TextField articleNumber = new TextField("Artikelnummer (GTIN)");
         articleNumber.setRequired(true);
         TextField name = new TextField("Name");
@@ -122,14 +120,15 @@ public class ArticleView extends VerticalLayout {
         stockLevel.setRequired(true);
         TextField purchasePrice = new TextField("EK-Preis (€)");
         purchasePrice.setRequired(true);
-        TextField sellingPrice = new TextField("VK-Preis (€)");
-        sellingPrice.setRequired(true);
         TextField taxRate = new TextField("MwSt (%)");
         taxRate.setRequired(true);
+        TextField marginPercent = new TextField("Marge (%)");
+        marginPercent.setRequired(true);
+        TextField sellingPrice = new TextField("VK-Preis (€)");
+        sellingPrice.setReadOnly(true);
         TextField manufacturer = new TextField("Hersteller");
         manufacturer.setRequired(true);
 
-        // Formular-ComboBox verwaltet SupplierResponseDTOs
         ComboBox<SupplierResponseDTO> supplierBoxForm = new ComboBox<>("Lieferant");
         supplierBoxForm.setItems(supplierCache.values());
         supplierBoxForm.setItemLabelGenerator(SupplierResponseDTO::getName);
@@ -165,8 +164,8 @@ public class ArticleView extends VerticalLayout {
             name.setValue(safe(article.getName()));
             stockLevel.setValue(String.valueOf(article.getStockLevel()));
             purchasePrice.setValue(String.valueOf(article.getPurchasePrice()));
-            sellingPrice.setValue(String.valueOf(article.getSellingPrice()));
             taxRate.setValue(String.valueOf(article.getTaxRatePercent()));
+            sellingPrice.setValue(String.valueOf(article.getSellingPrice()));
             manufacturer.setValue(safe(article.getManufacturer()));
 
             if (article.getSupplierId() != null) {
@@ -194,16 +193,49 @@ public class ArticleView extends VerticalLayout {
             depthCm.setValue(String.valueOf(article.getDepthCm()));
             heightCm.setValue(String.valueOf(article.getHeightCm()));
             widthCm.setValue(String.valueOf(article.getWidthCm()));
+
+            java.util.function.Function<TextField, Double> parseDoubleOrNull = field -> {
+                try {
+                    String v = field.getValue();
+                    if (v == null || v.trim().isEmpty()) {
+                        return null;
+                    }
+                    return Double.parseDouble(v.replace(",", ".").trim());
+                } catch (NumberFormatException e) {
+                    return null;
+                }
+            };
+
+            Runnable recalcSellingPrice = () -> {
+                Double ek = parseDoubleOrNull.apply(purchasePrice);
+                Double mwst = parseDoubleOrNull.apply(taxRate);
+                Double marge = parseDoubleOrNull.apply(marginPercent);
+
+                if (ek == null || mwst == null || marge == null) {
+                    sellingPrice.clear();
+                    return;
+                }
+
+                double nettoMitMarge = ek * (1 + marge / 100.0);
+                double brutto = nettoMitMarge * (1 + mwst / 100.0);
+                sellingPrice.setValue(String.format("%.2f", brutto));
+            };
+
+            purchasePrice.addValueChangeListener(e -> recalcSellingPrice.run());
+            taxRate.addValueChangeListener(e -> recalcSellingPrice.run());
+            marginPercent.addValueChangeListener(e -> recalcSellingPrice.run());
         }
 
         // --- Buttons ---
         Button saveButton = new Button("Speichern", event -> {
             try {
-                if (articleNumber.isEmpty() || name.isEmpty() || stockLevel.isEmpty() || purchasePrice.isEmpty() || sellingPrice.isEmpty()
-                || taxRate.isEmpty() || manufacturer.isEmpty() || supplierBoxForm.isEmpty()
-                || depthCm.isEmpty() || heightCm.isEmpty() || widthCm.isEmpty()) {
-                 throw new IllegalArgumentException("Alle Pflichtfelder müssen ausgefüllt werden.");
-        }
+                if (articleNumber.isEmpty() || name.isEmpty() || stockLevel.isEmpty()
+                        || purchasePrice.isEmpty() || taxRate.isEmpty()
+                        || manufacturer.isEmpty() || supplierBoxForm.isEmpty()
+                        || depthCm.isEmpty() || heightCm.isEmpty() || widthCm.isEmpty()
+                        || marginPercent.isEmpty()) {
+                    throw new IllegalArgumentException("Alle Pflichtfelder müssen ausgefüllt werden.");
+                }
 
                 if (categorySelect.getSelectedItems() == null
                         || categorySelect.getSelectedItems().isEmpty()) {
@@ -212,13 +244,26 @@ public class ArticleView extends VerticalLayout {
                     return;
                 }
 
-                // Build request DTO
-                fhdw.de.einkauf_service.dto.ArticleRequestDTO req = new fhdw.de.einkauf_service.dto.ArticleRequestDTO();
+                Double ek = parseDoubleOrNull.apply(purchasePrice);
+                Double mwst = parseDoubleOrNull.apply(taxRate);
+                Double marge = parseDoubleOrNull.apply(marginPercent);
+
+                if (ek == null || mwst == null || marge == null) {
+                    Notification.show("Bitte gültige Zahlen für EK, MwSt und Marge eingeben.", 4000,
+                            Notification.Position.BOTTOM_START);
+                    return;
+                }
+
+                double nettoMitMarge = ek * (1 + marge / 100.0);
+                double vk = nettoMitMarge * (1 + mwst / 100.0);
+
+                fhdw.de.einkauf_service.dto.ArticleRequestDTO req =
+                        new fhdw.de.einkauf_service.dto.ArticleRequestDTO();
                 req.setArticleNumber(articleNumber.getValue());
                 req.setName(name.getValue());
-                req.setPurchasePrice(Double.parseDouble(purchasePrice.getValue()));
-                req.setSellingPrice(Double.parseDouble(sellingPrice.getValue()));
-                req.setTaxRatePercent(Double.parseDouble(taxRate.getValue()));
+                req.setPurchasePrice(ek);
+                req.setSellingPrice(vk);
+                req.setTaxRatePercent(mwst);
                 req.setManufacturer(manufacturer.getValue());
 
                 SupplierResponseDTO selectedSupplierDto = supplierBoxForm.getValue();
@@ -237,12 +282,6 @@ public class ArticleView extends VerticalLayout {
                 req.setDepthCm(Double.parseDouble(depthCm.getValue()));
                 req.setHeightCm(Double.parseDouble(heightCm.getValue()));
                 req.setWidthCm(Double.parseDouble(widthCm.getValue()));
-
-                // Berechne Verkaufspreis: Einkaufspreis * (1 + Steuersatz/100)
-                double purchasePriceValue = Double.parseDouble(purchasePrice.getValue());
-                double taxRateValue = Double.parseDouble(taxRate.getValue());
-                double sellingPrice = purchasePriceValue * (1 + taxRateValue / 100);
-                req.setSellingPrice(sellingPrice);
 
                 Set<Long> categoryIds = categorySelect.getSelectedItems().stream()
                         .map(CategoryResponseDTO::getId)
@@ -270,8 +309,8 @@ public class ArticleView extends VerticalLayout {
 
         HorizontalLayout buttons = new HorizontalLayout(saveButton, cancelButton);
         VerticalLayout formLayout = new VerticalLayout(
-                articleNumber, name, stockLevel, purchasePrice, sellingPrice,
-                taxRate, manufacturer, supplierBoxForm, pfandRadio, categorySelect, description,
+                articleNumber, name, stockLevel, purchasePrice, taxRate, marginPercent, sellingPrice,
+                manufacturer, supplierBoxForm, pfandRadio, categorySelect, description,
                 widthCm, heightCm, depthCm, buttons
         );
         formLayout.setPadding(false);
@@ -314,8 +353,6 @@ public class ArticleView extends VerticalLayout {
         } else {
             filter.setCategoryIds(null);
         }
-
-        filter.setIsAvailable(true);
 
         List<ArticleResponseDTO> articles = articleService.findFilteredArticles(filter);
         grid.setItems(articles);
@@ -501,4 +538,16 @@ public class ArticleView extends VerticalLayout {
         categoryBox.setItemLabelGenerator(CategoryResponseDTO::getName);
         updateList();
     }
+
+    java.util.function.Function<TextField, Double> parseDoubleOrNull = field -> {
+        try {
+            String v = field.getValue();
+            if (v == null || v.trim().isEmpty()) {
+                return null;
+            }
+            return Double.parseDouble(v.replace(",", ".").trim());
+        } catch (NumberFormatException e) {
+            return null;
+        }
+    };
 }
