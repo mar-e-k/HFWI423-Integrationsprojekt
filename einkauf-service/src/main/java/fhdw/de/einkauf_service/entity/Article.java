@@ -11,14 +11,14 @@ import java.util.Set;
 
 @Entity
 @Table(name = "article")
-@Data // Lombok: Generates Getters, Setters, toString, equals, and hashCode
+@Data
 public class Article {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    // Required Field Validation & Unique Constraint (GTIN)
+
     @Column(nullable = false, unique = true)
     @NotBlank(message = "Article number (GTIN) is mandatory.")
     @Size(min = 8, max = 18, message = "GTIN must be between 8 and 18 characters.")
@@ -28,7 +28,7 @@ public class Article {
     @NotBlank(message = "Article name is mandatory.")
     private String name;
 
-    // Price Fields with Validation
+
     @Column(nullable = false)
     @NotNull(message = "Purchase price is mandatory.")
     @Positive(message = "Purchase price must be positive.")
