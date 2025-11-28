@@ -1,16 +1,14 @@
 package com.example.application.data.contingent;
 
 import com.example.application.data.AbstractEntity;
-import com.example.application.data.article.ArticleInfo;
 import jakarta.persistence.*;
 
 @Entity
 @Table(name = "contingent")
 public class Contingent extends AbstractEntity {
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "article_id", nullable = false)
-    private ArticleInfo article;
+    @Column (name = "article_id", nullable = false)
+    private Long article;
 
     @Column(name = "available_quantity", nullable = false)
     private Integer availableQuantity;
@@ -22,11 +20,11 @@ public class Contingent extends AbstractEntity {
     private Long supplierId;
 
     // Getter/Setter
-    public ArticleInfo getArticle() {
+    public Long getArticle() {
         return article;
     }
 
-    public void setArticle(ArticleInfo article) {
+    public void setArticle(Long article) {
         this.article = article;
     }
 
