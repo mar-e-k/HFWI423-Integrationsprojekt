@@ -68,11 +68,14 @@ public class ArticleSpecifications {
                 ));
             }
 
-            // 6. Statusfilter: Nur aktive/verfügbare Artikel (isAvailable = true)
-            if (filter.getIsAvailable() != null && filter.getIsAvailable()) {
-                predicates.add(criteriaBuilder.isTrue(
-                        root.get("isAvailable")
-                ));
+            // 6. Statusfilter: Filtern nach Verfügbarkeit
+            // null = alle Artikel, true = nur verfügbar, false = nur nicht verfügbar
+            if (filter.getIsAvailable() != null) {
+                if (filter.getIsAvailable()) {
+                    predicates.add(criteriaBuilder.isTrue(root.get("isAvailable")));
+                } else {
+                    predicates.add(criteriaBuilder.isFalse(root.get("isAvailable")));
+                }
             }
 
             // Verknüpfe alle gesammelten Predicates mit logischem AND

@@ -147,6 +147,15 @@ public class ArticleView extends VerticalLayout {
         }
         pfandRadio.setRequired(true);
 
+        RadioButtonGroup<String> availabilityRadio = new RadioButtonGroup<>("Verfügbarkeit");
+        availabilityRadio.setItems("Verfügbar", "Nicht verfügbar");
+        if (article != null) {
+            availabilityRadio.setValue(Boolean.TRUE.equals(article.getIsAvailable()) ? "Verfügbar" : "Nicht verfügbar");
+        } else {
+            availabilityRadio.setValue("Nicht verfügbar");
+        }
+        availabilityRadio.setRequired(true);
+
         MultiSelectComboBox<CategoryResponseDTO> categorySelect =
                 new MultiSelectComboBox<>("Kategorie");
         List<CategoryResponseDTO> allCategories = categoryService.getAllCategories();  // NEU
@@ -293,7 +302,7 @@ public class ArticleView extends VerticalLayout {
                 }
                 req.setStockLevel(Integer.parseInt(stockLevel.getValue()));
                 req.setDescription(description.getValue());
-                req.setIsAvailable(true);
+                req.setIsAvailable("Verfügbar".equals(availabilityRadio.getValue()));
                 req.setHasDeposit("Ja".equals(pfandRadio.getValue()));
                 req.setDepthCm(Double.parseDouble(depthCm.getValue()));
                 req.setHeightCm(Double.parseDouble(heightCm.getValue()));
@@ -328,7 +337,7 @@ public class ArticleView extends VerticalLayout {
         HorizontalLayout buttons = new HorizontalLayout(saveButton, cancelButton);
         VerticalLayout formLayout = new VerticalLayout(
                 articleNumber, name, stockLevel, purchasePrice, taxRate, marginPercent, sellingPrice,
-                manufacturer, supplierBoxForm, pfandRadio, categorySelect, description,
+                manufacturer, supplierBoxForm, pfandRadio, availabilityRadio, categorySelect, description,
                 widthCm, heightCm, depthCm, productImageUrl, expirationDate, buttons
         );
         formLayout.setPadding(false);
