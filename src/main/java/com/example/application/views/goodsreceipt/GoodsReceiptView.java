@@ -4,6 +4,7 @@ import com.example.application.views.MainLayout;
 import com.example.application.data.goodsreceipts.GoodsReceipt;
 import com.example.application.services.GoodsReceiptService;
 import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.datepicker.DatePicker;
 import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.formlayout.FormLayout;
@@ -18,9 +19,8 @@ import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
+// wichtig: dieses @Menu ist die Quelle für MenuConfiguration.getMenuEntries()
 import com.vaadin.flow.router.Menu;
-// ⬇️ wichtig: dieses @Menu ist die Quelle für MenuConfiguration.getMenuEntries()
-//import com.vaadin.flow.server.menu.Menu;
 
 import java.time.LocalDate;
 
@@ -49,13 +49,42 @@ public class GoodsReceiptView extends Div {
         HorizontalLayout toolbar = new HorizontalLayout(add);
         toolbar.setWidthFull();
 
-        // Grid
-        grid.addColumn(GoodsReceipt::getReceiptNumber).setHeader("WE-Nr.").setAutoWidth(true).setSortable(true);
-        grid.addColumn(GoodsReceipt::getSupplierName).setHeader("Lieferant").setAutoWidth(true).setSortable(true);
-        grid.addColumn(GoodsReceipt::getDeliveryNoteNumber).setHeader("Lieferschein").setAutoWidth(true);
-        grid.addColumn(GoodsReceipt::getDeliveryDate).setHeader("Lieferdatum").setAutoWidth(true).setSortable(true);
-        grid.addColumn(GoodsReceipt::getStatus).setHeader("Status").setAutoWidth(true).setSortable(true);
-        grid.addColumn(GoodsReceipt::getCreatedAt).setHeader("Angelegt").setAutoWidth(true).setSortable(true);
+        // Grid-Spalten
+        grid.addColumn(GoodsReceipt::getReceiptNumber)
+                .setHeader("WE-Nr.")
+                .setAutoWidth(true)
+                .setSortable(true);
+
+        grid.addColumn(GoodsReceipt::getSupplierName)
+                .setHeader("Lieferant")
+                .setAutoWidth(true)
+                .setSortable(true);
+
+        grid.addColumn(GoodsReceipt::getDeliveryNoteNumber)
+                .setHeader("Lieferschein")
+                .setAutoWidth(true);
+
+        grid.addColumn(GoodsReceipt::getDeliveryDate)
+                .setHeader("Lieferdatum")
+                .setAutoWidth(true)
+                .setSortable(true);
+
+        grid.addColumn(GoodsReceipt::getStatus)
+                .setHeader("Status")
+                .setAutoWidth(true)
+                .setSortable(true);
+
+        grid.addColumn(GoodsReceipt::getCreatedAt)
+                .setHeader("Angelegt")
+                .setAutoWidth(true)
+                .setSortable(true);
+
+        // Aktionen-Spalte (Löschen)
+        grid.addComponentColumn(gr -> {
+            Button delete = new Button("Löschen", e -> deleteReceipt(gr));
+            delete.addThemeVariants(ButtonVariant.LUMO_ERROR, ButtonVariant.LUMO_TERTIARY);
+            return new HorizontalLayout(delete);
+        }).setHeader("Aktionen").setAutoWidth(true);
 
         grid.setSizeFull();
 
@@ -73,6 +102,18 @@ public class GoodsReceiptView extends Div {
     private void refresh() {
         grid.setItems(service.findAll());
         grid.getDataProvider().refreshAll();
+    }
+
+    private void deleteReceipt(GoodsReceipt gr) {
+        try {
+            service.deleteIfAllowed(gr.getId());
+            Notification n = Notification.show("Wareneingang gelöscht", 3000, Position.MIDDLE);
+            n.addThemeVariants(NotificationVariant.LUMO_SUCCESS);
+            refresh();
+        } catch (IllegalStateException ex) {
+            Notification n = Notification.show(ex.getMessage(), 5000, Position.MIDDLE);
+            n.addThemeVariants(NotificationVariant.LUMO_ERROR);
+        }
     }
 
     private void openCreateDialog() {
@@ -125,3 +166,4 @@ public class GoodsReceiptView extends Div {
         dialog.open();
     }
 }
+

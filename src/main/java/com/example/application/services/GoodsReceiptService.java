@@ -1,6 +1,10 @@
 package com.example.application.services;
 
+import com.example.application.data.article.ArticleInfo;
 import com.example.application.data.goodsreceipts.GoodsReceipt;
+import com.example.application.data.goodsreceipts.GoodsReceiptItem;
+import com.example.application.data.goodsreceipts.GoodsReceiptItemRepository;
+import com.example.application.data.goodsreceipts.GoodsReceiptItemStatus;
 import com.example.application.data.goodsreceipts.GoodsReceiptRepository;
 import com.example.application.data.goodsreceipts.GoodsReceiptStatus;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -14,13 +18,21 @@ import java.util.List;
 @Service
 public class GoodsReceiptService {
 
-    private final GoodsReceiptRepository repo;
+    private final GoodsReceiptRepository receiptRepo;
+    private final GoodsReceiptItemRepository itemRepo;
     private final JdbcTemplate jdbc;
 
-    public GoodsReceiptService(GoodsReceiptRepository repo, JdbcTemplate jdbc) {
-        this.repo = repo;
+    public GoodsReceiptService(GoodsReceiptRepository receiptRepo,
+                               GoodsReceiptItemRepository itemRepo,
+                               JdbcTemplate jdbc) {
+        this.receiptRepo = receiptRepo;
+        this.itemRepo = itemRepo;
         this.jdbc = jdbc;
     }
+
+    // ------------------------------------------------------------------------
+    // Nummernkreis
+    // ------------------------------------------------------------------------
 
     // Zieht die nächste Zahl aus goods_receipt_seq und formatiert WE-YYYY-00001
     private String nextReceiptNumber() {
@@ -28,7 +40,11 @@ public class GoodsReceiptService {
         String year = String.valueOf(Year.now().getValue());
         return String.format("WE-%s-%05d", year, next);
     }
-        //Hier abhängig von der DB. NACHFRAGEN!!!
+
+    // ------------------------------------------------------------------------
+    // CRUD Wareneingang
+    // ------------------------------------------------------------------------
+
     @Transactional
     public GoodsReceipt create(String supplierName, String deliveryNoteNumber, LocalDate deliveryDate) {
         GoodsReceipt gr = new GoodsReceipt();
@@ -37,15 +53,171 @@ public class GoodsReceiptService {
         gr.setDeliveryNoteNumber(deliveryNoteNumber);
         gr.setDeliveryDate(deliveryDate);
         gr.setStatus(GoodsReceiptStatus.IN_PRUEFUNG);
-        return repo.save(gr);
+        return receiptRepo.save(gr);
     }
 
-    public List<GoodsReceipt> findAll() { return repo.findAll(); }
+    @Transactional(readOnly = true)
+    public List<GoodsReceipt> findAll() {
+        return receiptRepo.findAll();
+    }
+
+    @Transactional(readOnly = true)
+    public GoodsReceipt getById(Long id) {
+        return receiptRepo.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Wareneingang " + id + " nicht gefunden"));
+    }
 
     @Transactional
     public GoodsReceipt updateStatus(Long id, GoodsReceiptStatus status) {
-        GoodsReceipt gr = repo.findById(id).orElseThrow();
+        GoodsReceipt gr = getById(id);
         gr.setStatus(status);
-        return repo.save(gr);
+        return receiptRepo.save(gr);
+    }
+
+    /**
+     * Löscht einen Wareneingang inkl. aller Items,
+     * aber nur wenn er noch im Status IN_PRUEFUNG ist.
+     */
+    @Transactional
+    public void deleteIfAllowed(Long id) {
+        GoodsReceipt gr = getById(id);
+        if (gr.getStatus() == GoodsReceiptStatus.IN_PRUEFUNG) {
+            // Items werden durch orphanRemoval = true in GoodsReceipt automatisch mitgelöscht
+            receiptRepo.delete(gr);
+        } else {
+            throw new IllegalStateException(
+                    "Wareneingang kann nicht gelöscht werden, Status ist " + gr.getStatus()
+                            + " (nur IN_PRUEFUNG darf gelöscht werden)");
+        }
+    }
+
+    // ------------------------------------------------------------------------
+    // Items / Prüfpositionen
+    // ------------------------------------------------------------------------
+
+    @Transactional(readOnly = true)
+    public List<GoodsReceiptItem> getItemsForReceipt(Long receiptId) {
+        return itemRepo.findByGoodsReceiptId(receiptId);
+    }
+
+    @Transactional
+    public GoodsReceiptItem addItemToReceipt(Long receiptId,
+                                             ArticleInfo article,
+                                             Integer expectedQty,
+                                             Integer actualQty,
+                                             String defectNotes) {
+        GoodsReceipt receipt = getById(receiptId);
+
+        GoodsReceiptItem item = new GoodsReceiptItem();
+        item.setGoodsReceipt(receipt);
+        item.setArticle(article);
+        item.setExpectedQuantity(expectedQty);
+        item.setActualQuantity(actualQty != null ? actualQty : expectedQty);
+        item.setDefectNotes(defectNotes);
+        item.setStatus(GoodsReceiptItemStatus.IN_PRUEFUNG);
+
+        GoodsReceiptItem saved = itemRepo.save(item);
+        recomputeReceiptStatus(receipt);
+        return saved;
+    }
+
+    @Transactional
+    public GoodsReceiptItem updateItem(Long itemId,
+                                       Integer actualQty,
+                                       String defectNotes) {
+        GoodsReceiptItem item = itemRepo.findById(itemId)
+                .orElseThrow(() -> new IllegalArgumentException("Item " + itemId + " nicht gefunden"));
+
+        if (actualQty != null) {
+            item.setActualQuantity(actualQty);
+        }
+        if (defectNotes != null) {
+            item.setDefectNotes(defectNotes);
+        }
+
+        GoodsReceiptItem saved = itemRepo.save(item);
+        recomputeReceiptStatus(saved.getGoodsReceipt());
+        return saved;
+    }
+
+    @Transactional
+    public GoodsReceiptItem setItemStatus(Long itemId, GoodsReceiptItemStatus status) {
+        GoodsReceiptItem item = itemRepo.findById(itemId)
+                .orElseThrow(() -> new IllegalArgumentException("Item " + itemId + " nicht gefunden"));
+
+        item.setStatus(status);
+        GoodsReceiptItem saved = itemRepo.save(item);
+
+        // Gesamtstatus des Wareneingangs anpassen
+        recomputeReceiptStatus(saved.getGoodsReceipt());
+
+        return saved;
+    }
+
+    // ------------------------------------------------------------------------
+    // Abschluss der Prüfung
+    // ------------------------------------------------------------------------
+
+    /**
+     * Schließt die Prüfung eines Wareneingangs ab:
+     * - Wenn noch Items IN_PRUEFUNG sind -> Exception (Prüfung nicht vollständig)
+     * - Wenn alle Items FREIGEGEBEN -> Wareneingang = FREIGEGEBEN
+     * - Sonst -> Wareneingang = GEPRUEFT
+     */
+    @Transactional
+    public GoodsReceipt completeInspection(Long receiptId) {
+        GoodsReceipt gr = getById(receiptId);
+        List<GoodsReceiptItem> items = getItemsForReceipt(receiptId);
+
+        boolean anyInPruefung = items.stream()
+                .anyMatch(i -> i.getStatus() == GoodsReceiptItemStatus.IN_PRUEFUNG);
+
+        if (anyInPruefung) {
+            throw new IllegalStateException(
+                    "Prüfung kann nicht abgeschlossen werden: es gibt noch Positionen IN_PRUEFUNG");
+        }
+
+        boolean allFreigegeben = !items.isEmpty() && items.stream()
+                .allMatch(i -> i.getStatus() == GoodsReceiptItemStatus.FREIGEGEBEN);
+
+        if (allFreigegeben) {
+            gr.setStatus(GoodsReceiptStatus.FREIGEGEBEN);
+        } else {
+            gr.setStatus(GoodsReceiptStatus.GEPRUEFT);
+        }
+
+        return receiptRepo.save(gr);
+    }
+
+    // ------------------------------------------------------------------------
+    // Hilfslogik: Status vom Wareneingang aus Items ableiten
+    // ------------------------------------------------------------------------
+
+    private void recomputeReceiptStatus(GoodsReceipt receipt) {
+        List<GoodsReceiptItem> items = itemRepo.findByGoodsReceiptId(receipt.getId());
+        if (items.isEmpty()) {
+            // keine Items => bleibt IN_PRUEFUNG
+            receipt.setStatus(GoodsReceiptStatus.IN_PRUEFUNG);
+            receiptRepo.save(receipt);
+            return;
+        }
+
+        boolean anyInPruefung = items.stream()
+                .anyMatch(i -> i.getStatus() == GoodsReceiptItemStatus.IN_PRUEFUNG);
+
+        if (anyInPruefung) {
+            receipt.setStatus(GoodsReceiptStatus.IN_PRUEFUNG);
+        } else {
+            boolean allFreigegeben = items.stream()
+                    .allMatch(i -> i.getStatus() == GoodsReceiptItemStatus.FREIGEGEBEN);
+            if (allFreigegeben) {
+                receipt.setStatus(GoodsReceiptStatus.FREIGEGEBEN);
+            } else {
+                receipt.setStatus(GoodsReceiptStatus.GEPRUEFT);
+            }
+        }
+
+        receiptRepo.save(receipt);
     }
 }
+
