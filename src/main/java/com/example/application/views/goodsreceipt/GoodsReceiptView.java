@@ -2,6 +2,8 @@ package com.example.application.views.goodsreceipt;
 
 import com.example.application.views.MainLayout;
 import com.example.application.data.goodsreceipts.GoodsReceipt;
+import com.example.application.data.goodsreceipts.GoodsReceiptItem;
+import com.example.application.data.goodsreceipts.GoodsReceiptItemStatus;
 import com.example.application.services.GoodsReceiptService;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
@@ -15,25 +17,24 @@ import com.vaadin.flow.component.notification.Notification.Position;
 import com.vaadin.flow.component.notification.NotificationVariant;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+import com.vaadin.flow.component.textfield.IntegerField;
+import com.vaadin.flow.component.textfield.TextArea;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
-// wichtig: dieses @Menu ist die Quelle für MenuConfiguration.getMenuEntries()
 import com.vaadin.flow.router.Menu;
 
 import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.util.List;
 
 @PageTitle("Wareneingänge")
-// Route an euer MainLayout hängen:
 @Route(value = "goods-receipts", layout = MainLayout.class)
-// ⬇️ dieser Eintrag macht den Menüpunkt sichtbar
 @Menu(
         title = "Wareneingänge",
-        // Icon-String muss zu eurer SvgIcon(..) Factory passen.
-        // Wenn du unsicher bist, lass icon="" weg oder setze null.
-        icon = "la-truck-loading-solid", // z.B. Line Awesome; sonst weglassen
-        order = 40                       // Position im Menü (optional)
+        icon = "la-truck-loading-solid",
+        order = 40
 )
 public class GoodsReceiptView extends Div {
 
@@ -79,11 +80,15 @@ public class GoodsReceiptView extends Div {
                 .setAutoWidth(true)
                 .setSortable(true);
 
-        // Aktionen-Spalte (Löschen)
+        // Aktionen-Spalte: Prüfen + Löschen
         grid.addComponentColumn(gr -> {
+            Button inspect = new Button("Prüfen", e -> openInspectionDialog(gr));
+            inspect.addThemeVariants(ButtonVariant.LUMO_PRIMARY, ButtonVariant.LUMO_TERTIARY);
+
             Button delete = new Button("Löschen", e -> deleteReceipt(gr));
             delete.addThemeVariants(ButtonVariant.LUMO_ERROR, ButtonVariant.LUMO_TERTIARY);
-            return new HorizontalLayout(delete);
+
+            return new HorizontalLayout(inspect, delete);
         }).setHeader("Aktionen").setAutoWidth(true);
 
         grid.setSizeFull();
@@ -104,6 +109,10 @@ public class GoodsReceiptView extends Div {
         grid.getDataProvider().refreshAll();
     }
 
+    // ------------------------------------------------------------------------
+    // Löschen
+    // ------------------------------------------------------------------------
+
     private void deleteReceipt(GoodsReceipt gr) {
         try {
             service.deleteIfAllowed(gr.getId());
@@ -115,6 +124,10 @@ public class GoodsReceiptView extends Div {
             n.addThemeVariants(NotificationVariant.LUMO_ERROR);
         }
     }
+
+    // ------------------------------------------------------------------------
+    // Neuer Wareneingang
+    // ------------------------------------------------------------------------
 
     private void openCreateDialog() {
         Dialog dialog = new Dialog();
@@ -165,5 +178,163 @@ public class GoodsReceiptView extends Div {
         dialog.getFooter().add(new HorizontalLayout(cancel, save));
         dialog.open();
     }
+
+    // ------------------------------------------------------------------------
+    // Prüfung / Inspection
+    // ------------------------------------------------------------------------
+
+    private void openInspectionDialog(GoodsReceipt receipt) {
+        Dialog dialog = new Dialog();
+        dialog.setHeaderTitle("Wareneingang prüfen: " + receipt.getReceiptNumber());
+
+        // Info-Zeile
+        DateTimeFormatter df = DateTimeFormatter.ofPattern("dd.MM.yyyy");
+        String infoText = "Lieferant: " + receipt.getSupplierName()
+                + " | Lieferschein: " + receipt.getDeliveryNoteNumber()
+                + " | Lieferdatum: " + (receipt.getDeliveryDate() != null ? receipt.getDeliveryDate().format(df) : "-");
+
+        com.vaadin.flow.component.html.Span info = new com.vaadin.flow.component.html.Span(infoText);
+
+        // Grid für Items
+        Grid<GoodsReceiptItem> itemGrid = new Grid<>(GoodsReceiptItem.class, false);
+        itemGrid.setWidthFull();
+        itemGrid.setHeight("300px");
+
+        itemGrid.addColumn(item -> item.getArticle() != null ? item.getArticle().getArticleNumber() : "")
+                .setHeader("Artikel-Nr.")
+                .setAutoWidth(true);
+
+        itemGrid.addColumn(item -> item.getArticle() != null ? item.getArticle().getName() : "")
+                .setHeader("Artikel")
+                .setAutoWidth(true);
+
+        itemGrid.addColumn(GoodsReceiptItem::getExpectedQuantity)
+                .setHeader("Soll-Menge")
+                .setAutoWidth(true);
+
+        itemGrid.addColumn(GoodsReceiptItem::getActualQuantity)
+                .setHeader("Ist-Menge")
+                .setAutoWidth(true);
+
+        itemGrid.addColumn(GoodsReceiptItem::getStatus)
+                .setHeader("Status")
+                .setAutoWidth(true);
+
+        itemGrid.addColumn(GoodsReceiptItem::getDefectNotes)
+                .setHeader("Mängel")
+                .setAutoWidth(true);
+
+        // Formular für ausgewähltes Item
+        IntegerField actualQtyField = new IntegerField("Ist-Menge");
+        actualQtyField.setMin(0);
+        actualQtyField.setStep(1);
+
+        TextArea defectNotesField = new TextArea("Mängel / Abweichungen");
+        defectNotesField.setWidthFull();
+        defectNotesField.setHeight("120px");
+
+        Binder<GoodsReceiptItem> itemBinder = new Binder<>(GoodsReceiptItem.class);
+
+        itemBinder.forField(actualQtyField)
+                .bind(GoodsReceiptItem::getActualQuantity, GoodsReceiptItem::setActualQuantity);
+
+        itemBinder.forField(defectNotesField)
+                .bind(GoodsReceiptItem::getDefectNotes, GoodsReceiptItem::setDefectNotes);
+
+        itemGrid.asSingleSelect().addValueChangeListener(e -> {
+            GoodsReceiptItem selected = e.getValue();
+            if (selected != null) {
+                itemBinder.setBean(selected);
+            } else {
+                itemBinder.setBean(null);
+                actualQtyField.clear();
+                defectNotesField.clear();
+            }
+        });
+
+        // Buttons für Position
+        Button saveItem = new Button("Änderungen speichern", e -> {
+            GoodsReceiptItem bean = itemBinder.getBean();
+            if (bean == null) {
+                Notification.show("Bitte zuerst eine Position auswählen", 3000, Position.MIDDLE);
+                return;
+            }
+            service.updateItem(bean.getId(), actualQtyField.getValue(), defectNotesField.getValue());
+            Notification n = Notification.show("Position aktualisiert", 3000, Position.MIDDLE);
+            n.addThemeVariants(NotificationVariant.LUMO_SUCCESS);
+            reloadItems(receipt, itemGrid, itemBinder);
+        });
+        saveItem.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
+
+        Button markFree = new Button("Freigeben", e -> {
+            GoodsReceiptItem bean = itemBinder.getBean();
+            if (bean == null) {
+                Notification.show("Bitte zuerst eine Position auswählen", 3000, Position.MIDDLE);
+                return;
+            }
+            service.setItemStatus(bean.getId(), GoodsReceiptItemStatus.FREIGEGEBEN);
+            Notification n = Notification.show("Position freigegeben", 3000, Position.MIDDLE);
+            n.addThemeVariants(NotificationVariant.LUMO_SUCCESS);
+            reloadItems(receipt, itemGrid, itemBinder);
+        });
+
+        Button markBlocked = new Button("Sperren", e -> {
+            GoodsReceiptItem bean = itemBinder.getBean();
+            if (bean == null) {
+                Notification.show("Bitte zuerst eine Position auswählen", 3000, Position.MIDDLE);
+                return;
+            }
+            service.setItemStatus(bean.getId(), GoodsReceiptItemStatus.GESPERRT);
+            Notification n = Notification.show("Position gesperrt", 3000, Position.MIDDLE);
+            n.addThemeVariants(NotificationVariant.LUMO_CONTRAST);
+            reloadItems(receipt, itemGrid, itemBinder);
+        });
+
+        HorizontalLayout itemButtons = new HorizontalLayout(saveItem, markFree, markBlocked);
+
+        // Layout im Dialog
+        VerticalLayout layout = new VerticalLayout();
+        layout.setPadding(false);
+        layout.setSpacing(true);
+        layout.setWidth("900px");
+
+        layout.add(info, itemGrid, actualQtyField, defectNotesField, itemButtons);
+
+        dialog.add(layout);
+
+        // Footer: Prüfung abschließen + Schließen
+        Button close = new Button("Schließen", e -> dialog.close());
+
+        Button complete = new Button("Prüfung abschließen", e -> {
+            try {
+                service.completeInspection(receipt.getId());
+                Notification n = Notification.show("Prüfung abgeschlossen", 3000, Position.MIDDLE);
+                n.addThemeVariants(NotificationVariant.LUMO_SUCCESS);
+                dialog.close();
+                refresh();
+            } catch (IllegalStateException ex) {
+                Notification n = Notification.show(ex.getMessage(), 5000, Position.MIDDLE);
+                n.addThemeVariants(NotificationVariant.LUMO_ERROR);
+            }
+        });
+        complete.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
+
+        dialog.getFooter().add(new HorizontalLayout(close, complete));
+
+        // Items initial laden
+        reloadItems(receipt, itemGrid, itemBinder);
+
+        dialog.open();
+    }
+
+    private void reloadItems(GoodsReceipt receipt,
+                             Grid<GoodsReceiptItem> grid,
+                             Binder<GoodsReceiptItem> binder) {
+        List<GoodsReceiptItem> items = service.getItemsForReceipt(receipt.getId());
+        grid.setItems(items);
+        grid.getDataProvider().refreshAll();
+        binder.setBean(null);
+    }
 }
+
 
