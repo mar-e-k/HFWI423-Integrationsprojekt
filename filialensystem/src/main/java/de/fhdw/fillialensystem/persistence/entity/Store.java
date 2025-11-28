@@ -34,13 +34,13 @@ public class Store extends AbstractEntity {
     @Column(nullable = false)
     @NotNull(message = "Street number cannot be null")
     @Min(value = 0, message = "Street number must be greater than 0")
-    private Short streetNumber;
+    private Integer streetNumber;
 
     public Store() {
         super();
     }
 
-    public Store(List<Register> registers, List<Receipt> receipts, String country, String city, String street, Short streetNumber) {
+    public Store(List<Register> registers, List<Receipt> receipts, String country, String city, String street, Integer streetNumber) {
         this.registers = registers;
         this.receipts = receipts;
         this.country = country;
@@ -89,11 +89,11 @@ public class Store extends AbstractEntity {
         this.street = street;
     }
 
-    public Short getStreetNumber() {
+    public Integer getStreetNumber() {
         return streetNumber;
     }
 
-    public void setStreetNumber(Short streetNumber) {
+    public void setStreetNumber(Integer streetNumber) {
         this.streetNumber = streetNumber;
     }
 }

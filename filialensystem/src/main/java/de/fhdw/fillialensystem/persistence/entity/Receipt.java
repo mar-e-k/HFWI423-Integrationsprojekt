@@ -7,13 +7,11 @@ import jakarta.persistence.OneToMany;
 import jakarta.validation.constraints.NotNull;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
 public class Receipt extends AbstractEntity {
-
-    @OneToMany(mappedBy = "receipt")
-    private List<LinkArticleReceipt> linkArticleReceipt;
 
     @ManyToOne(optional = false)
     @JoinColumn(nullable = false)
@@ -27,6 +25,9 @@ public class Receipt extends AbstractEntity {
     @JoinColumn(nullable = false)
     private Account account;
 
+    @OneToMany(mappedBy = "receipt", orphanRemoval = true)
+    private List<ReceiptLinkArticle> receiptLinkArticle = new ArrayList<>();
+
     @NotNull(message = "Total amount must not be null")
     private BigDecimal totalAmount;
 
@@ -34,10 +35,11 @@ public class Receipt extends AbstractEntity {
         super();
     }
 
-    public Receipt(Store store, Register register, Account account, BigDecimal totalAmount) {
+    public Receipt(Store store, Register register, Account account, List<ReceiptLinkArticle> receiptLinkArticle, BigDecimal totalAmount) {
         this.store = store;
         this.register = register;
         this.account = account;
+        this.receiptLinkArticle = receiptLinkArticle;
         this.totalAmount = totalAmount;
     }
 
@@ -63,6 +65,14 @@ public class Receipt extends AbstractEntity {
 
     public void setAccount(Account account) {
         this.account = account;
+    }
+
+    public List<ReceiptLinkArticle> getLinkArticleReceipt() {
+        return receiptLinkArticle;
+    }
+
+    public void setLinkArticleReceipt(List<ReceiptLinkArticle> receiptLinkArticle) {
+        this.receiptLinkArticle = receiptLinkArticle;
     }
 
     public BigDecimal getTotalAmount() {
