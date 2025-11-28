@@ -7,6 +7,7 @@ import com.vaadin.flow.component.combobox.MultiSelectComboBox;
 import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.html.H2;
+import com.vaadin.flow.component.html.Image;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
@@ -19,6 +20,8 @@ import com.vaadin.flow.data.value.ValueChangeMode;
 import com.vaadin.flow.router.Route;
 
 import fhdw.de.einkauf_service.config.ShoppingCartSession;
+
+
 import fhdw.de.einkauf_service.dto.ArticleFilterDTO;
 import fhdw.de.einkauf_service.dto.ArticleResponseDTO;
 import fhdw.de.einkauf_service.dto.CategoryResponseDTO;
@@ -159,6 +162,9 @@ public class ArticleView extends VerticalLayout {
         TextField widthCm = new TextField("Breite (cm)");
         widthCm.setRequired(true);
 
+        TextField productImageUrl = new TextField("Produktbild-URL");
+        productImageUrl.setPlaceholder("z.B. https://www.rossmann.de/media-neu/...");
+
         if (article != null) {
             articleNumber.setValue(safe(article.getArticleNumber()));
             name.setValue(safe(article.getName()));
@@ -193,6 +199,9 @@ public class ArticleView extends VerticalLayout {
             depthCm.setValue(String.valueOf(article.getDepthCm()));
             heightCm.setValue(String.valueOf(article.getHeightCm()));
             widthCm.setValue(String.valueOf(article.getWidthCm()));
+            if (article.getProductImage() != null) {
+                productImageUrl.setValue(article.getProductImage());
+            }
 
             java.util.function.Function<TextField, Double> parseDoubleOrNull = field -> {
                 try {
@@ -282,6 +291,7 @@ public class ArticleView extends VerticalLayout {
                 req.setDepthCm(Double.parseDouble(depthCm.getValue()));
                 req.setHeightCm(Double.parseDouble(heightCm.getValue()));
                 req.setWidthCm(Double.parseDouble(widthCm.getValue()));
+                req.setProductImage(productImageUrl.getValue());
 
                 Set<Long> categoryIds = categorySelect.getSelectedItems().stream()
                         .map(CategoryResponseDTO::getId)
@@ -311,7 +321,7 @@ public class ArticleView extends VerticalLayout {
         VerticalLayout formLayout = new VerticalLayout(
                 articleNumber, name, stockLevel, purchasePrice, taxRate, marginPercent, sellingPrice,
                 manufacturer, supplierBoxForm, pfandRadio, categorySelect, description,
-                widthCm, heightCm, depthCm, buttons
+                widthCm, heightCm, depthCm, productImageUrl, buttons
         );
         formLayout.setPadding(false);
         formLayout.setSpacing(true);
@@ -449,6 +459,14 @@ public class ArticleView extends VerticalLayout {
                 pfandLayout,
                 new Span("Beschreibung / Produktdetails: " + safe(article.getDescription()))
         );
+
+        // Produktbild hinzufügen, wenn vorhanden
+        if (article.getProductImage() != null && !article.getProductImage().isBlank()) {
+            Image productImage = new Image(article.getProductImage(), "Produktbild");
+            productImage.setWidth("200px");
+            productImage.setHeight("auto");
+            detailsLayout.addComponentAsFirst(productImage);
+        }
 
         dialog.add(detailsLayout);
         dialog.getFooter().add(new Button("Schließen", e -> dialog.close()));
