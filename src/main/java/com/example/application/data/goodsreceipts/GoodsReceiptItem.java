@@ -19,7 +19,7 @@ public class GoodsReceiptItem {
     private GoodsReceipt goodsReceipt;
 
     // Bezug zum Artikel (ArticleInfo)
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @ManyToOne(fetch = FetchType.EAGER, optional = false)
     @JoinColumn(name = "article_info_id", nullable = false)
     private ArticleInfo article;
 

@@ -4,9 +4,12 @@ import com.example.application.views.MainLayout;
 import com.example.application.data.goodsreceipts.GoodsReceipt;
 import com.example.application.data.goodsreceipts.GoodsReceiptItem;
 import com.example.application.data.goodsreceipts.GoodsReceiptItemStatus;
+import com.example.application.data.article.ArticleInfo;
+import com.example.application.data.article.ArticleInfoRepository;
 import com.example.application.services.GoodsReceiptService;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
+import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.datepicker.DatePicker;
 import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.formlayout.FormLayout;
@@ -39,10 +42,14 @@ import java.util.List;
 public class GoodsReceiptView extends Div {
 
     private final GoodsReceiptService service;
+    private final ArticleInfoRepository articleInfoRepository;
+
     private final Grid<GoodsReceipt> grid = new Grid<>(GoodsReceipt.class, false);
 
-    public GoodsReceiptView(GoodsReceiptService service) {
+    public GoodsReceiptView(GoodsReceiptService service,
+                            ArticleInfoRepository articleInfoRepository) {
         this.service = service;
+        this.articleInfoRepository = articleInfoRepository;
         setSizeFull();
 
         // Toolbar
@@ -252,6 +259,11 @@ public class GoodsReceiptView extends Div {
             }
         });
 
+        // Button: Position hinzufügen
+        Button addItem = new Button("Position hinzufügen",
+                e -> openAddItemDialog(receipt, itemGrid, itemBinder));
+        addItem.addThemeVariants(ButtonVariant.LUMO_PRIMARY, ButtonVariant.LUMO_TERTIARY);
+
         // Buttons für Position
         Button saveItem = new Button("Änderungen speichern", e -> {
             GoodsReceiptItem bean = itemBinder.getBean();
@@ -298,7 +310,7 @@ public class GoodsReceiptView extends Div {
         layout.setSpacing(true);
         layout.setWidth("900px");
 
-        layout.add(info, itemGrid, actualQtyField, defectNotesField, itemButtons);
+        layout.add(info, addItem, itemGrid, actualQtyField, defectNotesField, itemButtons);
 
         dialog.add(layout);
 
@@ -335,6 +347,73 @@ public class GoodsReceiptView extends Div {
         grid.getDataProvider().refreshAll();
         binder.setBean(null);
     }
+
+    // ------------------------------------------------------------------------
+    // Position hinzufügen
+    // ------------------------------------------------------------------------
+
+    private void openAddItemDialog(GoodsReceipt receipt,
+                                   Grid<GoodsReceiptItem> itemGrid,
+                                   Binder<GoodsReceiptItem> itemBinder) {
+
+        Dialog dialog = new Dialog();
+        dialog.setHeaderTitle("Position hinzufügen");
+
+        ComboBox<ArticleInfo> articleCombo = new ComboBox<>("Artikel");
+        articleCombo.setItemLabelGenerator(a -> a.getArticleNumber() + " - " + a.getName());
+        articleCombo.setItems(articleInfoRepository.findAll());
+        articleCombo.setRequired(true);
+        articleCombo.setWidthFull();
+
+        IntegerField expectedQty = new IntegerField("Soll-Menge");
+        expectedQty.setMin(0);
+        expectedQty.setStep(1);
+        expectedQty.setRequiredIndicatorVisible(true);
+
+        IntegerField actualQty = new IntegerField("Ist-Menge");
+        actualQty.setMin(0);
+        actualQty.setStep(1);
+
+        TextArea defects = new TextArea("Mängel / Abweichungen");
+        defects.setWidthFull();
+
+        FormLayout form = new FormLayout(articleCombo, expectedQty, actualQty, defects);
+        form.setWidth("500px");
+        dialog.add(form);
+
+        Button cancel = new Button("Abbrechen", e -> dialog.close());
+        Button save = new Button("Speichern", e -> {
+            if (articleCombo.getValue() == null) {
+                Notification n = Notification.show("Bitte Artikel auswählen", 3000, Position.MIDDLE);
+                n.addThemeVariants(NotificationVariant.LUMO_ERROR);
+                return;
+            }
+            if (expectedQty.getValue() == null) {
+                Notification n = Notification.show("Bitte Soll-Menge eingeben", 3000, Position.MIDDLE);
+                n.addThemeVariants(NotificationVariant.LUMO_ERROR);
+                return;
+            }
+
+            service.addItemToReceipt(
+                    receipt.getId(),
+                    articleCombo.getValue(),
+                    expectedQty.getValue(),
+                    actualQty.getValue(),
+                    defects.getValue()
+            );
+
+            Notification n = Notification.show("Position hinzugefügt", 3000, Position.MIDDLE);
+            n.addThemeVariants(NotificationVariant.LUMO_SUCCESS);
+
+            dialog.close();
+            reloadItems(receipt, itemGrid, itemBinder);
+        });
+        save.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
+
+        dialog.getFooter().add(new HorizontalLayout(cancel, save));
+        dialog.open();
+    }
 }
+
 
 
