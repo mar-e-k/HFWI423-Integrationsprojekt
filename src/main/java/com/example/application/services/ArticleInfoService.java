@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Optional;
 import com.example.application.data.stockChangeLog.StockChangeLogRepository;
 import com.vaadin.flow.data.provider.ListDataProvider;
+import jakarta.persistence.EntityNotFoundException;
 import org.springframework.transaction.annotation.Transactional;
 import com.example.application.data.stockChangeLog.StockChangeLog;
 import org.springframework.data.domain.Page;
@@ -107,8 +108,18 @@ public class ArticleInfoService {
         }
         return repository.existsByStorageLocation(generalId);
     }
-
-    public void reduceStock(ArticleInfo artikel, int gelieferteMenge) {
-         artikel.setStockLevel(artikel.getStockLevel() - gelieferteMenge);
+    //das ist für die Kommission wichtig
+    public ArticleInfo findById(Long id) {
+        return repository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Artikel nicht gefunden: " + id));
     }
+
+    // Beispiel-Helper zum Reduzieren des Bestands (du hast sowas schon angedeutet)
+    @Transactional
+    public void reduceStock(ArticleInfo artikel, int amount) {
+        artikel.setStockLevel(artikel.getStockLevel() - amount);
+        repository.save(artikel);
+    }
+
+
 }

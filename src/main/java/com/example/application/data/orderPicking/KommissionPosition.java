@@ -14,37 +14,28 @@ public class KommissionPosition extends AbstractEntity {
 
     @ManyToOne(optional = false)
     @JoinColumn(name = "article_id")
-    private ArticleInfo artikel;
+    private ArticleInfo article_id;
 
-    @Column(nullable = false)
-    private Integer menge;
+    @Column(name = "amount", nullable = false)
+    private int amount;
 
-    @Column
-    private String lagerplatz;
+    @Column(name = "storage")
+    private String storageLocation;
 
-    @Column(name = "position_index")
-    private Integer positionIndex = 0;
 
-    @Column
-    private String deviation_text;
 
     public Kommission getKommission() {return kommission;}
     public void setKommission(Kommission kommission) {
         this.kommission = kommission;
     }
 
-    public ArticleInfo getArtikel() {return artikel;}
-    public void setArtikel(ArticleInfo artikel) {this.artikel = artikel;}
+    public ArticleInfo getArticle_id() {return article_id;}
+    public void setArticle_id(ArticleInfo article_id) {this.article_id = article_id;}
 
-    public Integer getMenge() {return menge;}
-    public void setMenge(Integer menge) {this.menge = menge;}
+    public int getAmount() {return amount;}
+    public void setAmount(int amount) {this.amount = amount;}
 
-    public String getLagerplatz() {return lagerplatz;}
-    public void setLagerplatz(String lagerplatz) {this.lagerplatz = lagerplatz;}
+    public String getLagerplatz() {return storageLocation;}
+    public void setLagerplatz(String lagerplatz) {this.storageLocation = storageLocation;}
 
-    public String getDeviation_text() {return deviation_text;}
-    public void setDeviation_text(String deviation_text) {this.deviation_text = deviation_text;}
-
-    public Integer getPositionIndex() {return positionIndex;}
-    public void setPositionIndex(Integer positionIndex) {this.positionIndex = positionIndex;}
 }

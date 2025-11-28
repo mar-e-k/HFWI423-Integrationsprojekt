@@ -31,9 +31,7 @@ public class Kommission extends AbstractEntity {
     private Integer version;
 
 
-    public Integer getOrderPickingNumber() {
-        return orderPickingNumber;
-    }
+    public Integer getOrderPickingNumber() {return orderPickingNumber;}
     public void setOrderPickingNumber(Integer orderPickingNumber) {
         this.orderPickingNumber = orderPickingNumber;
     }

@@ -45,21 +45,21 @@ public class orderPickingDetailView extends VerticalLayout{
 
     private void buildLayout() {
         add(new H2("Kommission " + kommission.getOrderPickingNumber()));
-        posGrid.addColumn(p -> p.getArtikel().getName()).setHeader("Article Number");
-        posGrid.addColumn(p -> p.getArtikel().getName()).setHeader("Article Name");
-        posGrid.addColumn(KommissionPosition::getMenge).setHeader("Stückzahl");
-        posGrid.addColumn(KommissionPosition::getLagerplatz).setHeader("Lagerplatz");
+        posGrid.addColumn(p -> p.getArticle_id().getName()).setHeader("Article Number");
+        posGrid.addColumn(p -> p.getArticle_id().getArticleNumber()).setHeader("Article Name");
+        posGrid.addColumn(KommissionPosition::getAmount).setHeader("Amount");
+        posGrid.addColumn(KommissionPosition::getLagerplatz).setHeader("Storage Location");
 
         // Button für Abweichung rechts
         posGrid.addComponentColumn(p -> {
-            Button abw = new Button("Abweichung");
+            Button abw = new Button("Deviation");
             abw.addClickListener(e -> openAbweichungsDialog(p));
             return abw;
         }).setHeader("");
 
         // Checkbox/Button um Position als bestätigt zu markieren
         posGrid.addComponentColumn(p -> {
-            Button confirm = new Button("Bestätigen");
+            Button confirm = new Button("Confirm Order Picking");
             confirm.addClickListener(e -> {
                 //openBestätigungsDialog(p);
             });
@@ -70,9 +70,9 @@ public class orderPickingDetailView extends VerticalLayout{
        // posGrid.setItems(positions);
 
         // Erledigt-Button
-        Button erledigtBtn = new Button("Kommission erledigen", e -> {
+        Button erledigtBtn = new Button("finish order Picking", e -> {
             //service.schließeKommission(kommission.getId());
-            Notification.show("Kommission als erledigt markiert");
+            Notification.show("Order Picking Finished");
             // UI: graue Zeile / Hinweis
             getUI().ifPresent(ui -> ui.navigate(orderPickingMainView.class));
         });
@@ -87,15 +87,15 @@ public class orderPickingDetailView extends VerticalLayout{
 
     private void openAbweichungsDialog(KommissionPosition pos) {
         Dialog d = new Dialog();
-        NumberField geliefert = new NumberField("Gelieferte Menge");
+        NumberField geliefert = new NumberField("delivered amount");
         geliefert.setMin(0);
-        TextArea grund = new TextArea("Grund");
-        Button save = new Button("Speichern", e -> {
+        TextArea grund = new TextArea("reason");
+        Button save = new Button("save", e -> {
             int gemeldet = geliefert.getValue().intValue();
             // Ersteller: ggf. aktueller Benutzer
             //service.bestätigePosition(); // implementiere call to bestätigePosition
             d.close();
-            Notification.show("Abweichung gespeichert");
+            Notification.show("deviation saved");
             posGrid.getDataProvider().refreshAll();
         });
         d.add(new VerticalLayout(geliefert, grund, save));

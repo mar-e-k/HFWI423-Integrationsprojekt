@@ -1,6 +1,5 @@
 package com.example.application.views.restockView;
 
-import com.example.application.data.article.RestockItem;
 import com.vaadin.flow.component.dependency.Uses;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.html.Div;
@@ -11,11 +10,13 @@ import com.vaadin.flow.router.Menu;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import org.vaadin.lineawesome.LineAwesomeIconUrl;
-
-import com.example.application.services.RestockService;
-
+import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.html.Anchor;
+
+import com.example.application.services.RestockService;
+import com.example.application.services.RestockOrderService;
+import com.example.application.data.article.RestockItem;
 
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
@@ -28,13 +29,15 @@ import java.util.List;
 @Uses(Icon.class)
 public class RestockView extends Div {
     private final RestockService restockService;
+    private final RestockOrderService restockOrderService;
     private final Grid<RestockItem> grid = new Grid<>(RestockItem.class, false);
     private final Span emptyMessage = new Span("Es müssen aktuell keine Artikel nachbestellt werden.");
     private final Span minStockWarning = new Span("Warnung: Für einige Artikel ist kein Mindestbestand eingetragen.");
 
-    public RestockView(RestockService restockService) {
+    public RestockView(RestockService restockService,
+                       RestockOrderService restockOrderService) {
         this.restockService = restockService;
-
+        this.restockOrderService = restockOrderService;
         VerticalLayout layout = new VerticalLayout();
         layout.setSizeFull();
 
@@ -48,6 +51,17 @@ public class RestockView extends Div {
             updateGrid();
             updateCsvDownload(exportButton);
         });
+        // alle Bestellungen freigeben Button
+        Button approveAllButton = new Button("Alle Bestellungen freigeben", event -> {
+            try {
+                approveAllOrders();
+                Notification.show("Alle Bestellungen wurden freigegeben.");
+                updateGrid();
+            } catch (Exception ex) {
+                Notification.show(ex.getMessage(), 5000, Notification.Position.MIDDLE);
+            }
+        });
+
 
 
 
@@ -56,11 +70,30 @@ public class RestockView extends Div {
         grid.addColumn(RestockItem::getArticleNumber).setHeader("Artikelnummer");
         grid.addColumn(RestockItem::getName).setHeader("Name");
         grid.addColumn(RestockItem::getStockLevel).setHeader("Bestand");
-        grid.addColumn(RestockItem::getMinStockDisplay)
-                .setHeader("Mindestbestand");
+        grid.addColumn(RestockItem::getMinStockDisplay).setHeader("Mindestbestand");
+        grid.addColumn(RestockItem::getOrderAmountDisplay).setHeader("Nachbestellmenge");
+        grid.addComponentColumn(item -> {
 
-        grid.addColumn(RestockItem::getOrderAmountDisplay)
-                .setHeader("Nachbestellmenge");
+            Button approveButton = new Button("Bestellung freigeben");
+
+            boolean validAmount = item.getOrderAmount() != null && item.getOrderAmount() > 0;
+            boolean hasOpenOrder = restockOrderService.hasOpenOrderForArticle(item.getArticle());
+
+            approveButton.setEnabled(validAmount && !hasOpenOrder);
+
+            approveButton.addClickListener(click -> {
+                try {
+                    restockOrderService.approveOrder(item);
+                    Notification.show("Bestellung für " + item.getName() + " freigegeben.");
+                    updateGrid(); // Wichtig!
+                } catch (Exception ex) {
+                    Notification.show(ex.getMessage(), 5000, Notification.Position.MIDDLE);
+                }
+            });
+
+            return approveButton;
+
+        }).setHeader("Bestellung");
 
         //Artikel hervorheben, wenn kein Mindestbestand eingetragen ist
         grid.setPartNameGenerator(item -> {
@@ -70,23 +103,29 @@ public class RestockView extends Div {
             return "";
         });
 
+        grid.setClassNameGenerator(item -> {
+            if (restockOrderService.hasOpenOrderForArticle(item.getArticle())) {
+                return "restock-order-open";
+            }
+            return null;
+        });
 
 
         grid.setHeight("300px");
 
-        //Message wenn Liste leer ist
+        //Message, wenn Liste leer ist
         emptyMessage.getStyle().set("color", "gray");
         emptyMessage.getStyle().set("font-style", "italic");
         emptyMessage.setVisible(false); // Start: unsichtbar
 
-        //Warning Message wenn kein Wert für Mindestbestand gesetzt ist
+        //Warning Message, wenn kein Wert für Mindestbestand gesetzt ist
         minStockWarning.getStyle().set("color", "var(--lumo-error-color)");
         minStockWarning.getStyle().set("font-weight", "600");
         minStockWarning.setVisible(false);
 
 
         // Komponenten ins Layout
-        layout.add(refreshButton, exportButton, emptyMessage, grid, minStockWarning);
+        layout.add(refreshButton, exportButton, approveAllButton, emptyMessage, grid, minStockWarning);
         add(layout);
 
         // Initial Daten laden
@@ -120,7 +159,7 @@ public class RestockView extends Div {
         // Data-URL als Download
         exportButton.setHref("data:text/csv;base64," + base64);
     }
-
+     // CSV Export
     private String buildCsv() {
         List<RestockItem> items = restockService.getArticlesToRestock();
         StringBuilder sb = new StringBuilder("Artikelnummer;Name;Bestand;Mindestbestand;Nachbestellmenge\n");
@@ -141,4 +180,18 @@ public class RestockView extends Div {
 
         return sb.toString();
     }
+
+    private void approveAllOrders() {
+        List<RestockItem> items = restockService.getArticlesToRestock();
+
+        for (RestockItem item : items) {
+            boolean validAmount = item.getOrderAmount() != null && item.getOrderAmount() > 0;
+            boolean hasOpenOrder = restockOrderService.hasOpenOrderForArticle(item.getArticle());
+
+            if (validAmount && !hasOpenOrder) {
+                restockOrderService.approveOrder(item);
+            }
+        }
+    }
+
 }

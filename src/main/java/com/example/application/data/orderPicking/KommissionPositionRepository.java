@@ -7,5 +7,5 @@ import java.util.List;
 
 @Repository
 public interface KommissionPositionRepository extends JpaRepository<KommissionPosition, Long> {
-    List<KommissionPosition> findByKommissionId(Long kommissionId);
+    List<KommissionPosition> findByKommission(Kommission kommission);
 }
