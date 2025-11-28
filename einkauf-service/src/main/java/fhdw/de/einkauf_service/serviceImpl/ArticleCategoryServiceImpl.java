@@ -6,6 +6,7 @@ import fhdw.de.einkauf_service.entity.Category;
 import fhdw.de.einkauf_service.repository.ArticleCategoryRepository;
 import fhdw.de.einkauf_service.service.ArticleCategoryService;
 import jakarta.persistence.EntityNotFoundException;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -41,7 +42,13 @@ public class ArticleCategoryServiceImpl implements ArticleCategoryService {
     // --- Service-Methoden (CRUD) ---
 
     @Transactional // Stellt sicher, dass der Vorgang atomar ist
+    @CacheEvict(value = "articleSearch", allEntries = true)
     public CategoryResponseDTO createCategory(CategoryRequestDTO dto) {
+        categoryRepository.findByName(dto.getName())
+                .ifPresent(existing -> {
+                    throw new IllegalArgumentException("Kategorie mit diesem Namen existiert bereits.");
+                });
+
         Category entity = mapRequestToEntity(dto);
         Category savedEntity = categoryRepository.save(entity);
         return mapEntityToResponse(savedEntity);
@@ -62,6 +69,7 @@ public class ArticleCategoryServiceImpl implements ArticleCategoryService {
     }
 
     @Transactional
+    @CacheEvict(value = "articleSearch", allEntries = true)
     public CategoryResponseDTO updateCategory(Long id, CategoryRequestDTO dto) {
         Category entity = categoryRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Category with ID " + id + " not found."));
@@ -77,6 +85,7 @@ public class ArticleCategoryServiceImpl implements ArticleCategoryService {
     }
 
     @Transactional
+    @CacheEvict(value = "articleSearch", allEntries = true)
     public void deleteCategory(Long id) {
         categoryRepository.deleteById(id);
     }

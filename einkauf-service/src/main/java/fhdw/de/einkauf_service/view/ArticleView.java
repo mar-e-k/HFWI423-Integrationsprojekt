@@ -3,6 +3,7 @@ package fhdw.de.einkauf_service.view;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.checkbox.Checkbox;
 import com.vaadin.flow.component.combobox.ComboBox;
+import com.vaadin.flow.component.combobox.MultiSelectComboBox;
 import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.html.H2;
@@ -10,7 +11,6 @@ import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.notification.Notification;
-import com.vaadin.flow.component.notification.NotificationVariant;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.radiobutton.RadioButtonGroup;
@@ -21,13 +21,16 @@ import com.vaadin.flow.router.Route;
 import fhdw.de.einkauf_service.config.ShoppingCartSession;
 import fhdw.de.einkauf_service.dto.ArticleFilterDTO;
 import fhdw.de.einkauf_service.dto.ArticleResponseDTO;
+import fhdw.de.einkauf_service.dto.CategoryResponseDTO;
 import fhdw.de.einkauf_service.dto.SupplierResponseDTO;
+import fhdw.de.einkauf_service.service.ArticleCategoryService;
 import fhdw.de.einkauf_service.service.ArticleService;
 import fhdw.de.einkauf_service.service.SupplierService;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -44,19 +47,25 @@ public class ArticleView extends VerticalLayout {
 
     private final ComboBox<SupplierResponseDTO> supplierBox = new ComboBox<>("Lieferant");
 
+    private final MultiSelectComboBox<CategoryResponseDTO> categoryBox = new MultiSelectComboBox<>("Kategorie");
+
     private final Button clearButton = new Button("Suche abbrechen");
     private final Button addButton = new Button("Artikel hinzufügen");
     private final Button editButton = new Button("Bearbeiten");
     private final Button deleteButton = new Button("Löschen");
     private final Button addToCartButton = new Button("Zum Warenkorb hinzufügen", new Icon(VaadinIcon.CART));
 
+    private final Button manageCategoriesButton = new Button("Kategorieverwaltung", new Icon(VaadinIcon.TAGS));
 
     private final Map<Long, SupplierResponseDTO> supplierCache;
     private final Map<Long, Integer> selectedArticles = new HashMap<>();
 
-    public ArticleView(ArticleService articleService, SupplierService supplierService, ShoppingCartSession cartSession) {
+    private final ArticleCategoryService categoryService;
+
+    public ArticleView(ArticleService articleService, SupplierService supplierService, ShoppingCartSession cartSession, ArticleCategoryService categoryService) {
         this.articleService = articleService;
         this.cartSession = cartSession;
+        this.categoryService = categoryService;
         this.supplierCache = supplierService.findAllSuppliers().stream()
                 .collect(Collectors.toMap(SupplierResponseDTO::getId, Function.identity(), (a, b) -> a));
 
@@ -74,13 +83,18 @@ public class ArticleView extends VerticalLayout {
         availabilityFilter.setItems("Verfügbar", "Nicht verfügbar");
         availabilityFilter.setValue("Verfügbar");
 
+        categoryBox.setItems(categoryService.getAllCategories());
+        categoryBox.setItemLabelGenerator(CategoryResponseDTO::getName);
+        categoryBox.setClearButtonVisible(true);
+
         configureSearchFields();
 
         HorizontalLayout searchLayout = new HorizontalLayout(
-                articleNumberField, nameField, supplierBox, availabilityFilter, clearButton
+                articleNumberField, nameField, supplierBox, categoryBox, availabilityFilter, clearButton
         );
 
-        HorizontalLayout crudButtons = new HorizontalLayout(addButton, editButton, deleteButton,addToCartButton);
+        HorizontalLayout crudButtons = new HorizontalLayout(addButton, editButton, deleteButton, addToCartButton, manageCategoriesButton);
+        manageCategoriesButton.getStyle().set("margin-left", "var(--lumo-space-l)");
         add(crudButtons);
         configureCrudButtons();
 
@@ -98,21 +112,23 @@ public class ArticleView extends VerticalLayout {
         Dialog dialog = new Dialog();
         dialog.setHeaderTitle(article == null ? "Neuen Artikel hinzufügen" : "Artikel bearbeiten");
 
-        // --- Input fields ---
         TextField articleNumber = new TextField("Artikelnummer (GTIN)");
         articleNumber.setRequired(true);
         TextField name = new TextField("Name");
         name.setRequired(true);
         TextField stockLevel = new TextField("Lagerbestand");
         stockLevel.setRequired(true);
-        TextField purchasePrice = new TextField("EK Preis");
+        TextField purchasePrice = new TextField("EK-Preis (€)");
         purchasePrice.setRequired(true);
         TextField taxRate = new TextField("MwSt (%)");
         taxRate.setRequired(true);
+        TextField marginPercent = new TextField("Marge (%)");
+        marginPercent.setRequired(true);
+        TextField sellingPrice = new TextField("VK-Preis (€)");
+        sellingPrice.setReadOnly(true);
         TextField manufacturer = new TextField("Hersteller");
         manufacturer.setRequired(true);
 
-        // Formular-ComboBox verwaltet SupplierResponseDTOs
         ComboBox<SupplierResponseDTO> supplierBoxForm = new ComboBox<>("Lieferant");
         supplierBoxForm.setItems(supplierCache.values());
         supplierBoxForm.setItemLabelGenerator(SupplierResponseDTO::getName);
@@ -127,6 +143,14 @@ public class ArticleView extends VerticalLayout {
         }
         pfandRadio.setRequired(true);
 
+        MultiSelectComboBox<CategoryResponseDTO> categorySelect =
+                new MultiSelectComboBox<>("Kategorie");
+        List<CategoryResponseDTO> allCategories = categoryService.getAllCategories();  // NEU
+        categorySelect.setItems(allCategories);
+        categorySelect.setItemLabelGenerator(CategoryResponseDTO::getName);
+        categorySelect.setRequired(true);
+        categorySelect.setRequiredIndicatorVisible(true);
+
         TextField description = new TextField("Beschreibung");
         TextField depthCm = new TextField("Tiefe (cm)");
         depthCm.setRequired(true);
@@ -135,16 +159,15 @@ public class ArticleView extends VerticalLayout {
         TextField widthCm = new TextField("Breite (cm)");
         widthCm.setRequired(true);
 
-        // --- Prefill fields for update ---
         if (article != null) {
             articleNumber.setValue(safe(article.getArticleNumber()));
             name.setValue(safe(article.getName()));
             stockLevel.setValue(String.valueOf(article.getStockLevel()));
             purchasePrice.setValue(String.valueOf(article.getPurchasePrice()));
             taxRate.setValue(String.valueOf(article.getTaxRatePercent()));
+            sellingPrice.setValue(String.valueOf(article.getSellingPrice()));
             manufacturer.setValue(safe(article.getManufacturer()));
 
-            // Auflösen der ID aus dem ResponseDTO (article) in das DTO-Objekt aus dem Cache
             if (article.getSupplierId() != null) {
                 SupplierResponseDTO currentSupplierDto = supplierCache.get(article.getSupplierId());
                 if (currentSupplierDto == null) {
@@ -152,27 +175,95 @@ public class ArticleView extends VerticalLayout {
                 }
                 supplierBoxForm.setValue(currentSupplierDto);
             }
+
+            if (article.getCategoryIds() != null && !article.getCategoryIds().isEmpty()) {
+
+                Set<Long> articleCategoryIds = article.getCategoryIds().stream()
+                        .map(CategoryResponseDTO::getId)
+                        .collect(Collectors.toSet());
+
+                Set<CategoryResponseDTO> preselected = allCategories.stream()
+                        .filter(c -> articleCategoryIds.contains(c.getId()))
+                        .collect(Collectors.toSet());
+
+                categorySelect.setValue(preselected);
+            }
+
             description.setValue(safe(article.getDescription()));
             depthCm.setValue(String.valueOf(article.getDepthCm()));
             heightCm.setValue(String.valueOf(article.getHeightCm()));
             widthCm.setValue(String.valueOf(article.getWidthCm()));
+
+            java.util.function.Function<TextField, Double> parseDoubleOrNull = field -> {
+                try {
+                    String v = field.getValue();
+                    if (v == null || v.trim().isEmpty()) {
+                        return null;
+                    }
+                    return Double.parseDouble(v.replace(",", ".").trim());
+                } catch (NumberFormatException e) {
+                    return null;
+                }
+            };
+
+            Runnable recalcSellingPrice = () -> {
+                Double ek = parseDoubleOrNull.apply(purchasePrice);
+                Double mwst = parseDoubleOrNull.apply(taxRate);
+                Double marge = parseDoubleOrNull.apply(marginPercent);
+
+                if (ek == null || mwst == null || marge == null) {
+                    sellingPrice.clear();
+                    return;
+                }
+
+                double nettoMitMarge = ek * (1 + marge / 100.0);
+                double brutto = nettoMitMarge * (1 + mwst / 100.0);
+                sellingPrice.setValue(String.format("%.2f", brutto));
+            };
+
+            purchasePrice.addValueChangeListener(e -> recalcSellingPrice.run());
+            taxRate.addValueChangeListener(e -> recalcSellingPrice.run());
+            marginPercent.addValueChangeListener(e -> recalcSellingPrice.run());
         }
 
         // --- Buttons ---
         Button saveButton = new Button("Speichern", event -> {
             try {
-                if (articleNumber.isEmpty() || name.isEmpty() || stockLevel.isEmpty() || purchasePrice.isEmpty()
-                || taxRate.isEmpty() || manufacturer.isEmpty() || supplierBoxForm.isEmpty()
-                || depthCm.isEmpty() || heightCm.isEmpty() || widthCm.isEmpty()) {
-                 throw new IllegalArgumentException("Alle Pflichtfelder müssen ausgefüllt werden.");
-        }
+                if (articleNumber.isEmpty() || name.isEmpty() || stockLevel.isEmpty()
+                        || purchasePrice.isEmpty() || taxRate.isEmpty()
+                        || manufacturer.isEmpty() || supplierBoxForm.isEmpty()
+                        || depthCm.isEmpty() || heightCm.isEmpty() || widthCm.isEmpty()
+                        || marginPercent.isEmpty()) {
+                    throw new IllegalArgumentException("Alle Pflichtfelder müssen ausgefüllt werden.");
+                }
 
-                // Build request DTO
-                fhdw.de.einkauf_service.dto.ArticleRequestDTO req = new fhdw.de.einkauf_service.dto.ArticleRequestDTO();
+                if (categorySelect.getSelectedItems() == null
+                        || categorySelect.getSelectedItems().isEmpty()) {
+                    Notification.show("Bitte wählen Sie mindestens eine Kategorie aus.", 4000,
+                            Notification.Position.BOTTOM_START);
+                    return;
+                }
+
+                Double ek = parseDoubleOrNull.apply(purchasePrice);
+                Double mwst = parseDoubleOrNull.apply(taxRate);
+                Double marge = parseDoubleOrNull.apply(marginPercent);
+
+                if (ek == null || mwst == null || marge == null) {
+                    Notification.show("Bitte gültige Zahlen für EK, MwSt und Marge eingeben.", 4000,
+                            Notification.Position.BOTTOM_START);
+                    return;
+                }
+
+                double nettoMitMarge = ek * (1 + marge / 100.0);
+                double vk = nettoMitMarge * (1 + mwst / 100.0);
+
+                fhdw.de.einkauf_service.dto.ArticleRequestDTO req =
+                        new fhdw.de.einkauf_service.dto.ArticleRequestDTO();
                 req.setArticleNumber(articleNumber.getValue());
                 req.setName(name.getValue());
-                req.setPurchasePrice(Double.parseDouble(purchasePrice.getValue()));
-                req.setTaxRatePercent(Double.parseDouble(taxRate.getValue()));
+                req.setPurchasePrice(ek);
+                req.setSellingPrice(vk);
+                req.setTaxRatePercent(mwst);
                 req.setManufacturer(manufacturer.getValue());
 
                 SupplierResponseDTO selectedSupplierDto = supplierBoxForm.getValue();
@@ -192,11 +283,10 @@ public class ArticleView extends VerticalLayout {
                 req.setHeightCm(Double.parseDouble(heightCm.getValue()));
                 req.setWidthCm(Double.parseDouble(widthCm.getValue()));
 
-                // Berechne Verkaufspreis: Einkaufspreis * (1 + Steuersatz/100)
-                double purchasePriceValue = Double.parseDouble(purchasePrice.getValue());
-                double taxRateValue = Double.parseDouble(taxRate.getValue());
-                double sellingPrice = purchasePriceValue * (1 + taxRateValue / 100);
-                req.setSellingPrice(sellingPrice);
+                Set<Long> categoryIds = categorySelect.getSelectedItems().stream()
+                        .map(CategoryResponseDTO::getId)
+                        .collect(Collectors.toSet());
+                req.setCategoryIds(categoryIds);
 
                 if (article == null) {
                     articleService.createNewArticle(req);
@@ -219,8 +309,8 @@ public class ArticleView extends VerticalLayout {
 
         HorizontalLayout buttons = new HorizontalLayout(saveButton, cancelButton);
         VerticalLayout formLayout = new VerticalLayout(
-                articleNumber, name, stockLevel, purchasePrice,
-                taxRate, manufacturer, supplierBoxForm, pfandRadio, description,
+                articleNumber, name, stockLevel, purchasePrice, taxRate, marginPercent, sellingPrice,
+                manufacturer, supplierBoxForm, pfandRadio, categorySelect, description,
                 widthCm, heightCm, depthCm, buttons
         );
         formLayout.setPadding(false);
@@ -238,10 +328,8 @@ public class ArticleView extends VerticalLayout {
         filter.setArticleNumber(articleNumberField.getValue());
         filter.setName(nameField.getValue());
 
-        // KORRIGIERT: Filterung übergibt die ID an das Backend
         SupplierResponseDTO selectedSupplierFilter = supplierBox.getValue();
         if (selectedSupplierFilter != null) {
-            // Annahme: ArticleFilterDTO hat ein Long supplierId Feld
             filter.setSupplierId(selectedSupplierFilter.getId());
         } else {
             filter.setSupplierId(null);
@@ -253,6 +341,17 @@ public class ArticleView extends VerticalLayout {
             filter.setIsAvailable(true);
         } else if ("Nicht verfügbar".equals(selectedAvailability)) {
             filter.setIsAvailable(false);
+        }
+
+        Set<CategoryResponseDTO> selectedCategories = categoryBox.getSelectedItems();
+        if (selectedCategories != null && !selectedCategories.isEmpty()) {
+            filter.setCategoryIds(
+                    selectedCategories.stream()
+                            .map(CategoryResponseDTO::getId)
+                            .collect(Collectors.toList())
+            );
+        } else {
+            filter.setCategoryIds(null);
         }
 
         List<ArticleResponseDTO> articles = articleService.findFilteredArticles(filter);
@@ -270,7 +369,7 @@ public class ArticleView extends VerticalLayout {
         grid.addComponentColumn(article -> {
         Checkbox checkbox = new Checkbox();
         checkbox.setValue(selectedArticles.containsKey(article.getId()));
-        
+
         checkbox.addValueChangeListener(event -> {
             if (event.getValue()) {
                 selectedArticles.put(article.getId(), 1);
@@ -279,7 +378,7 @@ public class ArticleView extends VerticalLayout {
             }
             grid.getDataProvider().refreshItem(article);
         });
-        
+
         return checkbox;
     }).setHeader("✓").setAutoWidth(true).setFlexGrow(0);
         grid.addColumn(ArticleResponseDTO::getArticleNumber).setHeader("Artikelnummer (GTIN)").setAutoWidth(true).setSortable(true);
@@ -288,6 +387,12 @@ public class ArticleView extends VerticalLayout {
 
         grid.addColumn(ArticleResponseDTO::getSupplierName).setHeader("Lieferant").setAutoWidth(true).setSortable(true);
 
+        grid.addColumn(article ->
+                article.getCategoryIds().stream()
+                        .map(CategoryResponseDTO::getName)
+                        .collect(Collectors.joining(", "))
+        ).setHeader("Kategorie").setAutoWidth(true).setSortable(true);
+
         grid.addComponentColumn(article -> {
                     Button infoButton = new Button(new Icon(VaadinIcon.ELLIPSIS_DOTS_H));
                     infoButton.getStyle().set("background", "transparent");
@@ -295,7 +400,7 @@ public class ArticleView extends VerticalLayout {
                     infoButton.addClickListener(e -> showArticleDetails(article));
                     return infoButton;
                 })
-                .setHeader("Weitere Infos") // --- NEU: Spaltenüberschrift ---
+                .setHeader("Weitere Infos")
                 .setAutoWidth(true)
                 .setFlexGrow(0);
 
@@ -325,6 +430,12 @@ public class ArticleView extends VerticalLayout {
         );
         pfandLayout.setAlignItems(Alignment.CENTER);
 
+        String kategorieText = (article.getCategoryIds() == null || article.getCategoryIds().isEmpty())
+                ? "-"
+                : article.getCategoryIds().stream()
+                .map(CategoryResponseDTO::getName)
+                .collect(Collectors.joining(", "));
+
         VerticalLayout detailsLayout = new VerticalLayout(
                 new Span("Artikelnummer (GTIN): " + safe(article.getArticleNumber())),
                 new Span("Artikelname: " + safe(article.getName())),
@@ -333,6 +444,7 @@ public class ArticleView extends VerticalLayout {
                 new Span("VK-Preis (€): " + safe(article.getSellingPrice())),
                 new Span("MwSt (%): " + safe(article.getTaxRatePercent())),
                 new Span("Lieferant: " + safe(article.getSupplierName())),
+                new Span("Kategorie: " + kategorieText),
                 new Span("Verfügbar: " + safe(Boolean.TRUE.equals(article.getIsAvailable()) ? "Ja" : "Nein")),
                 pfandLayout,
                 new Span("Beschreibung / Produktdetails: " + safe(article.getDescription()))
@@ -355,11 +467,13 @@ public class ArticleView extends VerticalLayout {
         nameField.addValueChangeListener(e -> updateList());
         supplierBox.addValueChangeListener(e -> updateList());
         availabilityFilter.addValueChangeListener(e -> updateList());
+        categoryBox.addValueChangeListener(e -> updateList());
         clearButton.addClickListener(e -> {
             articleNumberField.clear();
             nameField.clear();
             supplierBox.clear();
             availabilityFilter.setValue("Verfügbar");
+            categoryBox.clear();
             updateList();
         });
     }
@@ -380,6 +494,12 @@ public class ArticleView extends VerticalLayout {
             }
         });
         addToCartButton.addClickListener(e -> addSelectedToCart());
+
+        manageCategoriesButton.addClickListener(e -> {
+            CategoryManagement dlg =
+                    new CategoryManagement(categoryService, this::refreshCategoriesInUi);
+            dlg.open();
+        });
 
         editButton.setEnabled(false);
         deleteButton.setEnabled(false);
@@ -411,4 +531,23 @@ public class ArticleView extends VerticalLayout {
     private String safe(Object value) {
         return value == null ? "-" : value.toString();
     }
+
+    private void refreshCategoriesInUi() {
+        List<CategoryResponseDTO> all = categoryService.getAllCategories();
+        categoryBox.setItems(all);
+        categoryBox.setItemLabelGenerator(CategoryResponseDTO::getName);
+        updateList();
+    }
+
+    java.util.function.Function<TextField, Double> parseDoubleOrNull = field -> {
+        try {
+            String v = field.getValue();
+            if (v == null || v.trim().isEmpty()) {
+                return null;
+            }
+            return Double.parseDouble(v.replace(",", ".").trim());
+        } catch (NumberFormatException e) {
+            return null;
+        }
+    };
 }
