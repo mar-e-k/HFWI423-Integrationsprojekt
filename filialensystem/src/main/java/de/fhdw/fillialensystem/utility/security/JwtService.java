@@ -56,6 +56,7 @@ public class JwtService {
             log.atWarn().log("Getting fallback system account for Token generation");
             return new Account(
                     new AccountRole(null, AccountRoleEnum.SYSTEM),
+                    null,
                     UUID.randomUUID().toString(),
                     "system",
                     "system"

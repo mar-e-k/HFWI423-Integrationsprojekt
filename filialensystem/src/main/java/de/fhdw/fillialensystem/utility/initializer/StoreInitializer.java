@@ -13,23 +13,11 @@ import org.springframework.stereotype.Component;
 @Component
 public class StoreInitializer implements ApplicationRunner {
 
-    private static final Logger log = LoggerFactory.getLogger(StoreInitializer.class);
-
-    private final StoreService storeService;
-
-    public StoreInitializer(StoreService storeService) {
-        this.storeService = storeService;
+    public StoreInitializer() {
     }
 
     @Override
     public void run(ApplicationArguments args) {
-        if (storeService.count() == 0) {
-            log.info("No stores found. Creating default store.");
-            Store defaultStore = new Store("default-store", "Hauptfiliale");
-            storeService.save(defaultStore);
-            log.info("Default store created successfully.");
-        } else {
-            log.info("Stores already exist. Skipping default store creation.");
-        }
+
     }
 }
