@@ -23,13 +23,11 @@ public class StoreInitializer implements ApplicationRunner {
 
     @Override
     public void run(ApplicationArguments args) {
-        if (storeService.count() == 0) {
-            log.info("No stores found. Creating default store.");
-            Store defaultStore = new Store("default-store", "Hauptfiliale");
-            storeService.save(defaultStore);
-            log.info("Default store created successfully.");
-        } else {
-            log.info("Stores already exist. Skipping default store creation.");
-        }
+        log.info("Deleting all existing stores.");
+        storeService.deleteAll();
+        log.info("All stores deleted. Creating default store.");
+        Store defaultStore = new Store("default-store", "Hauptfiliale");
+        storeService.save(defaultStore);
+        log.info("Default store created successfully.");
     }
 }

@@ -93,6 +93,12 @@ public abstract class AbstractCrudService<T extends GenericEntity<ID>, ID> imple
         delete(entity.getId());
     }
 
+    @Transactional
+    public void deleteAll() {
+        repository.deleteAll();
+        log.atInfo().log("[DELETED ALL] [{}]", AopUtils.getTargetClass(this).getSimpleName());
+    }
+
     public long count() {
         return repository.count();
     }
