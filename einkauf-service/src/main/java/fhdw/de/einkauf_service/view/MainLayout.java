@@ -7,7 +7,9 @@ import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.router.RouterLink;
 import com.vaadin.flow.router.HighlightConditions;
 import com.vaadin.flow.theme.lumo.LumoUtility;
+import com.vaadin.flow.component.dependency.CssImport;
 
+@CssImport("./styles/navigation.css")
 public class MainLayout extends AppLayout {
 
     public MainLayout() {
@@ -33,6 +35,12 @@ public class MainLayout extends AppLayout {
         articlesLink.setHighlightCondition(HighlightConditions.sameLocation());
         suppliersLink.setHighlightCondition(HighlightConditions.sameLocation());
         cartLink.setHighlightCondition(HighlightConditions.sameLocation());
+
+        // Apply custom styling class to all nav links
+        homeLink.addClassName("nav-link");
+        articlesLink.addClassName("nav-link");
+        suppliersLink.addClassName("nav-link");
+        cartLink.addClassName("nav-link");
 
         // Navigation layout
         HorizontalLayout navLinks = new HorizontalLayout(homeLink, articlesLink, suppliersLink, cartLink);
