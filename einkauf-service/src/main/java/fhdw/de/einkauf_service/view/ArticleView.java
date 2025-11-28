@@ -4,6 +4,7 @@ import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.checkbox.Checkbox;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.combobox.MultiSelectComboBox;
+import com.vaadin.flow.component.datepicker.DatePicker;
 import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.html.H2;
@@ -165,6 +166,9 @@ public class ArticleView extends VerticalLayout {
         TextField productImageUrl = new TextField("Produktbild-URL");
         productImageUrl.setPlaceholder("z.B. https://www.rossmann.de/media-neu/...");
 
+        DatePicker expirationDate = new DatePicker("Mindesthaltbarkeitsdatum (optional)");
+        expirationDate.setPlaceholder("Wählen Sie ein Datum...");
+
         if (article != null) {
             articleNumber.setValue(safe(article.getArticleNumber()));
             name.setValue(safe(article.getName()));
@@ -201,6 +205,9 @@ public class ArticleView extends VerticalLayout {
             widthCm.setValue(String.valueOf(article.getWidthCm()));
             if (article.getProductImage() != null) {
                 productImageUrl.setValue(article.getProductImage());
+            }
+            if (article.getExpirationDate() != null) {
+                expirationDate.setValue(article.getExpirationDate());
             }
 
             java.util.function.Function<TextField, Double> parseDoubleOrNull = field -> {
@@ -292,6 +299,7 @@ public class ArticleView extends VerticalLayout {
                 req.setHeightCm(Double.parseDouble(heightCm.getValue()));
                 req.setWidthCm(Double.parseDouble(widthCm.getValue()));
                 req.setProductImage(productImageUrl.getValue());
+                req.setExpirationDate(expirationDate.getValue());
 
                 Set<Long> categoryIds = categorySelect.getSelectedItems().stream()
                         .map(CategoryResponseDTO::getId)
@@ -321,7 +329,7 @@ public class ArticleView extends VerticalLayout {
         VerticalLayout formLayout = new VerticalLayout(
                 articleNumber, name, stockLevel, purchasePrice, taxRate, marginPercent, sellingPrice,
                 manufacturer, supplierBoxForm, pfandRadio, categorySelect, description,
-                widthCm, heightCm, depthCm, productImageUrl, buttons
+                widthCm, heightCm, depthCm, productImageUrl, expirationDate, buttons
         );
         formLayout.setPadding(false);
         formLayout.setSpacing(true);
