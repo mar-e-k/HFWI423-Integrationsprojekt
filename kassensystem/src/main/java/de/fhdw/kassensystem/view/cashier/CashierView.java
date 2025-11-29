@@ -710,13 +710,29 @@ public class CashierView extends AbstractMainView implements BeforeEnterObserver
         }
         Map<String, List<String>> params = beforeEnterEvent.getLocation().getQueryParameters().getParameters();
         if (params.containsKey("name")) {
-            this.cashierName = params.get("name").get(0);
-        }
-
-        if (cashierName != null) {
+            // Parameter is in URL, this is the source of truth.
+            String nameFromUrl = params.get("name").get(0);
+            this.cashierName = nameFromUrl;
             setViewTitle("CashierView der " + cashierName);
+
+            // Store it in sessionStorage for later.
+            UI.getCurrent().getPage().executeJs("sessionStorage.setItem('cashierName', $0)", nameFromUrl);
         } else {
+            // No parameter in URL. This might be after a re-login.
+            // Set a default title for now, it will be updated by the async call if a name is found.
             setViewTitle("CashierView");
+
+            // Try to get it from sessionStorage.
+            UI.getCurrent().getPage().executeJs("return sessionStorage.getItem('cashierName')")
+                    .then(String.class, nameFromStorage -> {
+                        if (nameFromStorage != null && !nameFromStorage.isEmpty()) {
+                            this.cashierName = nameFromStorage;
+                            // Since this is an async callback, we need to make sure we are still attached to the UI
+                            getUI().ifPresent(ui -> ui.access(() -> {
+                                setViewTitle("CashierView der " + cashierName);
+                            }));
+                        }
+                    });
         }
     }
 }
