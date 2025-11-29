@@ -191,8 +191,7 @@ public class ShelfServiceImpl implements ShelfService {
         dto.setId(entity.getId());
         dto.setLevelPosition(entity.getLevelPosition());
         dto.setShelfId(entity.getShelf() != null ? entity.getShelf().getId() : null);
-        // TODO: Get placement count from database when HI-53 is implemented
-        dto.setPlacementCount(0);
+        dto.setPlacementCount(entity.getPlacements() != null ? entity.getPlacements().size() : 0);
         dto.setDateCreated(entity.getDateCreated());
 
         return dto;

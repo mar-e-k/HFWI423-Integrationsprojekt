@@ -32,9 +32,9 @@ public class ShelfLevel {
     @JoinColumn(name = "shelf_id", nullable = false)
     private Shelf shelf;
 
-    // Relationship: Level → Placements (will be added in HI-53)
-    // @OneToMany(mappedBy = "shelfLevel", cascade = CascadeType.ALL, orphanRemoval = true)
-    // private List<ShelfPlacement> placements = new ArrayList<>();
+    // Relationship: Level → Placements
+    @OneToMany(mappedBy = "shelfLevel", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<ShelfPlacement> placements = new ArrayList<>();
 
     // Audit
     @Column(nullable = false)
