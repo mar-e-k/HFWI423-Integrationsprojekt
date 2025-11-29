@@ -8,11 +8,11 @@ import org.springframework.web.reactive.function.client.ClientRequest;
 import org.springframework.web.reactive.function.client.WebClient;
 
 @Component
-public class FilialClient {
+public class StoreClient {
 
     private final WebClient webClient;
 
-    public FilialClient(@Value("${spring.filialsystem.uri}") String uri, JwtService jwtService) {
+    public StoreClient(@Value("${server.filialsystem.uri}") String uri, JwtService jwtService) {
         this.webClient = WebClient.builder()
                 .baseUrl(uri)
                 .filter((request, next) -> {

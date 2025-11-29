@@ -1,6 +1,7 @@
-package de.fhdw.fillialensystem.api.registry;
+package de.fhdw.fillialensystem.persistence.service;
 
 import de.fhdw.commons.api.dto.SystemClientDTO;
+import de.fhdw.fillialensystem.utility.RegisterClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -13,29 +14,29 @@ import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 
 @Service
-public class KassensystemRegistryService {
+public class RegisterRegistryService {
 
-    private static final Logger log = LoggerFactory.getLogger(KassensystemRegistryService.class);
-    private final Map<String, KassensystemInstance> kassensystemInstanceMap = new ConcurrentHashMap<>();
+    private static final Logger log = LoggerFactory.getLogger(RegisterRegistryService.class);
+    private final Map<String, RegisterClient> kassensystemInstanceMap = new ConcurrentHashMap<>();
 
-    public KassensystemRegistryService() {
+    public RegisterRegistryService() {
         super();
     }
 
-    public Map<String, KassensystemInstance> getKassensystemInstanceMap() {
+    public Map<String, RegisterClient> getKassensystemInstanceMap() {
         return kassensystemInstanceMap;
     }
 
-    public Optional<KassensystemInstance> findRegistryById(String id) {
+    public Optional<RegisterClient> findRegistryById(String id) {
         return Optional.ofNullable(kassensystemInstanceMap.get(id));
     }
 
-    public List<KassensystemInstance> findAllRegistries() {
+    public List<RegisterClient> findAllRegistries() {
         return new ArrayList<>(kassensystemInstanceMap.values());
     }
 
-    public List<KassensystemInstance> findAllActiveRegistries() {
-        return new ArrayList<>(kassensystemInstanceMap.values().stream().filter(KassensystemInstance::isOnline).toList());
+    public List<RegisterClient> findAllActiveRegistries() {
+        return new ArrayList<>(kassensystemInstanceMap.values().stream().filter(RegisterClient::isOnline).toList());
     }
 
     public void addRegistry(SystemClientDTO systemClientDTO) {
@@ -43,7 +44,7 @@ public class KassensystemRegistryService {
             throw new IllegalStateException("Kassensystem instance with id {%s} already exists".formatted(systemClientDTO.getId()));
         }
 
-        KassensystemInstance instance = new  KassensystemInstance(
+        RegisterClient instance = new RegisterClient(
                 systemClientDTO,
                 Instant.now(),
                 Instant.now(),

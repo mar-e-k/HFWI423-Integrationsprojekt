@@ -1,16 +1,16 @@
 package de.fhdw.kassensystem.rest.proxy.services;
 
-import de.fhdw.kassensystem.utility.FilialClient;
+import de.fhdw.kassensystem.utility.StoreClient;
 
 public abstract class AbstractProxyService {
 
-    protected final FilialClient filialClient;
+    protected final StoreClient storeClient;
 
-    public AbstractProxyService(FilialClient filialClient) {
-        this.filialClient = filialClient;
+    public AbstractProxyService(StoreClient storeClient) {
+        this.storeClient = storeClient;
     }
 
-    public FilialClient getFilialClient() {
-        return filialClient;
+    public StoreClient getFilialClient() {
+        return storeClient;
     }
 }

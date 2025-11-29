@@ -1,21 +1,22 @@
-package de.fhdw.fillialensystem.api.registry;
+package de.fhdw.fillialensystem.utility;
 
 import de.fhdw.commons.api.dto.SystemClientDTO;
 
 import java.time.Instant;
 
-public class KassensystemInstance {
+
+public class RegisterClient {
 
     private SystemClientDTO systemClientDTO;
     private Instant registeredAt;
     private Instant lastSeen;
     private boolean online;
 
-    public KassensystemInstance() {
+    public RegisterClient() {
         super();
     }
 
-    public KassensystemInstance(SystemClientDTO systemClientDTO, Instant registeredAt, Instant lastSeen, boolean online) {
+    public RegisterClient(SystemClientDTO systemClientDTO, Instant registeredAt, Instant lastSeen, boolean online) {
         this.systemClientDTO = systemClientDTO;
         this.registeredAt = registeredAt;
         this.lastSeen = lastSeen;
