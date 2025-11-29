@@ -41,6 +41,10 @@ public class Supplier {
     @Column(nullable = false)
     private String city;
 
+    @NotBlank(message = "Country is mandatory.")
+    @Column(nullable = false)
+    private String country;
+
     @Email(message = "Please enter a correct E-Mail.")
     @Size(max = 255, message = "E-Mail is too long.")
     private String email;
