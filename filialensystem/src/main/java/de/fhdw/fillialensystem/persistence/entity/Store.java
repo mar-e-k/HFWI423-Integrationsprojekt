@@ -33,7 +33,7 @@ public class Store extends AbstractEntity {
 
     @Column(nullable = false)
     @NotNull(message = "Street number cannot be null")
-    @Min(value = 0, message = "Street number must be greater than 0")
+    @Min(value = 1, message = "Street number must be greater than 0")
     private Integer streetNumber;
 
     public Store() {

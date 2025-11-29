@@ -39,7 +39,7 @@ public class Account extends AbstractEntity implements UserDetails {
 
     public Account(AccountRole accountRole, List<Receipt> receipts, String uuid, String username, String password) {
         this.accountRole = accountRole;
-        this.receipts = receipts;
+        this.receipts = receipts != null ? receipts : new ArrayList<>();
         this.uuid = uuid;
         this.username = username;
         this.password = password;

@@ -67,11 +67,11 @@ public class Receipt extends AbstractEntity {
         this.account = account;
     }
 
-    public List<ReceiptLinkArticle> getLinkArticleReceipt() {
+    public List<ReceiptLinkArticle> getReceiptLinkArticle() {
         return receiptLinkArticle;
     }
 
-    public void setLinkArticleReceipt(List<ReceiptLinkArticle> receiptLinkArticle) {
+    public void setReceiptLinkArticle(List<ReceiptLinkArticle> receiptLinkArticle) {
         this.receiptLinkArticle = receiptLinkArticle;
     }
 

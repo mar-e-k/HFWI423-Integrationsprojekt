@@ -13,9 +13,11 @@ import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.core.annotation.Order;
 import org.springframework.core.env.Environment;
+import org.springframework.http.client.SimpleClientHttpRequestFactory;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 
+import java.net.InetAddress;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Objects;
@@ -32,6 +34,7 @@ public class StoreInitializer implements ApplicationRunner {
     private final StoreWatcherService storeWatcherService;
     private final InstanceProvider instanceProvider;
     private final Environment environment;
+    private final RestTemplate restTemplate;
 
     @Value("${spring.application.name}")
     private String applicationName;
@@ -42,12 +45,16 @@ public class StoreInitializer implements ApplicationRunner {
         this.storeWatcherService = storeWatcherService;
         this.instanceProvider = instanceProvider;
         this.environment = environment;
+
+        // Create and configure RestTemplate manually for full control
+        SimpleClientHttpRequestFactory factory = new SimpleClientHttpRequestFactory();
+        factory.setConnectTimeout(2000); // 2 seconds
+        factory.setReadTimeout(2000);    // 2 seconds
+        this.restTemplate = new RestTemplate(factory);
     }
 
     @Override
     public void run(ApplicationArguments args) {
-        // This will throw an exception if the lock fails, which is caught by Spring Boot
-        // and leads to a clean shutdown.
         cleanupStaleLocksAndWatchers();
         initializeDefaultStore();
         lockStoreAndRegisterWatcher();
@@ -55,8 +62,7 @@ public class StoreInitializer implements ApplicationRunner {
 
     private void cleanupStaleLocksAndWatchers() {
         log.info("Cleaning up stale locks and watchers...");
-        RestTemplate restTemplate = new RestTemplate();
-        storeWatcherService.findAll().forEach(watcher -> {
+        storeWatcherService.findAll().parallelStream().forEach(watcher -> {
             try {
                 String url = "http://" + watcher.getHost() + ":" + watcher.getPort() + "/actuator/health";
                 restTemplate.getForObject(url, String.class);
@@ -84,6 +90,16 @@ public class StoreInitializer implements ApplicationRunner {
         }
     }
 
+    private int getServerPort() {
+        String portProp = environment.getProperty("local.server.port",
+                environment.getProperty("server.port", "0"));
+        try {
+            return Integer.parseInt(portProp);
+        } catch (NumberFormatException e) {
+            return 0;
+        }
+    }
+
     private void lockStoreAndRegisterWatcher() {
         Optional<Store> storeToLock = storeService.findAll().stream().findFirst();
         if (storeToLock.isEmpty()) {
@@ -91,15 +107,22 @@ public class StoreInitializer implements ApplicationRunner {
             return;
         }
 
-        String storeIdToLock = storeToLock.get().getId().toString(); // Use the database ID
-        int port = Integer.parseInt(Objects.requireNonNull(environment.getProperty("local.server.port")));
+        String storeIdToLock = storeToLock.get().getId().toString();
+        int port = getServerPort();
 
-        // This will throw an IllegalStateException if the lock is already taken
         storeLockService.lock(storeIdToLock, instanceProvider.getInstanceId());
         log.info("Store {} locked successfully by instance {}.", storeIdToLock, instanceProvider.getInstanceId());
 
-        // This code only runs if the lock was successful
-        StoreWatcher watcher = new StoreWatcher(instanceProvider.getInstanceId(), "localhost", port, applicationName, Instant.now());
+        String host = environment.getProperty("app.instance.host");
+        if (host == null) {
+            try {
+                host = InetAddress.getLocalHost().getHostAddress();
+            } catch (Exception ex) {
+                host = "localhost";
+            }
+        }
+
+        StoreWatcher watcher = new StoreWatcher(instanceProvider.getInstanceId(), host, port, applicationName, Instant.now());
         storeWatcherService.save(watcher);
         log.info("Instance {} registered in watcher.", instanceProvider.getInstanceId());
     }

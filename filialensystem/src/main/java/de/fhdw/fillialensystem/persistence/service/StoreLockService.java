@@ -2,6 +2,7 @@ package de.fhdw.fillialensystem.persistence.service;
 
 import de.fhdw.fillialensystem.persistence.entity.StoreLock;
 import de.fhdw.fillialensystem.persistence.repository.StoreLockRepository;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -37,6 +38,11 @@ public class StoreLockService extends AbstractCrudService<StoreLock, Long> {
             throw new IllegalStateException("Store with id " + storeId + " is already locked.");
         }
         StoreLock lock = new StoreLock(storeId, instanceId, Instant.now());
-        return save(lock);
+        try {
+            return save(lock);
+        } catch (DataIntegrityViolationException ex) {
+            // DB unique constraint has triggered -> treat as already locked
+            throw new IllegalStateException("Store with id " + storeId + " is already locked.", ex);
+        }
     }
 }
