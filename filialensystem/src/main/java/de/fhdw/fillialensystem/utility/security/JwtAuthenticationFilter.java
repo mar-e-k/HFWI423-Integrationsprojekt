@@ -43,6 +43,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                         && claims.get("role", String.class).equalsIgnoreCase(AccountRoleEnum.SYSTEM.name())) {
                     account = new Account(
                             new AccountRole(null, AccountRoleEnum.SYSTEM),
+                            null,
                             claims.getSubject(),
                             "system",
                             "system");

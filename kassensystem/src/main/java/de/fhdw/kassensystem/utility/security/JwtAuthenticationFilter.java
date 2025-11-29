@@ -2,7 +2,7 @@ package de.fhdw.kassensystem.utility.security;
 
 import de.fhdw.commons.api.dto.AccountDTO;
 import de.fhdw.commons.persistence.entity.AccountRoleEnum;
-import de.fhdw.kassensystem.rest.proxy.services.AccountProxyService;
+import de.fhdw.kassensystem.persistance.service.proxy.AccountProxyService;
 import io.jsonwebtoken.Claims;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;

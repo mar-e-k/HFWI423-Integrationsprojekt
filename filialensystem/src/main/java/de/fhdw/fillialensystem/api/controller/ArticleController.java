@@ -3,7 +3,7 @@ package de.fhdw.fillialensystem.api.controller;
 import de.fhdw.commons.api.controller.ArticleAPI;
 import de.fhdw.commons.api.dto.ArticleDTO;
 import de.fhdw.fillialensystem.api.mapper.ArticleMapper;
-import de.fhdw.fillialensystem.persistence.service.ArticleService;
+import de.fhdw.fillialensystem.persistence.service.imported.ArticleService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.persistence.EntityNotFoundException;

@@ -1,8 +1,8 @@
-package de.fhdw.kassensystem.rest.proxy.services;
+package de.fhdw.kassensystem.persistance.service.proxy;
 
 import de.fhdw.commons.api.controller.ArticleAPI;
 import de.fhdw.commons.api.dto.ArticleDTO;
-import de.fhdw.kassensystem.utility.FilialClient;
+import de.fhdw.kassensystem.utility.StoreClient;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
@@ -14,13 +14,13 @@ import java.util.Optional;
 @Service
 public class ArticleProxyService extends AbstractProxyService implements ArticleAPI {
 
-    public ArticleProxyService(FilialClient filialClient) {
-        super(filialClient);
+    public ArticleProxyService(StoreClient storeClient) {
+        super(storeClient);
     }
 
     @Override
     public List<ArticleDTO> findAll() {
-        return filialClient.getWebClient()
+        return storeClient.getWebClient()
                 .get()
                 .uri("/api/article")
                 .retrieve()
@@ -30,7 +30,7 @@ public class ArticleProxyService extends AbstractProxyService implements Article
 
     @Override
     public Optional<ArticleDTO> findById(Long id) {
-        return filialClient.getWebClient()
+        return storeClient.getWebClient()
                 .get()
                 .uri("/api/article/id/{id}", id)
                 .retrieve()
@@ -41,7 +41,7 @@ public class ArticleProxyService extends AbstractProxyService implements Article
 
     @Override
     public Optional<ArticleDTO> findByArticleNumber(String gtin) {
-        return filialClient.getWebClient()
+        return storeClient.getWebClient()
                 .get()
                 .uri("/api/article/gtin/{gtin}", gtin)
                 .retrieve()

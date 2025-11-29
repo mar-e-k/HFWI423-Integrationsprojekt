@@ -7,6 +7,7 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
@@ -16,6 +17,9 @@ public class Account extends AbstractEntity implements UserDetails {
     @ManyToOne(optional = false)
     @JoinColumn(nullable = false)
     private AccountRole accountRole;
+
+    @OneToMany(mappedBy = "account")
+    private List<Receipt> receipts = new ArrayList<>();
 
     @Column(unique = true, nullable = false)
     @NotNull(message = "Account uuid cannot be null")
@@ -33,8 +37,9 @@ public class Account extends AbstractEntity implements UserDetails {
         super();
     }
 
-    public Account(AccountRole accountRole, String uuid, String username, String password) {
+    public Account(AccountRole accountRole, List<Receipt> receipts, String uuid, String username, String password) {
         this.accountRole = accountRole;
+        this.receipts = receipts != null ? receipts : new ArrayList<>();
         this.uuid = uuid;
         this.username = username;
         this.password = password;
@@ -46,6 +51,14 @@ public class Account extends AbstractEntity implements UserDetails {
 
     public void setAccountRole(AccountRole accountRole) {
         this.accountRole = accountRole;
+    }
+
+    public List<Receipt> getReceipts() {
+        return receipts;
+    }
+
+    public void setReceipts(List<Receipt> receipts) {
+        this.receipts = receipts;
     }
 
     public String getUuid() {

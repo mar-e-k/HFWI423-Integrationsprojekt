@@ -1,7 +1,8 @@
-package de.fhdw.fillialensystem.persistence.service;
+package de.fhdw.fillialensystem.persistence.service.imported;
 
 import de.fhdw.fillialensystem.persistence.entity.imported.Article;
-import de.fhdw.fillialensystem.persistence.repository.ArticleRepository;
+import de.fhdw.fillialensystem.persistence.repository.imported.ArticleRepository;
+import de.fhdw.fillialensystem.persistence.service.AbstractCrudService;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;

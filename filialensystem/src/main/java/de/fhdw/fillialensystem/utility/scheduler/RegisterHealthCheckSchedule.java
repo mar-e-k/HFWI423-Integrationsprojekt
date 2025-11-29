@@ -1,5 +1,7 @@
-package de.fhdw.fillialensystem.api.registry;
+package de.fhdw.fillialensystem.utility.scheduler;
 
+import de.fhdw.fillialensystem.utility.RegisterClient;
+import de.fhdw.fillialensystem.persistence.service.other.RegisterRegistryService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -11,21 +13,21 @@ import java.time.Duration;
 import java.time.Instant;
 
 @Service
-public class KassensystemHealthCheckService {
+public class RegisterHealthCheckSchedule {
 
-    private static final Logger log = LoggerFactory.getLogger(KassensystemHealthCheckService.class);
+    private static final Logger log = LoggerFactory.getLogger(RegisterHealthCheckSchedule.class);
 
-    private final KassensystemRegistryService registry;
+    private final RegisterRegistryService registry;
     private final WebClient webClient;
 
-    public KassensystemHealthCheckService(KassensystemRegistryService registry) {
+    public RegisterHealthCheckSchedule(RegisterRegistryService registry) {
         this.registry = registry;
         this.webClient = WebClient.builder().build();
     }
 
     @Scheduled(fixedDelay = 60000)
     public void performPingChecks() {
-        log.atInfo().log("Performing ping checks...");
+        log.atDebug().log("Performing ping checks...");
         registry.findAllActiveRegistries().forEach(instance -> pingInstance(instance)
                 .doOnSuccess(v -> {
                     instance.setOnline(true);
@@ -37,10 +39,10 @@ public class KassensystemHealthCheckService {
                     return Mono.empty();
                 })
                 .subscribe());
-        log.atInfo().log("Successfully performed ping checks");
+        log.atDebug().log("Successfully performed ping checks");
     }
 
-    private Mono<Void> pingInstance(KassensystemInstance instance) {
+    private Mono<Void> pingInstance(RegisterClient instance) {
         return webClient.get()
                 .uri("http://%s:%d/actuator/health".formatted(instance.getSystemClientDTO().getHost(), instance.getSystemClientDTO().getPort()))
                 .retrieve()

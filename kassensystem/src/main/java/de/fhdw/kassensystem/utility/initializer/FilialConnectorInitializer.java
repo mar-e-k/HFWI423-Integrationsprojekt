@@ -1,8 +1,8 @@
 package de.fhdw.kassensystem.utility.initializer;
 
 import de.fhdw.commons.api.dto.SystemClientDTO;
-import de.fhdw.kassensystem.utility.FilialClient;
-import de.fhdw.kassensystem.utility.ServerPortProvider;
+import de.fhdw.kassensystem.utility.RegisterClient;
+import de.fhdw.kassensystem.utility.StoreClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -15,33 +15,32 @@ import java.util.UUID;
 
 @Order(1)
 @Component
-    public class FilialStartupChecker implements ApplicationRunner {
+    public class FilialConnectorInitializer implements ApplicationRunner {
 
-    private static final Logger log = LoggerFactory.getLogger(FilialStartupChecker.class);
+    private static final Logger log = LoggerFactory.getLogger(FilialConnectorInitializer.class);
 
     private final String applicationName;
     private final String activeProfile;
     private final boolean connectToFilialOnStartup;
 
-    private final FilialClient filialClient;
-    private final ServerPortProvider serverPortProvider;
+    private final StoreClient storeClient;
+    private final RegisterClient registerClient;
 
-    public FilialStartupChecker(
+    public FilialConnectorInitializer(
             @Value("${spring.application.name:fallback}") String applicationName,
             @Value("${spring.profiles.active:fallback}") String activeProfile,
             @Value("${spring.kassensystem.connect-to-filial-on-startup:true}") boolean connectToFilialOnStartup,
-            FilialClient filialClient,
-            ServerPortProvider serverPortProvider) {
+            StoreClient storeClient, RegisterClient registerClient) {
         this.applicationName = applicationName;
         this.activeProfile = activeProfile;
         this.connectToFilialOnStartup = connectToFilialOnStartup;
-        this.filialClient = filialClient;
-        this.serverPortProvider = serverPortProvider;
+        this.storeClient = storeClient;
+        this.registerClient = registerClient;
     }
 
     @Override
     public void run(ApplicationArguments args) {
-        log.atInfo().log("spring.kassensystem.connect-to-filial-on-startup: {}", connectToFilialOnStartup);
+        log.atInfo().log("spring.kassensystem.connect-to-filial-on-startup is: {}", connectToFilialOnStartup);
 
         if (!connectToFilialOnStartup) {
             return;
@@ -50,7 +49,7 @@ import java.util.UUID;
         SystemClientDTO dto = new SystemClientDTO(
                 "%s-%s-%s".formatted(applicationName, activeProfile, UUID.randomUUID()),
                 "localhost",
-                serverPortProvider.getPort()
+                registerClient.getPort()
         );
 
         log.atInfo().log("Searching for Filialsystem...");
@@ -71,7 +70,7 @@ import java.util.UUID;
     }
 
     private void registerAtFilialsystem(SystemClientDTO dto) {
-        filialClient.getWebClient()
+        storeClient.getWebClient()
                 .post()
                 .uri("api/registry")
                 .bodyValue(dto)

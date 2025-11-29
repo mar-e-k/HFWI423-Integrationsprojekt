@@ -8,15 +8,27 @@ import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.router.Route;
 import de.fhdw.commons.persistence.entity.AccountRoleEnum;
 import de.fhdw.commons.view.AbstractMainView;
-import de.fhdw.fillialensystem.api.registry.KassensystemInstance;
-import de.fhdw.fillialensystem.api.registry.KassensystemRegistryService;
+import de.fhdw.fillialensystem.persistence.service.other.RegisterRegistryService;
+import de.fhdw.fillialensystem.utility.RegisterClient;
 import jakarta.annotation.security.RolesAllowed;
+
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.List;
 
 @Route("")
 @RolesAllowed({AccountRoleEnum.ROLE_ADMIN})
 public class MainView extends AbstractMainView {
 
-    public MainView(KassensystemRegistryService kassensystemRegistryService) {
+    private final List<RegisterClient> kassensystemInstances;
+    private final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm:ss");
+
+    public MainView(RegisterRegistryService registerRegistryService) {
+        this.kassensystemInstances = new ArrayList<>(registerRegistryService.findAllRegistries());
         setSizeFull();
         setPadding(true);
         setSpacing(true);
@@ -24,18 +36,18 @@ public class MainView extends AbstractMainView {
         H2 title = new H2("Connected Kassensystem Instances");
         add(title);
 
-        Grid<KassensystemInstance> grid = createGrid();
-        grid.setItems(kassensystemRegistryService.findAllRegistries());
+        Grid<RegisterClient> grid = createGrid();
+        grid.setItems(kassensystemInstances);
 
         add(grid);
     }
 
-    private Grid<KassensystemInstance> createGrid() {
-        Grid<KassensystemInstance> grid = new Grid<>(KassensystemInstance.class, false);
+    private Grid<RegisterClient> createGrid() {
+        Grid<RegisterClient> grid = new Grid<>(RegisterClient.class, false);
 
         grid.setWidthFull();
 
-        grid.addColumn(ks -> ks.getSystemClientDTO().getId())
+        grid.addColumn(ks -> String.format("Kasse %d (Dev, %s)", kassensystemInstances.indexOf(ks) + 1, ks.getSystemClientDTO().getId()))
                 .setHeader("Device")
                 .setAutoWidth(true);
 
@@ -51,11 +63,11 @@ public class MainView extends AbstractMainView {
                 .setHeader("Status")
                 .setAutoWidth(true);
 
-        grid.addColumn(ks -> ks.getRegisteredAt().toString())
+        grid.addColumn(ks -> formatter.format(ks.getRegisteredAt().atZone(ZoneId.systemDefault())))
                 .setHeader("Registered At")
                 .setAutoWidth(true);
 
-        grid.addColumn(ks -> ks.getLastSeen().toString())
+        grid.addColumn(ks -> formatter.format(ks.getLastSeen().atZone(ZoneId.systemDefault())))
                 .setHeader("Last Seen")
                 .setAutoWidth(true);
 
@@ -66,16 +78,23 @@ public class MainView extends AbstractMainView {
         return grid;
     }
 
-    private Component createOnlineBadge(KassensystemInstance ks) {
-        Span badge = new Span(ks.isOnline() ? "Online" : "Offline");
+    private Component createOnlineBadge(RegisterClient registerClient) {
+        Span badge = new Span(registerClient.isOnline() ? "Online" : "Offline");
         badge.getElement().getThemeList().add("badge");
         badge.getElement().getThemeList()
-                .add(ks.isOnline() ? "success" : "error");
+                .add(registerClient.isOnline() ? "success" : "error");
         return badge;
     }
 
-    private Component createInstanceLink(KassensystemInstance ks) {
-        String url = "http://" + ks.getSystemClientDTO().getHost() + ":" + ks.getSystemClientDTO().getPort();
+    private Component createInstanceLink(RegisterClient registerClient) {
+        String name = String.format("Kasse %d", kassensystemInstances.indexOf(registerClient) + 1);
+        String url = "http://" + registerClient.getSystemClientDTO().getHost() + ":" + registerClient.getSystemClientDTO().getPort() + "/cashier";
+        try {
+            url += "?name=" + URLEncoder.encode(name, StandardCharsets.UTF_8.name());
+        } catch (UnsupportedEncodingException e) {
+            // This should not happen with UTF-8
+            e.printStackTrace();
+        }
         Anchor link = new Anchor(url, "Open");
         link.setTarget("_blank");
         return link;
