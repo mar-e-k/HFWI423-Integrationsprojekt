@@ -1,74 +1,92 @@
-# HFWI423-Integrationsprojekt
+# HFWI423-Integrationsprojekt: Filialen- und Kassensystem
 
-Dieses Projekt ist ein Kassensystem, das mit Vaadin und Spring Boot entwickelt wird.
+Dieses Projekt implementiert ein verteiltes System, bestehend aus einem zentralen **Filialensystem** und mehreren dezentralen **Kassensystemen**. Die Kommunikation erfolgt über REST-Schnittstellen.
 
-## 1. Build und Start der Anwendung
+## 1. Projektarchitektur
 
-### 1.1. Projekt bauen (Kompilieren)
+Das System ist in drei Maven-Module unterteilt:
 
-Bevor Sie die Anwendung zum ersten Mal starten oder nachdem Sie größere Änderungen an den Abhängigkeiten (`pom.xml`) vorgenommen haben, sollten Sie das Projekt mit Maven bauen. Dieser Befehl lädt alle Notwendigkeiten herunter und stellt sicher, dass das Projekt fehlerfrei kompiliert.
+-   **`commons`**: Eine Bibliothek, die von beiden anderen Modulen genutzt wird. Sie enthält gemeinsame Code-Bestandteile wie Datenübertragungsobjekte (DTOs), Entitätsklassen und Basis-UI-Komponenten.
+-   **`filialensystem`**: Die zentrale Verwaltungsanwendung. Sie dient als "Single Source of Truth" für Artikeldaten und verwaltet die angeschlossenen Kassensysteme.
+-   **`kassensystem`**: Die Anwendung für den Point of Sale. Mehrere Instanzen dieses Systems können gestartet werden. Jede Instanz registriert sich beim Filialensystem, um Artikeldaten abzurufen und Verkäufe abzuwickeln.
 
-Öffnen Sie ein Terminal im Projektverzeichnis und führen Sie aus:
+## 2. Build und Start der Anwendungen
+
+### 2.1. Projekt bauen (Kompilieren)
+
+Bevor Sie die Anwendungen zum ersten Mal starten, muss das gesamte Projekt mit Maven gebaut werden. Dieser Befehl kompiliert alle drei Module und stellt sicher, dass die Abhängigkeiten korrekt aufgelöst werden.
+
+Öffnen Sie ein Terminal im Projekt-Hauptverzeichnis und führen Sie aus:
 
 ```sh
 mvn clean install
 ```
 
-In IntelliJ können Sie hierfür auch das **Maven-Tool-Fenster** verwenden, zu `Lifecycle` navigieren und dort zuerst auf `clean` und dann auf `install` doppelklicken.
+### 2.2. Anwendungen starten
 
-### 1.2. Anwendung starten
+Für einen funktionsfähigen Betrieb müssen sowohl das Filialensystem als auch mindestens ein Kassensystem gestartet werden.
 
-Der empfohlene Weg zum Starten der Anwendung während der Entwicklung ist direkt über die IDE. Dies ist besonders nützlich für das Debugging.
+#### 1. Filialensystem starten
 
-1.  Öffnen Sie die Datei `src/main/java/de/fhdw/kassensystem/Application.java`.
+Das Filialensystem ist die zentrale Verwaltungsinstanz und läuft standardmäßig auf Port `8080`.
+
+1.  Öffnen Sie die Datei `filialensystem/src/main/java/de/fhdw/fillialensystem/Application.java`.
+2.  Klicken Sie auf den grünen "Play"-Button neben der `main`-Methode, um die Anwendung zu starten.
+3.  Die Anwendung ist unter `http://localhost:8080` erreichbar.
+
+**Standard-Login:**
+-   **Benutzername:** `A`
+-   **Passwort:** `1234`
+
+#### 2. Kassensystem starten
+
+Das Kassensystem ist die Point-of-Sale-Anwendung. Es kann mehrfach gestartet werden und läuft standardmäßig auf Port `8081`.
+
+1.  Öffnen Sie die Datei `kassensystem/src/main/java/de/fhdw/kassensystem/Application.java`.
 2.  Klicken Sie auf den grünen "Play"-Button neben der `main`-Methode.
+3.  Die Anwendung ist unter `http://localhost:8081` erreichbar.
 
-Die Anwendung startet und ist unter `http://localhost:8080` erreichbar.
+**Standard-Login:**
+-   **Benutzername:** `C`
+-   **Passwort:** `1234`
 
-**Wichtig:** Damit der Live-Reload bei diesem Startmodus funktioniert, müssen die IDE-Einstellungen wie in Abschnitt 3 beschrieben konfiguriert werden.
+Nach dem Start registriert sich das Kassensystem automatisch beim Filialensystem.
 
-## 2. Projektübersicht
+## 3. Funktionsübersicht
 
-Das Projekt ist eine Spring-Boot-Anwendung, die ein Kassensystem implementiert.
+### Filialensystem (`:8080`)
 
-*   **Backend:** Spring Boot, Spring Data JPA, Spring Security
-*   **Datenbank:** PostgreSQL
-*   **Frontend:** Vaadin Flow (Java-basierte UI-Komponenten)
+-   **Dashboard (`MainView`):**
+    -   Zeigt eine Übersicht aller verbundenen Kassensystem-Instanzen.
+    -   Stellt den Online-Status, Host, Port und den Zeitpunkt der letzten Kommunikation dar.
+    -   Bietet einen direkten Link, um die `CashierView` der jeweiligen Kasseninstanz in einem neuen Tab zu öffnen. Der Name der Kasse (z.B. "Kasse 1") wird dabei als URL-Parameter übergeben.
+-   **Artikelverwaltung (`AdminView`):**
+    -   Anzeige aller im System erfassten Artikel in einer Tabelle.
+    -   Suchfunktion zum Filtern der Artikelliste.
+    -   Möglichkeit, neue Artikel zu erstellen und bestehende zu bearbeiten.
 
-### Bisherige Funktionalität:
+### Kassensystem (`:8081`)
 
-*   **Login-Ansicht:** Eine einfache Anmeldemaske (`LoginView.java`).
-*   **Basis-Ansicht:** Eine `BaseView` dient als Vorlage für alle anderen Ansichten und sorgt für ein einheitliches Erscheinungsbild.
-*   **Kassenansicht (`CashierView`):** Diese Ansicht ist für Kassierer und Administratoren zugänglich und wurde um erweiterte Funktionen und Sicherheitsmechanismen ergänzt. Sie ermöglicht:
-    *   Die Suche nach Artikeln über ihre Artikelnummer.
-    *   Das Hinzufügen von Artikeln zu einem Warenkorb. Bei wiederholtem Hinzufügen wird die Menge erhöht.
-    *   **Gezielte Bearbeitung im Warenkorb:**
-        *   **Preisänderung:** Eine manuelle Preisänderung ist nur durch einen Klick auf die Preis-Spalte möglich.
-        *   **Passwort-Freigabe:** Jede Preisänderung muss durch die Eingabe eines Passworts (`Initial: 1234`) in einem Dialog bestätigt werden.
-        *   **Mengenänderung:** Die Menge kann durch einen direkten Klick auf die Mengen-Spalte angepasst werden.
-        *   **Automatische Aktualisierung:** Änderungen an Preis oder Menge werden sofort übernommen und die Gesamtwerte (Anzahl, Preis) werden automatisch neu berechnet.
-    *   **Erweiterter Lösch-Dialog:**
-        *   Ein Klick auf den Löschen-Button öffnet einen Dialog.
-        *   Der Dialog bietet die Wahl, die gesamte Position oder nur eine bestimmte Menge des Artikels zu entfernen.
-        *   Die zu löschende Menge wird validiert und kann die im Warenkorb vorhandene Menge nicht überschreiten.
-    *   **Robuste Eingabevalidierung:** Ungültige Eingaben bei Preis- oder Mengenänderungen (z.B. Text statt Zahlen) werden mit klaren Fehlermeldungen direkt am Feld verhindert.
-    *   Eine Live-Anzeige der Gesamtanzahl der Artikel und des Gesamtpreises.
-*   **Admin-Ansicht (`AdminView`):** Diese Ansicht ist nur für Administratoren zugänglich. Sie bietet:
-    *   Eine Übersicht aller im System erfassten Artikel in einer Tabelle.
-    *   Eine Suchfunktion, um die Artikelliste nach dem Namen zu filtern.
-    *   Einen Button, um die Daten in der Tabelle manuell zu aktualisieren.
-*   **Sicherheit:** Spring Security ist grundlegend konfiguriert, um die Ansichten basierend auf den Benutzerrollen (`CASHIER`, `ADMIN`) zu schützen.
+-   **Kassenansicht (`CashierView`):**
+    -   Nimmt den übergebenen Kassennamen aus der URL entgegen und zeigt ihn im Titel an (z.B. "CashierView der Kasse 1"). Der Name bleibt auch nach einem Logout und erneutem Login erhalten.
+    -   **Artikelsuche:** Artikel können über ihre Artikelnummer gesucht und dem Warenkorb hinzugefügt werden.
+    -   **Warenkorb-Management:**
+        -   Artikel ohne vordefinierten Preis erfordern eine Preiseingabe durch den Kassierer.
+        -   Mengen und Preise können direkt im Warenkorb bearbeitet werden. Eine Preisänderung erfordert eine Passwort-Freigabe (`Initial: 1234`).
+        -   Artikel können vollständig oder in Teilmengen aus dem Warenkorb entfernt werden.
+        -   Rabatte können pro Position (prozentual, für eine bestimmte Menge) hinzugefügt werden.
+    -   **Kaufabschluss:** Führt zur Bezahlansicht (`PaymentView`).
 
-## 3. Live-Reload für die Entwicklung aktivieren
+## 4. Live-Reload für die Entwicklung aktivieren
 
-Live-Reload ermöglicht es, Änderungen am Java- und Frontend-Code sofort im Browser zu sehen, ohne die Anwendung manuell neu starten zu müssen. Damit dies funktioniert, sind die folgenden IDE-Einstellungen (IntelliJ IDEA) erforderlich:
+Live-Reload ermöglicht es, Änderungen am Code sofort im Browser zu sehen, ohne die Anwendung manuell neu starten zu müssen. Damit dies funktioniert, sind die folgenden IDE-Einstellungen (IntelliJ IDEA) erforderlich:
 
 1.  **Automatisches Bauen aktivieren:**
-    *   Gehen Sie zu `Settings/Preferences > Build, Execution, Deployment > Compiler`.
-    *   Aktivieren Sie die Option **`Build project automatically`**.
+    -   Gehen Sie zu `Settings/Preferences > Build, Execution, Deployment > Compiler`.
+    -   Aktivieren Sie die Option **`Build project automatically`**.
 
 2.  **Automatisches Bauen während der Ausführung erlauben:**
-    *   Gehen Sie zu `Settings/Preferences > Advanced Settings`.
-    *   Suchen Sie die Option **`Allow auto-make to start even if developed application is currently running`** und aktivieren Sie sie.
+    -   Gehen Sie zu `Settings/Preferences > Advanced Settings`.
+    -   Suchen Sie die Option **`Allow auto-make to start even if developed application is currently running`** und aktivieren Sie sie.
 
-Nachdem diese Einstellungen vorgenommen wurden, funktioniert der Live-Reload beim Start über die `Application.java`.
+Nachdem diese Einstellungen vorgenommen wurden, funktioniert der Live-Reload beim Start über die jeweilige `Application.java`.
