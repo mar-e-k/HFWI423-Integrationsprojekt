@@ -150,13 +150,9 @@ public class ArticleView extends VerticalLayout {
         RadioButtonGroup<String> availabilityRadio = new RadioButtonGroup<>("Verfügbarkeit");
         availabilityRadio.setItems("Verfügbar", "Nicht verfügbar");
         if (article != null) {
-            // Bearbeiten: enabled, mit aktuellem Wert
             availabilityRadio.setValue(Boolean.TRUE.equals(article.getIsAvailable()) ? "Verfügbar" : "Nicht verfügbar");
-            availabilityRadio.setEnabled(true);
         } else {
-            // Erstellen: disabled, standardmäßig "Nicht verfügbar"
             availabilityRadio.setValue("Nicht verfügbar");
-            availabilityRadio.setEnabled(false);
         }
         availabilityRadio.setRequired(true);
 
