@@ -152,6 +152,11 @@ public class CategoryManagement extends Dialog {
 
     private void refreshGrid() {
         List<CategoryResponseDTO> all = categoryService.getAllCategories();
+        all.sort((a, b) -> {
+            String n1 = a.getName() != null ? a.getName() : "";
+            String n2 = b.getName() != null ? b.getName() : "";
+            return n1.compareToIgnoreCase(n2);
+        });
         categoryGrid.setItems(all);
     }
 

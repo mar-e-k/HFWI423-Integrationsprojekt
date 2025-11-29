@@ -82,14 +82,27 @@ public class ArticleView extends VerticalLayout {
 
         configureGrid();
 
-        supplierBox.setItems(supplierCache.values());
+        List<SupplierResponseDTO> allSuppliers = supplierCache.values().stream()
+                .collect(Collectors.toList());   // modifizierbare Liste
+        allSuppliers.sort((a, b) -> {
+            String n1 = a.getName() != null ? a.getName() : "";
+            String n2 = b.getName() != null ? b.getName() : "";
+            return n1.compareToIgnoreCase(n2);
+        });
+        supplierBox.setItems(allSuppliers);
         supplierBox.setItemLabelGenerator(SupplierResponseDTO::getName);
         supplierBox.setClearButtonVisible(true);
 
         availabilityFilter.setItems("Verfügbar", "Nicht verfügbar");
         availabilityFilter.setValue("Verfügbar");
 
-        categoryBox.setItems(categoryService.getAllCategories());
+        List<CategoryResponseDTO> allFilterCategories = categoryService.getAllCategories();
+        allFilterCategories.sort((a, b) -> {
+            String n1 = a.getName() != null ? a.getName() : "";
+            String n2 = b.getName() != null ? b.getName() : "";
+            return n1.compareToIgnoreCase(n2);
+        });
+        categoryBox.setItems(allFilterCategories);
         categoryBox.setItemLabelGenerator(CategoryResponseDTO::getName);
         categoryBox.setClearButtonVisible(true);
 
@@ -140,7 +153,14 @@ public class ArticleView extends VerticalLayout {
         marginPercent.setValueChangeMode(ValueChangeMode.EAGER);
 
         ComboBox<SupplierResponseDTO> supplierBoxForm = new ComboBox<>("Lieferant");
-        supplierBoxForm.setItems(supplierCache.values());
+        List<SupplierResponseDTO> allSuppliersForm = supplierCache.values().stream()
+                .collect(Collectors.toList());
+        allSuppliersForm.sort((a, b) -> {
+            String n1 = a.getName() != null ? a.getName() : "";
+            String n2 = b.getName() != null ? b.getName() : "";
+            return n1.compareToIgnoreCase(n2);
+        });
+        supplierBoxForm.setItems(allSuppliersForm);
         supplierBoxForm.setItemLabelGenerator(SupplierResponseDTO::getName);
         supplierBoxForm.setRequired(true);
 
@@ -168,7 +188,12 @@ public class ArticleView extends VerticalLayout {
 
         MultiSelectComboBox<CategoryResponseDTO> categorySelect =
                 new MultiSelectComboBox<>("Kategorie");
-        List<CategoryResponseDTO> allCategories = categoryService.getAllCategories();  // NEU
+        List<CategoryResponseDTO> allCategories = categoryService.getAllCategories();
+        allCategories.sort((a, b) -> {
+            String n1 = a.getName() != null ? a.getName() : "";
+            String n2 = b.getName() != null ? b.getName() : "";
+            return n1.compareToIgnoreCase(n2);
+        });
         categorySelect.setItems(allCategories);
         categorySelect.setItemLabelGenerator(CategoryResponseDTO::getName);
         categorySelect.setRequired(true);
@@ -630,6 +655,11 @@ public class ArticleView extends VerticalLayout {
 
     private void refreshCategoriesInUi() {
         List<CategoryResponseDTO> all = categoryService.getAllCategories();
+        all.sort((a, b) -> {
+            String n1 = a.getName() != null ? a.getName() : "";
+            String n2 = b.getName() != null ? b.getName() : "";
+            return n1.compareToIgnoreCase(n2);
+        });
         categoryBox.setItems(all);
         categoryBox.setItemLabelGenerator(CategoryResponseDTO::getName);
         updateList();
