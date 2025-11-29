@@ -12,11 +12,23 @@ import de.fhdw.fillialensystem.api.registry.KassensystemInstance;
 import de.fhdw.fillialensystem.api.registry.KassensystemRegistryService;
 import jakarta.annotation.security.RolesAllowed;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.List;
+
 @Route("")
 @RolesAllowed({AccountRoleEnum.ROLE_ADMIN})
 public class MainView extends AbstractMainView {
 
+    private final List<KassensystemInstance> kassensystemInstances;
+    private final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm:ss");
+
     public MainView(KassensystemRegistryService kassensystemRegistryService) {
+        this.kassensystemInstances = new ArrayList<>(kassensystemRegistryService.findAllRegistries());
         setSizeFull();
         setPadding(true);
         setSpacing(true);
@@ -25,7 +37,7 @@ public class MainView extends AbstractMainView {
         add(title);
 
         Grid<KassensystemInstance> grid = createGrid();
-        grid.setItems(kassensystemRegistryService.findAllRegistries());
+        grid.setItems(kassensystemInstances);
 
         add(grid);
     }
@@ -35,7 +47,7 @@ public class MainView extends AbstractMainView {
 
         grid.setWidthFull();
 
-        grid.addColumn(ks -> ks.getSystemClientDTO().getId())
+        grid.addColumn(ks -> String.format("Kasse %d (Dev, %s)", kassensystemInstances.indexOf(ks) + 1, ks.getSystemClientDTO().getId()))
                 .setHeader("Device")
                 .setAutoWidth(true);
 
@@ -51,11 +63,11 @@ public class MainView extends AbstractMainView {
                 .setHeader("Status")
                 .setAutoWidth(true);
 
-        grid.addColumn(ks -> ks.getRegisteredAt().toString())
+        grid.addColumn(ks -> formatter.format(ks.getRegisteredAt().atZone(ZoneId.systemDefault())))
                 .setHeader("Registered At")
                 .setAutoWidth(true);
 
-        grid.addColumn(ks -> ks.getLastSeen().toString())
+        grid.addColumn(ks -> formatter.format(ks.getLastSeen().atZone(ZoneId.systemDefault())))
                 .setHeader("Last Seen")
                 .setAutoWidth(true);
 
@@ -75,7 +87,14 @@ public class MainView extends AbstractMainView {
     }
 
     private Component createInstanceLink(KassensystemInstance ks) {
-        String url = "http://" + ks.getSystemClientDTO().getHost() + ":" + ks.getSystemClientDTO().getPort();
+        String name = String.format("Kasse %d", kassensystemInstances.indexOf(ks) + 1);
+        String url = "http://" + ks.getSystemClientDTO().getHost() + ":" + ks.getSystemClientDTO().getPort() + "/cashier";
+        try {
+            url += "?name=" + URLEncoder.encode(name, StandardCharsets.UTF_8.name());
+        } catch (UnsupportedEncodingException e) {
+            // This should not happen with UTF-8
+            e.printStackTrace();
+        }
         Anchor link = new Anchor(url, "Open");
         link.setTarget("_blank");
         return link;

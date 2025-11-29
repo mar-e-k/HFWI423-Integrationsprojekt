@@ -21,10 +21,7 @@ import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.data.converter.StringToBigDecimalConverter;
 import com.vaadin.flow.data.value.ValueChangeMode;
-import com.vaadin.flow.router.BeforeEnterEvent;
-import com.vaadin.flow.router.BeforeEnterObserver;
-import com.vaadin.flow.router.PageTitle;
-import com.vaadin.flow.router.Route;
+import com.vaadin.flow.router.*;
 import de.fhdw.commons.api.dto.ArticleDTO;
 import de.fhdw.commons.persistence.entity.AccountRoleEnum;
 import de.fhdw.commons.view.AbstractMainView;
@@ -35,6 +32,7 @@ import org.springframework.beans.factory.annotation.Value;
 import java.math.BigDecimal;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @Route("/cashier")
@@ -55,6 +53,7 @@ public class CashierView extends AbstractMainView implements BeforeEnterObserver
     private TextField priceEditor;
     private IntegerField quantityEditor;
     private Span totalLabel;
+    private String cashierName;
 
     @Value("${spring.kassensystem.cashier.password}")
     private String password;
@@ -705,8 +704,19 @@ public class CashierView extends AbstractMainView implements BeforeEnterObserver
 
     @Override
     public void beforeEnter(BeforeEnterEvent beforeEnterEvent) {
+        super.beforeEnter(beforeEnterEvent); // Wichtig: Aufruf der Super-Methode nicht vergessen
         if (!cartItemsManager.getCart().isEmpty()) {
             cartItemsManager.updateGrid(cartGrid, totalLabel);
+        }
+        Map<String, List<String>> params = beforeEnterEvent.getLocation().getQueryParameters().getParameters();
+        if (params.containsKey("name")) {
+            this.cashierName = params.get("name").get(0);
+        }
+
+        if (cashierName != null) {
+            setViewTitle("CashierView der " + cashierName);
+        } else {
+            setViewTitle("CashierView");
         }
     }
 }

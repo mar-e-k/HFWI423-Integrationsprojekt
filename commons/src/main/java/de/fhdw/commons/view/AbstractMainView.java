@@ -23,6 +23,8 @@ import java.util.Map;
 
 public abstract class AbstractMainView extends VerticalLayout implements BeforeEnterObserver {
 
+    private H1 viewTitle;
+
     public AbstractMainView() {
         UI.getCurrent().getPage().executeJs(
                 "const storedTheme = localStorage.getItem('theme');" +
@@ -45,7 +47,8 @@ public abstract class AbstractMainView extends VerticalLayout implements BeforeE
         topBar.setAlignItems(Alignment.CENTER);
 
         // Linker Bereich: Titel
-        HorizontalLayout leftSection = new HorizontalLayout(new H1(AopUtils.getTargetClass(this).getSimpleName()));
+        viewTitle = new H1(AopUtils.getTargetClass(this).getSimpleName());
+        HorizontalLayout leftSection = new HorizontalLayout(viewTitle);
         leftSection.setJustifyContentMode(JustifyContentMode.START);
         leftSection.setWidth("33.33%");
 
@@ -104,6 +107,10 @@ public abstract class AbstractMainView extends VerticalLayout implements BeforeE
                 }, 1000);
             }
         """);
+    }
+
+    protected void setViewTitle(String title) {
+        viewTitle.setText(title);
     }
 
     protected HorizontalLayout createTopBarButtons() {
