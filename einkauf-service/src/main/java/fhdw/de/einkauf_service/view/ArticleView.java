@@ -576,6 +576,39 @@ public class ArticleView extends VerticalLayout {
         dialog.open();
     }
 
+    private void showDeleteArticleConfirmationDialog(ArticleResponseDTO article) {
+        Dialog confirmDialog = new Dialog();
+        confirmDialog.setHeaderTitle("Löschen bestätigen");
+
+        VerticalLayout content = new VerticalLayout(
+                new Span("Möchten Sie den Artikel \"" + safe(article.getName()) + "\" wirklich endgültig löschen?"),
+                new Span("Diese Aktion kann nicht rückgängig gemacht werden.")
+        );
+        content.setPadding(false);
+
+        Button confirmButton = new Button("Löschen", event -> {
+            try {
+                articleService.deleteArticle(article.getId());
+                confirmDialog.close();
+                updateList();
+                Notification.show("Artikel wurde erfolgreich gelöscht!", 3000, Notification.Position.BOTTOM_START);
+            } catch (Exception ex) {
+                confirmDialog.close();
+                showErrorNotification("Fehler beim Löschen: " + ex.getMessage());
+            }
+        });
+        confirmButton.getStyle().set("color", "white");
+        confirmButton.getStyle().set("background-color", "#d32f2f");
+
+        Button cancelButton = new Button("Abbrechen", event -> confirmDialog.close());
+
+        HorizontalLayout buttons = new HorizontalLayout(confirmButton, cancelButton);
+        content.add(buttons);
+
+        confirmDialog.add(content);
+        confirmDialog.open();
+    }
+
     private static TextField createSearchField(String label) {
         TextField tf = new TextField(label);
         tf.setClearButtonVisible(true);
@@ -610,8 +643,7 @@ public class ArticleView extends VerticalLayout {
         deleteButton.addClickListener(e -> {
             ArticleResponseDTO selected = grid.asSingleSelect().getValue();
             if (selected != null) {
-                articleService.deleteArticle(selected.getId());
-                updateList();
+                showDeleteArticleConfirmationDialog(selected);
             }
         });
         addToCartButton.addClickListener(e -> addSelectedToCart());
@@ -676,4 +708,22 @@ public class ArticleView extends VerticalLayout {
             return null;
         }
     };
+
+    private void showErrorNotification(String message) {
+        Dialog notification = new Dialog();
+        notification.setWidth("400px");
+
+        VerticalLayout content = new VerticalLayout(new Span(message));
+        content.setPadding(true);
+        content.getStyle().set("color", "#c62828");
+        content.getStyle().set("font-weight", "bold");
+
+        Button closeButton = new Button("OK", e -> notification.close());
+        closeButton.getStyle().set("background-color", "#f44336");
+        closeButton.getStyle().set("color", "white");
+
+        content.add(closeButton);
+        notification.add(content);
+        notification.open();
+    }
 }
