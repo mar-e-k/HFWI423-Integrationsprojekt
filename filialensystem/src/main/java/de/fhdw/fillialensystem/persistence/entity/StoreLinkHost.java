@@ -76,7 +76,7 @@ public class StoreLinkHost {
         return lastSuccessfulPing;
     }
 
-    public void setLastSuccessfulPing(Instant lastSuccesfullPing) {
-        this.lastSuccessfulPing = lastSuccesfullPing;
+    public void setLastSuccessfulPing(Instant lastSuccessfulPing) {
+        this.lastSuccessfulPing = lastSuccessfulPing;
     }
 }
