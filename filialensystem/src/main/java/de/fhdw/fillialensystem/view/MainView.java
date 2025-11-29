@@ -3,7 +3,6 @@ package de.fhdw.fillialensystem.view;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.html.Anchor;
-import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.router.Route;
 import de.fhdw.commons.persistence.entity.AccountRoleEnum;
@@ -29,12 +28,10 @@ public class MainView extends AbstractMainView {
 
     public MainView(RegisterRegistryService registerRegistryService) {
         this.kassensystemInstances = new ArrayList<>(registerRegistryService.findAllRegistries());
+        setViewTitle("Kassensystem Instances");
         setSizeFull();
         setPadding(true);
         setSpacing(true);
-
-        H2 title = new H2("Connected Kassensystem Instances");
-        add(title);
 
         Grid<RegisterClient> grid = createGrid();
         grid.setItems(kassensystemInstances);
