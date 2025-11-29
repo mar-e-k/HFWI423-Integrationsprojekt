@@ -30,11 +30,13 @@ public class MainLayout extends AppLayout {
         RouterLink suppliersLink = new RouterLink("Lieferanten", SupplierView.class);
         RouterLink cartLink = new RouterLink("Warenkorb", ShoppingCartView.class);
         RouterLink contingentsLink = new RouterLink("Kontingente", ContingentView.class);
+        RouterLink ordersLink = new RouterLink("Bestellhistorie", OrderView.class);
 
         // Highlight active route
         homeLink.setHighlightCondition(HighlightConditions.sameLocation());
         articlesLink.setHighlightCondition(HighlightConditions.sameLocation());
         suppliersLink.setHighlightCondition(HighlightConditions.sameLocation());
+        ordersLink.setHighlightCondition(HighlightConditions.sameLocation());
         cartLink.setHighlightCondition(HighlightConditions.sameLocation());
         contingentsLink.setHighlightCondition(HighlightConditions.sameLocation());
 
@@ -42,11 +44,12 @@ public class MainLayout extends AppLayout {
         homeLink.addClassName("nav-link");
         articlesLink.addClassName("nav-link");
         suppliersLink.addClassName("nav-link");
+        ordersLink.addClassName("nav-link");
         cartLink.addClassName("nav-link");
         contingentsLink.addClassName("nav-link");
 
         // Navigation layout
-        HorizontalLayout navLinks = new HorizontalLayout(homeLink, articlesLink, suppliersLink, cartLink, contingentsLink);
+        HorizontalLayout navLinks = new HorizontalLayout(homeLink, articlesLink, suppliersLink, cartLink, contingentsLink, ordersLink);
         navLinks.setSpacing(true);
         navLinks.setPadding(true);
         navLinks.setAlignItems(FlexComponent.Alignment.CENTER);
