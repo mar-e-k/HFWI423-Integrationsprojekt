@@ -82,14 +82,27 @@ public class ArticleView extends VerticalLayout {
 
         configureGrid();
 
-        supplierBox.setItems(supplierCache.values());
+        List<SupplierResponseDTO> allSuppliers = supplierCache.values().stream()
+                .collect(Collectors.toList());   // modifizierbare Liste
+        allSuppliers.sort((a, b) -> {
+            String n1 = a.getName() != null ? a.getName() : "";
+            String n2 = b.getName() != null ? b.getName() : "";
+            return n1.compareToIgnoreCase(n2);
+        });
+        supplierBox.setItems(allSuppliers);
         supplierBox.setItemLabelGenerator(SupplierResponseDTO::getName);
         supplierBox.setClearButtonVisible(true);
 
         availabilityFilter.setItems("Verfügbar", "Nicht verfügbar");
         availabilityFilter.setValue("Verfügbar");
 
-        categoryBox.setItems(categoryService.getAllCategories());
+        List<CategoryResponseDTO> allFilterCategories = categoryService.getAllCategories();
+        allFilterCategories.sort((a, b) -> {
+            String n1 = a.getName() != null ? a.getName() : "";
+            String n2 = b.getName() != null ? b.getName() : "";
+            return n1.compareToIgnoreCase(n2);
+        });
+        categoryBox.setItems(allFilterCategories);
         categoryBox.setItemLabelGenerator(CategoryResponseDTO::getName);
         categoryBox.setClearButtonVisible(true);
 
@@ -140,7 +153,14 @@ public class ArticleView extends VerticalLayout {
         marginPercent.setValueChangeMode(ValueChangeMode.EAGER);
 
         ComboBox<SupplierResponseDTO> supplierBoxForm = new ComboBox<>("Lieferant");
-        supplierBoxForm.setItems(supplierCache.values());
+        List<SupplierResponseDTO> allSuppliersForm = supplierCache.values().stream()
+                .collect(Collectors.toList());
+        allSuppliersForm.sort((a, b) -> {
+            String n1 = a.getName() != null ? a.getName() : "";
+            String n2 = b.getName() != null ? b.getName() : "";
+            return n1.compareToIgnoreCase(n2);
+        });
+        supplierBoxForm.setItems(allSuppliersForm);
         supplierBoxForm.setItemLabelGenerator(SupplierResponseDTO::getName);
         supplierBoxForm.setRequired(true);
 
@@ -168,7 +188,12 @@ public class ArticleView extends VerticalLayout {
 
         MultiSelectComboBox<CategoryResponseDTO> categorySelect =
                 new MultiSelectComboBox<>("Kategorie");
-        List<CategoryResponseDTO> allCategories = categoryService.getAllCategories();  // NEU
+        List<CategoryResponseDTO> allCategories = categoryService.getAllCategories();
+        allCategories.sort((a, b) -> {
+            String n1 = a.getName() != null ? a.getName() : "";
+            String n2 = b.getName() != null ? b.getName() : "";
+            return n1.compareToIgnoreCase(n2);
+        });
         categorySelect.setItems(allCategories);
         categorySelect.setItemLabelGenerator(CategoryResponseDTO::getName);
         categorySelect.setRequired(true);
@@ -205,7 +230,7 @@ public class ArticleView extends VerticalLayout {
             Double mwst = parseDoubleOrNull.apply(taxRate);
             Double marge = parseDoubleOrNull.apply(marginPercent);
 
-            if (ek == null || mwst == null || marge == null || ek <= 0 || mwst <= 0 || marge <= 0) {
+            if (ek == null || mwst == null || marge == null || ek <= 0 || mwst <= 0) {
                 sellingPrice.clear();
                 return;
             }
@@ -294,7 +319,7 @@ public class ArticleView extends VerticalLayout {
                 Double mwst = parseDoubleOrNull.apply(taxRate);
                 Double marge = parseDoubleOrNull.apply(marginPercent);
 
-                if (ek == null || mwst == null || marge == null) {
+                if (ek == null || mwst == null || marge == null || ek <= 0 || mwst <= 0) {
                     Notification.show("Bitte gültige Zahlen für EK, MwSt und Marge eingeben.", 4000,
                             Notification.Position.BOTTOM_START);
                     return;
@@ -416,33 +441,66 @@ public class ArticleView extends VerticalLayout {
     private void configureGrid() {
         grid.setSizeFull();
         grid.setColumns();
-                //Checkbox Spalte
-        grid.addComponentColumn(article -> {
-        Checkbox checkbox = new Checkbox();
-        checkbox.setValue(selectedArticles.containsKey(article.getId()));
 
-        checkbox.addValueChangeListener(event -> {
-            if (event.getValue()) {
-                selectedArticles.put(article.getId(), 1);
+        Checkbox headerCheckbox = new Checkbox();
+        headerCheckbox.getElement().setProperty("title", "Alle auswählen/abwählen");
+
+        grid.addComponentColumn(article -> {
+                    Checkbox checkbox = new Checkbox();
+                    checkbox.setValue(selectedArticles.containsKey(article.getId()));
+
+                    checkbox.addValueChangeListener(event -> {
+                        if (event.getValue()) {
+                            selectedArticles.put(article.getId(), 1);
+                        } else {
+                            selectedArticles.remove(article.getId());
+                        }
+                        grid.getDataProvider().refreshItem(article);
+                    });
+
+                    return checkbox;
+                })
+                .setHeader(headerCheckbox)
+                .setAutoWidth(true)
+                .setFlexGrow(0);
+
+        headerCheckbox.addValueChangeListener(e -> {
+            if (e.getValue()) {
+                grid.getListDataView().getItems()
+                        .forEach(article -> selectedArticles.put(article.getId(), 1));
             } else {
-                selectedArticles.remove(article.getId());
+                selectedArticles.clear();
             }
-            grid.getDataProvider().refreshItem(article);
+            grid.getDataProvider().refreshAll();
         });
 
-        return checkbox;
-    }).setHeader("✓").setAutoWidth(true).setFlexGrow(0);
         grid.addColumn(ArticleResponseDTO::getArticleNumber).setHeader("Artikelnummer (GTIN)").setAutoWidth(true).setSortable(true);
         grid.addColumn(ArticleResponseDTO::getName).setHeader("Artikelname").setAutoWidth(true).setSortable(true);
         grid.addColumn(ArticleResponseDTO::getStockLevel).setHeader("Lagerbestand").setAutoWidth(true).setSortable(true);
 
-        grid.addColumn(ArticleResponseDTO::getSupplierName).setHeader("Lieferant").setAutoWidth(true).setSortable(true);
+        grid.addColumn(article -> {
+                    String name = article.getSupplierName();
+                    return name != null ? name : "";
+                })
+                .setHeader("Lieferant")
+                .setWidth("200px")
+                .setFlexGrow(0)
+                .setSortable(true)
+                .setTooltipGenerator(ArticleResponseDTO::getSupplierName);
 
-        grid.addColumn(article ->
-                article.getCategoryIds().stream()
+        grid.addColumn(article -> {
+                    String categories = article.getCategoryIds().stream()
+                            .map(CategoryResponseDTO::getName)
+                            .collect(Collectors.joining(", "));
+                    return categories;
+                })
+                .setHeader("Kategorie")
+                .setWidth("240px") // fixe Breite
+                .setFlexGrow(0)
+                .setSortable(true)
+                .setTooltipGenerator(article -> article.getCategoryIds().stream()
                         .map(CategoryResponseDTO::getName)
-                        .collect(Collectors.joining(", "))
-        ).setHeader("Kategorie").setAutoWidth(true).setSortable(true);
+                        .collect(Collectors.joining(", ")));
 
         grid.addComponentColumn(article -> {
                     Button infoButton = new Button(new Icon(VaadinIcon.ELLIPSIS_DOTS_H));
@@ -518,6 +576,39 @@ public class ArticleView extends VerticalLayout {
         dialog.open();
     }
 
+    private void showDeleteArticleConfirmationDialog(ArticleResponseDTO article) {
+        Dialog confirmDialog = new Dialog();
+        confirmDialog.setHeaderTitle("Löschen bestätigen");
+
+        VerticalLayout content = new VerticalLayout(
+                new Span("Möchten Sie den Artikel \"" + safe(article.getName()) + "\" wirklich endgültig löschen?"),
+                new Span("Diese Aktion kann nicht rückgängig gemacht werden.")
+        );
+        content.setPadding(false);
+
+        Button confirmButton = new Button("Löschen", event -> {
+            try {
+                articleService.deleteArticle(article.getId());
+                confirmDialog.close();
+                updateList();
+                Notification.show("Artikel wurde erfolgreich gelöscht!", 3000, Notification.Position.BOTTOM_START);
+            } catch (Exception ex) {
+                confirmDialog.close();
+                showErrorNotification("Fehler beim Löschen: " + ex.getMessage());
+            }
+        });
+        confirmButton.getStyle().set("color", "white");
+        confirmButton.getStyle().set("background-color", "#d32f2f");
+
+        Button cancelButton = new Button("Abbrechen", event -> confirmDialog.close());
+
+        HorizontalLayout buttons = new HorizontalLayout(confirmButton, cancelButton);
+        content.add(buttons);
+
+        confirmDialog.add(content);
+        confirmDialog.open();
+    }
+
     private static TextField createSearchField(String label) {
         TextField tf = new TextField(label);
         tf.setClearButtonVisible(true);
@@ -552,8 +643,7 @@ public class ArticleView extends VerticalLayout {
         deleteButton.addClickListener(e -> {
             ArticleResponseDTO selected = grid.asSingleSelect().getValue();
             if (selected != null) {
-                articleService.deleteArticle(selected.getId());
-                updateList();
+                showDeleteArticleConfirmationDialog(selected);
             }
         });
         addToCartButton.addClickListener(e -> addSelectedToCart());
@@ -597,6 +687,11 @@ public class ArticleView extends VerticalLayout {
 
     private void refreshCategoriesInUi() {
         List<CategoryResponseDTO> all = categoryService.getAllCategories();
+        all.sort((a, b) -> {
+            String n1 = a.getName() != null ? a.getName() : "";
+            String n2 = b.getName() != null ? b.getName() : "";
+            return n1.compareToIgnoreCase(n2);
+        });
         categoryBox.setItems(all);
         categoryBox.setItemLabelGenerator(CategoryResponseDTO::getName);
         updateList();
@@ -613,4 +708,22 @@ public class ArticleView extends VerticalLayout {
             return null;
         }
     };
+
+    private void showErrorNotification(String message) {
+        Dialog notification = new Dialog();
+        notification.setWidth("400px");
+
+        VerticalLayout content = new VerticalLayout(new Span(message));
+        content.setPadding(true);
+        content.getStyle().set("color", "#c62828");
+        content.getStyle().set("font-weight", "bold");
+
+        Button closeButton = new Button("OK", e -> notification.close());
+        closeButton.getStyle().set("background-color", "#f44336");
+        closeButton.getStyle().set("color", "white");
+
+        content.add(closeButton);
+        notification.add(content);
+        notification.open();
+    }
 }

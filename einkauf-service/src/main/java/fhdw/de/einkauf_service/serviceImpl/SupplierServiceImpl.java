@@ -102,6 +102,7 @@ public class SupplierServiceImpl implements SupplierService {
         existingSupplier.setHouseNumber(updatedSupplierRequestDTO.getHouseNumber());
         existingSupplier.setZip(updatedSupplierRequestDTO.getZip());
         existingSupplier.setCity(updatedSupplierRequestDTO.getCity());
+        existingSupplier.setCountry(updatedSupplierRequestDTO.getCountry());
         existingSupplier.setEmail(updatedSupplierRequestDTO.getEmail());
         existingSupplier.setPhone(updatedSupplierRequestDTO.getPhone());
         existingSupplier.setPaymentTerm(paymentTerm);
@@ -143,6 +144,7 @@ public class SupplierServiceImpl implements SupplierService {
         entity.setHouseNumber(dto.getHouseNumber());
         entity.setZip(dto.getZip());
         entity.setCity(dto.getCity());
+        entity.setCountry(dto.getCountry());
         entity.setEmail(dto.getEmail());
         entity.setPhone(dto.getPhone());
         entity.setIsActive(dto.getIsActive() != null ? dto.getIsActive() : true);
@@ -187,6 +189,7 @@ public class SupplierServiceImpl implements SupplierService {
         dto.setHouseNumber(entity.getHouseNumber());
         dto.setZip(entity.getZip());
         dto.setCity(entity.getCity());
+        dto.setCountry(entity.getCountry());
         dto.setEmail(entity.getEmail());
         dto.setPhone(entity.getPhone());
         dto.setIsActive(entity.getIsActive());
