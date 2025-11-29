@@ -31,6 +31,8 @@ import fhdw.de.einkauf_service.service.ArticleCategoryService;
 import fhdw.de.einkauf_service.service.ArticleService;
 import fhdw.de.einkauf_service.service.SupplierService;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -133,6 +135,10 @@ public class ArticleView extends VerticalLayout {
         TextField manufacturer = new TextField("Hersteller");
         manufacturer.setRequired(true);
 
+        purchasePrice.setValueChangeMode(ValueChangeMode.EAGER);
+        taxRate.setValueChangeMode(ValueChangeMode.EAGER);
+        marginPercent.setValueChangeMode(ValueChangeMode.EAGER);
+
         ComboBox<SupplierResponseDTO> supplierBoxForm = new ComboBox<>("Lieferant");
         supplierBoxForm.setItems(supplierCache.values());
         supplierBoxForm.setItemLabelGenerator(SupplierResponseDTO::getName);
@@ -178,6 +184,39 @@ public class ArticleView extends VerticalLayout {
         DatePicker expirationDate = new DatePicker("Mindesthaltbarkeitsdatum (optional)");
         expirationDate.setPlaceholder("Wählen Sie ein Datum...");
 
+        java.util.function.Function<TextField, Double> parseDoubleOrNull = field -> {
+            try {
+                String v = field.getValue();
+                if (v == null || v.trim().isEmpty()) {
+                    return null;
+                }
+                return Double.parseDouble(v.replace(",", ".").trim());
+            } catch (NumberFormatException e) {
+                return null;
+            }
+        };
+
+        Runnable recalcSellingPrice = () -> {
+            Double ek = parseDoubleOrNull.apply(purchasePrice);
+            Double mwst = parseDoubleOrNull.apply(taxRate);
+            Double marge = parseDoubleOrNull.apply(marginPercent);
+
+            if (ek == null || mwst == null || marge == null || ek <= 0 || mwst <= 0 || marge <= 0) {
+                sellingPrice.clear();
+                return;
+            }
+
+            double nettoMitMarge = ek * (1 + marge / 100.0);
+            double vkRaw = nettoMitMarge * (1 + mwst / 100.0);
+            double vk = Math.round(vkRaw * 100.0) / 100.0;
+
+            sellingPrice.setValue(String.format("%.2f", vk));
+        };
+
+        purchasePrice.addValueChangeListener(e -> recalcSellingPrice.run());
+        taxRate.addValueChangeListener(e -> recalcSellingPrice.run());
+        marginPercent.addValueChangeListener(e -> recalcSellingPrice.run());
+
         if (article != null) {
             articleNumber.setValue(safe(article.getArticleNumber()));
             name.setValue(safe(article.getName()));
@@ -219,36 +258,14 @@ public class ArticleView extends VerticalLayout {
                 expirationDate.setValue(article.getExpirationDate());
             }
 
-            java.util.function.Function<TextField, Double> parseDoubleOrNull = field -> {
-                try {
-                    String v = field.getValue();
-                    if (v == null || v.trim().isEmpty()) {
-                        return null;
-                    }
-                    return Double.parseDouble(v.replace(",", ".").trim());
-                } catch (NumberFormatException e) {
-                    return null;
-                }
-            };
+            Double ek = article.getPurchasePrice();
+            Double mwst = article.getTaxRatePercent();
+            Double vk = article.getSellingPrice();
 
-            Runnable recalcSellingPrice = () -> {
-                Double ek = parseDoubleOrNull.apply(purchasePrice);
-                Double mwst = parseDoubleOrNull.apply(taxRate);
-                Double marge = parseDoubleOrNull.apply(marginPercent);
-
-                if (ek == null || mwst == null || marge == null) {
-                    sellingPrice.clear();
-                    return;
-                }
-
-                double nettoMitMarge = ek * (1 + marge / 100.0);
-                double brutto = nettoMitMarge * (1 + mwst / 100.0);
-                sellingPrice.setValue(String.format("%.2f", brutto));
-            };
-
-            purchasePrice.addValueChangeListener(e -> recalcSellingPrice.run());
-            taxRate.addValueChangeListener(e -> recalcSellingPrice.run());
-            marginPercent.addValueChangeListener(e -> recalcSellingPrice.run());
+            double nettoVk = vk / (1 + mwst / 100.0);
+            double marge = (nettoVk / ek - 1.0) * 100.0;
+            double margeRounded = Math.round(marge * 100.0) / 100.0;
+            marginPercent.setValue(String.format("%.2f", margeRounded));
         }
 
         // --- Buttons ---
@@ -280,13 +297,16 @@ public class ArticleView extends VerticalLayout {
                 }
 
                 double nettoMitMarge = ek * (1 + marge / 100.0);
-                double vk = nettoMitMarge * (1 + mwst / 100.0);
+                double vkRaw = nettoMitMarge * (1 + mwst / 100.0);
+                BigDecimal vkBD = BigDecimal.valueOf(vkRaw).setScale(2, RoundingMode.HALF_UP);
+                double vk = vkBD.doubleValue();
 
                 fhdw.de.einkauf_service.dto.ArticleRequestDTO req =
                         new fhdw.de.einkauf_service.dto.ArticleRequestDTO();
                 req.setArticleNumber(articleNumber.getValue());
                 req.setName(name.getValue());
                 req.setPurchasePrice(ek);
+                sellingPrice.setValue(vkBD.toPlainString());
                 req.setSellingPrice(vk);
                 req.setTaxRatePercent(mwst);
                 req.setManufacturer(manufacturer.getValue());
@@ -472,6 +492,10 @@ public class ArticleView extends VerticalLayout {
                 new Span("MwSt (%): " + safe(article.getTaxRatePercent())),
                 new Span("Lieferant: " + safe(article.getSupplierName())),
                 new Span("Kategorie: " + kategorieText),
+                new Span("Maße (H×B×T): " + String.format("%.1f x %.1f x %.1f cm",
+                                article.getHeightCm(),
+                                article.getWidthCm(),
+                                article.getDepthCm())),
                 new Span("Verfügbar: " + safe(Boolean.TRUE.equals(article.getIsAvailable()) ? "Ja" : "Nein")),
                 pfandLayout,
                 new Span("Beschreibung / Produktdetails: " + safe(article.getDescription()))
