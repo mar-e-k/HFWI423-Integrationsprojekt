@@ -205,7 +205,7 @@ public class ArticleView extends VerticalLayout {
             Double mwst = parseDoubleOrNull.apply(taxRate);
             Double marge = parseDoubleOrNull.apply(marginPercent);
 
-            if (ek == null || mwst == null || marge == null || ek <= 0 || mwst <= 0 || marge <= 0) {
+            if (ek == null || mwst == null || marge == null || ek <= 0 || mwst <= 0) {
                 sellingPrice.clear();
                 return;
             }
@@ -294,7 +294,7 @@ public class ArticleView extends VerticalLayout {
                 Double mwst = parseDoubleOrNull.apply(taxRate);
                 Double marge = parseDoubleOrNull.apply(marginPercent);
 
-                if (ek == null || mwst == null || marge == null) {
+                if (ek == null || mwst == null || marge == null || ek <= 0 || mwst <= 0) {
                     Notification.show("Bitte gültige Zahlen für EK, MwSt und Marge eingeben.", 4000,
                             Notification.Position.BOTTOM_START);
                     return;
@@ -416,33 +416,66 @@ public class ArticleView extends VerticalLayout {
     private void configureGrid() {
         grid.setSizeFull();
         grid.setColumns();
-                //Checkbox Spalte
-        grid.addComponentColumn(article -> {
-        Checkbox checkbox = new Checkbox();
-        checkbox.setValue(selectedArticles.containsKey(article.getId()));
 
-        checkbox.addValueChangeListener(event -> {
-            if (event.getValue()) {
-                selectedArticles.put(article.getId(), 1);
+        Checkbox headerCheckbox = new Checkbox();
+        headerCheckbox.getElement().setProperty("title", "Alle auswählen/abwählen");
+
+        grid.addComponentColumn(article -> {
+                    Checkbox checkbox = new Checkbox();
+                    checkbox.setValue(selectedArticles.containsKey(article.getId()));
+
+                    checkbox.addValueChangeListener(event -> {
+                        if (event.getValue()) {
+                            selectedArticles.put(article.getId(), 1);
+                        } else {
+                            selectedArticles.remove(article.getId());
+                        }
+                        grid.getDataProvider().refreshItem(article);
+                    });
+
+                    return checkbox;
+                })
+                .setHeader(headerCheckbox)
+                .setAutoWidth(true)
+                .setFlexGrow(0);
+
+        headerCheckbox.addValueChangeListener(e -> {
+            if (e.getValue()) {
+                grid.getListDataView().getItems()
+                        .forEach(article -> selectedArticles.put(article.getId(), 1));
             } else {
-                selectedArticles.remove(article.getId());
+                selectedArticles.clear();
             }
-            grid.getDataProvider().refreshItem(article);
+            grid.getDataProvider().refreshAll();
         });
 
-        return checkbox;
-    }).setHeader("✓").setAutoWidth(true).setFlexGrow(0);
         grid.addColumn(ArticleResponseDTO::getArticleNumber).setHeader("Artikelnummer (GTIN)").setAutoWidth(true).setSortable(true);
         grid.addColumn(ArticleResponseDTO::getName).setHeader("Artikelname").setAutoWidth(true).setSortable(true);
         grid.addColumn(ArticleResponseDTO::getStockLevel).setHeader("Lagerbestand").setAutoWidth(true).setSortable(true);
 
-        grid.addColumn(ArticleResponseDTO::getSupplierName).setHeader("Lieferant").setAutoWidth(true).setSortable(true);
+        grid.addColumn(article -> {
+                    String name = article.getSupplierName();
+                    return name != null ? name : "";
+                })
+                .setHeader("Lieferant")
+                .setWidth("200px")
+                .setFlexGrow(0)
+                .setSortable(true)
+                .setTooltipGenerator(ArticleResponseDTO::getSupplierName);
 
-        grid.addColumn(article ->
-                article.getCategoryIds().stream()
+        grid.addColumn(article -> {
+                    String categories = article.getCategoryIds().stream()
+                            .map(CategoryResponseDTO::getName)
+                            .collect(Collectors.joining(", "));
+                    return categories;
+                })
+                .setHeader("Kategorie")
+                .setWidth("240px") // fixe Breite
+                .setFlexGrow(0)
+                .setSortable(true)
+                .setTooltipGenerator(article -> article.getCategoryIds().stream()
                         .map(CategoryResponseDTO::getName)
-                        .collect(Collectors.joining(", "))
-        ).setHeader("Kategorie").setAutoWidth(true).setSortable(true);
+                        .collect(Collectors.joining(", ")));
 
         grid.addComponentColumn(article -> {
                     Button infoButton = new Button(new Icon(VaadinIcon.ELLIPSIS_DOTS_H));
