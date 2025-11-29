@@ -25,7 +25,7 @@ import com.vaadin.flow.router.*;
 import de.fhdw.commons.api.dto.ArticleDTO;
 import de.fhdw.commons.persistence.entity.AccountRoleEnum;
 import de.fhdw.commons.view.AbstractMainView;
-import de.fhdw.kassensystem.rest.proxy.services.ArticleProxyService;
+import de.fhdw.kassensystem.persistance.service.proxy.ArticleProxyService;
 import jakarta.annotation.security.RolesAllowed;
 import org.springframework.beans.factory.annotation.Value;
 

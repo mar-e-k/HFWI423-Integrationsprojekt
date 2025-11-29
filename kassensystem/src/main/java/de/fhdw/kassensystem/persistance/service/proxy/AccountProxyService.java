@@ -1,4 +1,4 @@
-package de.fhdw.kassensystem.rest.proxy.services;
+package de.fhdw.kassensystem.persistance.service.proxy;
 
 import de.fhdw.commons.api.controller.AccountAPI;
 import de.fhdw.commons.api.dto.AccountDTO;

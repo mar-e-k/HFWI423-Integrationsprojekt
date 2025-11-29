@@ -1,4 +1,4 @@
-package de.fhdw.kassensystem.rest.proxy.services;
+package de.fhdw.kassensystem.persistance.service.proxy;
 
 import de.fhdw.kassensystem.utility.StoreClient;
 

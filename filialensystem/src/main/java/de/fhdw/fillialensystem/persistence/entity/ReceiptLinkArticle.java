@@ -1,5 +1,6 @@
 package de.fhdw.fillialensystem.persistence.entity;
 
+import de.fhdw.commons.persistence.entity.GenericEntity;
 import de.fhdw.fillialensystem.persistence.entity.imported.Article;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
@@ -7,7 +8,7 @@ import jakarta.validation.constraints.*;
 import java.math.BigDecimal;
 
 @Entity
-public class ReceiptLinkArticle { //Dont extend, AbstractEntity. We dont want redundant info here
+public class ReceiptLinkArticle implements GenericEntity<Long> {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -49,6 +50,17 @@ public class ReceiptLinkArticle { //Dont extend, AbstractEntity. We dont want re
         super();
     }
 
+    public ReceiptLinkArticle(Receipt receipt, Article article, BigDecimal price, Integer amount, BigDecimal taxRate, BigDecimal overridePrice, String overrideReason, BigDecimal discountedByPercent) {
+        this.receipt = receipt;
+        this.article = article;
+        this.price = price;
+        this.amount = amount;
+        this.taxRate = taxRate;
+        this.overridePrice = overridePrice;
+        this.overrideReason = overrideReason;
+        this.discountedByPercent = discountedByPercent;
+    }
+
     public ReceiptLinkArticle(Long id, Receipt receipt, Article article, BigDecimal price, Integer amount, BigDecimal taxRate, BigDecimal overridePrice, String overrideReason, BigDecimal discountedByPercent) {
         this.id = id;
         this.receipt = receipt;
@@ -61,10 +73,12 @@ public class ReceiptLinkArticle { //Dont extend, AbstractEntity. We dont want re
         this.discountedByPercent = discountedByPercent;
     }
 
+    @Override
     public Long getId() {
         return id;
     }
 
+    @Override
     public void setId(Long id) {
         this.id = id;
     }

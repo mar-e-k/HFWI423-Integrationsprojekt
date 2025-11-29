@@ -8,8 +8,8 @@ import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.router.Route;
 import de.fhdw.commons.persistence.entity.AccountRoleEnum;
 import de.fhdw.commons.view.AbstractMainView;
-import de.fhdw.fillialensystem.api.registry.KassensystemInstance;
-import de.fhdw.fillialensystem.api.registry.KassensystemRegistryService;
+import de.fhdw.fillialensystem.persistence.service.other.RegisterRegistryService;
+import de.fhdw.fillialensystem.utility.RegisterClient;
 import jakarta.annotation.security.RolesAllowed;
 
 import java.io.UnsupportedEncodingException;
@@ -24,11 +24,11 @@ import java.util.List;
 @RolesAllowed({AccountRoleEnum.ROLE_ADMIN})
 public class MainView extends AbstractMainView {
 
-    private final List<KassensystemInstance> kassensystemInstances;
+    private final List<RegisterClient> kassensystemInstances;
     private final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm:ss");
 
-    public MainView(KassensystemRegistryService kassensystemRegistryService) {
-        this.kassensystemInstances = new ArrayList<>(kassensystemRegistryService.findAllRegistries());
+    public MainView(RegisterRegistryService registerRegistryService) {
+        this.kassensystemInstances = new ArrayList<>(registerRegistryService.findAllRegistries());
         setSizeFull();
         setPadding(true);
         setSpacing(true);
@@ -36,14 +36,14 @@ public class MainView extends AbstractMainView {
         H2 title = new H2("Connected Kassensystem Instances");
         add(title);
 
-        Grid<KassensystemInstance> grid = createGrid();
+        Grid<RegisterClient> grid = createGrid();
         grid.setItems(kassensystemInstances);
 
         add(grid);
     }
 
-    private Grid<KassensystemInstance> createGrid() {
-        Grid<KassensystemInstance> grid = new Grid<>(KassensystemInstance.class, false);
+    private Grid<RegisterClient> createGrid() {
+        Grid<RegisterClient> grid = new Grid<>(RegisterClient.class, false);
 
         grid.setWidthFull();
 
@@ -78,17 +78,17 @@ public class MainView extends AbstractMainView {
         return grid;
     }
 
-    private Component createOnlineBadge(KassensystemInstance ks) {
-        Span badge = new Span(ks.isOnline() ? "Online" : "Offline");
+    private Component createOnlineBadge(RegisterClient registerClient) {
+        Span badge = new Span(registerClient.isOnline() ? "Online" : "Offline");
         badge.getElement().getThemeList().add("badge");
         badge.getElement().getThemeList()
-                .add(ks.isOnline() ? "success" : "error");
+                .add(registerClient.isOnline() ? "success" : "error");
         return badge;
     }
 
-    private Component createInstanceLink(KassensystemInstance ks) {
-        String name = String.format("Kasse %d", kassensystemInstances.indexOf(ks) + 1);
-        String url = "http://" + ks.getSystemClientDTO().getHost() + ":" + ks.getSystemClientDTO().getPort() + "/cashier";
+    private Component createInstanceLink(RegisterClient registerClient) {
+        String name = String.format("Kasse %d", kassensystemInstances.indexOf(registerClient) + 1);
+        String url = "http://" + registerClient.getSystemClientDTO().getHost() + ":" + registerClient.getSystemClientDTO().getPort() + "/cashier";
         try {
             url += "?name=" + URLEncoder.encode(name, StandardCharsets.UTF_8.name());
         } catch (UnsupportedEncodingException e) {

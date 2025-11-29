@@ -1,7 +1,7 @@
 package de.fhdw.fillialensystem.utility.scheduler;
 
 import de.fhdw.fillialensystem.utility.RegisterClient;
-import de.fhdw.fillialensystem.persistence.service.RegisterRegistryService;
+import de.fhdw.fillialensystem.persistence.service.other.RegisterRegistryService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.scheduling.annotation.Scheduled;

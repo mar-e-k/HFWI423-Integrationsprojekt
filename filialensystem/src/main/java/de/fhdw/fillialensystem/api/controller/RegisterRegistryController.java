@@ -1,7 +1,7 @@
 package de.fhdw.fillialensystem.api.controller;
 
 import de.fhdw.commons.api.dto.SystemClientDTO;
-import de.fhdw.fillialensystem.persistence.service.RegisterRegistryService;
+import de.fhdw.fillialensystem.persistence.service.other.RegisterRegistryService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.HttpStatus;

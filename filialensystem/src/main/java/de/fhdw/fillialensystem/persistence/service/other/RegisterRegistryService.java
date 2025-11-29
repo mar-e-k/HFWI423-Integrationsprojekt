@@ -1,4 +1,4 @@
-package de.fhdw.fillialensystem.persistence.service;
+package de.fhdw.fillialensystem.persistence.service.other;
 
 import de.fhdw.commons.api.dto.SystemClientDTO;
 import de.fhdw.fillialensystem.utility.RegisterClient;
@@ -17,6 +17,7 @@ import java.util.concurrent.ConcurrentHashMap;
 public class RegisterRegistryService {
 
     private static final Logger log = LoggerFactory.getLogger(RegisterRegistryService.class);
+
     private final Map<String, RegisterClient> kassensystemInstanceMap = new ConcurrentHashMap<>();
 
     public RegisterRegistryService() {
