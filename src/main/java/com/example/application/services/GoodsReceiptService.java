@@ -1,6 +1,7 @@
 package com.example.application.services;
 
 import com.example.application.data.article.ArticleInfo;
+import com.example.application.data.article.ArticleInfoRepository;
 import com.example.application.data.goodsreceipts.GoodsReceipt;
 import com.example.application.data.goodsreceipts.GoodsReceiptItem;
 import com.example.application.data.goodsreceipts.GoodsReceiptItemRepository;
@@ -20,13 +21,16 @@ public class GoodsReceiptService {
 
     private final GoodsReceiptRepository receiptRepo;
     private final GoodsReceiptItemRepository itemRepo;
+    private final ArticleInfoRepository articleRepo;
     private final JdbcTemplate jdbc;
 
     public GoodsReceiptService(GoodsReceiptRepository receiptRepo,
                                GoodsReceiptItemRepository itemRepo,
+                               ArticleInfoRepository articleRepo,
                                JdbcTemplate jdbc) {
         this.receiptRepo = receiptRepo;
         this.itemRepo = itemRepo;
+        this.articleRepo = articleRepo;
         this.jdbc = jdbc;
     }
 
@@ -163,6 +167,10 @@ public class GoodsReceiptService {
      * - Wenn noch Items IN_PRUEFUNG sind -> Exception (Prüfung nicht vollständig)
      * - Wenn alle Items FREIGEGEBEN -> Wareneingang = FREIGEGEBEN
      * - Sonst -> Wareneingang = GEPRUEFT
+     *
+     * Zusätzlich:
+     * - Für alle FREIGEGEBENEN Positionen wird die Ist-Menge
+     *   auf ArticleInfo.reservePallets addiert.
      */
     @Transactional
     public GoodsReceipt completeInspection(Long receiptId) {
@@ -177,6 +185,10 @@ public class GoodsReceiptService {
                     "Prüfung kann nicht abgeschlossen werden: es gibt noch Positionen IN_PRUEFUNG");
         }
 
+        // 1) freigegebene Positionen in reserve_pallets übertragen
+        applyApprovedItemsToReserve(receiptId);
+
+        // 2) Status des Wareneingangs setzen
         boolean allFreigegeben = !items.isEmpty() && items.stream()
                 .allMatch(i -> i.getStatus() == GoodsReceiptItemStatus.FREIGEGEBEN);
 
@@ -219,5 +231,32 @@ public class GoodsReceiptService {
 
         receiptRepo.save(receipt);
     }
+
+    // ------------------------------------------------------------------------
+    // Reservelogik: freigegebene Mengen -> ArticleInfo.reservePallets
+    // ------------------------------------------------------------------------
+
+    /**
+     * Addiert für alle FREIGEGEBENEN Positionen eines Wareneingangs
+     * die Ist-Menge (actualQuantity) auf ArticleInfo.reservePallets.
+     */
+    @Transactional
+    protected void applyApprovedItemsToReserve(Long receiptId) {
+        List<GoodsReceiptItem> items = itemRepo.findByGoodsReceiptId(receiptId);
+
+        for (GoodsReceiptItem item : items) {
+            if (item.getStatus() == GoodsReceiptItemStatus.FREIGEGEBEN) {
+                ArticleInfo article = item.getArticle();
+                if (article != null) {
+                    int addQty = item.getActualQuantity() != null ? item.getActualQuantity() : 0;
+                    int oldReserve = article.getReservePallets() != null ? article.getReservePallets() : 0;
+
+                    article.setReservePallets(oldReserve + addQty);
+                    articleRepo.save(article);
+                }
+            }
+        }
+    }
 }
+
 
