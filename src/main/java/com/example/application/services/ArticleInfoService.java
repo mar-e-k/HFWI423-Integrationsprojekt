@@ -139,7 +139,7 @@ public class ArticleInfoService {
     }
 
     //das ist für die Kommission wichtig
-    public ArticleInfo findById(Long id) {
+    public ArticleInfo findById(long id) {
         return articleInfoRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Artikel nicht gefunden: " + id));
     }

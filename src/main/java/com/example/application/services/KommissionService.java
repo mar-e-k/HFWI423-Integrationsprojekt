@@ -1,6 +1,7 @@
 package com.example.application.services;
 
 import com.example.application.data.article.ArticleInfo;
+import com.example.application.data.article.ArticleInfoRepository;
 import com.example.application.data.orderPicking.*;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -8,6 +9,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 
@@ -22,12 +24,21 @@ public class KommissionService {
     private ArticleInfoService artikelService;
     @Autowired
     private MessageLogisticRepository msgRepo;
+    @Autowired
+    private ArticleInfoRepository articleRepo;
 
-    /**
-     * Liefert alle Kommissionen, die noch nicht abgeschlossen sind.
-     */
+
+    public String getArticleNameByNumber(String articleNumber) {
+        ArticleInfo article = articleRepo.findByArticleNumber(articleNumber);
+        return article.getName();
+    }
+
     public List<Kommission> getOffeneKommissionen() {
         return komRepo.findByFinishedFalseOrderByDateAsc();
+    }
+
+    public List<Kommission> getAlleKommissionen() {
+        return komRepo.findAllByOrderByDateAsc();
     }
 
     public Kommission save(Kommission k) {
@@ -103,13 +114,13 @@ public class KommissionService {
         Kommission kom = new Kommission();
         kom.setFinished(false);
         kom.setDate(LocalDateTime.now());
-        kom.setStore(storeId);
+        kom.setStoreId(storeId);
         kom = komRepo.save(kom); // Speichern, damit ID existiert
 
         // 3. Zu jeder Zeile eine Position anlegen
         for (MessageLogistic m : artikel) {
 
-            ArticleInfo artikelInfo = artikelService.findById((long) m.getArticleNumber());
+            ArticleInfo artikelInfo = artikelService.findById(Long.parseLong(m.getArticleNumber()));
 
             KommissionPosition pos = new KommissionPosition();
             pos.setKommission(kom);

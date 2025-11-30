@@ -13,6 +13,7 @@ import java.util.List;
 @Repository
 public interface KommissionRepository extends JpaRepository<Kommission, Long> {
     List<Kommission> findByFinishedFalseOrderByDateAsc();
-    }
+    List<Kommission> findAllByOrderByDateAsc();
+}
 
 
