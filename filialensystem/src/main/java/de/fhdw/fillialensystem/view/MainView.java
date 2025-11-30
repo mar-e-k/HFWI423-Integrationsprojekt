@@ -47,9 +47,9 @@ public class MainView extends AbstractMainView {
 
 
         Anchor admin = new Anchor("/admin", "Admin");
-        Anchor role = new Anchor("/role", "Rollen");
-        Anchor register = new Anchor("/register-add", "Kassen");
-        Anchor store = new Anchor("/store-select", "Filiale");
+        Anchor role = new Anchor("/roles", "Rollen");
+        Anchor register = new Anchor("/register", "Kassen");
+        Anchor store = new Anchor("/select-store", "Filiale");
         add(admin, role, register, store);
     }
 
