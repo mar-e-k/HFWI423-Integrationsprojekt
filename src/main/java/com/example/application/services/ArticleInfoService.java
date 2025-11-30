@@ -5,6 +5,7 @@ import com.example.application.data.article.ArticleInfoRepository;
 
 import java.util.List;
 import java.util.Optional;
+
 import com.example.application.data.stockChangeLog.StockChangeLogRepository;
 import com.vaadin.flow.data.provider.ListDataProvider;
 import jakarta.persistence.EntityNotFoundException;
@@ -54,18 +55,50 @@ public class ArticleInfoService {
         this.articleInfoRepository = repository;
         this.logRepository = logRepository;
     }
+
     private final StockChangeLogRepository logRepository;
+
     @Transactional
     public ArticleInfo applyStockChange(ArticleInfo article,
                                         int delta,
                                         ChangeType type,
                                         String reason,
                                         String changedBy) {
-        int oldStock = article.getStockLevel() == null ? 0 : article.getStockLevel();
-        int newStock = oldStock + delta;
-        article.setStockLevel(newStock);
 
-        ArticleInfo saved = articleInfoRepository.save(article);
+        ArticleInfo managed = articleInfoRepository.findById(article.getId())
+                .orElseThrow(() -> new IllegalArgumentException("Article not found: " + article.getId()));
+
+        int oldStock = managed.getStockLevel() == null ? 0 : managed.getStockLevel();
+        int newStock = oldStock + delta;
+
+        // neuen Bestand
+        managed.setStockLevel(newStock);
+
+        // -------- PALLETTEN-LOGIK --------
+        int piecesPerPallet = managed.getPiecesPerPallet() != null ? managed.getPiecesPerPallet() : 0;
+        int reservePallets = managed.getReservePallets() != null ? managed.getReservePallets() : 0;
+
+        int openStock = managed.getStockLevel() != null ? managed.getStockLevel() : 0;
+
+        // nur sinnvoll, wenn wir wissen wie viele Stück pro Palette
+        if (piecesPerPallet > 0) {
+            // solange Bestand <= 0 und noch Paletten da sind → Palette(n) öffnen
+            while (openStock <= 0 && reservePallets > 0) {
+                openStock += piecesPerPallet;  // Palette aufreißen
+                reservePallets--;              // eine weniger in Reserve
+            }
+        }
+
+        // Falls keine Paletten mehr da sind und wir ins Minus gerutscht sind, auf 0 begrenzen
+        if (openStock < 0) {
+            openStock = 0;
+        }
+
+        managed.setStockLevel(openStock);
+        managed.setReservePallets(reservePallets);
+        // -------- ENDE PALLETTEN-LOGIK --------
+
+        ArticleInfo saved = articleInfoRepository.save(managed);
 
         StockChangeLog log = new StockChangeLog();
         log.setArticleId(saved.getId());
@@ -73,10 +106,10 @@ public class ArticleInfoService {
         log.setArticleName(saved.getName());
         log.setOldStock(oldStock);
         log.setDelta(delta);
-        log.setNewStock(newStock);
+        log.setNewStock(saved.getStockLevel()); // finaler Bestand nach Palettenlogik
         log.setChangeType(type);
-        log.setReason(reason);        // kann null sein
-        log.setChangedBy(changedBy);  // kann null sein
+        log.setReason(reason);
+        log.setChangedBy(changedBy);
         logRepository.save(log);
 
         return saved;
@@ -92,22 +125,26 @@ public class ArticleInfoService {
 
         return new ListDataProvider<>(locations);
     }
+
     public ArticleInfo updateStorageLocation(Long id, String newLocation) {
         ArticleInfo db = articleInfoRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Article not found: " + id));
         db.setStorageLocation(newLocation);
         return articleInfoRepository.save(db);
     }
+
     @Transactional
     public int updateStorageLocationForAll(String oldLocation, String newLocation) {
         return articleInfoRepository.bulkUpdateStorageLocation(oldLocation, newLocation);
     }
+
     public boolean existsForLocation(String generalId) {
         if (generalId == null || generalId.isBlank()) {
             return false;
         }
         return articleInfoRepository.existsByStorageLocation(generalId);
     }
+
     //das ist für die Kommission wichtig
     public ArticleInfo findById(Long id) {
         return articleInfoRepository.findById(id)

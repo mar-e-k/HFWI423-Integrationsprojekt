@@ -280,6 +280,13 @@ public class LogisticMainView extends Div {
                 .setAutoWidth(true)
                 .setSortable(true);
 
+        // Spalte: Reservepaletten (Integer)
+        grid.addColumn(ArticleInfo::getReserveStorageLocation)
+                .setHeader("Reserve Storage Location")
+                .setKey("reserveStorageLocation")
+                .setAutoWidth(true)
+                .setSortable(true);
+
         grid.addComponentColumn(item -> {
             Button editStock = new Button("Edit stock");
             editStock.addClickListener(e -> {
@@ -309,9 +316,9 @@ public class LogisticMainView extends Div {
                 .setAutoWidth(true)
                 .setSortable(false);
 
-        grid.addColumn(ArticleInfo::getReserveStorageLocation)
-                .setHeader("Reserve Storage Location")
-                .setKey("reserveStorageLocation")
+        grid.addColumn(ArticleInfo::getReservePallets)
+                .setHeader("Reserve (Pallets)")
+                .setKey("reservePallets")
                 .setAutoWidth(true)
                 .setSortable(true);
 

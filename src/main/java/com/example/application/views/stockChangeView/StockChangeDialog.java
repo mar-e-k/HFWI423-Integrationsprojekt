@@ -36,7 +36,6 @@ public class StockChangeDialog extends Dialog {
         IntegerField current = new IntegerField("Current Stock");
         current.setValue(article.getStockLevel());
         current.setReadOnly(true);
-
         // Feld zum addieren einer Änderung zum aktuellem Bestand
         IntegerField change = new IntegerField("Change (+/-)");
         change.setValue(0);
@@ -57,8 +56,6 @@ public class StockChangeDialog extends Dialog {
 
         Button cancel = new Button("Cancel", e -> close());
         Button save = new Button("Save", e -> {
-            // WICHTIG: gelb unterstrichenes != null und == null nicht entfernen!!! sonst klappts nicht. Intellij ist zu optimistisch
-            // \_> während der runtime könnte "null" existieren
             int oldStock = article.getStockLevel() != null ? article.getStockLevel() : 0;
             int delta = change.getValue() != null ? change.getValue() : 0;
             int newStock = oldStock + delta;
@@ -68,28 +65,37 @@ public class StockChangeDialog extends Dialog {
                 return;
             }
 
-            // Wegen oben im "WICHTIG:" genannten Problem von Intellij
-            // WICHTIG: siehe oberes WICHTIG
             if (article.getStorageLocation() == null || article.getStorageLocation().isBlank()) {
                 article.setStorageLocation("Unknown");
             }
-            // WICHTIG: siehe oberes WICHTIG
             if (article.getName() == null || article.getName().isBlank()) {
                 article.setName("Unnamed");
             }
-            // Wenn nicht vorgefertigte eingaben dann == Empty -> fehler
             if (changeType.isEmpty()) {
                 Notification.show("Please select a type of change");
                 return;
             }
-            // Aktualisierung der Daten und des Grids. Leitet Änderungen an Dokumentation weiter
-            articleInfoService.applyStockChange(article, delta, changeType.getValue(), null, null);
-            // Popup nach der Aktualisierung
-            Notification.show("Stock updated: " + oldStock + " → " + newStock + " | Of Article: " + article.getName() +" | Number: "+ article.getArticleNumber() );
+
+            //Rückgabewert benutzen (enthält Bestand nach Paletten-Logik)
+            ArticleInfo updated = articleInfoService.applyStockChange(
+                    article,
+                    delta,
+                    changeType.getValue(),
+                    null,
+                    null
+            );
+
+            int finalStock = updated.getStockLevel() != null ? updated.getStockLevel() : 0;
+
+            Notification.show(
+                    "Stock updated: " + oldStock + " → " + finalStock +
+                            " | Of Article: " + updated.getName() +
+                            " | Number: " + updated.getArticleNumber()
+            );
+
             if (onSuccess != null) onSuccess.run();
             close();
         });
-        save.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
 
         getFooter().add(cancel, save);
     }
