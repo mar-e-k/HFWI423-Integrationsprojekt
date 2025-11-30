@@ -9,6 +9,7 @@ import jakarta.validation.constraints.Pattern;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 @Entity
 public class Store extends AbstractEntity {
@@ -122,5 +123,17 @@ public class Store extends AbstractEntity {
 
     public void setStreetNumber(String streetNumber) {
         this.streetNumber = streetNumber;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (o == null || getClass() != o.getClass()) return false;
+        Store store = (Store) o;
+        return Objects.equals(getId(), ((Store) o).getId()) && Objects.equals(country, store.country) && Objects.equals(city, store.city) && Objects.equals(street, store.street) && Objects.equals(streetNumber, store.streetNumber);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(registers, receipts, storeStocks, country, city, street, streetNumber);
     }
 }

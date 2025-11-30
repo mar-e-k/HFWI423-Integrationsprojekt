@@ -1,4 +1,4 @@
-package de.fhdw.fillialensystem.view;
+package de.fhdw.fillialensystem.view.admin;
 
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.combobox.ComboBox;

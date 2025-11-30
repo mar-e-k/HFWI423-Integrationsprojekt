@@ -7,6 +7,7 @@ import jakarta.persistence.OneToMany;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 @Entity
 public class Register extends AbstractEntity {
@@ -51,5 +52,16 @@ public class Register extends AbstractEntity {
 
     public void setReceipts(List<Receipt> receipts) {
         this.receipts = receipts;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (o == null || getClass() != o.getClass()) return false;
+        return Objects.equals(getId(), ((Register) o).getId());
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(store, receipts);
     }
 }

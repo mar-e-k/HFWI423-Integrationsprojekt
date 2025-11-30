@@ -10,7 +10,6 @@ import de.fhdw.commons.persistence.entity.AccountRoleEnum;
 import de.fhdw.commons.view.AbstractMainView;
 import de.fhdw.fillialensystem.persistence.service.other.RegisterRegistryService;
 import de.fhdw.fillialensystem.utility.RegisterClient;
-import de.fhdw.fillialensystem.utility.StoreClient;
 import jakarta.annotation.security.RolesAllowed;
 
 import java.io.UnsupportedEncodingException;
@@ -50,7 +49,8 @@ public class MainView extends AbstractMainView {
         Anchor role = new Anchor("/roles", "Rollen");
         Anchor register = new Anchor("/register", "Kassen");
         Anchor store = new Anchor("/select-store", "Filiale");
-        add(admin, role, register, store);
+        Anchor dailyReceipt = new Anchor("/receipt-reporting", "Daily Receipt");
+        add(admin, role, register, store, dailyReceipt);
     }
 
     private Grid<RegisterClient> createGrid() {

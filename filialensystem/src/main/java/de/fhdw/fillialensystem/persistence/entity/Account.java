@@ -10,6 +10,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Objects;
 
 @Entity
 public class Account extends AbstractEntity implements UserDetails {
@@ -121,5 +122,17 @@ public class Account extends AbstractEntity implements UserDetails {
     @Override
     public boolean isEnabled() {
         return true;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (o == null || getClass() != o.getClass()) return false;
+        Account account = (Account) o;
+        return Objects.equals(getId(), account.getId()) && Objects.equals(accountRole, account.accountRole) && Objects.equals(uuid, account.uuid) && Objects.equals(username, account.username) && Objects.equals(password, account.password);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(accountRole, receipts, uuid, username, password);
     }
 }
