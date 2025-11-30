@@ -27,6 +27,28 @@ public class CommandSender<DTO extends GenericDTO<?>> {
         this.rabbitTemplate = rabbitTemplate;
     }
 
+    public void fire(DomainQueue queue, DomainCommand command, DTO payload) {
+        try {
+            if (queue == null) {
+                throw new IllegalArgumentException("Cannot send message to queue. Queue is null");
+            }
+            if (command == null) {
+                throw new IllegalArgumentException("Cannot send message to queue [%s]. Command is null".formatted(queue.name()));
+            }
+            if (payload == null) {
+                throw new IllegalArgumentException("Cannot send message to queue [%s]. Payload is null".formatted(queue.name()));
+            }
+
+            rabbitTemplate.convertAndSend(
+                    exchange,
+                    queue.getQueue(),
+                    payload);
+        } catch (Exception e) {
+            log.atError().log(e.getMessage(), e.getCause());
+            throw e;
+        }
+    }
+
     public CommandResult<DTO> send(DomainQueue queue, DomainCommand command, DTO payload) {
         try {
             if (queue == null) {

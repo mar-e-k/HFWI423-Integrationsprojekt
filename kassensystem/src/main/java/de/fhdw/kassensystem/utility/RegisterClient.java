@@ -1,5 +1,6 @@
 package de.fhdw.kassensystem.utility;
 
+import de.fhdw.commons.api.dto.RegisterDTO;
 import org.springframework.boot.web.context.WebServerInitializedEvent;
 import org.springframework.context.ApplicationListener;
 import org.springframework.stereotype.Component;
@@ -7,11 +8,21 @@ import org.springframework.stereotype.Component;
 @Component
 public class RegisterClient implements ApplicationListener<WebServerInitializedEvent> {
 
-    private String host;
+    private RegisterDTO registerDTO;
+
+    private String host = "localhost";
     private int port;
 
     public RegisterClient() {
-        this.host = "localhost";
+        super();
+    }
+
+    public RegisterDTO getRegisterDTO() {
+        return registerDTO;
+    }
+
+    public void setRegisterDTO(RegisterDTO registerDTO) {
+        this.registerDTO = registerDTO;
     }
 
     public String getHost() {

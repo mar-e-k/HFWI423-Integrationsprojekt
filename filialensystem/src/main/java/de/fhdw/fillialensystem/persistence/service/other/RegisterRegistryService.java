@@ -1,7 +1,11 @@
 package de.fhdw.fillialensystem.persistence.service.other;
 
 import de.fhdw.commons.api.dto.SystemClientDTO;
+import de.fhdw.fillialensystem.persistence.entity.Register;
+import de.fhdw.fillialensystem.persistence.service.RegisterService;
+import de.fhdw.fillialensystem.persistence.service.StoreService;
 import de.fhdw.fillialensystem.utility.RegisterClient;
+import de.fhdw.fillialensystem.utility.StoreClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -20,8 +24,10 @@ public class RegisterRegistryService {
 
     private final Map<String, RegisterClient> kassensystemInstanceMap = new ConcurrentHashMap<>();
 
-    public RegisterRegistryService() {
-        super();
+    private final StoreClient storeClient;
+
+    public RegisterRegistryService(StoreClient storeClient) {
+        this.storeClient = storeClient;
     }
 
     public Map<String, RegisterClient> getKassensystemInstanceMap() {
@@ -45,15 +51,31 @@ public class RegisterRegistryService {
             throw new IllegalStateException("Kassensystem instance with id {%s} already exists".formatted(systemClientDTO.getId()));
         }
 
-        RegisterClient instance = new RegisterClient(
-                systemClientDTO,
-                Instant.now(),
-                Instant.now(),
-                true
-        );
+        if (storeClient.getStore().getRegisters().isEmpty()) {
+            throw new IllegalStateException("Store has no registers defined");
+        }
 
-        kassensystemInstanceMap.put(systemClientDTO.getId(), instance);
-        log.atInfo().log("Kassensystem instance with id {%s} successfully registered".formatted(systemClientDTO.getId()));
+        for (Register register : storeClient.getStore().getRegisters()) {
+            boolean exists = findAllActiveRegistries().stream()
+                    .anyMatch(rc -> rc.getRegister().equals(register));
+
+            if (!exists) {
+                RegisterClient instance = new RegisterClient(
+                        systemClientDTO,
+                        register,
+                        Instant.now(),
+                        Instant.now(),
+                        true
+                );
+
+                kassensystemInstanceMap.put(systemClientDTO.getId(), instance);
+                log.atInfo().log("Kassensystem instance with id {%s} successfully registered for register {%s}"
+                        .formatted(systemClientDTO.getId(), register.getId()));
+                return;
+            }
+        }
+
+        throw new IllegalStateException("Register cannot be registered because there is no register available anymore");
     }
 
     public void deleteRegistry(String id) {

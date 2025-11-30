@@ -1,7 +1,6 @@
 package de.fhdw.commons.view;
 
 
-import com.vaadin.flow.component.AttachEvent;
 import com.vaadin.flow.component.html.NativeLabel;
 import com.vaadin.flow.component.login.LoginForm;
 import com.vaadin.flow.component.notification.Notification;
@@ -12,8 +11,8 @@ import java.util.List;
 
 public abstract class AbstractLoginView extends VerticalLayout implements BeforeEnterObserver {
 
-    private final LoginForm loginForm = new LoginForm();
-    private final NativeLabel warningLabel = new NativeLabel();
+    protected final LoginForm loginForm = new LoginForm();
+    protected final NativeLabel warningLabel = new NativeLabel();
 
     public AbstractLoginView() {
         setSizeFull();
@@ -21,29 +20,16 @@ public abstract class AbstractLoginView extends VerticalLayout implements Before
         setJustifyContentMode(JustifyContentMode.CENTER);
 
         init();
-        add(loginForm, warningLabel);
+        add(warningLabel);
     }
 
     private void init() {
         // ---- LoginForm ----
-        loginForm.setAction("login");
         loginForm.addForgotPasswordListener(event ->
                 Notification.show(
                         "Bitte wende dich an einem Administrator in deiner Filliale, um dein Password zurückzusetzen zu lassen",
                         3000,
                         Notification.Position.MIDDLE));
-    }
-
-    @Override
-    protected void onAttach(AttachEvent attachEvent) {
-        super.onAttach(attachEvent);
-        if (!existsAtLeastOneAdminAccount()) {
-            warningLabel.setText("Kein Admin Konto vorhanden");
-        } else if (!existsAtLeastOneCashierAccount()) {
-            warningLabel.setText("Kein Cashier Konto vorhanden");
-        } else {
-            warningLabel.setVisible(false);
-        }
     }
 
     @Override
@@ -86,8 +72,4 @@ public abstract class AbstractLoginView extends VerticalLayout implements Before
                         Notification.Position.TOP_CENTER);
         }
     }
-
-    protected abstract boolean existsAtLeastOneAdminAccount();
-
-    protected abstract boolean existsAtLeastOneCashierAccount();
 }

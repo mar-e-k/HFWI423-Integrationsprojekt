@@ -1,15 +1,12 @@
 package de.fhdw.fillialensystem.utility.security;
 
-import de.fhdw.commons.persistence.entity.AccountRoleEnum;
-import de.fhdw.fillialensystem.persistence.entity.Account;
-import de.fhdw.fillialensystem.persistence.entity.AccountRole;
+import de.fhdw.commons.utility.AuthContext;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.security.authentication.AuthenticationServiceException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -17,7 +14,7 @@ import org.springframework.stereotype.Service;
 import javax.crypto.SecretKey;
 import java.nio.charset.StandardCharsets;
 import java.util.Date;
-import java.util.UUID;
+import java.util.Optional;
 
 @Service
 public class JwtService {
@@ -30,14 +27,15 @@ public class JwtService {
         secretKey = Keys.hmacShaKeyFor(privateKey.getBytes(StandardCharsets.UTF_8));
     }
 
-    public String generateToken() {
-        Account currentAccount = getCurrentAccount();
+    public String generateToken(AuthContext authContext) {
         return Jwts.builder()
-                .subject(currentAccount.getUuid())
-                .claim("role", currentAccount.getAccountRole().getRole().name())
-                .claim("username", currentAccount.getUsername())
+                .subject(authContext.getUuid())
+                .claim("username", authContext.getUsername())
+                .claim("role", authContext.getAccountRole())
+                .claim("storeId", authContext.getStoreId())
+                .claim("registerId", authContext.getRegisterId())
                 .issuedAt(new Date())
-                .expiration(new Date(System.currentTimeMillis() + 500_000))
+                .expiration(new Date(System.currentTimeMillis() + 3_600_000)) // 1 hour
                 .signWith(secretKey)
                 .compact();
     }
@@ -50,22 +48,11 @@ public class JwtService {
                 .getPayload();
     }
 
-    private Account getCurrentAccount() {
+    public Optional<AuthContext> getCurrentAuth() {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        if (auth == null || !auth.isAuthenticated() || auth.getPrincipal().toString().equalsIgnoreCase("anonymousUser")) {
-            log.atWarn().log("Getting fallback system account for Token generation");
-            return new Account(
-                    new AccountRole(null, AccountRoleEnum.SYSTEM),
-                    null,
-                    UUID.randomUUID().toString(),
-                    "system",
-                    "system"
-            );
+        if (auth instanceof AuthContextAuthenticationToken token) {
+            return Optional.of(token.getAuthContext());
         }
-        if (auth.getPrincipal() instanceof Account account) {
-            return account;
-        } else {
-            throw new AuthenticationServiceException("Cannot get current account from security context");
-        }
+        return Optional.empty();
     }
 }

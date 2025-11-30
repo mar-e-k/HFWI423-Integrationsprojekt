@@ -10,6 +10,4 @@ public class RegisterService extends AbstractCrudService<Register, Long> {
     public RegisterService(RegisterRepository registerRepository) {
         super(registerRepository);
     }
-
-
 }

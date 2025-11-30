@@ -3,12 +3,14 @@ package de.fhdw.fillialensystem.view;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.html.Anchor;
+import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.router.Route;
 import de.fhdw.commons.persistence.entity.AccountRoleEnum;
 import de.fhdw.commons.view.AbstractMainView;
 import de.fhdw.fillialensystem.persistence.service.other.RegisterRegistryService;
 import de.fhdw.fillialensystem.utility.RegisterClient;
+import de.fhdw.fillialensystem.utility.StoreClient;
 import jakarta.annotation.security.RolesAllowed;
 
 import java.io.UnsupportedEncodingException;
@@ -23,20 +25,32 @@ import java.util.List;
 @RolesAllowed({AccountRoleEnum.ROLE_ADMIN})
 public class MainView extends AbstractMainView {
 
+    private final H2 title = new H2();
+
     private final List<RegisterClient> kassensystemInstances;
     private final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm:ss");
 
     public MainView(RegisterRegistryService registerRegistryService) {
+        super();
         this.kassensystemInstances = new ArrayList<>(registerRegistryService.findAllRegistries());
-        setViewTitle("Kassensystem Instances");
+
         setSizeFull();
         setPadding(true);
         setSpacing(true);
 
+        title.setText("Connected Kassensystem Instances");
+
         Grid<RegisterClient> grid = createGrid();
         grid.setItems(kassensystemInstances);
 
-        add(grid);
+        add(title, grid);
+
+
+        Anchor admin = new Anchor("/admin", "Admin");
+        Anchor role = new Anchor("/roles", "Rollen");
+        Anchor register = new Anchor("/register", "Kassen");
+        Anchor store = new Anchor("/select-store", "Filiale");
+        add(admin, role, register, store);
     }
 
     private Grid<RegisterClient> createGrid() {
@@ -44,7 +58,7 @@ public class MainView extends AbstractMainView {
 
         grid.setWidthFull();
 
-        grid.addColumn(ks -> String.format("Kasse %d (Dev, %s)", kassensystemInstances.indexOf(ks) + 1, ks.getSystemClientDTO().getId()))
+        grid.addColumn(ks -> String.format("Kasse %d (Dev, %s)", ks.getRegister().getId(), ks.getSystemClientDTO().getId()))
                 .setHeader("Device")
                 .setAutoWidth(true);
 

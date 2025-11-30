@@ -2,6 +2,7 @@ package de.fhdw.fillialensystem.persistence.entity;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.OneToMany;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
@@ -12,7 +13,7 @@ import java.util.List;
 @Entity
 public class Store extends AbstractEntity {
 
-    @OneToMany(mappedBy = "store")
+    @OneToMany(mappedBy = "store", fetch = FetchType.EAGER)
     private List<Register> registers = new ArrayList<>();
 
     @OneToMany(mappedBy = "store")
@@ -42,7 +43,22 @@ public class Store extends AbstractEntity {
         super();
     }
 
+    public Store(Long id) {
+        super(id);
+    }
+
     public Store(List<Register> registers, List<Receipt> receipts, List<StoreLinkStock> storeStocks, String country, String city, String street, String streetNumber) {
+        this.registers = registers;
+        this.receipts = receipts;
+        this.storeStocks = storeStocks;
+        this.country = country;
+        this.city = city;
+        this.street = street;
+        this.streetNumber = streetNumber;
+    }
+
+    public Store(Long id, List<Register> registers, List<Receipt> receipts, List<StoreLinkStock> storeStocks, String country, String city, String street, String streetNumber) {
+        super(id);
         this.registers = registers;
         this.receipts = receipts;
         this.storeStocks = storeStocks;

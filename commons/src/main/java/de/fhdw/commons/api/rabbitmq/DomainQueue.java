@@ -1,9 +1,7 @@
 package de.fhdw.commons.api.rabbitmq;
 
 public enum DomainQueue {
-    RECEIPT("receipt.command"),
-    ACCOUNT("account.command"),
-    ACCOUNT_ROLE("account.role.command"),;
+    LOGISTIC_STORE_RESTOCK("logistic.order.store.article");
 
     private final String queue;
 

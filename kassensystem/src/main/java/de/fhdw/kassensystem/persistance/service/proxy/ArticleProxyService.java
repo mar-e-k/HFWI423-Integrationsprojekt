@@ -1,6 +1,5 @@
 package de.fhdw.kassensystem.persistance.service.proxy;
 
-import de.fhdw.commons.api.controller.ArticleAPI;
 import de.fhdw.commons.api.dto.ArticleDTO;
 import de.fhdw.kassensystem.utility.StoreClient;
 import org.springframework.core.ParameterizedTypeReference;
@@ -12,13 +11,12 @@ import java.util.List;
 import java.util.Optional;
 
 @Service
-public class ArticleProxyService extends AbstractProxyService implements ArticleAPI {
+public class ArticleProxyService extends AbstractProxyService {
 
     public ArticleProxyService(StoreClient storeClient) {
         super(storeClient);
     }
 
-    @Override
     public List<ArticleDTO> findAll() {
         return storeClient.getWebClient()
                 .get()
@@ -28,7 +26,6 @@ public class ArticleProxyService extends AbstractProxyService implements Article
                 .block();
     }
 
-    @Override
     public Optional<ArticleDTO> findById(Long id) {
         return storeClient.getWebClient()
                 .get()
@@ -39,7 +36,6 @@ public class ArticleProxyService extends AbstractProxyService implements Article
                 .blockOptional();
     }
 
-    @Override
     public Optional<ArticleDTO> findByArticleNumber(String gtin) {
         return storeClient.getWebClient()
                 .get()

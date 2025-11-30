@@ -1,4 +1,4 @@
-package de.fhdw.fillialensystem.api.mapper;
+package de.fhdw.commons.api.mapper;
 
 import de.fhdw.commons.api.dto.GenericDTO;
 import de.fhdw.commons.persistence.entity.GenericEntity;

@@ -3,4 +3,4 @@ package de.fhdw.fillialensystem.persistence.repository;
 import de.fhdw.fillialensystem.persistence.entity.Register;
 import org.springframework.data.jpa.repository.JpaRepository;
 
-public interface RegisterRepository extends JpaRepository<Register, Long> { }
+public interface RegisterRepository extends JpaRepository<Register, Long> {}

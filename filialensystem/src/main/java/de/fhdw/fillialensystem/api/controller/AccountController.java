@@ -1,6 +1,5 @@
 package de.fhdw.fillialensystem.api.controller;
 
-import de.fhdw.commons.api.controller.AccountAPI;
 import de.fhdw.commons.api.dto.AccountDTO;
 import de.fhdw.fillialensystem.api.mapper.AccountMapper;
 import de.fhdw.fillialensystem.persistence.service.AccountService;
@@ -12,12 +11,11 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/account")
 @Tag(name = "Account", description = "Endpoints for operations related to accounts")
-public class AccountController implements AccountAPI {
+public class AccountController {
 
     private final AccountService accountService;
     private final AccountMapper accountMapper;
@@ -27,14 +25,15 @@ public class AccountController implements AccountAPI {
         this.accountMapper = accountMapper;
     }
 
-    // ---- Endpoints ----
-
     @GetMapping
     @Operation(summary = "Retrieve all accounts")
     public ResponseEntity<List<AccountDTO>> getAccounts() {
         return ResponseEntity
                 .status(HttpStatus.OK)
-                .body(findAll());
+                .body(accountService.findAll()
+                        .stream()
+                        .map(accountMapper::toDto)
+                        .toList());
     }
 
     @GetMapping("/id/{id}")
@@ -42,7 +41,8 @@ public class AccountController implements AccountAPI {
     public ResponseEntity<AccountDTO> getAccountById(@PathVariable Long id) {
         return ResponseEntity
                 .status(HttpStatus.OK)
-                .body(findById(id)
+                .body(accountService.findById(id)
+                        .map(accountMapper::toDto)
                         .orElseThrow(EntityNotFoundException::new));
     }
 
@@ -51,7 +51,8 @@ public class AccountController implements AccountAPI {
     public ResponseEntity<AccountDTO> getAccountByUuid(@PathVariable String uuid) {
         return ResponseEntity
                 .status(HttpStatus.OK)
-                .body(findByUuid(uuid)
+                .body(accountService.findByUuid(uuid)
+                        .map(accountMapper::toDto)
                         .orElseThrow(EntityNotFoundException::new));
     }
 
@@ -60,29 +61,8 @@ public class AccountController implements AccountAPI {
     public ResponseEntity<AccountDTO> getAccountByUsername(@PathVariable String username) {
         return ResponseEntity
                 .status(HttpStatus.OK)
-                .body(findByUsername(username)
+                .body(accountService.findByUsername(username)
+                        .map(accountMapper::toDto)
                         .orElseThrow(EntityNotFoundException::new));
-    }
-
-    // ---- API Helper Methods ----
-
-    @Override
-    public List<AccountDTO> findAll() {
-        return accountService.findAll().stream().map(accountMapper::toDto).toList();
-    }
-
-    @Override
-    public Optional<AccountDTO> findById(Long id) {
-        return accountService.findById(id).map(accountMapper::toDto);
-    }
-
-    @Override
-    public Optional<AccountDTO> findByUuid(String uuid) {
-        return accountService.findByUuid(uuid).map(accountMapper::toDto);
-    }
-
-    @Override
-    public Optional<AccountDTO> findByUsername(String username) {
-        return accountService.findByUsername(username).map(accountMapper::toDto);
     }
 }

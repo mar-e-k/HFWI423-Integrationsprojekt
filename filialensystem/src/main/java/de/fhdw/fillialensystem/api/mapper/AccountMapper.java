@@ -2,6 +2,7 @@ package de.fhdw.fillialensystem.api.mapper;
 
 import de.fhdw.commons.api.dto.AccountDTO;
 import de.fhdw.commons.api.dto.AuthorityDTO;
+import de.fhdw.commons.api.mapper.GenericMapper;
 import de.fhdw.fillialensystem.persistence.entity.Account;
 import de.fhdw.fillialensystem.persistence.entity.AccountRole;
 import org.springframework.stereotype.Component;

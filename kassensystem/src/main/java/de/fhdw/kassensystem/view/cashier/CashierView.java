@@ -26,6 +26,8 @@ import de.fhdw.commons.api.dto.ArticleDTO;
 import de.fhdw.commons.persistence.entity.AccountRoleEnum;
 import de.fhdw.commons.view.AbstractMainView;
 import de.fhdw.kassensystem.persistance.service.proxy.ArticleProxyService;
+import de.fhdw.kassensystem.utility.RegisterClient;
+import de.fhdw.kassensystem.utility.StoreClient;
 import jakarta.annotation.security.RolesAllowed;
 import org.springframework.beans.factory.annotation.Value;
 
@@ -58,7 +60,7 @@ public class CashierView extends AbstractMainView implements BeforeEnterObserver
     @Value("${spring.kassensystem.cashier.password}")
     private String password;
 
-    public CashierView(ArticleProxyService articleService, CartItemsManager cartItemsManager) {
+    public CashierView(ArticleProxyService articleService, CartItemsManager cartItemsManager, StoreClient storeClient, RegisterClient registerClient) {
         this.articleService = articleService;
         this.cartItemsManager = cartItemsManager;
     }
