@@ -36,6 +36,17 @@ public class ArticleInfo extends AbstractEntity {
     @Column(name = "min_stock")//, nullable = false
     private Integer minStock;
 
+    //Stückzahl pro Palette (eigentlich vom Einkauf aber erstmal wir)
+    // wird nicht im Grid angezeigt
+    @Column(name = "pieces_per_pallet")
+    private Integer piecesPerPallet;
+
+    //Anzahl ungeöffneter Paletten im Reservefach
+    @Column(name = "reserve_pallets")
+    private Integer reservePallets;
+
+    // Getter Setter -----------------------------------------
+
     public String getName() {
         return name;
     }
@@ -82,5 +93,21 @@ public class ArticleInfo extends AbstractEntity {
 
     public void setReserveStorageLocation(String reserveStorageLocation) {
         this.reserveStorageLocation = reserveStorageLocation;
+    }
+
+    public Integer getPiecesPerPallet() {
+        return piecesPerPallet;
+    }
+
+    public void setPiecesPerPallet(Integer piecesPerPallet) {
+        this.piecesPerPallet = piecesPerPallet;
+    }
+
+    public Integer getReservePallets() {
+        return reservePallets;
+    }
+
+    public void setReservePallets(Integer reservePallets) {
+        this.reservePallets = reservePallets;
     }
 }
