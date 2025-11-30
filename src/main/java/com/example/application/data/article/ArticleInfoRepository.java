@@ -30,4 +30,7 @@ public interface ArticleInfoRepository
                                   @Param("newLocation") String newLocation);
 
     boolean existsByStorageLocation(String storageLocation);
+
+    ArticleInfo findByArticleNumber(String articleNumber);
+
 }

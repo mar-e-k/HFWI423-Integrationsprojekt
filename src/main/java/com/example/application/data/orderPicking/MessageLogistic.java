@@ -3,16 +3,13 @@ package com.example.application.data.orderPicking;
 import com.example.application.data.AbstractEntity;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Size;
 
 @Entity
-public class MessageLogistic {
-    @Id
-    private Integer id;
+public class MessageLogistic extends AbstractEntity {
     //Artikelnummer
     @NotNull
     @Column(name = "article_number", nullable = false)
-    private Integer articleNumber;
+    private String articleNumber;
 
     // Lagerbestand des Artikels
     @Column(name = "store_id")
@@ -24,11 +21,11 @@ public class MessageLogistic {
     @Column(name = "target_stock_level")
     private Integer targetStockLevel;
 
-    public Integer getArticleNumber() {
+    public String getArticleNumber() {
         return articleNumber;
     }
 
-    public void setArticleNumber(Integer articleNumber) {
+    public void setArticleNumber(String articleNumber) {
         this.articleNumber = articleNumber;
     }
 
@@ -56,11 +53,4 @@ public class MessageLogistic {
         this.targetStockLevel = targetStockLevel;
     }
 
-    public Integer getId() {
-        return id;
-    }
-
-    public void setId(Integer id) {
-        this.id = id;
-    }
 }

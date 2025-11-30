@@ -24,8 +24,8 @@ public class Kommission extends AbstractEntity {
     // Filiale für Lieferung
     @Size(max = 255)
     @NotNull
-    @Column(name = "store", nullable = false)
-    private String store;
+    @Column(name = "store_id", nullable = false)
+    private String store_id;
 
     @Column(name = "version", nullable = true)
     private Integer version;
@@ -46,6 +46,6 @@ public class Kommission extends AbstractEntity {
     public LocalDateTime getDate() {return date;}
     public void setDate(LocalDateTime date) {this.date = date;}
 
-    public String getStore(){return store;}
-    public void setStore(String store){this.store=store;}
+    public String getStoreId(){return store_id;}
+    public void setStoreId(String store_id){this.store_id=store_id;}
 }

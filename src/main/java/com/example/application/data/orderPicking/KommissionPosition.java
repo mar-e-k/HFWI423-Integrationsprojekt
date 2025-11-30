@@ -17,7 +17,7 @@ public class KommissionPosition extends AbstractEntity {
     private ArticleInfo article_id;
 
     @Column(name = "amount", nullable = false)
-    private int amount;
+    private Integer amount;
 
     @Column(name = "storage")
     private String storageLocation;
@@ -32,8 +32,8 @@ public class KommissionPosition extends AbstractEntity {
     public ArticleInfo getArticle_id() {return article_id;}
     public void setArticle_id(ArticleInfo article_id) {this.article_id = article_id;}
 
-    public int getAmount() {return amount;}
-    public void setAmount(int amount) {this.amount = amount;}
+    public Integer getAmount() {return amount;}
+    public void setAmount(Integer amount) {this.amount = amount;}
 
     public String getLagerplatz() {return storageLocation;}
     public void setLagerplatz(String lagerplatz) {this.storageLocation = storageLocation;}

@@ -69,34 +69,27 @@ public class ArticleInfoService {
                 .orElseThrow(() -> new IllegalArgumentException("Article not found: " + article.getId()));
 
         int oldStock = managed.getStockLevel() == null ? 0 : managed.getStockLevel();
-        int newStock = oldStock + delta;
+        int newStock = oldStock + delta; // "rohes" Ergebnis
 
-        // neuen Bestand
-        managed.setStockLevel(newStock);
-
-        // -------- PALLETTEN-LOGIK --------
         int piecesPerPallet = managed.getPiecesPerPallet() != null ? managed.getPiecesPerPallet() : 0;
-        int reservePallets = managed.getReservePallets() != null ? managed.getReservePallets() : 0;
+        int reservePallets  = managed.getReservePallets()   != null ? managed.getReservePallets()   : 0;
 
-        int openStock = managed.getStockLevel() != null ? managed.getStockLevel() : 0;
-
-        // nur sinnvoll, wenn wir wissen wie viele Stück pro Palette
+        // -------- Palettenlogik: so viele Paletten öffnen wie nötig --------
         if (piecesPerPallet > 0) {
-            // solange Bestand <= 0 und noch Paletten da sind → Palette(n) öffnen
-            while (openStock <= 0 && reservePallets > 0) {
-                openStock += piecesPerPallet;  // Palette aufreißen
-                reservePallets--;              // eine weniger in Reserve
+            // solange Bestand <= 0 UND noch Paletten da sind → Palette(n) öffnen
+            while (newStock <= 0 && reservePallets > 0) {
+                newStock += piecesPerPallet; // Palette aufreißen
+                reservePallets--;            // eine Palette weniger in Reserve
             }
         }
 
-        // Falls keine Paletten mehr da sind und wir ins Minus gerutscht sind, auf 0 begrenzen
-        if (openStock < 0) {
-            openStock = 0;
+        // Falls trotz aller Paletten negativ → bei 0 stoppen
+        if (newStock < 0) {
+            newStock = 0;
         }
 
-        managed.setStockLevel(openStock);
+        managed.setStockLevel(newStock);
         managed.setReservePallets(reservePallets);
-        // -------- ENDE PALLETTEN-LOGIK --------
 
         ArticleInfo saved = articleInfoRepository.save(managed);
 
@@ -146,7 +139,7 @@ public class ArticleInfoService {
     }
 
     //das ist für die Kommission wichtig
-    public ArticleInfo findById(Long id) {
+    public ArticleInfo findById(long id) {
         return articleInfoRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Artikel nicht gefunden: " + id));
     }
