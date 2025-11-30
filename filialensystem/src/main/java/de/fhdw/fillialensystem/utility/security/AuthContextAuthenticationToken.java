@@ -25,7 +25,7 @@ public class AuthContextAuthenticationToken extends AbstractAuthenticationToken 
 
     @Override
     public Object getPrincipal() {
-        return principal;
+        return authContext;
     }
 
     public AuthContext getAuthContext() {

@@ -1,6 +1,7 @@
 package de.fhdw.kassensystem.utility;
 
 import com.vaadin.flow.server.VaadinSession;
+import de.fhdw.commons.api.dto.StoreDTO;
 import de.fhdw.kassensystem.utility.security.JwtService;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
@@ -10,6 +11,8 @@ import org.springframework.web.reactive.function.client.WebClient;
 
 @Component
 public class StoreClient {
+
+    private StoreDTO storeDTO;
 
     private final WebClient webClient;
 
@@ -31,6 +34,14 @@ public class StoreClient {
                     return next.exchange(newRequest);
                 })
                 .build();
+    }
+
+    public StoreDTO getStoreDTO() {
+        return storeDTO;
+    }
+
+    public void setStoreDTO(StoreDTO storeDTO) {
+        this.storeDTO = storeDTO;
     }
 
     public WebClient getWebClient() {

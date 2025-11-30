@@ -14,10 +14,10 @@ public class AuthContext implements UserDetails, Principal {
     private final AccountRoleEnum accountRole;
     private final String uuid;
     private final String username;
-    private final Long storeId;
-    private final Long registerId;
+    private final Integer storeId;
+    private final Integer registerId;
 
-    public AuthContext(AccountRoleEnum accountRole, String uuid, String username, Long storeId, Long registerId) {
+    public AuthContext(AccountRoleEnum accountRole, String uuid, String username, Integer storeId, Integer registerId) {
         this.accountRole = accountRole;
         this.uuid = uuid;
         this.username = username;
@@ -33,11 +33,11 @@ public class AuthContext implements UserDetails, Principal {
         return uuid;
     }
 
-    public Long getStoreId() {
+    public Integer getStoreId() {
         return storeId;
     }
 
-    public Long getRegisterId() {
+    public Integer getRegisterId() {
         return registerId;
     }
 

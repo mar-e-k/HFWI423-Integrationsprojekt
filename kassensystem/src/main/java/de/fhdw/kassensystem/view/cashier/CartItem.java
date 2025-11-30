@@ -1,11 +1,12 @@
 package de.fhdw.kassensystem.view.cashier;
 
 import de.fhdw.commons.api.dto.ArticleDTO;
+import de.fhdw.commons.persistence.entity.GenericEntity;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 
-public class CartItem {
+public class CartItem implements GenericEntity<Long> {
     private ArticleDTO article;
     private int position;
     private int quantity;
@@ -14,6 +15,10 @@ public class CartItem {
     // NEU: Rabatt-Infos
     private BigDecimal discountPercent;   // z.B. 30 für 30 %
     private Integer discountedQuantity;   // wie viele Stück der Position bekommen Rabatt
+
+    public CartItem() {
+        super();
+    }
 
     public CartItem(ArticleDTO article, int position, int quantity, BigDecimal overriddenPrice) {
         this.article = article;
@@ -149,4 +154,14 @@ public class CartItem {
                 .add(normalTotal)
                 .setScale(2, RoundingMode.HALF_UP);
     }
+
+    @Override
+    @Deprecated
+    public Long getId() {
+        return null;
+    }
+
+    @Override
+    @Deprecated
+    public void setId(Long id) {}
 }

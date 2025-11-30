@@ -16,8 +16,6 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
-import java.util.List;
-
 @Route("/login")
 @PageTitle("Login View")
 @PermitAll

@@ -1,5 +1,7 @@
 package de.fhdw.kassensystem.utility.initializer;
 
+import de.fhdw.commons.api.dto.RegisterDTO;
+import de.fhdw.commons.api.dto.StoreDTO;
 import de.fhdw.commons.api.dto.SystemClientDTO;
 import de.fhdw.kassensystem.utility.RegisterClient;
 import de.fhdw.kassensystem.utility.StoreClient;
@@ -9,6 +11,8 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.core.annotation.Order;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 
 import java.util.UUID;
@@ -70,12 +74,16 @@ import java.util.UUID;
     }
 
     private void registerAtFilialsystem(SystemClientDTO dto) {
-        storeClient.getWebClient()
+        ResponseEntity<RegisterDTO> registerDTO = storeClient.getWebClient()
                 .post()
                 .uri("api/registry")
                 .bodyValue(dto)
                 .retrieve()
-                .toBodilessEntity()
+                .toEntity(RegisterDTO.class)
                 .block();
+        if (registerDTO != null && registerDTO.getStatusCode() == HttpStatus.OK && registerDTO.getBody() != null) {
+            storeClient.setStoreDTO(new StoreDTO(registerDTO.getBody().getStore()));
+            registerClient.setRegisterDTO(registerDTO.getBody());
+        }
     }
 }

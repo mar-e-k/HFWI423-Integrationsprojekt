@@ -27,8 +27,10 @@ import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.textfield.TextField;
 
+import de.fhdw.commons.api.dto.ReceiptDTO;
 import de.fhdw.commons.persistence.entity.AccountRoleEnum;
 import de.fhdw.commons.view.AbstractMainView;
+import de.fhdw.kassensystem.persistance.service.proxy.ReceiptProxyService;
 import jakarta.annotation.security.RolesAllowed;
 
 import java.io.ByteArrayInputStream;
@@ -36,6 +38,7 @@ import java.io.IOException;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.Optional;
 
 @Route("/payment")
 @PageTitle("Bezahlung")
@@ -44,6 +47,7 @@ public class PaymentView extends AbstractMainView implements BeforeEnterObserver
 
     private final CartItemsManager cartItemsManager;
 
+    private final ReceiptProxyService receiptProxyService;
     private final ReceiptService receiptService;
 
     private Grid<CartItem> cartGrid;
@@ -51,8 +55,9 @@ public class PaymentView extends AbstractMainView implements BeforeEnterObserver
 
     private Anchor downloadLink;
 
-    public PaymentView(CartItemsManager cartItemsManager, ReceiptService receiptService) {
+    public PaymentView(CartItemsManager cartItemsManager, ReceiptProxyService receiptProxyService, ReceiptService receiptService) {
         this.cartItemsManager = cartItemsManager;
+        this.receiptProxyService = receiptProxyService;
         this.receiptService = receiptService;
     }
 
@@ -136,28 +141,35 @@ public class PaymentView extends AbstractMainView implements BeforeEnterObserver
 
     private void finishPayment() {
         try {
-            String fileName = "Bon-" +
-                    LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMdd-HHmmss")) + ".pdf";
+            Optional<ReceiptDTO> receipt = receiptProxyService.createReceiptFromCartItems(cartItemsManager.getCart());
 
-            StreamResourceRegistry.ElementStreamResource resource = createResource(fileName);
+            if (receipt.isPresent()) {
+                String fileName = "Bon-" +
+                        LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMdd-HHmmss")) + ".pdf";
 
-            String url = VaadinSession.getCurrent()
-                    .getResourceRegistry()
-                    .registerResource(resource)
-                    .getResourceUri()
-                    .toString();
+                StreamResourceRegistry.ElementStreamResource resource = createResource(fileName);
 
-            // Direkt herunterladen
-            downloadLink.setHref(url);
-            downloadLink.getElement().setAttribute("download", fileName);
-            downloadLink.getElement().callJsFunction("click");
+                String url = VaadinSession.getCurrent()
+                        .getResourceRegistry()
+                        .registerResource(resource)
+                        .getResourceUri()
+                        .toString();
 
-            Notification.show("Zahlung abgeschlossen — Bon wird heruntergeladen.",
-                            2500, Notification.Position.TOP_CENTER)
-                    .addThemeVariants(NotificationVariant.LUMO_SUCCESS);
+                downloadLink.setHref(url);
+                downloadLink.getElement().setAttribute("download", fileName);
+                downloadLink.getElement().callJsFunction("click");
 
-            cartItemsManager.clearCart();
-            cartItemsManager.updateGrid(cartGrid, totalLabel);
+                Notification.show("Zahlung abgeschlossen — Bon wird heruntergeladen.",
+                                2500, Notification.Position.TOP_CENTER)
+                        .addThemeVariants(NotificationVariant.LUMO_SUCCESS);
+
+                cartItemsManager.clearCart();
+                cartItemsManager.updateGrid(cartGrid, totalLabel);
+            } else {
+                Notification.show("Zahlung konnte nicht abgeschlossen",
+                                2500, Notification.Position.TOP_CENTER)
+                        .addThemeVariants(NotificationVariant.LUMO_ERROR);
+            }
 
         } catch (IOException ex) {
             Notification.show("Fehler beim Erstellen des Bons: " + ex.getMessage(),
@@ -166,7 +178,7 @@ public class PaymentView extends AbstractMainView implements BeforeEnterObserver
         }
     }
 
-    private com.vaadin.flow.server.StreamResourceRegistry.ElementStreamResource createResource(String fileName) throws IOException {
+    private StreamResourceRegistry.ElementStreamResource createResource(String fileName) throws IOException {
         ByteArrayInputStream generatedPdfStream = receiptService.generateReceipt(cartItemsManager.getCart(), isCashPayment);
 
         byte[] pdfBytes = generatedPdfStream.readAllBytes();

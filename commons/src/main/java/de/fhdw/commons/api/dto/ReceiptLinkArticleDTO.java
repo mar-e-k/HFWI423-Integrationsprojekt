@@ -10,14 +10,14 @@ public class ReceiptLinkArticleDTO extends AbstractDTO<Long>{
     private Integer amount;
     private BigDecimal taxRate;
     private BigDecimal overridePrice;
-    private String overrideReason;
+    private OverrideReasonEnum overrideReason;
     private BigDecimal discountedByPercent;
 
     public ReceiptLinkArticleDTO() {
         super();
     }
 
-    public ReceiptLinkArticleDTO(Long id, Long receiptId, Long articleId, BigDecimal price, Integer amount, BigDecimal taxRate, BigDecimal overridePrice, String overrideReason, BigDecimal discountedByPercent) {
+    public ReceiptLinkArticleDTO(Long id, Long receiptId, Long articleId, BigDecimal price, Integer amount, BigDecimal taxRate, BigDecimal overridePrice, OverrideReasonEnum overrideReason, BigDecimal discountedByPercent) {
         super(id);
         this.receiptId = receiptId;
         this.articleId = articleId;
@@ -77,11 +77,11 @@ public class ReceiptLinkArticleDTO extends AbstractDTO<Long>{
         this.overridePrice = overridePrice;
     }
 
-    public String getOverrideReason() {
+    public OverrideReasonEnum getOverrideReason() {
         return overrideReason;
     }
 
-    public void setOverrideReason(String overrideReason) {
+    public void setOverrideReason(OverrideReasonEnum overrideReason) {
         this.overrideReason = overrideReason;
     }
 

@@ -2,6 +2,8 @@ package de.fhdw.kassensystem.utility.security;
 
 import de.fhdw.commons.persistence.entity.AccountRoleEnum;
 import de.fhdw.commons.utility.AuthContext;
+import de.fhdw.kassensystem.utility.RegisterClient;
+import de.fhdw.kassensystem.utility.StoreClient;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
@@ -26,7 +28,7 @@ public class JwtService {
     private final SecretKey secretKey;
 
     public JwtService(@Value("${spring.security.private-key}") String privateKey) {
-        secretKey = Keys.hmacShaKeyFor(privateKey.getBytes(StandardCharsets.UTF_8));
+        this.secretKey = Keys.hmacShaKeyFor(privateKey.getBytes(StandardCharsets.UTF_8));
     }
 
     public String generateToken(AuthContext authContext) {

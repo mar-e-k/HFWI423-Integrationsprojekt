@@ -2,7 +2,7 @@ package de.fhdw.commons.api.dto;
 
 public class RegisterDTO extends AbstractDTO<Long> {
 
-    private Long storeId;
+    private Long store;
 
     public RegisterDTO() {
         super();
@@ -12,16 +12,16 @@ public class RegisterDTO extends AbstractDTO<Long> {
         super(id);
     }
 
-    public RegisterDTO(Long id, Long storeId) {
+    public RegisterDTO(Long id, Long store) {
         super(id);
-        this.storeId = storeId;
+        this.store = store;
     }
 
-    public Long getStoreId() {
-        return storeId;
+    public Long getStore() {
+        return store;
     }
 
-    public void setStoreId(Long storeId) {
-        this.storeId = storeId;
+    public void setStore(Long store) {
+        this.store = store;
     }
 }

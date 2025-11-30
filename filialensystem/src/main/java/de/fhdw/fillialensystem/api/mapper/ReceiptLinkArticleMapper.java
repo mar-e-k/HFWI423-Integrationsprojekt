@@ -1,5 +1,6 @@
 package de.fhdw.fillialensystem.api.mapper;
 
+import de.fhdw.commons.api.dto.OverrideReasonEnum;
 import de.fhdw.commons.api.dto.ReceiptLinkArticleDTO;
 import de.fhdw.commons.api.mapper.GenericMapper;
 import de.fhdw.fillialensystem.persistence.entity.Receipt;
@@ -21,7 +22,7 @@ public class ReceiptLinkArticleMapper implements GenericMapper<ReceiptLinkArticl
         receiptLinkArticle.setAmount(dto.getAmount());
         receiptLinkArticle.setTaxRate(dto.getTaxRate());
         receiptLinkArticle.setOverridePrice(dto.getOverridePrice());
-        receiptLinkArticle.setOverrideReason(dto.getOverrideReason());
+        receiptLinkArticle.setOverrideReason(dto.getOverrideReason().name());
         receiptLinkArticle.setDiscountedByPercent(dto.getDiscountedByPercent());
         return receiptLinkArticle;
     }
@@ -36,7 +37,7 @@ public class ReceiptLinkArticleMapper implements GenericMapper<ReceiptLinkArticl
         dto.setAmount(receiptLinkArticle.getAmount());
         dto.setTaxRate(receiptLinkArticle.getTaxRate());
         dto.setOverridePrice(receiptLinkArticle.getOverridePrice());
-        dto.setOverrideReason(receiptLinkArticle.getOverrideReason());
+        dto.setOverrideReason(OverrideReasonEnum.MANUAL_OVERRIDE);
         dto.setDiscountedByPercent(receiptLinkArticle.getDiscountedByPercent());
         return dto;
     }

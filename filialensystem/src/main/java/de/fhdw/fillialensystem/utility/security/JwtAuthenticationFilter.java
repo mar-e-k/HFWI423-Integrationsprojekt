@@ -7,6 +7,7 @@ import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
@@ -25,8 +26,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(
             HttpServletRequest request,
-            HttpServletResponse response,
-            FilterChain filterChain) throws ServletException, IOException {
+            @NotNull HttpServletResponse response,
+            @NotNull FilterChain filterChain) throws ServletException, IOException {
 
         String header = request.getHeader("Authorization");
 
@@ -40,8 +41,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                         AccountRoleEnum.valueOf(claims.get("role", String.class)),
                         claims.getSubject(),
                         claims.get("username", String.class),
-                        claims.get("storeId", Long.class),
-                        claims.get("registerId", Long.class)
+                        claims.get("storeId", Integer.class),
+                        claims.get("registerId", Integer.class)
                 );
 
                 SecurityContextHolder.getContext().setAuthentication(

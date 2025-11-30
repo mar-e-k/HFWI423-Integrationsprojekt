@@ -10,6 +10,8 @@ import de.fhdw.commons.api.dto.AccountDTO;
 import de.fhdw.commons.utility.AuthContext;
 import de.fhdw.commons.view.AbstractLoginView;
 import de.fhdw.kassensystem.persistance.service.proxy.AccountProxyService;
+import de.fhdw.kassensystem.utility.RegisterClient;
+import de.fhdw.kassensystem.utility.StoreClient;
 import de.fhdw.kassensystem.utility.security.JwtService;
 import de.fhdw.kassensystem.view.cashier.CashierView;
 import jakarta.annotation.security.PermitAll;
@@ -27,11 +29,16 @@ public class LoginView extends AbstractLoginView {
     private final AccountProxyService accountProxyService;
     private final PasswordEncoder passwordEncoder;
 
-    public LoginView(JwtService jwtService, AccountProxyService accountProxyService, PasswordEncoder passwordEncoder) {
+    private final RegisterClient registerClient;
+    private final StoreClient storeClient;
+
+    public LoginView(JwtService jwtService, AccountProxyService accountProxyService, PasswordEncoder passwordEncoder, RegisterClient registerClient, StoreClient storeClient) {
         super();
         this.jwtService = jwtService;
         this.accountProxyService = accountProxyService;
         this.passwordEncoder = passwordEncoder;
+        this.registerClient = registerClient;
+        this.storeClient = storeClient;
 
         loginForm.addLoginListener(this::onLogin);
         add(loginForm);
@@ -54,8 +61,8 @@ public class LoginView extends AbstractLoginView {
                     account.getRole(),
                     account.getUuid(),
                     account.getUsername(),
-                    null,
-                    null
+                    storeClient.getStoreDTO().getId().intValue(),
+                    registerClient.getRegisterDTO().getId().intValue()
             );
 
             UsernamePasswordAuthenticationToken auth =
