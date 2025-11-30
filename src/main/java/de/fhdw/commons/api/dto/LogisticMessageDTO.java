@@ -1,4 +1,4 @@
-package com.example.application.api.dto;
+package de.fhdw.commons.api.dto;
 
 public class LogisticMessageDTO {
 

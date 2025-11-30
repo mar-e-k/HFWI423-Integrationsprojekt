@@ -1,7 +1,7 @@
 package com.example.application.api.rabbitmq.producer;
 
 public enum DomainQueue {
-    LOGISTIC_STORE_RESTOCK("logistic.order.article");
+    LOGISTIC_STORE_RESTOCK("logistic.order.store.article");
 
     private final String queue;
 
