@@ -1,5 +1,6 @@
 package de.fhdw.commons.api.dto;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 public class ReceiptDTO extends AbstractDTO<Long> {
@@ -7,17 +8,19 @@ public class ReceiptDTO extends AbstractDTO<Long> {
     private Long storeId;
     private Long registerId;
     private Long accountId;
+    private BigDecimal totalAmount;
     private List<ReceiptLinkArticleDTO> receiptArticles;
 
     public ReceiptDTO() {
         super();
     }
 
-    public ReceiptDTO(Long id, Long storeId, Long registerId, Long accountId, List<ReceiptLinkArticleDTO> receiptArticles) {
+    public ReceiptDTO(Long id, Long storeId, Long registerId, Long accountId, BigDecimal totalAmount, List<ReceiptLinkArticleDTO> receiptArticles) {
         super(id);
         this.storeId = storeId;
         this.registerId = registerId;
         this.accountId = accountId;
+        this.totalAmount = totalAmount;
         this.receiptArticles = receiptArticles;
     }
 
@@ -43,6 +46,14 @@ public class ReceiptDTO extends AbstractDTO<Long> {
 
     public void setAccountId(Long accountId) {
         this.accountId = accountId;
+    }
+
+    public BigDecimal getTotalAmount() {
+        return totalAmount;
+    }
+
+    public void setTotalAmount(BigDecimal totalAmount) {
+        this.totalAmount = totalAmount;
     }
 
     public List<ReceiptLinkArticleDTO> getReceiptArticles() {

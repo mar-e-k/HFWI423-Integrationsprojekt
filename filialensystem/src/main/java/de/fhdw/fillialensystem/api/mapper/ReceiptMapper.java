@@ -23,6 +23,7 @@ public class ReceiptMapper implements GenericMapper<Receipt, ReceiptDTO> {
         receipt.setId(dto.getId());
         receipt.setRegister(new Register(dto.getAccountId()));
         receipt.setAccount(new Account(dto.getAccountId()));
+        receipt.setTotalAmount(dto.getTotalAmount());
         receipt.setReceiptArticles(dto.getReceiptArticles().stream().map(receiptLinkArticleMapper::toEntity).toList());
         return receipt;
     }
@@ -31,8 +32,10 @@ public class ReceiptMapper implements GenericMapper<Receipt, ReceiptDTO> {
     public ReceiptDTO toDto(Receipt receipt) {
         ReceiptDTO dto = new ReceiptDTO();
         dto.setId(receipt.getId());
+        dto.setStoreId(receipt.getStore().getId());
         dto.setRegisterId(receipt.getRegister().getId());
         dto.setAccountId(receipt.getAccount().getId());
+        dto.setTotalAmount(receipt.getTotalAmount());
         dto.setReceiptArticles(receipt.getReceiptArticles().stream().map(receiptLinkArticleMapper::toDto).toList());
         return dto;
     }

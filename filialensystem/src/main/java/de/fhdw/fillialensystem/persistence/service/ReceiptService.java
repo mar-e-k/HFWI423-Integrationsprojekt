@@ -13,6 +13,8 @@ import jakarta.persistence.EntityNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -44,25 +46,31 @@ public class ReceiptService extends AbstractCrudService<Receipt, Long> {
             throw new IllegalArgumentException("No articles specified");
         }
 
+        BigDecimal totalAmount = articles.stream()
+                .map(article -> article.getPrice().multiply(BigDecimal.valueOf(article.getAmount())))
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+
         Receipt receipt = repository.save(new Receipt(
                 register.getStore(),
                 register,
                 account,
+                totalAmount,
                 null));
 
-
+        List<ReceiptLinkArticle> savedArticles = new ArrayList<>();
         for (ReceiptLinkArticle article : articles) {
-            receiptLinkArticleRepository.save(new ReceiptLinkArticle(
+            savedArticles.add(receiptLinkArticleRepository.save(new ReceiptLinkArticle(
                     receipt,
-                    articleRepository.getReferenceById(article.getId()),
+                    articleRepository.getReferenceById(article.getArticle().getId()),
                     article.getPrice(),
                     article.getAmount(),
                     article.getTaxRate(),
                     article.getOverridePrice(),
                     article.getOverrideReason(),
-                    article.getDiscountedByPercent()));
+                    article.getDiscountedByPercent())));
         }
 
+        receipt.setReceiptArticles(savedArticles);
         return receipt;
     }
 }
