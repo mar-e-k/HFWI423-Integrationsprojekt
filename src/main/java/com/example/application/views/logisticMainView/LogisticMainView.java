@@ -41,12 +41,11 @@ import com.vaadin.flow.data.provider.Query;
 
 /**
  * Hauptansicht "Logistik" mit Filterleiste und Grid für {@link ArticleInfo}.
- *
- * <p>Features:
+ * Features:
  * - Responsive Filter (Desktop + einklappbar auf Mobile)
  * - Datenbindung via DataProvider
  * - "Neuen Artikel"-Dialog (lazy initialisiert)
- * </p>
+ *
  */
 @PageTitle("Logistik - Artikel & Lagerplätze")                 // Titel im Browser-Tab
 @Route("")                            // Root-Route

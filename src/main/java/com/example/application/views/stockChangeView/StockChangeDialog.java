@@ -58,13 +58,8 @@ public class StockChangeDialog extends Dialog {
         Button save = new Button("Save", e -> {
             int oldStock = article.getStockLevel() != null ? article.getStockLevel() : 0;
             int delta = change.getValue() != null ? change.getValue() : 0;
-            int newStock = oldStock + delta;
 
-            if (newStock < 0) {
-                Notification.show("Stock cannot be negative.");
-                return;
-            }
-
+            //Fach-/Stammdaten absichern
             if (article.getStorageLocation() == null || article.getStorageLocation().isBlank()) {
                 article.setStorageLocation("Unknown");
             }
@@ -76,7 +71,18 @@ public class StockChangeDialog extends Dialog {
                 return;
             }
 
-            //Rückgabewert benutzen (enthält Bestand nach Paletten-Logik)
+            // Sinnvolle Plausibilitätsprüfung statt "newStock < 0":
+            // Wie viele Stück sind insgesamt vorhanden (offen + alle Paletten)?
+            int piecesPerPallet = article.getPiecesPerPallet() != null ? article.getPiecesPerPallet() : 0;
+            int reservePallets = article.getReservePallets() != null ? article.getReservePallets() : 0;
+            int totalAvailable = oldStock + reservePallets * piecesPerPallet;
+
+            if (delta < 0 && -delta > totalAvailable) {
+                Notification.show("Cannot issue more than total available (" + totalAvailable + ").");
+                return;
+            }
+
+            // Service aufrufen → HIER läuft die Palettenlogik
             ArticleInfo updated = articleInfoService.applyStockChange(
                     article,
                     delta,
@@ -87,11 +93,9 @@ public class StockChangeDialog extends Dialog {
 
             int finalStock = updated.getStockLevel() != null ? updated.getStockLevel() : 0;
 
-            Notification.show(
-                    "Stock updated: " + oldStock + " → " + finalStock +
-                            " | Of Article: " + updated.getName() +
-                            " | Number: " + updated.getArticleNumber()
-            );
+            Notification.show("Stock updated: " + oldStock + " → " + finalStock +
+                    " | Of Article: " + updated.getName() +
+                    " | Number: " + updated.getArticleNumber());
 
             if (onSuccess != null) onSuccess.run();
             close();
