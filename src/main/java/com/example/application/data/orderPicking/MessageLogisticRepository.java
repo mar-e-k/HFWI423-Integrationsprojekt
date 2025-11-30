@@ -17,10 +17,10 @@ public interface MessageLogisticRepository extends JpaRepository<MessageLogistic
      * @return Liste unterbestandsgeführter MessageLogistic-Einträge
      */
     @Query("""
-        SELECT m FROM MessageLogistic m
-        WHERE m.storeId = :storeId
-          AND m.stockLevel < m.targetStockLevel
-    """)
+    SELECT m FROM MessageLogistic m
+    WHERE m.storeId = :storeId
+      AND m.stockLevel < m.targetStockLevel
+""")
     List<MessageLogistic> findUnderstocked(@Param("storeId") String storeId);
 
 }

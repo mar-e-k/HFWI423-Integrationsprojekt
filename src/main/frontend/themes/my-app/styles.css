@@ -18,3 +18,7 @@ vaadin-grid::part(missing-minstock-row):hover {
     background-color: #e0e0e0 !important;
 }
 
+:host ::part(row).finished-row {
+    opacity: 0.5;
+    pointer-events: none;
+}
