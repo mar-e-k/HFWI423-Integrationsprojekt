@@ -12,7 +12,7 @@ public class RestockItem {
             this.orderAmount = null;
         } else {
             // Formel: (minStock * 2) - stockLevel
-            this.orderAmount = (min * 2) - article.getStockLevel();
+            this.orderAmount = (min * 2) - article.getReservePallets();
         }
     }
     public ArticleInfo getArticle() {
@@ -30,6 +30,8 @@ public class RestockItem {
     public int getStockLevel() {
         return article.getStockLevel();
     }
+
+    public Integer getReservePallets() {return article.getReservePallets();}
 
     public Integer getMinStock() {
         return article.getMinStock();

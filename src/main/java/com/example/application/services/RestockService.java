@@ -31,7 +31,7 @@ public class RestockService {
                         // Wenn kein Mindestbestand gesetzt ist → trotzdem anzeigen
                         return true;
                     }
-                    return a.getStockLevel() < min;
+                    return a.getReservePallets() < min;
                 })
 
                 .map(RestockItem::new)
