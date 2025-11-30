@@ -50,7 +50,7 @@ public class ReceiptService extends AbstractCrudService<Receipt, Long> {
                 .map(article -> article.getPrice().multiply(BigDecimal.valueOf(article.getAmount())))
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
 
-        Receipt receipt = repository.save(new Receipt(
+        Receipt receipt = super.save(new Receipt(
                 register.getStore(),
                 register,
                 account,

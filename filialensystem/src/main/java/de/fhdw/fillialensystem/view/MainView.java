@@ -30,7 +30,7 @@ public class MainView extends AbstractMainView {
     private final List<RegisterClient> kassensystemInstances;
     private final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm:ss");
 
-    public MainView(RegisterRegistryService registerRegistryService, StoreClient storeClient) {
+    public MainView(RegisterRegistryService registerRegistryService) {
         super();
         this.kassensystemInstances = new ArrayList<>(registerRegistryService.findAllRegistries());
 
@@ -58,7 +58,7 @@ public class MainView extends AbstractMainView {
 
         grid.setWidthFull();
 
-        grid.addColumn(ks -> String.format("Kasse %d (Dev, %s)", kassensystemInstances.indexOf(ks) + 1, ks.getSystemClientDTO().getId()))
+        grid.addColumn(ks -> String.format("Kasse %d (Dev, %s)", ks.getRegister().getId(), ks.getSystemClientDTO().getId()))
                 .setHeader("Device")
                 .setAutoWidth(true);
 
