@@ -57,8 +57,8 @@ public class SetupStoreInitializer implements ApplicationRunner {
             store = new Store();
             store.setCountry("Deutschland");
             store.setCity("Wathlingen");
-            store.setStreet("Bachtstraße");
-            store.setStreetNumber("2");
+            store.setStreet("Breuerstraße");
+            store.setStreetNumber("0815");
             store = storeService.save(store);
         } else {
             store = storeService.findAll().getFirst();
