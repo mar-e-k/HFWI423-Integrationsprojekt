@@ -13,6 +13,7 @@ import com.vaadin.flow.router.BeforeEnterEvent;
 import com.vaadin.flow.router.BeforeEnterObserver;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
+import com.vaadin.flow.server.StreamResourceRegistry;
 import com.vaadin.flow.server.VaadinSession;
 import com.vaadin.flow.server.streams.DownloadHandler;
 import com.vaadin.flow.server.streams.DownloadResponse;
@@ -42,6 +43,7 @@ import java.time.format.DateTimeFormatter;
 public class PaymentView extends AbstractMainView implements BeforeEnterObserver {
 
     private final CartItemsManager cartItemsManager;
+
     private final ReceiptService receiptService;
 
     private Grid<CartItem> cartGrid;
@@ -137,7 +139,7 @@ public class PaymentView extends AbstractMainView implements BeforeEnterObserver
             String fileName = "Bon-" +
                     LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMdd-HHmmss")) + ".pdf";
 
-            com.vaadin.flow.server.StreamResourceRegistry.ElementStreamResource resource = createResource(fileName);
+            StreamResourceRegistry.ElementStreamResource resource = createResource(fileName);
 
             String url = VaadinSession.getCurrent()
                     .getResourceRegistry()

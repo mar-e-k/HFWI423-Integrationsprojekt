@@ -1,6 +1,5 @@
 package de.fhdw.kassensystem.persistance.service.proxy;
 
-import de.fhdw.commons.api.controller.AccountAPI;
 import de.fhdw.commons.api.dto.AccountDTO;
 import de.fhdw.kassensystem.utility.StoreClient;
 import org.springframework.core.ParameterizedTypeReference;
@@ -12,13 +11,12 @@ import java.util.List;
 import java.util.Optional;
 
 @Service
-public class AccountProxyService extends AbstractProxyService implements AccountAPI {
+public class AccountProxyService extends AbstractProxyService {
 
     public AccountProxyService(StoreClient storeClient) {
         super(storeClient);
     }
 
-    @Override
     public List<AccountDTO> findAll() {
         return storeClient.getWebClient()
                 .get()
@@ -28,7 +26,6 @@ public class AccountProxyService extends AbstractProxyService implements Account
                 .block();
     }
 
-    @Override
     public Optional<AccountDTO> findById(Long id) {
         return storeClient.getWebClient()
                 .get()
@@ -39,7 +36,6 @@ public class AccountProxyService extends AbstractProxyService implements Account
                 .blockOptional();
     }
 
-    @Override
     public Optional<AccountDTO> findByUuid(String uuid) {
         return storeClient.getWebClient()
                 .get()
@@ -50,7 +46,6 @@ public class AccountProxyService extends AbstractProxyService implements Account
                 .blockOptional();
     }
 
-    @Override
     public Optional<AccountDTO> findByUsername(String username) {
         return storeClient.getWebClient()
                 .get()

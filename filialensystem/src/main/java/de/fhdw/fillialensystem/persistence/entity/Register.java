@@ -22,7 +22,17 @@ public class Register extends AbstractEntity {
         super();
     }
 
+    public Register(Long id) {
+        super(id);
+    }
+
     public Register(Store store, List<Receipt> receipts) {
+        this.store = store;
+        this.receipts = receipts;
+    }
+
+    public Register(Long id, Store store, List<Receipt> receipts) {
+        super(id);
         this.store = store;
         this.receipts = receipts;
     }

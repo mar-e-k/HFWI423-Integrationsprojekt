@@ -24,17 +24,29 @@ public class Receipt extends AbstractEntity {
     private Account account;
 
     @OneToMany(mappedBy = "receipt", orphanRemoval = true)
-    private List<ReceiptLinkArticle> receiptLinkArticle = new ArrayList<>();
+    private List<ReceiptLinkArticle> receiptArticles = new ArrayList<>();
 
     public Receipt() {
         super();
     }
 
-    public Receipt(Store store, Register register, Account account, List<ReceiptLinkArticle> receiptLinkArticle) {
+    public Receipt(Long id) {
+        super(id);
+    }
+
+    public Receipt(Store store, Register register, Account account, List<ReceiptLinkArticle> receiptArticles) {
         this.store = store;
         this.register = register;
         this.account = account;
-        this.receiptLinkArticle = receiptLinkArticle;
+        this.receiptArticles = receiptArticles;
+    }
+
+    public Receipt(Long id, Store store, Register register, Account account, List<ReceiptLinkArticle> receiptArticles) {
+        super(id);
+        this.store = store;
+        this.register = register;
+        this.account = account;
+        this.receiptArticles = receiptArticles;
     }
 
     public Store getStore() {
@@ -61,11 +73,11 @@ public class Receipt extends AbstractEntity {
         this.account = account;
     }
 
-    public List<ReceiptLinkArticle> getReceiptLinkArticle() {
-        return receiptLinkArticle;
+    public List<ReceiptLinkArticle> getReceiptArticles() {
+        return receiptArticles;
     }
 
-    public void setReceiptLinkArticle(List<ReceiptLinkArticle> receiptLinkArticle) {
-        this.receiptLinkArticle = receiptLinkArticle;
+    public void setReceiptArticles(List<ReceiptLinkArticle> receiptLinkArticle) {
+        this.receiptArticles = receiptLinkArticle;
     }
 }

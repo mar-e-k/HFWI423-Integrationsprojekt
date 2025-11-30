@@ -1,6 +1,7 @@
 package de.fhdw.fillialensystem.utility;
 
 import de.fhdw.commons.api.dto.SystemClientDTO;
+import de.fhdw.fillialensystem.persistence.entity.Register;
 
 import java.time.Instant;
 
@@ -8,6 +9,7 @@ import java.time.Instant;
 public class RegisterClient {
 
     private SystemClientDTO systemClientDTO;
+    private Register register;
     private Instant registeredAt;
     private Instant lastSeen;
     private boolean online;
@@ -16,8 +18,9 @@ public class RegisterClient {
         super();
     }
 
-    public RegisterClient(SystemClientDTO systemClientDTO, Instant registeredAt, Instant lastSeen, boolean online) {
+    public RegisterClient(SystemClientDTO systemClientDTO, Register register, Instant registeredAt, Instant lastSeen, boolean online) {
         this.systemClientDTO = systemClientDTO;
+        this.register = register;
         this.registeredAt = registeredAt;
         this.lastSeen = lastSeen;
         this.online = online;
@@ -29,6 +32,14 @@ public class RegisterClient {
 
     public void setSystemClientDTO(SystemClientDTO systemClientDTO) {
         this.systemClientDTO = systemClientDTO;
+    }
+
+    public Register getRegister() {
+        return register;
+    }
+
+    public void setRegister(Register register) {
+        this.register = register;
     }
 
     public Instant getRegisteredAt() {

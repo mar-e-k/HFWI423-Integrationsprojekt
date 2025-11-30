@@ -11,10 +11,13 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.BeforeEnterEvent;
 import com.vaadin.flow.router.BeforeEnterObserver;
 import com.vaadin.flow.router.QueryParameters;
+import com.vaadin.flow.server.VaadinSession;
 import com.vaadin.flow.theme.lumo.Lumo;
+import de.fhdw.commons.utility.AuthContext;
 import jakarta.annotation.PostConstruct;
 import jakarta.annotation.security.RolesAllowed;
 import org.springframework.aop.support.AopUtils;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -23,7 +26,7 @@ import java.util.Map;
 
 public abstract class AbstractMainView extends VerticalLayout implements BeforeEnterObserver {
 
-    private H1 viewTitle;
+    protected H1 viewTitle;
 
     public AbstractMainView() {
         UI.getCurrent().getPage().executeJs(
@@ -126,13 +129,14 @@ public abstract class AbstractMainView extends VerticalLayout implements BeforeE
 
     @Override
     public void beforeEnter(BeforeEnterEvent beforeEnterEvent) {
+        setAuthenticationFromSession();
+
         Class<?> targetView = beforeEnterEvent.getNavigationTarget();
 
         RolesAllowed rolesAllowed = targetView.getAnnotation(RolesAllowed.class);
         if (rolesAllowed == null) {
             return;
         }
-
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 
         if (auth == null || auth.getPrincipal() == null || auth.getPrincipal().toString().equalsIgnoreCase("anonymousUser")) {
@@ -158,6 +162,15 @@ public abstract class AbstractMainView extends VerticalLayout implements BeforeE
 
         if (!authorized) {
             beforeEnterEvent.rerouteTo("login", QueryParameters.simple(Map.of("error", ErrorQueryParameter.ACCESS_DENIED.value())));
+        }
+    }
+
+    private void setAuthenticationFromSession() {
+        Object authContext = VaadinSession.getCurrent().getAttribute("auth-context");
+
+        if (authContext instanceof AuthContext) {
+            UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken(authContext, null, ((AuthContext) authContext).getAuthorities());
+            SecurityContextHolder.getContext().setAuthentication(auth);
         }
     }
 }

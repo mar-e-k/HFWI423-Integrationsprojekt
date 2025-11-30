@@ -9,4 +9,6 @@ public class ReceiptProxyService extends AbstractProxyService{
     public ReceiptProxyService(StoreClient storeClient) {
         super(storeClient);
     }
+
+
 }

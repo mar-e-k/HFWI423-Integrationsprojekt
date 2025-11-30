@@ -10,6 +10,7 @@ import de.fhdw.commons.persistence.entity.AccountRoleEnum;
 import de.fhdw.commons.view.AbstractMainView;
 import de.fhdw.fillialensystem.persistence.service.other.RegisterRegistryService;
 import de.fhdw.fillialensystem.utility.RegisterClient;
+import de.fhdw.fillialensystem.utility.StoreClient;
 import jakarta.annotation.security.RolesAllowed;
 
 import java.io.UnsupportedEncodingException;
@@ -24,22 +25,32 @@ import java.util.List;
 @RolesAllowed({AccountRoleEnum.ROLE_ADMIN})
 public class MainView extends AbstractMainView {
 
+    private final H2 title = new H2();
+
     private final List<RegisterClient> kassensystemInstances;
     private final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm:ss");
 
-    public MainView(RegisterRegistryService registerRegistryService) {
+    public MainView(RegisterRegistryService registerRegistryService, StoreClient storeClient) {
+        super();
         this.kassensystemInstances = new ArrayList<>(registerRegistryService.findAllRegistries());
+
         setSizeFull();
         setPadding(true);
         setSpacing(true);
 
-        H2 title = new H2("Connected Kassensystem Instances");
-        add(title);
+        title.setText("Connected Kassensystem Instances");
 
         Grid<RegisterClient> grid = createGrid();
         grid.setItems(kassensystemInstances);
 
-        add(grid);
+        add(title, grid);
+
+
+        Anchor admin = new Anchor("/admin", "Admin");
+        Anchor role = new Anchor("/role", "Rollen");
+        Anchor register = new Anchor("/register-add", "Kassen");
+        Anchor store = new Anchor("/store-select", "Filiale");
+        add(admin, role, register, store);
     }
 
     private Grid<RegisterClient> createGrid() {

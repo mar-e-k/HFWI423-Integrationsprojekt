@@ -50,7 +50,7 @@ public class SetupStoreInitializer implements ApplicationRunner {
             return;
         }
 
-        // ---- Set and get store ----
+        //---- Set and get store ---- TODO
         Store store;
         if (storeService.count() == 0) {
             log.atWarn().log("No store defined in table [store]. Falling back to default store.");
@@ -64,23 +64,23 @@ public class SetupStoreInitializer implements ApplicationRunner {
             store = storeService.findAll().getFirst();
         }
         storeClient.setStore(store);
-
-        // ---- Set store lock ----
-        log.atDebug().log("Setting up lock for store[{}]", store.getId());
-        storeLinkLockService.save(new StoreLinkLock(
-                store,
-                Instant.now()
-        ));
-        log.atDebug().log("Successfully set up lock for store[{}]", store.getId());
-
-        // ---- Set store host ----
-        log.atDebug().log("Setting up host for store[{}]", store.getId());
-        storeLinkHostService.save(new StoreLinkHost(
-                storeClient.getStore(),
-                storeClient.getHost(),
-                storeClient.getPort(),
-                Instant.now()
-        ));
-        log.atDebug().log("Successfully set up host for store[{}]", store.getId());
+//
+//        // ---- Set store lock ----
+//        log.atDebug().log("Setting up lock for store[{}]", store.getId());
+//        storeLinkLockService.save(new StoreLinkLock(
+//                store,
+//                Instant.now()
+//        ));
+//        log.atDebug().log("Successfully set up lock for store[{}]", store.getId());
+//
+//        // ---- Set store host ----
+//        log.atDebug().log("Setting up host for store[{}]", store.getId());
+//        storeLinkHostService.save(new StoreLinkHost(
+//                storeClient.getStore(),
+//                storeClient.getHost(),
+//                storeClient.getPort(),
+//                Instant.now()
+//        ));
+//        log.atDebug().log("Successfully set up host for store[{}]", store.getId());
     }
 }

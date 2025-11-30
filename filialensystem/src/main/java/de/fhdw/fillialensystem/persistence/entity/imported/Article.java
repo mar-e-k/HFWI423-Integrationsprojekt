@@ -65,6 +65,43 @@ public class Article implements GenericEntity<Long> {
     @Column(name = "is_available", nullable = false)
     private Boolean isAvailable = false;
 
+    public Article() {
+        super();
+    }
+
+    public Article(Long id) {
+        this.id = id;
+    }
+
+    public Article(String articleNumber, String description, String manufacturer, String name, Double purchasePrice, Double sellingPrice, Integer stockLevel, String supplier, Double taxRatePercent, String unit, Boolean isAvailable) {
+        this.articleNumber = articleNumber;
+        this.description = description;
+        this.manufacturer = manufacturer;
+        this.name = name;
+        this.purchasePrice = purchasePrice;
+        this.sellingPrice = sellingPrice;
+        this.stockLevel = stockLevel;
+        this.supplier = supplier;
+        this.taxRatePercent = taxRatePercent;
+        this.unit = unit;
+        this.isAvailable = isAvailable;
+    }
+
+    public Article(Long id, String articleNumber, String description, String manufacturer, String name, Double purchasePrice, Double sellingPrice, Integer stockLevel, String supplier, Double taxRatePercent, String unit, Boolean isAvailable) {
+        this.id = id;
+        this.articleNumber = articleNumber;
+        this.description = description;
+        this.manufacturer = manufacturer;
+        this.name = name;
+        this.purchasePrice = purchasePrice;
+        this.sellingPrice = sellingPrice;
+        this.stockLevel = stockLevel;
+        this.supplier = supplier;
+        this.taxRatePercent = taxRatePercent;
+        this.unit = unit;
+        this.isAvailable = isAvailable;
+    }
+
     @Override
     public Long getId() {
         return id;

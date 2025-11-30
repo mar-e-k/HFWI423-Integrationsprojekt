@@ -16,7 +16,6 @@ public class StoreClient implements ApplicationListener<WebServerInitializedEven
     private int port;
 
     public StoreClient() {
-        super();
         host = "localhost";
     }
 

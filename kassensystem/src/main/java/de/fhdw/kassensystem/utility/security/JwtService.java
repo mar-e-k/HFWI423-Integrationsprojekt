@@ -1,14 +1,13 @@
 package de.fhdw.kassensystem.utility.security;
 
-import de.fhdw.commons.api.dto.AccountDTO;
 import de.fhdw.commons.persistence.entity.AccountRoleEnum;
+import de.fhdw.commons.utility.AuthContext;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.security.authentication.AuthenticationServiceException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -16,6 +15,7 @@ import org.springframework.stereotype.Service;
 import javax.crypto.SecretKey;
 import java.nio.charset.StandardCharsets;
 import java.util.Date;
+import java.util.Optional;
 import java.util.UUID;
 
 @Service
@@ -29,14 +29,28 @@ public class JwtService {
         secretKey = Keys.hmacShaKeyFor(privateKey.getBytes(StandardCharsets.UTF_8));
     }
 
-    public String generateToken() {
-        AccountDTO currentAccount = getCurrentAccount();
+    public String generateToken(AuthContext authContext) {
         return Jwts.builder()
-                .subject(currentAccount.getUuid())
-                .claim("role", currentAccount.getRole().name())
-                .claim("username", currentAccount.getUsername())
+                .subject(authContext.getUuid())
+                .claim("username", authContext.getUsername())
+                .claim("role", authContext.getAccountRole())
+                .claim("storeId", authContext.getStoreId())
+                .claim("registerId", authContext.getRegisterId())
                 .issuedAt(new Date())
-                .expiration(new Date(System.currentTimeMillis() + 500_000))
+                .expiration(new Date(System.currentTimeMillis() + 3_600_000)) // 1 hour
+                .signWith(secretKey)
+                .compact();
+    }
+
+    public String generateSystemToken() {
+        return Jwts.builder()
+                .subject(UUID.randomUUID().toString())
+                .claim("username", "system")
+                .claim("role", AccountRoleEnum.SYSTEM)
+                .claim("storeId", null)
+                .claim("registerId", null)
+                .issuedAt(new Date())
+                .expiration(new Date(System.currentTimeMillis() + 3_600_000)) // 1 hour
                 .signWith(secretKey)
                 .compact();
     }
@@ -49,21 +63,11 @@ public class JwtService {
                 .getPayload();
     }
 
-    private AccountDTO getCurrentAccount() {
+    public Optional<AuthContext> getCurrentAuth() {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        if (auth == null || !auth.isAuthenticated() || auth.getPrincipal().toString().equalsIgnoreCase("anonymousUser")) {
-            log.atWarn().log("Getting fallback system account for Token generation");
-            return new AccountDTO(
-                    null,
-                    AccountRoleEnum.SYSTEM,
-                    UUID.randomUUID().toString(),
-                    "system",
-                    "system");
+        if (auth instanceof AuthContextAuthenticationToken token) {
+            return Optional.of(token.getAuthContext());
         }
-        if (auth.getPrincipal() instanceof AccountDTO account) {
-            return account;
-        } else {
-            throw new AuthenticationServiceException("Cannot get current account from security context");
-        }
+        return Optional.empty();
     }
 }

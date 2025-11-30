@@ -1,6 +1,7 @@
 package de.fhdw.fillialensystem.api.mapper;
 
 import de.fhdw.commons.api.dto.ArticleDTO;
+import de.fhdw.commons.api.mapper.GenericMapper;
 import de.fhdw.fillialensystem.persistence.entity.imported.Article;
 import org.springframework.stereotype.Component;
 

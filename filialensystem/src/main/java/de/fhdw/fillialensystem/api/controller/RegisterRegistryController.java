@@ -19,8 +19,6 @@ public class RegisterRegistryController {
         this.registerRegistryService = registerRegistryService;
     }
 
-    // ---- Endpoints ----
-
     @PostMapping
     @Operation(summary = "Register a kassensystem")
     public ResponseEntity<Void> registerKassensystem(@RequestBody SystemClientDTO systemClientDTO) {

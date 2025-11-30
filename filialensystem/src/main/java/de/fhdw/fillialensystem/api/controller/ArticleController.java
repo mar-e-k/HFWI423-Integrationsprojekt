@@ -1,6 +1,5 @@
 package de.fhdw.fillialensystem.api.controller;
 
-import de.fhdw.commons.api.controller.ArticleAPI;
 import de.fhdw.commons.api.dto.ArticleDTO;
 import de.fhdw.fillialensystem.api.mapper.ArticleMapper;
 import de.fhdw.fillialensystem.persistence.service.imported.ArticleService;
@@ -15,12 +14,11 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
-import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/article")
 @Tag(name = "Article", description = "Endpoints for operations related to articles")
-public class ArticleController implements ArticleAPI {
+public class ArticleController {
 
     private final ArticleService articleService;
     private final ArticleMapper articleMapper;
@@ -30,17 +28,15 @@ public class ArticleController implements ArticleAPI {
         this.articleMapper = articleMapper;
     }
 
-    // ---- Endpoints ----
-
     @GetMapping
     @Operation(summary = "Retrieve all articles")
     public ResponseEntity<List<ArticleDTO>> getArticles() {
         return ResponseEntity
                 .status(HttpStatus.OK)
-                .body(articleService.findAll().stream()
+                .body(articleService.findAll()
+                        .stream()
                         .map(articleMapper::toDto)
-                        .toList()
-                );
+                        .toList());
     }
 
     @GetMapping("/id/{id}")
@@ -48,9 +44,9 @@ public class ArticleController implements ArticleAPI {
     public ResponseEntity<ArticleDTO> getArticleById(@PathVariable Long id) {
         return ResponseEntity
                 .status(HttpStatus.OK)
-                .body(articleMapper.toDto(articleService.findById(id)
-                        .orElseThrow(EntityNotFoundException::new))
-                );
+                .body(articleService.findById(id)
+                        .map(articleMapper::toDto)
+                        .orElseThrow(EntityNotFoundException::new));
     }
 
     @GetMapping("/gtin/{gtin}")
@@ -58,25 +54,8 @@ public class ArticleController implements ArticleAPI {
     public ResponseEntity<ArticleDTO> getArticleByArticleNumber(@PathVariable String gtin) {
         return ResponseEntity
                 .status(HttpStatus.OK)
-                .body(articleMapper.toDto(articleService.findByArticleNumber(gtin)
-                        .orElseThrow(EntityNotFoundException::new))
-                );
-    }
-
-    // ---- API Helper Methods ----
-
-    @Override
-    public List<ArticleDTO> findAll() {
-        return articleService.findAll().stream().map(articleMapper::toDto).toList();
-    }
-
-    @Override
-    public Optional<ArticleDTO> findById(Long id) {
-        return articleService.findById(id).map(articleMapper::toDto);
-    }
-
-    @Override
-    public Optional<ArticleDTO> findByArticleNumber(String articleNumber) {
-        return articleService.findByArticleNumber(articleNumber).map(articleMapper::toDto);
+                .body(articleService.findByArticleNumber(gtin)
+                        .map(articleMapper::toDto)
+                        .orElseThrow(EntityNotFoundException::new));
     }
 }

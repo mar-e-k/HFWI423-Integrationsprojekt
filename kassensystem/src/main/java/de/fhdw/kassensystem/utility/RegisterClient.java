@@ -7,6 +7,7 @@ import org.springframework.stereotype.Component;
 @Component
 public class RegisterClient implements ApplicationListener<WebServerInitializedEvent> {
 
+
     private String host;
     private int port;
 
