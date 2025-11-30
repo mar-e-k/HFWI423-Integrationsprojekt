@@ -110,4 +110,12 @@ public class ArticleInfo extends AbstractEntity {
     public void setReservePallets(Integer reservePallets) {
         this.reservePallets = reservePallets;
     }
+
+    @Transient
+    public Integer getTotalStock() {
+        int open = stockLevel != null ? stockLevel : 0;
+        int perPallet = piecesPerPallet != null ? piecesPerPallet : 0;
+        int pallets = reservePallets != null ? reservePallets : 0;
+        return open + perPallet * pallets;
+    }
 }

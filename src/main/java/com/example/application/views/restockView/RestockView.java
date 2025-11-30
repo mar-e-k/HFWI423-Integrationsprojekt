@@ -28,6 +28,7 @@ import java.util.List;
 @Menu(order = 6, icon = LineAwesomeIconUrl.WINDOW_RESTORE)
 @Uses(Icon.class)
 public class RestockView extends Div {
+
     private final RestockService restockService;
     private final RestockOrderService restockOrderService;
     private final Grid<RestockItem> grid = new Grid<>(RestockItem.class, false);
@@ -61,10 +62,6 @@ public class RestockView extends Div {
                 Notification.show(ex.getMessage(), 5000, Notification.Position.MIDDLE);
             }
         });
-
-
-
-
 
         // Grid-Spalten definieren
         grid.addColumn(RestockItem::getArticleNumber).setHeader("Artikelnummer");
@@ -159,7 +156,8 @@ public class RestockView extends Div {
         // Data-URL als Download
         exportButton.setHref("data:text/csv;base64," + base64);
     }
-     // CSV Export
+
+    // CSV Export
     private String buildCsv() {
         List<RestockItem> items = restockService.getArticlesToRestock();
         StringBuilder sb = new StringBuilder("Artikelnummer;Name;Bestand;Mindestbestand;Nachbestellmenge\n");

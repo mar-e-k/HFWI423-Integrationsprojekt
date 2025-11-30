@@ -45,7 +45,6 @@ import com.vaadin.flow.data.provider.Query;
  * - Responsive Filter (Desktop + einklappbar auf Mobile)
  * - Datenbindung via DataProvider
  * - "Neuen Artikel"-Dialog (lazy initialisiert)
- *
  */
 @PageTitle("Logistik - Artikel & Lagerplätze")                 // Titel im Browser-Tab
 @Route("")                            // Root-Route
@@ -272,9 +271,16 @@ public class LogisticMainView extends Div {
                 .setAutoWidth(true)
                 .setSortable(true);
 
+        // Spalte: Gesamte Stückzahl dieses Artikels (mit Reservepaletten)
+        grid.addColumn(ArticleInfo::getTotalStock)
+                .setHeader("Total Stock")
+                .setKey("totalStock")
+                .setAutoWidth(true)
+                .setSortable(true);
+
         // Spalte: Bestand (Integer)
         grid.addColumn(ArticleInfo::getStockLevel)
-                .setHeader("Stock Level")
+                .setHeader("Pick Stock")
                 .setKey("stockLevel")
                 .setAutoWidth(true)
                 .setSortable(true);
