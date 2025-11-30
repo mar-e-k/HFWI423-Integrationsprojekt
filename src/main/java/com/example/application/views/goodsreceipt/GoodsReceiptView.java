@@ -27,6 +27,7 @@ import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.router.Menu;
+import org.vaadin.lineawesome.LineAwesomeIconUrl;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
@@ -36,7 +37,7 @@ import java.util.List;
 @Route(value = "goods-receipts", layout = MainLayout.class)
 @Menu(
         title = "Wareneingänge",
-        icon = "la-truck-loading-solid",
+        icon = LineAwesomeIconUrl.BOX_SOLID,
         order = 40
 )
 public class GoodsReceiptView extends Div {
