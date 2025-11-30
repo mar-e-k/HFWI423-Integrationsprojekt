@@ -5,8 +5,8 @@
     <modelVersion>4.0.0</modelVersion>
     <!-- Project from https://start.vaadin.com/project/227a1f09-ecf4-46ec-b608-d463f94148a8 -->
     <groupId>com.example.application</groupId>
-    <artifactId>my-app</artifactId>
-    <name>my-app</name>
+    <artifactId>logistik</artifactId>
+    <name>logistik</name>
     <version>1.0-SNAPSHOT</version>
     <packaging>jar</packaging>
 
@@ -71,6 +71,10 @@
             <artifactId>spring-boot-starter-data-jpa</artifactId>
         </dependency>
 
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-amqp</artifactId>
+        </dependency>
 
         <dependency>
             <groupId>org.springframework.boot</groupId>
