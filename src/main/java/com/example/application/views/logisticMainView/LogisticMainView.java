@@ -271,14 +271,14 @@ public class LogisticMainView extends Div {
                 .setAutoWidth(true)
                 .setSortable(true);
 
-        // Spalte: Gesamte Stückzahl dieses Artikels (mit Reservepaletten)
+        // Spalte: Gesamter Bestand dieses Artikels (mit Reservepaletten)
         grid.addColumn(ArticleInfo::getTotalStock)
                 .setHeader("Total Stock")
                 .setKey("totalStock")
                 .setAutoWidth(true)
                 .setSortable(true);
 
-        // Spalte: Bestand (Integer)
+        // Spalte: Entnahmefach (Integer)
         grid.addColumn(ArticleInfo::getStockLevel)
                 .setHeader("Pick Stock")
                 .setKey("stockLevel")
@@ -286,9 +286,9 @@ public class LogisticMainView extends Div {
                 .setSortable(true);
 
         // Spalte: Reservepaletten (Integer)
-        grid.addColumn(ArticleInfo::getReserveStorageLocation)
-                .setHeader("Reserve Storage Location")
-                .setKey("reserveStorageLocation")
+        grid.addColumn(ArticleInfo::getReservePallets)
+                .setHeader("Reserve (Pallets)")
+                .setKey("reservePallets")
                 .setAutoWidth(true)
                 .setSortable(true);
 
@@ -320,12 +320,6 @@ public class LogisticMainView extends Div {
                 .setKey("storageLocation")
                 .setAutoWidth(true)
                 .setSortable(false);
-
-        grid.addColumn(ArticleInfo::getReservePallets)
-                .setHeader("Reserve (Pallets)")
-                .setKey("reservePallets")
-                .setAutoWidth(true)
-                .setSortable(true);
 
         //verschiedenfarbige Streifen + Umbruch langer Inhalte
         grid.addThemeVariants(
