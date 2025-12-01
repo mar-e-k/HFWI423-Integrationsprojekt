@@ -247,6 +247,7 @@ public class ShelfPlacementServiceImpl implements ShelfPlacementService {
         dto.setShelfLevelId(entity.getShelfLevel() != null ? entity.getShelfLevel().getId() : null);
         dto.setArticleId(entity.getArticle() != null ? entity.getArticle().getId() : null);
         dto.setArticleName(entity.getArticle() != null ? entity.getArticle().getArticleNumber() : null);
+        dto.setProductImage(entity.getArticle() != null ? entity.getArticle().getProductImage() : null);
         dto.setPositionX(entity.getPositionX());
         dto.setPositionY(entity.getPositionY());
         dto.setWidthCm(entity.getWidthCm());
