@@ -19,6 +19,15 @@ public class StoreLinkStock extends AbstractEntity {
 
     private boolean active;
 
+    // Mindestbestand mit Default-Wert 5
+    @NotNull
+    @Column(
+            name = "min_stock_level",
+            nullable = false,
+            columnDefinition = "integer default 5"
+    )
+    private Integer minStockLevel = 5;
+
     public StoreLinkStock() {
         super();
     }
@@ -28,6 +37,15 @@ public class StoreLinkStock extends AbstractEntity {
         this.article = article;
         this.amount = amount;
         this.active = active;
+        this.minStockLevel = 5;
+    }
+
+    public StoreLinkStock(Store store, Article article, int amount, boolean active, Integer minStockLevel) {
+        this.store = store;
+        this.article = article;
+        this.amount = amount;
+        this.active = active;
+        this.minStockLevel = (minStockLevel != null ? minStockLevel : 5);
     }
 
     public Store getStore() {
@@ -60,5 +78,13 @@ public class StoreLinkStock extends AbstractEntity {
 
     public void setActive(boolean active) {
         this.active = active;
+    }
+
+    public Integer getMinStockLevel() {
+        return minStockLevel;
+    }
+
+    public void setMinStockLevel(Integer minStockLevel) {
+        this.minStockLevel = minStockLevel;
     }
 }
