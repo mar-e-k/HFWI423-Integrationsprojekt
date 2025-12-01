@@ -1,0 +1,41 @@
+# IDE - IntelliJ Personal/Sensitive Files
+.idea/workspace.xml
+.idea/tasks.xml
+.idea/dictionaries/
+.idea/shelf/
+.idea/jsLinters/
+
+# General IDE
+*.iml
+*.iws
+*.ipr
+*.swp
+*.swo
+*~
+
+# Maven
+target/
+pom.xml.tag
+pom.xml.releaseBackup
+pom.xml.versionsBackup
+pom.xml.next
+release.properties
+dependency-reduced-pom.xml
+buildNumber.properties
+.mvn/timing.properties
+.mvn/wrapper/maven-wrapper.jar
+
+# Spring Boot
+*.log
+application*.properties
+application*.yml
+!application.properties
+!application.yml
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Local development
+.env
+.env.local
