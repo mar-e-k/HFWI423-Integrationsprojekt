@@ -27,6 +27,7 @@ import jakarta.annotation.security.RolesAllowed;
 import java.io.ByteArrayInputStream;
 import java.time.LocalDate;
 import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -49,9 +50,9 @@ public class DailyReceiptReportingView extends AbstractMainView {
     private final ComboBox<Account> accountFilter = new ComboBox<>("Filter Account");
     private final Button debugSendReportingToLogistic = new Button("[Debug] Sende Bestandsabgleich an Logistik");
 
-    private List<Receipt> receipts = new ArrayList<>();
-
+    private final DateTimeFormatter fmt = DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm:ss");
     private final Map<Long, Integer> articleCountCache = new HashMap<>();
+    private final List<Receipt> receipts = new ArrayList<>();
 
     public DailyReceiptReportingView(
             ReceiptService receiptService,
@@ -65,7 +66,7 @@ public class DailyReceiptReportingView extends AbstractMainView {
 
     @Override
     protected void init() {
-        receipts = receiptService.findAll();
+        receipts.addAll(receiptService.findAll());
         receiptGrid.setItems(receipts);
 
         initButtons();
@@ -135,7 +136,8 @@ public class DailyReceiptReportingView extends AbstractMainView {
                 .setHeader("Beleg-ID")
                 .setAutoWidth(true)
                 .setSortable(true);
-        receiptGrid.addColumn(r -> r.getCreatedAt())
+
+        receiptGrid.addColumn(r -> r.getCreatedAt().atZone(ZoneId.systemDefault()).format(fmt))
                 .setHeader("Erstelldatum")
                 .setAutoWidth(true)
                 .setSortable(true);

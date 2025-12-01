@@ -24,10 +24,7 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -37,6 +34,8 @@ public class ReceiptService extends AbstractCrudService<Receipt, Long> {
     private final RegisterRepository registerRepository;
     private final AccountRepository accountRepository;
     private final ArticleRepository articleRepository;
+
+    private final DateTimeFormatter fmt = DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm:ss");
 
     public ReceiptService(ReceiptRepository receiptRepository, ReceiptLinkArticleRepository receiptLinkArticleRepository, RegisterRepository registerRepository, AccountRepository accountRepository, ArticleRepository articleRepository) {
         super(receiptRepository);
@@ -123,7 +122,7 @@ public class ReceiptService extends AbstractCrudService<Receipt, Long> {
             contentStream.beginText();
             contentStream.setFont(font, 12);
             contentStream.newLineAtOffset(margin, y);
-            contentStream.showText("Datum: " + receipt.getCreatedAt().atZone(ZoneId.systemDefault()).format(DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm:ss")));
+            contentStream.showText("Datum: " + receipt.getCreatedAt().atZone(ZoneId.systemDefault()).format(fmt));
             contentStream.endText();
             y -= 20;
 
@@ -244,6 +243,22 @@ public class ReceiptService extends AbstractCrudService<Receipt, Long> {
                                     .reduce(BigDecimal.ZERO, BigDecimal::add)
                     ));
 
+            Map<Account, Map<Register, BigDecimal>> totalsPerCashier = new HashMap<>();
+
+            for (Map.Entry<Register, Map<Account, BigDecimal>> regEntry : totalsPerAccount.entrySet()) {
+                Register register = regEntry.getKey();
+                Map<Account, BigDecimal> accTotals = regEntry.getValue();
+
+                for (Map.Entry<Account, BigDecimal> accEntry : accTotals.entrySet()) {
+                    Account account = accEntry.getKey();
+                    BigDecimal total = accEntry.getValue();
+
+                    totalsPerCashier
+                            .computeIfAbsent(account, a -> new HashMap<>())
+                            .put(register, total);
+                }
+            }
+
             PDDocument document = new PDDocument();
             PDPage page = new PDPage();
             document.addPage(page);
@@ -318,7 +333,7 @@ public class ReceiptService extends AbstractCrudService<Receipt, Long> {
                 contentStream.beginText();
                 contentStream.setFont(boldFont, 14);
                 contentStream.newLineAtOffset(margin, y);
-                contentStream.showText("Kasse- " + register.getId() + ": " + registerTotal + " EUR");
+                contentStream.showText("Kasse " + register.getId() + ": " + registerTotal + " EUR");
                 contentStream.endText();
                 y -= 20;
 
@@ -341,6 +356,44 @@ public class ReceiptService extends AbstractCrudService<Receipt, Long> {
             contentStream.stroke();
             y -= 30;
 
+            for (Map.Entry<Account, Map<Register, BigDecimal>> cashierEntry : totalsPerCashier.entrySet()) {
+
+                Account account = cashierEntry.getKey();
+                Map<Register, BigDecimal> perRegister = cashierEntry.getValue();
+
+                contentStream.beginText();
+                contentStream.setFont(boldFont, 14);
+                contentStream.newLineAtOffset(margin, y);
+                contentStream.showText(
+                        "Kassierer " + account.getUsername() + ": " +
+                                String.format("%.2f EUR",
+                                        perRegister.values().stream()
+                                                .reduce(BigDecimal.ZERO, BigDecimal::add))
+                );
+                contentStream.endText();
+                y -= 20;
+
+                for (Map.Entry<Register, BigDecimal> regEntry : perRegister.entrySet()) {
+
+                    contentStream.beginText();
+                    contentStream.setFont(font, 12);
+                    contentStream.newLineAtOffset(margin + 30, y);
+                    contentStream.showText(
+                            "Kasse " + regEntry.getKey().getId() + ": " +
+                                    String.format("%.2f EUR", regEntry.getValue())
+                    );
+                    contentStream.endText();
+                    y -= 18;
+                }
+
+                y -= 10;
+            }
+
+
+            contentStream.moveTo(margin, y);
+            contentStream.lineTo(550, y);
+            contentStream.stroke();
+            y -= 30;
 
             contentStream.beginText();
             contentStream.setFont(boldFont, 12);
@@ -358,8 +411,6 @@ public class ReceiptService extends AbstractCrudService<Receipt, Long> {
             contentStream.showText("Datum");
             contentStream.endText();
             y -= 20;
-
-            DateTimeFormatter fmt = DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm:ss");
 
             for (Receipt receipt : receipts) {
                 contentStream.beginText();
