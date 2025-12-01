@@ -15,19 +15,20 @@ import org.apache.pdfbox.pdmodel.PDPage;
 import org.apache.pdfbox.pdmodel.PDPageContentStream;
 import org.apache.pdfbox.pdmodel.font.PDType1Font;
 import org.apache.pdfbox.pdmodel.font.Standard14Fonts;
-import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.math.BigDecimal;
-import java.math.RoundingMode;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 public class ReceiptService extends AbstractCrudService<Receipt, Long> {
@@ -215,10 +216,33 @@ public class ReceiptService extends AbstractCrudService<Receipt, Long> {
 
     public ByteArrayInputStream generateDailyReceipt(List<Receipt> receipts) {
         try {
-            List<ReceiptLinkArticle> articles = new ArrayList<>();
-            for (Receipt receipt : receipts) {
-                articles.addAll(getReceiptLinkArticles(receipt));
-            }
+            Map<Register, Map<Account, List<Receipt>>> grouped =
+                    receipts.stream().collect(
+                            Collectors.groupingBy(
+                                    Receipt::getRegister,
+                                    Collectors.groupingBy(Receipt::getAccount)
+                            )
+                    );
+
+            Map<Register, Map<Account, BigDecimal>> totalsPerAccount =
+                    grouped.entrySet().stream().collect(Collectors.toMap(
+                            Map.Entry::getKey,
+                            e -> e.getValue().entrySet().stream().collect(Collectors.toMap(
+                                    Map.Entry::getKey,
+                                    acc -> acc.getValue().stream()
+                                            .map(Receipt::getTotalAmount)
+                                            .reduce(BigDecimal.ZERO, BigDecimal::add)
+                            ))
+                    ));
+
+            Map<Register, BigDecimal> totalsPerRegister =
+                    grouped.entrySet().stream().collect(Collectors.toMap(
+                            Map.Entry::getKey,
+                            e -> e.getValue().values().stream()
+                                    .flatMap(List::stream)
+                                    .map(Receipt::getTotalAmount)
+                                    .reduce(BigDecimal.ZERO, BigDecimal::add)
+                    ));
 
             PDDocument document = new PDDocument();
             PDPage page = new PDPage();
@@ -236,8 +260,13 @@ public class ReceiptService extends AbstractCrudService<Receipt, Long> {
             contentStream.setFont(boldFont, 18);
             contentStream.newLineAtOffset(margin, y);
             contentStream.showText("Tagesabschluss");
-            contentStream.newLineAtOffset(150, y);
-            contentStream.showText("Filiale: %s".formatted(receipts.getFirst().getStore().getId()));
+            contentStream.endText();
+            y -= 25;
+
+            contentStream.beginText();
+            contentStream.setFont(boldFont, 14);
+            contentStream.newLineAtOffset(margin, y);
+            contentStream.showText("Filiale: " + receipts.getFirst().getStore().getId());
             contentStream.endText();
             y -= 30;
 
@@ -251,53 +280,107 @@ public class ReceiptService extends AbstractCrudService<Receipt, Long> {
             contentStream.moveTo(margin, y);
             contentStream.lineTo(550, y);
             contentStream.stroke();
+            y -= 30;
+
+            contentStream.beginText();
+            contentStream.setFont(boldFont, 14);
+            contentStream.newLineAtOffset(margin, y);
+            contentStream.showText("Beleganzahl: %d".formatted(receipts.size()));
+            contentStream.endText();
             y -= 20;
+
+            contentStream.beginText();
+            contentStream.setFont(boldFont, 14);
+            contentStream.newLineAtOffset(margin, y);
+            contentStream.showText("Kontoanzahl: %d".formatted(totalsPerAccount.values().stream()
+                    .map(Map::keySet)
+                    .flatMap(Set::stream)
+                    .collect(Collectors.toSet())
+                    .size()));
+            contentStream.endText();
+            y -= 20;
+
+            contentStream.beginText();
+            contentStream.setFont(boldFont, 14);
+            contentStream.newLineAtOffset(margin, y);
+            contentStream.showText("Kassenanzahl: %d".formatted(totalsPerRegister.size()));
+            contentStream.endText();
+            y -= 20;
+
+            contentStream.moveTo(margin, y);
+            contentStream.lineTo(550, y);
+            contentStream.stroke();
+            y -= 30;
+
+            for (Register register : totalsPerRegister.keySet()) {
+                BigDecimal registerTotal = totalsPerRegister.get(register);
+
+                contentStream.beginText();
+                contentStream.setFont(boldFont, 14);
+                contentStream.newLineAtOffset(margin, y);
+                contentStream.showText("Kasse- " + register.getId() + ": " + registerTotal + " EUR");
+                contentStream.endText();
+                y -= 20;
+
+                Map<Account, BigDecimal> accountTotals = totalsPerAccount.get(register);
+
+                for (Map.Entry<Account, BigDecimal> accEntry : accountTotals.entrySet()) {
+                    contentStream.beginText();
+                    contentStream.setFont(font, 12);
+                    contentStream.newLineAtOffset(margin + 30, y);
+                    contentStream.showText("Kassierer " + accEntry.getKey().getUsername() + ": " + accEntry.getValue() + " EUR");
+                    contentStream.endText();
+                    y -= 18;
+                }
+
+                y -= 10;
+            }
+
+            contentStream.moveTo(margin, y);
+            contentStream.lineTo(550, y);
+            contentStream.stroke();
+            y -= 30;
+
 
             contentStream.beginText();
             contentStream.setFont(boldFont, 12);
             contentStream.newLineAtOffset(margin, y);
-            contentStream.showText("Pos.");
-            contentStream.newLineAtOffset(50, 0);
-            contentStream.showText("Artikel");
-            contentStream.newLineAtOffset(150, 0);
-            contentStream.showText("Menge");
+            contentStream.showText("Beleg-ID");
             contentStream.newLineAtOffset(70, 0);
-            contentStream.showText("Steuersatz");
-            contentStream.newLineAtOffset(100, 0);
+            contentStream.showText("Beleg-Art");
+            contentStream.newLineAtOffset(90, 0);
+            contentStream.showText("Kasse");
+            contentStream.newLineAtOffset(70, 0);
+            contentStream.showText("Kassierer");
+            contentStream.newLineAtOffset(90, 0);
             contentStream.showText("Preis");
-            contentStream.newLineAtOffset(80, 0);
-            contentStream.showText("Rabatt");
+            contentStream.newLineAtOffset(60, 0);
+            contentStream.showText("Datum");
             contentStream.endText();
             y -= 20;
 
-            for (int i = 0; i < articles.size(); i++) {
-                ReceiptLinkArticle article = articles.get(i);
+            DateTimeFormatter fmt = DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm:ss");
+
+            for (Receipt receipt : receipts) {
                 contentStream.beginText();
-                contentStream.setFont(font, 10);
+                contentStream.setFont(font, 11);
                 contentStream.newLineAtOffset(margin, y);
-                contentStream.showText(String.valueOf(i + 1));
-                contentStream.newLineAtOffset(50, 0);
-                contentStream.showText(article.getArticle().getName());
-                contentStream.newLineAtOffset(150, 0);
-                contentStream.showText(String.valueOf(article.getAmount()));
+                contentStream.showText("%d".formatted(receipt.getId()));
                 contentStream.newLineAtOffset(70, 0);
-                contentStream.showText(String.format("%d %%", article.getArticle().getTaxRatePercent().intValue()));
-                contentStream.newLineAtOffset(100, 0);
-                if (article.getOverridePrice() != null && article.getOverridePrice().compareTo(BigDecimal.ZERO) > 0) {
-                    contentStream.showText(String.format("%.2f EUR", article.getOverridePrice().doubleValue()));
-                    contentStream.newLineAtOffset(80, 0);
-                } else {
-                    contentStream.showText(String.format("%.2f EUR", article.getPrice().doubleValue()));
-                    contentStream.newLineAtOffset(80, 0);
-                }
-                if (article.getDiscountedByPercent() != null && article.getDiscountedByPercent().compareTo(BigDecimal.ZERO) > 0) {
-                    contentStream.showText(String.format("%d %% x %d", article.getDiscountedByPercent().intValue(), article.getAmount()));
-                } else {
-                    contentStream.showText("Kein Rabatt");
-                }
+                contentStream.showText("BELEG"); //TODO: Pfand-Art
+                contentStream.newLineAtOffset(90, 0);
+                contentStream.showText("%d".formatted(receipt.getRegister().getId()));
+                contentStream.newLineAtOffset(70, 0);
+                contentStream.showText("%s".formatted(receipt.getAccount().getUsername()));
+                contentStream.newLineAtOffset(90, 0);
+                contentStream.showText("%s".formatted(receipt.getTotalAmount()));
+                contentStream.newLineAtOffset(60, 0);
+                contentStream.showText("%s".formatted(receipt.getCreatedAt().atZone(ZoneId.systemDefault()).format(fmt)));
                 contentStream.endText();
-                y -= 20;
+                y -= 18;
             }
+
+            y -= 20;
 
             contentStream.moveTo(margin, y);
             contentStream.lineTo(550, y);
@@ -306,10 +389,14 @@ public class ReceiptService extends AbstractCrudService<Receipt, Long> {
 
             contentStream.beginText();
             contentStream.setFont(boldFont, 14);
-            contentStream.newLineAtOffset(350, y);
-            contentStream.showText("Gesamtbetrag: " + String.format("%.2f EUR", receipts.stream()
-                    .map(Receipt::getTotalAmount)
-                    .reduce(BigDecimal.ZERO, BigDecimal::add)));
+            contentStream.newLineAtOffset(margin, y);
+            contentStream.showText(
+                    "Gesamtbetrag: " +
+                            receipts.stream()
+                                    .map(Receipt::getTotalAmount)
+                                    .reduce(BigDecimal.ZERO, BigDecimal::add) +
+                            " EUR"
+            );
             contentStream.endText();
 
             contentStream.close();
@@ -318,33 +405,9 @@ public class ReceiptService extends AbstractCrudService<Receipt, Long> {
             document.save(out);
 
             return new ByteArrayInputStream(out.toByteArray());
+
         } catch (Exception e) {
             return null;
         }
-    }
-
-    @NotNull
-    private BigDecimal calcTrueSum(ReceiptLinkArticle receiptLinkArticle) {
-        BigDecimal basePrice = (receiptLinkArticle.getOverridePrice() != null
-                && receiptLinkArticle.getOverridePrice().compareTo(BigDecimal.ZERO) > 0)
-                ? receiptLinkArticle.getOverridePrice()
-                : receiptLinkArticle.getPrice();
-
-        BigDecimal discountMultiplier = BigDecimal.ONE;
-        if (receiptLinkArticle.getDiscountedByPercent() != null &&
-                receiptLinkArticle.getDiscountedByPercent().compareTo(BigDecimal.ZERO) > 0) {
-
-            BigDecimal percent = receiptLinkArticle.getDiscountedByPercent();
-            discountMultiplier = BigDecimal.ONE.subtract(
-                    percent.divide(BigDecimal.valueOf(100), 4, RoundingMode.HALF_UP)
-            );
-        }
-
-        BigDecimal lineTotal = basePrice
-                .multiply(BigDecimal.valueOf(receiptLinkArticle.getAmount()))
-                .multiply(discountMultiplier)
-                .setScale(2, RoundingMode.HALF_UP);
-
-        return lineTotal;
     }
 }
