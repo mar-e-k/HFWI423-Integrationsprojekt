@@ -1,5 +1,6 @@
 package com.example.application.utility.config;
 
+import com.example.application.api.rabbitmq.producer.DomainQueue;
 import org.springframework.amqp.core.*;
 import org.springframework.amqp.rabbit.connection.ConnectionFactory;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
@@ -9,6 +10,9 @@ import org.springframework.amqp.support.converter.Jackson2JsonMessageConverter;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Configuration
 public class RabbitMQConfig {
@@ -48,5 +52,23 @@ public class RabbitMQConfig {
     @Bean
     public DirectExchange appExchange() {
         return new DirectExchange(exchange, true, false);
+    }
+
+    @Bean
+    public Declarables domainDeclarables(DirectExchange appExchange) {
+        List<Declarable> declarables = new ArrayList<>();
+
+        for (DomainQueue dq : DomainQueue.values()) {
+            Queue queue = new Queue(dq.getQueue(), true);
+            Binding binding = BindingBuilder
+                    .bind(queue)
+                    .to(appExchange)
+                    .with(dq.getQueue());
+
+            declarables.add(queue);
+            declarables.add(binding);
+        }
+
+        return new Declarables(declarables);
     }
 }
