@@ -36,4 +36,6 @@ public interface ArticleInfoRepository
     @Query("select a.storageLocation from ArticleInfo a where a.articleNumber = :articleNumber")
     String findStorageLocationByArticleNumber(@Param("articleNumber") String articleNumber);
 
+
+
 }

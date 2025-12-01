@@ -1,11 +1,12 @@
 package com.example.application.views.goodsreceipt;
 
 import com.example.application.views.MainLayout;
+import com.example.application.data.article.ArticleInfo;
+import com.example.application.data.article.ArticleInfoRepository;
 import com.example.application.data.goodsreceipts.GoodsReceipt;
 import com.example.application.data.goodsreceipts.GoodsReceiptItem;
 import com.example.application.data.goodsreceipts.GoodsReceiptItemStatus;
-import com.example.application.data.article.ArticleInfo;
-import com.example.application.data.article.ArticleInfoRepository;
+import com.example.application.data.restockorder.RestockOrder;
 import com.example.application.services.GoodsReceiptService;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
@@ -15,6 +16,7 @@ import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.html.Div;
+import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.notification.Notification.Position;
 import com.vaadin.flow.component.notification.NotificationVariant;
@@ -32,6 +34,8 @@ import org.vaadin.lineawesome.LineAwesomeIconUrl;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @PageTitle("Wareneingänge")
 @Route(value = "goods-receipts", layout = MainLayout.class)
@@ -134,13 +138,14 @@ public class GoodsReceiptView extends Div {
     }
 
     // ------------------------------------------------------------------------
-    // Neuer Wareneingang
+    // Neuer Wareneingang (aus Restock-Orders)
     // ------------------------------------------------------------------------
 
     private void openCreateDialog() {
         Dialog dialog = new Dialog();
-        dialog.setHeaderTitle("Wareneingang anlegen");
+        dialog.setHeaderTitle("Wareneingang aus Bestellung anlegen");
 
+        // Basis-Daten
         TextField supplier = new TextField("Lieferant");
         supplier.setRequired(true);
 
@@ -153,10 +158,47 @@ public class GoodsReceiptView extends Div {
 
         FormLayout form = new FormLayout(supplier, deliveryNote, deliveryDate);
         form.setWidth("480px");
-        dialog.add(form);
 
+        // Offene Restock-Orders laden
+        List<RestockOrder> openOrders = service.findOpenRestockOrders();
+
+        Grid<RestockOrder> restockGrid = new Grid<>(RestockOrder.class, false);
+        restockGrid.setSelectionMode(Grid.SelectionMode.MULTI);
+        restockGrid.setWidthFull();
+        restockGrid.setHeight("300px");
+
+        restockGrid.addColumn(RestockOrder::getId)
+                .setHeader("ID")
+                .setAutoWidth(true);
+        restockGrid.addColumn(RestockOrder::getArticleNumber)
+                .setHeader("Artikel-Nr.")
+                .setAutoWidth(true);
+        restockGrid.addColumn(RestockOrder::getArticleName)
+                .setHeader("Artikel")
+                .setAutoWidth(true);
+        restockGrid.addColumn(RestockOrder::getQuantity)
+                .setHeader("Menge (Stk.)")
+                .setAutoWidth(true);
+        restockGrid.addColumn(ro -> ro.getCreatedAt() != null ? ro.getCreatedAt().toString() : "")
+                .setHeader("Bestellt am")
+                .setAutoWidth(true);
+
+        restockGrid.setItems(openOrders);
+
+        Span info = new Span("Wähle eine oder mehrere offene Bestellungen aus, " +
+                "die mit diesem Wareneingang geliefert wurden.");
+
+        VerticalLayout layout = new VerticalLayout(form, info, restockGrid);
+        layout.setPadding(false);
+        layout.setSpacing(true);
+        layout.setMargin(false);
+        layout.setWidth("900px");
+
+        dialog.add(layout);
+
+        // Binder nur für die Pflichtfelder der Kopf-Daten
         Binder<GoodsReceipt> binder = new Binder<>(GoodsReceipt.class);
-        GoodsReceipt tmp = new GoodsReceipt(); // nur fürs Binding (wird nicht direkt gespeichert)
+        GoodsReceipt tmp = new GoodsReceipt(); // nur fürs Binding
 
         binder.forField(supplier).asRequired("Lieferant ist erforderlich")
                 .bind(GoodsReceipt::getSupplierName, GoodsReceipt::setSupplierName);
@@ -166,22 +208,41 @@ public class GoodsReceiptView extends Div {
                 .bind(GoodsReceipt::getDeliveryDate, GoodsReceipt::setDeliveryDate);
 
         Button cancel = new Button("Abbrechen", e -> dialog.close());
-        Button save = new Button("Speichern", e -> {
-            if (binder.writeBeanIfValid(tmp)) {
-                service.create(
+        Button save = new Button("Anlegen", e -> {
+            if (!binder.writeBeanIfValid(tmp)) {
+                Notification n = Notification.show("Bitte Pflichtfelder ausfüllen", 3000, Position.MIDDLE);
+                n.addThemeVariants(NotificationVariant.LUMO_ERROR);
+                return;
+            }
+
+            Set<RestockOrder> selected = restockGrid.getSelectedItems();
+            if (selected == null || selected.isEmpty()) {
+                Notification n = Notification.show("Bitte mindestens eine Bestellung auswählen", 3000, Position.MIDDLE);
+                n.addThemeVariants(NotificationVariant.LUMO_ERROR);
+                return;
+            }
+
+            List<Long> restockIds = selected.stream()
+                    .map(RestockOrder::getId)
+                    .collect(Collectors.toList());
+
+            try {
+                service.createFromRestockOrders(
+                        restockIds,
                         tmp.getSupplierName(),
                         tmp.getDeliveryNoteNumber(),
                         tmp.getDeliveryDate()
                 );
-                Notification n = Notification.show("Wareneingang angelegt (Status: IN_PRUEFUNG)", 3000, Position.MIDDLE);
+                Notification n = Notification.show("Wareneingang aus Bestellung angelegt", 3000, Position.MIDDLE);
                 n.addThemeVariants(NotificationVariant.LUMO_SUCCESS);
                 dialog.close();
                 refresh();
-            } else {
-                Notification n = Notification.show("Bitte Pflichtfelder ausfüllen", 3000, Position.MIDDLE);
+            } catch (IllegalArgumentException | IllegalStateException ex) {
+                Notification n = Notification.show(ex.getMessage(), 5000, Position.MIDDLE);
                 n.addThemeVariants(NotificationVariant.LUMO_ERROR);
             }
         });
+        save.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
 
         dialog.getFooter().add(new HorizontalLayout(cancel, save));
         dialog.open();
@@ -201,7 +262,7 @@ public class GoodsReceiptView extends Div {
                 + " | Lieferschein: " + receipt.getDeliveryNoteNumber()
                 + " | Lieferdatum: " + (receipt.getDeliveryDate() != null ? receipt.getDeliveryDate().format(df) : "-");
 
-        com.vaadin.flow.component.html.Span info = new com.vaadin.flow.component.html.Span(infoText);
+        Span info = new Span(infoText);
 
         // Grid für Items
         Grid<GoodsReceiptItem> itemGrid = new Grid<>(GoodsReceiptItem.class, false);
@@ -260,7 +321,7 @@ public class GoodsReceiptView extends Div {
             }
         });
 
-        // Button: Position hinzufügen
+        // Button: Position hinzufügen (falls zusätzlich manuelle Positionen nötig sind)
         Button addItem = new Button("Position hinzufügen",
                 e -> openAddItemDialog(receipt, itemGrid, itemBinder));
         addItem.addThemeVariants(ButtonVariant.LUMO_PRIMARY, ButtonVariant.LUMO_TERTIARY);
@@ -350,7 +411,7 @@ public class GoodsReceiptView extends Div {
     }
 
     // ------------------------------------------------------------------------
-    // Position hinzufügen
+    // Position hinzufügen (für Sonderfälle / zusätzliche Artikel)
     // ------------------------------------------------------------------------
 
     private void openAddItemDialog(GoodsReceipt receipt,
@@ -415,6 +476,7 @@ public class GoodsReceiptView extends Div {
         dialog.open();
     }
 }
+
 
 
 

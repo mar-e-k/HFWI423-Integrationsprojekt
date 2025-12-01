@@ -8,6 +8,8 @@ import com.example.application.data.goodsreceipts.GoodsReceiptItemRepository;
 import com.example.application.data.goodsreceipts.GoodsReceiptItemStatus;
 import com.example.application.data.goodsreceipts.GoodsReceiptRepository;
 import com.example.application.data.goodsreceipts.GoodsReceiptStatus;
+import com.example.application.data.restockorder.RestockOrder;
+import com.example.application.data.restockorder.RestockOrderRepository;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -22,15 +24,18 @@ public class GoodsReceiptService {
     private final GoodsReceiptRepository receiptRepo;
     private final GoodsReceiptItemRepository itemRepo;
     private final ArticleInfoRepository articleRepo;
+    private final RestockOrderRepository restockOrderRepo;
     private final JdbcTemplate jdbc;
 
     public GoodsReceiptService(GoodsReceiptRepository receiptRepo,
                                GoodsReceiptItemRepository itemRepo,
                                ArticleInfoRepository articleRepo,
+                               RestockOrderRepository restockOrderRepo,
                                JdbcTemplate jdbc) {
         this.receiptRepo = receiptRepo;
         this.itemRepo = itemRepo;
         this.articleRepo = articleRepo;
+        this.restockOrderRepo = restockOrderRepo;
         this.jdbc = jdbc;
     }
 
@@ -46,11 +51,13 @@ public class GoodsReceiptService {
     }
 
     // ------------------------------------------------------------------------
-    // CRUD Wareneingang
+    // CRUD Wareneingang (manuell angelegt)
     // ------------------------------------------------------------------------
 
     @Transactional
-    public GoodsReceipt create(String supplierName, String deliveryNoteNumber, LocalDate deliveryDate) {
+    public GoodsReceipt create(String supplierName,
+                               String deliveryNoteNumber,
+                               LocalDate deliveryDate) {
         GoodsReceipt gr = new GoodsReceipt();
         gr.setReceiptNumber(nextReceiptNumber());
         gr.setSupplierName(supplierName);
@@ -93,6 +100,69 @@ public class GoodsReceiptService {
                     "Wareneingang kann nicht gelöscht werden, Status ist " + gr.getStatus()
                             + " (nur IN_PRUEFUNG darf gelöscht werden)");
         }
+    }
+
+    // ------------------------------------------------------------------------
+    // Restock-Orders (Schnittstelle aus der Logistik)
+    // ------------------------------------------------------------------------
+
+    @Transactional(readOnly = true)
+    public List<RestockOrder> findOpenRestockOrders() {
+        // alle genehmigten, aber noch nicht gelieferten Bestellungen
+        return restockOrderRepo.findByDeliveredFalseAndApprovedTrue();
+    }
+
+    /**
+     * Legt einen neuen Wareneingang aus einer Liste von RestockOrders an.
+     * Für jede RestockOrder wird eine Prüfposition (GoodsReceiptItem) erzeugt.
+     * Zudem werden die RestockOrders direkt auf delivered = true gesetzt.
+     */
+    @Transactional
+    public GoodsReceipt createFromRestockOrders(List<Long> restockOrderIds,
+                                                String supplierName,
+                                                String deliveryNoteNumber,
+                                                LocalDate deliveryDate) {
+
+        // 1) Wareneingang anlegen
+        GoodsReceipt receipt = new GoodsReceipt();
+        receipt.setReceiptNumber(nextReceiptNumber());
+        receipt.setSupplierName(supplierName);
+        receipt.setDeliveryNoteNumber(deliveryNoteNumber);
+        receipt.setDeliveryDate(deliveryDate);
+        receipt.setStatus(GoodsReceiptStatus.IN_PRUEFUNG);
+        receipt = receiptRepo.save(receipt);
+
+        // 2) Für jede RestockOrder ein Item erzeugen
+        for (Long roId : restockOrderIds) {
+            RestockOrder ro = restockOrderRepo.findById(roId)
+                    .orElseThrow(() -> new IllegalArgumentException("RestockOrder " + roId + " nicht gefunden"));
+
+            ArticleInfo article = articleRepo.findByArticleNumber(ro.getArticleNumber());
+            if (article == null) {
+                throw new IllegalArgumentException(
+                        "ArticleInfo mit article_number=" + ro.getArticleNumber() + " nicht gefunden");
+            }
+
+            GoodsReceiptItem item = new GoodsReceiptItem();
+            item.setGoodsReceipt(receipt);
+            item.setArticle(article);
+            item.setExpectedQuantity(ro.getQuantity());
+            item.setActualQuantity(ro.getQuantity());   // Startwert = Soll-Menge
+            item.setDefectNotes(null);
+            item.setStatus(GoodsReceiptItemStatus.IN_PRUEFUNG);
+
+            itemRepo.save(item);
+
+            // RestockOrder als "geliefert" markieren,
+            // weil jetzt ein Wareneingang dafür existiert.
+            ro.setDelivered(true);
+            restockOrderRepo.save(ro);
+        }
+
+        // 3) Status des Wareneingangs initial ableiten
+        recomputeReceiptStatus(receipt);
+
+        return receipt;
     }
 
     // ------------------------------------------------------------------------
@@ -236,10 +306,6 @@ public class GoodsReceiptService {
     // Reservelogik: freigegebene Mengen -> ArticleInfo.reservePallets
     // ------------------------------------------------------------------------
 
-    /**
-     * Addiert für alle FREIGEGEBENEN Positionen eines Wareneingangs
-     * die Ist-Menge (actualQuantity) auf ArticleInfo.reservePallets.
-     */
     @Transactional
     protected void applyApprovedItemsToReserve(Long receiptId) {
         List<GoodsReceiptItem> items = itemRepo.findByGoodsReceiptId(receiptId);
@@ -258,5 +324,7 @@ public class GoodsReceiptService {
         }
     }
 }
+
+
 
 
