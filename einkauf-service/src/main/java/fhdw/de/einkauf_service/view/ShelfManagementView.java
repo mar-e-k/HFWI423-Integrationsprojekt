@@ -178,7 +178,7 @@ public class ShelfManagementView extends VerticalLayout {
         ComboBox<CategoryResponseDTO> categoryCombo = new ComboBox<>("Kategorie");
         categoryCombo.setWidthFull();
         categoryCombo.setRequired(true);
-        List<CategoryResponseDTO> categories = categoryService.findAllCategories();
+        List<CategoryResponseDTO> categories = categoryService.getAllCategories();
         categoryCombo.setItems(categories);
         categoryCombo.setItemLabelGenerator(CategoryResponseDTO::getName);
 
