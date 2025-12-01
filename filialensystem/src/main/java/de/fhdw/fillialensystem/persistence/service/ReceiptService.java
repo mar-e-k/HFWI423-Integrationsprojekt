@@ -70,6 +70,8 @@ public class ReceiptService extends AbstractCrudService<Receipt, Long> {
                 register,
                 account,
                 totalAmount,
+                new ArrayList<>(),
+                false,
                 null));
 
         List<ReceiptLinkArticle> savedArticles = new ArrayList<>();
@@ -288,7 +290,7 @@ public class ReceiptService extends AbstractCrudService<Receipt, Long> {
             contentStream.beginText();
             contentStream.setFont(font, 12);
             contentStream.newLineAtOffset(margin, y);
-            contentStream.showText("Datum: " + LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm:ss")));
+            contentStream.showText("Datum: " + LocalDateTime.now().format(fmt));
             contentStream.endText();
             y -= 20;
 
@@ -418,7 +420,11 @@ public class ReceiptService extends AbstractCrudService<Receipt, Long> {
                 contentStream.newLineAtOffset(margin, y);
                 contentStream.showText("%d".formatted(receipt.getId()));
                 contentStream.newLineAtOffset(70, 0);
-                contentStream.showText("BELEG"); //TODO: Pfand-Art
+                if (receipt.isDepositOnly()) {
+                    contentStream.showText("PFAND");
+                } else {
+                    contentStream.showText("BELEG");
+                }
                 contentStream.newLineAtOffset(90, 0);
                 contentStream.showText("%d".formatted(receipt.getRegister().getId()));
                 contentStream.newLineAtOffset(70, 0);
@@ -428,7 +434,19 @@ public class ReceiptService extends AbstractCrudService<Receipt, Long> {
                 contentStream.newLineAtOffset(60, 0);
                 contentStream.showText("%s".formatted(receipt.getCreatedAt().atZone(ZoneId.systemDefault()).format(fmt)));
                 contentStream.endText();
-                y -= 18;
+
+                if (y < 50) {
+                    contentStream.close();
+
+                    PDPage newPage = new PDPage();
+                    document.addPage(newPage);
+
+                    contentStream = new PDPageContentStream(document, newPage);
+                    y = 750;
+                } else {
+                    y -= 18;
+                }
+
             }
 
             y -= 20;
