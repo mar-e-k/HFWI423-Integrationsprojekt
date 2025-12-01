@@ -138,6 +138,43 @@ public class ShelfPlacementServiceImpl implements ShelfPlacementService {
         placementRepository.deleteById(id);
     }
 
+    @Transactional(readOnly = true)
+    @Override
+    public Double calculateNextAvailablePosition(Long shelfLevelId, Double widthCm) {
+        ShelfLevel shelfLevel = shelfLevelRepository.findById(shelfLevelId)
+                .orElseThrow(() -> new NoSuchElementException(
+                        "ShelfLevel with ID " + shelfLevelId + " not found."));
+
+        // Get all placements on this level sorted by X position
+        List<ShelfPlacement> placements = placementRepository.findByShelfLevel(shelfLevel).stream()
+                .sorted((p1, p2) -> Double.compare(p1.getPositionX(), p2.getPositionX()))
+                .collect(Collectors.toList());
+
+        // Start position at 0
+        double currentX = 0.0;
+
+        // Find next available position by checking each existing placement
+        for (ShelfPlacement placement : placements) {
+            // If the article fits before this placement, use current position
+            if (currentX + widthCm <= placement.getPositionX()) {
+                if (currentX + widthCm <= SHELF_WIDTH) {
+                    return currentX;
+                }
+            }
+            // Otherwise, move to the right of this placement
+            currentX = Math.max(currentX, placement.getPositionX() + placement.getWidthCm());
+        }
+
+        // Check if there's room at the end
+        if (currentX + widthCm > SHELF_WIDTH) {
+            throw new OutOfBoundsException(
+                    "Der Artikel passt nicht auf das Regal. Verfügbare Breite: " +
+                    (SHELF_WIDTH - currentX) + " cm, benötigte Breite: " + widthCm + " cm");
+        }
+
+        return currentX;
+    }
+
     // ==================================================================================
     // PRIVATE VALIDATION & HELPER METHODS
     // ==================================================================================
