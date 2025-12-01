@@ -115,7 +115,12 @@ public class GoodsReceiptService {
     /**
      * Legt einen neuen Wareneingang aus einer Liste von RestockOrders an.
      * Für jede RestockOrder wird eine Prüfposition (GoodsReceiptItem) erzeugt.
-     * Zudem werden die RestockOrders direkt auf delivered = true gesetzt.
+     *
+     * WICHTIG:
+     * - RestockOrder.quantity = Stück
+     * - Ab hier werden GoodsReceiptItem-Mengen in PALLETTEN geführt
+     *   pallets = quantity / piecesPerPallet
+     *   Reststücke werden ignoriert.
      */
     @Transactional
     public GoodsReceipt createFromRestockOrders(List<Long> restockOrderIds,
@@ -132,7 +137,7 @@ public class GoodsReceiptService {
         receipt.setStatus(GoodsReceiptStatus.IN_PRUEFUNG);
         receipt = receiptRepo.save(receipt);
 
-        // 2) Für jede RestockOrder ein Item erzeugen
+        // 2) Für jede RestockOrder ein Item erzeugen (in PALLETTEN)
         for (Long roId : restockOrderIds) {
             RestockOrder ro = restockOrderRepo.findById(roId)
                     .orElseThrow(() -> new IllegalArgumentException("RestockOrder " + roId + " nicht gefunden"));
@@ -143,11 +148,23 @@ public class GoodsReceiptService {
                         "ArticleInfo mit article_number=" + ro.getArticleNumber() + " nicht gefunden");
             }
 
+            int pieces = ro.getQuantity() != null ? ro.getQuantity() : 0;
+
+            Integer pppObj = article.getPiecesPerPallet();
+            if (pppObj == null || pppObj <= 0) {
+                throw new IllegalStateException(
+                        "Artikel " + article.getArticleNumber() + " hat keinen gültigen Wert für pieces_per_pallet.");
+            }
+            int piecesPerPallet = pppObj;
+
+            // Paletten berechnen, Reststücke ignorieren
+            int pallets = pieces / piecesPerPallet;
+
             GoodsReceiptItem item = new GoodsReceiptItem();
             item.setGoodsReceipt(receipt);
             item.setArticle(article);
-            item.setExpectedQuantity(ro.getQuantity());
-            item.setActualQuantity(ro.getQuantity());   // Startwert = Soll-Menge
+            item.setExpectedQuantity(pallets);   // PALLETTEN
+            item.setActualQuantity(pallets);     // Startwert = Soll-Menge in Paletten
             item.setDefectNotes(null);
             item.setStatus(GoodsReceiptItemStatus.IN_PRUEFUNG);
 
@@ -164,6 +181,7 @@ public class GoodsReceiptService {
 
         return receipt;
     }
+
 
     // ------------------------------------------------------------------------
     // Items / Prüfpositionen

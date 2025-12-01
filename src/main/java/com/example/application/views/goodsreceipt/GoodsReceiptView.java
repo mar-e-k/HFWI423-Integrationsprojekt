@@ -170,23 +170,42 @@ public class GoodsReceiptView extends Div {
         restockGrid.addColumn(RestockOrder::getId)
                 .setHeader("ID")
                 .setAutoWidth(true);
+
         restockGrid.addColumn(RestockOrder::getArticleNumber)
                 .setHeader("Artikel-Nr.")
                 .setAutoWidth(true);
+
         restockGrid.addColumn(RestockOrder::getArticleName)
                 .setHeader("Artikel")
                 .setAutoWidth(true);
-        restockGrid.addColumn(RestockOrder::getQuantity)
-                .setHeader("Menge (Stk.)")
+
+        // Menge in PALLETTEN anzeigen (RestockOrder.quantity = Stück)
+        restockGrid.addColumn(ro -> {
+                    ArticleInfo article =
+                            articleInfoRepository.findByArticleNumber(ro.getArticleNumber());
+                    if (article == null
+                            || article.getPiecesPerPallet() == null
+                            || article.getPiecesPerPallet() <= 0
+                            || ro.getQuantity() == null) {
+                        return "-";
+                    }
+                    int ppp = article.getPiecesPerPallet();
+                    int pallets = ro.getQuantity() / ppp; // Reststücke ignoriert
+                    return String.valueOf(pallets);
+                })
+                .setHeader("Menge (Pal.)")
                 .setAutoWidth(true);
+
         restockGrid.addColumn(ro -> ro.getCreatedAt() != null ? ro.getCreatedAt().toString() : "")
                 .setHeader("Bestellt am")
                 .setAutoWidth(true);
 
         restockGrid.setItems(openOrders);
 
-        Span info = new Span("Wähle eine oder mehrere offene Bestellungen aus, " +
-                "die mit diesem Wareneingang geliefert wurden.");
+        Span info = new Span(
+                "Wähle eine oder mehrere offene Bestellungen aus, " +
+                        "die mit diesem Wareneingang (in Paletten) geliefert wurden."
+        );
 
         VerticalLayout layout = new VerticalLayout(form, info, restockGrid);
         layout.setPadding(false);
@@ -278,11 +297,11 @@ public class GoodsReceiptView extends Div {
                 .setAutoWidth(true);
 
         itemGrid.addColumn(GoodsReceiptItem::getExpectedQuantity)
-                .setHeader("Soll-Menge")
+                .setHeader("Soll-Menge (Pal.)")
                 .setAutoWidth(true);
 
         itemGrid.addColumn(GoodsReceiptItem::getActualQuantity)
-                .setHeader("Ist-Menge")
+                .setHeader("Ist-Menge (Pal.)")
                 .setAutoWidth(true);
 
         itemGrid.addColumn(GoodsReceiptItem::getStatus)
@@ -294,7 +313,7 @@ public class GoodsReceiptView extends Div {
                 .setAutoWidth(true);
 
         // Formular für ausgewähltes Item
-        IntegerField actualQtyField = new IntegerField("Ist-Menge");
+        IntegerField actualQtyField = new IntegerField("Ist-Menge (Paletten)");
         actualQtyField.setMin(0);
         actualQtyField.setStep(1);
 
@@ -427,12 +446,12 @@ public class GoodsReceiptView extends Div {
         articleCombo.setRequired(true);
         articleCombo.setWidthFull();
 
-        IntegerField expectedQty = new IntegerField("Soll-Menge");
+        IntegerField expectedQty = new IntegerField("Soll-Menge (Paletten)");
         expectedQty.setMin(0);
         expectedQty.setStep(1);
         expectedQty.setRequiredIndicatorVisible(true);
 
-        IntegerField actualQty = new IntegerField("Ist-Menge");
+        IntegerField actualQty = new IntegerField("Ist-Menge (Paletten)");
         actualQty.setMin(0);
         actualQty.setStep(1);
 
@@ -476,6 +495,7 @@ public class GoodsReceiptView extends Div {
         dialog.open();
     }
 }
+
 
 
 
