@@ -27,9 +27,12 @@ import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.textfield.TextField;
 
+import de.fhdw.commons.api.dto.AccountDTO; // Import AccountDTO
 import de.fhdw.commons.api.dto.ReceiptDTO;
 import de.fhdw.commons.persistence.entity.AccountRoleEnum;
 import de.fhdw.commons.view.AbstractMainView;
+import de.fhdw.commons.utility.AuthContext; // Import AuthContext
+import de.fhdw.kassensystem.persistance.service.proxy.AccountProxyService; // Import AccountProxyService
 import de.fhdw.kassensystem.persistance.service.proxy.ReceiptProxyService;
 import jakarta.annotation.security.RolesAllowed;
 
@@ -49,16 +52,18 @@ public class PaymentView extends AbstractMainView implements BeforeEnterObserver
 
     private final ReceiptProxyService receiptProxyService;
     private final ReceiptService receiptService;
+    private final AccountProxyService accountProxyService; // Inject AccountProxyService
 
     private Grid<CartItem> cartGrid;
     private Span totalLabel;
 
     private Anchor downloadLink;
 
-    public PaymentView(CartItemsManager cartItemsManager, ReceiptProxyService receiptProxyService, ReceiptService receiptService) {
+    public PaymentView(CartItemsManager cartItemsManager, ReceiptProxyService receiptProxyService, ReceiptService receiptService, AccountProxyService accountProxyService) {
         this.cartItemsManager = cartItemsManager;
         this.receiptProxyService = receiptProxyService;
         this.receiptService = receiptService;
+        this.accountProxyService = accountProxyService; // Initialize AccountProxyService
     }
 
     @Override
@@ -179,7 +184,33 @@ public class PaymentView extends AbstractMainView implements BeforeEnterObserver
     }
 
     private StreamResourceRegistry.ElementStreamResource createResource(String fileName) throws IOException {
-        ByteArrayInputStream generatedPdfStream = receiptService.generateReceipt(cartItemsManager.getCart(), isCashPayment);
+        String cashierName = "Unbekannt";
+        String cashierPersonnelNumber = "N/A";
+
+        Object sessionAuthContext = VaadinSession.getCurrent().getAttribute("auth-context");
+
+        if (sessionAuthContext instanceof AuthContext) {
+            AuthContext authContext = (AuthContext) sessionAuthContext;
+            Optional<AccountDTO> accountOptional = accountProxyService.findByUsername(authContext.getUsername());
+
+            if (accountOptional.isPresent()) {
+                AccountDTO account = accountOptional.get();
+                cashierName = account.getUsername();
+                cashierPersonnelNumber = String.valueOf(account.getId()); // Using Account_ID as personnel number
+            } else {
+                System.err.println("WARN: AccountDTO for username " + authContext.getUsername() + " not found.");
+                Notification.show("Kassiererdetails konnten nicht vollständig geladen werden.",
+                        3000, Notification.Position.MIDDLE)
+                        .addThemeVariants(NotificationVariant.LUMO_WARNING);
+            }
+        } else {
+            System.err.println("WARN: AuthContext not found in VaadinSession or of wrong type. Found: " + (sessionAuthContext != null ? sessionAuthContext.getClass().getName() : "null"));
+            Notification.show("Kassiererinformationen konnten nicht geladen werden.",
+                    3000, Notification.Position.MIDDLE)
+                    .addThemeVariants(NotificationVariant.LUMO_WARNING);
+        }
+
+        ByteArrayInputStream generatedPdfStream = receiptService.generateReceipt(cartItemsManager.getCart(), isCashPayment, cashierName, cashierPersonnelNumber);
 
         byte[] pdfBytes = generatedPdfStream.readAllBytes();
 
