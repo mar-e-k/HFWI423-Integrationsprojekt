@@ -24,7 +24,6 @@ public class StockInitializer implements CommandLineRunner {
     private final ArticleService articleService;
     private final StoreLinkStockService storeLinkStockService;
 
-    // Annahme: Es gibt eine definierte Filial-ID, die diese Instanz repräsentiert.
     private static final Long CURRENT_STORE_ID = 1L;
 
     public StockInitializer(StoreService storeService, ArticleService articleService, StoreLinkStockService storeLinkStockService) {
@@ -63,7 +62,7 @@ public class StockInitializer implements CommandLineRunner {
         }
 
         List<StoreLinkStock> initialStock = allArticles.stream()
-                .map(article -> new StoreLinkStock(currentStore, article, 5L, true))
+                .map(article -> new StoreLinkStock(currentStore, article, 0, 5, true))
                 .toList();
 
         storeLinkStockService.saveAll(initialStock);
