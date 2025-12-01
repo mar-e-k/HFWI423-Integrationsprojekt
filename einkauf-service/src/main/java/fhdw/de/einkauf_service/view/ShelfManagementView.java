@@ -165,6 +165,15 @@ public class ShelfManagementView extends VerticalLayout {
         dialog.setWidth("600px");
         dialog.setHeaderTitle(shelf == null ? "Neues Regal hinzufügen" : "Regal bearbeiten");
 
+        // Error message container inside dialog
+        Span errorMessageSpan = new Span();
+        errorMessageSpan.getStyle()
+                .set("color", "var(--lumo-error-color)")
+                .set("padding", "10px")
+                .set("background-color", "var(--lumo-error-color-10pct)")
+                .set("border-radius", "4px")
+                .set("display", "none");
+
         // Shelf name
         TextField nameField = new TextField("Regal-Name");
         nameField.setWidthFull();
@@ -185,10 +194,44 @@ public class ShelfManagementView extends VerticalLayout {
         // Shelf info (read-only)
         Span shelfInfoSpan = new Span("Regalgröße: 100cm (B) × 150cm (H) × 47cm (T)");
 
-        // Levels info
+        // Levels info (scrollable)
         VerticalLayout levelsLayout = new VerticalLayout();
         levelsLayout.setPadding(false);
         levelsLayout.setSpacing(false);
+
+        // Function to refresh levels display
+        Runnable refreshLevels = () -> {
+            levelsLayout.removeAll();
+            ShelfResponseDTO updatedShelf = shelfService.getShelf(shelf.getId());
+
+            if (updatedShelf.getLevels() != null && !updatedShelf.getLevels().isEmpty()) {
+                Span levelsTitle = new Span("Vorhandene Böden: " + updatedShelf.getLevels().size());
+                levelsLayout.add(levelsTitle);
+
+                for (ShelfLevelResponseDTO level : updatedShelf.getLevels()) {
+                    HorizontalLayout levelLine = new HorizontalLayout();
+                    levelLine.setWidthFull();
+                    levelLine.setAlignItems(Alignment.CENTER);
+
+                    Span levelInfo = new Span("Boden " + level.getLevelPosition() +
+                            " - " + level.getPlacementCount() + " Artikel");
+
+                    Button removeButton = new Button(new Icon(VaadinIcon.TRASH), event -> {
+                        try {
+                            shelfService.removeLevel(shelf.getId(), level.getLevelPosition());
+                            refreshLevels.run();
+                            showErrorInDialog(errorMessageSpan, null);
+                        } catch (Exception ex) {
+                            showErrorInDialog(errorMessageSpan, "Fehler beim Löschen des Bodens: " + ex.getMessage());
+                        }
+                    });
+                    removeButton.setTooltipText("Boden entfernen");
+
+                    levelLine.add(levelInfo, removeButton);
+                    levelsLayout.add(levelLine);
+                }
+            }
+        };
 
         if (shelf != null) {
             // Pre-fill form
@@ -205,59 +248,41 @@ public class ShelfManagementView extends VerticalLayout {
             categoryCombo.setEnabled(false);
 
             // Show existing levels
-            if (shelf.getLevels() != null && !shelf.getLevels().isEmpty()) {
-                Span levelsTitle = new Span("Vorhandene Böden: " + shelf.getLevels().size());
-                levelsLayout.add(levelsTitle);
-
-                for (ShelfLevelResponseDTO level : shelf.getLevels()) {
-                    HorizontalLayout levelLine = new HorizontalLayout();
-                    levelLine.setWidthFull();
-                    levelLine.setAlignItems(Alignment.CENTER);
-
-                    Span levelInfo = new Span("Boden " + level.getLevelPosition() +
-                            " - " + level.getPlacementCount() + " Artikel");
-
-                    Button removeButton = new Button(new Icon(VaadinIcon.TRASH), event -> {
-                        try {
-                            shelfService.removeLevel(shelf.getId(), level.getLevelPosition());
-                            dialog.close();
-                            updateList();
-                        } catch (Exception ex) {
-                            showError("Fehler beim Löschen des Bodens: " + ex.getMessage());
-                        }
-                    });
-                    removeButton.setTooltipText("Boden entfernen");
-
-                    levelLine.add(levelInfo, removeButton);
-                    levelsLayout.add(levelLine);
-                }
-            }
+            refreshLevels.run();
         }
 
         // Add level button (max 5 levels)
         Button addLevelButton = new Button("Boden hinzufügen", event -> {
             try {
                 if (shelf == null) {
-                    showError("Bitte speichern Sie das Regal zuerst");
+                    showErrorInDialog(errorMessageSpan, "Bitte speichern Sie das Regal zuerst");
                     return;
                 }
 
-                if (shelf.getLevels() != null && shelf.getLevels().size() >= 5) {
-                    showError("Ein Regal kann maximal 5 Böden haben");
+                ShelfResponseDTO currentShelf = shelfService.getShelf(shelf.getId());
+                if (currentShelf.getLevels() != null && currentShelf.getLevels().size() >= 5) {
+                    showErrorInDialog(errorMessageSpan, "Ein Regal kann maximal 5 Böden haben");
                     return;
                 }
 
-                // Find next available position
-                int nextPosition = (shelf.getLevels() != null ? shelf.getLevels().size() : 0) + 1;
+                // Find next available position (max position + 1)
+                int nextPosition = 1;
+                if (currentShelf.getLevels() != null && !currentShelf.getLevels().isEmpty()) {
+                    nextPosition = currentShelf.getLevels().stream()
+                            .mapToInt(ShelfLevelResponseDTO::getLevelPosition)
+                            .max()
+                            .orElse(0) + 1;
+                }
                 shelfService.addLevel(shelf.getId(), nextPosition);
-                dialog.close();
-                updateList();
+                refreshLevels.run();
+                showErrorInDialog(errorMessageSpan, null);
             } catch (Exception ex) {
-                showError("Fehler beim Hinzufügen des Bodens: " + ex.getMessage());
+                showErrorInDialog(errorMessageSpan, "Fehler beim Hinzufügen des Bodens: " + ex.getMessage());
             }
         });
 
         VerticalLayout formLayout = new VerticalLayout(
+                errorMessageSpan,
                 nameField,
                 descriptionField,
                 categoryCombo,
@@ -284,7 +309,7 @@ public class ShelfManagementView extends VerticalLayout {
                 dialog.close();
                 updateList();
             } catch (Exception ex) {
-                showError("Fehler beim Speichern: " + ex.getMessage());
+                showErrorInDialog(errorMessageSpan, "Fehler beim Speichern: " + ex.getMessage());
             }
         });
 
@@ -295,6 +320,15 @@ public class ShelfManagementView extends VerticalLayout {
 
         dialog.add(formLayout, buttonLayout);
         dialog.open();
+    }
+
+    private void showErrorInDialog(Span errorMessageSpan, String message) {
+        if (message == null || message.isEmpty()) {
+            errorMessageSpan.getStyle().set("display", "none");
+        } else {
+            errorMessageSpan.setText(message);
+            errorMessageSpan.getStyle().set("display", "block");
+        }
     }
 
     private void showDeleteConfirmationDialog(ShelfResponseDTO shelf) {
