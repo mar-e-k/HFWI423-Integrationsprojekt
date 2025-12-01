@@ -7,6 +7,7 @@ import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.html.H3;
+import com.vaadin.flow.component.html.Image;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
@@ -83,7 +84,8 @@ public class ShelfPlacementEditorView extends VerticalLayout {
                 shelfVisualization
         );
         visualizationPanel.setWidthFull();
-        visualizationPanel.setHeight("500px");
+        visualizationPanel.setHeight("600px");
+        visualizationPanel.setFlexGrow(0);
 
         VerticalLayout placementsPanel = new VerticalLayout(
                 new H3("Platzierungen auf diesem Boden"),
@@ -116,12 +118,12 @@ public class ShelfPlacementEditorView extends VerticalLayout {
     }
 
     private void configureVisualization() {
-        shelfVisualization.setWidthFull();
-        shelfVisualization.setHeight("400px");
         shelfVisualization.getStyle()
-                .set("border", "2px solid #ccc")
-                .set("position", "relative")
-                .set("background-color", "#f9f9f9");
+                .set("display", "flex")
+                .set("justify-content", "center")
+                .set("align-items", "flex-start")
+                .set("padding", "20px")
+                .set("overflow-x", "auto");
     }
 
     private void configureGrid() {
@@ -163,16 +165,18 @@ public class ShelfPlacementEditorView extends VerticalLayout {
         List<ShelfPlacementResponseDTO> placements = placementService.getPlacementsByShelfLevel(level.getId());
         placementsGrid.setItems(placements);
 
-        // Create visual representation of shelf level
+        // Create visual representation of shelf level - container for product images
+        // Sized to fit ~10 articles per floor comfortably (1620px / 10 articles ≈ 162px per article)
         Div levelVisual = new Div();
-        levelVisual.setWidthFull();
-        levelVisual.setHeight("400px");
+        levelVisual.setWidth("1620px");
+        levelVisual.setHeight("500px");
         levelVisual.getStyle()
                 .set("position", "relative")
                 .set("border", "2px solid #333")
                 .set("margin", "10px")
                 .set("background", "linear-gradient(to right, #f5f5f5 0%, #ffffff 100%)")
-                .set("box-shadow", "inset 0 2px 4px rgba(0,0,0,0.1)");
+                .set("box-shadow", "inset 0 2px 4px rgba(0,0,0,0.1)")
+                .set("overflow", "visible");
 
         // Draw scale reference (100cm width, 150cm height)
         Span widthLabel = new Span("100 cm");
@@ -196,43 +200,59 @@ public class ShelfPlacementEditorView extends VerticalLayout {
     }
 
     private Div createPlacementBox(ShelfPlacementResponseDTO placement) {
-        Div box = new Div();
+        Div container = new Div();
 
-        // Calculate position and size as percentages of shelf dimensions
+        // Calculate position and size as percentages of shelf dimensions (100cm wide, 150cm tall)
         double percentX = (placement.getPositionX() / SHELF_WIDTH) * 100;
         double percentY = (placement.getPositionY() / SHELF_HEIGHT) * 100;
         double percentWidth = (placement.getWidthCm() / SHELF_WIDTH) * 100;
         double percentHeight = (placement.getHeightCm() / SHELF_HEIGHT) * 100;
 
-        box.getStyle()
+        // Create wrapper div with positioning
+        container.getStyle()
                 .set("position", "absolute")
                 .set("left", percentX + "%")
                 .set("bottom", percentY + "%")
                 .set("width", percentWidth + "%")
                 .set("height", percentHeight + "%")
-                .set("background-color", "#4CAF50")
-                .set("border", "1px solid #333")
+                .set("border", "2px solid #999")
+                .set("background-color", "white")
                 .set("display", "flex")
                 .set("align-items", "center")
                 .set("justify-content", "center")
-                .set("color", "white")
-                .set("font-size", "12px")
-                .set("font-weight", "bold")
                 .set("cursor", "pointer")
-                .set("padding", "4px")
                 .set("box-sizing", "border-box")
                 .set("overflow", "hidden")
-                .set("white-space", "nowrap")
-                .set("text-overflow", "ellipsis");
+                .set("box-shadow", "0 2px 4px rgba(0,0,0,0.2)");
 
-        box.setText(placement.getArticleName());
-        box.setTitle(placement.getArticleName() + "\n" +
+        // Display product image if available, otherwise show placeholder
+        if (placement.getProductImage() != null && !placement.getProductImage().isEmpty()) {
+            Image productImage = new Image(placement.getProductImage(), placement.getArticleName());
+            productImage.setWidth("100%");
+            productImage.setHeight("100%");
+            productImage.getElement().getStyle()
+                    .set("object-fit", "contain")
+                    .set("object-position", "center");
+            container.add(productImage);
+        } else {
+            // Fallback: show "Kein Bild" if no image available
+            Span fallback = new Span("Kein Bild");
+            fallback.getStyle()
+                    .set("text-align", "center")
+                    .set("padding", "8px")
+                    .set("font-weight", "bold")
+                    .set("color", "#999")
+                    .set("font-size", "14px");
+            container.add(fallback);
+        }
+
+        container.setTitle(placement.getArticleName() + "\n" +
                 String.format("Position: (%.1f, %.1f) cm\n", placement.getPositionX(), placement.getPositionY()) +
                 String.format("Größe: %.1f × %.1f cm", placement.getWidthCm(), placement.getHeightCm()));
 
-        box.addClickListener(e -> editPlacement(placement));
+        container.addClickListener(e -> editPlacement(placement));
 
-        return box;
+        return container;
     }
 
     private void openPlacementDialog() {
