@@ -23,8 +23,8 @@ public class ArticleResponseDTO {
     private Double taxRatePercent;
     private Double sellingPrice;
     private String manufacturer;
-    private Long supplierId;
-    private String supplierName;
+    private Set<SupplierResponseDTO> suppliers;
+    private SupplierResponseDTO mainSupplier;
     private Integer stockLevel;
     private String description;
     private Boolean isAvailable;

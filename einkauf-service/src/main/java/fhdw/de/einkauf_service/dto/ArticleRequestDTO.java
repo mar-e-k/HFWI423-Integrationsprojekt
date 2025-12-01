@@ -37,8 +37,11 @@ public class ArticleRequestDTO {
     @NotBlank(message = "Manufacturer is mandatory.")
     private String manufacturer;
 
-    @NotNull(message = "Supplier ID must not be null")
-    private Long supplierId;
+    @NotNull(message = "Supplier ID must not be null.")
+    private Set<Long> supplierIds;
+
+    @NotNull(message = "Main supplier must not be null.")
+    private Long mainSupplierId;
 
     @NotNull(message = "Stock level is mandatory.")
     @Min(value = 0, message = "Stock level cannot be negative.")

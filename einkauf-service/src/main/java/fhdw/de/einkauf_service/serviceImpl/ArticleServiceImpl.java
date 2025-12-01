@@ -7,14 +7,19 @@ import fhdw.de.einkauf_service.dto.ArticleFilterDTO;
 import fhdw.de.einkauf_service.dto.ArticleRequestDTO;
 import fhdw.de.einkauf_service.dto.ArticleResponseDTO;
 import fhdw.de.einkauf_service.dto.CategoryResponseDTO;
+import fhdw.de.einkauf_service.dto.SupplierResponseDTO;
+import fhdw.de.einkauf_service.dto.PaymentTermResponseDTO;
+import fhdw.de.einkauf_service.dto.ContactPersonResponseDTO;
 import fhdw.de.einkauf_service.entity.Article;
 import fhdw.de.einkauf_service.entity.Category;
+import fhdw.de.einkauf_service.entity.ContactPerson;
 import fhdw.de.einkauf_service.entity.Supplier;
 import fhdw.de.einkauf_service.query.ArticleSpecifications;
 import fhdw.de.einkauf_service.repository.ArticleCategoryRepository;
 import fhdw.de.einkauf_service.repository.ArticleRepository;
 import fhdw.de.einkauf_service.repository.SupplierRepository;
 import fhdw.de.einkauf_service.service.ArticleService;
+import fhdw.de.einkauf_service.view.SupplierView;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
@@ -34,7 +39,7 @@ public class ArticleServiceImpl extends CrudRepositoryService<Article, Long, Art
     private final ArticleRepository articleRepository;
     private final ArticleCategoryRepository categoryRepository;
 
-    public ArticleServiceImpl(ArticleRepository articleRepository, SupplierRepository supplierRepository, ArticleCategoryRepository categoryRepository) {
+    public ArticleServiceImpl(ArticleRepository articleRepository, SupplierRepository supplierRepository, ArticleCategoryRepository categoryRepository, SupplierView suppliers) {
         super(articleRepository);
         this.articleRepository = articleRepository;
         this.supplierRepository = supplierRepository;
@@ -44,26 +49,58 @@ public class ArticleServiceImpl extends CrudRepositoryService<Article, Long, Art
     // ==================================================================================
     // 1. CREATE (POST)
     // ==================================================================================
-    @Transactional
     @Override
+    @Transactional
     @CacheEvict(value = "articleSearch", allEntries = true)
     public ArticleResponseDTO createNewArticle(ArticleRequestDTO newArticleRequestDTO) {
 
-        Supplier supplier = supplierRepository.findById(newArticleRequestDTO.getSupplierId())
-                .orElseThrow(() -> new EntityNotFoundException("Lieferant mit ID " + newArticleRequestDTO.getSupplierId() + " nicht gefunden."));
+        // --- 1. Supplier IDs aus DTO auslesen ---
+        Set<Long> supplierIds = newArticleRequestDTO.getSupplierIds() == null
+                ? Collections.emptySet()
+                : newArticleRequestDTO.getSupplierIds();
 
-        // DTO zu Entity mappen
-        Article newArticle = mapRequestToEntity(newArticleRequestDTO, supplier);
+        // --- 2. Supplier Entities aus DB laden ---
+        List<Supplier> suppliersFromDb = supplierRepository.findAllById(supplierIds);
+        Set<Supplier> suppliers = new HashSet<>(suppliersFromDb);
 
-        // Validation: Check for duplicate article number
+        // Prüfen ob alle IDs existieren
+        if (suppliers.size() != supplierIds.size()) {
+            Set<Long> foundIds = suppliers.stream()
+                    .map(Supplier::getId)
+                    .collect(Collectors.toSet());
+            Set<Long> missingIds = new HashSet<>(supplierIds);
+            missingIds.removeAll(foundIds);
+            throw new EntityNotFoundException("Die folgenden Supplier IDs wurden nicht gefunden: " + missingIds);
+        }
+
+        // --- 3. DTO -> Entity mappen ---
+        Article newArticle = mapRequestToEntity(newArticleRequestDTO);
+
+        // --- 4. Hauptlieferant prüfen und setzen ---
+        Supplier mainSupplier = supplierRepository.findById(newArticleRequestDTO.getMainSupplierId())
+                .orElseThrow(() -> new EntityNotFoundException(
+                        "Hauptlieferant mit ID " + newArticleRequestDTO.getMainSupplierId() + " nicht gefunden."
+                ));
+
+        if (!suppliers.contains(mainSupplier)) {
+            throw new IllegalArgumentException("Hauptlieferant muss einer der zugeordneten Supplier sein.");
+        }
+
+        newArticle.setMainSupplier(mainSupplier);
+
+        // --- 5. Supplier setzen (managed Entities) ---
+        newArticle.setSuppliers(suppliers);
+
+        // --- 6. Prüfen ob Artikelnummer bereits existiert ---
         if (articleRepository.findByArticleNumber(newArticle.getArticleNumber()).isPresent()) {
             throw new IllegalArgumentException("Article number (GTIN) already exists. Duplicates are not allowed.");
         }
 
-        // Save and return the persisted entity, mapped back to Response DTO
+        // --- 7. Speichern + Rückgabe ---
         Article savedArticle = articleRepository.save(newArticle);
         return mapEntityToResponse(savedArticle);
     }
+
 
     // ==================================================================================
     // 2. READ (GET by ID)
@@ -96,26 +133,50 @@ public class ArticleServiceImpl extends CrudRepositoryService<Article, Long, Art
     // ==================================================================================
     // 4. UPDATE (PUT)
     // ==================================================================================
-    @Transactional
     @Override
+    @Transactional
     @CacheEvict(value = "articleSearch", allEntries = true)
     public ArticleResponseDTO updateArticle(Long id, ArticleRequestDTO updatedArticleRequestDTO) {
 
-        // Artikel finden (Sicherstellen, dass die ID existiert)
+        // --- 1. Artikel aus DB holen ---
         Article existingArticle = articleRepository.findById(id)
-                .orElseThrow(() -> new NoSuchElementException("Article with ID " + id + " not found."));
+                .orElseThrow(() ->
+                        new NoSuchElementException("Article with ID " + id + " not found.")
+                );
 
-        Supplier supplier = supplierRepository.findById(updatedArticleRequestDTO.getSupplierId())
-                .orElseThrow(() -> new EntityNotFoundException("Lieferant mit ID " + updatedArticleRequestDTO.getSupplierId() + " nicht gefunden."));
+        // --- 2. Supplier IDs aus DTO laden ---
+        Set<Long> supplierIds = updatedArticleRequestDTO.getSupplierIds() == null
+                ? Collections.emptySet()
+                : updatedArticleRequestDTO.getSupplierIds();
 
-        // Felder aus dem Request DTO auf die existierende Entity übertragen
-        //    Artikelnummer wird nicht aktualisiert
+        List<Supplier> suppliersFromDb = supplierRepository.findAllById(supplierIds);
+        Set<Supplier> suppliers = new HashSet<>(suppliersFromDb);
+
+        if (suppliers.size() != supplierIds.size()) {
+            Set<Long> foundIds = suppliers.stream().map(Supplier::getId).collect(Collectors.toSet());
+            Set<Long> missingIds = new HashSet<>(supplierIds);
+            missingIds.removeAll(foundIds);
+            throw new EntityNotFoundException("Die folgenden Supplier IDs wurden nicht gefunden: " + missingIds);
+        }
+
+        // --- 3. Hauptlieferant prüfen und setzen ---
+        Supplier mainSupplier = supplierRepository.findById(updatedArticleRequestDTO.getMainSupplierId())
+                .orElseThrow(() -> new EntityNotFoundException(
+                        "Hauptlieferant mit ID " + updatedArticleRequestDTO.getMainSupplierId() + " nicht gefunden."
+                ));
+
+        if (!suppliers.contains(mainSupplier)) {
+            throw new IllegalArgumentException("Hauptlieferant muss einer der zugeordneten Supplier sein.");
+        }
+
+        existingArticle.setMainSupplier(mainSupplier);
+
+        // --- 4. Felder aus DTO übertragen ---
         existingArticle.setName(updatedArticleRequestDTO.getName());
         existingArticle.setPurchasePrice(updatedArticleRequestDTO.getPurchasePrice());
         existingArticle.setTaxRatePercent(updatedArticleRequestDTO.getTaxRatePercent());
         existingArticle.setSellingPrice(updatedArticleRequestDTO.getSellingPrice());
         existingArticle.setManufacturer(updatedArticleRequestDTO.getManufacturer());
-        existingArticle.setSupplier(supplier);
         existingArticle.setStockLevel(updatedArticleRequestDTO.getStockLevel());
         existingArticle.setDescription(updatedArticleRequestDTO.getDescription());
         existingArticle.setIsAvailable(updatedArticleRequestDTO.getIsAvailable());
@@ -127,8 +188,10 @@ public class ArticleServiceImpl extends CrudRepositoryService<Article, Long, Art
         existingArticle.setHeightCm(updatedArticleRequestDTO.getHeightCm());
         existingArticle.setDepthCm(updatedArticleRequestDTO.getDepthCm());
 
+        // --- 5. Supplier-Relation aktualisieren ---
+        existingArticle.setSuppliers(suppliers);
 
-        // Speichern und Entity zu Response DTO mappen
+        // --- 6. Speichern & zurückgeben ---
         Article savedArticle = articleRepository.save(existingArticle);
         return mapEntityToResponse(savedArticle);
     }
@@ -155,7 +218,7 @@ public class ArticleServiceImpl extends CrudRepositoryService<Article, Long, Art
      * @param request Das eingehende DTO.
      * @return Die neue Article Entity.
      */
-    private Article mapRequestToEntity(ArticleRequestDTO request, Supplier supplier) {
+    private Article mapRequestToEntity(ArticleRequestDTO request) {
         Article entity = new Article();
         entity.setArticleNumber(request.getArticleNumber());
         entity.setName(request.getName());
@@ -163,7 +226,6 @@ public class ArticleServiceImpl extends CrudRepositoryService<Article, Long, Art
         entity.setTaxRatePercent(request.getTaxRatePercent());
         entity.setSellingPrice(request.getSellingPrice());
         entity.setManufacturer(request.getManufacturer());
-        entity.setSupplier(supplier);
         entity.setStockLevel(request.getStockLevel());
         entity.setDescription(request.getDescription());
         // kein setIsAvailable, da Standardwert false ist, soll bei Erstellung nicht gesetzt werden dürfen
@@ -189,6 +251,7 @@ public class ArticleServiceImpl extends CrudRepositoryService<Article, Long, Art
 
         ArticleResponseDTO dto = new ArticleResponseDTO();
 
+        // Basis-Felder
         dto.setId(entity.getId());
         dto.setArticleNumber(entity.getArticleNumber());
         dto.setName(entity.getName());
@@ -203,24 +266,33 @@ public class ArticleServiceImpl extends CrudRepositoryService<Article, Long, Art
         dto.setWidthCm(entity.getWidthCm());
         dto.setHeightCm(entity.getHeightCm());
         dto.setDepthCm(entity.getDepthCm());
-
-        // --- Logik für den Supplier (Relation) ---
-        Supplier supplier = entity.getSupplier();
-
-        if (supplier != null) {
-            dto.setSupplierId(supplier.getId());
-            dto.setSupplierName(supplier.getName());
-        } else {
-            dto.setSupplierName("-");
-            dto.setSupplierId(null);
-        }
-        dto.setCategoryIds(mapCategoriesToResponseDTOs(entity.getCategories()));
         dto.setProductImage(entity.getProductImage());
         dto.setExpirationDate(entity.getExpirationDate());
         dto.setDateCreated(entity.getDateCreated());
 
+        // --- Suppliers (Many-to-Many) ---
+        if (entity.getSuppliers() != null && !entity.getSuppliers().isEmpty()) {
+            dto.setSuppliers(
+                    entity.getSuppliers()
+                            .stream()
+                            .map(this::mapSupplierToResponseDTO)
+                            .collect(Collectors.toSet()) // Set statt List
+            );
+        } else {
+            dto.setSuppliers(Collections.emptySet());
+        }
+
+        // --- Hauptlieferant ---
+        if (entity.getMainSupplier() != null) {
+            dto.setMainSupplier(mapSupplierToResponseDTO(entity.getMainSupplier()));
+        }
+
+        // --- Kategorien ---
+        dto.setCategoryIds(mapCategoriesToResponseDTOs(entity.getCategories()));
+
         return dto;
     }
+
 
     private Set<Category> mapCategoryIdsToEntities(Set<Long> categoryIds) {
         if (categoryIds == null || categoryIds.isEmpty()) {
@@ -264,5 +336,57 @@ public class ArticleServiceImpl extends CrudRepositoryService<Article, Long, Art
         return categories.stream()
                 .map(this::mapCategoryToResponseDTO)
                 .collect(Collectors.toSet());
+    }
+
+    private SupplierResponseDTO mapSupplierToResponseDTO(Supplier supplier) {
+
+        SupplierResponseDTO dto = new SupplierResponseDTO();
+
+        dto.setId(supplier.getId());
+        dto.setName(supplier.getName());
+        dto.setStreet(supplier.getStreet());
+        dto.setHouseNumber(supplier.getHouseNumber());
+        dto.setZip(supplier.getZip());
+        dto.setCity(supplier.getCity());
+        dto.setCountry(supplier.getCountry());
+        dto.setEmail(supplier.getEmail());
+        dto.setPhone(supplier.getPhone());
+        dto.setIsActive(supplier.getIsActive());
+
+        // Payment Term
+        if (supplier.getPaymentTerm() != null) {
+            PaymentTermResponseDTO ptDTO = new PaymentTermResponseDTO();
+            ptDTO.setId(supplier.getPaymentTerm().getId());
+            ptDTO.setDefinition(supplier.getPaymentTerm().getDefinition());
+            ptDTO.setDescription(supplier.getPaymentTerm().getDescription());
+
+            dto.setPaymentTerm(ptDTO);
+            dto.setPaymentTermId(ptDTO.getId());
+            dto.setPaymentTermDefinition(ptDTO.getDefinition());
+            dto.setPaymentTermDescription(ptDTO.getDescription());
+        }
+
+        // Contact People
+        if (supplier.getContactPeople() != null) {
+            dto.setContactPeople(
+                    supplier.getContactPeople()
+                            .stream()
+                            .map(this::mapContactPersonToResponseDTO)
+                            .toList()
+            );
+        }
+
+        return dto;
+    }
+
+    private ContactPersonResponseDTO mapContactPersonToResponseDTO(ContactPerson cp) {
+        ContactPersonResponseDTO dto = new ContactPersonResponseDTO();
+        dto.setId(cp.getId());
+        dto.setFirstName(cp.getFirstName());
+        dto.setLastName(cp.getLastName());
+        dto.setRole(cp.getRole());
+        dto.setPhone(cp.getPhone());
+        dto.setEmail(cp.getEmail());
+        return dto;
     }
 }
