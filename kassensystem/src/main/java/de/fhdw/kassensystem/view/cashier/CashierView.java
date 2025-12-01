@@ -23,9 +23,12 @@ import com.vaadin.flow.data.converter.StringToBigDecimalConverter;
 import com.vaadin.flow.data.value.ValueChangeMode;
 import com.vaadin.flow.router.*;
 import de.fhdw.commons.api.dto.ArticleDTO;
+import de.fhdw.commons.api.dto.DepositStatus;
+import de.fhdw.commons.api.dto.ReceiptDTO;
 import de.fhdw.commons.persistence.entity.AccountRoleEnum;
 import de.fhdw.commons.view.AbstractMainView;
 import de.fhdw.kassensystem.persistance.service.proxy.ArticleProxyService;
+import de.fhdw.kassensystem.persistance.service.proxy.ReceiptProxyService;
 import de.fhdw.kassensystem.utility.RegisterClient;
 import de.fhdw.kassensystem.utility.StoreClient;
 import jakarta.annotation.security.RolesAllowed;
@@ -44,8 +47,10 @@ import java.util.Optional;
 public class CashierView extends AbstractMainView implements BeforeEnterObserver {
 
     private static final BigDecimal MIN_PRICE = new BigDecimal("0.01");
+    private static final BigDecimal DEPOSIT_AMOUNT = new BigDecimal("0.25");
 
     private final ArticleProxyService articleService;
+    private final ReceiptProxyService receiptProxyService;
     private final CartItemsManager cartItemsManager;
 
     private Grid<ArticleDTO> articleGrid;
@@ -60,9 +65,10 @@ public class CashierView extends AbstractMainView implements BeforeEnterObserver
     @Value("${spring.kassensystem.cashier.password}")
     private String password;
 
-    public CashierView(ArticleProxyService articleService, CartItemsManager cartItemsManager, StoreClient storeClient, RegisterClient registerClient) {
+    public CashierView(ArticleProxyService articleService, CartItemsManager cartItemsManager, StoreClient storeClient, RegisterClient registerClient, ReceiptProxyService receiptProxyService) {
         this.articleService = articleService;
         this.cartItemsManager = cartItemsManager;
+        this.receiptProxyService = receiptProxyService;
     }
 
     @Override
@@ -76,7 +82,11 @@ public class CashierView extends AbstractMainView implements BeforeEnterObserver
                 UI.getCurrent().navigate(PaymentView.class);
             }
         });
-        return new HorizontalLayout(paymentButton);
+
+        Button redeemDepositButton = new Button("Pfandbon einlösen");
+        redeemDepositButton.addClickListener(e -> showRedeemDepositDialog());
+
+        return new HorizontalLayout(paymentButton, redeemDepositButton);
     }
 
     @Override
@@ -130,7 +140,12 @@ public class CashierView extends AbstractMainView implements BeforeEnterObserver
         // Warenkorb-Grid Initialisierung
         cartGrid = new Grid<>(CartItem.class, false);
         cartGrid.addColumn(CartItem::getPosition).setHeader("Pos.").setWidth("70px");
-        cartGrid.addColumn(item -> item.getArticle().getName()).setHeader("Artikelname").setWidth("200px");
+        cartGrid.addColumn(item -> {
+            if (item.getDepositStatus() == DepositStatus.EMPTY) {
+                return "Pfandrückgabe: " + item.getArticle().getName();
+            }
+            return item.getArticle().getName();
+        }).setHeader("Artikelname").setWidth("200px");
         cartGrid.addColumn(item -> item.getArticle().getArticleNumber()).setHeader("Artikelnummer").setAutoWidth(true);
 
         // Editor für Preis- und Mengenänderung
@@ -324,17 +339,6 @@ public class CashierView extends AbstractMainView implements BeforeEnterObserver
         searchButton.setEnabled(false);
         searchField.addValueChangeListener(event -> {
             String value = event.getValue();
-//            boolean validInput = value.matches("^(A-\\d+|\\d+)$");
-//            searchButton.setEnabled(validInput);
-//            if (!validInput && !value.isEmpty()) {
-//                errorLabel.setText("Eingabe muss in Form von 'A-XXXX' oder 'XXXX' sein");
-//                descriptionOutputField.clear();
-//                descriptionOutputField.setVisible(false);
-//                articleGrid.setItems(Collections.emptyList());
-//                articleGrid.setVisible(false);
-//            } else {
-//                errorLabel.setText("");
-//            }
             boolean hasText = value != null && !value.trim().isEmpty();
             searchButton.setEnabled(hasText);
             if (!hasText) {
@@ -358,7 +362,6 @@ public class CashierView extends AbstractMainView implements BeforeEnterObserver
                 articleGrid.setVisible(false);
                 return;
             }
-            //input = input.matches("\\d+") ? "A-" + input : input;
 
             Optional<ArticleDTO> article = articleService.findByArticleNumber(input);
             if (article.isPresent()) {
@@ -616,30 +619,33 @@ public class CashierView extends AbstractMainView implements BeforeEnterObserver
     }
 
     private void addToCart(ArticleDTO article) {
+        if (article.isHasDeposit()) {
+            showDepositDialog(article);
+            return;
+        }
+
         // Wenn der Artikel keinen Verkaufspreis hat, muss der Kassierer einen eingeben
         if (article.getSellingPrice() == null) {
             showInitialPriceDialog(article);
             return;
         }
 
+        addArticleToCart(article, DepositStatus.NONE, BigDecimal.valueOf(article.getSellingPrice()));
+    }
+
+    private void addArticleToCart(ArticleDTO article, DepositStatus depositStatus, BigDecimal price) {
         List<CartItem> items = cartItemsManager.getCart();
         String articleNumber = article.getArticleNumber();
 
         CartItem existing = items.stream()
-                .filter(item -> item.getArticle().getArticleNumber().equals(articleNumber))
+                .filter(item -> item.getArticle().getArticleNumber().equals(articleNumber) && item.getDepositStatus() == depositStatus)
                 .findFirst()
                 .orElse(null);
 
         if (existing != null) {
             existing.setQuantity(existing.getQuantity() + 1);
         } else {
-            // sellingPrice kann null sein -> null-sicher behandeln
-            Double sellingPrice = article.getSellingPrice();
-            BigDecimal overriddenPrice = sellingPrice != null
-                    ? BigDecimal.valueOf(sellingPrice)
-                    : null; // Kassierer kann später bei Bedarf überschreiben
-
-            items.add(new CartItem(article, items.size() + 1, 1, overriddenPrice));
+            items.add(new CartItem(article, items.size() + 1, 1, price, depositStatus));
         }
 
         cartItemsManager.updateGrid(cartGrid, totalLabel);
@@ -649,6 +655,24 @@ public class CashierView extends AbstractMainView implements BeforeEnterObserver
                 2000,
                 Notification.Position.MIDDLE
         ).addThemeVariants(NotificationVariant.LUMO_SUCCESS);
+    }
+
+    private void showDepositDialog(ArticleDTO article) {
+        Dialog dialog = new Dialog();
+        dialog.setHeaderTitle("Pfandartikel: " + article.getName());
+
+        Button fullBottleButton = new Button("Vollflasche verkaufen", e -> {
+            addArticleToCart(article, DepositStatus.FULL, BigDecimal.valueOf(article.getSellingPrice()));
+            dialog.close();
+        });
+
+        Button emptyBottleButton = new Button("Leergut zurücknehmen", e -> {
+            addArticleToCart(article, DepositStatus.EMPTY, DEPOSIT_AMOUNT.negate());
+            dialog.close();
+        });
+
+        dialog.add(new VerticalLayout(fullBottleButton, emptyBottleButton));
+        dialog.open();
     }
 
     private void showInitialPriceDialog(ArticleDTO article) {
@@ -680,18 +704,7 @@ public class CashierView extends AbstractMainView implements BeforeEnterObserver
                     return;
                 }
 
-                // Artikel mit diesem Preis in den Warenkorb aufnehmen
-                List<CartItem> items = cartItemsManager.getCart();
-                CartItem newItem = new CartItem(article, items.size() + 1, 1, price);
-                items.add(newItem);
-                cartItemsManager.updateGrid(cartGrid, totalLabel);
-
-                Notification.show(
-                        article.getName() + " wurde dem Warenkorb hinzugefügt",
-                        2000,
-                        Notification.Position.MIDDLE
-                ).addThemeVariants(NotificationVariant.LUMO_SUCCESS);
-
+                addArticleToCart(article, DepositStatus.NONE, price);
                 dialog.close();
             } catch (NumberFormatException ex) {
                 Notification.show("Bitte einen gültigen Preis eingeben.", 3000, Notification.Position.MIDDLE)
@@ -706,6 +719,58 @@ public class CashierView extends AbstractMainView implements BeforeEnterObserver
         dialog.getFooter().add(cancelButton, confirmButton);
         dialog.open();
         priceField.focus();
+    }
+
+    private void showRedeemDepositDialog() {
+        Dialog dialog = new Dialog();
+        dialog.setHeaderTitle("Pfandbon einlösen");
+
+        TextField receiptCodeField = new TextField("Pfandbon-Code");
+        receiptCodeField.setRequired(true);
+
+        dialog.add(receiptCodeField);
+
+        Button confirmButton = new Button("Einlösen", e -> {
+            String depositRedemptionCode = receiptCodeField.getValue();
+            if (depositRedemptionCode == null || depositRedemptionCode.trim().isEmpty()) {
+                Notification.show("Bitte einen Pfandbon-Code eingeben.", 3000, Notification.Position.MIDDLE)
+                        .addThemeVariants(NotificationVariant.LUMO_ERROR);
+                return;
+            }
+
+            try {
+                Optional<ReceiptDTO> receiptOptional = receiptProxyService.redeemDepositReceipt(depositRedemptionCode);
+
+                if (receiptOptional.isPresent()) {
+                    ReceiptDTO receipt = receiptOptional.get();
+                    BigDecimal totalAmount = receipt.getTotalAmount();
+                    // Erstelle einen neuen Artikel für den eingelösten Pfandbon
+                    ArticleDTO depositArticle = new ArticleDTO();
+                    depositArticle.setName("Eingelöster Pfandbon (Code: " + depositRedemptionCode + ")");
+                    depositArticle.setArticleNumber("PFAND-" + depositRedemptionCode);
+                    depositArticle.setSellingPrice(totalAmount.doubleValue());
+                    depositArticle.setTaxRatePercent(0.0);
+
+                    addArticleToCart(depositArticle, DepositStatus.EMPTY, totalAmount); // Hier totalAmount verwenden
+                    Notification.show("Pfandbon eingelöst.", 2000, Notification.Position.MIDDLE)
+                            .addThemeVariants(NotificationVariant.LUMO_SUCCESS);
+                    dialog.close();
+                } else {
+                    Notification.show("Pfandbon konnte nicht eingelöst werden. Ungültiger Code oder bereits eingelöst.", 3000, Notification.Position.MIDDLE)
+                            .addThemeVariants(NotificationVariant.LUMO_ERROR);
+                }
+            } catch (Exception ex) { // Catch broader exception for network/backend errors
+                Notification.show("Fehler beim Einlösen des Pfandbons: " + ex.getMessage(), 5000, Notification.Position.MIDDLE)
+                        .addThemeVariants(NotificationVariant.LUMO_ERROR);
+            }
+        });
+        Button cancelButton = new Button("Abbrechen", e -> dialog.close());
+
+        receiptCodeField.addKeyPressListener(Key.ENTER, e -> confirmButton.click());
+
+        dialog.getFooter().add(cancelButton, confirmButton);
+        dialog.open();
+        receiptCodeField.focus();
     }
 
 

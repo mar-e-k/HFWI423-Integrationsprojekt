@@ -1,6 +1,7 @@
 package de.fhdw.kassensystem.view.cashier;
 
 import de.fhdw.commons.api.dto.ArticleDTO;
+import de.fhdw.commons.api.dto.DepositStatus;
 import de.fhdw.commons.persistence.entity.GenericEntity;
 
 import java.math.BigDecimal;
@@ -11,6 +12,7 @@ public class CartItem implements GenericEntity<Long> {
     private int position;
     private int quantity;
     private BigDecimal overriddenPrice;
+    private DepositStatus depositStatus;
 
     // NEU: Rabatt-Infos
     private BigDecimal discountPercent;   // z.B. 30 für 30 %
@@ -20,14 +22,14 @@ public class CartItem implements GenericEntity<Long> {
         super();
     }
 
-    public CartItem(ArticleDTO article, int position, int quantity, BigDecimal overriddenPrice) {
+    public CartItem(ArticleDTO article, int position, int quantity, BigDecimal overriddenPrice, DepositStatus depositStatus) {
         this.article = article;
         this.position = position;
         this.quantity = quantity;
         this.overriddenPrice = overriddenPrice;
         this.discountedQuantity = 0;
         this.discountPercent = BigDecimal.ZERO;
-
+        this.depositStatus = depositStatus;
     }
 
     public ArticleDTO getArticle() {
@@ -60,6 +62,14 @@ public class CartItem implements GenericEntity<Long> {
 
     public void setOverriddenPrice(BigDecimal overriddenPrice) {
         this.overriddenPrice = overriddenPrice;
+    }
+
+    public DepositStatus getDepositStatus() {
+        return depositStatus;
+    }
+
+    public void setDepositStatus(DepositStatus depositStatus) {
+        this.depositStatus = depositStatus;
     }
 
     // -----------------------------
@@ -98,9 +108,16 @@ public class CartItem implements GenericEntity<Long> {
      * Basis-Stückpreis (ohne Rabatt, aber mit Overwrite, falls gesetzt).
      */
     public BigDecimal getBaseUnitPrice() {
+        // Wenn ein overriddenPrice gesetzt ist, hat dieser immer Vorrang
         if (overriddenPrice != null) {
             return overriddenPrice;
         }
+        // Wenn es eine leere Pfandflasche ist und kein overriddenPrice gesetzt ist,
+        // dann den Standard-Pfandbetrag verwenden
+        if (depositStatus == DepositStatus.EMPTY) {
+            return new BigDecimal("-0.25");
+        }
+        // Ansonsten den normalen Verkaufspreis des Artikels verwenden
         Double sellingPrice = article.getSellingPrice();
         if (sellingPrice == null) {
             return BigDecimal.ZERO;

@@ -6,6 +6,7 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.validation.constraints.NotNull;
+import org.hibernate.annotations.ColumnDefault;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -33,6 +34,14 @@ public class Receipt extends AbstractEntity {
     @OneToMany(mappedBy = "receipt", orphanRemoval = true)
     private List<ReceiptLinkArticle> receiptArticles = new ArrayList<>();
 
+    @NotNull
+    @ColumnDefault("false")
+    @Column(name = "is_deposit_only", nullable = false)
+    private boolean isDepositOnly = false;
+
+    @Column(name = "deposit_redemption_code", length = 5)
+    private String depositRedemptionCode;
+
     public Receipt() {
         super();
     }
@@ -41,21 +50,25 @@ public class Receipt extends AbstractEntity {
         super(id);
     }
 
-    public Receipt(Store store, Register register, Account account, BigDecimal totalAmount, List<ReceiptLinkArticle> receiptArticles) {
+    public Receipt(Store store, Register register, Account account, BigDecimal totalAmount, List<ReceiptLinkArticle> receiptArticles, boolean isDepositOnly, String depositRedemptionCode) {
         this.store = store;
         this.register = register;
         this.account = account;
         this.totalAmount = totalAmount;
         this.receiptArticles = receiptArticles;
+        this.isDepositOnly = isDepositOnly;
+        this.depositRedemptionCode = depositRedemptionCode;
     }
 
-    public Receipt(Long id, Store store, Register register, Account account, BigDecimal totalAmount, List<ReceiptLinkArticle> receiptArticles) {
+    public Receipt(Long id, Store store, Register register, Account account, BigDecimal totalAmount, List<ReceiptLinkArticle> receiptArticles, boolean isDepositOnly, String depositRedemptionCode) {
         super(id);
         this.store = store;
         this.register = register;
         this.account = account;
         this.totalAmount = totalAmount;
         this.receiptArticles = receiptArticles;
+        this.isDepositOnly = isDepositOnly;
+        this.depositRedemptionCode = depositRedemptionCode;
     }
 
     public Store getStore() {
@@ -96,5 +109,21 @@ public class Receipt extends AbstractEntity {
 
     public void setReceiptArticles(List<ReceiptLinkArticle> receiptLinkArticle) {
         this.receiptArticles = receiptLinkArticle;
+    }
+
+    public boolean isDepositOnly() {
+        return isDepositOnly;
+    }
+
+    public void setDepositOnly(boolean depositOnly) {
+        isDepositOnly = depositOnly;
+    }
+
+    public String getDepositRedemptionCode() {
+        return depositRedemptionCode;
+    }
+
+    public void setDepositRedemptionCode(String depositRedemptionCode) {
+        this.depositRedemptionCode = depositRedemptionCode;
     }
 }

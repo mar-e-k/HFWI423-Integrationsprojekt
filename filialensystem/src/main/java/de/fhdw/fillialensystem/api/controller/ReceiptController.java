@@ -40,4 +40,9 @@ public class ReceiptController {
                                 .map(receiptLinkArticleMapper::toEntity)
                                 .toList())));
     }
+
+    @PostMapping("/redeem/{depositRedemptionCode}")
+    public ResponseEntity<ReceiptDTO> redeemDepositReceipt(@PathVariable String depositRedemptionCode) {
+        return ResponseEntity.ok(receiptMapper.toDto(receiptService.redeemDepositReceipt(depositRedemptionCode)));
+    }
 }

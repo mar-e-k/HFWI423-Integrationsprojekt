@@ -18,7 +18,7 @@ import java.util.List;
 @Service
 public class ReceiptService {
 
-    public ByteArrayInputStream generateReceipt(List<CartItem> cartItems, boolean isCashPayment, String cashierName, String cashierPersonnelNumber) throws IOException {
+    public ByteArrayInputStream generateReceipt(List<CartItem> cartItems, boolean isCashPayment, String cashierName, String cashierPersonnelNumber, String depositRedemptionCode) throws IOException {
         try (PDDocument document = new PDDocument()) {
             PDPage page = new PDPage();
             document.addPage(page);
@@ -109,6 +109,16 @@ public class ReceiptService {
             contentStream.showText(paymentText);
             contentStream.endText();
             y -= 30;
+
+            // Pfandbon-Code hinzufügen, wenn vorhanden
+            if (depositRedemptionCode != null && !depositRedemptionCode.isEmpty()) {
+                contentStream.beginText();
+                contentStream.setFont(boldFont, 14);
+                contentStream.newLineAtOffset(margin, y);
+                contentStream.showText("Pfandbon Code: " + depositRedemptionCode);
+                contentStream.endText();
+                y -= 20;
+            }
 
             // Kassierer-Informationen hinzufügen
             contentStream.beginText();

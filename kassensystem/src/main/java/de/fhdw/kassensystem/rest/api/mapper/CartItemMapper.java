@@ -23,7 +23,11 @@ public class CartItemMapper implements GenericMapper<CartItem, ReceiptLinkArticl
         cartItem.setQuantity(dto.getAmount());
         cartItem.setOverriddenPrice(dto.getOverridePrice());
         cartItem.setDiscountPercent(dto.getDiscountedByPercent());
-        cartItem.setDiscountedQuantity(dto.getAmount());
+        // discountedQuantity in CartItem ist für die Rabattberechnung auf Frontend-Seite.
+        // Beim Mappen zurück zur Entität setzen wir es auf 0, da die Rabattlogik im Backend
+        // auf Basis von discountedByPercent und dem Gesamtbetrag neu berechnet wird.
+        cartItem.setDiscountedQuantity(0);
+        cartItem.setDepositStatus(dto.getDepositStatus()); // DepositStatus setzen
         return cartItem;
     }
 
@@ -31,12 +35,15 @@ public class CartItemMapper implements GenericMapper<CartItem, ReceiptLinkArticl
     public ReceiptLinkArticleDTO toDto(CartItem cartItem) {
         ReceiptLinkArticleDTO dto = new ReceiptLinkArticleDTO();
         dto.setArticleId(cartItem.getArticle().getId());
-        dto.setPrice(BigDecimal.valueOf(cartItem.getArticle().getSellingPrice()));
-        dto.setAmount(cartItem.getDiscountedQuantity() == 0 ? cartItem.getQuantity() : cartItem.getDiscountedQuantity());
+        // Verwende getBaseUnitPrice(), das bereits überschriebene Preise und Pfandstatus berücksichtigt
+        dto.setPrice(cartItem.getBaseUnitPrice());
+        dto.setAmount(cartItem.getQuantity()); // Gesamte Menge des Artikels
         dto.setTaxRate(BigDecimal.valueOf(cartItem.getArticle().getTaxRatePercent()));
-        dto.setOverridePrice(cartItem.getOverriddenPrice());
-        dto.setOverrideReason(OverrideReasonEnum.MANUAL_OVERRIDE);
+        dto.setOverridePrice(cartItem.getOverriddenPrice()); // Der ursprünglich überschriebene Preis, falls vorhanden
+        // Setze OverrideReason nur, wenn ein Preis überschrieben wurde
+        dto.setOverrideReason(cartItem.getOverriddenPrice() != null ? OverrideReasonEnum.MANUAL_OVERRIDE : null);
         dto.setDiscountedByPercent(cartItem.getDiscountPercent());
+        dto.setDepositStatus(cartItem.getDepositStatus()); // DepositStatus setzen
         return dto;
     }
 }

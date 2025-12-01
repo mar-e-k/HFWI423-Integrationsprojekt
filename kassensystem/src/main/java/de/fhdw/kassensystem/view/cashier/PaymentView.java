@@ -146,13 +146,14 @@ public class PaymentView extends AbstractMainView implements BeforeEnterObserver
 
     private void finishPayment() {
         try {
-            Optional<ReceiptDTO> receipt = receiptProxyService.createReceiptFromCartItems(cartItemsManager.getCart());
+            Optional<ReceiptDTO> receiptOptional = receiptProxyService.createReceiptFromCartItems(cartItemsManager.getCart());
 
-            if (receipt.isPresent()) {
+            if (receiptOptional.isPresent()) {
+                ReceiptDTO receipt = receiptOptional.get();
                 String fileName = "Bon-" +
                         LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMdd-HHmmss")) + ".pdf";
 
-                StreamResourceRegistry.ElementStreamResource resource = createResource(fileName);
+                StreamResourceRegistry.ElementStreamResource resource = createResource(fileName, receipt.getDepositRedemptionCode());
 
                 String url = VaadinSession.getCurrent()
                         .getResourceRegistry()
@@ -183,7 +184,7 @@ public class PaymentView extends AbstractMainView implements BeforeEnterObserver
         }
     }
 
-    private StreamResourceRegistry.ElementStreamResource createResource(String fileName) throws IOException {
+    private StreamResourceRegistry.ElementStreamResource createResource(String fileName, String depositRedemptionCode) throws IOException {
         String cashierName = "Unbekannt";
         String cashierPersonnelNumber = "N/A";
 
@@ -210,7 +211,7 @@ public class PaymentView extends AbstractMainView implements BeforeEnterObserver
                     .addThemeVariants(NotificationVariant.LUMO_WARNING);
         }
 
-        ByteArrayInputStream generatedPdfStream = receiptService.generateReceipt(cartItemsManager.getCart(), isCashPayment, cashierName, cashierPersonnelNumber);
+        ByteArrayInputStream generatedPdfStream = receiptService.generateReceipt(cartItemsManager.getCart(), isCashPayment, cashierName, cashierPersonnelNumber, depositRedemptionCode);
 
         byte[] pdfBytes = generatedPdfStream.readAllBytes();
 

@@ -36,4 +36,14 @@ public class ReceiptProxyService extends AbstractProxyService{
     public Optional<ReceiptDTO> createReceiptFromCartItems(List<CartItem> cartItems) {
         return createReceipt(cartItems.stream().map(cartItemMapper::toDto).toList());
     }
+
+    public Optional<ReceiptDTO> redeemDepositReceipt(String depositRedemptionCode) {
+        return storeClient.getWebClient()
+                .post()
+                .uri("/api/receipt/redeem/{depositRedemptionCode}", depositRedemptionCode)
+                .retrieve()
+                .bodyToMono(ReceiptDTO.class)
+                .onErrorResume(WebClientResponseException.class, e -> Mono.empty())
+                .blockOptional();
+    }
 }

@@ -15,37 +15,39 @@ public class ArticleMapper implements GenericMapper<Article, ArticleDTO> {
 
     @Override
     public Article toEntity(ArticleDTO dto) {
-        Article account = new Article();
-        account.setId(dto.getId());
-        account.setArticleNumber(dto.getArticleNumber());
-        account.setDescription(dto.getDescription());
-        account.setManufacturer(dto.getManufacturer());
-        account.setName(dto.getName());
-        account.setPurchasePrice(dto.getPurchasePrice());
-        account.setSellingPrice(dto.getSellingPrice());
-        account.setStockLevel(dto.getStockLevel());
-        account.setSupplier(dto.getSupplier());
-        account.setTaxRatePercent(dto.getTaxRatePercent());
-        account.setUnit(dto.getUnit());
-        account.setIsAvailable(dto.getAvailable());
-        return account;
+        Article article = new Article();
+        article.setId(dto.getId());
+        article.setArticleNumber(dto.getArticleNumber());
+        article.setDescription(dto.getDescription());
+        article.setManufacturer(dto.getManufacturer());
+        article.setName(dto.getName());
+        article.setPurchasePrice(dto.getPurchasePrice());
+        article.setSellingPrice(dto.getSellingPrice());
+        article.setStockLevel(dto.getStockLevel());
+        article.setSupplier(dto.getSupplier());
+        article.setTaxRatePercent(dto.getTaxRatePercent());
+        article.setUnit(dto.getUnit());
+        article.setIsAvailable(dto.getAvailable());
+        article.setHasDeposit(dto.isHasDeposit());
+        return article;
     }
 
     @Override
-    public ArticleDTO toDto(Article account) {
+    public ArticleDTO toDto(Article article) {
         ArticleDTO dto = new ArticleDTO();
-        dto.setId(account.getId());
-        dto.setArticleNumber(account.getArticleNumber());
-        dto.setDescription(account.getDescription());
-        dto.setManufacturer(account.getManufacturer());
-        dto.setName(account.getName());
-        dto.setPurchasePrice(account.getPurchasePrice());
-        dto.setSellingPrice(account.getSellingPrice());
-        dto.setStockLevel(account.getStockLevel());
-        dto.setSupplier(account.getSupplier());
-        dto.setTaxRatePercent(account.getTaxRatePercent());
-        dto.setUnit(account.getUnit());
-        dto.setAvailable(account.getIsAvailable());
+        dto.setId(article.getId());
+        dto.setArticleNumber(article.getArticleNumber());
+        dto.setDescription(article.getDescription());
+        dto.setManufacturer(article.getManufacturer());
+        dto.setName(article.getName());
+        dto.setPurchasePrice(article.getPurchasePrice());
+        dto.setSellingPrice(article.getSellingPrice());
+        dto.setStockLevel(article.getStockLevel());
+        dto.setSupplier(article.getSupplier());
+        dto.setTaxRatePercent(article.getTaxRatePercent());
+        dto.setUnit(article.getUnit());
+        dto.setAvailable(article.getIsAvailable());
+        dto.setHasDeposit(article.isHasDeposit());
         return dto;
     }
 }

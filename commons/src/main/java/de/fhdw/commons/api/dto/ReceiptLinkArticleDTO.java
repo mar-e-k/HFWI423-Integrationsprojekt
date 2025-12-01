@@ -12,12 +12,13 @@ public class ReceiptLinkArticleDTO extends AbstractDTO<Long>{
     private BigDecimal overridePrice;
     private OverrideReasonEnum overrideReason;
     private BigDecimal discountedByPercent;
+    private DepositStatus depositStatus;
 
     public ReceiptLinkArticleDTO() {
         super();
     }
 
-    public ReceiptLinkArticleDTO(Long id, Long receiptId, Long articleId, BigDecimal price, Integer amount, BigDecimal taxRate, BigDecimal overridePrice, OverrideReasonEnum overrideReason, BigDecimal discountedByPercent) {
+    public ReceiptLinkArticleDTO(Long id, Long receiptId, Long articleId, BigDecimal price, Integer amount, BigDecimal taxRate, BigDecimal overridePrice, OverrideReasonEnum overrideReason, BigDecimal discountedByPercent, DepositStatus depositStatus) {
         super(id);
         this.receiptId = receiptId;
         this.articleId = articleId;
@@ -27,6 +28,7 @@ public class ReceiptLinkArticleDTO extends AbstractDTO<Long>{
         this.overridePrice = overridePrice;
         this.overrideReason = overrideReason;
         this.discountedByPercent = discountedByPercent;
+        this.depositStatus = depositStatus;
     }
 
     public Long getReceiptId() {
@@ -91,5 +93,13 @@ public class ReceiptLinkArticleDTO extends AbstractDTO<Long>{
 
     public void setDiscountedByPercent(BigDecimal discountedByPercent) {
         this.discountedByPercent = discountedByPercent;
+    }
+
+    public DepositStatus getDepositStatus() {
+        return depositStatus;
+    }
+
+    public void setDepositStatus(DepositStatus depositStatus) {
+        this.depositStatus = depositStatus;
     }
 }
