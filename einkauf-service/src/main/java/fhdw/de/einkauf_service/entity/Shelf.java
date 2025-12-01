@@ -2,6 +2,7 @@ package fhdw.de.einkauf_service.entity;
 
 import jakarta.persistence.*;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
@@ -12,6 +13,7 @@ import java.util.Set;
 @Entity
 @Table(name = "shelf")
 @Data
+@EqualsAndHashCode(exclude = "levels")
 public class Shelf {
 
     @Id

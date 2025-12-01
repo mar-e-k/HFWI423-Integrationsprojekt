@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.LocalDateTime;
@@ -15,6 +16,7 @@ import java.util.List;
     @UniqueConstraint(columnNames = {"shelf_id", "level_position"})
 })
 @Data
+@EqualsAndHashCode(exclude = {"shelf", "placements"})
 public class ShelfLevel {
 
     @Id

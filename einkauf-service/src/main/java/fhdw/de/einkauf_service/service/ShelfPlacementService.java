@@ -38,4 +38,14 @@ public interface ShelfPlacementService {
      * Delete a placement from a shelf level
      */
     void deletePlacement(Long id);
+
+    /**
+     * Calculate the next available position for a new article on a shelf level
+     * Returns the X position where the article should be placed
+     * @param shelfLevelId The shelf level to place the article on
+     * @param widthCm The width of the article to place
+     * @return The X position where the article can be placed (starting from left)
+     * @throws OutOfBoundsException if the article cannot fit on the shelf
+     */
+    Double calculateNextAvailablePosition(Long shelfLevelId, Double widthCm);
 }
