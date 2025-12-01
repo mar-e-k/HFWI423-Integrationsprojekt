@@ -435,7 +435,7 @@ public class ReceiptService extends AbstractCrudService<Receipt, Long> {
                 contentStream.showText("%s".formatted(receipt.getCreatedAt().atZone(ZoneId.systemDefault()).format(fmt)));
                 contentStream.endText();
 
-                if (y < 50) {
+                if (y < 100) {
                     contentStream.close();
 
                     PDPage newPage = new PDPage();

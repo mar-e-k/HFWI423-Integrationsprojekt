@@ -39,6 +39,7 @@ public class DailyReceiptReportingSchedule {
         List<Receipt> receipts = receiptService.findAll().stream()
                 .filter(r -> r.getCreatedAt().atZone(ZoneId.systemDefault()).toLocalDate().equals(LocalDate.now()))
                 .filter(r -> r.getStore().equals(storeClient.getStore()))
+                .filter(r -> !r.isDepositOnly())
                 .toList();
 
         List<ReceiptLinkArticle> allArticles = receipts.stream()
