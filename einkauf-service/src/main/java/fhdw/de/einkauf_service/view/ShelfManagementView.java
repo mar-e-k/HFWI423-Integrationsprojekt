@@ -13,6 +13,7 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.value.ValueChangeMode;
 import com.vaadin.flow.router.Route;
+import com.vaadin.flow.router.RouterLink;
 import fhdw.de.einkauf_service.dto.ShelfRequestDTO;
 import fhdw.de.einkauf_service.dto.ShelfResponseDTO;
 import fhdw.de.einkauf_service.dto.CategoryResponseDTO;
@@ -90,7 +91,14 @@ public class ShelfManagementView extends VerticalLayout {
     private void configureGrid() {
         grid.setSizeFull();
         grid.setColumns();
-        grid.addColumn(ShelfResponseDTO::getName).setHeader("Regal-Name").setAutoWidth(true).setSortable(true);
+
+        // Clickable name column that navigates to detail view
+        grid.addComponentColumn(shelf -> {
+            RouterLink link = new RouterLink(shelf.getName(), ShelfDetailView.class, shelf.getId().toString());
+            link.getStyle().set("cursor", "pointer").set("color", "var(--lumo-primary-color)");
+            return link;
+        }).setHeader("Regal-Name").setAutoWidth(true).setSortable(false);
+
         grid.addColumn(ShelfResponseDTO::getDescription).setHeader("Beschreibung").setAutoWidth(true);
         grid.addColumn(ShelfResponseDTO::getCategoryName).setHeader("Kategorie").setAutoWidth(true).setSortable(true);
         grid.addColumn(shelf -> shelf.getLevels() != null ? shelf.getLevels().size() : 0)
@@ -199,8 +207,12 @@ public class ShelfManagementView extends VerticalLayout {
         levelsLayout.setPadding(false);
         levelsLayout.setSpacing(false);
 
-        // Function to refresh levels display
-        Runnable refreshLevels = () -> {
+        // Declare refreshLevels first to allow forward reference from buttons
+        Runnable[] refreshLevelsHolder = new Runnable[1];
+
+        // Define refresh function
+        refreshLevelsHolder[0] = () -> {
+            if (shelf == null) return;
             levelsLayout.removeAll();
             ShelfResponseDTO updatedShelf = shelfService.getShelf(shelf.getId());
 
@@ -219,7 +231,7 @@ public class ShelfManagementView extends VerticalLayout {
                     Button removeButton = new Button(new Icon(VaadinIcon.TRASH), event -> {
                         try {
                             shelfService.removeLevel(shelf.getId(), level.getLevelPosition());
-                            refreshLevels.run();
+                            refreshLevelsHolder[0].run();
                             showErrorInDialog(errorMessageSpan, null);
                         } catch (Exception ex) {
                             showErrorInDialog(errorMessageSpan, "Fehler beim Löschen des Bodens: " + ex.getMessage());
@@ -248,7 +260,7 @@ public class ShelfManagementView extends VerticalLayout {
             categoryCombo.setEnabled(false);
 
             // Show existing levels
-            refreshLevels.run();
+            refreshLevelsHolder[0].run();
         }
 
         // Add level button (max 5 levels)
@@ -274,7 +286,7 @@ public class ShelfManagementView extends VerticalLayout {
                             .orElse(0) + 1;
                 }
                 shelfService.addLevel(shelf.getId(), nextPosition);
-                refreshLevels.run();
+                refreshLevelsHolder[0].run();
                 showErrorInDialog(errorMessageSpan, null);
             } catch (Exception ex) {
                 showErrorInDialog(errorMessageSpan, "Fehler beim Hinzufügen des Bodens: " + ex.getMessage());
