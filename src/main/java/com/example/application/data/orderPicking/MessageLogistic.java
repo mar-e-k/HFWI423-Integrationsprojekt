@@ -18,6 +18,9 @@ public class MessageLogistic extends AbstractEntity {
     @Column(name = "quantity")
     private long quantity;
 
+    @Column(name = "processed")
+    private boolean processed;
+
     public String getArticleNumber() {
         return articleNumber;
     }
@@ -41,4 +44,13 @@ public class MessageLogistic extends AbstractEntity {
     public void setQuantity(long quantity) {
         this.quantity = quantity;
     }
+
+    public boolean isProcessed() {
+        return processed;
+    }
+
+    public void setProcessed(boolean processed) {
+        this.processed = processed;
+    }
+
 }

@@ -18,6 +18,10 @@ public interface KommissionRepository extends JpaRepository<Kommission, Long> {
     @Query("SELECT COALESCE(MAX(k.orderPickingNumber), 0) + 1 FROM Kommission k")
     int nextOrderNumber();
 
+    @Query("select max(k.orderPickingNumber) from Kommission k")
+    Integer findMaxOrderNumber();
+
+
 }
 
 

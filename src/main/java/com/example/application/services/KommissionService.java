@@ -5,6 +5,7 @@ import com.example.application.data.article.ArticleInfoRepository;
 import com.example.application.data.orderPicking.*;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -51,96 +52,38 @@ public class KommissionService {
     }
 
 
-    public String getArticleName(String articleId) {
-        ArticleInfo artikel = artikelService.findById(Long.valueOf(articleId)); // hier auf ArticleInfoService zugreifen
-        return artikel != null ? artikel.getName() : "Unbekannt";
-    }
-
-    /**
-     * Bestätigt eine einzelne Position, ggf. mit abweichender Menge.
-     */
-    @Transactional
-    public void bestätigePosition(Long positionId, int gelieferteMenge, String grund, String ersteller) {
-        KommissionPosition pos = posRepo.findById(positionId)
-                .orElseThrow(() -> new EntityNotFoundException("Position nicht gefunden"));
-
-        ArticleInfo artikel = pos.getArticle_id();
-
-        int geplant = pos.getAmount();
-        pos.setAmount(gelieferteMenge);
-
-        // Bestandsreduktion um gelieferte Menge
-        artikelService.reduceStock(artikel, gelieferteMenge);
-
-        posRepo.save(pos);
-    }
-
-    public List<KommissionPosition> getPositionenFürKommission(Kommission kommission) {
-        return posRepo.findByKommission(kommission);
-    }
-
-
-    /**
-     * Prüft, ob eine Kommission abgeschlossen werden kann (alle Positionen bearbeitet).
-     * Wenn ja, wird sie abgeschlossen und ausgegraut dargestellt.
-     */
-    //@Transactional
-
-    /**
-     * public void schließeKommission(Long kommissionId) {
-     * Kommission k = komRepo.findById(kommissionId)
-     * .orElseThrow(() -> new EntityNotFoundException("Kommission nicht gefunden"));
-     * <p>
-     * boolean alleBearbeitet = k.getPositionen()
-     * .stream()
-     * .allMatch(KommissionPosition::isBearbeitet);
-     * <p>
-     * if (!alleBearbeitet) {
-     * throw new IllegalStateException("Kommission kann nicht abgeschlossen werden: noch offene Positionen.");
-     * }
-     * <p>
-     * k.setFinished(true);
-     * komRepo.save(k);
-     * }
-     */
 
     @Transactional
-    public Kommission erstelleKommissionFürStore(String storeId) {
+    public void createWeeklyKommissionen() {
 
-        // 1. Alle fehlenden Artikel dieser Filiale holen
-        List<MessageLogistic> fehlendeArtikel =
-                msgRepo.findByStoreIdAndQuantityGreaterThan(storeId, 0);
+        // 1. Alle Stores finden
+        List<String> stores = msgRepo.findDistinctStoresWithUnprocessed();
 
-        if (fehlendeArtikel.isEmpty()) {
-            throw new IllegalStateException("Keine fehlenden Artikel für Store " + storeId);
+        for (String store : stores) {
+
+            // 2. Neue Kommission erstellen
+            Kommission kom = new Kommission();
+            kom.setStoreId(store);
+            kom.setDate(LocalDateTime.now());
+            kom.setFinished(false);
+            kom.setOrderPickingNumber(generateNextOrderPickingNumber());
+
+            komRepo.save(kom);
+
+            // 3. (Optional) Messages als verarbeitet markieren
+            // Damit sie nicht noch einmal verwendet werden
+            List<MessageLogistic> msgs = msgRepo.findByStoreId(store);
+            msgs.forEach(m -> {
+                // m.setProcessed(true); // falls du ein processed-Feld ergänzt
+                msgRepo.save(m);
+            });
         }
+    }
 
-        // 2. Kommission anlegen
-        Kommission kom = new Kommission();
-        kom.setFinished(false);
-        kom.setDate(LocalDateTime.now());
-        kom.setStoreId(storeId);
-
-        // Nummer setzen
-        kom.setOrderPickingNumber(komRepo.nextOrderNumber());
-        kom = komRepo.save(kom);
-
-        // 3. Positionen anlegen
-        for (MessageLogistic m : fehlendeArtikel) {
-
-            ArticleInfo artikelInfo = articleRepo.findByArticleNumber((m.getArticleNumber()));
-
-
-            KommissionPosition pos = new KommissionPosition();
-            pos.setKommission(kom);
-            pos.setArticle_id(artikelInfo);
-            pos.setAmount((int) m.getQuantity());
-            pos.setStorageLocation(artikelInfo.getStorageLocation());
-
-            posRepo.save(pos);
-        }
-
-        return kom;
+    @Query("select max(k.orderPickingNumber) from Kommission k")
+    public int generateNextOrderPickingNumber() {
+        Integer last = komRepo.findMaxOrderNumber();
+        return (last == null ? 1 : last + 1);
     }
 
 }
