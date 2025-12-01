@@ -19,35 +19,32 @@ public class StoreLinkStock extends AbstractEntity {
     @Min(value = 0, message = "Amount must be >= 0")
     private int amount;
 
-    private boolean active;
+    @NotNull(message = "Minimum stock level cannot be null")
+    @Min(value = 0, message = "Minimum stock level must be >= 0")
+    @Column(nullable = false)
+    private int minimumStockLevel = 5; // Serves as an alert and defintion for what quantifies as low stock
 
-    // Mindestbestand mit Default-Wert 5
-    @NotNull
-    @Column(
-            name = "min_stock_level",
-            nullable = false,
-            columnDefinition = "integer default 5"
-    )
-    private Integer minStockLevel = 5;
+    private boolean active;
 
     public StoreLinkStock() {
         super();
     }
 
-    public StoreLinkStock(Store store, Article article, int amount, boolean active) {
+    public StoreLinkStock(Store store, Article article, int amount, int minimumStockLevel, boolean active) {
         this.store = store;
         this.article = article;
         this.amount = amount;
+        this.minimumStockLevel = minimumStockLevel;
         this.active = active;
-        this.minStockLevel = 5;
     }
 
-    public StoreLinkStock(Store store, Article article, int amount, boolean active, Integer minStockLevel) {
+    public StoreLinkStock(Long id, Store store, Article article, int amount, int minimumStockLevel, boolean active) {
+        super(id);
         this.store = store;
         this.article = article;
         this.amount = amount;
+        this.minimumStockLevel = minimumStockLevel;
         this.active = active;
-        this.minStockLevel = (minStockLevel != null ? minStockLevel : 5);
     }
 
     public Store getStore() {
@@ -74,19 +71,19 @@ public class StoreLinkStock extends AbstractEntity {
         this.amount = amount;
     }
 
+    public int getMinimumStockLevel() {
+        return minimumStockLevel;
+    }
+
+    public void setMinimumStockLevel(int minimumStockLevel) {
+        this.minimumStockLevel = minimumStockLevel;
+    }
+
     public boolean isActive() {
         return active;
     }
 
     public void setActive(boolean active) {
         this.active = active;
-    }
-
-    public Integer getMinStockLevel() {
-        return minStockLevel;
-    }
-
-    public void setMinStockLevel(Integer minStockLevel) {
-        this.minStockLevel = minStockLevel;
     }
 }

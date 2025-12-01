@@ -137,7 +137,7 @@ public class StockAdminView extends AbstractMainView {
      * - Button "Ändern" öffnet Dialog mit Eingabefeld + Speichern/Abbrechen
      */
     private Component createMinStockCell(StoreLinkStock stock) {
-        int currentMin = Objects.requireNonNullElse(stock.getMinStockLevel(), 5);
+        int currentMin = Objects.requireNonNullElse(stock.getMinimumStockLevel(), 5);
         Span valueLabel = new Span(String.valueOf(currentMin));
 
         Button edit = new Button("Ändern", e -> openMinStockDialog(stock));
@@ -162,7 +162,7 @@ public class StockAdminView extends AbstractMainView {
         IntegerField field = new IntegerField("Mindestbestand");
         field.setMin(0);
         field.setWidth("150px");
-        field.setValue(Objects.requireNonNullElse(stock.getMinStockLevel(), 5));
+        field.setValue(Objects.requireNonNullElse(stock.getMinimumStockLevel(), 5));
 
         VerticalLayout layout = new VerticalLayout(title, field);
         layout.setPadding(false);
@@ -180,7 +180,7 @@ public class StockAdminView extends AbstractMainView {
                 return;
             }
 
-            stock.setMinStockLevel(value);
+            stock.setMinimumStockLevel(value);
             storeLinkStockService.update(stock.getId(), stock);
 
             // neu laden & sortieren -> Markierung + Reihenfolge aktualisieren
@@ -204,7 +204,7 @@ public class StockAdminView extends AbstractMainView {
      */
     private Component createAmountCell(StoreLinkStock stock) {
         int amount = stock.getAmount();
-        int min = Objects.requireNonNullElse(stock.getMinStockLevel(), 5);
+        int min = Objects.requireNonNullElse(stock.getMinimumStockLevel(), 5);
 
         Span span = new Span(amount + " Stück");
 
@@ -226,7 +226,7 @@ public class StockAdminView extends AbstractMainView {
      * > 0  -> darüber
      */
     private int stockDiff(StoreLinkStock s) {
-        int min = Objects.requireNonNullElse(s.getMinStockLevel(), 5);
+        int min = Objects.requireNonNullElse(s.getMinimumStockLevel(), 5);
         return s.getAmount() - min;
     }
 

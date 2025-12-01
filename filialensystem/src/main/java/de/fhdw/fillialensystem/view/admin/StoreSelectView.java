@@ -1,4 +1,4 @@
-package de.fhdw.fillialensystem.view;
+package de.fhdw.fillialensystem.view.admin;
 
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
@@ -18,6 +18,7 @@ import de.fhdw.fillialensystem.persistence.entity.StoreLinkLock;
 import de.fhdw.fillialensystem.persistence.service.StoreLinkLockService;
 import de.fhdw.fillialensystem.persistence.service.StoreService;
 import de.fhdw.fillialensystem.utility.StoreClient;
+import de.fhdw.fillialensystem.view.MainView;
 import jakarta.annotation.security.RolesAllowed;
 
 import java.util.List;
