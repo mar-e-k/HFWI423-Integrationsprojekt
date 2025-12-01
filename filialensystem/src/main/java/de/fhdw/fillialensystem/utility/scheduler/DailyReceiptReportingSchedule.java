@@ -8,6 +8,8 @@ import de.fhdw.fillialensystem.persistence.entity.Receipt;
 import de.fhdw.fillialensystem.persistence.entity.ReceiptLinkArticle;
 import de.fhdw.fillialensystem.persistence.service.ReceiptService;
 import de.fhdw.fillialensystem.utility.StoreClient;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
@@ -20,6 +22,7 @@ import java.util.stream.Collectors;
 @Service
 public class DailyReceiptReportingSchedule {
 
+    private static final Logger log = LoggerFactory.getLogger(DailyReceiptReportingSchedule.class);
     private final ReceiptService receiptService;
     private final StoreClient storeClient;
     private final CommandSender<LogisticMessageDTO> commandSender;
@@ -30,8 +33,9 @@ public class DailyReceiptReportingSchedule {
         this.commandSender = commandSender;
     }
 
-    @Scheduled(cron = "0 0 23 * * *", zone = "Europe/Berlin") // 23:00 CET
+    @Scheduled(cron = "0 0 22 * * *", zone = "Europe/Berlin") // 22:00 CET
     public void sendDailyReceiptReport() {
+        log.atInfo().log("Sending daily receipt report...");
         List<Receipt> receipts = receiptService.findAll().stream()
                 .filter(r -> r.getCreatedAt().atZone(ZoneId.systemDefault()).toLocalDate().equals(LocalDate.now()))
                 .filter(r -> r.getStore().equals(storeClient.getStore()))
@@ -51,6 +55,7 @@ public class DailyReceiptReportingSchedule {
                 commandSender.fire(
                         DomainQueue.LOGISTIC_STORE_RESTOCK,
                         DomainCommand.STORE_RESTOCK,
-                        new LogisticMessageDTO(storeId, articleId, totalAmount)));
+                        new LogisticMessageDTO(storeId, articleId, totalAmount, false))); //TODO
+        log.atInfo().log("Successfully sent daily receipt report");
     }
 }

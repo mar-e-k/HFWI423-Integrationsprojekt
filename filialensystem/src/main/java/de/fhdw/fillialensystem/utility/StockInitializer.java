@@ -63,7 +63,7 @@ public class StockInitializer implements CommandLineRunner {
         }
 
         List<StoreLinkStock> initialStock = allArticles.stream()
-                .map(article -> new StoreLinkStock(currentStore, article, 0, true))
+                .map(article -> new StoreLinkStock(currentStore, article, 5L, true))
                 .toList();
 
         storeLinkStockService.saveAll(initialStock);

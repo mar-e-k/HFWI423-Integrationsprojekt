@@ -4,7 +4,6 @@ import de.fhdw.fillialensystem.persistence.entity.Account;
 import de.fhdw.fillialensystem.persistence.entity.Receipt;
 import de.fhdw.fillialensystem.persistence.entity.ReceiptLinkArticle;
 import de.fhdw.fillialensystem.persistence.entity.Register;
-import de.fhdw.fillialensystem.persistence.entity.imported.Article;
 import de.fhdw.fillialensystem.persistence.repository.AccountRepository;
 import de.fhdw.fillialensystem.persistence.repository.ReceiptLinkArticleRepository;
 import de.fhdw.fillialensystem.persistence.repository.ReceiptRepository;
@@ -149,8 +148,6 @@ public class ReceiptService extends AbstractCrudService<Receipt, Long> {
             contentStream.endText();
             y -= 20;
 
-            BigDecimal total = BigDecimal.ZERO;
-
             for (int i = 0; i < articles.size(); i++) {
                 ReceiptLinkArticle article = articles.get(i);
                 contentStream.beginText();
@@ -178,8 +175,6 @@ public class ReceiptService extends AbstractCrudService<Receipt, Long> {
                 }
                 contentStream.endText();
                 y -= 20;
-
-                total = total.add(calcTrueSum(article));
             }
 
             contentStream.moveTo(margin, y);
@@ -190,7 +185,7 @@ public class ReceiptService extends AbstractCrudService<Receipt, Long> {
             contentStream.beginText();
             contentStream.setFont(boldFont, 14);
             contentStream.newLineAtOffset(350, y);
-            contentStream.showText("Gesamtbetrag: " + String.format("%.2f EUR", total));
+            contentStream.showText("Gesamtbetrag: " + String.format("%.2f EUR", receipt.getTotalAmount()));
             contentStream.endText();
 
             contentStream.beginText();
@@ -220,7 +215,7 @@ public class ReceiptService extends AbstractCrudService<Receipt, Long> {
 
     public ByteArrayInputStream generateDailyReceipt(List<Receipt> receipts) {
         try {
-            List<ReceiptLinkArticle> articles = new ArrayList<ReceiptLinkArticle>();
+            List<ReceiptLinkArticle> articles = new ArrayList<>();
             for (Receipt receipt : receipts) {
                 articles.addAll(getReceiptLinkArticles(receipt));
             }
@@ -241,6 +236,8 @@ public class ReceiptService extends AbstractCrudService<Receipt, Long> {
             contentStream.setFont(boldFont, 18);
             contentStream.newLineAtOffset(margin, y);
             contentStream.showText("Tagesabschluss");
+            contentStream.newLineAtOffset(150, y);
+            contentStream.showText("Filiale: %s".formatted(receipts.getFirst().getStore().getId()));
             contentStream.endText();
             y -= 30;
 
@@ -273,8 +270,6 @@ public class ReceiptService extends AbstractCrudService<Receipt, Long> {
             contentStream.endText();
             y -= 20;
 
-            BigDecimal total = BigDecimal.ZERO;
-
             for (int i = 0; i < articles.size(); i++) {
                 ReceiptLinkArticle article = articles.get(i);
                 contentStream.beginText();
@@ -302,8 +297,6 @@ public class ReceiptService extends AbstractCrudService<Receipt, Long> {
                 }
                 contentStream.endText();
                 y -= 20;
-
-                total = total.add(calcTrueSum(article));
             }
 
             contentStream.moveTo(margin, y);
@@ -314,7 +307,9 @@ public class ReceiptService extends AbstractCrudService<Receipt, Long> {
             contentStream.beginText();
             contentStream.setFont(boldFont, 14);
             contentStream.newLineAtOffset(350, y);
-            contentStream.showText("Gesamtbetrag: " + String.format("%.2f EUR", total));
+            contentStream.showText("Gesamtbetrag: " + String.format("%.2f EUR", receipts.stream()
+                    .map(Receipt::getTotalAmount)
+                    .reduce(BigDecimal.ZERO, BigDecimal::add)));
             contentStream.endText();
 
             contentStream.close();

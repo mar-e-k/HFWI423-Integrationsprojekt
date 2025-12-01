@@ -15,7 +15,7 @@ public class StoreLinkStock extends AbstractEntity {
     private Article article;
 
     @Min(value = 0, message = "Amount must be >= 0")
-    private int amount;
+    private Long amount;
 
     private boolean active;
 
@@ -23,7 +23,7 @@ public class StoreLinkStock extends AbstractEntity {
         super();
     }
 
-    public StoreLinkStock(Store store, Article article, int amount, boolean active) {
+    public StoreLinkStock(Store store, Article article, Long amount, boolean active) {
         this.store = store;
         this.article = article;
         this.amount = amount;
@@ -46,11 +46,11 @@ public class StoreLinkStock extends AbstractEntity {
         this.article = article;
     }
 
-    public int getAmount() {
+    public Long getAmount() {
         return amount;
     }
 
-    public void setAmount(int amount) {
+    public void setAmount(Long amount) {
         this.amount = amount;
     }
 
