@@ -398,8 +398,13 @@ public class ShelfManagementView extends VerticalLayout {
         content.add(printButton);
 
         // Display each floor with visualization (printable view)
+        // Sort floors in descending order: highest floor (5) at top, lowest floor (1) at bottom
         if (shelf.getLevels() != null && !shelf.getLevels().isEmpty()) {
-            for (ShelfLevelResponseDTO level : shelf.getLevels()) {
+            var sortedLevels = shelf.getLevels().stream()
+                    .sorted((l1, l2) -> Integer.compare(l2.getLevelPosition(), l1.getLevelPosition()))
+                    .toList();
+
+            for (ShelfLevelResponseDTO level : sortedLevels) {
                 // Floor title
                 H3 floorTitle = new H3("Boden " + level.getLevelPosition());
                 content.add(floorTitle);

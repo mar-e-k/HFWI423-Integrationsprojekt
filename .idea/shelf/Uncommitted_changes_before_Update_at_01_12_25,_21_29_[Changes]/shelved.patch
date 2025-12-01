@@ -1,0 +1,59 @@
+Index: .idea/workspace.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+><?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<project version=\"4\">\n  <component name=\"AutoImportSettings\">\n    <option name=\"autoReloadType\" value=\"SELECTIVE\" />\n  </component>\n  <component name=\"ChangeListManager\">\n    <list default=\"true\" id=\"390ecddb-5252-424f-b2cb-7dcc0d8df65d\" name=\"Changes\" comment=\"\">\n      <change beforePath=\"$PROJECT_DIR$/einkauf-service/src/main/java/fhdw/de/einkauf_service/view/MainLayout.java\" beforeDir=\"false\" afterPath=\"$PROJECT_DIR$/einkauf-service/src/main/java/fhdw/de/einkauf_service/view/MainLayout.java\" afterDir=\"false\" />\n    </list>\n    <option name=\"SHOW_DIALOG\" value=\"false\" />\n    <option name=\"HIGHLIGHT_CONFLICTS\" value=\"true\" />\n    <option name=\"HIGHLIGHT_NON_ACTIVE_CHANGELIST\" value=\"false\" />\n    <option name=\"LAST_RESOLUTION\" value=\"IGNORE\" />\n  </component>\n  <component name=\"Git.Settings\">\n    <option name=\"RECENT_BRANCH_BY_REPOSITORY\">\n      <map>\n        <entry key=\"$PROJECT_DIR$\" value=\"einkauf/bugfix/artikel-verfügbarkeit-filter\" />\n      </map>\n    </option>\n    <option name=\"RECENT_GIT_ROOT_PATH\" value=\"$PROJECT_DIR$\" />\n  </component>\n  <component name=\"GitHubPullRequestSearchHistory\">{\n  &quot;lastFilter&quot;: {\n    &quot;state&quot;: &quot;OPEN&quot;,\n    &quot;assignee&quot;: &quot;manuhansum&quot;\n  }\n}</component>\n  <component name=\"GithubPullRequestsUISettings\">{\n  &quot;selectedUrlAndAccountId&quot;: {\n    &quot;url&quot;: &quot;https://github.com/mar-e-k/HFWI423-Integrationsprojekt.git&quot;,\n    &quot;accountId&quot;: &quot;7e1850fd-fa50-441f-9d90-e5d6a9cb63d4&quot;\n  }\n}</component>\n  <component name=\"KubernetesApiPersistence\"><![CDATA[{}]]></component>\n  <component name=\"KubernetesApiProvider\"><![CDATA[{\n  \"isMigrated\": true\n}]]></component>\n  <component name=\"ProjectColorInfo\">{\n  &quot;associatedIndex&quot;: 4\n}</component>\n  <component name=\"ProjectId\" id=\"34n56jlRrt8dBZlAk3K5bGcETv1\" />\n  <component name=\"ProjectLevelVcsManager\">\n    <ConfirmationsSetting value=\"2\" id=\"Add\" />\n  </component>\n  <component name=\"ProjectViewState\">\n    <option name=\"hideEmptyMiddlePackages\" value=\"true\" />\n    <option name=\"showLibraryContents\" value=\"true\" />\n  </component>\n  <component name=\"PropertiesComponent\"><![CDATA[{\n  \"keyToString\": {\n    \"ASKED_SHARE_PROJECT_CONFIGURATION_FILES\": \"true\",\n    \"Application.PurchaseServiceApplication.executor\": \"Run\",\n    \"ModuleVcsDetector.initialDetectionPerformed\": \"true\",\n    \"Notification.DisplayName-DoNotAsk-DatabaseConfigFileWatcher.found\": \"New/updated database configurations found\",\n    \"Notification.DisplayName-DoNotAsk-Nx Console\": \"Nx Console\",\n    \"Notification.DoNotAsk-DatabaseConfigFileWatcher.found\": \"true\",\n    \"Notification.DoNotAsk-Nx Console\": \"true\",\n    \"RequestMappingsPanelOrder0\": \"0\",\n    \"RequestMappingsPanelOrder1\": \"1\",\n    \"RequestMappingsPanelWidth0\": \"75\",\n    \"RequestMappingsPanelWidth1\": \"75\",\n    \"RunOnceActivity.ShowReadmeOnStart\": \"true\",\n    \"RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252\": \"true\",\n    \"RunOnceActivity.git.unshallow\": \"true\",\n    \"Spring Boot.PurchaseServiceApplication.executor\": \"Run\",\n    \"dev.nx.console.last_ai_configure_notification_timestamp\": \"1764258770305\",\n    \"git-widget-placeholder\": \"HI-26-Bestellhistorie-einsehen-und-erneut-bestellen-FE\",\n    \"kotlin-language-version-configured\": \"true\",\n    \"node.js.detected.package.eslint\": \"true\",\n    \"node.js.detected.package.tslint\": \"true\",\n    \"node.js.selected.package.eslint\": \"(autodetect)\",\n    \"node.js.selected.package.tslint\": \"(autodetect)\",\n    \"nodejs_package_manager_path\": \"npm\",\n    \"project.structure.last.edited\": \"Project\",\n    \"project.structure.proportion\": \"0.15\",\n    \"project.structure.side.proportion\": \"0.0\",\n    \"settings.editor.selected.configurable\": \"reference.projectsettings.compiler.annotationProcessors\",\n    \"settings.editor.splitter.proportion\": \"0.2517839\",\n    \"vue.rearranger.settings.migration\": \"true\"\n  }\n}]]></component>\n  <component name=\"RecentsManager\">\n    <key name=\"MoveFile.RECENT_KEYS\">\n      <recent name=\"$PROJECT_DIR$/einkauf-service/images\" />\n    </key>\n  </component>\n  <component name=\"RunManager\">\n    <configuration name=\"PurchaseServiceApplication\" type=\"SpringBootApplicationConfigurationType\" factoryName=\"Spring Boot\" nameIsGenerated=\"true\">\n      <module name=\"einkauf-service\" />\n      <option name=\"SPRING_BOOT_MAIN_CLASS\" value=\"fhdw.de.einkauf_service.PurchaseServiceApplication\" />\n      <method v=\"2\">\n        <option name=\"Make\" enabled=\"true\" />\n      </method>\n    </configuration>\n  </component>\n  <component name=\"SharedIndexes\">\n    <attachedChunks>\n      <set>\n        <option value=\"bundled-jdk-9823dce3aa75-bf35d07a577b-intellij.indexing.shared.core-IU-252.28238.7\" />\n        <option value=\"bundled-js-predefined-d6986cc7102b-a71380e98a7c-JavaScript-IU-252.28238.7\" />\n      </set>\n    </attachedChunks>\n  </component>\n  <component name=\"TaskManager\">\n    <task active=\"true\" id=\"Default\" summary=\"Default task\">\n      <changelist id=\"390ecddb-5252-424f-b2cb-7dcc0d8df65d\" name=\"Changes\" comment=\"\" />\n      <created>1761836321104</created>\n      <option name=\"number\" value=\"Default\" />\n      <option name=\"presentableId\" value=\"Default\" />\n      <updated>1761836321104</updated>\n      <workItem from=\"1761836322150\" duration=\"1183000\" />\n      <workItem from=\"1762112479777\" duration=\"1557000\" />\n      <workItem from=\"1762356066606\" duration=\"29000\" />\n      <workItem from=\"1763478197476\" duration=\"3355000\" />\n      <workItem from=\"1764077966392\" duration=\"315000\" />\n      <workItem from=\"1764258711329\" duration=\"2678000\" />\n      <workItem from=\"1764261423756\" duration=\"24641000\" />\n    </task>\n    <servers />\n  </component>\n  <component name=\"TypeScriptGeneratedFilesManager\">\n    <option name=\"version\" value=\"3\" />\n  </component>\n  <component name=\"Vcs.Log.Tabs.Properties\">\n    <option name=\"TAB_STATES\">\n      <map>\n        <entry key=\"MAIN\">\n          <value>\n            <State />\n          </value>\n        </entry>\n      </map>\n    </option>\n  </component>\n</project>
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/.idea/workspace.xml b/.idea/workspace.xml
+--- a/.idea/workspace.xml	(revision 6349122a0296c4a7aa90c2030f89ace7a9116bab)
++++ b/.idea/workspace.xml	(date 1764620944729)
+@@ -4,9 +4,7 @@
+     <option name="autoReloadType" value="SELECTIVE" />
+   </component>
+   <component name="ChangeListManager">
+-    <list default="true" id="390ecddb-5252-424f-b2cb-7dcc0d8df65d" name="Changes" comment="">
+-      <change beforePath="$PROJECT_DIR$/einkauf-service/src/main/java/fhdw/de/einkauf_service/view/MainLayout.java" beforeDir="false" afterPath="$PROJECT_DIR$/einkauf-service/src/main/java/fhdw/de/einkauf_service/view/MainLayout.java" afterDir="false" />
+-    </list>
++    <list default="true" id="390ecddb-5252-424f-b2cb-7dcc0d8df65d" name="Changes" comment="" />
+     <option name="SHOW_DIALOG" value="false" />
+     <option name="HIGHLIGHT_CONFLICTS" value="true" />
+     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+@@ -15,7 +13,7 @@
+   <component name="Git.Settings">
+     <option name="RECENT_BRANCH_BY_REPOSITORY">
+       <map>
+-        <entry key="$PROJECT_DIR$" value="einkauf/bugfix/artikel-verfügbarkeit-filter" />
++        <entry key="$PROJECT_DIR$" value="HI-47-Regale-im-Ladenbild-FE" />
+       </map>
+     </option>
+     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+@@ -54,8 +52,10 @@
+     "ModuleVcsDetector.initialDetectionPerformed": "true",
+     "Notification.DisplayName-DoNotAsk-DatabaseConfigFileWatcher.found": "New/updated database configurations found",
+     "Notification.DisplayName-DoNotAsk-Nx Console": "Nx Console",
++    "Notification.DisplayName-DoNotAsk-Plugins Suggestion": "Plugin suggestions available",
+     "Notification.DoNotAsk-DatabaseConfigFileWatcher.found": "true",
+     "Notification.DoNotAsk-Nx Console": "true",
++    "Notification.DoNotAsk-Plugins Suggestion": "true",
+     "RequestMappingsPanelOrder0": "0",
+     "RequestMappingsPanelOrder1": "1",
+     "RequestMappingsPanelWidth0": "75",
+@@ -65,7 +65,7 @@
+     "RunOnceActivity.git.unshallow": "true",
+     "Spring Boot.PurchaseServiceApplication.executor": "Run",
+     "dev.nx.console.last_ai_configure_notification_timestamp": "1764258770305",
+-    "git-widget-placeholder": "HI-26-Bestellhistorie-einsehen-und-erneut-bestellen-FE",
++    "git-widget-placeholder": "einkauf/dev",
+     "kotlin-language-version-configured": "true",
+     "node.js.detected.package.eslint": "true",
+     "node.js.detected.package.tslint": "true",
+@@ -115,7 +115,7 @@
+       <workItem from="1763478197476" duration="3355000" />
+       <workItem from="1764077966392" duration="315000" />
+       <workItem from="1764258711329" duration="2678000" />
+-      <workItem from="1764261423756" duration="24641000" />
++      <workItem from="1764261423756" duration="48398000" />
+     </task>
+     <servers />
+   </component>
