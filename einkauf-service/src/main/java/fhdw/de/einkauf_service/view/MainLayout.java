@@ -28,6 +28,7 @@ public class MainLayout extends AppLayout {
         RouterLink homeLink = new RouterLink("Home", HomeView.class);
         RouterLink articlesLink = new RouterLink("Artikel", ArticleView.class);
         RouterLink suppliersLink = new RouterLink("Lieferanten", SupplierView.class);
+        RouterLink shelvesLink = new RouterLink("Regale", ShelfManagementView.class);
         RouterLink cartLink = new RouterLink("Warenkorb", ShoppingCartView.class);
         RouterLink contingentsLink = new RouterLink("Kontingente", ContingentView.class);
         RouterLink ordersLink = new RouterLink("Bestellhistorie", OrderView.class);
@@ -36,6 +37,7 @@ public class MainLayout extends AppLayout {
         homeLink.setHighlightCondition(HighlightConditions.sameLocation());
         articlesLink.setHighlightCondition(HighlightConditions.sameLocation());
         suppliersLink.setHighlightCondition(HighlightConditions.sameLocation());
+        shelvesLink.setHighlightCondition(HighlightConditions.sameLocation());
         ordersLink.setHighlightCondition(HighlightConditions.sameLocation());
         cartLink.setHighlightCondition(HighlightConditions.sameLocation());
         contingentsLink.setHighlightCondition(HighlightConditions.sameLocation());
@@ -44,12 +46,13 @@ public class MainLayout extends AppLayout {
         homeLink.addClassName("nav-link");
         articlesLink.addClassName("nav-link");
         suppliersLink.addClassName("nav-link");
+        shelvesLink.addClassName("nav-link");
         ordersLink.addClassName("nav-link");
         cartLink.addClassName("nav-link");
         contingentsLink.addClassName("nav-link");
 
         // Navigation layout
-        HorizontalLayout navLinks = new HorizontalLayout(homeLink, articlesLink, suppliersLink, cartLink, contingentsLink, ordersLink);
+        HorizontalLayout navLinks = new HorizontalLayout(homeLink, articlesLink, suppliersLink, shelvesLink, cartLink, contingentsLink, ordersLink);
         navLinks.setSpacing(true);
         navLinks.setPadding(true);
         navLinks.setAlignItems(FlexComponent.Alignment.CENTER);
