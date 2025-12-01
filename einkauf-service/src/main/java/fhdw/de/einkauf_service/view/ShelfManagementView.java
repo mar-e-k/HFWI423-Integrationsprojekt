@@ -63,7 +63,7 @@ public class ShelfManagementView extends VerticalLayout {
         configureSearchFields();
 
         // Configure category filter
-        List<CategoryResponseDTO> categories = categoryService.findAllCategories();
+        List<CategoryResponseDTO> categories = categoryService.getAllCategories();
         categoryFilter.setItems(categories);
         categoryFilter.setItemLabelGenerator(CategoryResponseDTO::getName);
         categoryFilter.addValueChangeListener(e -> updateList());
