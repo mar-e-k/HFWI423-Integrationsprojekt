@@ -324,15 +324,20 @@ public class CashierView extends AbstractMainView implements BeforeEnterObserver
         searchButton.setEnabled(false);
         searchField.addValueChangeListener(event -> {
             String value = event.getValue();
-            boolean validInput = value.matches("^(A-\\d+|\\d+)$");
-            searchButton.setEnabled(validInput);
-            if (!validInput && !value.isEmpty()) {
-                errorLabel.setText("Eingabe muss in Form von 'A-XXXX' oder 'XXXX' sein");
-                descriptionOutputField.clear();
-                descriptionOutputField.setVisible(false);
-                articleGrid.setItems(Collections.emptyList());
-                articleGrid.setVisible(false);
-            } else {
+//            boolean validInput = value.matches("^(A-\\d+|\\d+)$");
+//            searchButton.setEnabled(validInput);
+//            if (!validInput && !value.isEmpty()) {
+//                errorLabel.setText("Eingabe muss in Form von 'A-XXXX' oder 'XXXX' sein");
+//                descriptionOutputField.clear();
+//                descriptionOutputField.setVisible(false);
+//                articleGrid.setItems(Collections.emptyList());
+//                articleGrid.setVisible(false);
+//            } else {
+//                errorLabel.setText("");
+//            }
+            boolean hasText = value != null && !value.trim().isEmpty();
+            searchButton.setEnabled(hasText);
+            if (!hasText) {
                 errorLabel.setText("");
             }
         });
@@ -353,7 +358,7 @@ public class CashierView extends AbstractMainView implements BeforeEnterObserver
                 articleGrid.setVisible(false);
                 return;
             }
-            input = input.matches("\\d+") ? "A-" + input : input;
+            //input = input.matches("\\d+") ? "A-" + input : input;
 
             Optional<ArticleDTO> article = articleService.findByArticleNumber(input);
             if (article.isPresent()) {
