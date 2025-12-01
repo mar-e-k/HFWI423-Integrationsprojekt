@@ -39,7 +39,7 @@ public class DailyReceiptReportingView extends AbstractMainView {
 
     private final Grid<Receipt> receiptGrid = new Grid<>(Receipt.class, false);
 
-    private final Checkbox dailyReceiptCheckbox = new Checkbox("Tagesabschlussrelevante");
+    private final Checkbox dailyReceiptFilterCheckbox = new Checkbox("Tagesabschlussrelevante");
     private final Button generateDailyReceiptButton = new Button("Tagesabschluss ausgeben");
     private final DatePicker dateFilter = new DatePicker("Filter Datum");
     private final ComboBox<Store> storeFilter = new ComboBox<>("Filter Filiale");
@@ -66,11 +66,65 @@ public class DailyReceiptReportingView extends AbstractMainView {
         receipts = receiptService.findAll();
         receiptGrid.setItems(receipts);
 
+        initButtons();
         initFilters();
         configureGrid();
 
         add(receiptGrid);
         setSizeFull();
+    }
+
+    private void initButtons() {
+        generateDailyReceiptButton.addClickListener(c -> handleGenerateDailyReceiptButtonClick());
+    }
+
+    private void initFilters() {
+        Button clearFilters = new Button("Filter löschen", e -> {
+            dailyReceiptFilterCheckbox.setValue(false);
+            clearManualFilters();
+            filterReceipts();
+        });
+
+        dailyReceiptFilterCheckbox.addValueChangeListener(check -> {
+            if (check.getValue()) {
+                dateFilter.setValue(LocalDate.now());
+                storeFilter.setValue(storeClient.getStore());
+                setManualFiltersEnabled(false);
+            } else {
+                setManualFiltersEnabled(true);
+                clearManualFilters();
+            }
+            filterReceipts();
+        });
+
+        dateFilter.addValueChangeListener(e -> filterReceipts());
+
+        storeFilter.setItems(distinctStores());
+        storeFilter.setItemLabelGenerator(s -> "VKST-" + s.getId());
+        storeFilter.addValueChangeListener(e -> filterReceipts());
+
+        registerFilter.setItems(distinctRegisters());
+        registerFilter.setItemLabelGenerator(r -> "VKST-%d_Kasse-%d".formatted(r.getStore().getId(), r.getId()));
+        registerFilter.addValueChangeListener(e -> filterReceipts());
+
+        accountFilter.setItems(distinctAccounts());
+        accountFilter.setItemLabelGenerator(Account::getUsername);
+        accountFilter.addValueChangeListener(e -> filterReceipts());
+
+        HorizontalLayout filtersLayout = new HorizontalLayout(
+                new VerticalLayout(dailyReceiptFilterCheckbox, generateDailyReceiptButton),
+                dateFilter,
+                storeFilter,
+                registerFilter,
+                accountFilter,
+                clearFilters,
+                debugSendReportingToLogistic
+        );
+
+        filtersLayout.setDefaultVerticalComponentAlignment(FlexComponent.Alignment.CENTER);
+        filtersLayout.setSpacing(true);
+        filtersLayout.setPadding(false);
+        add(filtersLayout);
     }
 
     private void configureGrid() {
@@ -135,54 +189,33 @@ public class DailyReceiptReportingView extends AbstractMainView {
         a.getElement().executeJs("this.remove()");
     }
 
-    private void initFilters() {
+    private void handleGenerateDailyReceiptButtonClick() {
+        List<Receipt> receipts = receiptService.findAll().stream()
+                .filter(r -> r.getCreatedAt().atZone(ZoneId.systemDefault()).toLocalDate().equals(LocalDate.now()))
+                .filter(r -> r.getStore().equals(storeClient.getStore()))
+                .toList();
 
-        Button clearFilters = new Button("Filter löschen", e -> {
-            dailyReceiptCheckbox.setValue(false);
-            clearManualFilters();
-            filterReceipts();
-        });
+        ByteArrayInputStream generatedPdfStream = receiptService.generateDailyReceipt(receipts);
+        byte[] pdfBytes = generatedPdfStream.readAllBytes();
 
-        dailyReceiptCheckbox.addValueChangeListener(check -> {
-            if (check.getValue()) {
-                dateFilter.setValue(LocalDate.now());
-                storeFilter.setValue(storeClient.getStore());
-                setManualFiltersEnabled(false);
-            } else {
-                setManualFiltersEnabled(true);
-                clearManualFilters();
-            }
-            filterReceipts();
-        });
+        String fileName = "Tagesabschluss-%d-%s.pdf".formatted(storeClient.getStore().getId(), LocalDate.now());
 
-        dateFilter.addValueChangeListener(e -> filterReceipts());
-
-        storeFilter.setItems(distinctStores());
-        storeFilter.setItemLabelGenerator(s -> "VKST-" + s.getId());
-        storeFilter.addValueChangeListener(e -> filterReceipts());
-
-        registerFilter.setItems(distinctRegisters());
-        registerFilter.setItemLabelGenerator(r -> "VKST-%d_Kasse-%d".formatted(r.getStore().getId(), r.getId()));
-        registerFilter.addValueChangeListener(e -> filterReceipts());
-
-        accountFilter.setItems(distinctAccounts());
-        accountFilter.setItemLabelGenerator(Account::getUsername);
-        accountFilter.addValueChangeListener(e -> filterReceipts());
-
-        HorizontalLayout filtersLayout = new HorizontalLayout(
-                new VerticalLayout(dailyReceiptCheckbox, generateDailyReceiptButton),
-                dateFilter,
-                storeFilter,
-                registerFilter,
-                accountFilter,
-                clearFilters,
-                debugSendReportingToLogistic
+        DownloadHandler handler = DownloadHandler.fromInputStream(event ->
+                new DownloadResponse(
+                        new ByteArrayInputStream(pdfBytes),
+                        fileName,
+                        "application/pdf",
+                        pdfBytes.length
+                )
         );
 
-        filtersLayout.setDefaultVerticalComponentAlignment(FlexComponent.Alignment.CENTER);
-        filtersLayout.setSpacing(true);
-        filtersLayout.setPadding(false);
-        add(filtersLayout);
+        Anchor a = new Anchor(handler, "");
+        a.getElement().setAttribute("download", fileName);
+        a.getElement().setAttribute("style", "display:none");
+
+        add(a);
+        a.getElement().callJsFunction("click");
+        a.getElement().executeJs("this.remove()");
     }
 
     private Set<Store> distinctStores() {

@@ -4,6 +4,7 @@ import de.fhdw.fillialensystem.persistence.entity.Account;
 import de.fhdw.fillialensystem.persistence.entity.Receipt;
 import de.fhdw.fillialensystem.persistence.entity.ReceiptLinkArticle;
 import de.fhdw.fillialensystem.persistence.entity.Register;
+import de.fhdw.fillialensystem.persistence.entity.imported.Article;
 import de.fhdw.fillialensystem.persistence.repository.AccountRepository;
 import de.fhdw.fillialensystem.persistence.repository.ReceiptLinkArticleRepository;
 import de.fhdw.fillialensystem.persistence.repository.ReceiptRepository;
@@ -23,6 +24,7 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -91,12 +93,14 @@ public class ReceiptService extends AbstractCrudService<Receipt, Long> {
     public ByteArrayInputStream generateReceipt(Long receiptId, boolean isCashPayment) {
         Receipt receipt = super.findById(receiptId)
                 .orElseThrow(EntityNotFoundException::new);
-        return generateReceipt(getReceiptLinkArticles(receipt), receipt, isCashPayment);
+        return generateReceipt(receipt, isCashPayment);
     }
 
 
-    public ByteArrayInputStream generateReceipt(List<ReceiptLinkArticle> receiptLinkArticles, Receipt receipt, boolean isCashPayment) {
+    public ByteArrayInputStream generateReceipt(Receipt receipt, boolean isCashPayment) {
         try {
+            List<ReceiptLinkArticle> articles = receiptLinkArticleRepository.findByReceipt(receipt);
+
             PDDocument document = new PDDocument();
             PDPage page = new PDPage();
             document.addPage(page);
@@ -147,35 +151,35 @@ public class ReceiptService extends AbstractCrudService<Receipt, Long> {
 
             BigDecimal total = BigDecimal.ZERO;
 
-            for (int i = 0; i < receiptLinkArticles.size(); i++) {
-                ReceiptLinkArticle receiptLinkArticle = receiptLinkArticles.get(i);
+            for (int i = 0; i < articles.size(); i++) {
+                ReceiptLinkArticle article = articles.get(i);
                 contentStream.beginText();
                 contentStream.setFont(font, 10);
                 contentStream.newLineAtOffset(margin, y);
                 contentStream.showText(String.valueOf(i + 1));
                 contentStream.newLineAtOffset(50, 0);
-                contentStream.showText(receiptLinkArticle.getArticle().getName());
+                contentStream.showText(article.getArticle().getName());
                 contentStream.newLineAtOffset(150, 0);
-                contentStream.showText(String.valueOf(receiptLinkArticle.getAmount()));
+                contentStream.showText(String.valueOf(article.getAmount()));
                 contentStream.newLineAtOffset(70, 0);
-                contentStream.showText(String.format("%d %%", receiptLinkArticle.getArticle().getTaxRatePercent().intValue()));
+                contentStream.showText(String.format("%d %%", article.getArticle().getTaxRatePercent().intValue()));
                 contentStream.newLineAtOffset(100, 0);
-                if (receiptLinkArticle.getOverridePrice() != null && receiptLinkArticle.getOverridePrice().compareTo(BigDecimal.ZERO) > 0) {
-                    contentStream.showText(String.format("%.2f EUR", receiptLinkArticle.getOverridePrice().doubleValue()));
+                if (article.getOverridePrice() != null && article.getOverridePrice().compareTo(BigDecimal.ZERO) > 0) {
+                    contentStream.showText(String.format("%.2f EUR", article.getOverridePrice().doubleValue()));
                     contentStream.newLineAtOffset(80, 0);
                 } else {
-                    contentStream.showText(String.format("%.2f EUR", receiptLinkArticle.getPrice().doubleValue()));
+                    contentStream.showText(String.format("%.2f EUR", article.getPrice().doubleValue()));
                     contentStream.newLineAtOffset(80, 0);
                 }
-                if (receiptLinkArticle.getDiscountedByPercent() != null && receiptLinkArticle.getDiscountedByPercent().compareTo(BigDecimal.ZERO) > 0) {
-                    contentStream.showText(String.format("%d %% x %d", receiptLinkArticle.getDiscountedByPercent().intValue(), receiptLinkArticle.getAmount()));
+                if (article.getDiscountedByPercent() != null && article.getDiscountedByPercent().compareTo(BigDecimal.ZERO) > 0) {
+                    contentStream.showText(String.format("%d %% x %d", article.getDiscountedByPercent().intValue(), article.getAmount()));
                 } else {
                     contentStream.showText("Kein Rabatt");
                 }
                 contentStream.endText();
                 y -= 20;
 
-                total = total.add(calcTrueSum(receiptLinkArticle));
+                total = total.add(calcTrueSum(article));
             }
 
             contentStream.moveTo(margin, y);
@@ -201,6 +205,116 @@ public class ReceiptService extends AbstractCrudService<Receipt, Long> {
             contentStream.setFont(font, 12);
             contentStream.newLineAtOffset(margin, y);
             contentStream.showText("Vielen Dank für Ihren Einkauf!");
+            contentStream.endText();
+
+            contentStream.close();
+
+            ByteArrayOutputStream out = new ByteArrayOutputStream();
+            document.save(out);
+
+            return new ByteArrayInputStream(out.toByteArray());
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
+    public ByteArrayInputStream generateDailyReceipt(List<Receipt> receipts) {
+        try {
+            List<ReceiptLinkArticle> articles = new ArrayList<ReceiptLinkArticle>();
+            for (Receipt receipt : receipts) {
+                articles.addAll(getReceiptLinkArticles(receipt));
+            }
+
+            PDDocument document = new PDDocument();
+            PDPage page = new PDPage();
+            document.addPage(page);
+
+            PDPageContentStream contentStream = new PDPageContentStream(document, page);
+
+            PDType1Font font = new PDType1Font(Standard14Fonts.FontName.HELVETICA);
+            PDType1Font boldFont = new PDType1Font(Standard14Fonts.FontName.HELVETICA_BOLD);
+
+            float y = 750;
+            float margin = 50;
+
+            contentStream.beginText();
+            contentStream.setFont(boldFont, 18);
+            contentStream.newLineAtOffset(margin, y);
+            contentStream.showText("Tagesabschluss");
+            contentStream.endText();
+            y -= 30;
+
+            contentStream.beginText();
+            contentStream.setFont(font, 12);
+            contentStream.newLineAtOffset(margin, y);
+            contentStream.showText("Datum: " + LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm:ss")));
+            contentStream.endText();
+            y -= 20;
+
+            contentStream.moveTo(margin, y);
+            contentStream.lineTo(550, y);
+            contentStream.stroke();
+            y -= 20;
+
+            contentStream.beginText();
+            contentStream.setFont(boldFont, 12);
+            contentStream.newLineAtOffset(margin, y);
+            contentStream.showText("Pos.");
+            contentStream.newLineAtOffset(50, 0);
+            contentStream.showText("Artikel");
+            contentStream.newLineAtOffset(150, 0);
+            contentStream.showText("Menge");
+            contentStream.newLineAtOffset(70, 0);
+            contentStream.showText("Steuersatz");
+            contentStream.newLineAtOffset(100, 0);
+            contentStream.showText("Preis");
+            contentStream.newLineAtOffset(80, 0);
+            contentStream.showText("Rabatt");
+            contentStream.endText();
+            y -= 20;
+
+            BigDecimal total = BigDecimal.ZERO;
+
+            for (int i = 0; i < articles.size(); i++) {
+                ReceiptLinkArticle article = articles.get(i);
+                contentStream.beginText();
+                contentStream.setFont(font, 10);
+                contentStream.newLineAtOffset(margin, y);
+                contentStream.showText(String.valueOf(i + 1));
+                contentStream.newLineAtOffset(50, 0);
+                contentStream.showText(article.getArticle().getName());
+                contentStream.newLineAtOffset(150, 0);
+                contentStream.showText(String.valueOf(article.getAmount()));
+                contentStream.newLineAtOffset(70, 0);
+                contentStream.showText(String.format("%d %%", article.getArticle().getTaxRatePercent().intValue()));
+                contentStream.newLineAtOffset(100, 0);
+                if (article.getOverridePrice() != null && article.getOverridePrice().compareTo(BigDecimal.ZERO) > 0) {
+                    contentStream.showText(String.format("%.2f EUR", article.getOverridePrice().doubleValue()));
+                    contentStream.newLineAtOffset(80, 0);
+                } else {
+                    contentStream.showText(String.format("%.2f EUR", article.getPrice().doubleValue()));
+                    contentStream.newLineAtOffset(80, 0);
+                }
+                if (article.getDiscountedByPercent() != null && article.getDiscountedByPercent().compareTo(BigDecimal.ZERO) > 0) {
+                    contentStream.showText(String.format("%d %% x %d", article.getDiscountedByPercent().intValue(), article.getAmount()));
+                } else {
+                    contentStream.showText("Kein Rabatt");
+                }
+                contentStream.endText();
+                y -= 20;
+
+                total = total.add(calcTrueSum(article));
+            }
+
+            contentStream.moveTo(margin, y);
+            contentStream.lineTo(550, y);
+            contentStream.stroke();
+            y -= 30;
+
+            contentStream.beginText();
+            contentStream.setFont(boldFont, 14);
+            contentStream.newLineAtOffset(350, y);
+            contentStream.showText("Gesamtbetrag: " + String.format("%.2f EUR", total));
             contentStream.endText();
 
             contentStream.close();

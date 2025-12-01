@@ -3,12 +3,12 @@ package de.fhdw.fillialensystem.persistence.service.other;
 import de.fhdw.commons.api.dto.SystemClientDTO;
 import de.fhdw.fillialensystem.persistence.entity.Register;
 import de.fhdw.fillialensystem.persistence.service.RegisterService;
-import de.fhdw.fillialensystem.persistence.service.StoreService;
 import de.fhdw.fillialensystem.utility.RegisterClient;
 import de.fhdw.fillialensystem.utility.StoreClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
 import java.util.ArrayList;
@@ -25,9 +25,11 @@ public class RegisterRegistryService {
     private final Map<String, RegisterClient> kassensystemInstanceMap = new ConcurrentHashMap<>();
 
     private final StoreClient storeClient;
+    private final RegisterService registerService;
 
-    public RegisterRegistryService(StoreClient storeClient) {
+    public RegisterRegistryService(StoreClient storeClient, RegisterService registerService) {
         this.storeClient = storeClient;
+        this.registerService = registerService;
     }
 
     public Map<String, RegisterClient> getKassensystemInstanceMap() {
@@ -46,16 +48,19 @@ public class RegisterRegistryService {
         return new ArrayList<>(kassensystemInstanceMap.values().stream().filter(RegisterClient::isOnline).toList());
     }
 
+    @Transactional
     public void addRegistry(SystemClientDTO systemClientDTO) {
         if (kassensystemInstanceMap.containsKey(systemClientDTO.getId())) {
             throw new IllegalStateException("Kassensystem instance with id {%s} already exists".formatted(systemClientDTO.getId()));
         }
 
-        if (storeClient.getStore().getRegisters().isEmpty()) {
+        List<Register> registers = registerService.findAllByStore(storeClient.getStore());
+
+        if (registers.isEmpty()) {
             throw new IllegalStateException("Store has no registers defined");
         }
 
-        for (Register register : storeClient.getStore().getRegisters()) {
+        for (Register register : registers) {
             boolean exists = findAllActiveRegistries().stream()
                     .anyMatch(rc -> rc.getRegister().equals(register));
 
