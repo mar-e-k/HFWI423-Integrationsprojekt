@@ -46,7 +46,7 @@ public class LogisticReceiveStockListener {
                     .orElseThrow(EntityNotFoundException::new);
             StoreLinkStock storeLinkStock = storeLinkStockService.findByStoreAndArticle(storeClient.getStore(), article)
                     .orElseThrow(EntityNotFoundException::new);
-            storeLinkStock.setAmount(storeLinkStock.getAmount() + logisticMessageDTO.getQuantity());
+            storeLinkStock.setAmount(storeLinkStock.getAmount() + logisticMessageDTO.getQuantity().intValue());
 
             storeLinkStockService.update(storeLinkStock);
         } catch (Exception e) {
