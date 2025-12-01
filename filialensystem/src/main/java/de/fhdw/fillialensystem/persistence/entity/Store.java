@@ -2,7 +2,6 @@ package de.fhdw.fillialensystem.persistence.entity;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
 import jakarta.persistence.OneToMany;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
@@ -14,7 +13,7 @@ import java.util.Objects;
 @Entity
 public class Store extends AbstractEntity {
 
-    @OneToMany(mappedBy = "store", fetch = FetchType.EAGER)
+    @OneToMany(mappedBy = "store")
     private List<Register> registers = new ArrayList<>();
 
     @OneToMany(mappedBy = "store")

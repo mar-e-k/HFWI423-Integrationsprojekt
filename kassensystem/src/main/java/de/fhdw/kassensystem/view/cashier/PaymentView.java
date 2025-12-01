@@ -192,7 +192,7 @@ public class PaymentView extends AbstractMainView implements BeforeEnterObserver
                 )
         );
 
-        return new com.vaadin.flow.server.StreamResourceRegistry.ElementStreamResource(handler, this.getElement());
+        return new StreamResourceRegistry.ElementStreamResource(handler, this.getElement());
     }
 
     @Override
