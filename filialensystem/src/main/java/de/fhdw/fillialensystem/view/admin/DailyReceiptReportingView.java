@@ -21,6 +21,7 @@ import de.fhdw.fillialensystem.persistence.entity.Store;
 import de.fhdw.fillialensystem.persistence.service.ReceiptLinkArticleService;
 import de.fhdw.fillialensystem.persistence.service.ReceiptService;
 import de.fhdw.fillialensystem.utility.StoreClient;
+import de.fhdw.fillialensystem.utility.scheduler.DailyReceiptReportingSchedule;
 import jakarta.annotation.security.RolesAllowed;
 
 import java.io.ByteArrayInputStream;
@@ -36,6 +37,7 @@ public class DailyReceiptReportingView extends AbstractMainView {
     private final ReceiptService receiptService;
     private final ReceiptLinkArticleService receiptLinkArticleService;
     private final StoreClient storeClient;
+    private final DailyReceiptReportingSchedule dailyReceiptReportingSchedule;
 
     private final Grid<Receipt> receiptGrid = new Grid<>(Receipt.class, false);
 
@@ -54,11 +56,11 @@ public class DailyReceiptReportingView extends AbstractMainView {
     public DailyReceiptReportingView(
             ReceiptService receiptService,
             ReceiptLinkArticleService receiptLinkArticleService,
-            StoreClient storeClient
-    ) {
+            StoreClient storeClient, DailyReceiptReportingSchedule dailyReceiptReportingSchedule) {
         this.receiptService = receiptService;
         this.receiptLinkArticleService = receiptLinkArticleService;
         this.storeClient = storeClient;
+        this.dailyReceiptReportingSchedule = dailyReceiptReportingSchedule;
     }
 
     @Override
@@ -76,6 +78,7 @@ public class DailyReceiptReportingView extends AbstractMainView {
 
     private void initButtons() {
         generateDailyReceiptButton.addClickListener(c -> handleGenerateDailyReceiptButtonClick());
+        debugSendReportingToLogistic.addClickListener(c -> dailyReceiptReportingSchedule.sendDailyReceiptReport());
     }
 
     private void initFilters() {
