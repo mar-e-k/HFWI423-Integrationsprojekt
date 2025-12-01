@@ -50,7 +50,9 @@ public class MainView extends AbstractMainView {
         Anchor role = new Anchor("/roles", "Rollen");
         Anchor register = new Anchor("/register", "Kassen");
         Anchor store = new Anchor("/select-store", "Filiale");
-        add(admin, role, register, store);
+        Anchor stock = new Anchor("/admin-stock", "Bestände");
+        add(admin, role, register, store, stock);
+
     }
 
     private Grid<RegisterClient> createGrid() {
