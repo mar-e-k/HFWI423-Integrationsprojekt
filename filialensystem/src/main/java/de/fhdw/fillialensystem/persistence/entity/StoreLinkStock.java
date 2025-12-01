@@ -1,9 +1,11 @@
 package de.fhdw.fillialensystem.persistence.entity;
 
 import de.fhdw.fillialensystem.persistence.entity.imported.Article;
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.ManyToOne;
 import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotNull;
 
 @Entity
 public class StoreLinkStock extends AbstractEntity {
