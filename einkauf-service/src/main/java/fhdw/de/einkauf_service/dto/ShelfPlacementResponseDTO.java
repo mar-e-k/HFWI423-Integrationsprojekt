@@ -10,6 +10,7 @@ public class ShelfPlacementResponseDTO {
     private Long shelfLevelId;
     private Long articleId;
     private String articleName;
+    private String productImage;
     private Double positionX;
     private Double positionY;
     private Double widthCm;

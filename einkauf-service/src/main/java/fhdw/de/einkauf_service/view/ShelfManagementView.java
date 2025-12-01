@@ -4,8 +4,7 @@ import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.grid.Grid;
-import com.vaadin.flow.component.html.H2;
-import com.vaadin.flow.component.html.Span;
+import com.vaadin.flow.component.html.*;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
@@ -13,13 +12,14 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.value.ValueChangeMode;
 import com.vaadin.flow.router.Route;
-import com.vaadin.flow.router.RouterLink;
 import fhdw.de.einkauf_service.dto.ShelfRequestDTO;
 import fhdw.de.einkauf_service.dto.ShelfResponseDTO;
 import fhdw.de.einkauf_service.dto.CategoryResponseDTO;
 import fhdw.de.einkauf_service.dto.ShelfLevelResponseDTO;
+import fhdw.de.einkauf_service.dto.ShelfPlacementResponseDTO;
 import fhdw.de.einkauf_service.service.ShelfService;
 import fhdw.de.einkauf_service.service.ArticleCategoryService;
+import fhdw.de.einkauf_service.service.ShelfPlacementService;
 import java.util.List;
 
 /**
@@ -36,6 +36,7 @@ public class ShelfManagementView extends VerticalLayout {
 
     private final ShelfService shelfService;
     private final ArticleCategoryService categoryService;
+    private final ShelfPlacementService placementService;
 
     private final Grid<ShelfResponseDTO> grid = new Grid<>(ShelfResponseDTO.class);
 
@@ -50,9 +51,11 @@ public class ShelfManagementView extends VerticalLayout {
     private final Button deleteButton = new Button("Löschen");
 
     public ShelfManagementView(ShelfService shelfService,
-                              ArticleCategoryService categoryService) {
+                              ArticleCategoryService categoryService,
+                              ShelfPlacementService placementService) {
         this.shelfService = shelfService;
         this.categoryService = categoryService;
+        this.placementService = placementService;
 
         setSizeFull();
         setAlignItems(Alignment.CENTER);
@@ -92,12 +95,8 @@ public class ShelfManagementView extends VerticalLayout {
         grid.setSizeFull();
         grid.setColumns();
 
-        // Clickable name column that navigates to detail view
-        grid.addComponentColumn(shelf -> {
-            RouterLink link = new RouterLink(shelf.getName(), ShelfDetailView.class, shelf.getId().toString());
-            link.getStyle().set("cursor", "pointer").set("color", "var(--lumo-primary-color)");
-            return link;
-        }).setHeader("Regal-Name").setAutoWidth(true).setSortable(false);
+        // Name column
+        grid.addColumn(ShelfResponseDTO::getName).setHeader("Regal-Name").setAutoWidth(true);
 
         grid.addColumn(ShelfResponseDTO::getDescription).setHeader("Beschreibung").setAutoWidth(true);
         grid.addColumn(ShelfResponseDTO::getCategoryName).setHeader("Kategorie").setAutoWidth(true).setSortable(true);
@@ -105,6 +104,13 @@ public class ShelfManagementView extends VerticalLayout {
                 .setHeader("Anzahl Böden")
                 .setAutoWidth(true)
                 .setSortable(true);
+
+        // Details column with view button
+        grid.addComponentColumn(shelf -> {
+            Button viewButton = new Button(new Icon(VaadinIcon.EYE), event -> showShelfDetailDialog(shelf));
+            viewButton.setTooltipText("Details anzeigen");
+            return viewButton;
+        }).setHeader("Aktionen").setAutoWidth(true);
 
         grid.asSingleSelect().addValueChangeListener(event -> {
             boolean hasSelection = event.getValue() != null;
@@ -370,6 +376,129 @@ public class ShelfManagementView extends VerticalLayout {
 
         confirmDialog.add(message, buttonLayout);
         confirmDialog.open();
+    }
+
+    private void showShelfDetailDialog(ShelfResponseDTO shelf) {
+        Dialog dialog = new Dialog();
+        dialog.setWidth("95%");
+        dialog.setMaxHeight("95vh");
+        dialog.setHeaderTitle("Regal: " + shelf.getName());
+
+        VerticalLayout content = new VerticalLayout();
+        content.setSpacing(true);
+        content.setPadding(true);
+
+        // Print button at top
+        Button printButton = new Button("Drucken", e -> {
+            com.vaadin.flow.component.UI.getCurrent().getPage().executeJs(
+                "window.print();"
+            );
+        });
+        printButton.setThemeName("primary");
+        content.add(printButton);
+
+        // Display each floor with visualization (printable view)
+        if (shelf.getLevels() != null && !shelf.getLevels().isEmpty()) {
+            for (ShelfLevelResponseDTO level : shelf.getLevels()) {
+                // Floor title
+                H3 floorTitle = new H3("Boden " + level.getLevelPosition());
+                content.add(floorTitle);
+
+                // Create visualization for this floor
+                Div levelVisual = createFloorVisualization(level);
+                content.add(levelVisual);
+            }
+        } else {
+            content.add(new Span("Dieses Regal hat noch keine Böden"));
+        }
+
+        dialog.add(content);
+        dialog.open();
+    }
+
+    private Div createFloorVisualization(ShelfLevelResponseDTO level) {
+        Div levelVisual = new Div();
+        // Scaled to ~80% for A4 preview (1200px instead of 1620px)
+        levelVisual.setWidth("1200px");
+        levelVisual.setHeight("375px");
+        levelVisual.getStyle()
+                .set("position", "relative")
+                .set("border", "2px solid #333")
+                .set("margin", "10px 0")
+                .set("background", "linear-gradient(to right, #f5f5f5 0%, #ffffff 100%)")
+                .set("box-shadow", "inset 0 2px 4px rgba(0,0,0,0.1)")
+                .set("overflow", "visible");
+
+        // Get placements for this level
+        var placements = placementService.getPlacementsByShelfLevel(level.getId());
+
+        // Draw placements as product images
+        for (ShelfPlacementResponseDTO placement : placements) {
+            Div container = createPlacementBox(placement);
+            levelVisual.add(container);
+        }
+
+        // Draw scale reference
+        Span widthLabel = new Span("100 cm");
+        widthLabel.getStyle()
+                .set("position", "absolute")
+                .set("bottom", "-25px")
+                .set("left", "50%")
+                .set("transform", "translateX(-50%)")
+                .set("font-size", "12px")
+                .set("color", "#666");
+        levelVisual.add(widthLabel);
+
+        return levelVisual;
+    }
+
+    private Div createPlacementBox(ShelfPlacementResponseDTO placement) {
+        Div container = new Div();
+
+        // Calculate position and size as percentages of shelf dimensions (100cm wide, 150cm tall)
+        double percentX = (placement.getPositionX() / 100.0) * 100;
+        double percentY = (placement.getPositionY() / 150.0) * 100;
+        double percentWidth = (placement.getWidthCm() / 100.0) * 100;
+        double percentHeight = (placement.getHeightCm() / 150.0) * 100;
+
+        container.getStyle()
+                .set("position", "absolute")
+                .set("left", percentX + "%")
+                .set("bottom", percentY + "%")
+                .set("width", percentWidth + "%")
+                .set("height", percentHeight + "%")
+                .set("border", "2px solid #999")
+                .set("background-color", "white")
+                .set("display", "flex")
+                .set("align-items", "center")
+                .set("justify-content", "center")
+                .set("cursor", "pointer")
+                .set("box-sizing", "border-box")
+                .set("overflow", "hidden")
+                .set("box-shadow", "0 2px 4px rgba(0,0,0,0.2)");
+
+        // Display product image if available, otherwise show placeholder
+        if (placement.getProductImage() != null && !placement.getProductImage().isEmpty()) {
+            Image productImage = new Image(placement.getProductImage(), placement.getArticleName());
+            productImage.setWidth("100%");
+            productImage.setHeight("100%");
+            productImage.getElement().getStyle()
+                    .set("object-fit", "contain")
+                    .set("object-position", "center");
+            container.add(productImage);
+        } else {
+            // Fallback: show "Kein Bild" if no image available
+            Span fallback = new Span("Kein Bild");
+            fallback.getStyle()
+                    .set("text-align", "center")
+                    .set("padding", "8px")
+                    .set("font-weight", "bold")
+                    .set("color", "#999")
+                    .set("font-size", "14px");
+            container.add(fallback);
+        }
+
+        return container;
     }
 
     private void showError(String message) {

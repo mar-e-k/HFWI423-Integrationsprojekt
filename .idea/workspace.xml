@@ -6,7 +6,11 @@
   <component name="ChangeListManager">
     <list default="true" id="390ecddb-5252-424f-b2cb-7dcc0d8df65d" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/einkauf-service/src/main/java/fhdw/de/einkauf_service/dto/ShelfPlacementResponseDTO.java" beforeDir="false" afterPath="$PROJECT_DIR$/einkauf-service/src/main/java/fhdw/de/einkauf_service/dto/ShelfPlacementResponseDTO.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/einkauf-service/src/main/java/fhdw/de/einkauf_service/serviceImpl/ShelfPlacementServiceImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/einkauf-service/src/main/java/fhdw/de/einkauf_service/serviceImpl/ShelfPlacementServiceImpl.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/einkauf-service/src/main/java/fhdw/de/einkauf_service/view/ShelfDetailView.java" beforeDir="false" afterPath="$PROJECT_DIR$/einkauf-service/src/main/java/fhdw/de/einkauf_service/view/ShelfDetailView.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/einkauf-service/src/main/java/fhdw/de/einkauf_service/view/ShelfManagementView.java" beforeDir="false" afterPath="$PROJECT_DIR$/einkauf-service/src/main/java/fhdw/de/einkauf_service/view/ShelfManagementView.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/einkauf-service/src/main/java/fhdw/de/einkauf_service/view/ShelfPlacementEditorView.java" beforeDir="false" afterPath="$PROJECT_DIR$/einkauf-service/src/main/java/fhdw/de/einkauf_service/view/ShelfPlacementEditorView.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -118,7 +122,7 @@
       <workItem from="1763478197476" duration="3355000" />
       <workItem from="1764077966392" duration="315000" />
       <workItem from="1764258711329" duration="2678000" />
-      <workItem from="1764261423756" duration="42123000" />
+      <workItem from="1764261423756" duration="47141000" />
     </task>
     <servers />
   </component>
