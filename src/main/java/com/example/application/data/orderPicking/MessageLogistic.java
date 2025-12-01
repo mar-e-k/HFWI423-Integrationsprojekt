@@ -15,11 +15,8 @@ public class MessageLogistic extends AbstractEntity {
     @Column(name = "store_id")
     private String storeId;
 
-    @Column(name = "stock_level")
-    private Integer stockLevel;
-
-    @Column(name = "target_stock_level")
-    private Integer targetStockLevel;
+    @Column(name = "quantity")
+    private long quantity;
 
     public String getArticleNumber() {
         return articleNumber;
@@ -37,20 +34,11 @@ public class MessageLogistic extends AbstractEntity {
         this.storeId = storeId;
     }
 
-    public Integer getStockLevel() {
-        return stockLevel;
+    public long getQuantity() {
+        return quantity;
     }
 
-    public void setStockLevel(Integer stockLevel) {
-        this.stockLevel = stockLevel;
+    public void setQuantity(long quantity) {
+        this.quantity = quantity;
     }
-
-    public Integer getTargetStockLevel() {
-        return targetStockLevel;
-    }
-
-    public void setTargetStockLevel(Integer targetStockLevel) {
-        this.targetStockLevel = targetStockLevel;
-    }
-
 }

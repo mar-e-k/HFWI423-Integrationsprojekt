@@ -144,6 +144,8 @@ public class ArticleInfoService {
                 .orElseThrow(() -> new EntityNotFoundException("Artikel nicht gefunden: " + id));
     }
 
+
+
     // Beispiel-Helper zum Reduzieren des Bestands (du hast sowas schon angedeutet)
     @Transactional
     public void reduceStock(ArticleInfo artikel, int amount) {

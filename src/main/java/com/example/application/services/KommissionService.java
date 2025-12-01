@@ -33,6 +33,11 @@ public class KommissionService {
         return article.getName();
     }
 
+    public String getStorageLocationForArticle(String articleNumber) {
+        return articleRepo.findStorageLocationByArticleNumber(articleNumber);
+    }
+
+
     public List<Kommission> getOffeneKommissionen() {
         return komRepo.findByFinishedFalseOrderByDateAsc();
     }
@@ -46,8 +51,8 @@ public class KommissionService {
     }
 
 
-    public String getArticleName(ArticleInfo articleId) {
-        ArticleInfo artikel = artikelService.findById(articleId.getId()); // hier auf ArticleInfoService zugreifen
+    public String getArticleName(String articleId) {
+        ArticleInfo artikel = artikelService.findById(Long.valueOf(articleId)); // hier auf ArticleInfoService zugreifen
         return artikel != null ? artikel.getName() : "Unbekannt";
     }
 
@@ -102,39 +107,40 @@ public class KommissionService {
     @Transactional
     public Kommission erstelleKommissionFürStore(String storeId) {
 
-        // 1. Artikel finden, die unter dem Sollbestand liegen
-        List<MessageLogistic> artikel = msgRepo
-                .findUnderstocked(storeId);
+        // 1. Alle fehlenden Artikel dieser Filiale holen
+        List<MessageLogistic> fehlendeArtikel =
+                msgRepo.findByStoreIdAndQuantityGreaterThan(storeId, 0);
 
-        if (artikel.isEmpty()) {
-            throw new RuntimeException("Keine Artikel unter Sollbestand für Store " + storeId);
+        if (fehlendeArtikel.isEmpty()) {
+            throw new IllegalStateException("Keine fehlenden Artikel für Store " + storeId);
         }
 
-        // 2. Neue Kommission anlegen
+        // 2. Kommission anlegen
         Kommission kom = new Kommission();
         kom.setFinished(false);
         kom.setDate(LocalDateTime.now());
         kom.setStoreId(storeId);
-        kom = komRepo.save(kom); // Speichern, damit ID existiert
 
-        // 3. Zu jeder Zeile eine Position anlegen
-        for (MessageLogistic m : artikel) {
+        // Nummer setzen
+        kom.setOrderPickingNumber(komRepo.nextOrderNumber());
+        kom = komRepo.save(kom);
 
-            ArticleInfo artikelInfo = artikelService.findById(Long.parseLong(m.getArticleNumber()));
+        // 3. Positionen anlegen
+        for (MessageLogistic m : fehlendeArtikel) {
+
+            ArticleInfo artikelInfo = articleRepo.findByArticleNumber((m.getArticleNumber()));
+
 
             KommissionPosition pos = new KommissionPosition();
             pos.setKommission(kom);
             pos.setArticle_id(artikelInfo);
-
-            int menge = m.getTargetStockLevel() - m.getStockLevel();
-            pos.setAmount(menge);
-
-            // Lagerplatz aus ArticleInfo
-            pos.setLagerplatz(artikelInfo.getStorageLocation());
+            pos.setAmount((int) m.getQuantity());
+            pos.setStorageLocation(artikelInfo.getStorageLocation());
 
             posRepo.save(pos);
         }
 
         return kom;
     }
+
 }

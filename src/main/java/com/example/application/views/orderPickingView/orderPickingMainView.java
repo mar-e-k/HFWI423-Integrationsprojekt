@@ -1,8 +1,11 @@
 package com.example.application.views.orderPickingView;
 
+import com.example.application.data.article.ArticleInfo;
+import com.example.application.data.article.ArticleInfoRepository;
 import com.example.application.data.orderPicking.Kommission;
 import com.example.application.data.orderPicking.MessageLogistic;
 import com.example.application.data.orderPicking.MessageLogisticRepository;
+import com.example.application.services.ArticleInfoService;
 import com.example.application.services.KommissionService;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.checkbox.Checkbox;
@@ -16,6 +19,7 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.Menu;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
+import jakarta.persistence.EntityNotFoundException;
 import org.vaadin.lineawesome.LineAwesomeIconUrl;
 
 import java.util.Comparator;
@@ -87,23 +91,41 @@ public class orderPickingMainView extends VerticalLayout {
                 dialog.setHeaderTitle("Order Picking " + k.getOrderPickingNumber());
                 dialog.setWidth("900px");
 
-                List<MessageLogistic> artikel = msgRepo.findUnderstocked(k.getStoreId());
+                List<MessageLogistic> artikel = msgRepo.findByStoreIdAndQuantityGreaterThan(k.getStoreId(), 0);
 
                 Grid<MessageLogistic> posGrid = new Grid<>(MessageLogistic.class, false);
                 posGrid.setWidthFull();
                 posGrid.setHeight("400px");
 
                 posGrid.addColumn(MessageLogistic::getArticleNumber)
-                        .setHeader("Artikel-Nr.")
+                        .setHeader("Article-Nr.")
                         .setAutoWidth(true);
 
-                posGrid.addColumn(pos -> service.getArticleNameByNumber(pos.getArticleNumber()))
-                        .setHeader("Artikel-Name")
+                posGrid.addColumn(pos -> {
+                            try {
+                                return service.getArticleNameByNumber(pos.getArticleNumber());
+                            } catch (EntityNotFoundException ee) {
+                                return "Not found";
+                            }
+                        }).setHeader("Article-Name")
                         .setFlexGrow(1);
 
-                posGrid.addColumn(m -> m.getTargetStockLevel() - m.getStockLevel())
-                        .setHeader("Nachzubestellende Menge")
+
+
+                posGrid.addColumn(m -> m.getQuantity())
+                        .setHeader("Quantity")
                         .setAutoWidth(true);
+
+                posGrid.addColumn(pos -> {
+                            try {
+                                return service.getStorageLocationForArticle((pos.getArticleNumber()));
+                            } catch (EntityNotFoundException ee) {
+                                return "Not found";
+                            }
+                        }).setHeader("Storage-Location")
+                        .setFlexGrow(1);
+
+
 
                 posGrid.setItems(artikel);
 
@@ -113,18 +135,18 @@ public class orderPickingMainView extends VerticalLayout {
                 layout.setSpacing(false);
 
                 dialog.add(layout);
-                dialog.getFooter().add(new Button("Schließen", ev -> dialog.close()));
+                dialog.getFooter().add(new Button("Close", ev -> dialog.close()));
                 dialog.open();
             });
 
             return open;
-        }).setHeader("Aktion");
+        }).setHeader("Details");
 
         grid.addThemeVariants(GridVariant.LUMO_ROW_STRIPES);
 
         refreshGridItems();
 
-        add(new H2("Offene Kommissionen"), grid);
+        add(new H2("Open Order Picking"), grid);
     }
 
     /**

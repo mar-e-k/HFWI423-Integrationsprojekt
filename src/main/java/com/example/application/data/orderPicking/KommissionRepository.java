@@ -14,6 +14,10 @@ import java.util.List;
 public interface KommissionRepository extends JpaRepository<Kommission, Long> {
     List<Kommission> findByFinishedFalseOrderByDateAsc();
     List<Kommission> findAllByOrderByDateAsc();
+
+    @Query("SELECT COALESCE(MAX(k.orderPickingNumber), 0) + 1 FROM Kommission k")
+    int nextOrderNumber();
+
 }
 
 
