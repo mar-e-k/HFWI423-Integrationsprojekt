@@ -4,5 +4,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface RestockOrderRepository extends JpaRepository<RestockOrder, Long> {
 
-    boolean existsByArticle_IdAndDeliveredFalse(Long articleId);
+    boolean existsByArticleNumberAndDeliveredFalse(String articleNumber);
+
 }

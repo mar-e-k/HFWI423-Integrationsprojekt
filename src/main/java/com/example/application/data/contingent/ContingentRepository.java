@@ -1,11 +1,9 @@
 package com.example.application.data.contingent;
 
-import com.example.application.data.article.ArticleInfo;
 import org.springframework.data.jpa.repository.JpaRepository;
-
-import java.util.Optional;
+import java.util.List;
 
 public interface ContingentRepository extends JpaRepository<Contingent, Long> {
 
-    Optional<Contingent> findByArticle(ArticleInfo article);
+    List<Contingent> findAllByArticleId(Long articleId);
 }

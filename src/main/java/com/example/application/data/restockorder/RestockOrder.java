@@ -1,19 +1,25 @@
 package com.example.application.data.restockorder;
 
-import com.example.application.data.AbstractEntity;
-import com.example.application.data.article.ArticleInfo;
 import jakarta.persistence.*;
-
 import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "restock_order")
-public class RestockOrder extends AbstractEntity {
+public class RestockOrder {
 
-    @ManyToOne(optional = false)
-    @JoinColumn(name = "article_id")
-    private ArticleInfo article;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
+    // Fachliche Artikelnummer (z. B. "13")
+    @Column(name = "article_number", nullable = false, length = 50)
+    private String articleNumber;
+
+    // Artikelbezeichnung (z. B. "Apfel")
+    @Column(name = "article_name", nullable = false, length = 255)
+    private String articleName;
+
+    // Menge in Stück
     @Column(name = "quantity", nullable = false)
     private Integer quantity;
 
@@ -27,15 +33,31 @@ public class RestockOrder extends AbstractEntity {
     private boolean delivered;
 
     // ===============================
-    // Getter und Setter
+    // Getter / Setter
     // ===============================
 
-    public ArticleInfo getArticle() {
-        return article;
+    public Long getId() {
+        return id;
     }
 
-    public void setArticle(ArticleInfo article) {
-        this.article = article;
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public String getArticleNumber() {
+        return articleNumber;
+    }
+
+    public void setArticleNumber(String articleNumber) {
+        this.articleNumber = articleNumber;
+    }
+
+    public String getArticleName() {
+        return articleName;
+    }
+
+    public void setArticleName(String articleName) {
+        this.articleName = articleName;
     }
 
     public Integer getQuantity() {

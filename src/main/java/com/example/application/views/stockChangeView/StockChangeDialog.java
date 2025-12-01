@@ -4,7 +4,6 @@ import com.example.application.data.article.ArticleInfo;
 import com.example.application.data.stockChangeLog.ChangeType;
 import com.example.application.services.ArticleInfoService;
 import com.vaadin.flow.component.button.Button;
-import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.formlayout.FormLayout;

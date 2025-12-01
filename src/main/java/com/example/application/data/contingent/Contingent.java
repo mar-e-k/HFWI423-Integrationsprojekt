@@ -1,14 +1,18 @@
 package com.example.application.data.contingent;
 
-import com.example.application.data.AbstractEntity;
 import jakarta.persistence.*;
 
 @Entity
 @Table(name = "contingent")
-public class Contingent extends AbstractEntity {
+public class Contingent {
 
-    @Column (name = "article_id", nullable = false)
-    private Long article;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    // Referenz zum Artikel aus ArticleInfo
+    @Column(name = "article_id", nullable = false)
+    private Long articleId;
 
     @Column(name = "available_quantity", nullable = false)
     private Integer availableQuantity;
@@ -19,13 +23,18 @@ public class Contingent extends AbstractEntity {
     @Column(name = "supplier_id")
     private Long supplierId;
 
-    // Getter/Setter
-    public Long getArticle() {
-        return article;
+    // ------------------- Getter/Setter -------------------
+
+    public Long getId() {
+        return id;
     }
 
-    public void setArticle(Long article) {
-        this.article = article;
+    public Long getArticleId() {
+        return articleId;
+    }
+
+    public void setArticleId(Long articleId) {
+        this.articleId = articleId;
     }
 
     public Integer getAvailableQuantity() {
