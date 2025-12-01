@@ -15,20 +15,20 @@ public class ArticleMapper implements GenericMapper<Article, ArticleDTO> {
 
     @Override
     public Article toEntity(ArticleDTO dto) {
-        Article account = new Article();
-        account.setId(dto.getId());
-        account.setArticleNumber(dto.getArticleNumber());
-        account.setDescription(dto.getDescription());
-        account.setManufacturer(dto.getManufacturer());
-        account.setName(dto.getName());
-        account.setPurchasePrice(dto.getPurchasePrice());
-        account.setSellingPrice(dto.getSellingPrice());
-        account.setStockLevel(dto.getStockLevel());
-        account.setSupplier(dto.getSupplier());
-        account.setTaxRatePercent(dto.getTaxRatePercent());
-        account.setUnit(dto.getUnit());
-        account.setIsAvailable(dto.getAvailable());
-        return account;
+        Article article = new Article();
+        article.setId(dto.getId());
+        article.setArticleNumber(dto.getArticleNumber());
+        article.setDescription(dto.getDescription());
+        article.setManufacturer(dto.getManufacturer());
+        article.setName(dto.getName());
+        article.setPurchasePrice(dto.getPurchasePrice());
+        article.setSellingPrice(dto.getSellingPrice());
+        article.setStockLevel(dto.getStockLevel());
+        article.setSupplier(dto.getSupplier());
+        article.setTaxRatePercent(dto.getTaxRatePercent());
+        article.setUnit(dto.getUnit());
+        article.setIsAvailable(dto.getAvailable());
+        return article;
     }
 
     @Override
