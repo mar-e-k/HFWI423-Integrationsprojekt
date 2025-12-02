@@ -9,12 +9,15 @@ import com.example.application.services.ArticleInfoService;
 import com.example.application.services.KommissionService;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.checkbox.Checkbox;
+import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.GridVariant;
 import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.icon.Icon;
+import com.vaadin.flow.component.notification.Notification;
+import com.vaadin.flow.component.notification.NotificationVariant;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.Menu;
 import com.vaadin.flow.router.PageTitle;
@@ -22,10 +25,7 @@ import com.vaadin.flow.router.Route;
 import jakarta.persistence.EntityNotFoundException;
 import org.vaadin.lineawesome.LineAwesomeIconUrl;
 
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Route("order-picking")
@@ -35,11 +35,13 @@ public class orderPickingMainView extends VerticalLayout {
 
     private final KommissionService service;
     private final MessageLogisticRepository msgRepo;
+    private final ArticleInfoService articleInfoService;
     private final Grid<Kommission> grid = new Grid<>(Kommission.class, false);
 
-    public orderPickingMainView(KommissionService service, MessageLogisticRepository msgRepo) {
+    public orderPickingMainView(KommissionService service, MessageLogisticRepository msgRepo,  ArticleInfoService articleInfoService) {
         this.service = service;
         this.msgRepo = msgRepo;
+        this.articleInfoService = articleInfoService;
         setSizeFull();
 
         // Order Picking Nr. als ComponentColumn, damit wir stylen können
@@ -73,10 +75,37 @@ public class orderPickingMainView extends VerticalLayout {
             cb.setEnabled(!k.getFinished());
 
             cb.addValueChangeListener(e -> {
-                // falls man unfertige Kommissionen anklickt
-                k.setFinished(e.getValue());
-                service.save(k);
-                refreshGridItems();
+                if (e.getValue()) { // wenn "fertig" angeklickt
+
+                    // 1. Alle Artikel dieser Kommission laden
+                    List<MessageLogistic> artikel = msgRepo.findByKommissionId(k.getId());
+
+                    // 2. Für jeden Artikel Bestand prüfen & ändern
+                    for (MessageLogistic msg : artikel) {
+                        int qty = (int) msg.getQuantity();
+
+                        boolean success = articleInfoService.updateStock(msg.getArticleNumber(), (int) msg.getQuantity());
+
+
+                        if (!success) {
+                            Notification notif = new Notification();
+                            notif.addThemeVariants(NotificationVariant.LUMO_ERROR); // Rot + Fehler-Icon
+
+                            notif.setPosition(Notification.Position.MIDDLE);
+                            notif.setDuration(5000);
+
+                            Span text = new Span("⚠️ Kommissionierung nicht möglich! Bestand im Lager für mind. einen Artikel zu gering!");
+                            notif.add(text);
+
+                            notif.open();
+                            cb.setValue(false); // Checkbox zurücksetzen
+                            return;
+                        }
+                    }
+                    k.setFinished(true);
+                    service.save(k);
+                    refreshGridItems();
+                }
             });
 
             return cb;
@@ -143,6 +172,14 @@ public class orderPickingMainView extends VerticalLayout {
                         }).setHeader("Storage-Location")
                         .setFlexGrow(1);
 
+                posGrid.addColumn(pos -> {
+                            try {
+                                return service.getStockLevelForArticle((pos.getArticleNumber()));
+                            } catch (EntityNotFoundException ee) {
+                                return "Not found";
+                            }
+                        }).setHeader("Stock-Level")
+                        .setFlexGrow(1);
 
 
                 posGrid.setItems(artikelGefiltert);

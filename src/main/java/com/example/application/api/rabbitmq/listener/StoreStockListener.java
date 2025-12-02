@@ -6,6 +6,7 @@ import com.example.application.data.article.ArticleInfo;
 import com.example.application.data.article.ArticleInfoRepository;
 import com.example.application.data.orderPicking.MessageLogistic;
 import com.example.application.data.orderPicking.MessageLogisticRepository;
+import com.example.application.services.ArticleInfoService;
 import de.fhdw.commons.api.dto.LogisticMessageDTO;
 import kotlin.reflect.jvm.internal.impl.descriptors.Visibilities;
 import org.springframework.stereotype.Component;
@@ -21,11 +22,13 @@ public class StoreStockListener {
     private final CommandSender<LogisticMessageDTO> commandSender;
     private final MessageLogisticRepository msgRepo;
     private final ArticleInfoRepository articleRepo;
+    private final ArticleInfoService articleInfoService;
 
-    public StoreStockListener(CommandSender<LogisticMessageDTO> commandSender, MessageLogisticRepository msgRepo, ArticleInfoRepository articleRepo) {
+    public StoreStockListener(CommandSender<LogisticMessageDTO> commandSender, MessageLogisticRepository msgRepo, ArticleInfoRepository articleRepo, ArticleInfoService articleInfoService) {
         this.commandSender = commandSender;
         this.msgRepo = msgRepo;
         this.articleRepo = articleRepo;
+        this.articleInfoService = articleInfoService;
     }
 
     @RabbitListener(queues = "#{T(com.example.application.api.rabbitmq.producer.DomainQueue).LOGISTIC_STORE_RESTOCK.getQueue()}")

@@ -43,6 +43,10 @@ public class KommissionService {
         return articleRepo.findStorageLocationByArticleNumber(articleNumber);
     }
 
+    public String getStockLevelForArticle(String articleNumber) {
+        return articleRepo.findStockLevelForArticle(articleNumber);
+    }
+
 
     public List<Kommission> getOffeneKommissionen() {
         return komRepo.findByFinishedFalseOrderByDateAsc();

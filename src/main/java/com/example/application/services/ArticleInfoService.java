@@ -131,6 +131,36 @@ public class ArticleInfoService {
         return articleInfoRepository.bulkUpdateStorageLocation(oldLocation, newLocation);
     }
 
+    @Transactional
+    public boolean updateStock(String articleNumber, int change) {
+
+        ArticleInfo article = articleInfoRepository.findByArticleNumber(articleNumber);
+
+        if (article == null) {
+            System.out.println("Artikel existiert NICHT in article_info!");
+            return false;
+        }
+
+        int newStock = (article.getStockLevel() - change);
+        if (newStock < 0) {
+            int newStockReserve = article.getStockLevel() + article.getReservePallets() - change;
+            if(newStockReserve < 0) {
+                System.out.println("Bestand würde unter 0 fallen → Verarbeitung abgebrochen!");
+                return false;
+            };
+            article.setReservePallets(newStockReserve);
+            article.setStockLevel(0);
+            return true;
+        }
+        article.setStockLevel(newStock);
+
+        articleInfoRepository.save(article);
+
+        System.out.println("Bestand von Artikel " + articleNumber +
+                " geändert um " + change + " → Neuer Bestand: " + newStock);
+        return true;
+    }
+
     public boolean existsForLocation(String generalId) {
         if (generalId == null || generalId.isBlank()) {
             return false;
