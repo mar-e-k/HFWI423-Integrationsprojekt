@@ -141,7 +141,12 @@ public class PaymentView extends AbstractMainView implements BeforeEnterObserver
                     .addThemeVariants(NotificationVariant.LUMO_ERROR);
             return;
         }
-        openCashDialog();
+        // Wenn der Warenkorb nur Leergut enthält, überspringe den Zahlungsdialog
+        if (cartItemsManager.isDepositOnly()) {
+            finishPayment();
+        } else {
+            openCashDialog();
+        }
     }
 
     private void finishPayment() {
@@ -153,7 +158,8 @@ public class PaymentView extends AbstractMainView implements BeforeEnterObserver
                 String fileName = "Bon-" +
                         LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMdd-HHmmss")) + ".pdf";
 
-                StreamResourceRegistry.ElementStreamResource resource = createResource(fileName, receipt.getDepositRedemptionCode());
+                // isDepositOnlyReceipt an createResource übergeben
+                StreamResourceRegistry.ElementStreamResource resource = createResource(fileName, receipt.getDepositRedemptionCode(), receipt.isDepositOnly());
 
                 String url = VaadinSession.getCurrent()
                         .getResourceRegistry()
@@ -184,7 +190,7 @@ public class PaymentView extends AbstractMainView implements BeforeEnterObserver
         }
     }
 
-    private StreamResourceRegistry.ElementStreamResource createResource(String fileName, String depositRedemptionCode) throws IOException {
+    private StreamResourceRegistry.ElementStreamResource createResource(String fileName, String depositRedemptionCode, boolean isDepositOnlyReceipt) throws IOException {
         String cashierName = "Unbekannt";
         String cashierPersonnelNumber = "N/A";
 
@@ -211,7 +217,7 @@ public class PaymentView extends AbstractMainView implements BeforeEnterObserver
                     .addThemeVariants(NotificationVariant.LUMO_WARNING);
         }
 
-        ByteArrayInputStream generatedPdfStream = receiptService.generateReceipt(cartItemsManager.getCart(), isCashPayment, cashierName, cashierPersonnelNumber, depositRedemptionCode);
+        ByteArrayInputStream generatedPdfStream = receiptService.generateReceipt(cartItemsManager.getCart(), isCashPayment, cashierName, cashierPersonnelNumber, depositRedemptionCode, isDepositOnlyReceipt);
 
         byte[] pdfBytes = generatedPdfStream.readAllBytes();
 
