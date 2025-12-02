@@ -46,11 +46,7 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
-import java.util.Arrays;
-import java.util.Comparator;
-import java.util.Map;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 
 @Route("/roles")
 @PageTitle("Roles View")
@@ -183,10 +179,8 @@ public class RoleView extends AppLayout implements BeforeEnterObserver {
         passwordField.setRequired(true);
 
         Select<AccountRoleEnum> roleSelect = new Select<>();
-        roleSelect.setItems(Arrays.stream(AccountRoleEnum.values())
-                .filter(role -> role != AccountRoleEnum.SYSTEM)
-                .toList()
-        );
+        roleSelect.clear();
+        roleSelect.setItems(List.of(AccountRoleEnum.CASHIER, AccountRoleEnum.ADMIN));
         roleSelect.setLabel("Rolle");
         roleSelect.setRequiredIndicatorVisible(true);
 
@@ -219,7 +213,8 @@ public class RoleView extends AppLayout implements BeforeEnterObserver {
         // Rollen-Spalte mit Bearbeitungsmöglichkeit
         accountGrid.addComponentColumn(account -> {
             Select<AccountRoleEnum> roleEditor = new Select<>();
-            roleEditor.setItems(AccountRoleEnum.values());
+            roleEditor.clear();
+            roleEditor.setItems(List.of(AccountRoleEnum.CASHIER, AccountRoleEnum.ADMIN));
             roleEditor.setValue(account.getAccountRole().getRole());
 
             Button saveButton = new Button("Speichern");

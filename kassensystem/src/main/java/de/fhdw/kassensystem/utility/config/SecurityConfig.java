@@ -36,8 +36,6 @@ public class SecurityConfig {
 
     private final boolean springSecurityEnabled;
 
-    private final AccountProxyService accountProxyService;
-
     private static final String[] WHITELIST = {
             "/",
             "/login",
@@ -59,11 +57,10 @@ public class SecurityConfig {
 
     public SecurityConfig(@Value("${spring.security.enabled:true}") boolean springSecurityEnabled, AccountProxyService accountProxyService) {
         this.springSecurityEnabled = springSecurityEnabled;
-        this.accountProxyService = accountProxyService;
     }
 
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http, JwtAuthenticationFilter jwtAuthenticationFilter, AuthenticationSuccessHandler authenticationSuccessHandler, LogoutSuccessHandler customLogoutHandler) throws Exception {
+    public SecurityFilterChain securityFilterChain(HttpSecurity http, JwtAuthenticationFilter jwtAuthenticationFilter) throws Exception {
         if (!springSecurityEnabled) {
             return http
                     .csrf(AbstractHttpConfigurer::disable)
@@ -80,47 +77,14 @@ public class SecurityConfig {
                     .formLogin(form -> form
                             .loginPage("/login")
                             .permitAll()
-                            .successHandler(authenticationSuccessHandler)   // <-- added
-                            .failureUrl("/login?error")
                     )
-
                     .logout(logout -> logout
                             .logoutUrl("/logout")
-                            .logoutSuccessHandler(customLogoutHandler)      // <-- fixed
-                            .deleteCookies("JSESSIONID")
-                            .permitAll()
-                    )
+                            .logoutSuccessUrl("/login?logout"))
                     .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
                     .rememberMe(RememberMeConfigurer::disable)
                     .build();
         }
-    }
-
-
-    @Bean
-    public AuthenticationSuccessHandler authenticationSuccessHandler() {
-        return (request, response, authentication) -> {
-//            if (authentication != null) {
-//                accountProxyService.lockByAccount(
-//                        accountProxyService.findByUsername(authentication.getName())
-//                                .orElseThrow(IllegalAccessError::new)
-//                );
-//            }
-            response.sendRedirect("/");
-        };
-    }
-
-    @Bean
-    public LogoutSuccessHandler customLogoutHandler() {
-        return (request, response, authentication) -> {
-//            if (authentication != null) {
-//                accountProxyService.deleteLockByAccount(
-//                        accountProxyService.findByUsername(authentication.getName())
-//                                .orElseThrow(IllegalAccessError::new)
-//                );
-//            }
-            response.sendRedirect("/login?logout");
-        };
     }
 
     @Bean

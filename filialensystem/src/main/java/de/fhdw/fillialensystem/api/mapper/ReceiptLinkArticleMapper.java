@@ -24,7 +24,7 @@ public class ReceiptLinkArticleMapper implements GenericMapper<ReceiptLinkArticl
         receiptLinkArticle.setOverridePrice(dto.getOverridePrice());
         receiptLinkArticle.setOverrideReason(dto.getOverrideReason() != null ? dto.getOverrideReason().name() : null);
         receiptLinkArticle.setDiscountedByPercent(dto.getDiscountedByPercent());
-        receiptLinkArticle.setDepositStatus(dto.getDepositStatus()); // DepositStatus hinzugefügt
+        receiptLinkArticle.setDepositStatus(dto.getDepositStatus());
         return receiptLinkArticle;
     }
 
@@ -40,7 +40,7 @@ public class ReceiptLinkArticleMapper implements GenericMapper<ReceiptLinkArticl
         dto.setOverridePrice(receiptLinkArticle.getOverridePrice());
         dto.setOverrideReason(receiptLinkArticle.getOverrideReason() != null ? OverrideReasonEnum.valueOf(receiptLinkArticle.getOverrideReason()) : null);
         dto.setDiscountedByPercent(receiptLinkArticle.getDiscountedByPercent());
-        dto.setDepositStatus(receiptLinkArticle.getDepositStatus()); // DepositStatus hinzugefügt
+        dto.setDepositStatus(receiptLinkArticle.getDepositStatus());
         return dto;
     }
 }

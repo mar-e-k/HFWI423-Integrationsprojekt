@@ -51,7 +51,6 @@ public class LogisticReceiveStockListener {
             storeLinkStockService.update(storeLinkStock);
         } catch (Exception e) {
             log.atError().log("[MESSAGE] Error while processing LogisticMessageDTO from queue [%s]. Error: [%s]".formatted(DomainQueue.STORE_LOGISTIC_RESTOCK.getQueue(), e.getMessage()));
-            throw e;
         }
         log.atInfo().log("[MESSAGE] Processed a LogisticMessageDTO from queue [%s]".formatted(DomainQueue.STORE_LOGISTIC_RESTOCK.getQueue()));
     }

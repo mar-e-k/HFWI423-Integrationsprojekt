@@ -19,7 +19,7 @@ import java.util.List;
 public class ReceiptService {
 
     public ReceiptService() {
-
+        super();
     }
 
     public ByteArrayInputStream generateReceipt(List<CartItem> cartItems, boolean isCashPayment, String cashierName, String cashierPersonnelNumber, String depositRedemptionCode, boolean isDepositOnlyReceipt, Long storeId, Long registerId) throws IOException {

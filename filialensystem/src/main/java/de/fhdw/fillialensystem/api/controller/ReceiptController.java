@@ -56,6 +56,9 @@ public class ReceiptController {
 
     @PostMapping("/redeem/{depositRedemptionCode}")
     public ResponseEntity<ReceiptDTO> redeemDepositReceipt(@PathVariable String depositRedemptionCode) {
-        return ResponseEntity.ok(receiptMapper.toDto(receiptService.redeemDepositReceipt(depositRedemptionCode)));
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(receiptMapper
+                        .toDto(receiptService.redeemDepositReceipt(depositRedemptionCode)));
     }
 }

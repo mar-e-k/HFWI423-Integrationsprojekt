@@ -56,7 +56,7 @@ public class DailyReceiptReportingSchedule {
                 commandSender.fire(
                         DomainQueue.LOGISTIC_STORE_RESTOCK,
                         DomainCommand.STORE_RESTOCK,
-                        new LogisticMessageDTO(storeId, articleId, totalAmount, false))); //TODO
+                        new LogisticMessageDTO(storeId, articleId, totalAmount, false)));
         log.atInfo().log("Successfully sent daily receipt report");
     }
 }
