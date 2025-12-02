@@ -210,6 +210,7 @@ public class ArticleView extends VerticalLayout {
 
         TextField productImageUrl = new TextField("Produktbild-URL");
         productImageUrl.setPlaceholder("z.B. https://www.rossmann.de/media-neu/...");
+        productImageUrl.setRequired(true);
 
         DatePicker expirationDate = new DatePicker("Mindesthaltbarkeitsdatum (optional)");
         expirationDate.setPlaceholder("Wählen Sie ein Datum...");
