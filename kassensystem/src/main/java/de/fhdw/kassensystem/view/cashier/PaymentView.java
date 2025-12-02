@@ -27,14 +27,17 @@ import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.textfield.TextField;
 
-import de.fhdw.commons.api.dto.AccountDTO; // Import AccountDTO
+import de.fhdw.commons.api.dto.AccountDTO;
 import de.fhdw.commons.api.dto.ReceiptDTO;
 import de.fhdw.commons.persistence.entity.AccountRoleEnum;
+import de.fhdw.commons.utility.AuthContext;
 import de.fhdw.commons.view.AbstractMainView;
-import de.fhdw.commons.utility.AuthContext; // Import AuthContext
-import de.fhdw.kassensystem.persistance.service.proxy.AccountProxyService; // Import AccountProxyService
+import de.fhdw.kassensystem.persistance.service.proxy.AccountProxyService;
 import de.fhdw.kassensystem.persistance.service.proxy.ReceiptProxyService;
+import de.fhdw.kassensystem.utility.security.JwtService;
 import jakarta.annotation.security.RolesAllowed;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -48,22 +51,24 @@ import java.util.Optional;
 @RolesAllowed(AccountRoleEnum.ROLE_CASHIER)
 public class PaymentView extends AbstractMainView implements BeforeEnterObserver {
 
+    private static final Logger log = LoggerFactory.getLogger(PaymentView.class);
     private final CartItemsManager cartItemsManager;
 
     private final ReceiptProxyService receiptProxyService;
     private final ReceiptService receiptService;
     private final AccountProxyService accountProxyService; // Inject AccountProxyService
+    private final JwtService jwtService;
 
     private Grid<CartItem> cartGrid;
     private Span totalLabel;
-
     private Anchor downloadLink;
 
-    public PaymentView(CartItemsManager cartItemsManager, ReceiptProxyService receiptProxyService, ReceiptService receiptService, AccountProxyService accountProxyService) {
+    public PaymentView(CartItemsManager cartItemsManager, ReceiptProxyService receiptProxyService, ReceiptService receiptService, AccountProxyService accountProxyService, JwtService jwtService) {
         this.cartItemsManager = cartItemsManager;
         this.receiptProxyService = receiptProxyService;
         this.receiptService = receiptService;
-        this.accountProxyService = accountProxyService; // Initialize AccountProxyService
+        this.accountProxyService = accountProxyService;
+        this.jwtService = jwtService;
     }
 
     @Override
@@ -194,30 +199,23 @@ public class PaymentView extends AbstractMainView implements BeforeEnterObserver
         String cashierName = "Unbekannt";
         String cashierPersonnelNumber = "N/A";
 
-        Object sessionAuthContext = VaadinSession.getCurrent().getAttribute("auth-context");
+        Optional<AuthContext> authContext = jwtService.getCurrentAuth();
 
-        if (sessionAuthContext instanceof AuthContext) {
-            AuthContext authContext = (AuthContext) sessionAuthContext;
-            Optional<AccountDTO> accountOptional = accountProxyService.findByUsername(authContext.getUsername());
+        if (authContext.isPresent()) {
+            AccountDTO account = accountProxyService.findByUuid(authContext.get().getUuid())
+                    .orElseThrow(IllegalStateException::new);
 
-            if (accountOptional.isPresent()) {
-                AccountDTO account = accountOptional.get();
                 cashierName = account.getUsername();
-                cashierPersonnelNumber = String.valueOf(account.getId()); // Using Account_ID as personnel number
-            } else {
-                System.err.println("WARN: AccountDTO for username " + authContext.getUsername() + " not found.");
-                Notification.show("Kassiererdetails konnten nicht vollständig geladen werden.",
-                        3000, Notification.Position.MIDDLE)
-                        .addThemeVariants(NotificationVariant.LUMO_WARNING);
-            }
+                cashierPersonnelNumber = account.getId().toString();
         } else {
-            System.err.println("WARN: AuthContext not found in VaadinSession or of wrong type. Found: " + (sessionAuthContext != null ? sessionAuthContext.getClass().getName() : "null"));
+            log.atError().log("WARN: AuthContext not found or of wrong type.)");
             Notification.show("Kassiererinformationen konnten nicht geladen werden.",
                     3000, Notification.Position.MIDDLE)
                     .addThemeVariants(NotificationVariant.LUMO_WARNING);
+            throw new IllegalStateException();
         }
 
-        ByteArrayInputStream generatedPdfStream = receiptService.generateReceipt(cartItemsManager.getCart(), isCashPayment, cashierName, cashierPersonnelNumber, depositRedemptionCode, isDepositOnlyReceipt);
+        ByteArrayInputStream generatedPdfStream = receiptService.generateReceipt(cartItemsManager.getCart(), isCashPayment, cashierName, cashierPersonnelNumber, depositRedemptionCode, isDepositOnlyReceipt, authContext.get().getStoreId().longValue(), authContext.get().getRegisterId().longValue());
 
         byte[] pdfBytes = generatedPdfStream.readAllBytes();
 

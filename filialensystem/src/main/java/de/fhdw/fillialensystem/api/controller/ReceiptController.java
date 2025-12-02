@@ -11,7 +11,9 @@ import de.fhdw.fillialensystem.persistence.entity.imported.Article;
 import de.fhdw.fillialensystem.persistence.service.ReceiptService;
 import de.fhdw.fillialensystem.persistence.service.StoreLinkStockService;
 import de.fhdw.fillialensystem.persistence.service.StoreService;
+import de.fhdw.fillialensystem.persistence.service.imported.ArticleService;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.persistence.EntityExistsException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -25,13 +27,15 @@ import java.util.Optional;
 @Tag(name = "Receipt", description = "Endpoints for operations related to receipts")
 public class ReceiptController {
 
+    private final ArticleService articleService;
     private final ReceiptService receiptService;
     private final StoreLinkStockService storeLinkStockService;
     private final StoreService storeService;
     private final ReceiptMapper receiptMapper;
     private final ReceiptLinkArticleMapper receiptLinkArticleMapper;
 
-    public ReceiptController(ReceiptService receiptService, StoreLinkStockService storeLinkStockService, StoreService storeService, ReceiptMapper receiptMapper, ReceiptLinkArticleMapper receiptLinkArticleMapper) {
+    public ReceiptController(ArticleService articleService, ReceiptService receiptService, StoreLinkStockService storeLinkStockService, StoreService storeService, ReceiptMapper receiptMapper, ReceiptLinkArticleMapper receiptLinkArticleMapper) {
+        this.articleService = articleService;
         this.receiptService = receiptService;
         this.storeLinkStockService = storeLinkStockService;
         this.storeService = storeService;
@@ -41,13 +45,13 @@ public class ReceiptController {
 
     @PostMapping
     public ResponseEntity<ReceiptDTO> createReceipt(@RequestBody List<ReceiptLinkArticleDTO> receiptArticles, @AuthenticationPrincipal AuthContext authContext) {
-        // Lagerbestand dekrementieren
         Long storeId = authContext.getStoreId().longValue();
         if (storeId != null) {
             Optional<Store> storeOptional = storeService.findById(storeId);
             storeOptional.ifPresent(store -> {
                 for (ReceiptLinkArticleDTO receiptArticleDTO : receiptArticles) {
-                    Article article = new Article(receiptArticleDTO.getArticleId());
+                    Article article = articleService.findByArticleNumber(receiptArticleDTO.getArticleId().toString())
+                            .orElseThrow(EntityExistsException::new);
                     Optional<StoreLinkStock> storeLinkStockOptional = storeLinkStockService.findByStoreAndArticle(store, article);
                     storeLinkStockOptional.ifPresent(storeLinkStock -> {
                         int newAmount = storeLinkStock.getAmount() - receiptArticleDTO.getAmount();

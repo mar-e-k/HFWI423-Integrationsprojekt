@@ -20,16 +20,13 @@ import com.vaadin.flow.router.BeforeEnterObserver;
 import com.vaadin.flow.router.QueryParameters;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.router.RouterLink;
-import com.vaadin.flow.server.VaadinSession;
 import com.vaadin.flow.theme.lumo.Lumo;
 import de.fhdw.commons.persistence.entity.AccountRoleEnum;
-import de.fhdw.commons.utility.AuthContext;
 import de.fhdw.commons.view.ErrorQueryParameter;
 import de.fhdw.fillialensystem.persistence.service.other.RegisterRegistryService;
 import de.fhdw.fillialensystem.utility.RegisterClient;
 import de.fhdw.fillialensystem.view.admin.*;
 import jakarta.annotation.security.RolesAllowed;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -126,12 +123,11 @@ public class MainView extends AppLayout implements BeforeEnterObserver {
 
         sidebar.add(
                 createSidebarLink("Home", VaadinIcon.HOME, MainView.class),
-                createSidebarLink("Admin View", VaadinIcon.USER, AdminView.class),
-                createSidebarLink("Role View", VaadinIcon.GROUP, RoleView.class),
-                createSidebarLink("Register View", VaadinIcon.CASH, RegisterAddView.class),
-                createSidebarLink("Store Select View", VaadinIcon.SHOP, StoreSelectView.class),
-                createSidebarLink("Stock View", VaadinIcon.PACKAGE, StockAdminView.class),
-                createSidebarLink("Daily Receipt Reporting", VaadinIcon.RECORDS, DailyReceiptReportingView.class)
+                createSidebarLink("Admin", VaadinIcon.USER, AdminView.class),
+                createSidebarLink("Accounts ", VaadinIcon.GROUP, RoleView.class),
+                createSidebarLink("Kassen", VaadinIcon.CASH, RegisterAddView.class),
+                createSidebarLink("Bestand", VaadinIcon.PACKAGE, StockAdminView.class),
+                createSidebarLink("Belege", VaadinIcon.RECORDS, DailyReceiptReportingView.class)
         );
         return sidebar;
     }
@@ -228,8 +224,6 @@ public class MainView extends AppLayout implements BeforeEnterObserver {
 
     @Override
     public void beforeEnter(BeforeEnterEvent beforeEnterEvent) {
-        setAuthenticationFromSession();
-
         Class<?> targetView = beforeEnterEvent.getNavigationTarget();
 
         RolesAllowed rolesAllowed = targetView.getAnnotation(RolesAllowed.class);
@@ -261,15 +255,6 @@ public class MainView extends AppLayout implements BeforeEnterObserver {
 
         if (!authorized) {
             beforeEnterEvent.rerouteTo("login", QueryParameters.simple(Map.of("error", ErrorQueryParameter.ACCESS_DENIED.value())));
-        }
-    }
-
-    private void setAuthenticationFromSession() {
-        Object authContext = VaadinSession.getCurrent().getAttribute("auth-context");
-
-        if (authContext instanceof AuthContext) {
-            UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken(authContext, null, ((AuthContext) authContext).getAuthorities());
-            SecurityContextHolder.getContext().setAuthentication(auth);
         }
     }
 }

@@ -18,7 +18,11 @@ import java.util.List;
 @Service
 public class ReceiptService {
 
-    public ByteArrayInputStream generateReceipt(List<CartItem> cartItems, boolean isCashPayment, String cashierName, String cashierPersonnelNumber, String depositRedemptionCode, boolean isDepositOnlyReceipt) throws IOException {
+    public ReceiptService() {
+
+    }
+
+    public ByteArrayInputStream generateReceipt(List<CartItem> cartItems, boolean isCashPayment, String cashierName, String cashierPersonnelNumber, String depositRedemptionCode, boolean isDepositOnlyReceipt, Long storeId, Long registerId) throws IOException {
         try (PDDocument document = new PDDocument()) {
             PDPage page = new PDPage();
             document.addPage(page);
@@ -53,6 +57,48 @@ public class ReceiptService {
             contentStream.beginText();
             contentStream.setFont(boldFont, 12);
             contentStream.newLineAtOffset(margin, y);
+            contentStream.showText("Filiale: %d".formatted(storeId));
+            contentStream.endText();
+
+            y -= 15;
+
+            contentStream.beginText();
+            contentStream.setFont(boldFont, 12);
+            contentStream.newLineAtOffset(margin, y);
+            contentStream.showText("Kasse: %d".formatted(registerId));
+            contentStream.endText();
+
+            y -= 15;
+
+            contentStream.beginText();
+            contentStream.setFont(boldFont, 12);
+            contentStream.newLineAtOffset(margin, y);
+            contentStream.showText("Kassierer: %s %s".formatted(cashierPersonnelNumber, cashierName));
+            contentStream.endText();
+
+            y -= 15;
+
+            contentStream.beginText();
+            contentStream.setFont(boldFont, 12);
+            contentStream.newLineAtOffset(margin, y);
+            if (!isDepositOnlyReceipt) {
+                contentStream.showText("Belegart: BELEG");
+            } else {
+                contentStream.showText("Belegart: PFAND");
+            }
+            contentStream.endText();
+
+            y -= 15;
+
+            contentStream.moveTo(margin, y);
+            contentStream.lineTo(550, y);
+            contentStream.stroke();
+            y -= 20;
+
+
+            contentStream.beginText();
+            contentStream.setFont(boldFont, 12);
+            contentStream.newLineAtOffset(margin, y);
             contentStream.showText("Pos.");
             contentStream.newLineAtOffset(50, 0);
             contentStream.showText("Artikel");
@@ -78,7 +124,11 @@ public class ReceiptService {
                 contentStream.newLineAtOffset(margin, y);
                 contentStream.showText(String.valueOf(item.getPosition()));
                 contentStream.newLineAtOffset(50, 0);
-                contentStream.showText(item.getArticle().getName());
+                if (item.getArticle().getName().length() > 25) {
+                    contentStream.showText(item.getArticle().getName().substring(0, 22) + "...");
+                } else {
+                    contentStream.showText(item.getArticle().getName());
+                }
                 contentStream.newLineAtOffset(150, 0);
                 contentStream.showText(String.valueOf(item.getQuantity()));
                 contentStream.newLineAtOffset(70, 0);
@@ -122,14 +172,6 @@ public class ReceiptService {
                 contentStream.endText();
                 y -= 20;
             }
-
-            // Kassierer-Informationen hinzufügen
-            contentStream.beginText();
-            contentStream.setFont(font, 12);
-            contentStream.newLineAtOffset(margin, y);
-            contentStream.showText("Kassierer: " + cashierName + " (Personalnummer: " + cashierPersonnelNumber + ")");
-            contentStream.endText();
-            y -= 20; // Abstand nach Kassierer-Info
 
             contentStream.beginText();
             contentStream.setFont(font, 12);

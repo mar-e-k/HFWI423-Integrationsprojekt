@@ -4,10 +4,8 @@ import com.vaadin.flow.component.html.NativeLabel;
 import com.vaadin.flow.component.login.LoginForm;
 import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
-import com.vaadin.flow.router.BeforeEnterEvent;
-import com.vaadin.flow.router.BeforeEnterObserver;
 
-public abstract class AbstractLoginView extends VerticalLayout implements BeforeEnterObserver {
+public abstract class AbstractLoginView extends VerticalLayout {
 
     protected final LoginForm loginForm = new LoginForm();
     protected final NativeLabel warningLabel = new NativeLabel();
@@ -26,16 +24,5 @@ public abstract class AbstractLoginView extends VerticalLayout implements Before
                         Notification.Position.MIDDLE));
 
         add(loginForm, warningLabel);
-    }
-
-    @Override
-    public void beforeEnter(BeforeEnterEvent beforeEnterEvent) {
-        // Inform the user about an authentication error
-        if (beforeEnterEvent.getLocation()
-                .getQueryParameters()
-                .getParameters()
-                .containsKey("error")) {
-            loginForm.setError(true);
-        }
     }
 }

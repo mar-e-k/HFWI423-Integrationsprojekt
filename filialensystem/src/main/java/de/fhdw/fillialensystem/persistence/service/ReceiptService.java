@@ -143,7 +143,6 @@ public class ReceiptService extends AbstractCrudService<Receipt, Long> {
         return generateReceipt(receipt, isCashPayment);
     }
 
-
     public ByteArrayInputStream generateReceipt(Receipt receipt, boolean isCashPayment) {
         try {
             List<ReceiptLinkArticle> articles = receiptLinkArticleRepository.findByReceipt(receipt);
@@ -182,6 +181,47 @@ public class ReceiptService extends AbstractCrudService<Receipt, Long> {
             contentStream.beginText();
             contentStream.setFont(boldFont, 12);
             contentStream.newLineAtOffset(margin, y);
+            contentStream.showText("Filiale: %d %s-%s-%s".formatted(receipt.getStore().getId(), receipt.getStore().getCity(), receipt.getStore().getStreet(), receipt.getStore().getStreetNumber()));
+            contentStream.endText();
+
+            y -= 15;
+
+            contentStream.beginText();
+            contentStream.setFont(boldFont, 12);
+            contentStream.newLineAtOffset(margin, y);
+            contentStream.showText("Kasse: %d".formatted(receipt.getRegister().getId()));
+            contentStream.endText();
+
+            y -= 15;
+
+            contentStream.beginText();
+            contentStream.setFont(boldFont, 12);
+            contentStream.newLineAtOffset(margin, y);
+            contentStream.showText("Kassierer: %s %d".formatted(receipt.getAccount().getUsername(), receipt.getAccount().getId()));
+            contentStream.endText();
+
+            y -= 15;
+
+            contentStream.beginText();
+            contentStream.setFont(boldFont, 12);
+            contentStream.newLineAtOffset(margin, y);
+            if (receipt.getDepositRedemptionCode() == null) {
+                contentStream.showText("Belegart: BELEG");
+            } else {
+                contentStream.showText("Belegart: PFAND");
+            }
+            contentStream.endText();
+
+            y -= 15;
+
+            contentStream.moveTo(margin, y);
+            contentStream.lineTo(550, y);
+            contentStream.stroke();
+            y -= 20;
+
+            contentStream.beginText();
+            contentStream.setFont(boldFont, 12);
+            contentStream.newLineAtOffset(margin, y);
             contentStream.showText("Pos.");
             contentStream.newLineAtOffset(50, 0);
             contentStream.showText("Artikel");
@@ -203,7 +243,11 @@ public class ReceiptService extends AbstractCrudService<Receipt, Long> {
                 contentStream.newLineAtOffset(margin, y);
                 contentStream.showText(String.valueOf(i + 1));
                 contentStream.newLineAtOffset(50, 0);
-                contentStream.showText(article.getArticle().getName());
+                if (article.getArticle().getName().length() > 25) {
+                    contentStream.showText(article.getArticle().getName().substring(0, 22) + "...");
+                } else {
+                    contentStream.showText(article.getArticle().getName());
+                }
                 contentStream.newLineAtOffset(150, 0);
                 contentStream.showText(String.valueOf(article.getAmount()));
                 contentStream.newLineAtOffset(70, 0);

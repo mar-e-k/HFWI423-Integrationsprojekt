@@ -23,11 +23,8 @@ public class CartItemMapper implements GenericMapper<CartItem, ReceiptLinkArticl
         cartItem.setQuantity(dto.getAmount());
         cartItem.setOverriddenPrice(dto.getOverridePrice());
         cartItem.setDiscountPercent(dto.getDiscountedByPercent());
-        // discountedQuantity in CartItem ist für die Rabattberechnung auf Frontend-Seite.
-        // Beim Mappen zurück zur Entität setzen wir es auf 0, da die Rabattlogik im Backend
-        // auf Basis von discountedByPercent und dem Gesamtbetrag neu berechnet wird.
         cartItem.setDiscountedQuantity(0);
-        cartItem.setDepositStatus(dto.getDepositStatus()); // DepositStatus setzen
+        cartItem.setDepositStatus(dto.getDepositStatus());
         return cartItem;
     }
 
@@ -35,15 +32,13 @@ public class CartItemMapper implements GenericMapper<CartItem, ReceiptLinkArticl
     public ReceiptLinkArticleDTO toDto(CartItem cartItem) {
         ReceiptLinkArticleDTO dto = new ReceiptLinkArticleDTO();
         dto.setArticleId(cartItem.getArticle().getId());
-        // Verwende getBaseUnitPrice(), das bereits überschriebene Preise und Pfandstatus berücksichtigt
         dto.setPrice(cartItem.getBaseUnitPrice());
-        dto.setAmount(cartItem.getQuantity()); // Gesamte Menge des Artikels
+        dto.setAmount(cartItem.getQuantity());
         dto.setTaxRate(BigDecimal.valueOf(cartItem.getArticle().getTaxRatePercent()));
-        dto.setOverridePrice(cartItem.getOverriddenPrice()); // Der ursprünglich überschriebene Preis, falls vorhanden
-        // Setze OverrideReason nur, wenn ein Preis überschrieben wurde
+        dto.setOverridePrice(cartItem.getOverriddenPrice());
         dto.setOverrideReason(cartItem.getOverriddenPrice() != null ? OverrideReasonEnum.MANUAL_OVERRIDE : null);
         dto.setDiscountedByPercent(cartItem.getDiscountPercent());
-        dto.setDepositStatus(cartItem.getDepositStatus()); // DepositStatus setzen
+        dto.setDepositStatus(cartItem.getDepositStatus());
         return dto;
     }
 }
