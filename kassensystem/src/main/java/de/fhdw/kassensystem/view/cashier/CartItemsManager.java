@@ -2,6 +2,7 @@ package de.fhdw.kassensystem.view.cashier;
 
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.html.Span;
+import de.fhdw.commons.api.dto.DepositStatus;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
@@ -42,6 +43,14 @@ public class CartItemsManager { //This whole construct runs in in-memory. on app
 
         totalLabel.setText(String.format("Gesamtanzahl: %d | Gesamtpreis: %s €",
                 totalQuantity, totalPrice.toPlainString()));
+    }
+
+    public boolean isDepositOnly() {
+        List<CartItem> cart = getCart();
+        if (cart.isEmpty()) {
+            return false; // Ein leerer Warenkorb ist kein reiner Pfand-Warenkorb
+        }
+        return cart.stream().allMatch(item -> item.getDepositStatus() == DepositStatus.EMPTY);
     }
 
     private String currentUsername() {

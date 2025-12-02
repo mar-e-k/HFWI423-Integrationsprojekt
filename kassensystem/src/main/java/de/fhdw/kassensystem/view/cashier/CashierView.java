@@ -254,6 +254,9 @@ public class CashierView extends AbstractMainView implements BeforeEnterObserver
                         showDiscountDialog(item, defaultPercent);
                     });
 
+                    // Deaktiviere den Rabatt-Button für Leergut-Positionen
+                    discountButton.setEnabled(item.getDepositStatus() != DepositStatus.EMPTY);
+
                     return discountButton;
                 }).setHeader("Rabatt")
                 .setAutoWidth(true)
@@ -751,7 +754,7 @@ public class CashierView extends AbstractMainView implements BeforeEnterObserver
                     depositArticle.setSellingPrice(totalAmount.doubleValue());
                     depositArticle.setTaxRatePercent(0.0);
 
-                    addArticleToCart(depositArticle, DepositStatus.EMPTY, totalAmount); // Hier totalAmount verwenden
+                    addArticleToCart(depositArticle, DepositStatus.EMPTY, totalAmount);
                     Notification.show("Pfandbon eingelöst.", 2000, Notification.Position.MIDDLE)
                             .addThemeVariants(NotificationVariant.LUMO_SUCCESS);
                     dialog.close();

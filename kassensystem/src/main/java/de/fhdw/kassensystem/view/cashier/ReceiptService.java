@@ -18,7 +18,7 @@ import java.util.List;
 @Service
 public class ReceiptService {
 
-    public ByteArrayInputStream generateReceipt(List<CartItem> cartItems, boolean isCashPayment, String cashierName, String cashierPersonnelNumber, String depositRedemptionCode) throws IOException {
+    public ByteArrayInputStream generateReceipt(List<CartItem> cartItems, boolean isCashPayment, String cashierName, String cashierPersonnelNumber, String depositRedemptionCode, boolean isDepositOnlyReceipt) throws IOException {
         try (PDDocument document = new PDDocument()) {
             PDPage page = new PDPage();
             document.addPage(page);
@@ -34,7 +34,7 @@ public class ReceiptService {
             contentStream.beginText();
             contentStream.setFont(boldFont, 18);
             contentStream.newLineAtOffset(margin, y);
-            contentStream.showText("Kaufbeleg");
+            contentStream.showText(isDepositOnlyReceipt ? "Pfandbon" : "Kaufbeleg"); // Titel anpassen
             contentStream.endText();
             y -= 30;
 
@@ -102,13 +102,16 @@ public class ReceiptService {
             contentStream.showText("Gesamtbetrag: " + String.format("%.2f EUR", total));
             contentStream.endText();
 
-            contentStream.beginText();
-            contentStream.setFont(font, 12);
-            contentStream.newLineAtOffset(50, y);
-            String paymentText = isCashPayment ? "Bargeldzahlung" : "Kartenzahlung";
-            contentStream.showText(paymentText);
-            contentStream.endText();
-            y -= 30;
+            // Zahlungsart nur anzeigen, wenn es kein reiner Pfandbon ist
+            if (!isDepositOnlyReceipt) {
+                contentStream.beginText();
+                contentStream.setFont(font, 12);
+                contentStream.newLineAtOffset(50, y);
+                String paymentText = isCashPayment ? "Bargeldzahlung" : "Kartenzahlung";
+                contentStream.showText(paymentText);
+                contentStream.endText();
+                y -= 30;
+            }
 
             // Pfandbon-Code hinzufügen, wenn vorhanden
             if (depositRedemptionCode != null && !depositRedemptionCode.isEmpty()) {
