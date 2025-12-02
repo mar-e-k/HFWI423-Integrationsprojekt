@@ -40,6 +40,6 @@ public interface ArticleInfoRepository
 
 
     @Query("select a.stockLevel from ArticleInfo a where a.articleNumber = :articleNumber")
-    String findStockLevelForArticle(@Param("articleNumber") String articleNumber);
+    int findStockLevelForArticle(@Param("articleNumber") String articleNumber);
 
 }

@@ -25,6 +25,9 @@ public class MessageLogistic extends AbstractEntity {
     @JoinColumn(name = "kommission_id")
     private Kommission kommission;
 
+    @Column(name = "comment")
+    private String comment;
+
     public String getArticleNumber() {
         return articleNumber;
     }
@@ -62,4 +65,8 @@ public class MessageLogistic extends AbstractEntity {
     }
 
     public void setKommission(Kommission kommission) {this.kommission = kommission;}
+
+    public String getComment() {return  comment;}
+
+    public void setComment(String comment) {this.comment = comment;}
 }

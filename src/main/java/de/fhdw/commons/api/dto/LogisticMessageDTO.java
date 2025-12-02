@@ -11,6 +11,7 @@ public class LogisticMessageDTO {
     private Long articleId;
     private Long quantity;
     private Boolean isBelowMinimumStockLevel;
+    private String comment;
 
     public LogisticMessageDTO() {
         super();
@@ -54,4 +55,8 @@ public class LogisticMessageDTO {
     public void setBelowMinimumStockLevel(boolean belowMinimumStockLevel) {
         isBelowMinimumStockLevel = belowMinimumStockLevel;
     }
+
+    public String getComment() {return comment;}
+
+    public void setComment(String comment) {this.comment = comment;}
 }

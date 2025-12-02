@@ -60,18 +60,18 @@ public class StoreStockListener {
         System.out.println("MessageLogistic in DB gespeichert: " + ml);
     }
 
-   // @PostConstruct
-    public void sendTestMessage() {
-        LogisticMessageDTO msg = new LogisticMessageDTO();
-        msg.setStoreId(1L);
-        msg.setArticleId(13L);
-        msg.setQuantity(5L);
-        msg.setBelowMinimumStockLevel(false);
+    public void sendUpdateToStore(MessageLogistic msg) {
 
-        commandSender.fire(
-                DomainQueue.STORE_LOGISTIC_RESTOCK,
-                msg);
-        System.out.println("Testnachricht gesendet!");
+        LogisticMessageDTO dto = new LogisticMessageDTO();
+        dto.setStoreId(Long.parseLong(msg.getStoreId()));
+        dto.setArticleId(Long.parseLong(msg.getArticleNumber()));
+        dto.setQuantity(msg.getQuantity());
+        dto.setComment(msg.getComment());
+        dto.setBelowMinimumStockLevel(false);
+
+        commandSender.fire(DomainQueue.STORE_LOGISTIC_RESTOCK, dto);
+
+        System.out.println("Update an Store gesendet → " + dto);
     }
 
     @PostConstruct

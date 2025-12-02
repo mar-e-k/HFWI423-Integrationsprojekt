@@ -143,14 +143,7 @@ public class ArticleInfoService {
 
         int newStock = (article.getStockLevel() - change);
         if (newStock < 0) {
-            int newStockReserve = article.getStockLevel() + article.getReservePallets() - change;
-            if(newStockReserve < 0) {
-                System.out.println("Bestand würde unter 0 fallen → Verarbeitung abgebrochen!");
-                return false;
-            };
-            article.setReservePallets(newStockReserve);
-            article.setStockLevel(0);
-            return true;
+            return false;
         }
         article.setStockLevel(newStock);
 

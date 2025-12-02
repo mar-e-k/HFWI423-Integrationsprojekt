@@ -38,6 +38,7 @@ public class orderPickingMainView extends VerticalLayout {
     private final ArticleInfoService articleInfoService;
     private final Grid<Kommission> grid = new Grid<>(Kommission.class, false);
 
+
     public orderPickingMainView(KommissionService service, MessageLogisticRepository msgRepo,  ArticleInfoService articleInfoService) {
         this.service = service;
         this.msgRepo = msgRepo;
@@ -180,6 +181,68 @@ public class orderPickingMainView extends VerticalLayout {
                             }
                         }).setHeader("Stock-Level")
                         .setFlexGrow(1);
+
+                posGrid.addComponentColumn(msg -> {
+
+                    // --- Menge ComboBox ---
+                    int max = service.getStockLevelForArticle(msg.getArticleNumber());
+                    List<Integer> values = java.util.stream.IntStream.rangeClosed(0, max).boxed().toList();
+
+                    ComboBox<Integer> comboQty = new ComboBox<>();
+                    comboQty.setItems(values);
+                    int originalQty = (int) msg.getQuantity();
+                    comboQty.setValue(originalQty);
+                    comboQty.setWidth("120px");
+
+                    // --- Anmerkung ComboBox ---
+                    ComboBox<String> cbNote = new ComboBox<>();
+                    cbNote.setItems("Artikel nicht vorhanden", "Artikelbestand zu gering");
+                    cbNote.setPlaceholder("Anmerkung...");
+                    cbNote.setWidth("200px");
+                    cbNote.setRequired(false);
+                    cbNote.setEnabled(false); // erst aktivieren, wenn Menge geändert wird
+
+                    if (msg.getComment() != null) {
+                        cbNote.setValue(msg.getComment());
+                    }
+
+                    // --- Listener für Menge ---
+                    comboQty.addValueChangeListener(ev -> {
+                        Integer selected = ev.getValue();
+                        if (selected == null) return;
+
+                        // Menge speichern
+                        msg.setQuantity(selected);
+                        msgRepo.save(msg);
+
+                        Notification.show("Menge geändert auf: " + selected, 3000, Notification.Position.MIDDLE);
+
+                        // Prüfen ob Menge verändert wurde
+                        if (!selected.equals(originalQty)) {
+                            cbNote.setEnabled(true);
+                            cbNote.setRequired(true);
+                        } else {
+                            cbNote.setEnabled(false);
+                            cbNote.setRequired(false);
+                        }
+                    });
+
+                    // --- Listener für Anmerkung ---
+                    cbNote.addValueChangeListener(ev -> {
+                        msg.setComment(ev.getValue());
+                        msgRepo.save(msg);
+                    });
+
+                    // Layout für beide Controls
+                    VerticalLayout box = new VerticalLayout(comboQty, cbNote);
+                    box.setPadding(false);
+                    box.setSpacing(false);
+
+                    return box;
+
+                }).setHeader("Realisierte Menge + Anmerkung");
+
+
 
 
                 posGrid.setItems(artikelGefiltert);

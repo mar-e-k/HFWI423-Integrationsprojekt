@@ -43,7 +43,7 @@ public class KommissionService {
         return articleRepo.findStorageLocationByArticleNumber(articleNumber);
     }
 
-    public String getStockLevelForArticle(String articleNumber) {
+    public int getStockLevelForArticle(String articleNumber) {
         return articleRepo.findStockLevelForArticle(articleNumber);
     }
 
