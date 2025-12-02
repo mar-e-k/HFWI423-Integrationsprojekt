@@ -286,13 +286,19 @@ public class ShelfManagementView extends VerticalLayout {
                     return;
                 }
 
-                // Find next available position (max position + 1)
+                // Find first available position between 1 and 5
                 int nextPosition = 1;
                 if (currentShelf.getLevels() != null && !currentShelf.getLevels().isEmpty()) {
-                    nextPosition = currentShelf.getLevels().stream()
-                            .mapToInt(ShelfLevelResponseDTO::getLevelPosition)
-                            .max()
-                            .orElse(0) + 1;
+                    java.util.Set<Integer> usedPositions = currentShelf.getLevels().stream()
+                            .map(ShelfLevelResponseDTO::getLevelPosition)
+                            .collect(java.util.stream.Collectors.toSet());
+
+                    for (int i = 1; i <= 5; i++) {
+                        if (!usedPositions.contains(i)) {
+                            nextPosition = i;
+                            break;
+                        }
+                    }
                 }
                 shelfService.addLevel(shelf.getId(), nextPosition);
                 refreshLevelsHolder[0].run();
