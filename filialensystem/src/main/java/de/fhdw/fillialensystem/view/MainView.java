@@ -10,7 +10,6 @@ import de.fhdw.commons.persistence.entity.AccountRoleEnum;
 import de.fhdw.commons.view.AbstractMainView;
 import de.fhdw.fillialensystem.persistence.service.other.RegisterRegistryService;
 import de.fhdw.fillialensystem.utility.RegisterClient;
-import de.fhdw.fillialensystem.utility.StoreClient;
 import jakarta.annotation.security.RolesAllowed;
 
 import java.io.UnsupportedEncodingException;
@@ -50,7 +49,10 @@ public class MainView extends AbstractMainView {
         Anchor role = new Anchor("/roles", "Rollen");
         Anchor register = new Anchor("/register", "Kassen");
         Anchor store = new Anchor("/select-store", "Filiale");
-        add(admin, role, register, store);
+        Anchor stock = new Anchor("/admin-stock", "Bestände");
+        Anchor dailyReceipt = new Anchor("/receipt-reporting", "Daily Receipt");
+
+        add(admin, role, register, store, stock, dailyReceipt);
     }
 
     private Grid<RegisterClient> createGrid() {
@@ -103,7 +105,6 @@ public class MainView extends AbstractMainView {
         try {
             url += "?name=" + URLEncoder.encode(name, StandardCharsets.UTF_8.name());
         } catch (UnsupportedEncodingException e) {
-            // This should not happen with UTF-8
             e.printStackTrace();
         }
         Anchor link = new Anchor(url, "Open");

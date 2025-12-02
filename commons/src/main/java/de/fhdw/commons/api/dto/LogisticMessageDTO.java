@@ -10,15 +10,17 @@ public class LogisticMessageDTO implements GenericDTO<Long> {
     private Long storeId;
     private Long articleId;
     private Long quantity;
+    private Boolean isBelowMinimumStockLevel;
 
     public LogisticMessageDTO() {
         super();
     }
 
-    public LogisticMessageDTO(Long storeId, Long articleId, Long quantity) {
+    public LogisticMessageDTO(Long storeId, Long articleId, Long quantity, boolean isBelowMinimumStockLevel) {
         this.storeId = storeId;
         this.articleId = articleId;
         this.quantity = quantity;
+        this.isBelowMinimumStockLevel = isBelowMinimumStockLevel;
     }
 
     public Long getStoreId() {
@@ -43,6 +45,14 @@ public class LogisticMessageDTO implements GenericDTO<Long> {
 
     public void setQuantity(Long quantity) {
         this.quantity = quantity;
+    }
+
+    public boolean isBelowMinimumStockLevel() {
+        return isBelowMinimumStockLevel;
+    }
+
+    public void setBelowMinimumStockLevel(boolean belowMinimumStockLevel) {
+        isBelowMinimumStockLevel = belowMinimumStockLevel;
     }
 
     @Override

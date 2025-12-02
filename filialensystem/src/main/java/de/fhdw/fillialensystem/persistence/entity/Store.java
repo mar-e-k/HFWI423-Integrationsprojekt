@@ -2,18 +2,18 @@ package de.fhdw.fillialensystem.persistence.entity;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
 import jakarta.persistence.OneToMany;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 @Entity
 public class Store extends AbstractEntity {
 
-    @OneToMany(mappedBy = "store", fetch = FetchType.EAGER)
+    @OneToMany(mappedBy = "store")
     private List<Register> registers = new ArrayList<>();
 
     @OneToMany(mappedBy = "store")
@@ -122,5 +122,17 @@ public class Store extends AbstractEntity {
 
     public void setStreetNumber(String streetNumber) {
         this.streetNumber = streetNumber;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (o == null || getClass() != o.getClass()) return false;
+        Store store = (Store) o;
+        return Objects.equals(getId(), ((Store) o).getId()) && Objects.equals(country, store.country) && Objects.equals(city, store.city) && Objects.equals(street, store.street) && Objects.equals(streetNumber, store.streetNumber);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(registers, receipts, storeStocks, country, city, street, streetNumber);
     }
 }
