@@ -55,7 +55,7 @@ public class MainLayout extends AppLayout {
         contingentsLink.addClassName("nav-link");
 
         // Navigation layout
-        HorizontalLayout navLinks = new HorizontalLayout(homeLink, articlesLink, suppliersLink, shelvesLink, placementsLink, cartLink, contingentsLink, ordersLink);
+        HorizontalLayout navLinks = new HorizontalLayout(homeLink, articlesLink, suppliersLink, cartLink, contingentsLink, ordersLink, shelvesLink, placementsLink);
         navLinks.setSpacing(true);
         navLinks.setPadding(true);
         navLinks.setAlignItems(FlexComponent.Alignment.CENTER);
