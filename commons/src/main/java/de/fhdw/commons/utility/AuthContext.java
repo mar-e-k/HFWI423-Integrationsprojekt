@@ -5,22 +5,29 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
+import java.io.Serial;
+import java.io.Serializable;
 import java.security.Principal;
 import java.util.Collection;
 import java.util.List;
 
-public class AuthContext implements UserDetails, Principal {
+public class AuthContext implements UserDetails, Principal, Serializable {
+
+    @Serial
+    private static final long serialVersionUID = 1L;
 
     private final AccountRoleEnum accountRole;
     private final String uuid;
     private final String username;
+    private final String password;
     private final Integer storeId;
     private final Integer registerId;
 
-    public AuthContext(AccountRoleEnum accountRole, String uuid, String username, Integer storeId, Integer registerId) {
+    public AuthContext(AccountRoleEnum accountRole, String uuid, String username, String password, Integer storeId, Integer registerId) {
         this.accountRole = accountRole;
         this.uuid = uuid;
         this.username = username;
+        this.password = password;
         this.storeId = storeId;
         this.registerId = registerId;
     }
@@ -48,7 +55,7 @@ public class AuthContext implements UserDetails, Principal {
 
     @Override
     public String getPassword() {
-        return "";
+        return password;
     }
 
     @Override

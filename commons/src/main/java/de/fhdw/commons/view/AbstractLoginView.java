@@ -1,13 +1,11 @@
 package de.fhdw.commons.view;
 
-
 import com.vaadin.flow.component.html.NativeLabel;
 import com.vaadin.flow.component.login.LoginForm;
 import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
-import com.vaadin.flow.router.*;
-
-import java.util.List;
+import com.vaadin.flow.router.BeforeEnterEvent;
+import com.vaadin.flow.router.BeforeEnterObserver;
 
 public abstract class AbstractLoginView extends VerticalLayout implements BeforeEnterObserver {
 
@@ -19,57 +17,25 @@ public abstract class AbstractLoginView extends VerticalLayout implements Before
         setAlignItems(Alignment.CENTER);
         setJustifyContentMode(JustifyContentMode.CENTER);
 
-        init();
-        add(warningLabel);
-    }
-
-    private void init() {
-        // ---- LoginForm ----
+        loginForm.setAction("login");
+        loginForm.setForgotPasswordButtonVisible(true);
         loginForm.addForgotPasswordListener(event ->
                 Notification.show(
-                        "Bitte wende dich an einem Administrator in deiner Filliale, um dein Password zurückzusetzen zu lassen",
+                        "Bitte wende dich an einen Administrator, um dein Passwort zurückzusetzen",
                         3000,
                         Notification.Position.MIDDLE));
+
+        add(loginForm, warningLabel);
     }
 
     @Override
     public void beforeEnter(BeforeEnterEvent beforeEnterEvent) {
-        String errorParam = beforeEnterEvent.getLocation()
+        // Inform the user about an authentication error
+        if (beforeEnterEvent.getLocation()
                 .getQueryParameters()
                 .getParameters()
-                .getOrDefault("error", List.of())
-                .stream()
-                .findFirst()
-                .orElse(null);
-
-        if (errorParam == null || errorParam.isEmpty()) {
-            return;
-        }
-
-        switch (ErrorQueryParameter.valueOf(errorParam.toUpperCase().replaceAll("-", "_"))) {
-            case ErrorQueryParameter.LOGIN_REQUIRED:
-                Notification.show(
-                        "Account wird für die Operation benötigt. Bitte anmelden",
-                        5000,
-                        Notification.Position.TOP_CENTER);
-                break;
-            case ErrorQueryParameter.ROLES_MISSING:
-                Notification.show(
-                        "Account hat keine Berechtigungen. Bitte kontaktiere die IT",
-                        5000,
-                        Notification.Position.TOP_CENTER);
-                break;
-            case ErrorQueryParameter.ACCESS_DENIED:
-                Notification.show(
-                        "Account hat nicht die benötigten Berechtigungen",
-                        5000,
-                        Notification.Position.TOP_CENTER);
-                break;
-            default:
-                Notification.show(
-                        "Unbekannter Fehler. Bitte kontaktiere die IT",
-                        5000,
-                        Notification.Position.TOP_CENTER);
+                .containsKey("error")) {
+            loginForm.setError(true);
         }
     }
 }

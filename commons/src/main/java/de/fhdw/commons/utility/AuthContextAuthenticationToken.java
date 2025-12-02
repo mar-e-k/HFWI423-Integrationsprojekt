@@ -1,21 +1,23 @@
-package de.fhdw.fillialensystem.utility.security;
+package de.fhdw.commons.utility;
 
-import de.fhdw.commons.utility.AuthContext;
 import org.springframework.security.authentication.AbstractAuthenticationToken;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 
+import java.io.Serial;
+import java.io.Serializable;
 import java.util.List;
 
-public class AuthContextAuthenticationToken extends AbstractAuthenticationToken {
+public class AuthContextAuthenticationToken extends AbstractAuthenticationToken implements Serializable {
+
+    @Serial
+    private static final long serialVersionUID = 1L;
 
     private final AuthContext authContext;
-    private final String principal;
 
     public AuthContextAuthenticationToken(AuthContext authContext) {
         super(List.of(new SimpleGrantedAuthority("ROLE_".concat(authContext.getAccountRole().name()))));
         this.authContext = authContext;
-        this.principal = authContext.getUsername();
-        setAuthenticated(true);
+        super.setAuthenticated(true);
     }
 
     @Override

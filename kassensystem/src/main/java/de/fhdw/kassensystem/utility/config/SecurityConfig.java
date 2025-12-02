@@ -1,17 +1,25 @@
 package de.fhdw.kassensystem.utility.config;
 
 import com.vaadin.flow.spring.security.VaadinAwareSecurityContextHolderStrategyConfiguration;
+import de.fhdw.kassensystem.persistance.service.proxy.AccountProxyService;
+import de.fhdw.kassensystem.utility.RegisterClient;
+import de.fhdw.kassensystem.utility.StoreClient;
+import de.fhdw.kassensystem.utility.security.CustomUserDetailsService;
 import de.fhdw.kassensystem.utility.security.JwtAuthenticationFilter;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.ProviderManager;
+import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.annotation.web.configurers.HeadersConfigurer;
 import org.springframework.security.config.annotation.web.configurers.RememberMeConfigurer;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
@@ -78,5 +86,24 @@ public class SecurityConfig {
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
+    }
+
+    @Bean
+    public UserDetailsService userDetailsService(AccountProxyService accountProxyService, StoreClient storeClient, RegisterClient registerClient) {
+        return new CustomUserDetailsService(accountProxyService, storeClient, registerClient);
+    }
+
+    @Bean
+    public AuthenticationManager authenticationManager(UserDetailsService userDetailsService, PasswordEncoder passwordEncoder) {
+        // This manual configuration is necessary to break a circular dependency.
+        // The default AuthenticationManager from AuthenticationConfiguration can cause a StackOverflowError
+        // if the UserDetailsService depends on other beans that are secured with method-level security,
+        // as it creates a loop: AuthenticationManager -> UserDetailsService -> Secured Bean -> AuthenticationManager.
+        // By creating a simple ProviderManager directly, we create a "clean" manager for the login process
+        // that is not wrapped with the method security interceptors.
+        DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
+        provider.setUserDetailsService(userDetailsService);
+        provider.setPasswordEncoder(passwordEncoder);
+        return new ProviderManager(provider);
     }
 }
