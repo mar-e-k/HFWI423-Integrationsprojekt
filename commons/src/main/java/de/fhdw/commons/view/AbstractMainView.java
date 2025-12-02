@@ -149,8 +149,6 @@ public abstract class AbstractMainView extends VerticalLayout implements BeforeE
             return;
         }
 
-
-
         if (auth.getAuthorities().isEmpty()) {
             beforeEnterEvent.rerouteTo("login", QueryParameters.simple(Map.of("error", ErrorQueryParameter.ROLES_MISSING.value())));
             return;

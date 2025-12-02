@@ -1,6 +1,7 @@
 package de.fhdw.kassensystem.utility.config;
 
 import com.vaadin.flow.spring.security.VaadinAwareSecurityContextHolderStrategyConfiguration;
+import de.fhdw.commons.api.dto.AccountDTO;
 import de.fhdw.kassensystem.persistance.service.proxy.AccountProxyService;
 import de.fhdw.kassensystem.utility.RegisterClient;
 import de.fhdw.kassensystem.utility.StoreClient;
@@ -23,7 +24,9 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.security.web.authentication.logout.LogoutSuccessHandler;
 
 @Configuration
 @EnableWebSecurity
@@ -32,6 +35,8 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 public class SecurityConfig {
 
     private final boolean springSecurityEnabled;
+
+    private final AccountProxyService accountProxyService;
 
     private static final String[] WHITELIST = {
             "/",
@@ -52,12 +57,13 @@ public class SecurityConfig {
             "/HEARTBEAT/**",
     };
 
-    public SecurityConfig(@Value("${spring.security.enabled:true}") boolean springSecurityEnabled) {
+    public SecurityConfig(@Value("${spring.security.enabled:true}") boolean springSecurityEnabled, AccountProxyService accountProxyService) {
         this.springSecurityEnabled = springSecurityEnabled;
+        this.accountProxyService = accountProxyService;
     }
 
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http, JwtAuthenticationFilter jwtAuthenticationFilter) throws Exception {
+    public SecurityFilterChain securityFilterChain(HttpSecurity http, JwtAuthenticationFilter jwtAuthenticationFilter, AuthenticationSuccessHandler authenticationSuccessHandler, LogoutSuccessHandler customLogoutHandler) throws Exception {
         if (!springSecurityEnabled) {
             return http
                     .csrf(AbstractHttpConfigurer::disable)
@@ -73,14 +79,48 @@ public class SecurityConfig {
                             .anyRequest().fullyAuthenticated())
                     .formLogin(form -> form
                             .loginPage("/login")
-                            .permitAll())
+                            .permitAll()
+                            .successHandler(authenticationSuccessHandler)   // <-- added
+                            .failureUrl("/login?error")
+                    )
+
                     .logout(logout -> logout
                             .logoutUrl("/logout")
-                            .logoutSuccessUrl("/login?logout"))
+                            .logoutSuccessHandler(customLogoutHandler)      // <-- fixed
+                            .deleteCookies("JSESSIONID")
+                            .permitAll()
+                    )
                     .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
                     .rememberMe(RememberMeConfigurer::disable)
                     .build();
         }
+    }
+
+
+    @Bean
+    public AuthenticationSuccessHandler authenticationSuccessHandler() {
+        return (request, response, authentication) -> {
+//            if (authentication != null) {
+//                accountProxyService.lockByAccount(
+//                        accountProxyService.findByUsername(authentication.getName())
+//                                .orElseThrow(IllegalAccessError::new)
+//                );
+//            }
+            response.sendRedirect("/");
+        };
+    }
+
+    @Bean
+    public LogoutSuccessHandler customLogoutHandler() {
+        return (request, response, authentication) -> {
+//            if (authentication != null) {
+//                accountProxyService.deleteLockByAccount(
+//                        accountProxyService.findByUsername(authentication.getName())
+//                                .orElseThrow(IllegalAccessError::new)
+//                );
+//            }
+            response.sendRedirect("/login?logout");
+        };
     }
 
     @Bean

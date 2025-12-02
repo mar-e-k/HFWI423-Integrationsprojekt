@@ -55,4 +55,24 @@ public class AccountProxyService extends AbstractProxyService {
                 .onErrorResume(WebClientResponseException.NotFound.class, e -> Mono.empty())
                 .blockOptional();
     }
+
+    public void lockByAccount(AccountDTO accountDTO) {
+        storeClient.getWebClient()
+                .post()
+                .uri("/api/account/lock", accountDTO)
+                .retrieve()
+                .bodyToMono(Void.class)
+                .onErrorResume(WebClientResponseException.NotFound.class, e -> Mono.empty())
+                .block();
+    }
+
+    public void deleteLockByAccount(AccountDTO accountDTO) {
+        storeClient.getWebClient()
+                .delete()
+                .uri("/api/account/lock", accountDTO)
+                .retrieve()
+                .bodyToMono(Void.class)
+                .onErrorResume(WebClientResponseException.NotFound.class, e -> Mono.empty())
+                .block();
+    }
 }

@@ -45,23 +45,6 @@ public class ReceiptController {
 
     @PostMapping
     public ResponseEntity<ReceiptDTO> createReceipt(@RequestBody List<ReceiptLinkArticleDTO> receiptArticles, @AuthenticationPrincipal AuthContext authContext) {
-        Long storeId = authContext.getStoreId().longValue();
-        if (storeId != null) {
-            Optional<Store> storeOptional = storeService.findById(storeId);
-            storeOptional.ifPresent(store -> {
-                for (ReceiptLinkArticleDTO receiptArticleDTO : receiptArticles) {
-                    Article article = articleService.findByArticleNumber(receiptArticleDTO.getArticleId().toString())
-                            .orElseThrow(EntityExistsException::new);
-                    Optional<StoreLinkStock> storeLinkStockOptional = storeLinkStockService.findByStoreAndArticle(store, article);
-                    storeLinkStockOptional.ifPresent(storeLinkStock -> {
-                        int newAmount = storeLinkStock.getAmount() - receiptArticleDTO.getAmount();
-                        storeLinkStock.setAmount(newAmount);
-                        storeLinkStockService.update(storeLinkStock.getId(), storeLinkStock);
-                    });
-                }
-            });
-        }
-
         return ResponseEntity
                 .status(HttpStatus.CREATED)
                 .body(receiptMapper.toDto(

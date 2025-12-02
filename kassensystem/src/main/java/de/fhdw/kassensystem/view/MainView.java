@@ -14,6 +14,7 @@ import jakarta.annotation.security.RolesAllowed;
 public class MainView extends AbstractMainView implements BeforeEnterObserver {
 
     public MainView() {
+        super();
         UI.getCurrent().navigate(CashierView.class);
     }
 

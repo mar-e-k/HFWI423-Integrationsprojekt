@@ -1,8 +1,10 @@
 package de.fhdw.kassensystem.utility;
 
 import de.fhdw.commons.api.dto.StoreDTO;
+import de.fhdw.commons.utility.AuthContext;
 import de.fhdw.kassensystem.utility.security.JwtService;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.http.HttpHeaders;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
@@ -16,7 +18,7 @@ public class StoreClient {
 
     private final WebClient webClient;
 
-    public StoreClient(@Value("${server.filialsystem.uri}") String uri, JwtService jwtService) {
+    public StoreClient(@Value("${server.filialsystem.uri}") String uri, @Lazy JwtService jwtService) {
         this.webClient = WebClient.builder()
                 .baseUrl(uri)
                 .filter((request, next) -> {
