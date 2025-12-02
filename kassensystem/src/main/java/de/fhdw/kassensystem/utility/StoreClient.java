@@ -1,10 +1,10 @@
 package de.fhdw.kassensystem.utility;
 
-import com.vaadin.flow.server.VaadinSession;
 import de.fhdw.commons.api.dto.StoreDTO;
 import de.fhdw.kassensystem.utility.security.JwtService;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.ClientRequest;
 import org.springframework.web.reactive.function.client.WebClient;
@@ -21,12 +21,12 @@ public class StoreClient {
                 .baseUrl(uri)
                 .filter((request, next) -> {
                     Object token;
-                    if (VaadinSession.getCurrent() == null || VaadinSession.getCurrent().getAttribute("jwt") == null) {
+                    if (SecurityContextHolder.getContext().getAuthentication() == null) {
                         token = jwtService.generateSystemToken();
                     } else {
-                        token = VaadinSession.getCurrent().getAttribute("jwt");
+                        token = jwtService.generateToken(jwtService.getCurrentAuth()
+                                .orElseThrow(IllegalStateException::new));
                     }
-
                     ClientRequest newRequest = ClientRequest.from(request)
                             .header(HttpHeaders.AUTHORIZATION, "Bearer " + token)
                             .build();

@@ -1,17 +1,23 @@
 package de.fhdw.fillialensystem.utility.config;
 
 import com.vaadin.flow.spring.security.VaadinAwareSecurityContextHolderStrategyConfiguration;
+import de.fhdw.fillialensystem.persistence.repository.AccountRepository;
+import de.fhdw.fillialensystem.utility.StoreClient;
+import de.fhdw.fillialensystem.utility.security.CustomUserDetailsService;
 import de.fhdw.fillialensystem.utility.security.JwtAuthenticationFilter;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.ProviderManager;
+import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.annotation.web.configurers.HeadersConfigurer;
-import org.springframework.security.config.annotation.web.configurers.RememberMeConfigurer;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
@@ -19,7 +25,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 
 @Configuration
 @EnableWebSecurity
-@EnableMethodSecurity(jsr250Enabled = true)
+@EnableMethodSecurity
 @Import(VaadinAwareSecurityContextHolderStrategyConfiguration.class)
 public class SecurityConfig {
 
@@ -62,15 +68,15 @@ public class SecurityConfig {
                     .authorizeHttpRequests(auth -> auth
                             .requestMatchers(WHITELIST).permitAll()
                             .requestMatchers("/api/**").authenticated()
-                            .anyRequest().fullyAuthenticated())
+                            .anyRequest().authenticated())
                     .formLogin(form -> form
                             .loginPage("/login")
-                            .permitAll())
+                            .permitAll()
+                    )
                     .logout(logout -> logout
                             .logoutUrl("/logout")
                             .logoutSuccessUrl("/login?logout"))
                     .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
-                    .rememberMe(RememberMeConfigurer::disable)
                     .build();
         }
     }
@@ -78,5 +84,24 @@ public class SecurityConfig {
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
+    }
+
+    @Bean
+    public UserDetailsService userDetailsService(AccountRepository accountRepository, StoreClient storeClient) {
+        return new CustomUserDetailsService(accountRepository, storeClient);
+    }
+
+    @Bean
+    public AuthenticationManager authenticationManager(UserDetailsService userDetailsService, PasswordEncoder passwordEncoder) {
+        // This manual configuration is necessary to break a circular dependency.
+        // The default AuthenticationManager from AuthenticationConfiguration can cause a StackOverflowError
+        // if the UserDetailsService depends on other beans that are secured with method-level security,
+        // as it creates a loop: AuthenticationManager -> UserDetailsService -> Secured Bean -> AuthenticationManager.
+        // By creating a simple ProviderManager directly, we create a "clean" manager for the login process
+        // that is not wrapped with the method security interceptors.
+        DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
+        provider.setUserDetailsService(userDetailsService);
+        provider.setPasswordEncoder(passwordEncoder);
+        return new ProviderManager(provider);
     }
 }

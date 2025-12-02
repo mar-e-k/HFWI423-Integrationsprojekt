@@ -1,6 +1,7 @@
 package de.fhdw.fillialensystem.utility.security;
 
 import de.fhdw.commons.utility.AuthContext;
+import de.fhdw.commons.utility.AuthContextAuthenticationToken;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
@@ -50,8 +51,8 @@ public class JwtService {
 
     public Optional<AuthContext> getCurrentAuth() {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        if (auth instanceof AuthContextAuthenticationToken token) {
-            return Optional.of(token.getAuthContext());
+        if (auth.getPrincipal() instanceof AuthContext token) {
+            return Optional.of(token);
         }
         return Optional.empty();
     }
