@@ -1,5 +1,6 @@
 package de.fhdw.fillialensystem.view.admin;
 
+import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.grid.Grid;
@@ -27,6 +28,13 @@ public class RegisterAddView extends AbstractMainView {
     public RegisterAddView(RegisterService registerService, StoreService storeService) {
         this.registerService = registerService;
         this.storeService = storeService;
+    }
+
+    @Override
+    protected HorizontalLayout createTopBarButtons() {
+        Button homeButton = new Button("Zum Home-Screen");
+        homeButton.addClickListener(e -> UI.getCurrent().navigate(""));
+        return new HorizontalLayout(homeButton);
     }
 
     @Override

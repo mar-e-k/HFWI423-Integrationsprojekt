@@ -25,6 +25,8 @@ public class ReceiptMapper implements GenericMapper<Receipt, ReceiptDTO> {
         receipt.setAccount(new Account(dto.getAccountId()));
         receipt.setTotalAmount(dto.getTotalAmount());
         receipt.setReceiptArticles(dto.getReceiptArticles().stream().map(receiptLinkArticleMapper::toEntity).toList());
+        receipt.setDepositOnly(dto.isDepositOnly());
+        receipt.setDepositRedemptionCode(dto.getDepositRedemptionCode()); // depositRedemptionCode hinzugefügt
         return receipt;
     }
 
@@ -37,6 +39,8 @@ public class ReceiptMapper implements GenericMapper<Receipt, ReceiptDTO> {
         dto.setAccountId(receipt.getAccount().getId());
         dto.setTotalAmount(receipt.getTotalAmount());
         dto.setReceiptArticles(receipt.getReceiptArticles().stream().map(receiptLinkArticleMapper::toDto).toList());
+        dto.setDepositOnly(receipt.isDepositOnly());
+        dto.setDepositRedemptionCode(receipt.getDepositRedemptionCode()); // depositRedemptionCode hinzugefügt
         return dto;
     }
 }

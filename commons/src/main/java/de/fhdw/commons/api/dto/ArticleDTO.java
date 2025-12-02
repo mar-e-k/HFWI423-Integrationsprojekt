@@ -1,5 +1,7 @@
 package de.fhdw.commons.api.dto;
 
+import java.math.BigDecimal;
+
 public class ArticleDTO extends AbstractDTO<Long> {
 
     private String articleNumber;
@@ -13,6 +15,7 @@ public class ArticleDTO extends AbstractDTO<Long> {
     private Double taxRatePercent;
     private String unit;
     private Boolean isAvailable;
+    private boolean hasDeposit;
 
     public ArticleDTO() {
         super();
@@ -22,7 +25,7 @@ public class ArticleDTO extends AbstractDTO<Long> {
         super(id);
     }
 
-    public ArticleDTO(Long id, String articleNumber, String description, String manufacturer, String name, Double purchasePrice, Double sellingPrice, Integer stockLevel, String supplier, Double taxRatePercent, String unit, Boolean isAvailable) {
+    public ArticleDTO(Long id, String articleNumber, String description, String manufacturer, String name, Double purchasePrice, Double sellingPrice, Integer stockLevel, String supplier, Double taxRatePercent, String unit, Boolean isAvailable, boolean hasDeposit) {
         super(id);
         this.articleNumber = articleNumber;
         this.description = description;
@@ -35,6 +38,7 @@ public class ArticleDTO extends AbstractDTO<Long> {
         this.taxRatePercent = taxRatePercent;
         this.unit = unit;
         this.isAvailable = isAvailable;
+        this.hasDeposit = hasDeposit;
     }
 
     public String getArticleNumber() {
@@ -123,5 +127,13 @@ public class ArticleDTO extends AbstractDTO<Long> {
 
     public void setAvailable(Boolean available) {
         isAvailable = available;
+    }
+
+    public boolean isHasDeposit() {
+        return hasDeposit;
+    }
+
+    public void setHasDeposit(boolean hasDeposit) {
+        this.hasDeposit = hasDeposit;
     }
 }

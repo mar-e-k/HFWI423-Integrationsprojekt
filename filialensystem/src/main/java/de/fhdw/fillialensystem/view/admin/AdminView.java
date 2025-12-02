@@ -33,15 +33,9 @@ public class AdminView extends AbstractMainView {
 
     @Override
     protected HorizontalLayout createTopBarButtons() {
-        Button roleManagementButton = new Button("Zur Rollenverwaltung");
-        roleManagementButton.addClickListener(e -> UI.getCurrent().navigate("roles"));
-
-        LogisticMessageDTO logisticMessageDTO = new LogisticMessageDTO();
-        logisticMessageDTO.setStoreId(2L);
-        logisticMessageDTO.setArticleId(1L);
-        logisticMessageDTO.setQuantity(10L);
-
-        return new HorizontalLayout(roleManagementButton);
+        Button homeButton = new Button("Zum Home-Screen");
+        homeButton.addClickListener(e -> UI.getCurrent().navigate(""));
+        return new HorizontalLayout(homeButton);
     }
 
     @Override

@@ -6,6 +6,8 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import org.hibernate.annotations.ColumnDefault;
 
+import java.math.BigDecimal;
+
 @Entity
 @Table(name = "article")
 public class Article implements GenericEntity<Long> {
@@ -65,6 +67,12 @@ public class Article implements GenericEntity<Long> {
     @Column(name = "is_available", nullable = false)
     private Boolean isAvailable = false;
 
+    @NotNull
+    @ColumnDefault("false")
+    @Column(name = "has_deposit", nullable = false)
+    private boolean hasDeposit = false;
+
+
     public Article() {
         super();
     }
@@ -73,7 +81,7 @@ public class Article implements GenericEntity<Long> {
         this.id = id;
     }
 
-    public Article(String articleNumber, String description, String manufacturer, String name, Double purchasePrice, Double sellingPrice, Integer stockLevel, String supplier, Double taxRatePercent, String unit, Boolean isAvailable) {
+    public Article(String articleNumber, String description, String manufacturer, String name, Double purchasePrice, Double sellingPrice, Integer stockLevel, String supplier, Double taxRatePercent, String unit, Boolean isAvailable, boolean hasDeposit) {
         this.articleNumber = articleNumber;
         this.description = description;
         this.manufacturer = manufacturer;
@@ -85,9 +93,10 @@ public class Article implements GenericEntity<Long> {
         this.taxRatePercent = taxRatePercent;
         this.unit = unit;
         this.isAvailable = isAvailable;
+        this.hasDeposit = hasDeposit;
     }
 
-    public Article(Long id, String articleNumber, String description, String manufacturer, String name, Double purchasePrice, Double sellingPrice, Integer stockLevel, String supplier, Double taxRatePercent, String unit, Boolean isAvailable) {
+    public Article(Long id, String articleNumber, String description, String manufacturer, String name, Double purchasePrice, Double sellingPrice, Integer stockLevel, String supplier, Double taxRatePercent, String unit, Boolean isAvailable, boolean hasDeposit) {
         this.id = id;
         this.articleNumber = articleNumber;
         this.description = description;
@@ -100,6 +109,7 @@ public class Article implements GenericEntity<Long> {
         this.taxRatePercent = taxRatePercent;
         this.unit = unit;
         this.isAvailable = isAvailable;
+        this.hasDeposit = hasDeposit;
     }
 
     @Override
@@ -200,4 +210,11 @@ public class Article implements GenericEntity<Long> {
         this.isAvailable = isAvailable;
     }
 
+    public boolean isHasDeposit() {
+        return hasDeposit;
+    }
+
+    public void setHasDeposit(boolean hasDeposit) {
+        this.hasDeposit = hasDeposit;
+    }
 }

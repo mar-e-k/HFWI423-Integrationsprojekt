@@ -1,5 +1,6 @@
 package de.fhdw.fillialensystem.persistence.entity;
 
+import de.fhdw.commons.api.dto.DepositStatus;
 import de.fhdw.commons.persistence.entity.GenericEntity;
 import de.fhdw.fillialensystem.persistence.entity.imported.Article;
 import jakarta.persistence.*;
@@ -23,7 +24,6 @@ public class ReceiptLinkArticle implements GenericEntity<Long> {
     private Article article;
 
     // ---- Required ----
-    @DecimalMin(value = "0.00", message = "Price must >= 0.00")
     @NotNull(message = "Price cannot be null")
     private BigDecimal price;
 
@@ -36,7 +36,6 @@ public class ReceiptLinkArticle implements GenericEntity<Long> {
     private BigDecimal taxRate;
 
     // ---- Optional ----
-    @DecimalMin(value = "0.00", message = "Override price must be >= 0.00")
     private BigDecimal overridePrice;
 
     @Size(max = 255)
@@ -46,11 +45,16 @@ public class ReceiptLinkArticle implements GenericEntity<Long> {
     @DecimalMax(value = "100.00", message = "Discounted amount must be <= 100.00")
     private BigDecimal discountedByPercent;
 
+    @Enumerated(EnumType.STRING)
+    @Column(name = "deposit_status", nullable = false)
+    @NotNull(message = "Deposit status cannot be null")
+    private DepositStatus depositStatus = DepositStatus.NONE;
+
     public ReceiptLinkArticle() {
         super();
     }
 
-    public ReceiptLinkArticle(Receipt receipt, Article article, BigDecimal price, Integer amount, BigDecimal taxRate, BigDecimal overridePrice, String overrideReason, BigDecimal discountedByPercent) {
+    public ReceiptLinkArticle(Receipt receipt, Article article, BigDecimal price, Integer amount, BigDecimal taxRate, BigDecimal overridePrice, String overrideReason, BigDecimal discountedByPercent, DepositStatus depositStatus) {
         this.receipt = receipt;
         this.article = article;
         this.price = price;
@@ -59,9 +63,10 @@ public class ReceiptLinkArticle implements GenericEntity<Long> {
         this.overridePrice = overridePrice;
         this.overrideReason = overrideReason;
         this.discountedByPercent = discountedByPercent;
+        this.depositStatus = depositStatus;
     }
 
-    public ReceiptLinkArticle(Long id, Receipt receipt, Article article, BigDecimal price, Integer amount, BigDecimal taxRate, BigDecimal overridePrice, String overrideReason, BigDecimal discountedByPercent) {
+    public ReceiptLinkArticle(Long id, Receipt receipt, Article article, BigDecimal price, Integer amount, BigDecimal taxRate, BigDecimal overridePrice, String overrideReason, BigDecimal discountedByPercent, DepositStatus depositStatus) {
         this.id = id;
         this.receipt = receipt;
         this.article = article;
@@ -71,6 +76,7 @@ public class ReceiptLinkArticle implements GenericEntity<Long> {
         this.overridePrice = overridePrice;
         this.overrideReason = overrideReason;
         this.discountedByPercent = discountedByPercent;
+        this.depositStatus = depositStatus;
     }
 
     @Override
@@ -145,5 +151,13 @@ public class ReceiptLinkArticle implements GenericEntity<Long> {
 
     public void setDiscountedByPercent(BigDecimal discountedByPercent) {
         this.discountedByPercent = discountedByPercent;
+    }
+
+    public DepositStatus getDepositStatus() {
+        return depositStatus;
+    }
+
+    public void setDepositStatus(DepositStatus depositStatus) {
+        this.depositStatus = depositStatus;
     }
 }

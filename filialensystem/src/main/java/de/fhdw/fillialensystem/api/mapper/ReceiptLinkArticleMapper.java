@@ -22,8 +22,9 @@ public class ReceiptLinkArticleMapper implements GenericMapper<ReceiptLinkArticl
         receiptLinkArticle.setAmount(dto.getAmount());
         receiptLinkArticle.setTaxRate(dto.getTaxRate());
         receiptLinkArticle.setOverridePrice(dto.getOverridePrice());
-        receiptLinkArticle.setOverrideReason(dto.getOverrideReason().name());
+        receiptLinkArticle.setOverrideReason(dto.getOverrideReason() != null ? dto.getOverrideReason().name() : null);
         receiptLinkArticle.setDiscountedByPercent(dto.getDiscountedByPercent());
+        receiptLinkArticle.setDepositStatus(dto.getDepositStatus()); // DepositStatus hinzugefügt
         return receiptLinkArticle;
     }
 
@@ -37,8 +38,9 @@ public class ReceiptLinkArticleMapper implements GenericMapper<ReceiptLinkArticl
         dto.setAmount(receiptLinkArticle.getAmount());
         dto.setTaxRate(receiptLinkArticle.getTaxRate());
         dto.setOverridePrice(receiptLinkArticle.getOverridePrice());
-        dto.setOverrideReason(OverrideReasonEnum.MANUAL_OVERRIDE);
+        dto.setOverrideReason(receiptLinkArticle.getOverrideReason() != null ? OverrideReasonEnum.valueOf(receiptLinkArticle.getOverrideReason()) : null);
         dto.setDiscountedByPercent(receiptLinkArticle.getDiscountedByPercent());
+        dto.setDepositStatus(receiptLinkArticle.getDepositStatus()); // DepositStatus hinzugefügt
         return dto;
     }
 }
