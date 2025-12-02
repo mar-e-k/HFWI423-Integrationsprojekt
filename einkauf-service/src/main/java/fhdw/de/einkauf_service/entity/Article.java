@@ -47,9 +47,19 @@ public class Article {
     @NotBlank(message = "Manufacturer is mandatory.")
     private String manufacturer;
 
+    @ManyToMany(fetch = FetchType.LAZY, cascade = {
+            CascadeType.PERSIST,
+            CascadeType.MERGE
+    })
+    @JoinTable(
+            name = "connector_article_supplier",
+            joinColumns = @JoinColumn(name = "article_id"),
+            inverseJoinColumns = @JoinColumn(name = "supplier_id")
+    )
+    private Set<Supplier> suppliers = new HashSet<>();
+
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "supplier_id")
-    private Supplier supplier;
+    private Supplier mainSupplier;
 
     @NotNull(message = "Stock level is mandatory.")
     @Min(value = 0, message = "Stock level cannot be negative.")

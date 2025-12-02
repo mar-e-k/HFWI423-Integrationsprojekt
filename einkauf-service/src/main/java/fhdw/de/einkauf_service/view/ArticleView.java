@@ -33,10 +33,7 @@ import fhdw.de.einkauf_service.service.SupplierService;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -67,8 +64,9 @@ public class ArticleView extends VerticalLayout {
     private final Map<Long, Integer> selectedArticles = new HashMap<>();
 
     private final ArticleCategoryService categoryService;
+    private final SupplierView supplierView;
 
-    public ArticleView(ArticleService articleService, SupplierService supplierService, ShoppingCartSession cartSession, ArticleCategoryService categoryService) {
+    public ArticleView(ArticleService articleService, SupplierService supplierService, ShoppingCartSession cartSession, ArticleCategoryService categoryService, SupplierView supplierView) {
         this.articleService = articleService;
         this.cartSession = cartSession;
         this.categoryService = categoryService;
@@ -121,6 +119,7 @@ public class ArticleView extends VerticalLayout {
         add(searchLayout, grid);
 
         updateList();
+        this.supplierView = supplierView;
     }
 
     // ----------------------------------------------------------------------------------
@@ -152,17 +151,19 @@ public class ArticleView extends VerticalLayout {
         taxRate.setValueChangeMode(ValueChangeMode.EAGER);
         marginPercent.setValueChangeMode(ValueChangeMode.EAGER);
 
-        ComboBox<SupplierResponseDTO> supplierBoxForm = new ComboBox<>("Lieferant");
+        // Hauptlieferant (nur einer auswählbar)
+        ComboBox<SupplierResponseDTO> mainSupplierBox = new ComboBox<>("Hauptlieferant");
         List<SupplierResponseDTO> allSuppliersForm = supplierCache.values().stream()
+                .sorted(Comparator.comparing(s -> s.getName() != null ? s.getName() : ""))
                 .collect(Collectors.toList());
-        allSuppliersForm.sort((a, b) -> {
-            String n1 = a.getName() != null ? a.getName() : "";
-            String n2 = b.getName() != null ? b.getName() : "";
-            return n1.compareToIgnoreCase(n2);
-        });
-        supplierBoxForm.setItems(allSuppliersForm);
-        supplierBoxForm.setItemLabelGenerator(SupplierResponseDTO::getName);
-        supplierBoxForm.setRequired(true);
+        mainSupplierBox.setItems(allSuppliersForm);
+        mainSupplierBox.setItemLabelGenerator(SupplierResponseDTO::getName);
+        mainSupplierBox.setRequired(true); // falls Pflichtfeld
+
+// Weitere Lieferanten (mehrere auswählbar)
+        MultiSelectComboBox<SupplierResponseDTO> suppliersSelect = new MultiSelectComboBox<>("Weitere Lieferanten");
+        suppliersSelect.setItems(allSuppliersForm);
+        suppliersSelect.setItemLabelGenerator(SupplierResponseDTO::getName);
 
         RadioButtonGroup<String> pfandRadio = new RadioButtonGroup<>("Pfand");
         pfandRadio.setItems("Ja", "Nein");
@@ -255,13 +256,16 @@ public class ArticleView extends VerticalLayout {
             sellingPrice.setValue(String.valueOf(article.getSellingPrice()));
             manufacturer.setValue(safe(article.getManufacturer()));
 
-            if (article.getSupplierId() != null) {
-                SupplierResponseDTO currentSupplierDto = supplierCache.get(article.getSupplierId());
-                if (currentSupplierDto == null) {
-                    throw new IllegalStateException("Lieferant-ID im Artikel-DTO (" + article.getSupplierId() + ") ist ungültig.");
-                }
-                supplierBoxForm.setValue(currentSupplierDto);
+            // Hauptlieferant setzen
+            if (article.getMainSupplier() != null) {
+                mainSupplierBox.setValue(article.getMainSupplier());
             }
+
+            // Weitere Lieferanten setzen
+            if (article.getSuppliers() != null && !article.getSuppliers().isEmpty()) {
+                suppliersSelect.setValue(article.getSuppliers());
+            }
+
 
             if (article.getCategoryIds() != null && !article.getCategoryIds().isEmpty()) {
 
@@ -302,7 +306,7 @@ public class ArticleView extends VerticalLayout {
             try {
                 if (articleNumber.isEmpty() || name.isEmpty() || stockLevel.isEmpty()
                         || purchasePrice.isEmpty() || taxRate.isEmpty()
-                        || manufacturer.isEmpty() || supplierBoxForm.isEmpty()
+                        || manufacturer.isEmpty() || mainSupplierBox.isEmpty()
                         || depthCm.isEmpty() || heightCm.isEmpty() || widthCm.isEmpty()
                         || marginPercent.isEmpty()) {
                     throw new IllegalArgumentException("Alle Pflichtfelder müssen ausgefüllt werden.");
@@ -340,15 +344,23 @@ public class ArticleView extends VerticalLayout {
                 req.setTaxRatePercent(mwst);
                 req.setManufacturer(manufacturer.getValue());
 
-                SupplierResponseDTO selectedSupplierDto = supplierBoxForm.getValue();
-
-                if (selectedSupplierDto != null) {
-                    // Schreibt die ID des DTOs in das Request DTO
-                    req.setSupplierId(selectedSupplierDto.getId());
+                // Hauptlieferant
+                SupplierResponseDTO mainSupplier = mainSupplierBox.getValue();
+                if (mainSupplier != null) {
+                    req.setMainSupplierId(mainSupplier.getId());
                 } else {
-                    Notification.show("Bitte wählen Sie einen Lieferanten aus.");
+                    Notification.show("Bitte wählen Sie einen Hauptlieferanten aus.");
                     return;
                 }
+
+                // Weitere Lieferanten
+                Set<SupplierResponseDTO> additionalSuppliers = suppliersSelect.getSelectedItems();
+                if (additionalSuppliers != null && !additionalSuppliers.isEmpty()) {
+                    req.setSupplierIds(additionalSuppliers.stream()
+                            .map(SupplierResponseDTO::getId)
+                            .collect(Collectors.toSet()));
+                }
+
                 req.setStockLevel(Integer.parseInt(stockLevel.getValue()));
                 req.setDescription(description.getValue());
                 req.setIsAvailable("Verfügbar".equals(availabilityRadio.getValue()));
@@ -373,27 +385,30 @@ public class ArticleView extends VerticalLayout {
                 dialog.close();
                 updateList();
             } catch (Exception ex) {
-             ex.printStackTrace();
+                ex.printStackTrace();
                 Span errorMsg = new Span("Fehler: " + ex.getMessage());
                 errorMsg.getStyle().set("color", "red");
                 dialog.add(errorMsg);
-
             }
         });
+
 
         Button cancelButton = new Button("Abbrechen", e -> dialog.close());
 
         HorizontalLayout buttons = new HorizontalLayout(saveButton, cancelButton);
+
         VerticalLayout formLayout = new VerticalLayout(
                 articleNumber, name, stockLevel, purchasePrice, taxRate, marginPercent, sellingPrice,
-                manufacturer, supplierBoxForm, pfandRadio, availabilityRadio, categorySelect, description,
+                manufacturer, mainSupplierBox, suppliersSelect, pfandRadio, availabilityRadio, categorySelect, description,
                 widthCm, heightCm, depthCm, productImageUrl, expirationDate, buttons
         );
+
         formLayout.setPadding(false);
         formLayout.setSpacing(true);
 
         dialog.add(formLayout);
         dialog.open();
+
     }
     // ----------------------------------------------------------------------------------
     // Filterung und Grid-Update
@@ -479,14 +494,18 @@ public class ArticleView extends VerticalLayout {
         grid.addColumn(ArticleResponseDTO::getStockLevel).setHeader("Lagerbestand").setAutoWidth(true).setSortable(true);
 
         grid.addColumn(article -> {
-                    String name = article.getSupplierName();
-                    return name != null ? name : "";
+                    SupplierResponseDTO mainSupplier = article.getMainSupplier();
+                    return mainSupplier != null ? mainSupplier.getName() : "-";
                 })
-                .setHeader("Lieferant")
+                .setHeader("Hauptlieferant")
                 .setWidth("200px")
                 .setFlexGrow(0)
                 .setSortable(true)
-                .setTooltipGenerator(ArticleResponseDTO::getSupplierName);
+                .setTooltipGenerator(article -> {
+                    SupplierResponseDTO mainSupplier = article.getMainSupplier();
+                    return mainSupplier != null ? mainSupplier.getName() : "-";
+                });
+
 
         grid.addColumn(article -> {
                     String categories = article.getCategoryIds().stream()
@@ -539,6 +558,24 @@ public class ArticleView extends VerticalLayout {
         );
         pfandLayout.setAlignItems(Alignment.CENTER);
 
+        // Lieferanten-Layout
+        VerticalLayout supplierLayout = new VerticalLayout();
+        supplierLayout.setPadding(false);
+        supplierLayout.setSpacing(false);
+
+        if (article.getSuppliers() != null && !article.getSuppliers().isEmpty()) {
+            for (SupplierResponseDTO s : article.getSuppliers()) {
+                Span supplierSpan = new Span(s.getName());
+                if (article.getMainSupplier() != null && s.getId().equals(article.getMainSupplier().getId())) {
+                    supplierSpan.getStyle().set("font-weight", "bold"); // Hauptlieferant fett
+                }
+                supplierLayout.add(supplierSpan);
+            }
+        } else {
+            supplierLayout.add(new Span("-"));
+        }
+
+
         String kategorieText = (article.getCategoryIds() == null || article.getCategoryIds().isEmpty())
                 ? "-"
                 : article.getCategoryIds().stream()
@@ -552,12 +589,12 @@ public class ArticleView extends VerticalLayout {
                 new Span("EK-Preis (€): " + safe(article.getPurchasePrice())),
                 new Span("VK-Preis (€): " + safe(article.getSellingPrice())),
                 new Span("MwSt (%): " + safe(article.getTaxRatePercent())),
-                new Span("Lieferant: " + safe(article.getSupplierName())),
+                new Span("Lieferant: " ), supplierLayout,
                 new Span("Kategorie: " + kategorieText),
                 new Span("Maße (H×B×T): " + String.format("%.1f x %.1f x %.1f cm",
-                                article.getHeightCm(),
-                                article.getWidthCm(),
-                                article.getDepthCm())),
+                        article.getHeightCm(),
+                        article.getWidthCm(),
+                        article.getDepthCm())),
                 new Span("Verfügbar: " + safe(Boolean.TRUE.equals(article.getIsAvailable()) ? "Ja" : "Nein")),
                 pfandLayout,
                 new Span("Beschreibung / Produktdetails: " + safe(article.getDescription()))
@@ -664,22 +701,22 @@ public class ArticleView extends VerticalLayout {
         });
     }
     private void addSelectedToCart() {
-    if (selectedArticles.isEmpty()) {
-        Notification.show("Bitte wählen Sie mindestens einen Artikel aus", 3000, Notification.Position.MIDDLE);
-        return;
+        if (selectedArticles.isEmpty()) {
+            Notification.show("Bitte wählen Sie mindestens einen Artikel aus", 3000, Notification.Position.MIDDLE);
+            return;
+        }
+
+        // Alle ausgewählten Artikel  in den Warenkorb
+        for (Long articleId : selectedArticles.keySet()) {
+            cartSession.addItem(articleId, 1);
+        }
+
+        Notification.show("Artikel zum Warenkorb hinzugefügt", 2000, Notification.Position.BOTTOM_START);
+
+
+        selectedArticles.clear();
+        grid.getDataProvider().refreshAll();
     }
-
-    // Alle ausgewählten Artikel  in den Warenkorb
-    for (Long articleId : selectedArticles.keySet()) {
-        cartSession.addItem(articleId, 1);
-    }
-
-    Notification.show("Artikel zum Warenkorb hinzugefügt", 2000, Notification.Position.BOTTOM_START);
-
-
-    selectedArticles.clear();
-    grid.getDataProvider().refreshAll();
-}
 
     private String safe(Object value) {
         return value == null ? "-" : value.toString();

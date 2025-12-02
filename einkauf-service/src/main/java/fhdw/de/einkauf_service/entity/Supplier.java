@@ -71,5 +71,6 @@ public class Supplier {
     @Column(name = "is_active", nullable = false)
     private Boolean isActive = true;  // Standard: aktiv
 
-
+    @ManyToMany(mappedBy = "suppliers")
+    private Set<Article> articles = new HashSet<>();
 }

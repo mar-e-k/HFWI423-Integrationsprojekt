@@ -19,6 +19,7 @@ import fhdw.de.einkauf_service.dto.*;
 import fhdw.de.einkauf_service.service.SupplierService;
 import fhdw.de.einkauf_service.repository.PaymentTermRepository;
 import fhdw.de.einkauf_service.repository.ContactPersonRepository;
+import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -32,6 +33,7 @@ import java.util.List;
  * • Verwaltung von 1-3 Kontaktpersonen pro Lieferant
  */
 @Route(value = "suppliers", layout = MainLayout.class)
+@Component
 public class SupplierView extends VerticalLayout {
 
     private final SupplierService supplierService;
