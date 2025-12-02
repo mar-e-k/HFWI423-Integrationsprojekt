@@ -168,6 +168,11 @@ public class CashierView extends AbstractMainView implements BeforeEnterObserver
                 .withValidator(price -> {
                     if (editor.getItem() == null) return true;
 
+                    // Für Pfandrückgaben sind negative Preise erlaubt
+                    if (editor.getItem().getDepositStatus() == DepositStatus.EMPTY) {
+                        return true;
+                    }
+
                     if (price == null) {
                         return false;
                     }
@@ -274,9 +279,23 @@ public class CashierView extends AbstractMainView implements BeforeEnterObserver
                 return; // Klick auf Header/Footer ignorieren
             }
 
+            // Bearbeitung für eingelöste Pfandbons sperren
+            if (item.getArticle().getArticleNumber().startsWith("PFAND-")) {
+                Notification.show("Eingelöste Pfandbons können nicht bearbeitet werden.", 3000, Notification.Position.MIDDLE)
+                        .addThemeVariants(NotificationVariant.LUMO_ERROR);
+                return;
+            }
+
             if (!editor.isOpen()) {
                 String columnKey = event.getColumn().getKey();
                 if ("price".equals(columnKey)) {
+                    // Preisänderung für Leergut sperren
+                    if (item.getDepositStatus() == DepositStatus.EMPTY) {
+                        Notification.show("Der Preis für Pfandrückgaben kann nicht geändert werden.", 3000, Notification.Position.MIDDLE)
+                                .addThemeVariants(NotificationVariant.LUMO_ERROR);
+                        return;
+                    }
+
                     boolean hasSellingPrice = item.getArticle().getSellingPrice() != null;
                     if (hasSellingPrice) {
                         // Artikel mit bestehendem Verkaufspreis -> Passwort nötig
