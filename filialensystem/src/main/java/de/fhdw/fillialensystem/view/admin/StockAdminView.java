@@ -6,7 +6,6 @@ import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.grid.Grid;
-import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.html.H3;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.notification.Notification;
@@ -48,9 +47,9 @@ public class StockAdminView extends AbstractMainView {
 
     @Override
     protected HorizontalLayout createTopBarButtons() {
-        Button backToAdminBtn = new Button("Zum Admin-Dashboard");
-        backToAdminBtn.addClickListener(e -> UI.getCurrent().navigate("admin"));
-        return new HorizontalLayout(backToAdminBtn);
+        Button homeButton = new Button("Zum Home-Screen");
+        homeButton.addClickListener(e -> UI.getCurrent().navigate(""));
+        return new HorizontalLayout(homeButton);
     }
 
     @Override
@@ -63,8 +62,6 @@ public class StockAdminView extends AbstractMainView {
         setAlignItems(Alignment.STRETCH);
         setPadding(true);
         setSpacing(true);
-
-        H2 title = new H2("Bestände je Filiale / Artikel");
 
         // Suchfeld
         searchField = new TextField("Artikel suchen");
@@ -82,7 +79,7 @@ public class StockAdminView extends AbstractMainView {
         searchLayout.setWidthFull();
         searchLayout.setAlignItems(Alignment.END);
 
-        VerticalLayout content = new VerticalLayout(title, searchLayout, grid);
+        VerticalLayout content = new VerticalLayout(searchLayout, grid);
         content.setSizeFull();
         content.setPadding(false);
         content.setSpacing(true);

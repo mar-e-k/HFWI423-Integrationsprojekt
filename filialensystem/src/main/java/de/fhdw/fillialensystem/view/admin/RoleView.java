@@ -50,9 +50,9 @@ public class RoleView extends AbstractMainView {
 
     @Override
     protected HorizontalLayout createTopBarButtons() {
-        Button backToAdminBtn = new Button("Zum Admin-Dashboard");
-        backToAdminBtn.addClickListener(e -> UI.getCurrent().navigate("admin"));
-        return new HorizontalLayout(backToAdminBtn);
+        Button homeButton = new Button("Zum Home-Screen");
+        homeButton.addClickListener(e -> UI.getCurrent().navigate(""));
+        return new HorizontalLayout(homeButton);
     }
 
     @Override

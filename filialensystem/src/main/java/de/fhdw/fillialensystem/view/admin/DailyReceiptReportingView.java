@@ -1,5 +1,6 @@
 package de.fhdw.fillialensystem.view.admin;
 
+import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.checkbox.Checkbox;
 import com.vaadin.flow.component.combobox.ComboBox;
@@ -62,6 +63,13 @@ public class DailyReceiptReportingView extends AbstractMainView {
         this.receiptLinkArticleService = receiptLinkArticleService;
         this.storeClient = storeClient;
         this.dailyReceiptReportingSchedule = dailyReceiptReportingSchedule;
+    }
+
+    @Override
+    protected HorizontalLayout createTopBarButtons() {
+        Button homeButton = new Button("Zum Home-Screen");
+        homeButton.addClickListener(e -> UI.getCurrent().navigate(""));
+        return new HorizontalLayout(homeButton);
     }
 
     @Override

@@ -38,6 +38,13 @@ public class StoreSelectView extends AbstractMainView implements BeforeEnterObse
     }
 
     @Override
+    protected HorizontalLayout createTopBarButtons() {
+        Button homeButton = new Button("Zum Home-Screen");
+        homeButton.addClickListener(e -> UI.getCurrent().navigate(""));
+        return new HorizontalLayout(homeButton);
+    }
+
+    @Override
     protected void init() {
         setSizeFull();
         setPadding(true);
