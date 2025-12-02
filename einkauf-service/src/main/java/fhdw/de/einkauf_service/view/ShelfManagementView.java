@@ -110,7 +110,7 @@ public class ShelfManagementView extends VerticalLayout {
             Button viewButton = new Button(new Icon(VaadinIcon.EYE), event -> showShelfDetailDialog(shelf));
             viewButton.setTooltipText("Details anzeigen");
             return viewButton;
-        }).setHeader("Aktionen").setAutoWidth(true);
+        }).setHeader("Details").setAutoWidth(true);
 
         grid.asSingleSelect().addValueChangeListener(event -> {
             boolean hasSelection = event.getValue() != null;
