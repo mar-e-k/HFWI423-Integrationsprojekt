@@ -29,7 +29,6 @@ import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.stream.Collectors;
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
@@ -42,11 +41,10 @@ public class ReceiptService extends AbstractCrudService<Receipt, Long> {
     private final AccountRepository accountRepository;
     private final ArticleRepository articleRepository;
     private final RedeemedDepositReceiptRepository redeemedDepositReceiptRepository;
-    private final ReceiptRepository receiptRepository; // Inject ReceiptRepository
+    private final ReceiptRepository receiptRepository;
 
     private final DateTimeFormatter fmt = DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm:ss");
 
-    public ReceiptService(ReceiptRepository receiptRepository, ReceiptLinkArticleRepository receiptLinkArticleRepository, RegisterRepository registerRepository, AccountRepository accountRepository, ArticleRepository articleRepository) {
     public ReceiptService(ReceiptRepository receiptRepository, ReceiptLinkArticleRepository receiptLinkArticleRepository, RegisterRepository registerRepository, AccountRepository accountRepository, ArticleRepository articleRepository, RedeemedDepositReceiptRepository redeemedDepositReceiptRepository) {
         super(receiptRepository);
         this.receiptLinkArticleRepository = receiptLinkArticleRepository;
@@ -54,7 +52,7 @@ public class ReceiptService extends AbstractCrudService<Receipt, Long> {
         this.accountRepository = accountRepository;
         this.articleRepository = articleRepository;
         this.redeemedDepositReceiptRepository = redeemedDepositReceiptRepository;
-        this.receiptRepository = receiptRepository; // Initialize ReceiptRepository
+        this.receiptRepository = receiptRepository;
     }
 
     public List<ReceiptLinkArticle> getReceiptLinkArticles(Receipt receipt) {
@@ -77,7 +75,6 @@ public class ReceiptService extends AbstractCrudService<Receipt, Long> {
                 .map(article -> article.getPrice().multiply(BigDecimal.valueOf(article.getAmount())))
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
 
-        // Determine if the receipt is deposit-only
         boolean isDepositOnly = articles.stream()
                 .allMatch(article -> article.getDepositStatus() == DepositStatus.EMPTY);
 
@@ -91,9 +88,9 @@ public class ReceiptService extends AbstractCrudService<Receipt, Long> {
                 register,
                 account,
                 totalAmount,
-                new ArrayList<>(), // Initialisiere mit leerer Liste
+                new ArrayList<>(),
                 isDepositOnly,
-                depositRedemptionCode)); // Füge den neuen Parameter hinzu
+                depositRedemptionCode));
 
         List<ReceiptLinkArticle> savedArticles = new ArrayList<>();
         for (ReceiptLinkArticle article : articles) {
@@ -106,7 +103,7 @@ public class ReceiptService extends AbstractCrudService<Receipt, Long> {
                     article.getOverridePrice(),
                     article.getOverrideReason(),
                     article.getDiscountedByPercent(),
-                    article.getDepositStatus()))); // DepositStatus hinzugefügt
+                    article.getDepositStatus())));
         }
 
         receipt.setReceiptArticles(savedArticles);
