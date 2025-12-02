@@ -22,8 +22,11 @@ import com.vaadin.flow.router.Route;
 import jakarta.persistence.EntityNotFoundException;
 import org.vaadin.lineawesome.LineAwesomeIconUrl;
 
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @Route("order-picking")
 @PageTitle("Order Picking")
@@ -91,7 +94,22 @@ public class orderPickingMainView extends VerticalLayout {
                 dialog.setHeaderTitle("Order Picking " + k.getOrderPickingNumber());
                 dialog.setWidth("900px");
 
-                List<MessageLogistic> artikel = msgRepo.findByStoreIdAndQuantityGreaterThan(k.getStoreId(), 0);
+                List<MessageLogistic> artikel =
+                        msgRepo.findByStoreIdAndQuantityGreaterThan(k.getStoreId(), 0);
+
+                Map<String, MessageLogistic> latestPerArticle = artikel.stream()
+                        .collect(Collectors.toMap(
+                                MessageLogistic::getArticleNumber,
+                                m -> m,
+                                (oldVal, newVal) -> newVal // neuer überschreibt alten
+                        ));
+
+                List<MessageLogistic> artikelGefiltert = new ArrayList<>(latestPerArticle.values());
+
+                artikelGefiltert = artikelGefiltert.stream()
+                        .filter(a -> service.articleExists(a.getArticleNumber()))
+                        .collect(Collectors.toList());
+
 
                 Grid<MessageLogistic> posGrid = new Grid<>(MessageLogistic.class, false);
                 posGrid.setWidthFull();
@@ -127,7 +145,7 @@ public class orderPickingMainView extends VerticalLayout {
 
 
 
-                posGrid.setItems(artikel);
+                posGrid.setItems(artikelGefiltert);
 
                 VerticalLayout layout = new VerticalLayout(posGrid);
                 layout.setWidthFull();

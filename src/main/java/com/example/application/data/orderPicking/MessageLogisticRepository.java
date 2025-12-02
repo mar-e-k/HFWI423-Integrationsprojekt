@@ -1,5 +1,6 @@
 package com.example.application.data.orderPicking;
 
+import jakarta.transaction.Transactional;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -21,14 +22,19 @@ public interface MessageLogisticRepository extends JpaRepository<MessageLogistic
 
     List<MessageLogistic> findByStoreId(String storeId);
 
-    @Query("select distinct m.storeId from MessageLogistic m where m.processed = false")
+    @Query("select distinct m.storeId from MessageLogistic m where m.quantity > 0 and m.processed = false")
     List<String> findDistinctStoresWithUnprocessed();
+
 
     @Modifying
     @Query("update MessageLogistic m set m.processed = true where m.storeId = :storeId and m.processed = false")
     void markStoreMessagesProcessed(@Param("storeId") String storeId);
 
 
+    @Transactional
+    @Modifying
+    @Query("DELETE FROM MessageLogistic m WHERE m.storeId = :storeId AND m.processed = true")
+    void deleteProcessedByStore(String storeId);
 }
 
 

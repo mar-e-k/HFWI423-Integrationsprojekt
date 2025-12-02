@@ -21,6 +21,10 @@ public class MessageLogistic extends AbstractEntity {
     @Column(name = "processed")
     private boolean processed;
 
+    @ManyToOne
+    @JoinColumn(name = "kommission_id")
+    private Kommission kommission;
+
     public String getArticleNumber() {
         return articleNumber;
     }
@@ -53,4 +57,9 @@ public class MessageLogistic extends AbstractEntity {
         this.processed = processed;
     }
 
+    public Kommission getKommission() {
+        return kommission;
+    }
+
+    public void setKommission(Kommission kommission) {this.kommission = kommission;}
 }
