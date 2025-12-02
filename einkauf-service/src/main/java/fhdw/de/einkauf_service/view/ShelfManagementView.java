@@ -226,7 +226,10 @@ public class ShelfManagementView extends VerticalLayout {
                 Span levelsTitle = new Span("Vorhandene Böden: " + updatedShelf.getLevels().size());
                 levelsLayout.add(levelsTitle);
 
-                for (ShelfLevelResponseDTO level : updatedShelf.getLevels()) {
+                // Sort levels in descending order (highest at top, lowest at bottom)
+                for (ShelfLevelResponseDTO level : updatedShelf.getLevels().stream()
+                        .sorted((l1, l2) -> Integer.compare(l2.getLevelPosition(), l1.getLevelPosition()))
+                        .toList()) {
                     HorizontalLayout levelLine = new HorizontalLayout();
                     levelLine.setWidthFull();
                     levelLine.setAlignItems(Alignment.CENTER);
