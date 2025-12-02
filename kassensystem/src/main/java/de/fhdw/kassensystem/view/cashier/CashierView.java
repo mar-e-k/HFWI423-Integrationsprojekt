@@ -401,7 +401,12 @@ public class CashierView extends AbstractMainView implements BeforeEnterObserver
 
                 searchField.clear();
                 errorLabel.setText("");
-                descriptionOutputField.setValue(article.get().getDescription());
+                String description = article.get().getDescription();
+                if (description == null || description.trim().isEmpty()) {
+                    descriptionOutputField.setValue("Für diesen Artikel ist keine Beschreibung verfügbar.");
+                } else {
+                    descriptionOutputField.setValue(description);
+                }
                 descriptionOutputField.setVisible(true);
                 articleGrid.setItems(Collections.singletonList(article.get()));
                 articleGrid.setVisible(true);
