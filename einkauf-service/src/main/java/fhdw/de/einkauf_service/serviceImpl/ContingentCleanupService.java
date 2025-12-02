@@ -38,8 +38,8 @@ public class ContingentCleanupService {
             });
 
             // 2. Kontingent-Zeile löschen
-            contingentRepository.delete(contingent);
-            System.out.println("Contingent " + contingent.getId() + " deleted.");
+//            contingentRepository.delete(contingent);
+//            System.out.println("Contingent " + contingent.getId() + " deleted.");
         }
     }
 }
