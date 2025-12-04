@@ -92,7 +92,7 @@ public class MainLayout extends AppLayout implements AfterNavigationObserver {
             String path = entry.path();
 
             //den Pfad der Artikel-View eintragen (noch nicht vorhanden, kommt noch. ISt zum Testen)
-            if ("/".equals(path)) {   // anpassen
+            if ("/new-articles".equals(path)) {   // anpassen
 
                 articleNavItem = item;
                 articleBadge = new Span();

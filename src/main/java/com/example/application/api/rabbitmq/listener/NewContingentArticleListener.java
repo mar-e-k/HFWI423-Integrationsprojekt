@@ -26,10 +26,10 @@ public class NewContingentArticleListener {
     public void handleNewArticle(NewContingentArticleMessage msg) {
         Long articleId = msg.articleId();
 
-        // 1) ArticleInfo für diesen Artikel anlegen (Name/Nummer aus externer Tabelle holen)
+        //ArticleInfo für diesen Artikel anlegen (Name/Nummer aus externer Tabelle holen)
         articleSyncService.createArticleInfoForSingleContingentArticle(articleId);
 
-        // 2) Badge-Zähler für das Menü hochzählen
+        //Badge-Zähler für das Menü hochzählen
         notificationService.increment();
     }
 }
