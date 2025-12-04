@@ -1,7 +1,7 @@
 package com.example.application.services;
 
-import com.example.application.data.article.ArticleInfo;
-import com.example.application.data.article.ArticleInfoRepository;
+import com.example.application.data.articleInfo.ArticleInfo;
+import com.example.application.data.articleInfo.ArticleInfoRepository;
 import com.example.application.data.goodsreceipts.GoodsReceipt;
 import com.example.application.data.goodsreceipts.GoodsReceiptItem;
 import com.example.application.data.goodsreceipts.GoodsReceiptItemRepository;

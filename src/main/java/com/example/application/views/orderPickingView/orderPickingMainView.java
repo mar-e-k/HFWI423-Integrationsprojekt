@@ -1,7 +1,5 @@
 package com.example.application.views.orderPickingView;
 
-import com.example.application.data.article.ArticleInfo;
-import com.example.application.data.article.ArticleInfoRepository;
 import com.example.application.data.orderPicking.Kommission;
 import com.example.application.data.orderPicking.MessageLogistic;
 import com.example.application.data.orderPicking.MessageLogisticRepository;
@@ -15,7 +13,6 @@ import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.GridVariant;
 import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.html.Span;
-import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.notification.NotificationVariant;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;

@@ -1,18 +1,13 @@
 package com.example.application.services;
 
-import com.example.application.data.article.ArticleInfo;
-import com.example.application.data.article.ArticleInfoRepository;
+import com.example.application.data.articleInfo.ArticleInfo;
+import com.example.application.data.articleInfo.ArticleInfoRepository;
 import com.example.application.data.orderPicking.*;
-import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 
 @Service

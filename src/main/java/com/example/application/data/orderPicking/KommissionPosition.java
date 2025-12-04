@@ -1,7 +1,7 @@
 package com.example.application.data.orderPicking;
 
 import com.example.application.data.AbstractEntity;
-import com.example.application.data.article.ArticleInfo;
+import com.example.application.data.articleInfo.ArticleInfo;
 import jakarta.persistence.*;
 
 @Entity

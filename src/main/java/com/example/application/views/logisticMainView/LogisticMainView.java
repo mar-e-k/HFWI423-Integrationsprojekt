@@ -1,6 +1,6 @@
 package com.example.application.views.logisticMainView;
 
-import com.example.application.data.article.ArticleInfo;
+import com.example.application.data.articleInfo.ArticleInfo;
 import com.example.application.services.ArticleInfoService;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.confirmdialog.ConfirmDialog;

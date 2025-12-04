@@ -16,7 +16,7 @@ import com.vaadin.flow.component.html.Anchor;
 
 import com.example.application.services.RestockService;
 import com.example.application.services.RestockOrderService;
-import com.example.application.data.article.RestockItem;
+import com.example.application.data.articleInfo.RestockItem;
 
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;

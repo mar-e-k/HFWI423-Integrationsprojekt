@@ -1,4 +1,4 @@
-package com.example.application.data.article;
+package com.example.application.data.articleInfo;
 
 import com.example.application.data.AbstractEntity;
 import jakarta.persistence.*;

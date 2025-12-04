@@ -1,7 +1,7 @@
 package com.example.application.data.goodsreceipts;
 
 
-import com.example.application.data.article.ArticleInfo;
+import com.example.application.data.articleInfo.ArticleInfo;
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
 

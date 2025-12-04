@@ -1,13 +1,11 @@
 package com.example.application.services;
 
-import com.example.application.data.article.ArticleInfo;
-import com.example.application.data.article.ArticleInfoRepository;
-import com.example.application.data.article.RestockItem;
+import com.example.application.data.articleInfo.ArticleInfoRepository;
+import com.example.application.data.articleInfo.RestockItem;
 import org.springframework.stereotype.Service;
 import java.util.stream.Collectors;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 public class RestockService {

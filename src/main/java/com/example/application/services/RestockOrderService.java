@@ -1,7 +1,7 @@
 package com.example.application.services;
 
-import com.example.application.data.article.ArticleInfo;
-import com.example.application.data.article.RestockItem;
+import com.example.application.data.articleInfo.ArticleInfo;
+import com.example.application.data.articleInfo.RestockItem;
 import com.example.application.data.contingent.Contingent;
 import com.example.application.data.contingent.ContingentRepository;
 import com.example.application.data.restockorder.RestockOrder;

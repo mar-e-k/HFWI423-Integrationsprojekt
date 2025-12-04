@@ -1,4 +1,4 @@
-package com.example.application.data.article;
+package com.example.application.data.articleInfo;
 
 public class RestockItem {
     private final ArticleInfo article;

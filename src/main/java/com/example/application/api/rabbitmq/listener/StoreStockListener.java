@@ -2,19 +2,15 @@ package com.example.application.api.rabbitmq.listener;
 
 import com.example.application.api.rabbitmq.producer.CommandSender;
 import com.example.application.api.rabbitmq.producer.DomainQueue;
-import com.example.application.data.article.ArticleInfo;
-import com.example.application.data.article.ArticleInfoRepository;
+import com.example.application.data.articleInfo.ArticleInfo;
+import com.example.application.data.articleInfo.ArticleInfoRepository;
 import com.example.application.data.orderPicking.MessageLogistic;
 import com.example.application.data.orderPicking.MessageLogisticRepository;
 import com.example.application.services.ArticleInfoService;
 import de.fhdw.commons.api.dto.LogisticMessageDTO;
-import kotlin.reflect.jvm.internal.impl.descriptors.Visibilities;
 import org.springframework.stereotype.Component;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import jakarta.annotation.PostConstruct;
-
-import java.util.List;
-import java.util.Optional;
 
 @Component
 public class StoreStockListener {

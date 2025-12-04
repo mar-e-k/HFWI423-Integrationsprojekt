@@ -1,6 +1,6 @@
 package com.example.application.views.stockChangeView;
 
-import com.example.application.data.article.ArticleInfo;
+import com.example.application.data.articleInfo.ArticleInfo;
 import com.example.application.data.stockChangeLog.ChangeType;
 import com.example.application.services.ArticleInfoService;
 import com.vaadin.flow.component.button.Button;
