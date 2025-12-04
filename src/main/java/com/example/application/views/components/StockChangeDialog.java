@@ -1,4 +1,4 @@
-package com.example.application.views.stockChangeView;
+package com.example.application.views.components;
 
 import com.example.application.data.articleInfo.ArticleInfo;
 import com.example.application.data.stockChangeLog.ChangeType;

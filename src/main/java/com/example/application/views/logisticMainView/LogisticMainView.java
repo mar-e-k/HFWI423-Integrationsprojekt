@@ -8,7 +8,7 @@ import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.button.Button;
 import com.example.application.services.StorageLocationService;
 import com.example.application.data.storageLocation.StorageLocation;
-import com.example.application.views.stockChangeView.StockChangeDialog;
+import com.example.application.views.components.StockChangeDialog;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.dependency.Uses;
