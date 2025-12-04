@@ -1,5 +1,7 @@
 package com.example.application.views;
 
+import com.example.application.services.NewArticleNotificationService;
+import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.applayout.AppLayout;
 import com.vaadin.flow.component.applayout.DrawerToggle;
 import com.vaadin.flow.component.html.Footer;
@@ -7,6 +9,7 @@ import com.vaadin.flow.component.html.H1;
 import com.vaadin.flow.component.html.Header;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.icon.SvgIcon;
+import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.Scroller;
 import com.vaadin.flow.component.sidenav.SideNav;
 import com.vaadin.flow.component.sidenav.SideNavItem;
@@ -17,6 +20,7 @@ import com.vaadin.flow.server.auth.AnonymousAllowed;
 import com.vaadin.flow.server.menu.MenuConfiguration;
 import com.vaadin.flow.server.menu.MenuEntry;
 import com.vaadin.flow.theme.lumo.LumoUtility;
+
 import java.util.List;
 
 /**
@@ -27,11 +31,34 @@ import java.util.List;
 public class MainLayout extends AppLayout implements AfterNavigationObserver {
 
     private H1 viewTitle;
+    private final NewArticleNotificationService newArticleNotificationService;
+    private SideNavItem articleNavItem;
+    private Span articleBadge;
 
-    public MainLayout() {
+    public MainLayout(NewArticleNotificationService newArticleNotificationService) {
+        this.newArticleNotificationService = newArticleNotificationService;
+
         setPrimarySection(Section.DRAWER);
         addDrawerContent();
         addHeaderContent();
+
+        // damit das UI regelmäßig den Zähler abfragt
+        UI.getCurrent().setPollInterval(5000);
+        UI.getCurrent().addPollListener(e -> updateArticleBadge());
+    }
+
+    private void updateArticleBadge() {
+        if (articleBadge == null) {
+            return; // Menüpunkt (z.B. "Artikel") existiert nicht
+        }
+
+        int count = newArticleNotificationService.getCount();
+        if (count > 0) {
+            articleBadge.setText(String.valueOf(count));
+            articleBadge.setVisible(true);
+        } else {
+            articleBadge.setVisible(false);
+        }
     }
 
     private void addHeaderContent() {

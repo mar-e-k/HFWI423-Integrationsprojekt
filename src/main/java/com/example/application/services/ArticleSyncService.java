@@ -57,4 +57,8 @@ public class ArticleSyncService {
             articleInfoRepository.save(info);
         }
     }
+    @Transactional
+    public void createArticleInfoForSingleContingentArticle(Long articleId) {
+
+    }
 }
