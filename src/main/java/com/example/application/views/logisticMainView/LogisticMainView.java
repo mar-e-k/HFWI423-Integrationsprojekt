@@ -46,7 +46,7 @@ import com.vaadin.flow.data.provider.Query;
  * - Datenbindung via DataProvider
  * - "Neuen Artikel"-Dialog (lazy initialisiert)
  */
-@PageTitle("Logistik - Artikel & Lagerplätze")                 // Titel im Browser-Tab
+@PageTitle("Artikel & Lagerplätze")                 // Titel im Browser-Tab
 @Route("")                            // Root-Route
 @Menu(order = 0, icon = LineAwesomeIconUrl.FILTER_SOLID)
 @Uses(Icon.class)

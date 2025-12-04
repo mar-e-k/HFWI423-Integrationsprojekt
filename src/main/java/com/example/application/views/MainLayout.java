@@ -81,16 +81,19 @@ public class MainLayout extends AppLayout implements AfterNavigationObserver {
 
         List<MenuEntry> menuEntries = MenuConfiguration.getMenuEntries();
         menuEntries.forEach(entry -> {
+
             SideNavItem item;
             if (entry.icon() != null) {
                 item = new SideNavItem(entry.title(), entry.path(), new SvgIcon(entry.icon()));
             } else {
                 item = new SideNavItem(entry.title(), entry.path());
             }
+            System.out.println("MENU: title=" + entry.title() + " | path=" + entry.path()); // Debug
+            String path = entry.path();
 
-            // Hier wird entschieden wo die Anzeige der nachrichten drangefügt werden soll
-            // Das in den " " ist der Titel der Nav Leiste mit der Badge
-            if ("Logistik - Artikel & Lager".equals(entry.title())) {  // hier anpassen
+            //den Pfad der Artikel-View eintragen (noch nicht vorhanden, kommt noch. ISt zum Testen)
+            if ("/".equals(path)) {   // anpassen
+
                 articleNavItem = item;
                 articleBadge = new Span();
                 articleBadge.addClassNames(
@@ -98,12 +101,12 @@ public class MainLayout extends AppLayout implements AfterNavigationObserver {
                         LumoUtility.BorderRadius.LARGE
                 );
                 articleBadge.getElement().getThemeList().add("badge pill contrast");
+
+                // immer sichtbar, initial 0
                 articleBadge.setText("0");
                 articleBadge.setVisible(true);
 
-                item.setSuffixComponent(articleBadge);
-
-                // Suffix-Komponente an den Menüpunkt hängen
+                // Badge an den Menüpunkt anhängen
                 item.setSuffixComponent(articleBadge);
             }
 
