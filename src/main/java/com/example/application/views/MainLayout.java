@@ -49,16 +49,11 @@ public class MainLayout extends AppLayout implements AfterNavigationObserver {
 
     private void updateArticleBadge() {
         if (articleBadge == null) {
-            return; // Menüpunkt (z.B. "Artikel") existiert nicht
+            return;
         }
 
         int count = newArticleNotificationService.getCount();
-        if (count > 0) {
-            articleBadge.setText(String.valueOf(count));
-            articleBadge.setVisible(true);
-        } else {
-            articleBadge.setVisible(false);
-        }
+        articleBadge.setText(String.valueOf(count));
     }
 
     private void addHeaderContent() {
@@ -86,11 +81,33 @@ public class MainLayout extends AppLayout implements AfterNavigationObserver {
 
         List<MenuEntry> menuEntries = MenuConfiguration.getMenuEntries();
         menuEntries.forEach(entry -> {
+            SideNavItem item;
             if (entry.icon() != null) {
-                nav.addItem(new SideNavItem(entry.title(), entry.path(), new SvgIcon(entry.icon())));
+                item = new SideNavItem(entry.title(), entry.path(), new SvgIcon(entry.icon()));
             } else {
-                nav.addItem(new SideNavItem(entry.title(), entry.path()));
+                item = new SideNavItem(entry.title(), entry.path());
             }
+
+            // Hier wird entschieden wo die Anzeige der nachrichten drangefügt werden soll
+            // Das in den " " ist der Titel der Nav Leiste mit der Badge
+            if ("Logistik - Artikel & Lager".equals(entry.title())) {  // hier anpassen
+                articleNavItem = item;
+                articleBadge = new Span();
+                articleBadge.addClassNames(
+                        LumoUtility.Padding.XSMALL,
+                        LumoUtility.BorderRadius.LARGE
+                );
+                articleBadge.getElement().getThemeList().add("badge pill contrast");
+                articleBadge.setText("0");
+                articleBadge.setVisible(true);
+
+                item.setSuffixComponent(articleBadge);
+
+                // Suffix-Komponente an den Menüpunkt hängen
+                item.setSuffixComponent(articleBadge);
+            }
+
+            nav.addItem(item);
         });
 
         return nav;
