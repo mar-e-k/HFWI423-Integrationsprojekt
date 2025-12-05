@@ -2,25 +2,28 @@ package com.example.application.services;
 
 import com.example.application.data.articleInfo.ArticleInfo;
 import com.example.application.data.articleInfo.ArticleInfoRepository;
-
+import com.example.application.data.storageLocation.StorageLocation;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 import java.util.Optional;
-
 import com.example.application.data.stockChangeLog.StockChangeLogRepository;
 import com.vaadin.flow.data.provider.ListDataProvider;
 import jakarta.persistence.EntityNotFoundException;
-import org.springframework.transaction.annotation.Transactional;
 import com.example.application.data.stockChangeLog.StockChangeLog;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
-import org.springframework.stereotype.Service;
 import com.example.application.data.stockChangeLog.ChangeType;
+import com.example.application.services.StorageLocationService;
+import com.example.application.data.storageLocation.StorageLocation;
 
 @Service
 public class ArticleInfoService {
 
     private final ArticleInfoRepository articleInfoRepository;
+
+    private final StorageLocationService storageLocationService;
 
     public Optional<ArticleInfo> get(Long id) {
         return articleInfoRepository.findById(id);
@@ -50,9 +53,10 @@ public class ArticleInfoService {
         return articleInfoRepository.count(filter);
     }
 
-    public ArticleInfoService(ArticleInfoRepository repository,
+    public ArticleInfoService(ArticleInfoRepository repository, StorageLocationService storageLocationService,
                               StockChangeLogRepository logRepository) {
         this.articleInfoRepository = repository;
+        this.storageLocationService = storageLocationService;
         this.logRepository = logRepository;
     }
 
@@ -214,7 +218,67 @@ public class ArticleInfoService {
 
         return articleInfoRepository.save(article);
     }
+    
+    //Für spätere Logik
+    @Transactional
+    public void deleteArticle(Long articleId) {
+        ArticleInfo article = articleInfoRepository.findById(articleId)
+                .orElseThrow(() -> new IllegalArgumentException("Artikel " + articleId + " nicht gefunden"));
+
+        String generalId = article.getStorageLocation();
+        if (generalId != null && !generalId.isBlank()) {
+            StorageLocation parsed = parseGeneralIdToLocation(generalId); // Helfermethode unten
+            if (parsed != null) {
+                storageLocationService
+                        .findByZoneShelfCompartment(
+                                parsed.getStorageZone(),
+                                parsed.getShelfID(),
+                                parsed.getCompartmentID()
+                        )
+                        .ifPresent(loc -> {
+                            loc.setStorageStatus("Available");
+                            storageLocationService.save(loc);
+                        });
+            }
+        }
+
+        articleInfoRepository.delete(article);
+    }
+
+    // Helfer: generalId (z.B. "Z3.S2.C4") zurück in Zone/Shelf/Compartment übersetzen
+    private StorageLocation parseGeneralIdToLocation(String generalId) {
+        if (generalId == null || generalId.isBlank()) {
+            return null;
+        }
+
+        // Erwartetes Format: Z3.S2.C4
+        try {
+            String[] parts = generalId.split("\\.");
+            if (parts.length != 3) {
+                return null;
+            }
+
+            String zonePart = parts[0];  // "Z3"
+            String shelfPart = parts[1]; // "S2"
+            String compPart = parts[2];  // "C4"
+
+            int zoneNumber = Integer.parseInt(zonePart.substring(1));
+            int shelfId = Integer.parseInt(shelfPart.substring(1));
+            int compId = Integer.parseInt(compPart.substring(1));
+
+            String zoneString = "Zone " + zoneNumber;
+
+            StorageLocation tmp = new StorageLocation();
+            tmp.setStorageZone(zoneString);
+            tmp.setShelfID(shelfId);
+            tmp.setCompartmentID(compId);
+            return tmp;
+        } catch (Exception e) {
+            return null;
+        }
+    }
 }
+
 
 
 
