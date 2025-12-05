@@ -1,48 +1,51 @@
 package de.fhdw.fillialensystem.persistence.entity;
 
-import de.fhdw.commons.persistence.entity.GenericEntity;
 import jakarta.persistence.*;
-import jakarta.validation.constraints.NotNull;
-import org.springframework.data.annotation.CreatedDate;
-
-import java.time.Instant;
 
 @Entity
-public class AccountLinkLock implements GenericEntity<Long> {
+public class AccountLinkLock extends AbstractLock {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    @ManyToOne
+    private Store store;
+
+    @ManyToOne
+    private Register register;
 
     @OneToOne(optional = false)
     @JoinColumn(nullable = false, unique = true)
     private Account account;
 
-    @CreatedDate
-    @NotNull(message = "Lock acquired at cannot be null")
-    private Instant lockAcquiredAt;
-
     public AccountLinkLock() {
         super();
     }
 
-    public AccountLinkLock(Account account) {
+    public AccountLinkLock(Store store, Register register, Account account) {
+        this.store = store;
+        this.register = register;
         this.account = account;
     }
 
-    public AccountLinkLock(Long id, Account account) {
-        this.id = id;
+    public AccountLinkLock(Long id, Store store, Register register, Account account) {
+        super(id);
+        this.store = store;
+        this.register = register;
         this.account = account;
     }
 
-    @Override
-    public Long getId() {
-        return id;
+    public Store getStore() {
+        return store;
     }
 
-    @Override
-    public void setId(Long id) {
-        this.id = id;
+    public void setStore(Store store) {
+        this.store = store;
+    }
+
+    public Register getRegister() {
+        return register;
+    }
+
+    public void setRegister(Register register) {
+        this.register = register;
     }
 
     public Account getAccount() {
@@ -51,9 +54,5 @@ public class AccountLinkLock implements GenericEntity<Long> {
 
     public void setAccount(Account account) {
         this.account = account;
-    }
-
-    public Instant getLockAcquiredAt() {
-        return lockAcquiredAt;
     }
 }
