@@ -116,7 +116,8 @@ public class MainLayout extends AppLayout implements AfterNavigationObserver {
         // Hintergrund + leichter Schatten
         headerBar.getStyle().set("background-color", "var(--lumo-base-color)");
         headerBar.getStyle().set("box-shadow", "0 1px 0 0 var(--lumo-contrast-10pct)");
-
+        headerBar.setHeight("var(--lumo-size-l)");
+        headerBar.getStyle().set("border-bottom", "1px solid var(--lumo-contrast-10pct)");
         // Titel in der Mitte, User rechts
         headerBar.expand(viewTitle);
         headerBar.setJustifyContentMode(FlexComponent.JustifyContentMode.BETWEEN);
@@ -221,6 +222,7 @@ public class MainLayout extends AppLayout implements AfterNavigationObserver {
 
             getStyle().set("border-bottom", "1px solid var(--lumo-contrast-10pct)");
             getStyle().set("background-color", "var(--lumo-base-color)");
+            setHeight("var(--lumo-size-l)");
 
             add(title, subtitle);
         }
