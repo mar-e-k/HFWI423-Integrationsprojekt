@@ -1,6 +1,7 @@
 package com.example.application.views.newArticleView;
 
 import com.example.application.data.articleInfo.ArticleInfo;
+import com.example.application.data.storageLocation.StorageLocation;
 import com.example.application.services.ArticleSyncService;
 import com.example.application.services.NewArticleCandidate;
 import com.example.application.services.StorageLocationService;
@@ -62,19 +63,23 @@ public class NewArticlesView extends Div {
     private void configureGrid() {
         grid.addColumn(NewArticleCandidate::getArticleNumber)
                 .setHeader("Artikelnummer")
-                .setAutoWidth(true).setFlexGrow(0);
+                .setAutoWidth(true)
+                .setFlexGrow(0);
 
         grid.addColumn(NewArticleCandidate::getName)
                 .setHeader("Name")
-                .setAutoWidth(true).setFlexGrow(0);
+                .setAutoWidth(true)
+                .setFlexGrow(0);
 
-        // Eingabespalte: Location + Pieces/Palette + Button
         grid.addComponentColumn(candidate -> {
 
                     TextField locationField = new TextField();
                     locationField.setPlaceholder("Storage Location");
                     locationField.setWidth("140px");
                     locationField.setReadOnly(true);
+
+                    // ausgewählte Location merken
+                    final StorageLocation[] selectedLocationHolder = new StorageLocation[1];
 
                     Button chooseLocation = new Button("Location wählen", e -> {
                         StorageLocationPickerDialog dlg =
@@ -83,6 +88,7 @@ public class NewArticlesView extends Div {
                                         "Location für " + candidate.getName(),
                                         selected -> {
                                             if (selected != null) {
+                                                selectedLocationHolder[0] = selected;
                                                 locationField.setValue(selected.getGeneralId());
                                             }
                                         });
@@ -97,30 +103,37 @@ public class NewArticlesView extends Div {
                     Button createBtn = new Button("Artikel anlegen", click -> {
                         try {
                             if (locationField.getValue() == null || locationField.getValue().isBlank()) {
-                                Notification n = Notification.show("Bitte Storage Location wählen", 3000, Position.MIDDLE);
+                                Notification n = Notification.show("Bitte Storage Location wählen", 3000, Notification.Position.MIDDLE);
                                 n.addThemeVariants(NotificationVariant.LUMO_ERROR);
                                 return;
                             }
                             if (piecesPerPalletField.getValue() == null || piecesPerPalletField.getValue() <= 0) {
-                                Notification n = Notification.show("Bitte gültige Stückzahl/Palette eingeben", 3000, Position.MIDDLE);
+                                Notification n = Notification.show("Bitte gültige Stückzahl/Palette eingeben", 3000, Notification.Position.MIDDLE);
                                 n.addThemeVariants(NotificationVariant.LUMO_ERROR);
                                 return;
                             }
 
+                            // 1) ArticleInfo anlegen
                             ArticleInfo created = articleSyncService.createArticleInfoForCandidate(
                                     candidate.getArticleId(),
                                     locationField.getValue(),
                                     piecesPerPalletField.getValue()
                             );
 
+                            // 2) Lagerplatz auf USED setzen
+                            if (selectedLocationHolder[0] != null) {
+                                selectedLocationHolder[0].setStorageStatus("Used");
+                                storageLocationService.save(selectedLocationHolder[0]);
+                            }
+
                             Notification n = Notification.show(
                                     "Artikel " + created.getArticleNumber() + " angelegt",
-                                    3000, Position.MIDDLE);
+                                    3000, Notification.Position.MIDDLE);
                             n.addThemeVariants(NotificationVariant.LUMO_SUCCESS);
 
                             refresh();
                         } catch (Exception ex) {
-                            Notification n = Notification.show(ex.getMessage(), 5000, Position.MIDDLE);
+                            Notification n = Notification.show(ex.getMessage(), 5000, Notification.Position.MIDDLE);
                             n.addThemeVariants(NotificationVariant.LUMO_ERROR);
                         }
                     });
@@ -133,7 +146,8 @@ public class NewArticlesView extends Div {
                     );
                     rowLayout.setAlignItems(FlexComponent.Alignment.BASELINE);
                     return rowLayout;
-                }).setHeader("Anlage");
+                })
+                .setHeader("Anlage");
 
         grid.setHeight("500px");
         grid.setWidthFull();
