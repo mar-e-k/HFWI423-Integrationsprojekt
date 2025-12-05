@@ -12,7 +12,6 @@ import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.notification.NotificationVariant;
-import com.vaadin.flow.component.notification.Notification.Position;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
@@ -27,21 +26,15 @@ import java.util.List;
 
 @PageTitle("Neue Artikel")
 @Route(value = "new-articles", layout = MainLayout.class)
-@Menu(
-        title = "Neue Artikel",
-        icon = LineAwesomeIconUrl.FILTER_SOLID,
-        order = 5
-)
+@Menu(title = "Neue Artikel", icon = LineAwesomeIconUrl.FILTER_SOLID, order = 5)
 public class NewArticlesView extends Div {
 
     private final ArticleSyncService articleSyncService;
     private final StorageLocationService storageLocationService;
 
-    private final Grid<NewArticleCandidate> grid =
-            new Grid<>(NewArticleCandidate.class, false);
+    private final Grid<NewArticleCandidate> grid = new Grid<>(NewArticleCandidate.class, false);
 
-    public NewArticlesView(ArticleSyncService articleSyncService,
-                           StorageLocationService storageLocationService) {
+    public NewArticlesView(ArticleSyncService articleSyncService, StorageLocationService storageLocationService) {
         this.articleSyncService = articleSyncService;
         this.storageLocationService = storageLocationService;
 
@@ -61,108 +54,83 @@ public class NewArticlesView extends Div {
     }
 
     private void configureGrid() {
-        grid.addColumn(NewArticleCandidate::getArticleNumber)
-                .setHeader("Artikelnummer")
-                .setAutoWidth(true)
-                .setFlexGrow(0);
+        grid.addColumn(NewArticleCandidate::getArticleNumber).setHeader("Artikelnummer").setAutoWidth(true).setFlexGrow(0);
 
-        grid.addColumn(NewArticleCandidate::getName)
-                .setHeader("Name")
-                .setAutoWidth(true)
-                .setFlexGrow(0);
+        grid.addColumn(NewArticleCandidate::getName).setHeader("Name").setAutoWidth(true).setFlexGrow(0);
 
         grid.addComponentColumn(candidate -> {
 
-                    TextField locationField = new TextField();
-                    locationField.setPlaceholder("Storage Location");
-                    locationField.setWidth("140px");
-                    locationField.setReadOnly(true);
+            TextField locationField = new TextField();
+            locationField.setPlaceholder("Storage Location");
+            locationField.setWidth("140px");
+            locationField.setReadOnly(true);
 
-                    // ausgewählte Location merken
-                    final StorageLocation[] selectedLocationHolder = new StorageLocation[1];
+            // ausgewählte Location merken
+            final StorageLocation[] selectedLocationHolder = new StorageLocation[1];
 
-                    Button chooseLocation = new Button("Location wählen", e -> {
-                        StorageLocationPickerDialog dlg =
-                                new StorageLocationPickerDialog(
-                                        storageLocationService,
-                                        "Location für " + candidate.getName(),
-                                        selected -> {
-                                            if (selected != null) {
-                                                selectedLocationHolder[0] = selected;
-                                                locationField.setValue(selected.getGeneralId());
-                                            }
-                                        });
-                        dlg.open();
-                    });
+            Button chooseLocation = new Button("Location wählen", e -> {
+                StorageLocationPickerDialog dlg = new StorageLocationPickerDialog(storageLocationService, "Location für " + candidate.getName(), selected -> {
+                    if (selected != null) {
+                        selectedLocationHolder[0] = selected;
+                        locationField.setValue(selected.getGeneralId());
+                    }
+                });
+                dlg.open();
+            });
 
-                    IntegerField piecesPerPalletField = new IntegerField();
-                    piecesPerPalletField.setPlaceholder("Stk/Palette");
-                    piecesPerPalletField.setMin(1);
-                    piecesPerPalletField.setWidth("120px");
+            IntegerField piecesPerPalletField = new IntegerField();
+            piecesPerPalletField.setPlaceholder("Stk/Palette");
+            piecesPerPalletField.setMin(1);
+            piecesPerPalletField.setWidth("120px");
 
-                    IntegerField minStockField = new IntegerField();
-                    minStockField.setPlaceholder("Mindestbestand");
-                    minStockField.setMin(0);
-                    minStockField.setWidth("130px");
+            IntegerField minStockField = new IntegerField();
+            minStockField.setPlaceholder("Mindestbestand");
+            minStockField.setMin(0);
+            minStockField.setWidth("130px");
 
-                    Button createBtn = new Button("Artikel anlegen", click -> {
-                        try {
-                            if (locationField.getValue() == null || locationField.getValue().isBlank()) {
-                                Notification n = Notification.show("Bitte Storage Location wählen", 3000, Notification.Position.MIDDLE);
-                                n.addThemeVariants(NotificationVariant.LUMO_ERROR);
-                                return;
-                            }
-                            if (piecesPerPalletField.getValue() == null || piecesPerPalletField.getValue() <= 0) {
-                                Notification n = Notification.show("Bitte gültige Stückzahl/Palette eingeben", 3000, Notification.Position.MIDDLE);
-                                n.addThemeVariants(NotificationVariant.LUMO_ERROR);
-                                return;
-                            }
+            Button createBtn = new Button("Artikel anlegen", click -> {
+                try {
+                    if (locationField.getValue() == null || locationField.getValue().isBlank()) {
+                        Notification n = Notification.show("Bitte Storage Location wählen", 3000, Notification.Position.MIDDLE);
+                        n.addThemeVariants(NotificationVariant.LUMO_ERROR);
+                        return;
+                    }
+                    if (piecesPerPalletField.getValue() == null || piecesPerPalletField.getValue() <= 0) {
+                        Notification n = Notification.show("Bitte gültige Stückzahl/Palette eingeben", 3000, Notification.Position.MIDDLE);
+                        n.addThemeVariants(NotificationVariant.LUMO_ERROR);
+                        return;
+                    }
 
-                            // ArticleInfo anlegen
-                            ArticleInfo created = articleSyncService.createArticleInfoForCandidate(
-                                    candidate.getArticleId(),
-                                    locationField.getValue(),
-                                    piecesPerPalletField.getValue(),
-                                    minStockField.getValue()
-                            );
+                    // ArticleInfo anlegen
+                    ArticleInfo created = articleSyncService.createArticleInfoForCandidate(candidate.getArticleId(), locationField.getValue(), piecesPerPalletField.getValue(), minStockField.getValue());
 
-                            //  Lagerplatz auf USED setzen
-                            if (selectedLocationHolder[0] != null) {
-                                selectedLocationHolder[0].setStorageStatus("Used");
-                                storageLocationService.save(selectedLocationHolder[0]);
-                            }
+                    //  Lagerplatz auf USED setzen
+                    if (selectedLocationHolder[0] != null) {
+                        selectedLocationHolder[0].setStorageStatus("Used");
+                        storageLocationService.save(selectedLocationHolder[0]);
+                    }
 
-                            Notification n = Notification.show(
-                                    "Artikel " + created.getArticleNumber() + " angelegt",
-                                    3000, Notification.Position.MIDDLE);
-                            n.addThemeVariants(NotificationVariant.LUMO_SUCCESS);
+                    Notification n = Notification.show("Artikel " + created.getArticleNumber() + " angelegt", 3000, Notification.Position.MIDDLE);
+                    n.addThemeVariants(NotificationVariant.LUMO_SUCCESS);
 
-                            refresh();
-                        } catch (Exception ex) {
-                            Notification n = Notification.show(ex.getMessage(), 5000, Notification.Position.MIDDLE);
-                            n.addThemeVariants(NotificationVariant.LUMO_ERROR);
-                        }
-                    });
+                    refresh();
+                } catch (Exception ex) {
+                    Notification n = Notification.show(ex.getMessage(), 5000, Notification.Position.MIDDLE);
+                    n.addThemeVariants(NotificationVariant.LUMO_ERROR);
+                }
+            });
 
-                    HorizontalLayout rowLayout = new HorizontalLayout(
-                            locationField,
-                            chooseLocation,
-                            piecesPerPalletField,
-                            minStockField,
-                            createBtn
-                    );
-                    rowLayout.setAlignItems(FlexComponent.Alignment.BASELINE);
-                    return rowLayout;
-                })
-                .setHeader("Anlage");
+            HorizontalLayout rowLayout = new HorizontalLayout(locationField, chooseLocation, piecesPerPalletField, minStockField, createBtn);
+            rowLayout.setAlignItems(FlexComponent.Alignment.BASELINE);
+            return rowLayout;
+        }).setHeader("Anlage");
 
         grid.setHeight("500px");
         grid.setWidthFull();
     }
 
     private void refresh() {
-        List<NewArticleCandidate> items =
-                articleSyncService.findNewArticlesFromContingents();
+        List<NewArticleCandidate> items = articleSyncService.findNewArticlesFromContingents();
         grid.setItems(items);
     }
 }
