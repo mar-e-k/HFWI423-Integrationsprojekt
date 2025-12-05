@@ -100,6 +100,11 @@ public class NewArticlesView extends Div {
                     piecesPerPalletField.setMin(1);
                     piecesPerPalletField.setWidth("120px");
 
+                    IntegerField minStockField = new IntegerField();
+                    minStockField.setPlaceholder("Mindestbestand");
+                    minStockField.setMin(0);
+                    minStockField.setWidth("130px");
+
                     Button createBtn = new Button("Artikel anlegen", click -> {
                         try {
                             if (locationField.getValue() == null || locationField.getValue().isBlank()) {
@@ -113,14 +118,15 @@ public class NewArticlesView extends Div {
                                 return;
                             }
 
-                            // 1) ArticleInfo anlegen
+                            // ArticleInfo anlegen
                             ArticleInfo created = articleSyncService.createArticleInfoForCandidate(
                                     candidate.getArticleId(),
                                     locationField.getValue(),
-                                    piecesPerPalletField.getValue()
+                                    piecesPerPalletField.getValue(),
+                                    minStockField.getValue()
                             );
 
-                            // 2) Lagerplatz auf USED setzen
+                            //  Lagerplatz auf USED setzen
                             if (selectedLocationHolder[0] != null) {
                                 selectedLocationHolder[0].setStorageStatus("Used");
                                 storageLocationService.save(selectedLocationHolder[0]);
@@ -142,6 +148,7 @@ public class NewArticlesView extends Div {
                             locationField,
                             chooseLocation,
                             piecesPerPalletField,
+                            minStockField,
                             createBtn
                     );
                     rowLayout.setAlignItems(FlexComponent.Alignment.BASELINE);

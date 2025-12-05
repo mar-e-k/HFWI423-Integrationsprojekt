@@ -72,13 +72,17 @@ public class ArticleSyncService {
     @Transactional
     public ArticleInfo createArticleInfoForCandidate(Long articleId,
                                                      String storageLocation,
-                                                     Integer piecesPerPallet) {
+                                                     Integer piecesPerPallet,
+                                                     Integer minStock) {
 
         if (storageLocation == null || storageLocation.isBlank()) {
             throw new IllegalArgumentException("Storage Location ist erforderlich.");
         }
         if (piecesPerPallet == null || piecesPerPallet <= 0) {
             throw new IllegalArgumentException("Pieces per Pallet muss > 0 sein.");
+        }
+        if (minStock == null || minStock < 0) {
+            throw new IllegalArgumentException("Mindestbestand darf nicht negativ sein.");
         }
 
         ExternalArticle ext = externalArticleRepository.findById(articleId)
@@ -94,12 +98,12 @@ public class ArticleSyncService {
 
         info.setStorageLocation(storageLocation);
         info.setPiecesPerPallet(piecesPerPallet);
+        info.setMinStock(minStock);      // ⬅️ hier wird der Mindestbestand gesetzt
 
         // Defaults
         info.setStockLevel(0);
         info.setReservePallets(0);
         info.setReserveStorageLocation(null);
-        info.setMinStock(null);
 
         return articleInfoRepository.save(info);
     }
@@ -127,6 +131,7 @@ public class ArticleSyncService {
         ArticleInfo info = new ArticleInfo();
         info.setArticleNumber(ext.getArticleNumber());
         info.setName(ext.getName());
+
 
         info.setStockLevel(0);
         info.setStorageLocation("UNGESETZT");
