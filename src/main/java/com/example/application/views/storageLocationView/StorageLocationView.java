@@ -140,9 +140,21 @@ public class StorageLocationView extends Div {
 
         // Add-Button
         Button addBtn = new Button("Add", e -> openAddDialog());
+        // Sync Button
+        Button syncBtn = new Button("Aktualisieren", e -> {
+            int changed = service.syncStatusesWithArticles();  // Methode im StorageLocationService
+            Notification.show(
+                    changed + " storage location(s) aktualisiert",
+                    4000,
+                    Notification.Position.BOTTOM_END
+            );
+            refreshGrid();
+        });
+
+        syncBtn.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
 
         // Layout
-        HorizontalLayout toolbar = new HorizontalLayout(addBtn);
+        HorizontalLayout toolbar = new HorizontalLayout(addBtn, syncBtn);
         toolbar.setWidthFull();
         toolbar.setJustifyContentMode(FlexComponent.JustifyContentMode.START);
 

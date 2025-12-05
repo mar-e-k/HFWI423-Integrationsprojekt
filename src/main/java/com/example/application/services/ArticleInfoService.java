@@ -218,7 +218,7 @@ public class ArticleInfoService {
 
         return articleInfoRepository.save(article);
     }
-    
+
     //Für spätere Logik
     @Transactional
     public void deleteArticle(Long articleId) {
