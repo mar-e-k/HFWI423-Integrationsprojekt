@@ -15,7 +15,6 @@ public class StorageLocationService {
 
     private final StorageLocationRepository storageLocationRepository;
     private final ArticleInfoRepository articleInfoRepository;
-
     public StorageLocationService(StorageLocationRepository storageLocationRepository,
                                   ArticleInfoRepository articleInfoRepository) {
         this.storageLocationRepository = storageLocationRepository;
