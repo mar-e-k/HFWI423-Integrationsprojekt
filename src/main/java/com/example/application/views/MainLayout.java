@@ -51,7 +51,7 @@ public class MainLayout extends AppLayout implements AfterNavigationObserver {
         UI.getCurrent().addPollListener(e -> updateArticleBadge());
 
         //Hintergrundfarbe für die App
-       // getElement().getThemeList().add("dark");
+        // getElement().getThemeList().add("dark");
     }
 
     // ---------------------------------------------------------------------
@@ -78,18 +78,19 @@ public class MainLayout extends AppLayout implements AfterNavigationObserver {
         Span appName = new Span("Logistic");
         appName.addClassNames(
                 LumoUtility.FontSize.XLARGE,
-                LumoUtility.FontWeight.SEMIBOLD,
+                LumoUtility.FontWeight.BOLD,
                 LumoUtility.Margin.NONE
         );
 
-        // Center: aktueller Seitentitel
+        // Center: aktueller Seitentitel (wird in afterNavigation gesetzt)
         viewTitle = new H1();
         viewTitle.addClassNames(
-                LumoUtility.FontSize.LARGE,
-                LumoUtility.Margin.NONE
+                LumoUtility.FontSize.MEDIUM,
+                LumoUtility.Margin.NONE,
+                LumoUtility.TextColor.SECONDARY
         );
 
-        // Right: User-Bereich (Platzhalter)
+        // User-Bereich (noch nen Platzhalter)
         Avatar userAvatar = new Avatar("User");
         userAvatar.addClassNames(LumoUtility.Margin.End.MEDIUM);
 
@@ -112,8 +113,9 @@ public class MainLayout extends AppLayout implements AfterNavigationObserver {
                 LumoUtility.BoxSizing.BORDER
         );
 
-        // einfache Border unten per Style setzen
-        headerBar.getStyle().set("border-bottom", "1px solid var(--lumo-contrast-10pct)");
+        // Hintergrund + leichter Schatten
+        headerBar.getStyle().set("background-color", "var(--lumo-base-color)");
+        headerBar.getStyle().set("box-shadow", "0 1px 0 0 var(--lumo-contrast-10pct)");
 
         // Titel in der Mitte, User rechts
         headerBar.expand(viewTitle);
@@ -130,7 +132,7 @@ public class MainLayout extends AppLayout implements AfterNavigationObserver {
         // App-Brand im Drawer
         H2 drawerTitle = new H2("Logistic Cockpit");
         drawerTitle.addClassNames(
-                LumoUtility.FontSize.LARGE,
+                LumoUtility.FontSize.MEDIUM,
                 LumoUtility.FontWeight.SEMIBOLD,
                 LumoUtility.Margin.NONE
         );
@@ -144,9 +146,7 @@ public class MainLayout extends AppLayout implements AfterNavigationObserver {
         VerticalHeader header = new VerticalHeader(drawerTitle, subtitle);
 
         Scroller scroller = new Scroller(createNavigation());
-        scroller.addClassNames(
-                LumoUtility.Padding.SMALL
-        );
+        scroller.addClassNames(LumoUtility.Padding.SMALL);
 
         addToDrawer(header, scroller, createFooter());
     }
@@ -184,9 +184,10 @@ public class MainLayout extends AppLayout implements AfterNavigationObserver {
             );
 
             String path = entry.path();
+            String normalizedPath = path.startsWith("/") ? path.substring(1) : path;
 
-            // Pfad der View mit den neuen Artikeln
-            if ("/new-articles".equals(path)) {
+            // Pfad für Badge
+            if ("new-articles".equals(normalizedPath)) {
 
                 articleNavItem = item;
                 articleBadge = new Span();
@@ -218,8 +219,8 @@ public class MainLayout extends AppLayout implements AfterNavigationObserver {
                     LumoUtility.Gap.XSMALL
             );
 
-            // Unterkante als feine Linie
             getStyle().set("border-bottom", "1px solid var(--lumo-contrast-10pct)");
+            getStyle().set("background-color", "var(--lumo-base-color)");
 
             add(title, subtitle);
         }
