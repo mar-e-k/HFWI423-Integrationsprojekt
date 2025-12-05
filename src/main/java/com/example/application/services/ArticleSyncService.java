@@ -93,12 +93,12 @@ public class ArticleSyncService {
         }
 
         ArticleInfo info = new ArticleInfo();
+        info.setArticleId(articleId);
         info.setArticleNumber(ext.getArticleNumber());
         info.setName(ext.getName());
-
         info.setStorageLocation(storageLocation);
         info.setPiecesPerPallet(piecesPerPallet);
-        info.setMinStock(minStock);      // ⬅️ hier wird der Mindestbestand gesetzt
+        info.setMinStock(minStock);
 
         // Defaults
         info.setStockLevel(0);

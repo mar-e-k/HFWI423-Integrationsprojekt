@@ -7,6 +7,10 @@ import jakarta.validation.constraints.Size;
 
 @Entity
 public class ArticleInfo extends AbstractEntity {
+
+    @Column(name = "article_id")
+    private Long articleId;
+
     // Name des Artikels
     @Size(max = 255)
     @NotNull
@@ -93,6 +97,14 @@ public class ArticleInfo extends AbstractEntity {
 
     public void setReserveStorageLocation(String reserveStorageLocation) {
         this.reserveStorageLocation = reserveStorageLocation;
+    }
+
+    public Long getArticleId() {
+        return articleId;
+    }
+
+    public void setArticleId(Long articleId) {
+        this.articleId = articleId;
     }
 
     public Integer getPiecesPerPallet() {

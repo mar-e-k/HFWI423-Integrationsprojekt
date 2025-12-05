@@ -48,13 +48,28 @@ public class RestockOrderService {
 
         int piecesToOrder = palletsToOrder * piecesPerPallet;
 
-        Long articleNumberAsLong = Long.valueOf(article.getArticleNumber());
+        // Schlüssel für das Kontingent bestimmen
+        Long contingentKey;
+
+        if (article.getArticleId() != null && article.getArticleId() != 0L) {
+            // neue Welt: article_id in ArticleInfo/Contingent identisch
+            contingentKey = article.getArticleId();
+        } else {
+            // Fallback für bestehende Daten:
+            // Contingent.article_id entspricht der Artikelnummer
+            contingentKey = Long.valueOf(article.getArticleNumber());
+        }
+
+        System.out.println("approveOrder → articleNumber=" + article.getArticleNumber()
+                + ", articleId=" + article.getArticleId()
+                + ", contingentKey=" + contingentKey);
 
         List<Contingent> contingents =
-                contingentRepository.findAllByArticleId(articleNumberAsLong);
+                contingentRepository.findAllByArticleId(contingentKey);
 
         if (contingents.isEmpty()) {
-            throw new IllegalStateException("Für diesen Artikel existiert kein Kontingent.");
+            throw new IllegalStateException(
+                    "Für diesen Artikel existiert kein Kontingent (Key=" + contingentKey + ").");
         }
 
         contingents.sort(Comparator.comparing(Contingent::getId));
@@ -83,15 +98,16 @@ public class RestockOrderService {
             );
         }
 
-        // Bestellung speichern — NEUE Version
+        // 🌟 HIER wird die RestockOrder angelegt
         RestockOrder order = new RestockOrder();
         order.setArticleNumber(article.getArticleNumber());
         order.setArticleName(article.getName());
-        order.setQuantity(piecesToOrder);
+        order.setQuantity(piecesToOrder);        // in Stück
         order.setCreatedAt(LocalDateTime.now());
         order.setApproved(true);
         order.setDelivered(false);
 
-        restockOrderRepository.save(order);
+        RestockOrder saved = restockOrderRepository.save(order);
+        System.out.println("RestockOrder gespeichert, id=" + saved.getId());
     }
 }
