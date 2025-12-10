@@ -24,111 +24,165 @@ import org.vaadin.lineawesome.LineAwesomeIconUrl;
 
 import java.util.List;
 
-@PageTitle("Neue Artikel")
-@Route(value = "new-articles", layout = MainLayout.class)
-@Menu(title = "Neue Artikel", icon = LineAwesomeIconUrl.FILTER_SOLID, order = 5)
+@PageTitle("Neue Artikel") // Titel im Browser-Tab
+@Route(value = "new-articles", layout = MainLayout.class) // Route unter /new-articles, eingebettet im MainLayout
+@Menu(title = "Neue Artikel", icon = LineAwesomeIconUrl.FILTER_SOLID, order = 5) // Menüeintrag in der Sidebar
 public class NewArticlesView extends Div {
 
+    // Service für das Synchronisieren / Anlegen von Artikeln aus einem Fremdsystem
     private final ArticleSyncService articleSyncService;
+
+    // Service für den Zugriff auf Lagerplätze (z.B. um Status auf USED zu setzen)
     private final StorageLocationService storageLocationService;
 
+    // Grid, das die "Kandidaten" für neue Artikel anzeigt
     private final Grid<NewArticleCandidate> grid = new Grid<>(NewArticleCandidate.class, false);
 
     public NewArticlesView(ArticleSyncService articleSyncService, StorageLocationService storageLocationService) {
         this.articleSyncService = articleSyncService;
         this.storageLocationService = storageLocationService;
 
-        setSizeFull();
+        setSizeFull(); // View soll die komplette Fläche einnehmen
 
         VerticalLayout layout = new VerticalLayout();
         layout.setPadding(false);
         layout.setSpacing(true);
         layout.setSizeFull();
 
-        configureGrid();
+        configureGrid();   // Spalten und Layout des Grids konfigurieren
 
-        layout.add(grid);
-        add(layout);
+        layout.add(grid);  // Grid ins Layout einfügen
+        add(layout);       // Layout in die View hängen
 
-        refresh();
+        refresh();         // Daten initial laden
     }
 
+    /**
+     * Konfiguriert die Spalten und Komponenten des Grids.
+     * Hier werden sowohl einfache Text-Spalten als auch eine "Aktionen"-Spalte gebaut.
+     */
     private void configureGrid() {
-        grid.addColumn(NewArticleCandidate::getArticleNumber).setHeader("Artikelnummer").setAutoWidth(true).setFlexGrow(0);
+        // Spalte: Artikelnummer
+        grid.addColumn(NewArticleCandidate::getArticleNumber)
+                .setHeader("Artikelnummer")
+                .setAutoWidth(true)
+                .setFlexGrow(0); // Spalte soll nicht flexibel mitwachsen
 
-        grid.addColumn(NewArticleCandidate::getName).setHeader("Name").setAutoWidth(true).setFlexGrow(0);
+        // Spalte: Artikelname
+        grid.addColumn(NewArticleCandidate::getName)
+                .setHeader("Name")
+                .setAutoWidth(true)
+                .setFlexGrow(0);
 
+        // Spalte mit mehreren Eingabefeldern und Buttons zum Anlegen des Artikels
         grid.addComponentColumn(candidate -> {
 
+            // Textfeld zur Anzeige des ausgewählten Lagerorts
             TextField locationField = new TextField();
-            locationField.setPlaceholder("Storage Location");
+            locationField.setPlaceholder("Storage Location"); // Platzhaltertext, bis etwas ausgewählt wurde
             locationField.setWidth("140px");
-            locationField.setReadOnly(true);
+            locationField.setReadOnly(true); // Nutzer soll hier nicht manuell reinschreiben
 
-            // ausgewählte Location merken
+            // ausgewählte Location "merken" (Workaround, weil wir im Lambda sind)
             final StorageLocation[] selectedLocationHolder = new StorageLocation[1];
 
+            // Button, um Lagerplatz über einen Dialog auszuwählen
             Button chooseLocation = new Button("Location wählen", e -> {
-                StorageLocationPickerDialog dlg = new StorageLocationPickerDialog(storageLocationService, "Location für " + candidate.getName(), selected -> {
-                    if (selected != null) {
-                        selectedLocationHolder[0] = selected;
-                        locationField.setValue(selected.getGeneralId());
-                    }
-                });
-                dlg.open();
+                StorageLocationPickerDialog dlg =
+                        new StorageLocationPickerDialog(
+                                storageLocationService,
+                                "Location für " + candidate.getName(),
+                                selected -> {
+                                    // Callback, wenn im Dialog ein Lagerplatz ausgewählt wurde
+                                    if (selected != null) {
+                                        selectedLocationHolder[0] = selected;              // im Array speichern
+                                        locationField.setValue(selected.getGeneralId());   // im UI anzeigen
+                                    }
+                                });
+                dlg.open(); // Dialog anzeigen
             });
 
+            // Eingabefeld: Stück pro Palette
             IntegerField piecesPerPalletField = new IntegerField();
             piecesPerPalletField.setPlaceholder("Stk/Palette");
-            piecesPerPalletField.setMin(1);
+            piecesPerPalletField.setMin(1);        // es muss mindestens 1 sein
             piecesPerPalletField.setWidth("120px");
 
+            // Eingabefeld: Mindestbestand
             IntegerField minStockField = new IntegerField();
             minStockField.setPlaceholder("Mindestbestand");
-            minStockField.setMin(0);
+            minStockField.setMin(0);              // Mindestbestand darf auch 0 sein
             minStockField.setWidth("130px");
 
+            // Button, um aus dem Kandidaten einen "richtigen" Artikel anzulegen
             Button createBtn = new Button("Artikel anlegen", click -> {
                 try {
+                    // Validierung: Lagerplatz muss gewählt sein
                     if (locationField.getValue() == null || locationField.getValue().isBlank()) {
                         Notification n = Notification.show("Bitte Storage Location wählen", 3000, Notification.Position.MIDDLE);
                         n.addThemeVariants(NotificationVariant.LUMO_ERROR);
                         return;
                     }
+                    // Validierung: Stückzahl pro Palette muss > 0 sein
                     if (piecesPerPalletField.getValue() == null || piecesPerPalletField.getValue() <= 0) {
                         Notification n = Notification.show("Bitte gültige Stückzahl/Palette eingeben", 3000, Notification.Position.MIDDLE);
                         n.addThemeVariants(NotificationVariant.LUMO_ERROR);
                         return;
                     }
 
-                    // ArticleInfo anlegen
-                    ArticleInfo created = articleSyncService.createArticleInfoForCandidate(candidate.getArticleId(), locationField.getValue(), piecesPerPalletField.getValue(), minStockField.getValue());
+                    // ArticleInfo in der Datenbank anlegen (über den Sync-Service)
+                    ArticleInfo created = articleSyncService.createArticleInfoForCandidate(
+                            candidate.getArticleId(),
+                            locationField.getValue(),
+                            piecesPerPalletField.getValue(),
+                            minStockField.getValue()
+                    );
 
-                    //  Lagerplatz auf USED setzen
+                    // Lagerplatz nach dem Anlegen auf USED setzen (falls einer gewählt wurde)
                     if (selectedLocationHolder[0] != null) {
                         selectedLocationHolder[0].setStorageStatus("Used");
                         storageLocationService.save(selectedLocationHolder[0]);
                     }
 
-                    Notification n = Notification.show("Artikel " + created.getArticleNumber() + " angelegt", 3000, Notification.Position.MIDDLE);
+                    // Erfolgsnachricht anzeigen
+                    Notification n = Notification.show(
+                            "Artikel " + created.getArticleNumber() + " angelegt",
+                            3000,
+                            Notification.Position.MIDDLE
+                    );
                     n.addThemeVariants(NotificationVariant.LUMO_SUCCESS);
 
+                    // Grid-Daten neu laden, damit der angelegte Kandidat verschwindet (falls Logik so ist)
                     refresh();
                 } catch (Exception ex) {
+                    // Fehlerfall: Fehlermeldung anzeigen
                     Notification n = Notification.show(ex.getMessage(), 5000, Notification.Position.MIDDLE);
                     n.addThemeVariants(NotificationVariant.LUMO_ERROR);
                 }
             });
 
-            HorizontalLayout rowLayout = new HorizontalLayout(locationField, chooseLocation, piecesPerPalletField, minStockField, createBtn);
-            rowLayout.setAlignItems(FlexComponent.Alignment.BASELINE);
+            // Layout für die Zeile in der "Anlage"-Spalte:
+            // [Location-Feld] [Location wählen] [Stk/Palette] [Mindestbestand] [Artikel anlegen]
+            HorizontalLayout rowLayout = new HorizontalLayout(
+                    locationField,
+                    chooseLocation,
+                    piecesPerPalletField,
+                    minStockField,
+                    createBtn
+            );
+            rowLayout.setAlignItems(FlexComponent.Alignment.BASELINE); // Elemente in einer Linie ausrichten
             return rowLayout;
-        }).setHeader("Anlage");
+        }).setHeader("Anlage"); // Spaltenüberschrift
 
+        // Grid-Größe setzen (hier feste Höhe + volle Breite)
         grid.setHeight("500px");
         grid.setWidthFull();
     }
 
+    /**
+     * Lädt die Liste der neuen Artikelkandidaten neu und zeigt sie im Grid an.
+     * Wird beim Start und nach dem Anlegen eines Artikels aufgerufen.
+     */
     private void refresh() {
         List<NewArticleCandidate> items = articleSyncService.findNewArticlesFromContingents();
         grid.setItems(items);

@@ -46,22 +46,29 @@ import com.vaadin.flow.data.provider.Query;
  * - "Neuen Artikel"-Dialog (lazy initialisiert)
  */
 @PageTitle("Artikel & Lagerplätze")                 // Titel im Browser-Tab
-@Route("")                            // Root-Route
+@Route("")                                          // Root-Route (Startseite der App)
 @Menu(order = 0, icon = LineAwesomeIconUrl.FILTER_SOLID)
 @Uses(Icon.class)
 public class LogisticMainView extends Div {
 
-    private final StorageLocationService storageLocationService;
-    private Grid<ArticleInfo> grid;
-    private Filters filters;
+    // Service für Artikel-spezifische Datenbankzugriffe
     private final ArticleInfoService articleInfoService;
+
+    // Service für Lagerplatz-spezifische Datenbankzugriffe
+    private final StorageLocationService storageLocationService;
+
+    // Grid, in dem die Artikel angezeigt werden
+    private Grid<ArticleInfo> grid;
+
+    // Filterkomponente, mit der der Benutzer die Artikelliste einschränken kann
+    private Filters filters;
 
     public LogisticMainView(ArticleInfoService articleInfoService, StorageLocationService storageLocationService) {
         this.articleInfoService = articleInfoService;
         this.storageLocationService = storageLocationService;
 
         // === Grundlayout der Seite ===
-        setSizeFull();
+        setSizeFull(); // View soll die ganze verfügbare Fläche nutzen
         addClassNames("gridwith-filters-view");
 
         // Filterleiste: ruft bei Änderungen/Buttons refreshGrid() auf
@@ -69,11 +76,11 @@ public class LogisticMainView extends Div {
 
         // Datengrid erzeugen (Spalten/Renderer/Selektor etc. im Helper kapseln)
         Component gridComponent = createGrid();
-        setupDataProvider();
+        setupDataProvider(); // Datenquelle an das Grid binden
 
         // === Seite zusammensetzen ===
         // 1) Mobile Filter-Kopf (toggle), 2) volle Filterleiste (Desktop/ausklappbar mobil),
-        // 3) Toolbar mit "Neuen Artikel", 4) Grid
+        // 3) Grid mit Artikeln
         VerticalLayout layout = new VerticalLayout(
                 createMobileFilters(),
                 filters,
@@ -81,10 +88,10 @@ public class LogisticMainView extends Div {
         );
         layout.setSizeFull();
         layout.setPadding(false);
-        layout.setSpacing(false);
+        layout.setSpacing(false); // keine extra Abstände zwischen den Komponenten
 
+        // Alles in die Haupt-View hängen
         add(layout);
-
     }
 
     /**
@@ -99,22 +106,24 @@ public class LogisticMainView extends Div {
                 LumoUtility.BoxSizing.BORDER,
                 LumoUtility.AlignItems.CENTER
         );
-        mobileFilters.addClassName("mobile-filters");
+        mobileFilters.addClassName("mobile-filters"); // für eigenes CSS
 
         // Plus/Minus-Icon als visueller Zustand für eingeklappt/ausgeklappt
         Icon mobileIcon = new Icon("lumo", "plus");
 
-        // Überschrift (übersetzbar halten; ggf. I18N verwenden)
+        // Überschrift (könnte später über I18N übersetzt werden)
         Span filtersHeading = new Span("Filter");
         mobileFilters.add(mobileIcon, filtersHeading);
         mobileFilters.setFlexGrow(1, filtersHeading); // Text nimmt restliche Breite, Icon bleibt kompakt
 
-        // Ein-/Ausklappen der Filterleiste
+        // Ein-/Ausklappen der Filterleiste bei Klick auf die Kopfzeile
         mobileFilters.addClickListener(e -> {
             if (filters.getClassNames().contains("visible")) {
+                // Filter sind sichtbar → ausblenden
                 filters.removeClassName("visible");
                 mobileIcon.getElement().setAttribute("icon", "lumo:plus");
             } else {
+                // Filter sind versteckt → einblenden
                 filters.addClassName("visible");
                 mobileIcon.getElement().setAttribute("icon", "lumo:minus");
             }
@@ -133,21 +142,21 @@ public class LogisticMainView extends Div {
      * <p>
      * - Platzhalter geben Beispielwerte an und reduzieren Fehleingaben.
      * - "Zurücksetzen" leert alle Felder und triggert sofort eine neue Suche.
-     * - Artikelnummer nutzt ein IntegerField mit Step-Buttons und Min=0.
+     * - Artikelnummer und Bestand werden als String eingegeben und später im Predicate behandelt.
      */
     public static class Filters extends Div implements Specification<ArticleInfo> {
 
         // Eingabekomponenten (sichtbare Filterfelder)
         private final TextField articleName = new TextField("Article Name");       // Freitext, case-insensitive LIKE
-        private final TextField articleNumber = new TextField("Article Number");  // Exakt gleich (=)
-        private final TextField stockLevel = new TextField("Stock Level");           // Numerisch, >= Mindestbestand
-        private final TextField storageLocation = new TextField("Storage Location");          // Freitext, case-insensitive LIKE
+        private final TextField articleNumber = new TextField("Article Number");   // Exakt gleich (=), aber String
+        private final TextField stockLevel = new TextField("Stock Level");         // Numerisch, >= Mindestbestand
+        private final TextField storageLocation = new TextField("Storage Location"); // Freitext, case-insensitive LIKE
 
         /**
          * Erstellt die Filterleiste und verbindet die Buttons mit der onSearch Suchaktion.
          * <p>
-         * onSearch Callback, der ausgeführt wird, wenn der Nutzer sucht oder zurücksetzt.
-         * Lädt die Liste/Grids neu.
+         * onSearch: Callback, der ausgeführt wird, wenn der Nutzer sucht oder zurücksetzt.
+         * Lädt die Liste/ das Grid neu.
          */
         public Filters(Runnable onSearch) {
             // === Layout-Basis ===
@@ -160,41 +169,37 @@ public class LogisticMainView extends Div {
                     LumoUtility.BoxSizing.BORDER
             );
 
-            // === Feld-Konfiguration (Platzhalter & Validierung) ===
+            // === Feld-Konfiguration (Platzhalter & "leichte" Guidance) ===
             articleName.setPlaceholder("Search Name");
-
             articleNumber.setPlaceholder("Search Number");
             stockLevel.setPlaceholder("Minimum Inventory"); // Wird später als Integer geparst (mit Fallback)
-
             storageLocation.setPlaceholder("Search Storage Location");
 
             // === Aktionen ===
 
-            // Leert alle Felder. Aktualisiert sofort
-            // Anwender sieht Ungefiltertes Ergebnis
+            // Leert alle Felder und triggert eine neue Suche
             Button resetBtn = new Button("Reset Search", e -> {
                 articleName.clear();
                 articleNumber.clear();
                 stockLevel.clear();
                 storageLocation.clear();
-                onSearch.run();
+                onSearch.run(); // Grid neu laden ohne Filter
             });
-            resetBtn.addThemeVariants(ButtonVariant.LUMO_TERTIARY); // Sekundäre/tertiäre Gewichtung im UI
+            resetBtn.addThemeVariants(ButtonVariant.LUMO_TERTIARY); // eher "sekundäre" Aktion
 
             // Startet die Suche mit den aktuell eingegebenen Filterwerten.
             Button searchBtn = new Button("Search Article", e -> onSearch.run());
-            searchBtn.addThemeVariants(ButtonVariant.LUMO_PRIMARY); // Primäre Aktion im UI
+            searchBtn.addThemeVariants(ButtonVariant.LUMO_PRIMARY); // wichtigste Aktion
 
-            // Buttons gruppieren (Abstand festlegen)
+            // Buttons in separatem Container, um Abstände zu steuern
             Div actions = new Div(resetBtn, searchBtn);
             actions.addClassName(LumoUtility.Gap.SMALL);
             actions.addClassName("actions");
 
-            // Komponenten der Ansicht hinzufügen (Reihenfolge = angezeigte Reihenfolge auf der UI)
+            // Komponenten der Ansicht hinzufügen (Reihenfolge = UI-Reihenfolge)
             add(articleName, articleNumber, stockLevel, storageLocation, actions);
         }
 
-        @Override
         /**
          * Baut dynamisch ein WHERE-Predicate für Artikel anhand optionaler Filterfelder.
          * Verknüpft alle gefundenen Bedingungen mit AND. Wenn kein Filter gesetzt ist,
@@ -203,9 +208,10 @@ public class LogisticMainView extends Div {
          * Verwendete Filter:
          * - articleName (LIKE, case-insensitive)
          * - articleNumber (exakte Übereinstimmung)
-         * - inventory (numerisch: >=)
+         * - inventory / stockLevel (numerisch: >=)
          * - storageLocation (LIKE, case-insensitive)
          */
+        @Override
         public Predicate toPredicate(Root<ArticleInfo> root, CriteriaQuery<?> query, CriteriaBuilder cb) {
             // Liste sammelt alle optionalen Filterbedingungen
             List<Predicate> ps = new ArrayList<>();
@@ -218,7 +224,7 @@ public class LogisticMainView extends Div {
                 ps.add(cb.like(cb.lower(root.get("name")), v));
             }
 
-            // Exakte Übereinstimmung der Artikelnummer (Integer)
+            // Exakte Übereinstimmung der Artikelnummer (hier als String)
             if (!articleNumber.isEmpty()) {
                 ps.add(cb.equal(root.get("articleNumber"), articleNumber.getValue().trim()));
             }
@@ -245,7 +251,6 @@ public class LogisticMainView extends Div {
         }
     }
 
-
     /**
      * Erstellt das Grid zur Anzeige von {@link ArticleInfo}.
      * Definiert Spalten, Header, Sortierung und Layout.
@@ -254,6 +259,7 @@ public class LogisticMainView extends Div {
      */
     private Component createGrid() {
 
+        // Grid für ArticleInfo, ohne automatische Spalten (false)
         grid = new Grid<>(ArticleInfo.class, false);
 
         // Spalte: Artikelname (Text)
@@ -263,21 +269,21 @@ public class LogisticMainView extends Div {
                 .setAutoWidth(true)        // passt sich Inhalt an, verhindert horizontales Scrollen
                 .setSortable(true);
 
-        // Spalte: Artikelnummer (Integer)
+        // Spalte: Artikelnummer
         grid.addColumn(ArticleInfo::getArticleNumber)
                 .setHeader("Article Number")
                 .setKey("articleNumber")
                 .setAutoWidth(true)
                 .setSortable(true);
 
-        // Spalte: Gesamter Bestand dieses Artikels (mit Reservepaletten)
+        // Spalte: Gesamter Bestand dieses Artikels (inkl. Reservepaletten)
         grid.addColumn(ArticleInfo::getTotalStock)
                 .setHeader("Total Stock")
                 .setKey("totalStock")
                 .setAutoWidth(true)
                 .setSortable(true);
 
-        // Spalte: Entnahmefach (Integer)
+        // Spalte: Entnahmebestand (Pick-Fach)
         grid.addColumn(ArticleInfo::getStockLevel)
                 .setHeader("Pick Stock")
                 .setKey("stockLevel")
@@ -291,8 +297,10 @@ public class LogisticMainView extends Div {
                 .setAutoWidth(true)
                 .setSortable(true);
 
+        // Spalte: Aktionen (z.B. Bestände bearbeiten)
         grid.addComponentColumn(item -> {
             Button editStock = new Button("Edit stock");
+            // Klick öffnet Dialog zum Ändern des Bestands
             editStock.addClickListener(e -> {
                 StockChangeDialog dlg = new StockChangeDialog(
                         articleInfoService,
@@ -304,34 +312,40 @@ public class LogisticMainView extends Div {
             return editStock;
         }).setHeader("Actions");
 
-        // Spalte: Lagerort (Text)
+        // Spalte: Lagerort mit Button, der den Picker öffnet
         grid.addComponentColumn(item -> {
+                    // Label: entweder vorhandener Lagerort oder "Select location"
                     String label = item.getStorageLocation() != null && !item.getStorageLocation().isBlank()
                             ? item.getStorageLocation()
                             : "Select location";
 
                     Button link = new Button(label);
-                    link.addThemeVariants(ButtonVariant.LUMO_TERTIARY_INLINE);
+                    link.addThemeVariants(ButtonVariant.LUMO_TERTIARY_INLINE); // wie ein Link
+                    // Öffnet Dialog, um einen Lagerort auszuwählen
                     link.addClickListener(e -> openAvailableLocationsDialog(item));
 
                     return link;
                 }).setHeader("Storage Location")
                 .setKey("storageLocation")
                 .setAutoWidth(true)
-                .setSortable(false);
+                .setSortable(false); // Sortierung hier eher nicht sinnvoll, da Button-Spalte
 
-        //verschiedenfarbige Streifen + Umbruch langer Inhalte
+        // verschiedenfarbige Streifen + Umbruch langer Inhalte
         grid.addThemeVariants(
                 GridVariant.LUMO_ROW_STRIPES,
                 GridVariant.LUMO_WRAP_CELL_CONTENT
         );
 
-        // Grid füllt verfügbaren Platz unter Div und Search feldern
+        // Grid füllt verfügbaren Platz unter Div und Suchfeldern
         grid.setSizeFull();
 
         return grid;
     }
 
+    /**
+     * Baut aus einem StorageLocation-Objekt eine kompakte ID wie "Z3.S2.C4".
+     * Wird zum Anzeigen bzw. Speichern des Lagerorts benutzt.
+     */
     private String buildGeneralId(com.example.application.data.storageLocation.StorageLocation s) {
         if (s == null) {
             return "";
@@ -340,17 +354,23 @@ public class LogisticMainView extends Div {
         String zone = s.getStorageZone();           // z.B. "Zone 3"
         String zoneNumber = "";
         if (zone != null) {
-            zoneNumber = zone.replace("Zone", "").trim(); // -> "3"
+            // "Zone 3" → "3"
+            zoneNumber = zone.replace("Zone", "").trim();
         }
 
         Integer shelf = s.getShelfID();
         Integer compartment = s.getCompartmentID();
 
+        // Fallback auf 0, falls shelf/compartment null sind
         return "Z" + zoneNumber
                 + ".S" + (shelf != null ? shelf : 0)
                 + ".C" + (compartment != null ? compartment : 0);
     }
 
+    /**
+     * Öffnet den Dialog mit allen verfügbaren Lagerplätzen
+     * und weist bei Bestätigung dem Artikel die ausgewählte Location zu.
+     */
     private void openAvailableLocationsDialog(ArticleInfo article) {
 
         StorageLocationPickerDialog picker = new StorageLocationPickerDialog(
@@ -358,12 +378,14 @@ public class LogisticMainView extends Div {
                 "Available locations for: " + article.getName(),
                 selected -> {
 
+                    // wenn nichts ausgewählt wurde, einfach abbrechen
                     if (selected == null) {
                         return;
                     }
 
                     String generalId = selected.getGeneralId();
 
+                    // Sicherheits-Confirm, damit der User nicht versehentlich verschiebt
                     ConfirmDialog confirm = new ConfirmDialog();
                     confirm.setHeader("Assign location");
                     String existingLoc = article.getStorageLocation();
@@ -378,7 +400,7 @@ public class LogisticMainView extends Div {
                     confirm.setConfirmText("Assign");
                     confirm.addConfirmListener(ev -> {
                         try {
-                            //Alte Location wieder auf Available
+                            // Alte Location wieder auf "Available" setzen
                             String oldGeneralId = article.getStorageLocation();
                             if (oldGeneralId != null && !oldGeneralId.isBlank()) {
                                 StorageLocation parsed = parseGeneralIdToLocation(oldGeneralId);
@@ -396,21 +418,23 @@ public class LogisticMainView extends Div {
                                 }
                             }
 
-                            //Artikel-Location updaten
+                            // Artikel-Location in der DB updaten
                             articleInfoService.updateStorageLocation(article.getId(), generalId);
-                            article.setStorageLocation(generalId);
+                            article.setStorageLocation(generalId); // auch das Objekt im Grid aktualisieren
 
-                            //neue Location auf Used
+                            // neue Location auf "Used" setzen
                             selected.setStorageStatus("Used");
                             storageLocationService.save(selected);
 
-                            //Grid-Zeile aktualisieren
+                            // Grid-Zeile aktualisieren (nur diesen Artikel)
                             grid.getDataProvider().refreshItem(article);
 
+                            // Erfolgs-Nachricht anzeigen
                             Notification n = Notification.show("Location assigned: " + generalId);
                             n.addThemeVariants(NotificationVariant.LUMO_SUCCESS);
 
                         } catch (Exception ex) {
+                            // Fehlerfall: Meldung + Stacktrace im Log
                             Notification n = Notification.show("Could not assign location", 4000, Notification.Position.MIDDLE);
                             n.addThemeVariants(NotificationVariant.LUMO_ERROR);
                             ex.printStackTrace();
@@ -420,20 +444,30 @@ public class LogisticMainView extends Div {
                     confirm.open();
                 });
 
-        picker.open();
+        picker.open(); // Dialog anzeigen
     }
 
+    /**
+     * Richtet den DataProvider für das Grid ein.
+     * Verwendet Callbacks, damit Paging + Filter über den Service abgewickelt werden.
+     */
     private void setupDataProvider() {
         DataProvider<ArticleInfo, Void> dataProvider = DataProvider.fromCallbacks(
+                // Callback für das Laden einer Seite
                 (Query<ArticleInfo, Void> q) -> articleInfoService
                         .list(VaadinSpringDataHelpers.toSpringPageRequest(q), filters)
                         .stream(),
+                // Callback für das Zählen aller passenden Einträge
                 (Query<ArticleInfo, Void> q) -> (int) articleInfoService.count(filters)
         );
 
         grid.setDataProvider(dataProvider);
     }
 
+    /**
+     * Parsed eine generalId wie "Z3.S2.C4" zurück in ein StorageLocation-Objekt
+     * (nur als Container für Zone/Shelf/Compartment, nicht direkt aus der DB).
+     */
     private com.example.application.data.storageLocation.StorageLocation parseGeneralIdToLocation(String generalId) {
         if (generalId == null || generalId.isBlank()) {
             return null;
@@ -463,10 +497,14 @@ public class LogisticMainView extends Div {
             tmp.setCompartmentID(compId);
             return tmp;
         } catch (Exception e) {
+            // Falls Parsing schiefgeht, einfach null zurückgeben
             return null;
         }
     }
 
+    /**
+     * Aktualisiert alle Daten im Grid (z.B. nach Filteränderung oder nach Dialog).
+     */
     private void refreshGrid() {
         grid.getDataProvider().refreshAll();
     }

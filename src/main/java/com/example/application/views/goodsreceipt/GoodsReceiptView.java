@@ -37,8 +37,8 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-@PageTitle("Wareneingänge")
-@Route(value = "goods-receipts", layout = MainLayout.class)
+@PageTitle("Wareneingänge") // Titel im Browser-Tab
+@Route(value = "goods-receipts", layout = MainLayout.class) // Route unter /goods-receipts, eingebettet im MainLayout
 @Menu(
         title = "Wareneingänge",
         icon = LineAwesomeIconUrl.BOX_SOLID,
@@ -46,23 +46,28 @@ import java.util.stream.Collectors;
 )
 public class GoodsReceiptView extends Div {
 
+    // Service für Geschäftslogik rund um Wareneingänge
     private final GoodsReceiptService service;
+
+    // Repository um Artikelinfos zu laden (z.B. Stück/Palette)
     private final ArticleInfoRepository articleInfoRepository;
 
+    // Grid für die Übersicht aller Wareneingänge
     private final Grid<GoodsReceipt> grid = new Grid<>(GoodsReceipt.class, false);
 
     public GoodsReceiptView(GoodsReceiptService service,
                             ArticleInfoRepository articleInfoRepository) {
         this.service = service;
         this.articleInfoRepository = articleInfoRepository;
-        setSizeFull();
+        setSizeFull(); // View soll die komplette Fläche nutzen
 
-        // Toolbar
+        // Toolbar oben mit "Neuer Wareneingang"-Button
         Button add = new Button("Neuer Wareneingang", e -> openCreateDialog());
         HorizontalLayout toolbar = new HorizontalLayout(add);
         toolbar.setWidthFull();
 
-        // Grid-Spalten
+        // === Grid-Spalten konfigurieren ===
+
         grid.addColumn(GoodsReceipt::getReceiptNumber)
                 .setHeader("WE-Nr.")
                 .setAutoWidth(true)
@@ -94,9 +99,11 @@ public class GoodsReceiptView extends Div {
 
         // Aktionen-Spalte: Prüfen + Löschen
         grid.addComponentColumn(gr -> {
+            // Button zum Öffnen des Prüf-Dialogs
             Button inspect = new Button("Prüfen", e -> openInspectionDialog(gr));
             inspect.addThemeVariants(ButtonVariant.LUMO_PRIMARY, ButtonVariant.LUMO_TERTIARY);
 
+            // Button zum Löschen des Wareneingangs
             Button delete = new Button("Löschen", e -> deleteReceipt(gr));
             delete.addThemeVariants(ButtonVariant.LUMO_ERROR, ButtonVariant.LUMO_TERTIARY);
 
@@ -105,17 +112,23 @@ public class GoodsReceiptView extends Div {
 
         grid.setSizeFull();
 
+        // Hauptlayout: Toolbar + Grid
         VerticalLayout content = new VerticalLayout(toolbar, grid);
         content.setSizeFull();
         content.setPadding(false);
         content.setSpacing(false);
         content.setMargin(false);
-        content.setFlexGrow(1, grid);
+        content.setFlexGrow(1, grid); // Grid soll den verfügbaren Platz einnehmen
 
         add(content);
+
+        // Daten initial laden
         refresh();
     }
 
+    /**
+     * Lädt alle Wareneingänge aus dem Service und aktualisiert das Grid.
+     */
     private void refresh() {
         grid.setItems(service.findAll());
         grid.getDataProvider().refreshAll();
@@ -125,6 +138,10 @@ public class GoodsReceiptView extends Div {
     // Löschen
     // ------------------------------------------------------------------------
 
+    /**
+     * Löscht einen Wareneingang, falls dies laut Business-Logik erlaubt ist.
+     * Bei Fehler wird die Exception-Meldung als Notification angezeigt.
+     */
     private void deleteReceipt(GoodsReceipt gr) {
         try {
             service.deleteIfAllowed(gr.getId());
@@ -141,11 +158,15 @@ public class GoodsReceiptView extends Div {
     // Neuer Wareneingang (aus Restock-Orders)
     // ------------------------------------------------------------------------
 
+    /**
+     * Öffnet einen Dialog, in dem aus offenen Bestellungen ein neuer Wareneingang angelegt werden kann.
+     * Der Nutzer gibt Kopfdaten (Lieferant, Lieferschein, Datum) an und wählt eine oder mehrere Bestellungen aus.
+     */
     private void openCreateDialog() {
         Dialog dialog = new Dialog();
         dialog.setHeaderTitle("Wareneingang aus Bestellung anlegen");
 
-        // Basis-Daten
+        // Basis-Daten für den Wareneingang
         TextField supplier = new TextField("Lieferant");
         supplier.setRequired(true);
 
@@ -154,16 +175,17 @@ public class GoodsReceiptView extends Div {
 
         DatePicker deliveryDate = new DatePicker("Lieferdatum");
         deliveryDate.setRequired(true);
-        deliveryDate.setValue(LocalDate.now());
+        deliveryDate.setValue(LocalDate.now()); // Standardwert: heute
 
         FormLayout form = new FormLayout(supplier, deliveryNote, deliveryDate);
         form.setWidth("480px");
 
-        // Offene Restock-Orders laden
+        // Offene Restock-Orders aus dem Service laden
         List<RestockOrder> openOrders = service.findOpenRestockOrders();
 
+        // Grid zur Auswahl der Bestellungen
         Grid<RestockOrder> restockGrid = new Grid<>(RestockOrder.class, false);
-        restockGrid.setSelectionMode(Grid.SelectionMode.MULTI);
+        restockGrid.setSelectionMode(Grid.SelectionMode.MULTI); // mehrere Bestellungen möglich
         restockGrid.setWidthFull();
         restockGrid.setHeight("300px");
 
@@ -181,13 +203,14 @@ public class GoodsReceiptView extends Div {
 
         // Menge in PALLETTEN anzeigen (RestockOrder.quantity = Stück)
         restockGrid.addColumn(ro -> {
+                    // Artikel zur Bestellung laden, um Stück/Palette zu kennen
                     ArticleInfo article =
                             articleInfoRepository.findByArticleNumber(ro.getArticleNumber());
                     if (article == null
                             || article.getPiecesPerPallet() == null
                             || article.getPiecesPerPallet() <= 0
                             || ro.getQuantity() == null) {
-                        return "-";
+                        return "-"; // Keine sinnvolle Berechnung möglich
                     }
                     int ppp = article.getPiecesPerPallet();
                     int pallets = ro.getQuantity() / ppp; // Reststücke ignoriert
@@ -202,11 +225,13 @@ public class GoodsReceiptView extends Div {
 
         restockGrid.setItems(openOrders);
 
+        // Erklärungstext für den Benutzer
         Span info = new Span(
                 "Wähle eine oder mehrere offene Bestellungen aus, " +
                         "die mit diesem Wareneingang (in Paletten) geliefert wurden."
         );
 
+        // Layout im Dialog (Form + Info + Grid)
         VerticalLayout layout = new VerticalLayout(form, info, restockGrid);
         layout.setPadding(false);
         layout.setSpacing(true);
@@ -215,9 +240,9 @@ public class GoodsReceiptView extends Div {
 
         dialog.add(layout);
 
-        // Binder nur für die Pflichtfelder der Kopf-Daten
+        // Binder nur für die Pflichtfelder der Kopf-Daten (Lieferant, Lieferschein, Datum)
         Binder<GoodsReceipt> binder = new Binder<>(GoodsReceipt.class);
-        GoodsReceipt tmp = new GoodsReceipt(); // nur fürs Binding
+        GoodsReceipt tmp = new GoodsReceipt(); // temporäres Objekt fürs Binding
 
         binder.forField(supplier).asRequired("Lieferant ist erforderlich")
                 .bind(GoodsReceipt::getSupplierName, GoodsReceipt::setSupplierName);
@@ -228,12 +253,14 @@ public class GoodsReceiptView extends Div {
 
         Button cancel = new Button("Abbrechen", e -> dialog.close());
         Button save = new Button("Anlegen", e -> {
+            // Prüfen, ob alle Pflichtfelder gefüllt sind
             if (!binder.writeBeanIfValid(tmp)) {
                 Notification n = Notification.show("Bitte Pflichtfelder ausfüllen", 3000, Position.MIDDLE);
                 n.addThemeVariants(NotificationVariant.LUMO_ERROR);
                 return;
             }
 
+            // Mindestens eine Bestellung muss ausgewählt sein
             Set<RestockOrder> selected = restockGrid.getSelectedItems();
             if (selected == null || selected.isEmpty()) {
                 Notification n = Notification.show("Bitte mindestens eine Bestellung auswählen", 3000, Position.MIDDLE);
@@ -241,11 +268,13 @@ public class GoodsReceiptView extends Div {
                 return;
             }
 
+            // IDs der ausgewählten Bestellungen extrahieren
             List<Long> restockIds = selected.stream()
                     .map(RestockOrder::getId)
                     .collect(Collectors.toList());
 
             try {
+                // Wareneingang auf Basis der Bestellungen erzeugen
                 service.createFromRestockOrders(
                         restockIds,
                         tmp.getSupplierName(),
@@ -257,6 +286,7 @@ public class GoodsReceiptView extends Div {
                 dialog.close();
                 refresh();
             } catch (IllegalArgumentException | IllegalStateException ex) {
+                // Fehler aus der Businesslogik anzeigen
                 Notification n = Notification.show(ex.getMessage(), 5000, Position.MIDDLE);
                 n.addThemeVariants(NotificationVariant.LUMO_ERROR);
             }
@@ -271,11 +301,15 @@ public class GoodsReceiptView extends Div {
     // Prüfung / Inspection
     // ------------------------------------------------------------------------
 
+    /**
+     * Öffnet einen Dialog zur Prüfung eines einzelnen Wareneingangs.
+     * Enthält ein Grid mit Positionen und ein Formular zur Bearbeitung der Ist-Menge und Mängel.
+     */
     private void openInspectionDialog(GoodsReceipt receipt) {
         Dialog dialog = new Dialog();
         dialog.setHeaderTitle("Wareneingang prüfen: " + receipt.getReceiptNumber());
 
-        // Info-Zeile
+        // Info-Zeile mit den wichtigsten Kopfdaten
         DateTimeFormatter df = DateTimeFormatter.ofPattern("dd.MM.yyyy");
         String infoText = "Lieferant: " + receipt.getSupplierName()
                 + " | Lieferschein: " + receipt.getDeliveryNoteNumber()
@@ -283,7 +317,7 @@ public class GoodsReceiptView extends Div {
 
         Span info = new Span(infoText);
 
-        // Grid für Items
+        // Grid für die Positionen des Wareneingangs
         Grid<GoodsReceiptItem> itemGrid = new Grid<>(GoodsReceiptItem.class, false);
         itemGrid.setWidthFull();
         itemGrid.setHeight("300px");
@@ -312,7 +346,7 @@ public class GoodsReceiptView extends Div {
                 .setHeader("Mängel")
                 .setAutoWidth(true);
 
-        // Formular für ausgewähltes Item
+        // Formularfelder für die aktuell ausgewählte Position
         IntegerField actualQtyField = new IntegerField("Ist-Menge (Paletten)");
         actualQtyField.setMin(0);
         actualQtyField.setStep(1);
@@ -321,6 +355,7 @@ public class GoodsReceiptView extends Div {
         defectNotesField.setWidthFull();
         defectNotesField.setHeight("120px");
 
+        // Binder verbindet Formular mit einer GoodsReceiptItem-Instanz
         Binder<GoodsReceiptItem> itemBinder = new Binder<>(GoodsReceiptItem.class);
 
         itemBinder.forField(actualQtyField)
@@ -329,6 +364,7 @@ public class GoodsReceiptView extends Div {
         itemBinder.forField(defectNotesField)
                 .bind(GoodsReceiptItem::getDefectNotes, GoodsReceiptItem::setDefectNotes);
 
+        // Wenn im Grid eine Position ausgewählt wird, im Formular anzeigen
         itemGrid.asSingleSelect().addValueChangeListener(e -> {
             GoodsReceiptItem selected = e.getValue();
             if (selected != null) {
@@ -340,12 +376,12 @@ public class GoodsReceiptView extends Div {
             }
         });
 
-        // Button: Position hinzufügen (falls zusätzlich manuelle Positionen nötig sind)
+        // Button: zusätzliche Position hinzufügen (für Sonderfälle)
         Button addItem = new Button("Position hinzufügen",
                 e -> openAddItemDialog(receipt, itemGrid, itemBinder));
         addItem.addThemeVariants(ButtonVariant.LUMO_PRIMARY, ButtonVariant.LUMO_TERTIARY);
 
-        // Buttons für Position
+        // Button: Änderungen an aktueller Position speichern
         Button saveItem = new Button("Änderungen speichern", e -> {
             GoodsReceiptItem bean = itemBinder.getBean();
             if (bean == null) {
@@ -359,6 +395,7 @@ public class GoodsReceiptView extends Div {
         });
         saveItem.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
 
+        // Button: Position auf "freigegeben" setzen
         Button markFree = new Button("Freigeben", e -> {
             GoodsReceiptItem bean = itemBinder.getBean();
             if (bean == null) {
@@ -371,6 +408,7 @@ public class GoodsReceiptView extends Div {
             reloadItems(receipt, itemGrid, itemBinder);
         });
 
+        // Button: Position auf "gesperrt" setzen
         Button markBlocked = new Button("Sperren", e -> {
             GoodsReceiptItem bean = itemBinder.getBean();
             if (bean == null) {
@@ -385,7 +423,7 @@ public class GoodsReceiptView extends Div {
 
         HorizontalLayout itemButtons = new HorizontalLayout(saveItem, markFree, markBlocked);
 
-        // Layout im Dialog
+        // Layout im Dialog zusammenbauen
         VerticalLayout layout = new VerticalLayout();
         layout.setPadding(false);
         layout.setSpacing(true);
@@ -420,19 +458,26 @@ public class GoodsReceiptView extends Div {
         dialog.open();
     }
 
+    /**
+     * Lädt die Items für einen Wareneingang neu und setzt den Binder zurück.
+     */
     private void reloadItems(GoodsReceipt receipt,
                              Grid<GoodsReceiptItem> grid,
                              Binder<GoodsReceiptItem> binder) {
         List<GoodsReceiptItem> items = service.getItemsForReceipt(receipt.getId());
         grid.setItems(items);
         grid.getDataProvider().refreshAll();
-        binder.setBean(null);
+        binder.setBean(null); // keine Position ausgewählt
     }
 
     // ------------------------------------------------------------------------
     // Position hinzufügen (für Sonderfälle / zusätzliche Artikel)
     // ------------------------------------------------------------------------
 
+    /**
+     * Dialog zum manuellen Hinzufügen einer Position zu einem Wareneingang.
+     * Wird z.B. verwendet, wenn etwas geliefert wurde, das nicht in der ursprünglichen Bestellung war.
+     */
     private void openAddItemDialog(GoodsReceipt receipt,
                                    Grid<GoodsReceiptItem> itemGrid,
                                    Binder<GoodsReceiptItem> itemBinder) {
@@ -440,12 +485,14 @@ public class GoodsReceiptView extends Div {
         Dialog dialog = new Dialog();
         dialog.setHeaderTitle("Position hinzufügen");
 
+        // Artikel-Auswahl
         ComboBox<ArticleInfo> articleCombo = new ComboBox<>("Artikel");
         articleCombo.setItemLabelGenerator(a -> a.getArticleNumber() + " - " + a.getName());
         articleCombo.setItems(articleInfoRepository.findAll());
         articleCombo.setRequired(true);
         articleCombo.setWidthFull();
 
+        // Soll- und Ist-Mengen in Paletten
         IntegerField expectedQty = new IntegerField("Soll-Menge (Paletten)");
         expectedQty.setMin(0);
         expectedQty.setStep(1);
@@ -455,6 +502,7 @@ public class GoodsReceiptView extends Div {
         actualQty.setMin(0);
         actualQty.setStep(1);
 
+        // Freitext für Mängel
         TextArea defects = new TextArea("Mängel / Abweichungen");
         defects.setWidthFull();
 
@@ -464,6 +512,7 @@ public class GoodsReceiptView extends Div {
 
         Button cancel = new Button("Abbrechen", e -> dialog.close());
         Button save = new Button("Speichern", e -> {
+            // minimale Validierung im UI
             if (articleCombo.getValue() == null) {
                 Notification n = Notification.show("Bitte Artikel auswählen", 3000, Position.MIDDLE);
                 n.addThemeVariants(NotificationVariant.LUMO_ERROR);
@@ -475,6 +524,7 @@ public class GoodsReceiptView extends Div {
                 return;
             }
 
+            // Position über Service anlegen
             service.addItemToReceipt(
                     receipt.getId(),
                     articleCombo.getValue(),
@@ -487,6 +537,7 @@ public class GoodsReceiptView extends Div {
             n.addThemeVariants(NotificationVariant.LUMO_SUCCESS);
 
             dialog.close();
+            // Items im Prüf-Dialog neu laden
             reloadItems(receipt, itemGrid, itemBinder);
         });
         save.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
