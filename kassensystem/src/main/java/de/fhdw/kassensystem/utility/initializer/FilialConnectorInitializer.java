@@ -33,7 +33,7 @@ import java.util.UUID;
     public FilialConnectorInitializer(
             @Value("${spring.application.name:fallback}") String applicationName,
             @Value("${spring.profiles.active:fallback}") String activeProfile,
-            @Value("${spring.kassensystem.connect-to-filial-on-startup:true}") boolean connectToFilialOnStartup,
+            @Value("${spring.kassensystem.connect-to-filial:true}") boolean connectToFilialOnStartup,
             StoreClient storeClient, RegisterClient registerClient) {
         this.applicationName = applicationName;
         this.activeProfile = activeProfile;
@@ -83,7 +83,7 @@ import java.util.UUID;
                 .block();
         if (registerDTO != null && registerDTO.getStatusCode() == HttpStatus.OK && registerDTO.getBody() != null) {
             storeClient.setStoreDTO(new StoreDTO(registerDTO.getBody().getStore()));
-            registerClient.setRegisterDTO(registerDTO.getBody());
+            registerClient.setRegister(registerDTO.getBody());
         }
     }
 }

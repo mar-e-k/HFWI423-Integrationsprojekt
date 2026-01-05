@@ -2,22 +2,21 @@ package de.fhdw.fillialensystem.utility;
 
 import de.fhdw.fillialensystem.persistence.entity.Store;
 import org.springframework.boot.web.context.WebServerInitializedEvent;
-import org.springframework.context.ApplicationListener;
+import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
 
+import java.util.UUID;
 
 @Component
-public class StoreClient implements ApplicationListener<WebServerInitializedEvent> {
+public final class StoreClient {
 
     private Store store;
-
-    private String host;
-
     private int port;
 
-    public StoreClient() {
-        host = "localhost";
-    }
+    private final String instanceId = UUID.randomUUID().toString();
+    private final String host = "localhost";
+
+    public StoreClient() {}
 
     public Store getStore() {
         return store;
@@ -27,23 +26,19 @@ public class StoreClient implements ApplicationListener<WebServerInitializedEven
         this.store = store;
     }
 
-    public String getHost() {
-        return host;
+    public String getInstanceId() {
+        return instanceId;
     }
 
-    public void setHost(String host) {
-        this.host = host;
+    public String getHost() {
+        return host;
     }
 
     public int getPort() {
         return port;
     }
 
-    public void setPort(int port) {
-        this.port = port;
-    }
-
-    @Override
+    @EventListener
     public void onApplicationEvent(WebServerInitializedEvent event) {
         this.port = event.getWebServer().getPort();
     }

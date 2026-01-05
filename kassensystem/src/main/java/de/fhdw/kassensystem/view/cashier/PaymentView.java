@@ -30,11 +30,11 @@ import com.vaadin.flow.component.textfield.TextField;
 import de.fhdw.commons.api.dto.AccountDTO;
 import de.fhdw.commons.api.dto.ReceiptDTO;
 import de.fhdw.commons.persistence.entity.AccountRoleEnum;
-import de.fhdw.commons.utility.AuthContext;
-import de.fhdw.commons.view.AbstractMainView;
+import de.fhdw.commons.security.utility.security.auth.AuthContext;
+import de.fhdw.commons.security.utility.security.auth.AuthContextHolder;
+import de.fhdw.commons.ui.view.AbstractView;
 import de.fhdw.kassensystem.persistance.service.proxy.AccountProxyService;
 import de.fhdw.kassensystem.persistance.service.proxy.ReceiptProxyService;
-import de.fhdw.kassensystem.utility.security.JwtService;
 import jakarta.annotation.security.RolesAllowed;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -49,39 +49,38 @@ import java.util.Optional;
 @Route("/payment")
 @PageTitle("Bezahlung")
 @RolesAllowed(AccountRoleEnum.ROLE_CASHIER)
-public class PaymentView extends AbstractMainView implements BeforeEnterObserver {
+public class PaymentView extends AbstractView implements BeforeEnterObserver {
 
     private static final Logger log = LoggerFactory.getLogger(PaymentView.class);
     private final CartItemsManager cartItemsManager;
 
     private final ReceiptProxyService receiptProxyService;
     private final ReceiptService receiptService;
-    private final AccountProxyService accountProxyService; // Inject AccountProxyService
-    private final JwtService jwtService;
+    private final AccountProxyService accountProxyService;
 
     private Grid<CartItem> cartGrid;
     private Span totalLabel;
     private Anchor downloadLink;
 
-    public PaymentView(CartItemsManager cartItemsManager, ReceiptProxyService receiptProxyService, ReceiptService receiptService, AccountProxyService accountProxyService, JwtService jwtService) {
+    public PaymentView(CartItemsManager cartItemsManager, ReceiptProxyService receiptProxyService, ReceiptService receiptService, AccountProxyService accountProxyService) {
         this.cartItemsManager = cartItemsManager;
         this.receiptProxyService = receiptProxyService;
         this.receiptService = receiptService;
         this.accountProxyService = accountProxyService;
-        this.jwtService = jwtService;
+        initView();
     }
 
     @Override
-    public void beforeEnter(BeforeEnterEvent event) {
+    public void beforeEnter(BeforeEnterEvent beforeEnterEvent) {
+        super.beforeEnter(beforeEnterEvent);
         if (cartItemsManager.getCart().isEmpty()) {
-            event.rerouteTo(CashierView.class);
+            beforeEnterEvent.rerouteTo(CashierView.class);
         } else {
             cartItemsManager.updateGrid(cartGrid, totalLabel);
         }
     }
 
-    @Override
-    protected void init() {
+    private void initView() {
         cartGrid = new Grid<>(CartItem.class, false);
         cartGrid.addColumn(CartItem::getPosition).setHeader("Pos.");
         cartGrid.addColumn(i -> i.getArticle().getName()).setHeader("Artikelname");
@@ -199,7 +198,7 @@ public class PaymentView extends AbstractMainView implements BeforeEnterObserver
         String cashierName = "Unbekannt";
         String cashierPersonnelNumber = "N/A";
 
-        Optional<AuthContext> authContext = jwtService.getCurrentAuth();
+        Optional<AuthContext> authContext = AuthContextHolder.current();
 
         if (authContext.isPresent()) {
             AccountDTO account = accountProxyService.findByUuid(authContext.get().getUuid())
@@ -231,7 +230,6 @@ public class PaymentView extends AbstractMainView implements BeforeEnterObserver
         return new StreamResourceRegistry.ElementStreamResource(handler, this.getElement());
     }
 
-    @Override
     protected HorizontalLayout createTopBarButtons() {
         Button backToCart = new Button("Zurück zum Warenkorb");
         backToCart.addClickListener(e -> UI.getCurrent().navigate("cashier"));

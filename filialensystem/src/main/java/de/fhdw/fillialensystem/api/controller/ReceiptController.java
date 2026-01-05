@@ -2,25 +2,20 @@ package de.fhdw.fillialensystem.api.controller;
 
 import de.fhdw.commons.api.dto.ReceiptDTO;
 import de.fhdw.commons.api.dto.ReceiptLinkArticleDTO;
-import de.fhdw.commons.utility.AuthContext;
+import de.fhdw.commons.security.utility.security.auth.AuthContext;
 import de.fhdw.fillialensystem.api.mapper.ReceiptLinkArticleMapper;
 import de.fhdw.fillialensystem.api.mapper.ReceiptMapper;
-import de.fhdw.fillialensystem.persistence.entity.Store;
-import de.fhdw.fillialensystem.persistence.entity.StoreLinkStock;
-import de.fhdw.fillialensystem.persistence.entity.imported.Article;
 import de.fhdw.fillialensystem.persistence.service.ReceiptService;
 import de.fhdw.fillialensystem.persistence.service.StoreLinkStockService;
 import de.fhdw.fillialensystem.persistence.service.StoreService;
 import de.fhdw.fillialensystem.persistence.service.imported.ArticleService;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import jakarta.persistence.EntityExistsException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/receipt")
@@ -48,7 +43,7 @@ public class ReceiptController {
         return ResponseEntity
                 .status(HttpStatus.CREATED)
                 .body(receiptMapper.toDto(
-                        receiptService.createReceipt(authContext.getRegisterId().longValue(), authContext.getUuid(), receiptArticles
+                        receiptService.createReceipt(authContext.getRegisterId(), authContext.getUuid(), receiptArticles
                                 .stream()
                                 .map(receiptLinkArticleMapper::toEntity)
                                 .toList())));

@@ -21,6 +21,10 @@ public class AccountRole extends AbstractEntity {
     public AccountRole() {
     }
 
+    public AccountRole(AccountRoleEnum role) {
+        this.role = role;
+    }
+
     public AccountRole(List<Account> accounts, AccountRoleEnum role) {
         this.accounts = accounts;
         this.role = role;

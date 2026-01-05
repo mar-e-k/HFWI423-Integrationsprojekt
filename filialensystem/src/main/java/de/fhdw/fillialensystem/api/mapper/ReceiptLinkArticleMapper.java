@@ -4,43 +4,43 @@ import de.fhdw.commons.api.dto.OverrideReasonEnum;
 import de.fhdw.commons.api.dto.ReceiptLinkArticleDTO;
 import de.fhdw.commons.api.mapper.GenericMapper;
 import de.fhdw.fillialensystem.persistence.entity.Receipt;
-import de.fhdw.fillialensystem.persistence.entity.ReceiptLinkArticle;
+import de.fhdw.fillialensystem.persistence.entity.ReceiptArticle;
 import de.fhdw.fillialensystem.persistence.entity.imported.Article;
 import org.springframework.stereotype.Component;
 
 @Component
 @SuppressWarnings("DuplicatedCode")
-public class ReceiptLinkArticleMapper implements GenericMapper<ReceiptLinkArticle, ReceiptLinkArticleDTO> {
+public class ReceiptLinkArticleMapper implements GenericMapper<ReceiptArticle, ReceiptLinkArticleDTO> {
 
     @Override
-    public ReceiptLinkArticle toEntity(ReceiptLinkArticleDTO dto) {
-        ReceiptLinkArticle receiptLinkArticle = new ReceiptLinkArticle();
-        receiptLinkArticle.setId(dto.getId());
-        receiptLinkArticle.setReceipt(new Receipt(dto.getReceiptId()));
-        receiptLinkArticle.setArticle(new Article(dto.getArticleId()));
-        receiptLinkArticle.setPrice(dto.getPrice());
-        receiptLinkArticle.setAmount(dto.getAmount());
-        receiptLinkArticle.setTaxRate(dto.getTaxRate());
-        receiptLinkArticle.setOverridePrice(dto.getOverridePrice());
-        receiptLinkArticle.setOverrideReason(dto.getOverrideReason() != null ? dto.getOverrideReason().name() : null);
-        receiptLinkArticle.setDiscountedByPercent(dto.getDiscountedByPercent());
-        receiptLinkArticle.setDepositStatus(dto.getDepositStatus());
-        return receiptLinkArticle;
+    public ReceiptArticle toEntity(ReceiptLinkArticleDTO dto) {
+        ReceiptArticle receiptArticle = new ReceiptArticle();
+        receiptArticle.setId(dto.getId());
+        receiptArticle.setReceipt(new Receipt(dto.getReceiptId()));
+        receiptArticle.setArticle(new Article(dto.getArticleId()));
+        receiptArticle.setPrice(dto.getPrice());
+        receiptArticle.setAmount(dto.getAmount());
+        receiptArticle.setTaxRate(dto.getTaxRate());
+        receiptArticle.setOverridePrice(dto.getOverridePrice());
+        receiptArticle.setOverrideReason(dto.getOverrideReason() != null ? dto.getOverrideReason().name() : null);
+        receiptArticle.setDiscountedByPercent(dto.getDiscountedByPercent());
+        receiptArticle.setDepositStatus(dto.getDepositStatus());
+        return receiptArticle;
     }
 
     @Override
-    public ReceiptLinkArticleDTO toDto(ReceiptLinkArticle receiptLinkArticle) {
+    public ReceiptLinkArticleDTO toDto(ReceiptArticle receiptArticle) {
         ReceiptLinkArticleDTO dto = new ReceiptLinkArticleDTO();
-        dto.setId(receiptLinkArticle.getId());
-        dto.setReceiptId(receiptLinkArticle.getReceipt().getId());
-        dto.setArticleId(receiptLinkArticle.getArticle().getId());
-        dto.setPrice(receiptLinkArticle.getPrice());
-        dto.setAmount(receiptLinkArticle.getAmount());
-        dto.setTaxRate(receiptLinkArticle.getTaxRate());
-        dto.setOverridePrice(receiptLinkArticle.getOverridePrice());
-        dto.setOverrideReason(receiptLinkArticle.getOverrideReason() != null ? OverrideReasonEnum.valueOf(receiptLinkArticle.getOverrideReason()) : null);
-        dto.setDiscountedByPercent(receiptLinkArticle.getDiscountedByPercent());
-        dto.setDepositStatus(receiptLinkArticle.getDepositStatus());
+        dto.setId(receiptArticle.getId());
+        dto.setReceiptId(receiptArticle.getReceipt().getId());
+        dto.setArticleId(receiptArticle.getArticle().getId());
+        dto.setPrice(receiptArticle.getPrice());
+        dto.setAmount(receiptArticle.getAmount());
+        dto.setTaxRate(receiptArticle.getTaxRate());
+        dto.setOverridePrice(receiptArticle.getOverridePrice());
+        dto.setOverrideReason(receiptArticle.getOverrideReason() != null ? OverrideReasonEnum.valueOf(receiptArticle.getOverrideReason()) : null);
+        dto.setDiscountedByPercent(receiptArticle.getDiscountedByPercent());
+        dto.setDepositStatus(receiptArticle.getDepositStatus());
         return dto;
     }
 }

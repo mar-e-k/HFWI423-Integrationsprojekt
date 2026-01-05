@@ -1,7 +1,5 @@
 package de.fhdw.commons.api.dto;
 
-import java.math.BigDecimal;
-
 public class ArticleDTO extends AbstractDTO<Long> {
 
     private String articleNumber;

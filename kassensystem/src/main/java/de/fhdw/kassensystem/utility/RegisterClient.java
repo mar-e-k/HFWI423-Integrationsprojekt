@@ -2,47 +2,46 @@ package de.fhdw.kassensystem.utility;
 
 import de.fhdw.commons.api.dto.RegisterDTO;
 import org.springframework.boot.web.context.WebServerInitializedEvent;
-import org.springframework.context.ApplicationListener;
+import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
 
+import java.util.UUID;
+
 @Component
-public class RegisterClient implements ApplicationListener<WebServerInitializedEvent> {
+public final class RegisterClient {
 
-    private RegisterDTO registerDTO;
-
-    private String host = "localhost";
+    private RegisterDTO register;
     private int port;
+
+    private final String instanceId = UUID.randomUUID().toString();
+    private final String host = "localhost";
 
     public RegisterClient() {
         super();
     }
 
-    public RegisterDTO getRegisterDTO() {
-        return registerDTO;
+    public RegisterDTO getRegister() {
+        return register;
     }
 
-    public void setRegisterDTO(RegisterDTO registerDTO) {
-        this.registerDTO = registerDTO;
+    public synchronized void setRegister(RegisterDTO register) {
+        this.register = register;
+    }
+
+    public String getInstanceId() {
+        return instanceId;
     }
 
     public String getHost() {
         return host;
     }
 
-    public void setHost(String host) {
-        this.host = host;
-    }
-
     public int getPort() {
         return port;
     }
 
-    public void setPort(int port) {
-        this.port = port;
-    }
-
-    @Override
+    @EventListener
     public void onApplicationEvent(WebServerInitializedEvent event) {
-        port = event.getWebServer().getPort();
+        this.port = event.getWebServer().getPort();
     }
 }

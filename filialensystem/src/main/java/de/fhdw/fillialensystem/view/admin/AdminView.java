@@ -13,30 +13,23 @@ import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
-import com.vaadin.flow.router.BeforeEnterEvent;
-import com.vaadin.flow.router.BeforeEnterObserver;
-import com.vaadin.flow.router.PageTitle;
-import com.vaadin.flow.router.QueryParameters;
-import com.vaadin.flow.router.Route;
-import com.vaadin.flow.router.RouterLink;
-import com.vaadin.flow.server.VaadinSession;
+import com.vaadin.flow.router.*;
 import com.vaadin.flow.theme.lumo.Lumo;
 import de.fhdw.commons.persistence.entity.AccountRoleEnum;
-import de.fhdw.commons.utility.AuthContext;
-import de.fhdw.commons.view.ErrorQueryParameter;
+import de.fhdw.commons.ui.utlity.DateTimeFormat;
 import de.fhdw.fillialensystem.persistence.entity.Account;
 import de.fhdw.fillialensystem.persistence.service.AccountService;
 import de.fhdw.fillialensystem.view.MainView;
 import jakarta.annotation.PostConstruct;
 import jakarta.annotation.security.RolesAllowed;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 
-import java.time.ZoneId;
-import java.time.format.DateTimeFormatter;
-import java.util.Map;
+import java.util.Arrays;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Route("/admin")
 @PageTitle("Admin View")
@@ -46,7 +39,6 @@ public class AdminView extends AppLayout implements BeforeEnterObserver {
     private final AccountService accountService;
 
     private Grid<Account> grid;
-    private final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm:ss").withZone(ZoneId.systemDefault());
 
     public AdminView(AccountService accountService) {
         this.accountService = accountService;
@@ -122,8 +114,7 @@ public class AdminView extends AppLayout implements BeforeEnterObserver {
                 createSidebarLink("Admin View", VaadinIcon.USER, AdminView.class),
                 createSidebarLink("Role View", VaadinIcon.GROUP, RoleView.class),
                 createSidebarLink("Register View", VaadinIcon.CASH, RegisterAddView.class),
-                createSidebarLink("Store Select View", VaadinIcon.SHOP, StoreSelectView.class),
-                createSidebarLink("Stock View", VaadinIcon.PACKAGE, StockAdminView.class),
+                createSidebarLink("Stock View", VaadinIcon.PACKAGE, StockView.class),
                 createSidebarLink("Daily Receipt Reporting", VaadinIcon.RECORDS, DailyReceiptReportingView.class)
         );
         return sidebar;
@@ -155,30 +146,36 @@ public class AdminView extends AppLayout implements BeforeEnterObserver {
         content.setSpacing(true);
         content.setAlignItems(FlexComponent.Alignment.STRETCH);
 
-        // Grid initialisieren und auf volle Größe einstellen
         grid = new Grid<>(Account.class, false);
-        grid.setSizeFull(); // Wichtig: Grid soll den verfügbaren Platz füllen
+        grid.setSizeFull();
         grid.getStyle().set("margin-top", "5em");
 
 
-        // Spalten definieren
-        grid.addColumn(account -> formatter.format(account.getCreatedAt())).setHeader("Erstellt am").setSortable(true);
-        grid.addColumn(Account::getCreatedBy).setHeader("Erstellt von").setSortable(true);
-        grid.addColumn(account -> formatter.format(account.getChangedAt())).setHeader("Geändert am").setSortable(true);
-        grid.addColumn(Account::getChangedBy).setHeader("Geändert von").setSortable(true);
-        grid.addColumn(Account::getUuid).setHeader("Account ID").setSortable(true);
-        grid.addColumn(Account::getUsername).setHeader("Username").setSortable(true);
-        grid.addColumn(account -> account.getAccountRole().getRole().name()).setHeader("Rolle").setSortable(true);
+        grid.addColumn(account -> DateTimeFormat.UI_DATE_TIME.format(account.getCreatedAt()))
+                .setHeader("Erstellt am")
+                .setSortable(true);
+        grid.addColumn(Account::getCreatedBy)
+                .setHeader("Erstellt von")
+                .setSortable(true);
+        grid.addColumn(account -> DateTimeFormat.UI_DATE_TIME.format(account.getChangedAt()))
+                .setHeader("Geändert am")
+                .setSortable(true);
+        grid.addColumn(Account::getChangedBy)
+                .setHeader("Geändert von")
+                .setSortable(true);
+        grid.addColumn(Account::getUuid)
+                .setHeader("Account ID")
+                .setSortable(true);
+        grid.addColumn(Account::getUsername)
+                .setHeader("Username")
+                .setSortable(true);
+        grid.addColumn(account -> account.getAccountRole().getRole().name())
+                .setHeader("Rolle")
+                .setSortable(true);
 
-        // Initiales Laden der Daten
         updateGrid();
-
-        // Komponenten zum Layout hinzufügen
         content.add(grid);
-        
-        // Das Grid soll den restlichen Platz einnehmen
         content.setFlexGrow(1, grid);
-
         setContent(content);
     }
 
@@ -186,55 +183,36 @@ public class AdminView extends AppLayout implements BeforeEnterObserver {
         grid.setItems(accountService.findAll());
     }
 
+    private String getPageTitle() {
+        PageTitle titleAnnotation = this.getClass().getAnnotation(PageTitle.class);
+        return titleAnnotation != null ? titleAnnotation.value() : "Admin View";
+    }
+
     @Override
     public void beforeEnter(BeforeEnterEvent beforeEnterEvent) {
-        setAuthenticationFromSession();
-
         Class<?> targetView = beforeEnterEvent.getNavigationTarget();
 
         RolesAllowed rolesAllowed = targetView.getAnnotation(RolesAllowed.class);
         if (rolesAllowed == null) {
             return;
         }
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 
-        if (auth == null || auth.getPrincipal() == null || auth.getPrincipal().toString().equalsIgnoreCase("anonymousUser")) {
-            beforeEnterEvent.rerouteTo("login", QueryParameters.simple(Map.of("error", ErrorQueryParameter.LOGIN_REQUIRED.value())));
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+        if (authentication == null || !authentication.isAuthenticated() || authentication instanceof AnonymousAuthenticationToken) {
+            beforeEnterEvent.rerouteTo("login");
             return;
         }
 
-        if (auth.getAuthorities().isEmpty()) {
-            beforeEnterEvent.rerouteTo("login", QueryParameters.simple(Map.of("error", ErrorQueryParameter.ROLES_MISSING.value())));
-            return;
-        }
-
-        boolean authorized = auth.getAuthorities().stream()
+        Set<String> userAuthorities = authentication.getAuthorities().stream()
                 .map(GrantedAuthority::getAuthority)
-                .anyMatch(authRole -> {
-                    for (String requiredRole : rolesAllowed.value()) {
-                        if (authRole.equals(requiredRole)) {
-                            return true;
-                        }
-                    }
-                    return false;
-                });
+                .collect(Collectors.toSet());
+
+        boolean authorized = Arrays.stream(rolesAllowed.value())
+                .anyMatch(userAuthorities::contains);
 
         if (!authorized) {
-            beforeEnterEvent.rerouteTo("login", QueryParameters.simple(Map.of("error", ErrorQueryParameter.ACCESS_DENIED.value())));
+            beforeEnterEvent.rerouteTo("login");
         }
-    }
-
-    private void setAuthenticationFromSession() {
-        Object authContext = VaadinSession.getCurrent().getAttribute("auth-context");
-
-        if (authContext instanceof AuthContext) {
-            UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken(authContext, null, ((AuthContext) authContext).getAuthorities());
-            SecurityContextHolder.getContext().setAuthentication(auth);
-        }
-    }
-
-    private String getPageTitle() {
-        PageTitle titleAnnotation = this.getClass().getAnnotation(PageTitle.class);
-        return titleAnnotation != null ? titleAnnotation.value() : "Admin View";
     }
 }

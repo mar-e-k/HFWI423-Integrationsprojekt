@@ -11,15 +11,25 @@
     <artifactId>kassensystem</artifactId>
     <packaging>jar</packaging>
 
-    <properties>
-        <jwt.version>0.13.0</jwt.version>
-    </properties>
-
     <dependencies>
-        <!-- Shared DTOs, events, etc. -->
+        <!-- Commons -->
+        <!-- Note: Linear dependency is present. [commons-ui] -> [commons-security] -> [commons] -->
+        <!-- This basically entails that we could omit the other two dependencies, since maven pulls them in transitively anyway -->
         <dependency>
             <groupId>de.fhdw</groupId>
             <artifactId>commons</artifactId>
+            <version>0.0.1-SNAPSHOT</version>
+        </dependency>
+
+        <dependency>
+            <groupId>de.fhdw</groupId>
+            <artifactId>commons-security</artifactId>
+            <version>0.0.1-SNAPSHOT</version>
+        </dependency>
+
+        <dependency>
+            <groupId>de.fhdw</groupId>
+            <artifactId>commons-ui</artifactId>
             <version>0.0.1-SNAPSHOT</version>
         </dependency>
 
@@ -60,31 +70,6 @@
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-actuator</artifactId>
-        </dependency>
-
-        <!-- Other -->
-        <dependency>
-            <groupId>io.jsonwebtoken</groupId>
-            <artifactId>jjwt-api</artifactId>
-            <version>${jwt.version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>io.jsonwebtoken</groupId>
-            <artifactId>jjwt-impl</artifactId>
-            <version>${jwt.version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>io.jsonwebtoken</groupId>
-            <artifactId>jjwt-jackson</artifactId>
-            <version>${jwt.version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>org.apache.pdfbox</groupId>
-            <artifactId>pdfbox</artifactId>
-            <version>3.0.6</version>
         </dependency>
     </dependencies>
 

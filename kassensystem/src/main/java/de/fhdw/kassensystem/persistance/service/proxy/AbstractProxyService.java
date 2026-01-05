@@ -1,16 +1,17 @@
 package de.fhdw.kassensystem.persistance.service.proxy;
 
 import de.fhdw.kassensystem.utility.StoreClient;
+import org.springframework.web.reactive.function.client.WebClient;
 
 public abstract class AbstractProxyService {
 
-    protected final StoreClient storeClient;
+    private final StoreClient storeClient;
 
     public AbstractProxyService(StoreClient storeClient) {
         this.storeClient = storeClient;
     }
 
-    public StoreClient getFilialClient() {
-        return storeClient;
+    public WebClient getWebClient() {
+        return storeClient.getWebClient();
     }
 }

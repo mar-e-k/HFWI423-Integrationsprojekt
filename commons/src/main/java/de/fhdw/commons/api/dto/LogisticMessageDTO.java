@@ -1,10 +1,5 @@
 package de.fhdw.commons.api.dto;
 
-import com.fasterxml.jackson.annotation.JsonTypeInfo;
-import com.fasterxml.jackson.annotation.JsonTypeName;
-
-@JsonTypeName("LogisticMessage")
-@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "__type")
 public class LogisticMessageDTO implements GenericDTO<Long> {
 
     private Long storeId;
@@ -13,7 +8,6 @@ public class LogisticMessageDTO implements GenericDTO<Long> {
     private Boolean isBelowMinimumStockLevel;
 
     public LogisticMessageDTO() {
-        super();
     }
 
     public LogisticMessageDTO(Long storeId, Long articleId, Long quantity, boolean isBelowMinimumStockLevel) {

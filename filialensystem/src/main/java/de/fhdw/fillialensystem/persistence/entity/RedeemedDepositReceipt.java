@@ -6,6 +6,8 @@ import jakarta.validation.constraints.NotNull;
 
 import java.time.LocalDateTime;
 
+// Change this in Lock Table
+
 @Entity
 @Table(name = "redeemed_deposit_receipt")
 public class RedeemedDepositReceipt implements GenericEntity<Long> {

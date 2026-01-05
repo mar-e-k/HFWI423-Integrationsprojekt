@@ -5,8 +5,7 @@ import de.fhdw.fillialensystem.persistence.entity.Register;
 
 import java.time.Instant;
 
-
-public class RegisterClient {
+public final class RegisterClient {
 
     private SystemClientDTO systemClientDTO;
     private Register register;
@@ -14,9 +13,7 @@ public class RegisterClient {
     private Instant lastSeen;
     private boolean online;
 
-    public RegisterClient() {
-        super();
-    }
+    public RegisterClient() {}
 
     public RegisterClient(SystemClientDTO systemClientDTO, Register register, Instant registeredAt, Instant lastSeen, boolean online) {
         this.systemClientDTO = systemClientDTO;

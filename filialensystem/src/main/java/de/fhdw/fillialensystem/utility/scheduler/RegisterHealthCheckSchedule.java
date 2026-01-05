@@ -25,9 +25,10 @@ public class RegisterHealthCheckSchedule {
         this.webClient = WebClient.builder().build();
     }
 
-    @Scheduled(fixedDelay = 60000)
+    @Scheduled(cron = "0 */1 * * * *", zone = "Europe/Berlin")
     public void performPingChecks() {
-        log.atDebug().log("Performing ping checks...");
+        log.atInfo().log("[SCHEDULED] Performing ping checks...");
+
         registry.findAllActiveRegistries().forEach(instance -> pingInstance(instance)
                 .doOnSuccess(v -> {
                     instance.setOnline(true);
@@ -39,7 +40,8 @@ public class RegisterHealthCheckSchedule {
                     return Mono.empty();
                 })
                 .subscribe());
-        log.atDebug().log("Successfully performed ping checks");
+
+        log.atInfo().log("[SCHEDULED] Successfully performed ping checks");
     }
 
     private Mono<Void> pingInstance(RegisterClient instance) {

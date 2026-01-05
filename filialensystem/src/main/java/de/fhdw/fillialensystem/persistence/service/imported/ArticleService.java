@@ -26,12 +26,6 @@ public class ArticleService extends AbstractCrudService<Article,Long> {
 
     @Override
     @Deprecated
-    public Article update(Long id, Article entity) {
-        throw new UnsupportedOperationException("Operation 'Update' is not supported for articles");
-    }
-
-    @Override
-    @Deprecated
     public Article update(Article entity) {
         throw new UnsupportedOperationException("Operation 'Update' is not supported for articles");
     }
@@ -39,12 +33,6 @@ public class ArticleService extends AbstractCrudService<Article,Long> {
     @Override
     @Deprecated
     public void delete(Long id) {
-        throw new UnsupportedOperationException("Operation 'Delete' is not supported for articles");
-    }
-
-    @Override
-    @Deprecated
-    public void delete(Article entity) {
         throw new UnsupportedOperationException("Operation 'Delete' is not supported for articles");
     }
 }

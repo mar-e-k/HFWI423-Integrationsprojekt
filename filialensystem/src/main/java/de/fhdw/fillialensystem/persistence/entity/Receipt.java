@@ -32,7 +32,7 @@ public class Receipt extends AbstractEntity {
     private BigDecimal totalAmount;
 
     @OneToMany(mappedBy = "receipt", orphanRemoval = true)
-    private List<ReceiptLinkArticle> receiptArticles = new ArrayList<>();
+    private List<ReceiptArticle> receiptArticles = new ArrayList<>();
 
     @NotNull
     @ColumnDefault("false")
@@ -50,7 +50,7 @@ public class Receipt extends AbstractEntity {
         super(id);
     }
 
-    public Receipt(Store store, Register register, Account account, BigDecimal totalAmount, List<ReceiptLinkArticle> receiptArticles, boolean isDepositOnly, String depositRedemptionCode) {
+    public Receipt(Store store, Register register, Account account, BigDecimal totalAmount, List<ReceiptArticle> receiptArticles, boolean isDepositOnly, String depositRedemptionCode) {
         this.store = store;
         this.register = register;
         this.account = account;
@@ -60,7 +60,7 @@ public class Receipt extends AbstractEntity {
         this.depositRedemptionCode = depositRedemptionCode;
     }
 
-    public Receipt(Long id, Store store, Register register, Account account, BigDecimal totalAmount, List<ReceiptLinkArticle> receiptArticles, boolean isDepositOnly, String depositRedemptionCode) {
+    public Receipt(Long id, Store store, Register register, Account account, BigDecimal totalAmount, List<ReceiptArticle> receiptArticles, boolean isDepositOnly, String depositRedemptionCode) {
         super(id);
         this.store = store;
         this.register = register;
@@ -103,12 +103,12 @@ public class Receipt extends AbstractEntity {
         this.totalAmount = totalAmount;
     }
 
-    public List<ReceiptLinkArticle> getReceiptArticles() {
+    public List<ReceiptArticle> getReceiptArticles() {
         return receiptArticles;
     }
 
-    public void setReceiptArticles(List<ReceiptLinkArticle> receiptLinkArticle) {
-        this.receiptArticles = receiptLinkArticle;
+    public void setReceiptArticles(List<ReceiptArticle> receiptArticle) {
+        this.receiptArticles = receiptArticle;
     }
 
     public boolean isDepositOnly() {

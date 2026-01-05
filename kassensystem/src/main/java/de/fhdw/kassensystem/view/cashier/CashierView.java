@@ -26,7 +26,7 @@ import de.fhdw.commons.api.dto.ArticleDTO;
 import de.fhdw.commons.api.dto.DepositStatus;
 import de.fhdw.commons.api.dto.ReceiptDTO;
 import de.fhdw.commons.persistence.entity.AccountRoleEnum;
-import de.fhdw.commons.view.AbstractMainView;
+import de.fhdw.commons.ui.view.AbstractView;
 import de.fhdw.kassensystem.persistance.service.proxy.ArticleProxyService;
 import de.fhdw.kassensystem.persistance.service.proxy.ReceiptProxyService;
 import de.fhdw.kassensystem.utility.RegisterClient;
@@ -37,14 +37,13 @@ import org.springframework.beans.factory.annotation.Value;
 import java.math.BigDecimal;
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 
 @Route("/cashier")
 @PageTitle("Cashier View")
 @CssImport("./styles/styles.css")
 @RolesAllowed({AccountRoleEnum.ROLE_CASHIER})
-public class CashierView extends AbstractMainView implements BeforeEnterObserver {
+public class CashierView extends AbstractView implements BeforeEnterObserver {
 
     private static final BigDecimal MIN_PRICE = new BigDecimal("0.01");
     private static final BigDecimal DEPOSIT_AMOUNT = new BigDecimal("0.25");
@@ -69,9 +68,9 @@ public class CashierView extends AbstractMainView implements BeforeEnterObserver
         this.articleService = articleService;
         this.cartItemsManager = cartItemsManager;
         this.receiptProxyService = receiptProxyService;
+        initView();
     }
 
-    @Override
     protected HorizontalLayout createTopBarButtons() {
         Button paymentButton = new Button("Kauf abschließen");
         paymentButton.addClickListener(e -> {
@@ -89,8 +88,7 @@ public class CashierView extends AbstractMainView implements BeforeEnterObserver
         return new HorizontalLayout(paymentButton, redeemDepositButton);
     }
 
-    @Override
-    protected void init() {
+    private void initView() {
         // Komponenten
         TextField searchField = new TextField("Artikelnummer");
         Button searchButton = new Button("Suchen", new Icon(VaadinIcon.SEARCH));
@@ -803,35 +801,9 @@ public class CashierView extends AbstractMainView implements BeforeEnterObserver
 
     @Override
     public void beforeEnter(BeforeEnterEvent beforeEnterEvent) {
-        super.beforeEnter(beforeEnterEvent); // Wichtig: Aufruf der Super-Methode nicht vergessen
+        super.beforeEnter(beforeEnterEvent);
         if (!cartItemsManager.getCart().isEmpty()) {
             cartItemsManager.updateGrid(cartGrid, totalLabel);
-        }
-        Map<String, List<String>> params = beforeEnterEvent.getLocation().getQueryParameters().getParameters();
-        if (params.containsKey("name")) {
-            // Parameter is in URL, this is the source of truth.
-            String nameFromUrl = params.get("name").get(0);
-            this.cashierName = nameFromUrl;
-            setViewTitle("CashierView der " + cashierName);
-
-            // Store it in sessionStorage for later.
-            UI.getCurrent().getPage().executeJs("sessionStorage.setItem('cashierName', $0)", nameFromUrl);
-        } else {
-            // No parameter in URL. This might be after a re-login.
-            // Set a default title for now, it will be updated by the async call if a name is found.
-            setViewTitle("CashierView");
-
-            // Try to get it from sessionStorage.
-            UI.getCurrent().getPage().executeJs("return sessionStorage.getItem('cashierName')")
-                    .then(String.class, nameFromStorage -> {
-                        if (nameFromStorage != null && !nameFromStorage.isEmpty()) {
-                            this.cashierName = nameFromStorage;
-                            // Since this is an async callback, we need to make sure we are still attached to the UI
-                            getUI().ifPresent(ui -> ui.access(() -> {
-                                setViewTitle("CashierView der " + cashierName);
-                            }));
-                        }
-                    });
         }
     }
 }

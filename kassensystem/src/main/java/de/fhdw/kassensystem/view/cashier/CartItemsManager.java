@@ -3,8 +3,8 @@ package de.fhdw.kassensystem.view.cashier;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.html.Span;
 import de.fhdw.commons.api.dto.DepositStatus;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
+import de.fhdw.commons.security.utility.security.auth.AuthContext;
+import de.fhdw.commons.security.utility.security.auth.AuthContextHolder;
 import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
@@ -12,9 +12,11 @@ import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 @Component
-public class CartItemsManager { //This whole construct runs in in-memory. on application restart, all data is lost. if requested, use an external db for this like redis
+public class CartItemsManager {
 
     private final Map<String, List<CartItem>> carts = new ConcurrentHashMap<>();
+
+    public CartItemsManager() {}
 
     public List<CartItem> getCart() {
         return carts.computeIfAbsent(currentUsername(), u -> Collections.synchronizedList(new ArrayList<>()));
@@ -48,16 +50,12 @@ public class CartItemsManager { //This whole construct runs in in-memory. on app
     public boolean isDepositOnly() {
         List<CartItem> cart = getCart();
         if (cart.isEmpty()) {
-            return false; // Ein leerer Warenkorb ist kein reiner Pfand-Warenkorb
+            return false;
         }
         return cart.stream().allMatch(item -> item.getDepositStatus() == DepositStatus.EMPTY);
     }
 
     private String currentUsername() {
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        if (auth == null || !auth.isAuthenticated() || "anonymousUser".equals(auth.getName())) {
-            return "guest"; // fallback for anonymous session
-        }
-        return auth.getName();
+        return AuthContextHolder.current().map(AuthContext::getName).orElseThrow(IllegalStateException::new);
     }
 }

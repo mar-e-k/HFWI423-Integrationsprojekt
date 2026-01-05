@@ -1,10 +1,6 @@
 package de.fhdw.fillialensystem.utility.initializer;
 
 import de.fhdw.fillialensystem.persistence.entity.Store;
-import de.fhdw.fillialensystem.persistence.entity.StoreLinkHost;
-import de.fhdw.fillialensystem.persistence.entity.StoreLinkLock;
-import de.fhdw.fillialensystem.persistence.service.StoreLinkHostService;
-import de.fhdw.fillialensystem.persistence.service.StoreLinkLockService;
 import de.fhdw.fillialensystem.persistence.service.StoreService;
 import de.fhdw.fillialensystem.utility.StoreClient;
 import org.slf4j.Logger;
@@ -15,7 +11,6 @@ import org.springframework.boot.ApplicationRunner;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
-import java.time.Instant;
 
 @Order(2)
 @Component
@@ -27,19 +22,13 @@ public class SetupStoreInitializer implements ApplicationRunner {
     private final StoreClient storeClient;
 
     private final StoreService storeService;
-    private final StoreLinkLockService storeLinkLockService;
-    private final StoreLinkHostService storeLinkHostService;
 
-    public SetupStoreInitializer(@Value("${spring.filialensystem.startup.setup-store-client-on-startup}") boolean setupStoreClientOnStartup,
+    public SetupStoreInitializer(@Value("${spring.filialensystem.startup.setup-store-client}") boolean setupStoreClientOnStartup,
                                  StoreClient storeClient,
-                                 StoreService storeService,
-                                 StoreLinkLockService storeLinkLockService,
-                                 StoreLinkHostService storeLinkHostService) {
+                                 StoreService storeService) {
         this.setupStoreClientOnStartup = setupStoreClientOnStartup;
         this.storeClient = storeClient;
         this.storeService = storeService;
-        this.storeLinkLockService = storeLinkLockService;
-        this.storeLinkHostService = storeLinkHostService;
     }
 
     @Override
@@ -50,7 +39,7 @@ public class SetupStoreInitializer implements ApplicationRunner {
             return;
         }
 
-        //---- Set and get store ---- TODO
+        //---- Set and get store ----
         Store store;
         if (storeService.count() == 0) {
             log.atWarn().log("No store defined in table [store]. Falling back to default store.");
@@ -59,28 +48,10 @@ public class SetupStoreInitializer implements ApplicationRunner {
             store.setCity("Wathlingen");
             store.setStreet("Breuerstraße");
             store.setStreetNumber("0815");
-            store = storeService.save(store);
+            store = storeService.create(store);
         } else {
             store = storeService.findAll().getFirst();
         }
         storeClient.setStore(store);
-//
-//        // ---- Set store lock ----
-//        log.atDebug().log("Setting up lock for store[{}]", store.getId());
-//        storeLinkLockService.save(new StoreLinkLock(
-//                store,
-//                Instant.now()
-//        ));
-//        log.atDebug().log("Successfully set up lock for store[{}]", store.getId());
-//
-//        // ---- Set store host ----
-//        log.atDebug().log("Setting up host for store[{}]", store.getId());
-//        storeLinkHostService.save(new StoreLinkHost(
-//                storeClient.getStore(),
-//                storeClient.getHost(),
-//                storeClient.getPort(),
-//                Instant.now()
-//        ));
-//        log.atDebug().log("Successfully set up host for store[{}]", store.getId());
     }
 }

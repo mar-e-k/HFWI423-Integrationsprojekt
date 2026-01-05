@@ -17,9 +17,7 @@ public class RabbitMQConfig {
     @Value("${spring.rabbitmq.exchange}")
     private String exchange;
 
-    public RabbitMQConfig() {
-        super();
-    }
+    public RabbitMQConfig() {}
 
     @Bean
     public RabbitTemplate rabbitTemplate(ConnectionFactory connectionFactory, Jackson2JsonMessageConverter jackson2JsonMessageConverter) {

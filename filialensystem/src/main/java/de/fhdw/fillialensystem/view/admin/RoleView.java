@@ -10,7 +10,6 @@ import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.ColumnTextAlign;
 import com.vaadin.flow.component.html.H1;
-import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
@@ -22,17 +21,9 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.select.Select;
 import com.vaadin.flow.component.textfield.PasswordField;
 import com.vaadin.flow.component.textfield.TextField;
-import com.vaadin.flow.router.BeforeEnterEvent;
-import com.vaadin.flow.router.BeforeEnterObserver;
-import com.vaadin.flow.router.PageTitle;
-import com.vaadin.flow.router.QueryParameters;
-import com.vaadin.flow.router.Route;
-import com.vaadin.flow.router.RouterLink;
-import com.vaadin.flow.server.VaadinSession;
+import com.vaadin.flow.router.*;
 import com.vaadin.flow.theme.lumo.Lumo;
 import de.fhdw.commons.persistence.entity.AccountRoleEnum;
-import de.fhdw.commons.utility.AuthContext;
-import de.fhdw.commons.view.ErrorQueryParameter;
 import de.fhdw.fillialensystem.persistence.entity.Account;
 import de.fhdw.fillialensystem.persistence.entity.AccountRole;
 import de.fhdw.fillialensystem.persistence.service.AccountRoleService;
@@ -40,13 +31,14 @@ import de.fhdw.fillialensystem.persistence.service.AccountService;
 import de.fhdw.fillialensystem.view.MainView;
 import jakarta.annotation.PostConstruct;
 import jakarta.annotation.security.RolesAllowed;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Route("/roles")
 @PageTitle("Roles View")
@@ -136,8 +128,7 @@ public class RoleView extends AppLayout implements BeforeEnterObserver {
                 createSidebarLink("Admin View", VaadinIcon.USER, AdminView.class),
                 createSidebarLink("Role View", VaadinIcon.GROUP, RoleView.class),
                 createSidebarLink("Register View", VaadinIcon.CASH, RegisterAddView.class),
-                createSidebarLink("Store Select View", VaadinIcon.SHOP, StoreSelectView.class),
-                createSidebarLink("Stock View", VaadinIcon.PACKAGE, StockAdminView.class),
+                createSidebarLink("Stock View", VaadinIcon.PACKAGE, StockView.class),
                 createSidebarLink("Daily Receipt Reporting", VaadinIcon.RECORDS, DailyReceiptReportingView.class)
         );
         return sidebar;
@@ -226,7 +217,7 @@ public class RoleView extends AppLayout implements BeforeEnterObserver {
                 Optional<AccountRole> newRoleOpt = accountRoleService.findByRole(roleEditor.getValue());
                 if (newRoleOpt.isPresent()) {
                     account.setAccountRole(newRoleOpt.get());
-                    accountService.update(account.getId(), account);
+                    accountService.update(account);
                     Notification.show("Rolle aktualisiert!", 2000, Notification.Position.MIDDLE)
                             .addThemeVariants(NotificationVariant.LUMO_SUCCESS);
                     saveButton.setVisible(false);
@@ -293,9 +284,7 @@ public class RoleView extends AppLayout implements BeforeEnterObserver {
             Optional<AccountRole> existingRole =
                     accountRoleService.findByRole(roleSelect.getValue());
 
-            AccountRole role = existingRole.orElseGet(() ->
-                    accountRoleService.create(new AccountRole(null, roleSelect.getValue()))
-            );
+            AccountRole role = existingRole.orElseGet(() -> accountRoleService.create(new AccountRole(roleSelect.getValue())));
 
             Account account = new Account();
             account.setUuid(UUID.randomUUID().toString());
@@ -330,55 +319,36 @@ public class RoleView extends AppLayout implements BeforeEnterObserver {
         accountGrid.setItems(accountService.findAll());
     }
 
+    private String getPageTitle() {
+        PageTitle titleAnnotation = this.getClass().getAnnotation(PageTitle.class);
+        return titleAnnotation != null ? titleAnnotation.value() : "Roles View";
+    }
+
     @Override
     public void beforeEnter(BeforeEnterEvent beforeEnterEvent) {
-        setAuthenticationFromSession();
-
         Class<?> targetView = beforeEnterEvent.getNavigationTarget();
 
         RolesAllowed rolesAllowed = targetView.getAnnotation(RolesAllowed.class);
         if (rolesAllowed == null) {
             return;
         }
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 
-        if (auth == null || auth.getPrincipal() == null || auth.getPrincipal().toString().equalsIgnoreCase("anonymousUser")) {
-            beforeEnterEvent.rerouteTo("login", QueryParameters.simple(Map.of("error", ErrorQueryParameter.LOGIN_REQUIRED.value())));
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+        if (authentication == null || !authentication.isAuthenticated() || authentication instanceof AnonymousAuthenticationToken) {
+            beforeEnterEvent.rerouteTo("login");
             return;
         }
 
-        if (auth.getAuthorities().isEmpty()) {
-            beforeEnterEvent.rerouteTo("login", QueryParameters.simple(Map.of("error", ErrorQueryParameter.ROLES_MISSING.value())));
-            return;
-        }
-
-        boolean authorized = auth.getAuthorities().stream()
+        Set<String> userAuthorities = authentication.getAuthorities().stream()
                 .map(GrantedAuthority::getAuthority)
-                .anyMatch(authRole -> {
-                    for (String requiredRole : rolesAllowed.value()) {
-                        if (authRole.equals(requiredRole)) {
-                            return true;
-                        }
-                    }
-                    return false;
-                });
+                .collect(Collectors.toSet());
+
+        boolean authorized = Arrays.stream(rolesAllowed.value())
+                .anyMatch(userAuthorities::contains);
 
         if (!authorized) {
-            beforeEnterEvent.rerouteTo("login", QueryParameters.simple(Map.of("error", ErrorQueryParameter.ACCESS_DENIED.value())));
+            beforeEnterEvent.rerouteTo("login");
         }
-    }
-
-    private void setAuthenticationFromSession() {
-        Object authContext = VaadinSession.getCurrent().getAttribute("auth-context");
-
-        if (authContext instanceof AuthContext) {
-            UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken(authContext, null, ((AuthContext) authContext).getAuthorities());
-            SecurityContextHolder.getContext().setAuthentication(auth);
-        }
-    }
-
-    private String getPageTitle() {
-        PageTitle titleAnnotation = this.getClass().getAnnotation(PageTitle.class);
-        return titleAnnotation != null ? titleAnnotation.value() : "Roles View";
     }
 }

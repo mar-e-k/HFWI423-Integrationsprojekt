@@ -13,9 +13,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 
 import java.util.List;
-import java.util.Objects;
 import java.util.Optional;
-import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
 @Validated
@@ -30,8 +28,13 @@ public abstract class AbstractCrudService<T extends GenericEntity<ID>, ID> imple
     }
 
     @Override
+    public long count() {
+        return repository.count();
+    }
+
+    @Override
     public List<T> findAll() {
-        return StreamSupport.stream(repository.findAll().spliterator(), false).filter(Objects::nonNull).collect(Collectors.toList());
+        return StreamSupport.stream(repository.findAll().spliterator(), false).toList();
     }
 
     @Override
@@ -43,63 +46,30 @@ public abstract class AbstractCrudService<T extends GenericEntity<ID>, ID> imple
     @Transactional
     public T create(@Valid T entity) {
         T saved = repository.save(entity);
-        log.atInfo().log("[CREATED] [{}] with id [{}]", AopUtils.getTargetClass(this).getSimpleName(), entity.getId());
-        return saved;
-    }
-
-    @Transactional
-    public T save(@Valid T entity) {
-        T saved = repository.save(entity);
-        log.atInfo().log("[SAVED] [{}] with id [{}]", AopUtils.getTargetClass(this).getSimpleName(), entity.getId());
-        return saved;
-    }
-
-    @Override
-    @Transactional
-    public T update(@NotNull ID id, @Valid T entity) {
-        if (entity.getId() == null) {
-            entity.setId(id);
-        } else if (!Objects.equals(id, entity.getId())) {
-            throw new IllegalArgumentException("Entity with id [%s] cannot be updated to have id [%s]".formatted(entity.getId(), id));
-        }
-        if (!repository.existsById(id)) {
-            throw new EntityNotFoundException("Entity from [%s] with id [%s] does not exist".formatted(AopUtils.getTargetClass(this).getSimpleName(), id));
-        }
-        T saved = repository.save(entity);
-        log.atInfo().log("[UPDATED] [{}] with id [{}]", AopUtils.getTargetClass(this).getSimpleName(), id);
+        log.atInfo().log("[CREATED] [{}] with id [{}]", getEntityName(), saved.getId());
         return saved;
     }
 
     @Override
     @Transactional
     public T update(@Valid T entity) {
-        return update(entity.getId(), entity);
+        if (!repository.existsById(entity.getId())) {
+            throw new EntityNotFoundException("Entity from [%s] with id [%s] does not exist".formatted(getEntityName(), entity.getId()));
+        }
+
+        T saved = repository.save(entity);
+        log.atInfo().log("[UPDATED] [{}] with id [{}]", getEntityName(), saved.getId());
+        return saved;
     }
 
     @Override
     @Transactional
     public void delete(@NotNull ID id) {
-        if (!repository.existsById(id)) {
-            throw new EntityNotFoundException("Entity from [%s] with id [%s] does not exist".formatted(AopUtils.getTargetClass(this).getSimpleName(), id));
-        }
-
         repository.deleteById(id);
-        log.atInfo().log("[DELETED] [{}] with id [{}]", AopUtils.getTargetClass(this).getSimpleName(), id);
+        log.atInfo().log("[DELETED] [{}] with id [{}]", getEntityName(), id);
     }
 
-    @Override
-    @Transactional
-    public void delete(@Valid T entity) {
-        delete(entity.getId());
-    }
-
-    @Transactional
-    public void deleteAll() {
-        repository.deleteAll();
-        log.atInfo().log("[DELETED ALL] [{}]", AopUtils.getTargetClass(this).getSimpleName());
-    }
-
-    public long count() {
-        return repository.count();
+    protected String getEntityName() {
+        return AopUtils.getTargetClass(this).getSimpleName();
     }
 }

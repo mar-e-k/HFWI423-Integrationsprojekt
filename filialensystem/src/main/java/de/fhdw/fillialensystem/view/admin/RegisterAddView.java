@@ -16,17 +16,9 @@ import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
-import com.vaadin.flow.router.BeforeEnterEvent;
-import com.vaadin.flow.router.BeforeEnterObserver;
-import com.vaadin.flow.router.PageTitle;
-import com.vaadin.flow.router.QueryParameters;
-import com.vaadin.flow.router.Route;
-import com.vaadin.flow.router.RouterLink;
-import com.vaadin.flow.server.VaadinSession;
+import com.vaadin.flow.router.*;
 import com.vaadin.flow.theme.lumo.Lumo;
 import de.fhdw.commons.persistence.entity.AccountRoleEnum;
-import de.fhdw.commons.utility.AuthContext;
-import de.fhdw.commons.view.ErrorQueryParameter;
 import de.fhdw.fillialensystem.persistence.entity.Register;
 import de.fhdw.fillialensystem.persistence.entity.Store;
 import de.fhdw.fillialensystem.persistence.service.RegisterService;
@@ -34,13 +26,15 @@ import de.fhdw.fillialensystem.persistence.service.StoreService;
 import de.fhdw.fillialensystem.view.MainView;
 import jakarta.annotation.PostConstruct;
 import jakarta.annotation.security.RolesAllowed;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 
+import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Route("register")
 @PageTitle("Register View")
@@ -129,8 +123,7 @@ public class RegisterAddView extends AppLayout implements BeforeEnterObserver {
                 createSidebarLink("Admin View", VaadinIcon.USER, AdminView.class),
                 createSidebarLink("Role View", VaadinIcon.GROUP, RoleView.class),
                 createSidebarLink("Register View", VaadinIcon.CASH, RegisterAddView.class),
-                createSidebarLink("Store Select View", VaadinIcon.SHOP, StoreSelectView.class),
-                createSidebarLink("Stock View", VaadinIcon.PACKAGE, StockAdminView.class),
+                createSidebarLink("Stock View", VaadinIcon.PACKAGE, StockView.class),
                 createSidebarLink("Daily Receipt Reporting", VaadinIcon.RECORDS, DailyReceiptReportingView.class)
         );
         return sidebar;
@@ -191,7 +184,7 @@ public class RegisterAddView extends AppLayout implements BeforeEnterObserver {
             Register newRegister = new Register();
             newRegister.setStore(selectedStore);
 
-            registerService.save(newRegister);
+            registerService.create(newRegister);
             Notification.show("Register added for store " + selectedStore.getCity(), 3000, Notification.Position.MIDDLE);
 
             registerGrid.setItems(registerService.findAll());
@@ -207,55 +200,36 @@ public class RegisterAddView extends AppLayout implements BeforeEnterObserver {
         setContent(content);
     }
 
+    private String getPageTitle() {
+        PageTitle titleAnnotation = this.getClass().getAnnotation(PageTitle.class);
+        return titleAnnotation != null ? titleAnnotation.value() : "Register View";
+    }
+
     @Override
     public void beforeEnter(BeforeEnterEvent beforeEnterEvent) {
-        setAuthenticationFromSession();
-
         Class<?> targetView = beforeEnterEvent.getNavigationTarget();
 
         RolesAllowed rolesAllowed = targetView.getAnnotation(RolesAllowed.class);
         if (rolesAllowed == null) {
             return;
         }
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 
-        if (auth == null || auth.getPrincipal() == null || auth.getPrincipal().toString().equalsIgnoreCase("anonymousUser")) {
-            beforeEnterEvent.rerouteTo("login", QueryParameters.simple(Map.of("error", ErrorQueryParameter.LOGIN_REQUIRED.value())));
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+        if (authentication == null || !authentication.isAuthenticated() || authentication instanceof AnonymousAuthenticationToken) {
+            beforeEnterEvent.rerouteTo("login");
             return;
         }
 
-        if (auth.getAuthorities().isEmpty()) {
-            beforeEnterEvent.rerouteTo("login", QueryParameters.simple(Map.of("error", ErrorQueryParameter.ROLES_MISSING.value())));
-            return;
-        }
-
-        boolean authorized = auth.getAuthorities().stream()
+        Set<String> userAuthorities = authentication.getAuthorities().stream()
                 .map(GrantedAuthority::getAuthority)
-                .anyMatch(authRole -> {
-                    for (String requiredRole : rolesAllowed.value()) {
-                        if (authRole.equals(requiredRole)) {
-                            return true;
-                        }
-                    }
-                    return false;
-                });
+                .collect(Collectors.toSet());
+
+        boolean authorized = Arrays.stream(rolesAllowed.value())
+                .anyMatch(userAuthorities::contains);
 
         if (!authorized) {
-            beforeEnterEvent.rerouteTo("login", QueryParameters.simple(Map.of("error", ErrorQueryParameter.ACCESS_DENIED.value())));
+            beforeEnterEvent.rerouteTo("login");
         }
-    }
-
-    private void setAuthenticationFromSession() {
-        Object authContext = VaadinSession.getCurrent().getAttribute("auth-context");
-
-        if (authContext instanceof AuthContext) {
-            UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken(authContext, null, ((AuthContext) authContext).getAuthorities());
-            SecurityContextHolder.getContext().setAuthentication(auth);
-        }
-    }
-
-    private String getPageTitle() {
-        PageTitle titleAnnotation = this.getClass().getAnnotation(PageTitle.class);
-        return titleAnnotation != null ? titleAnnotation.value() : "Register View";
     }
 }

@@ -5,22 +5,16 @@ import com.vaadin.flow.router.BeforeEnterEvent;
 import com.vaadin.flow.router.BeforeEnterObserver;
 import com.vaadin.flow.router.Route;
 import de.fhdw.commons.persistence.entity.AccountRoleEnum;
-import de.fhdw.commons.view.AbstractMainView;
+import de.fhdw.commons.ui.view.AbstractView;
 import de.fhdw.kassensystem.view.cashier.CashierView;
 import jakarta.annotation.security.RolesAllowed;
 
 @Route("")
 @RolesAllowed(AccountRoleEnum.ROLE_CASHIER)
-public class MainView extends AbstractMainView implements BeforeEnterObserver {
+public class MainView extends AbstractView implements BeforeEnterObserver {
 
     public MainView() {
-        super();
         UI.getCurrent().navigate(CashierView.class);
-    }
-
-    @Override
-    protected void init() {
-
     }
 
     @Override

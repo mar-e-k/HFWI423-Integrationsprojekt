@@ -1,39 +1,23 @@
 package de.fhdw.commons.api.dto;
 
 import de.fhdw.commons.persistence.entity.AccountRoleEnum;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.core.userdetails.UserDetails;
 
-import java.util.Collection;
-import java.util.List;
+public class AccountDTO extends AbstractDTO<Long> {
 
-public class AccountDTO extends AbstractDTO<Long> implements UserDetails {
-
-    private AccountRoleEnum role;
     private String uuid;
     private String username;
     private String password;
-    private List<AuthorityDTO> authorities;
+    private AccountRoleEnum role;
 
     public AccountDTO() {
         super();
     }
 
-    public AccountDTO(Long id, AccountRoleEnum role, String uuid, String username, String password) {
+    public AccountDTO(Long id, String uuid, String username, String password, AccountRoleEnum role) {
         super(id);
-        this.role = role;
         this.uuid = uuid;
         this.username = username;
         this.password = password;
-        this.authorities = List.of(new AuthorityDTO(role));
-    }
-
-    public AccountRoleEnum getRole() {
-        return role;
-    }
-
-    public void setRole(AccountRoleEnum role) {
         this.role = role;
     }
 
@@ -61,40 +45,11 @@ public class AccountDTO extends AbstractDTO<Long> implements UserDetails {
         this.password = password;
     }
 
-
-
-    @Override
-    public Collection<? extends GrantedAuthority> getAuthorities() {
-        if (authorities == null) {
-            return List.of();
-        }
-
-        return authorities.stream()
-                .map(a -> new SimpleGrantedAuthority(a.getId())) //id=role here
-                .toList();
+    public AccountRoleEnum getRole() {
+        return role;
     }
 
-    public void setAuthorities(List<AuthorityDTO> authorities) {
-        this.authorities = authorities;
-    }
-
-    @Override
-    public boolean isAccountNonExpired() {
-        return true;
-    }
-
-    @Override
-    public boolean isAccountNonLocked() {
-        return true;
-    }
-
-    @Override
-    public boolean isCredentialsNonExpired() {
-        return true;
-    }
-
-    @Override
-    public boolean isEnabled() {
-        return true;
+    public void setRole(AccountRoleEnum role) {
+        this.role = role;
     }
 }

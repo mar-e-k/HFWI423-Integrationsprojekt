@@ -5,7 +5,7 @@ import de.fhdw.commons.api.rabbitmq.DomainCommand;
 import de.fhdw.commons.api.rabbitmq.DomainQueue;
 import de.fhdw.fillialensystem.api.rabbitmq.CommandSender;
 import de.fhdw.fillialensystem.persistence.entity.Receipt;
-import de.fhdw.fillialensystem.persistence.entity.ReceiptLinkArticle;
+import de.fhdw.fillialensystem.persistence.entity.ReceiptArticle;
 import de.fhdw.fillialensystem.persistence.service.ReceiptService;
 import de.fhdw.fillialensystem.utility.StoreClient;
 import org.slf4j.Logger;
@@ -33,23 +33,24 @@ public class DailyReceiptReportingSchedule {
         this.commandSender = commandSender;
     }
 
-    @Scheduled(cron = "0 0 22 * * *", zone = "Europe/Berlin") // 22:00 CET
+    @Scheduled(cron = "0 0 22 * * *", zone = "Europe/Berlin")
     public void sendDailyReceiptReport() {
         log.atInfo().log("Sending daily receipt report...");
+
         List<Receipt> receipts = receiptService.findAll().stream()
                 .filter(r -> r.getCreatedAt().atZone(ZoneId.systemDefault()).toLocalDate().equals(LocalDate.now()))
                 .filter(r -> r.getStore().equals(storeClient.getStore()))
                 .filter(r -> !r.isDepositOnly())
                 .toList();
 
-        List<ReceiptLinkArticle> allArticles = receipts.stream()
+        List<ReceiptArticle> allArticles = receipts.stream()
                 .flatMap(r -> receiptService.getReceiptLinkArticles(r).stream())
                 .toList();
 
         Map<Long, Long> articleAmountMap = allArticles.stream()
                 .collect(Collectors.groupingBy(
                         a -> a.getArticle().getId(),
-                        Collectors.summingLong(ReceiptLinkArticle::getAmount)));
+                        Collectors.summingLong(ReceiptArticle::getAmount)));
 
         Long storeId = storeClient.getStore().getId();
         articleAmountMap.forEach((articleId, totalAmount) ->
@@ -57,6 +58,7 @@ public class DailyReceiptReportingSchedule {
                         DomainQueue.LOGISTIC_STORE_RESTOCK,
                         DomainCommand.STORE_RESTOCK,
                         new LogisticMessageDTO(storeId, articleId, totalAmount, false)));
+
         log.atInfo().log("Successfully sent daily receipt report");
     }
 }

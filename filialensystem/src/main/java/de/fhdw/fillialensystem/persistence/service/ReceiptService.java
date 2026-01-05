@@ -3,7 +3,7 @@ package de.fhdw.fillialensystem.persistence.service;
 import de.fhdw.commons.api.dto.DepositStatus;
 import de.fhdw.fillialensystem.persistence.entity.Account;
 import de.fhdw.fillialensystem.persistence.entity.Receipt;
-import de.fhdw.fillialensystem.persistence.entity.ReceiptLinkArticle;
+import de.fhdw.fillialensystem.persistence.entity.ReceiptArticle;
 import de.fhdw.fillialensystem.persistence.entity.RedeemedDepositReceipt;
 import de.fhdw.fillialensystem.persistence.entity.Register;
 import de.fhdw.fillialensystem.persistence.repository.AccountRepository;
@@ -55,12 +55,12 @@ public class ReceiptService extends AbstractCrudService<Receipt, Long> {
         this.receiptRepository = receiptRepository;
     }
 
-    public List<ReceiptLinkArticle> getReceiptLinkArticles(Receipt receipt) {
+    public List<ReceiptArticle> getReceiptLinkArticles(Receipt receipt) {
         return receiptLinkArticleRepository.findByReceipt(receipt);
     }
 
     @Transactional
-    public Receipt createReceipt(Long registerId, String uuid, List<ReceiptLinkArticle> articles) {
+    public Receipt createReceipt(Long registerId, String uuid, List<ReceiptArticle> articles) {
         Register register = registerRepository.findById(registerId)
                 .orElseThrow(EntityNotFoundException::new);
 
@@ -83,7 +83,7 @@ public class ReceiptService extends AbstractCrudService<Receipt, Long> {
             depositRedemptionCode = generateUniqueDepositRedemptionCode();
         }
 
-        Receipt receipt = super.save(new Receipt(
+        Receipt receipt = super.create(new Receipt(
                 register.getStore(),
                 register,
                 account,
@@ -92,9 +92,9 @@ public class ReceiptService extends AbstractCrudService<Receipt, Long> {
                 isDepositOnly,
                 depositRedemptionCode));
 
-        List<ReceiptLinkArticle> savedArticles = new ArrayList<>();
-        for (ReceiptLinkArticle article : articles) {
-            savedArticles.add(receiptLinkArticleRepository.save(new ReceiptLinkArticle(
+        List<ReceiptArticle> savedArticles = new ArrayList<>();
+        for (ReceiptArticle article : articles) {
+            savedArticles.add(receiptLinkArticleRepository.save(new ReceiptArticle(
                     receipt,
                     articleRepository.getReferenceById(article.getArticle().getId()),
                     article.getPrice(),
@@ -145,7 +145,7 @@ public class ReceiptService extends AbstractCrudService<Receipt, Long> {
 
     public ByteArrayInputStream generateReceipt(Receipt receipt, boolean isCashPayment) {
         try {
-            List<ReceiptLinkArticle> articles = receiptLinkArticleRepository.findByReceipt(receipt);
+            List<ReceiptArticle> articles = receiptLinkArticleRepository.findByReceipt(receipt);
 
             PDDocument document = new PDDocument();
             PDPage page = new PDPage();
@@ -237,7 +237,7 @@ public class ReceiptService extends AbstractCrudService<Receipt, Long> {
             y -= 20;
 
             for (int i = 0; i < articles.size(); i++) {
-                ReceiptLinkArticle article = articles.get(i);
+                ReceiptArticle article = articles.get(i);
                 contentStream.beginText();
                 contentStream.setFont(font, 10);
                 contentStream.newLineAtOffset(margin, y);

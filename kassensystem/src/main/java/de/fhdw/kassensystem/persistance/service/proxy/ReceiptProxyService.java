@@ -23,7 +23,7 @@ public class ReceiptProxyService extends AbstractProxyService{
     }
 
     public Optional<ReceiptDTO> createReceipt(List<ReceiptLinkArticleDTO> receiptArticles) {
-        return storeClient.getWebClient()
+        return getWebClient()
                 .post()
                 .uri("/api/receipt")
                 .bodyValue(receiptArticles)
@@ -38,7 +38,7 @@ public class ReceiptProxyService extends AbstractProxyService{
     }
 
     public Optional<ReceiptDTO> redeemDepositReceipt(String depositRedemptionCode) {
-        return storeClient.getWebClient()
+        return getWebClient()
                 .post()
                 .uri("/api/receipt/redeem/{depositRedemptionCode}", depositRedemptionCode)
                 .retrieve()

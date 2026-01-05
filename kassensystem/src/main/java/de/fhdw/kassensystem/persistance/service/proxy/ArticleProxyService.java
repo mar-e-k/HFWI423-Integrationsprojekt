@@ -18,7 +18,7 @@ public class ArticleProxyService extends AbstractProxyService {
     }
 
     public List<ArticleDTO> findAll() {
-        return storeClient.getWebClient()
+        return getWebClient()
                 .get()
                 .uri("/api/article")
                 .retrieve()
@@ -27,7 +27,7 @@ public class ArticleProxyService extends AbstractProxyService {
     }
 
     public Optional<ArticleDTO> findById(Long id) {
-        return storeClient.getWebClient()
+        return getWebClient()
                 .get()
                 .uri("/api/article/id/{id}", id)
                 .retrieve()
@@ -37,7 +37,7 @@ public class ArticleProxyService extends AbstractProxyService {
     }
 
     public Optional<ArticleDTO> findByArticleNumber(String gtin) {
-        return storeClient.getWebClient()
+        return getWebClient()
                 .get()
                 .uri("/api/article/gtin/{gtin}", gtin)
                 .retrieve()

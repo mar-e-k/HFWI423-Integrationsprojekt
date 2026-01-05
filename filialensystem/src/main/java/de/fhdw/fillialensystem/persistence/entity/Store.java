@@ -36,7 +36,7 @@ public class Store extends AbstractEntity {
 
     @Column(nullable = false)
     @NotBlank(message = "Street number must not be blank")
-    @Pattern(regexp = "^[1-9]\\d*[A-Z]?$", message = "Street number must include a number in the beginning")
+    @Pattern(regexp = "^[0-9]\\d*[A-Z]?$", message = "Street number must include a number in the beginning")
     private String streetNumber;
 
     public Store() {
