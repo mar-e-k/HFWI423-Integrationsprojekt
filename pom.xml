@@ -5,38 +5,39 @@
                              https://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>de.fhdw</groupId>
-    <artifactId>kassenprojekt</artifactId>
-    <version>0.0.1-SNAPSHOT</version>
-    <packaging>pom</packaging>
-    <name>kassenprojekt</name>
-    <description>kassenprojekt</description>
-
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>3.5.8</version>
+        <version>4.0.0</version>
         <relativePath/>
     </parent>
 
+    <groupId>de.fhdw.vendix</groupId>
+    <artifactId>vendix-parent</artifactId>
+    <version>1.0.0</version>
+    <packaging>pom</packaging>
+
+    <name>vendix</name>
+    <description>vendix</description>
+
     <modules>
-        <module>kassensystem</module>
-        <module>filialensystem</module>
+        <module>pos</module>
+        <module>store</module>
         <module>commons</module>
-        <module>commons-ui</module>
-        <module>commons-security</module>
     </modules>
 
     <properties>
-        <java.version>21</java.version>
-        <vaadin.version>24.9.5</vaadin.version>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+        <java.version>25</java.version>
+        <vaadin.version>25.0.5</vaadin.version>
+        <jwt.version>0.13.0</jwt.version>
+        <jackson.version>3.0.4</jackson.version>
+        <springdoc.version>3.0.1</springdoc.version>
+        <pdfbox.version>3.0.6</pdfbox.version>
     </properties>
 
     <dependencyManagement>
         <dependencies>
-            <!-- Vaadin BOM -->
+            <!-- Source: https://mvnrepository.com/artifact/com.vaadin/vaadin-bom -->
             <dependency>
                 <groupId>com.vaadin</groupId>
                 <artifactId>vaadin-bom</artifactId>
@@ -44,27 +45,28 @@
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
+            <!-- Source: https://mvnrepository.com/artifact/io.jsonwebtoken/jjwt-bom -->
+            <dependency>
+                <groupId>io.jsonwebtoken</groupId>
+                <artifactId>jjwt-bom</artifactId>
+                <version>${jwt.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+            <!-- Source: https://mvnrepository.com/artifact/org.springdoc/springdoc-openapi-bom -->
+            <dependency>
+                <groupId>org.springdoc</groupId>
+                <artifactId>springdoc-openapi-bom</artifactId>
+                <version>${springdoc.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+
+            <dependency>
+                <groupId>org.apache.pdfbox</groupId>
+                <artifactId>pdfbox</artifactId>
+                <version>${pdfbox.version}</version>
+            </dependency>
         </dependencies>
     </dependencyManagement>
-
-    <build>
-        <plugins>
-            <!-- Maven Compiler Plugin -->
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.14.0</version>
-                <configuration>
-                    <source>${java.version}</source>
-                    <target>${java.version}</target>
-                </configuration>
-            </plugin>
-            <!-- Vaadin Plugin -->
-            <plugin>
-                <groupId>com.vaadin</groupId>
-                <artifactId>vaadin-maven-plugin</artifactId>
-                <version>${vaadin.version}</version>
-            </plugin>
-        </plugins>
-    </build>
 </project>
