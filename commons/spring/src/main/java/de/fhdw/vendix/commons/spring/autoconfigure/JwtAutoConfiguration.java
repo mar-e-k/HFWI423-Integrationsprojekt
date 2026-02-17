@@ -1,5 +1,6 @@
 package de.fhdw.vendix.commons.spring.autoconfigure;
 
+import de.fhdw.vendix.commons.security.jwt.JwtProperties;
 import de.fhdw.vendix.commons.security.jwt.JwtService;
 import de.fhdw.vendix.commons.spring.properties.JwtPropertiesConfiguration;
 
@@ -16,7 +17,7 @@ public class JwtAutoConfiguration {
 
     @Bean
     @ConditionalOnMissingBean(JwtService.class)
-    public JwtService jwtService(JwtPropertiesConfiguration properties) {
+    public JwtService jwtService(JwtProperties properties) {
         return new JwtService(properties);
     }
 }

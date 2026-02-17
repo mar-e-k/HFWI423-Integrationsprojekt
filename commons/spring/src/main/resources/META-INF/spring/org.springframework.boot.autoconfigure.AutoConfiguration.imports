@@ -1,0 +1,3 @@
+de.fhdw.vendix.commons.spring.properties.JwtPropertiesConfiguration
+de.fhdw.vendix.commons.spring.properties.SecurityPropertiesConfiguration
+de.fhdw.vendix.commons.spring.properties.VaadinPropertiesConfiguration
