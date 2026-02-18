@@ -10,16 +10,16 @@
         <version>1.0.0</version>
     </parent>
 
-    <artifactId>commons-core</artifactId>
+    <artifactId>commons-api</artifactId>
     <packaging>jar</packaging>
 
-    <name>commons-core</name>
-    <description>commons-core</description>
+    <name>commons-api</name>
+    <description>commons-api</description>
 
     <dependencies>
         <dependency>
-            <groupId>org.apache.pdfbox</groupId>
-            <artifactId>pdfbox</artifactId>
+            <groupId>org.mapstruct</groupId>
+            <artifactId>mapstruct</artifactId>
         </dependency>
     </dependencies>
 </project>

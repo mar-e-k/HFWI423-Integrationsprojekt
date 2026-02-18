@@ -21,5 +21,6 @@
         <module>security</module>
         <module>spring</module>
         <module>ui</module>
+        <module>api</module>
     </modules>
 </project>

@@ -7,8 +7,7 @@ public class LogisticMessageDTO implements GenericDTO<Long> {
     private Long quantity;
     private Boolean isBelowMinimumStockLevel;
 
-    public LogisticMessageDTO() {
-    }
+    public LogisticMessageDTO() {}
 
     public LogisticMessageDTO(Long storeId, Long articleId, Long quantity, boolean isBelowMinimumStockLevel) {
         this.storeId = storeId;

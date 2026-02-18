@@ -1,5 +1,6 @@
 package de.fhdw.vendix.store.api.controller;
 
+import de.fhdw.vendix.commons.api.account.AccountEndpoints;
 import de.fhdw.vendix.commons.core.api.dto.AccountDTO;
 import de.fhdw.vendix.store.api.mapper.AccountMapper;
 import de.fhdw.vendix.store.persistence.service.AccountService;
@@ -11,7 +12,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/api/account")
+@RequestMapping(AccountEndpoints.BASE)
 @Tag(name = "Account", description = "Endpoints for operations related to accounts")
 public class AccountController {
 
@@ -23,7 +24,7 @@ public class AccountController {
         this.accountMapper = accountMapper;
     }
 
-    @GetMapping("/id/{id}")
+    @GetMapping(AccountEndpoints.BY_ID)
     @Operation(summary = "Retrieve account by id")
     public ResponseEntity<AccountDTO> getAccountById(@PathVariable Long id) {
         return ResponseEntity
@@ -33,7 +34,7 @@ public class AccountController {
                         .orElseThrow(EntityNotFoundException::new));
     }
 
-    @GetMapping("/uuid/{uuid}")
+    @GetMapping(AccountEndpoints.BY_UUID)
     @Operation(summary = "Retrieve account by uuid")
     public ResponseEntity<AccountDTO> getAccountByUuid(@PathVariable String uuid) {
         return ResponseEntity
@@ -43,7 +44,7 @@ public class AccountController {
                         .orElseThrow(EntityNotFoundException::new));
     }
 
-    @GetMapping("/name/{username}")
+    @GetMapping(AccountEndpoints.BY_USERNAME)
     @Operation(summary = "Retrieve account by username")
     public ResponseEntity<AccountDTO> getAccountByUsername(@PathVariable String username) {
         return ResponseEntity
