@@ -5,38 +5,39 @@
                              https://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>de.fhdw</groupId>
-    <artifactId>kassenprojekt</artifactId>
-    <version>0.0.1-SNAPSHOT</version>
-    <packaging>pom</packaging>
-    <name>kassenprojekt</name>
-    <description>kassenprojekt</description>
-
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>3.5.8</version>
+        <version>4.0.0</version>
         <relativePath/>
     </parent>
 
+    <groupId>de.fhdw.vendix</groupId>
+    <artifactId>vendix-parent</artifactId>
+    <version>1.0.0</version>
+    <packaging>pom</packaging>
+
+    <name>vendix</name>
+    <description>vendix</description>
+
     <modules>
-        <module>kassensystem</module>
-        <module>filialensystem</module>
+        <module>pos</module>
+        <module>store</module>
         <module>commons</module>
-        <module>commons-ui</module>
-        <module>commons-security</module>
     </modules>
 
     <properties>
         <java.version>21</java.version>
-        <vaadin.version>24.9.5</vaadin.version>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+        <vaadin.version>25.0.5</vaadin.version>
+        <swagger.version>2.2.42</swagger.version>
+        <pdfbox.version>3.0.6</pdfbox.version>
+        <plaguv-amqp.version>1.1.0</plaguv-amqp.version>
+        <nimbus.version>10.7</nimbus.version>
     </properties>
 
     <dependencyManagement>
         <dependencies>
-            <!-- Vaadin BOM -->
+            <!-- Source: https://mvnrepository.com/artifact/com.vaadin/vaadin-bom -->
             <dependency>
                 <groupId>com.vaadin</groupId>
                 <artifactId>vaadin-bom</artifactId>
@@ -44,27 +45,30 @@
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
+            <!-- Source: https://mvnrepository.com/artifact/io.swagger.core.v3/swagger-annotations -->
+            <dependency>
+                <groupId>io.swagger.core.v3</groupId>
+                <artifactId>swagger-annotations</artifactId>
+                <version>${swagger.version}</version>
+            </dependency>
+            <!-- Source: https://mvnrepository.com/artifact/org.apache.pdfbox/pdfbox -->
+            <dependency>
+                <groupId>org.apache.pdfbox</groupId>
+                <artifactId>pdfbox</artifactId>
+                <version>${pdfbox.version}</version>
+            </dependency>
+            <!-- Source: https://mvnrepository.com/artifact/io.github.plaguv/plaguv-amqp-spring-boot-starter -->
+            <dependency>
+                <groupId>io.github.plaguv</groupId>
+                <artifactId>plaguv-amqp-spring-boot-starter</artifactId>
+                <version>${plaguv-amqp.version}</version>
+            </dependency>
+            <!-- Source: https://mvnrepository.com/artifact/com.nimbusds/nimbus-jose-jwt -->
+            <dependency>
+                <groupId>com.nimbusds</groupId>
+                <artifactId>nimbus-jose-jwt</artifactId>
+                <version>${nimbus.version}</version>
+            </dependency>
         </dependencies>
     </dependencyManagement>
-
-    <build>
-        <plugins>
-            <!-- Maven Compiler Plugin -->
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.14.0</version>
-                <configuration>
-                    <source>${java.version}</source>
-                    <target>${java.version}</target>
-                </configuration>
-            </plugin>
-            <!-- Vaadin Plugin -->
-            <plugin>
-                <groupId>com.vaadin</groupId>
-                <artifactId>vaadin-maven-plugin</artifactId>
-                <version>${vaadin.version}</version>
-            </plugin>
-        </plugins>
-    </build>
 </project>

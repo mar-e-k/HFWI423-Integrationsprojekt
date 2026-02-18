@@ -1,26 +1,25 @@
-    <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-             xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
-        <modelVersion>4.0.0</modelVersion>
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
 
-        <parent>
-            <groupId>de.fhdw</groupId>
-            <artifactId>kassenprojekt</artifactId>
-            <version>0.0.1-SNAPSHOT</version>
-        </parent>
+    <parent>
+        <groupId>de.fhdw.vendix</groupId>
+        <artifactId>vendix-parent</artifactId>
+        <version>1.0.0</version>
+    </parent>
 
-        <artifactId>commons</artifactId>
-        <packaging>jar</packaging>
+    <artifactId>commons-parent</artifactId>
+    <packaging>pom</packaging>
 
-        <dependencies>
-            <dependency>
-                <groupId>org.apache.pdfbox</groupId>
-                <artifactId>pdfbox</artifactId>
-                <version>3.0.6</version>
-            </dependency>
+    <name>commons</name>
+    <description>commons</description>
 
-            <dependency>
-                <groupId>jakarta.validation</groupId>
-                <artifactId>jakarta.validation-api</artifactId>
-            </dependency>
-        </dependencies>
-    </project>
+    <modules>
+        <module>core</module>
+        <module>security</module>
+        <module>spring</module>
+        <module>ui</module>
+    </modules>
+</project>
