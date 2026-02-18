@@ -2,6 +2,7 @@ package de.fhdw.vendix.commons.spring.autoconfigure;
 
 import de.fhdw.vendix.commons.security.auth.AuthWhitelist;
 import de.fhdw.vendix.commons.security.jwt.AbstractJwtAuthenticationFilter;
+import de.fhdw.vendix.commons.security.jwt.JwtAuthenticationFilter;
 import de.fhdw.vendix.commons.spring.properties.SecurityPropertiesConfiguration;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
@@ -19,7 +20,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
-@AutoConfiguration
+@AutoConfiguration(after = JwtAutoConfiguration.class)
 @EnableConfigurationProperties(SecurityPropertiesConfiguration.class)
 public class SecurityAutoConfiguration {
 
@@ -33,7 +34,7 @@ public class SecurityAutoConfiguration {
 
     @Bean
     @ConditionalOnMissingBean(SecurityFilterChain.class)
-    public SecurityFilterChain defaultSecurityFilterChain(HttpSecurity http, AbstractJwtAuthenticationFilter jwtAuthenticationFilter, SecurityPropertiesConfiguration securityPropertiesConfiguration) {
+    public SecurityFilterChain defaultSecurityFilterChain(HttpSecurity http, JwtAuthenticationFilter jwtAuthenticationFilter, SecurityPropertiesConfiguration securityPropertiesConfiguration) {
         if (!securityPropertiesConfiguration.enabled()) {
             return http
                     .csrf(AbstractHttpConfigurer::disable)
@@ -56,7 +57,7 @@ public class SecurityAutoConfiguration {
 //                            .invalidateHttpSession(true)
 //                            .clearAuthentication(true)
                             )
-                    .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
+//                    .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
                     .build();
         }
     }

@@ -29,11 +29,10 @@
     <properties>
         <java.version>21</java.version>
         <vaadin.version>25.0.5</vaadin.version>
-        <jwt.version>0.13.0</jwt.version>
-        <jackson.version>3.0.4</jackson.version>
         <swagger.version>2.2.42</swagger.version>
         <pdfbox.version>3.0.6</pdfbox.version>
         <plaguv-amqp.version>1.1.0</plaguv-amqp.version>
+        <nimbus.version>10.7</nimbus.version>
     </properties>
 
     <dependencyManagement>
@@ -43,14 +42,6 @@
                 <groupId>com.vaadin</groupId>
                 <artifactId>vaadin-bom</artifactId>
                 <version>${vaadin.version}</version>
-                <type>pom</type>
-                <scope>import</scope>
-            </dependency>
-            <!-- Source: https://mvnrepository.com/artifact/io.jsonwebtoken/jjwt-bom -->
-            <dependency>
-                <groupId>io.jsonwebtoken</groupId>
-                <artifactId>jjwt-bom</artifactId>
-                <version>${jwt.version}</version>
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
@@ -71,6 +62,12 @@
                 <groupId>io.github.plaguv</groupId>
                 <artifactId>plaguv-amqp-spring-boot-starter</artifactId>
                 <version>${plaguv-amqp.version}</version>
+            </dependency>
+            <!-- Source: https://mvnrepository.com/artifact/com.nimbusds/nimbus-jose-jwt -->
+            <dependency>
+                <groupId>com.nimbusds</groupId>
+                <artifactId>nimbus-jose-jwt</artifactId>
+                <version>${nimbus.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>

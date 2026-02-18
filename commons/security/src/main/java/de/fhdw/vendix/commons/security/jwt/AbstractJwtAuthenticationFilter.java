@@ -13,7 +13,7 @@ import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
 
-public abstract class AbstractJwtAuthenticationFilter extends OncePerRequestFilter {
+public abstract class AbstractJwtAuthenticationFilter extends OncePerRequestFilter implements JwtAuthenticationFilter {
 
     @Override
     protected boolean shouldNotFilter(HttpServletRequest request) {
@@ -39,6 +39,4 @@ public abstract class AbstractJwtAuthenticationFilter extends OncePerRequestFilt
         }
         filterChain.doFilter(request, response);
     }
-
-    protected abstract Authentication resolveAuthentication(String token) throws AuthenticationException;
 }

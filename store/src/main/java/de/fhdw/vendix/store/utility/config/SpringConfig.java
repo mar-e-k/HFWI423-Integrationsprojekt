@@ -6,7 +6,6 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.domain.AuditorAware;
 import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
-import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.scheduling.annotation.EnableScheduling;
 
@@ -15,7 +14,6 @@ import java.util.Optional;
 @EnableAsync
 @EnableScheduling
 @EnableJpaAuditing
-@EnableJpaRepositories
 @Configuration
 public class SpringConfig {
 
