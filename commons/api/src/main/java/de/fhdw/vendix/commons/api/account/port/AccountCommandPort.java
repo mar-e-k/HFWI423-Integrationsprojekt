@@ -1,3 +1,5 @@
 package de.fhdw.vendix.commons.api.account.port;
 
-public interface AccountCommandPort {}
+import de.fhdw.vendix.commons.api.marker.port.CommandPort;
+
+public interface AccountCommandPort extends CommandPort {}
