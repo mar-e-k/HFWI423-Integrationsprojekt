@@ -1,6 +1,6 @@
 package de.fhdw.vendix.store.api.controller;
 
-import de.fhdw.vendix.commons.api.account.AccountEndpoints;
+import de.fhdw.vendix.commons.api.domain.account.AccountEndpoints;
 import de.fhdw.vendix.commons.core.api.dto.AccountDTO;
 import de.fhdw.vendix.store.api.mapper.AccountMapper;
 import de.fhdw.vendix.store.persistence.service.AccountService;

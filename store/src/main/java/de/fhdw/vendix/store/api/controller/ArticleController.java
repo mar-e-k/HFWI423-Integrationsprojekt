@@ -1,5 +1,6 @@
 package de.fhdw.vendix.store.api.controller;
 
+import de.fhdw.vendix.commons.api.domain.article.ArticleEndpoints;
 import de.fhdw.vendix.commons.core.api.dto.ArticleDTO;
 import de.fhdw.vendix.store.api.mapper.ArticleMapper;
 import de.fhdw.vendix.store.persistence.service.imported.ArticleService;
@@ -16,7 +17,7 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/article")
+@RequestMapping(ArticleEndpoints.BASE)
 @Tag(name = "Article", description = "Endpoints for operations related to articles")
 public class ArticleController {
 
@@ -39,7 +40,7 @@ public class ArticleController {
                         .toList());
     }
 
-    @GetMapping("/id/{id}")
+    @GetMapping(ArticleEndpoints.BY_ID)
     @Operation(summary = "Retrieve article by id")
     public ResponseEntity<ArticleDTO> getArticleById(@PathVariable Long id) {
         return ResponseEntity
@@ -49,7 +50,7 @@ public class ArticleController {
                         .orElseThrow(EntityNotFoundException::new));
     }
 
-    @GetMapping("/gtin/{gtin}")
+    @GetMapping(ArticleEndpoints.BY_NUMBER)
     @Operation(summary = "Retrieve account by article number")
     public ResponseEntity<ArticleDTO> getArticleByArticleNumber(@PathVariable String gtin) {
         return ResponseEntity

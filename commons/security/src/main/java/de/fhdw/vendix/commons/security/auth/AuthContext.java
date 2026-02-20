@@ -14,7 +14,7 @@ import java.util.List;
 import java.util.Set;
 
 // TODO: this should really be a record
-public final class AuthContext implements UserDetails, Principal, Serializable {
+public final class AuthContext implements UserDetails, Principal {
 
     @Serial
     private static final long serialVersionUID = 1L;

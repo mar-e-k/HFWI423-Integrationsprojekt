@@ -1,5 +1,6 @@
 package de.fhdw.vendix.pos.persistance.service.proxy;
 
+import de.fhdw.vendix.commons.api.domain.article.ArticleEndpoints;
 import de.fhdw.vendix.commons.core.api.dto.ArticleDTO;
 import de.fhdw.vendix.pos.utility.StoreClient;
 import org.springframework.core.ParameterizedTypeReference;
@@ -20,7 +21,7 @@ public class ArticleProxyService extends AbstractProxyService {
     public List<ArticleDTO> findAll() {
         return getWebClient()
                 .get()
-                .uri("/api/article")
+                .uri(ArticleEndpoints.BASE)
                 .retrieve()
                 .bodyToMono(new ParameterizedTypeReference<List<ArticleDTO>>(){})
                 .block();
@@ -29,17 +30,17 @@ public class ArticleProxyService extends AbstractProxyService {
     public Optional<ArticleDTO> findById(Long id) {
         return getWebClient()
                 .get()
-                .uri("/api/article/id/{id}", id)
+                .uri(ArticleEndpoints.BY_ID, id)
                 .retrieve()
                 .bodyToMono(ArticleDTO.class)
                 .onErrorResume(WebClientResponseException.NotFound.class, e -> Mono.empty())
                 .blockOptional();
     }
 
-    public Optional<ArticleDTO> findByArticleNumber(String gtin) {
+    public Optional<ArticleDTO> findByArticleNumber(String number) {
         return getWebClient()
                 .get()
-                .uri("/api/article/gtin/{gtin}", gtin)
+                .uri(ArticleEndpoints.BY_NUMBER, number)
                 .retrieve()
                 .bodyToMono(ArticleDTO.class)
                 .onErrorResume(WebClientResponseException.NotFound.class, e -> Mono.empty())
