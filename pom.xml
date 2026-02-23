@@ -5,10 +5,11 @@
                              https://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
+    <!-- Source: https://mvnrepository.com/artifact/org.springframework.boot/spring-boot-starter-parent -->
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>4.0.0</version>
+        <version>4.0.3</version>
         <relativePath/>
     </parent>
 
@@ -28,14 +29,14 @@
 
     <properties>
         <java.version>25</java.version>
-        <!-- Dependency Versions        -->
+        <!-- Dependency Versions -->
         <vaadin.version>25.0.5</vaadin.version>
         <swagger.version>2.2.42</swagger.version>
         <pdfbox.version>3.0.6</pdfbox.version>
         <plaguv-amqp.version>1.1.0</plaguv-amqp.version>
         <nimbus.version>10.7</nimbus.version>
         <mapstruct.version>1.6.3</mapstruct.version>
-        <!-- Plugin Versions        -->
+        <!-- Plugin Versions -->
         <error-prone.version>2.47.0</error-prone.version>
         <error-prone-support.version>0.28.0</error-prone-support.version>
         <nullaway.version>0.13.1</nullaway.version>
@@ -85,46 +86,50 @@
     </dependencyManagement>
 
     <build>
-        <plugins>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-compiler-plugin</artifactId>
-                <configuration>
-                    <release>${java.version}</release>
-                    <encoding>${project.build.sourceEncoding}</encoding>
-                    <compilerArgs>
-                        <arg>-XDcompilePolicy=simple</arg>
-                        <arg>--should-stop=ifError=FLOW</arg>
-                        <arg>-XDaddTypeAnnotationsToSymbol=true</arg>
-                        <arg> <!-- Arguments have to be appending for ErrorProne-->
-                            -Xplugin:ErrorProne
-                            -XepOpt:NullAway:AnnotatedPackages=de.fhdw.vendix
-                            -Xep:NullAway:ERROR
-                            -Xep:StaticImport:OFF
-                        </arg>
-                    </compilerArgs>
-                    <annotationProcessorPaths>
-                        <!-- Source: https://mvnrepository.com/artifact/com.google.errorprone/error_prone_core -->
-                        <path>
-                            <groupId>com.google.errorprone</groupId>
-                            <artifactId>error_prone_core</artifactId>
-                            <version>${error-prone.version}</version>
-                        </path>
-                        <!-- Source: https://mvnrepository.com/artifact/tech.picnic.error-prone-support/error-prone-contrib -->
-                        <path>
-                            <groupId>tech.picnic.error-prone-support</groupId>
-                            <artifactId>error-prone-contrib</artifactId>
-                            <version>${error-prone-support.version}</version>
-                        </path>
-                        <!-- Source: https://mvnrepository.com/artifact/com.uber.nullaway/nullaway -->
-                        <path>
-                            <groupId>com.uber.nullaway</groupId>
-                            <artifactId>nullaway</artifactId>
-                            <version>${nullaway.version}</version>
-                        </path>
-                    </annotationProcessorPaths>
-                </configuration>
-            </plugin>
-        </plugins>
+        <pluginManagement>
+            <plugins>
+                <!-- Source: https://mvnrepository.com/artifact/org.apache.maven.plugins/maven-compiler-plugin -->
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-compiler-plugin</artifactId>
+                    <version>${maven-compiler-plugin.version}</version>
+                    <configuration>
+                        <release>${java.version}</release>
+                        <encoding>${project.build.sourceEncoding}</encoding>
+                        <compilerArgs>
+                            <arg>-XDcompilePolicy=simple</arg>
+                            <arg>--should-stop=ifError=FLOW</arg>
+                            <arg>-XDaddTypeAnnotationsToSymbol=true</arg>
+                            <arg> <!-- Arguments have to be appending for ErrorProne-->
+                                -Xplugin:ErrorProne
+                                -XepOpt:NullAway:AnnotatedPackages=de.fhdw.vendix
+                                -Xep:NullAway:ERROR
+                                -Xep:StaticImport:OFF
+                            </arg>
+                        </compilerArgs>
+                        <annotationProcessorPaths>
+                            <!-- Source: https://mvnrepository.com/artifact/com.google.errorprone/error_prone_core -->
+                            <path>
+                                <groupId>com.google.errorprone</groupId>
+                                <artifactId>error_prone_core</artifactId>
+                                <version>${error-prone.version}</version>
+                            </path>
+                            <!-- Source: https://mvnrepository.com/artifact/tech.picnic.error-prone-support/error-prone-contrib -->
+                            <path>
+                                <groupId>tech.picnic.error-prone-support</groupId>
+                                <artifactId>error-prone-contrib</artifactId>
+                                <version>${error-prone-support.version}</version>
+                            </path>
+                            <!-- Source: https://mvnrepository.com/artifact/com.uber.nullaway/nullaway -->
+                            <path>
+                                <groupId>com.uber.nullaway</groupId>
+                                <artifactId>nullaway</artifactId>
+                                <version>${nullaway.version}</version>
+                            </path>
+                        </annotationProcessorPaths>
+                    </configuration>
+                </plugin>
+            </plugins>
+        </pluginManagement>
     </build>
 </project>
