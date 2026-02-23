@@ -21,10 +21,5 @@
             <groupId>org.mapstruct</groupId>
             <artifactId>mapstruct</artifactId>
         </dependency>
-
-        <dependency>
-            <groupId>org.jspecify</groupId>
-            <artifactId>jspecify</artifactId>
-        </dependency>
     </dependencies>
 </project>
