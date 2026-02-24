@@ -7,13 +7,12 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.io.Serial;
-import java.io.Serializable;
 import java.security.Principal;
 import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 
-// TODO: this should really be a record
+// TODO: this should really be a record. In Progress -> {@Link AuthContextRecord.java}
 public final class AuthContext implements UserDetails, Principal {
 
     @Serial

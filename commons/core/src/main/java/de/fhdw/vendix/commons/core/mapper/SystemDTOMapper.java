@@ -1,4 +1,4 @@
-package de.fhdw.vendix.commons.api.domain.system;
+package de.fhdw.vendix.commons.core.mapper;
 
 import de.fhdw.vendix.commons.api.domain.system.dto.SystemDTO;
 import de.fhdw.vendix.commons.api.domain.system.dto.SystemRequestDTO;

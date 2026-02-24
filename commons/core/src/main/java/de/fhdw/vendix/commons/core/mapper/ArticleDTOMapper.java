@@ -1,4 +1,4 @@
-package de.fhdw.vendix.commons.api.domain.article;
+package de.fhdw.vendix.commons.core.mapper;
 
 import de.fhdw.vendix.commons.api.domain.article.dto.ArticleDTO;
 import de.fhdw.vendix.commons.api.domain.article.dto.ArticleRequestDTO;

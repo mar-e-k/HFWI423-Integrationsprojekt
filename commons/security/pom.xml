@@ -23,6 +23,13 @@
             <version>1.0.0</version>
         </dependency>
 
+        <!-- Replace upper with this -->
+        <dependency>
+            <groupId>de.fhdw.vendix</groupId>
+            <artifactId>commons-api</artifactId>
+            <version>1.0.0</version>
+        </dependency>
+
         <dependency>
             <groupId>com.nimbusds</groupId>
             <artifactId>nimbus-jose-jwt</artifactId>

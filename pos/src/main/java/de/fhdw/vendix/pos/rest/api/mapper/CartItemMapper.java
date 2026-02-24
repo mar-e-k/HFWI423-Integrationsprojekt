@@ -3,7 +3,6 @@ package de.fhdw.vendix.pos.rest.api.mapper;
 import de.fhdw.vendix.commons.core.api.dto.ArticleDTO;
 import de.fhdw.vendix.commons.core.api.dto.OverrideReasonEnum;
 import de.fhdw.vendix.commons.core.api.dto.ReceiptLinkArticleDTO;
-import de.fhdw.vendix.commons.core.api.mapper.GenericMapper;
 import de.fhdw.vendix.pos.view.cashier.CartItem;
 import org.springframework.stereotype.Component;
 

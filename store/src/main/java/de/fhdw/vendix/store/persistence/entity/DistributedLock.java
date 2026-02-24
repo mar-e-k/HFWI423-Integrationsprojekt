@@ -11,6 +11,8 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.time.Instant;
 
+// TODO: this should really be in redis
+
 @Entity
 @Table(
         indexes = @Index(columnList = "expires_at"),

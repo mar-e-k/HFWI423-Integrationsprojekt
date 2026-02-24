@@ -2,8 +2,16 @@ package de.fhdw.vendix.commons.api.domain.register.dto;
 
 import de.fhdw.vendix.commons.api.structure.dto.DomainDTO;
 
-public record RegisterDTO() implements DomainDTO {
+public record RegisterDTO(
+        long registerId,
+        long storeId
+) implements DomainDTO {
     public RegisterDTO {
-        throw new UnsupportedOperationException("RegisterDTO has not yet been implemented");
+        if (registerId < 0) {
+            throw new IllegalArgumentException("RegisterLineDTO parameter 'registerId' must be at least 0");
+        }
+        if (storeId < 0) {
+            throw new IllegalArgumentException("RegisterLineDTO parameter 'storeId' must be at least 0");
+        }
     }
 }

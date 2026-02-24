@@ -1,4 +1,4 @@
-package de.fhdw.vendix.commons.api.domain.store;
+package de.fhdw.vendix.commons.core.mapper;
 
 import de.fhdw.vendix.commons.api.structure.mapper.GenericDTOMapper;
 import de.fhdw.vendix.commons.api.domain.store.dto.StoreDTO;
