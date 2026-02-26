@@ -19,15 +19,15 @@ public class Account extends AbstractEntity {
     private List<Receipt> receipts = new ArrayList<>();
 
     @Column(unique = true, nullable = false)
-    @NotNull(message = "Account uuid cannot be null")
+    @NotNull(message = "Account subject cannot be null")
     private String uuid;
 
     @Column(unique = true, nullable = false)
-    @NotBlank(message = "Account username must not be blank")
+    @NotBlank(message = "Account accountUsername must not be blank")
     private String username;
 
     @Column(nullable = false)
-    @NotBlank(message = "Account password must not be blank")
+    @NotBlank(message = "Account accountPassword must not be blank")
     private String password;
 
     public Account() {

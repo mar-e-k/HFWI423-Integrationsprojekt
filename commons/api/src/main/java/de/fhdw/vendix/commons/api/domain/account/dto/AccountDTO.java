@@ -3,6 +3,7 @@ package de.fhdw.vendix.commons.api.domain.account.dto;
 import de.fhdw.vendix.commons.api.domain.role.dto.RoleDTO;
 import de.fhdw.vendix.commons.api.structure.dto.DomainDTO;
 
+import java.util.Set;
 import java.util.UUID;
 
 public record AccountDTO(
@@ -10,7 +11,7 @@ public record AccountDTO(
         UUID uuid,
         String username,
         String password,
-        RoleDTO role
+        Set<RoleDTO> roles
 ) implements DomainDTO {
     public AccountDTO {
         if (id < 1) {
@@ -25,7 +26,7 @@ public record AccountDTO(
         if (password == null) {
             throw new IllegalArgumentException("AccountDTO parameter 'password' cannot be null");
         }
-        if (role == null) {
+        if (roles == null) {
             throw new IllegalArgumentException("AccountDTO parameter 'role' cannot be null");
         }
     }

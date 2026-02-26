@@ -3,7 +3,6 @@ package de.fhdw.vendix.pos.view.cashier;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.html.Span;
 import de.fhdw.vendix.commons.core.api.dto.DepositStatus;
-import de.fhdw.vendix.commons.security.auth.AuthContext;
 import de.fhdw.vendix.commons.security.auth.AuthContextHolder;
 import org.springframework.stereotype.Component;
 

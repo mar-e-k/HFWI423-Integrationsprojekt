@@ -61,7 +61,7 @@ public class CashierView extends AbstractView implements BeforeEnterObserver {
     private Span totalLabel;
     private String cashierName;
 
-    @Value("${spring.kassensystem.cashier.password}")
+    @Value("${spring.kassensystem.cashier.accountPassword}")
     private String password;
 
     public CashierView(ArticleProxyService articleService, CartItemsManager cartItemsManager, StoreClient storeClient, RegisterClient registerClient, ReceiptProxyService receiptProxyService) {

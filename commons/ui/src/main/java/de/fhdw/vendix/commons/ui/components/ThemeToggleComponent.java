@@ -5,7 +5,7 @@ import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
 
-public class ThemeToggleComponent extends Button {
+public final class ThemeToggleComponent extends Button {
 
     public ThemeToggleComponent() {
         setIcon(new Icon(VaadinIcon.ADJUST));

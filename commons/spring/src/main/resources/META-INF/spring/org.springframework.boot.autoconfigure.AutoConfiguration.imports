@@ -1,3 +1,4 @@
+de.fhdw.vendix.commons.spring.autoconfigure.CommonsAutoConfiguration
 de.fhdw.vendix.commons.spring.autoconfigure.JwtAutoConfiguration
 de.fhdw.vendix.commons.spring.autoconfigure.SecurityAutoConfiguration
 de.fhdw.vendix.commons.spring.autoconfigure.VaadinAutoConfiguration

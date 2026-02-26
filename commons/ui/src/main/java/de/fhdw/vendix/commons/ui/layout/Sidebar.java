@@ -9,7 +9,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-public class Sidebar extends VerticalLayout {
+public final class Sidebar extends VerticalLayout {
 
     private final Map<SidebarEntry, RouterLink> links = new LinkedHashMap<>();
 

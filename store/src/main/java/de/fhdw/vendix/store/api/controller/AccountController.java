@@ -35,7 +35,7 @@ public class AccountController {
     }
 
     @GetMapping(AccountEndpoints.BY_UUID)
-    @Operation(summary = "Retrieve account by uuid")
+    @Operation(summary = "Retrieve account by subject")
     public ResponseEntity<AccountDTO> getAccountByUuid(@PathVariable String uuid) {
         return ResponseEntity
                 .status(HttpStatus.OK)
@@ -45,7 +45,7 @@ public class AccountController {
     }
 
     @GetMapping(AccountEndpoints.BY_USERNAME)
-    @Operation(summary = "Retrieve account by username")
+    @Operation(summary = "Retrieve account by accountUsername")
     public ResponseEntity<AccountDTO> getAccountByUsername(@PathVariable String username) {
         return ResponseEntity
                 .status(HttpStatus.OK)

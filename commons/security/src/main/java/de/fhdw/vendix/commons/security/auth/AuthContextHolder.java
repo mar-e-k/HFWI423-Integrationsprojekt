@@ -5,6 +5,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 
 import java.util.Optional;
 
+// TODO: Potentially redundant
 public final class AuthContextHolder {
 
     private AuthContextHolder() {}

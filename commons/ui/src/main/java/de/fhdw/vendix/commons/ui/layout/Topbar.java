@@ -9,7 +9,7 @@ import de.fhdw.vendix.commons.ui.components.LiveClockComponent;
 import de.fhdw.vendix.commons.ui.components.ThemeToggleComponent;
 import org.springframework.aop.support.AopUtils;
 
-public class Topbar extends HorizontalLayout {
+public final class Topbar extends HorizontalLayout {
 
     private final H1 viewTitle = new H1(AopUtils.getTargetClass(this).getSimpleName());
 
@@ -30,21 +30,21 @@ public class Topbar extends HorizontalLayout {
         add(createLeftSection(), createCenterSection(), createRightSection());
     }
 
-    protected HorizontalLayout createLeftSection() {
+    HorizontalLayout createLeftSection() {
         HorizontalLayout left = new HorizontalLayout(viewTitle);
         left.setJustifyContentMode(FlexComponent.JustifyContentMode.START);
         left.setFlexGrow(1, viewTitle);
         return left;
     }
 
-    protected HorizontalLayout createCenterSection() {
+    HorizontalLayout createCenterSection() {
         HorizontalLayout center = new HorizontalLayout();
         center.setJustifyContentMode(FlexComponent.JustifyContentMode.CENTER);
         center.setFlexGrow(1, center);
         return center;
     }
 
-    protected HorizontalLayout createRightSection() {
+    HorizontalLayout createRightSection() {
         HorizontalLayout right = new HorizontalLayout();
         right.setAlignItems(FlexComponent.Alignment.CENTER);
         right.setJustifyContentMode(FlexComponent.JustifyContentMode.END);

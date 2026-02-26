@@ -2,8 +2,6 @@ package de.fhdw.vendix.pos.utility.security;
 
 import de.fhdw.vendix.commons.core.api.dto.AccountDTO;
 import de.fhdw.vendix.commons.core.persistence.entity.AccountRoleEnum;
-import de.fhdw.vendix.commons.security.auth.AuthContext;
-import de.fhdw.vendix.commons.security.auth.AuthContextAuthenticationToken;
 import de.fhdw.vendix.commons.security.jwt.AbstractJwtAuthenticationFilter;
 import de.fhdw.vendix.commons.security.jwt.JwtService;
 import de.fhdw.vendix.commons.security.jwt.claims.JwtPayload;
@@ -35,15 +33,15 @@ public class JwtAuthenticationFilter extends AbstractJwtAuthenticationFilter {
 
         AuthContext authContext;
 
-        if (payload.auth().accountRoles().contains(AccountRoleEnum.SYSTEM)) {
-            authContext = new AuthContext.Builder(null, payload.auth().accountUuid(), null, null, payload.auth().accountRoles())
+        if (payload.auth().roles().contains(AccountRoleEnum.SYSTEM)) {
+            authContext = new AuthContext.Builder(null, payload.auth().subject(), null, null, payload.auth().roles())
                     .storeId(payload.ctx().storeId())
                     .registerId(payload.ctx().registerId())
                     .build();
         } else {
             AccountDTO account = accountProxyService
-                    .findByUuid(payload.auth().accountUuid())
-                    .orElseThrow(() -> new UsernameNotFoundException("Account not found for UUID " + payload.auth().accountUuid()));
+                    .findByUuid(payload.auth().subject())
+                    .orElseThrow(() -> new UsernameNotFoundException("Account not found for UUID " + payload.auth().subject()));
 
             authContext = new AuthContext.Builder(account)
                     .storeId(payload.ctx().storeId())

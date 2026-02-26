@@ -2,7 +2,6 @@ package de.fhdw.vendix.store.utility.security;
 
 import de.fhdw.vendix.commons.core.persistence.entity.AccountRoleEnum;
 import de.fhdw.vendix.commons.core.persistence.entity.LockTypeEnum;
-import de.fhdw.vendix.commons.security.auth.AuthContext;
 import de.fhdw.vendix.store.persistence.entity.Account;
 import de.fhdw.vendix.store.persistence.service.AccountService;
 import de.fhdw.vendix.store.persistence.service.DistributedLockService;

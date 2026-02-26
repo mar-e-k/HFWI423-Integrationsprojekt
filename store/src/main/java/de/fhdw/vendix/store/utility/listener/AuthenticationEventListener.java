@@ -1,7 +1,6 @@
 package de.fhdw.vendix.store.utility.listener;
 
 import de.fhdw.vendix.commons.core.persistence.entity.LockTypeEnum;
-import de.fhdw.vendix.commons.security.auth.AuthContext;
 import de.fhdw.vendix.store.persistence.entity.DistributedLock;
 import de.fhdw.vendix.store.persistence.service.DistributedLockService;
 import de.fhdw.vendix.store.utility.StoreClient;

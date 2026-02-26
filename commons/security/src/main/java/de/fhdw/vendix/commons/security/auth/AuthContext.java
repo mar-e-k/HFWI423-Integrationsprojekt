@@ -1,184 +1,80 @@
 package de.fhdw.vendix.commons.security.auth;
 
-import de.fhdw.vendix.commons.core.api.dto.AccountDTO;
-import de.fhdw.vendix.commons.core.persistence.entity.AccountRoleEnum;
+import de.fhdw.vendix.commons.api.domain.account.dto.AccountDTO;
+import de.fhdw.vendix.commons.api.domain.register.dto.RegisterDTO;
+import de.fhdw.vendix.commons.api.domain.role.dto.RoleDTO;
+import de.fhdw.vendix.commons.api.domain.store.dto.StoreDTO;
+import org.jspecify.annotations.NullMarked;
+import org.jspecify.annotations.Nullable;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
-import java.io.Serial;
 import java.security.Principal;
-import java.util.Collection;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
+import java.util.stream.Collectors;
 
-// TODO: this should really be a record. In Progress -> {@Link AuthContextRecord.java}
-public final class AuthContext implements UserDetails, Principal {
-
-    @Serial
-    private static final long serialVersionUID = 1L;
-
-    private final Long accountId;
-    private final String uuid;
-    private final String username;
-    private final String password;
-    private final Set<AccountRoleEnum> roles;
-
-    private final Long storeId;
-    private final Long registerId;
-
-    private final boolean accountNonExpired;
-    private final boolean accountNonLocked;
-    private final boolean accountCredentialsNonExpired;
-    private final boolean accountEnabled;
-
-    private AuthContext(Builder builder) {
-        this.accountId = builder.accountId;
-        this.uuid = builder.uuid;
-        this.username = builder.username;
-        this.password = builder.password;
-        this.roles = Set.copyOf(builder.roles);
-
-        this.storeId = builder.storeId;
-        this.registerId = builder.registerId;
-
-        this.accountNonExpired = builder.accountNonExpired;
-        this.accountNonLocked = builder.accountNonLocked;
-        this.accountCredentialsNonExpired = builder.accountCredentialsNonExpired;
-        this.accountEnabled = builder.accountEnabled;
-    }
-
-    public Long getAccountId() {
-        return accountId;
-    }
-
-    public String getUuid() {
-        return uuid;
-    }
-
-    @Override
-    public String getUsername() {
-        return username;
-    }
-
-    @Override
-    public String getPassword() {
-        return password;
-    }
-
-    public Set<AccountRoleEnum> getRoles() {
-        return roles;
-    }
-
-    public Long getStoreId() {
-        return storeId;
-    }
-
-    public Long getRegisterId() {
-        return registerId;
-    }
-
-    @Override
-    public Collection<? extends GrantedAuthority> getAuthorities() {
-        if (roles == null || roles.isEmpty()) {
-            return List.of();
+@NullMarked
+public record AuthContext(
+        // Core
+        AccountDTO account,
+        // Meta
+        @Nullable StoreDTO store,
+        @Nullable RegisterDTO register,
+        // Meta-Security
+        boolean isAccountNonExpired,
+        boolean isAccountNonLocked,
+        boolean isCredentialsNonExpired,
+        boolean isEnabled
+) implements UserDetails, Principal {
+    public AuthContext {
+        if (account == null) {
+            throw new IllegalArgumentException("AccountDTO parameter 'account' cannot be null");
         }
-
-        return roles.stream()
-                .map(Enum::name)
-                .map("ROLE_"::concat)
-                .map(SimpleGrantedAuthority::new)
-                .toList();
     }
 
     @Override
     public String getName() {
-        return username;
+        return account.username();
+    }
+
+    @Override
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        return account.roles().stream()
+                .map(RoleDTO::role)
+                .map(Enum::name)
+                .map("ROLE_"::concat)
+                .map(SimpleGrantedAuthority::new)
+                .collect(Collectors.toUnmodifiableSet());
+    }
+
+    @Override
+    public String getPassword() {
+        return account.password();
+    }
+
+    @Override
+    public String getUsername() {
+        return account.username();
     }
 
     @Override
     public boolean isAccountNonExpired() {
-        return accountNonExpired;
+        return isAccountNonExpired;
     }
 
     @Override
     public boolean isAccountNonLocked() {
-        return accountNonLocked;
+        return isAccountNonLocked;
     }
 
     @Override
     public boolean isCredentialsNonExpired() {
-        return accountCredentialsNonExpired;
+        return isCredentialsNonExpired;
     }
 
     @Override
     public boolean isEnabled() {
-        return accountEnabled;
-    }
-
-    public static class Builder {
-        private final Long accountId;
-        private final String uuid;
-        private final String username;
-        private final String password;
-        private final Set<AccountRoleEnum> roles;
-
-        private Long storeId;
-        private Long registerId;
-
-        private boolean accountNonExpired = true;
-        private boolean accountNonLocked = true;
-        private boolean accountCredentialsNonExpired = true;
-        private boolean accountEnabled = true;
-
-        public Builder(AccountDTO account) {
-            this.accountId = account.getId();
-            this.uuid = account.getUuid();
-            this.username = account.getUsername();
-            this.password = account.getPassword();
-            this.roles = Set.of(account.getRole());
-        }
-
-        public Builder(Long accountId, String uuid, String username, String password, Set<AccountRoleEnum> roles) {
-            this.accountId = accountId;
-            this.uuid = uuid;
-            this.username = username;
-            this.password = password;
-            this.roles = roles;
-        }
-
-        public Builder storeId(Long storeId) {
-            this.storeId = storeId;
-            return this;
-        }
-
-        public Builder registerId(Long registerId) {
-            this.registerId = registerId;
-            return this;
-        }
-
-        public Builder accountNonExpired(boolean value) {
-            this.accountNonExpired = value;
-            return this;
-        }
-
-        public Builder accountNonLocked(boolean value) {
-            this.accountNonLocked = value;
-            return this;
-        }
-
-        public Builder accountCredentialsNonExpired(boolean value) {
-            this.accountCredentialsNonExpired = value;
-            return this;
-        }
-
-        public Builder accountEnabled(boolean value) {
-            this.accountEnabled = value;
-            return this;
-        }
-
-        public AuthContext build() {
-            return new AuthContext(this);
-        }
+        return isEnabled;
     }
 }

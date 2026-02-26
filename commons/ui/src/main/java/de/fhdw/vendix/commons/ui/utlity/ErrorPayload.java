@@ -1,5 +1,6 @@
 package de.fhdw.vendix.commons.ui.utlity;
 
+import java.time.Clock;
 import java.time.Instant;
 import java.util.Arrays;
 
@@ -29,7 +30,7 @@ public record ErrorPayload(
                 throwable.getClass().getSimpleName(),
                 throwable.getMessage() != null ? throwable.getMessage() : "Unexpected error",
                 Arrays.toString(throwable.getStackTrace()),
-                Instant.now()
+                Instant.now(Clock.systemUTC())
         );
     }
 
@@ -38,7 +39,7 @@ public record ErrorPayload(
                 exception.getClass().getSimpleName(),
                 exception.getMessage() != null ? exception.getMessage() : "Unexpected error",
                 Arrays.toString(exception.getStackTrace()),
-                Instant.now()
+                Instant.now(Clock.systemUTC())
         );
     }
 }

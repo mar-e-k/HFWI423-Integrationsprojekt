@@ -2,7 +2,6 @@ package de.fhdw.vendix.pos.utility.listener;
 
 import de.fhdw.vendix.commons.core.api.dto.DistributedLockDTO;
 import de.fhdw.vendix.commons.core.persistence.entity.LockTypeEnum;
-import de.fhdw.vendix.commons.security.auth.AuthContext;
 import de.fhdw.vendix.pos.persistance.service.proxy.DistributedLockProxyService;
 import de.fhdw.vendix.pos.utility.RegisterClient;
 import org.slf4j.Logger;

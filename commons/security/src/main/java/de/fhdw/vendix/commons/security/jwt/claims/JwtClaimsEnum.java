@@ -2,9 +2,7 @@ package de.fhdw.vendix.commons.security.jwt.claims;
 
 public enum JwtClaimsEnum {
     SUBJECT("sub"),
-    ACCOUNT_ROLES("roles"),
-    STORE_ID("store"),
-    REGISTER_ID("register");
+    ROLES("roles");
 
     private final String claim;
 

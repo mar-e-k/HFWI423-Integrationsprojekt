@@ -1,14 +1,4 @@
 package de.fhdw.vendix.commons.security.jwt.claims;
 
-public record ContextClaims(
-        Long storeId,
-        Long registerId
-) {
-    public static ContextClaims empty() {
-        return new ContextClaims(null, null);
-    }
-
-    public static ContextClaims context(Long storeId, Long registerId) {
-        return new ContextClaims(storeId, registerId);
-    }
-}
+// Add context claims here, if required
+public record ContextClaims() {}

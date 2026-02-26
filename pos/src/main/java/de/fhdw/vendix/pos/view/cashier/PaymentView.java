@@ -30,7 +30,6 @@ import com.vaadin.flow.component.textfield.TextField;
 import de.fhdw.vendix.commons.core.api.dto.AccountDTO;
 import de.fhdw.vendix.commons.core.api.dto.ReceiptDTO;
 import de.fhdw.vendix.commons.core.persistence.entity.AccountRoleEnum;
-import de.fhdw.vendix.commons.security.auth.AuthContext;
 import de.fhdw.vendix.commons.security.auth.AuthContextHolder;
 import de.fhdw.vendix.pos.persistance.service.proxy.AccountProxyService;
 import de.fhdw.vendix.pos.persistance.service.proxy.ReceiptProxyService;

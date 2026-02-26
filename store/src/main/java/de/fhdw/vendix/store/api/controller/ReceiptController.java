@@ -3,7 +3,6 @@ package de.fhdw.vendix.store.api.controller;
 import de.fhdw.vendix.commons.api.domain.receipt.ReceiptEndpoints;
 import de.fhdw.vendix.commons.core.api.dto.ReceiptDTO;
 import de.fhdw.vendix.commons.core.api.dto.ReceiptLinkArticleDTO;
-import de.fhdw.vendix.commons.security.auth.AuthContext;
 import de.fhdw.vendix.store.api.mapper.ReceiptLinkArticleMapper;
 import de.fhdw.vendix.store.api.mapper.ReceiptMapper;
 import de.fhdw.vendix.store.persistence.service.ReceiptService;

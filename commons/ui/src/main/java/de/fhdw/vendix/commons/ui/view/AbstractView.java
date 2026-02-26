@@ -21,7 +21,7 @@ public abstract class AbstractView extends VerticalLayout implements BeforeEnter
     public void beforeEnter(BeforeEnterEvent beforeEnterEvent) {
         Optional<AuthContext> authContext = AuthContextHolder.current();
 
-        if (authContext.isEmpty() || authContext.get().getRoles().isEmpty()) {
+        if (authContext.isEmpty() || authContext.get().account().roles().isEmpty()) {
             beforeEnterEvent.rerouteTo("/login");
             return;
         }

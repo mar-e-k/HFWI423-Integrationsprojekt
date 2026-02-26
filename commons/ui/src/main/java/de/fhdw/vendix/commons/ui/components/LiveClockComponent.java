@@ -5,7 +5,7 @@ import com.vaadin.flow.component.DetachEvent;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.html.Span;
 
-public class LiveClockComponent extends Span {
+public final class LiveClockComponent extends Span {
 
     public LiveClockComponent() {
         setId("live-clock-label");

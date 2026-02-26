@@ -1,8 +1,10 @@
 package de.fhdw.vendix.commons.security.auth;
 
+import java.util.Set;
+
 public final class AuthWhitelist {
 
-    public static final String[] WHITELIST = {
+    public static final Set<String> API_WHITELIST = Set.of(
             "/",
             "/login",
             "/favicon.ico",
@@ -18,8 +20,8 @@ public final class AuthWhitelist {
             "/vaadinServlet/**",
             "/connect/**",
             "/UIDL/**",
-            "/HEARTBEAT/**",
-    };
+            "/HEARTBEAT/**"
+    );
 
     private AuthWhitelist() {}
 }

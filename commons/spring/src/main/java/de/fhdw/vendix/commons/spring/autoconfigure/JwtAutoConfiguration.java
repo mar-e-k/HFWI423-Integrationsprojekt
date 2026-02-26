@@ -10,8 +10,11 @@ import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
+
+import java.util.Collections;
 
 @AutoConfiguration
 @EnableConfigurationProperties(JwtPropertiesConfiguration.class)
@@ -30,7 +33,7 @@ public class JwtAutoConfiguration {
         return new JwtAuthenticationFilter() {
             @Override
             public Authentication resolveAuthentication(String token) throws AuthenticationException {
-                return null;
+                return new UsernamePasswordAuthenticationToken(token, "", Collections.emptyList());
             }
         };
     }
