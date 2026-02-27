@@ -1,0 +1,44 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>de.fhdw.vendix</groupId>
+        <artifactId>commons-ui-parent</artifactId>
+        <version>1.0.0</version>
+    </parent>
+
+    <artifactId>commons-ui-vaadin</artifactId>
+    <packaging>jar</packaging>
+
+    <name>commons-ui-vaadin</name>
+    <description>commons-ui-vaadin</description>
+
+    <dependencies>
+        <dependency>
+            <groupId>de.fhdw.vendix</groupId>
+            <artifactId>commons-ui-core</artifactId>
+            <version>1.0.0</version>
+        </dependency>
+
+        <dependency>
+            <groupId>de.fhdw.vendix</groupId>
+            <artifactId>commons-security-api</artifactId>
+            <version>1.0.0</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.vaadin</groupId>
+            <artifactId>vaadin-core</artifactId>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+            </plugin>
+        </plugins>
+    </build>
+</project>

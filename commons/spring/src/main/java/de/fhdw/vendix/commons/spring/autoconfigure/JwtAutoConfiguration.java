@@ -1,40 +1,29 @@
 package de.fhdw.vendix.commons.spring.autoconfigure;
 
-import de.fhdw.vendix.commons.security.jwt.JwtAuthenticationFilter;
-import de.fhdw.vendix.commons.security.jwt.JwtProperties;
-import de.fhdw.vendix.commons.security.jwt.JwtService;
-import de.fhdw.vendix.commons.security.jwt.JwtServiceImpl;
+import de.fhdw.vendix.commons.api.domain.account.port.AccountQueryPort;
+import de.fhdw.vendix.commons.security.core.JwtProperties;
+import de.fhdw.vendix.commons.security.core.JwtService;
+import de.fhdw.vendix.commons.security.core.JwtServiceImpl;
+import de.fhdw.vendix.commons.security.spring.JwtAuthenticationFilter;
 import de.fhdw.vendix.commons.spring.properties.JwtPropertiesConfiguration;
-
 import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.AuthenticationException;
-
-import java.util.Collections;
 
 @AutoConfiguration
 @EnableConfigurationProperties(JwtPropertiesConfiguration.class)
 public class JwtAutoConfiguration {
 
     @Bean
-    @ConditionalOnMissingBean(JwtService.class)
-    public JwtService jwtService(JwtProperties properties) {
-        return new JwtServiceImpl(properties);
+    @ConditionalOnMissingBean
+    public JwtService jwtService(JwtProperties jwtProperties) {
+        return new JwtServiceImpl(jwtProperties);
     }
 
-    // TODO: placeholder
     @Bean
-    @ConditionalOnMissingBean(JwtAuthenticationFilter.class)
-    public JwtAuthenticationFilter jwtAuthenticationFilter() {
-        return new JwtAuthenticationFilter() {
-            @Override
-            public Authentication resolveAuthentication(String token) throws AuthenticationException {
-                return new UsernamePasswordAuthenticationToken(token, "", Collections.emptyList());
-            }
-        };
+    @ConditionalOnMissingBean
+    public JwtAuthenticationFilter jwtAuthenticationFilter(JwtService jwtService, AccountQueryPort accountQueryPort) {
+        return new JwtAuthenticationFilter(jwtService, accountQueryPort);
     }
 }

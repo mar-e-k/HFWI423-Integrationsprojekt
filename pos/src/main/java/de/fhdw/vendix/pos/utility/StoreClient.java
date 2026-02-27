@@ -1,7 +1,7 @@
 package de.fhdw.vendix.pos.utility;
 
 import de.fhdw.vendix.commons.core.api.dto.StoreDTO;
-import de.fhdw.vendix.commons.security.auth.AuthContextHolder;
+import de.fhdw.vendix.commons.security.spring.AuthContextHolder;
 import de.fhdw.vendix.commons.security.jwt.JwtService;
 import de.fhdw.vendix.commons.security.jwt.claims.JwtPayload;
 import org.springframework.beans.factory.annotation.Value;

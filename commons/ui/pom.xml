@@ -10,31 +10,14 @@
         <version>1.0.0</version>
     </parent>
 
-    <artifactId>commons-ui</artifactId>
-    <packaging>jar</packaging>
+    <artifactId>commons-ui-parent</artifactId>
+    <packaging>pom</packaging>
 
     <name>commons-ui</name>
     <description>commons-ui</description>
 
-    <dependencies>
-        <dependency>
-            <groupId>de.fhdw.vendix</groupId>
-            <artifactId>commons-security</artifactId>
-            <version>1.0.0</version>
-        </dependency>
-
-        <dependency>
-            <groupId>com.vaadin</groupId>
-            <artifactId>vaadin-core</artifactId>
-        </dependency>
-    </dependencies>
-
-    <build>
-        <plugins>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-compiler-plugin</artifactId>
-            </plugin>
-        </plugins>
-    </build>
+    <modules>
+        <module>core</module>
+        <module>vaadin</module>
+    </modules>
 </project>

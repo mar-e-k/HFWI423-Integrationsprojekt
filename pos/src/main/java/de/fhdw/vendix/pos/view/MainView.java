@@ -6,12 +6,12 @@ import com.vaadin.flow.router.BeforeEnterObserver;
 import com.vaadin.flow.router.Route;
 import de.fhdw.vendix.commons.core.persistence.entity.AccountRoleEnum;
 import de.fhdw.vendix.pos.view.cashier.CashierView;
-import de.fhdw.vendix.commons.ui.view.AbstractView;
+import de.fhdw.vendix.commons.ui.view.BaseView;
 import jakarta.annotation.security.RolesAllowed;
 
 @Route("")
 @RolesAllowed(AccountRoleEnum.ROLE_CASHIER)
-public class MainView extends AbstractView implements BeforeEnterObserver {
+public class MainView extends BaseView implements BeforeEnterObserver {
 
     public MainView() {
         UI.getCurrent().navigate(CashierView.class);

@@ -1,6 +1,6 @@
 package de.fhdw.vendix.commons.spring.properties;
 
-import de.fhdw.vendix.commons.security.jwt.JwtProperties;
+import de.fhdw.vendix.commons.security.core.JwtProperties;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.validation.annotation.Validated;
 

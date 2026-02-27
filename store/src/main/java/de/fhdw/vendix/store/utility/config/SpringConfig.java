@@ -1,6 +1,6 @@
 package de.fhdw.vendix.store.utility.config;
 
-import de.fhdw.vendix.commons.security.auth.AuthContextHolder;
+import de.fhdw.vendix.commons.security.spring.AuthContextHolder;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.domain.AuditorAware;

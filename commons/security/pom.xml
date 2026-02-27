@@ -10,48 +10,15 @@
         <version>1.0.0</version>
     </parent>
 
-    <artifactId>commons-security</artifactId>
-    <packaging>jar</packaging>
+    <artifactId>commons-security-parent</artifactId>
+    <packaging>pom</packaging>
 
     <name>commons-security</name>
     <description>commons-security</description>
 
-    <dependencies>
-        <dependency>
-            <groupId>de.fhdw.vendix</groupId>
-            <artifactId>commons-core</artifactId>
-            <version>1.0.0</version>
-        </dependency>
-
-        <!-- Replace upper with this -->
-        <dependency>
-            <groupId>de.fhdw.vendix</groupId>
-            <artifactId>commons-api</artifactId>
-            <version>1.0.0</version>
-        </dependency>
-
-        <dependency>
-            <groupId>com.nimbusds</groupId>
-            <artifactId>nimbus-jose-jwt</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-security</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-web</artifactId>
-        </dependency>
-    </dependencies>
-
-    <build>
-        <plugins>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-compiler-plugin</artifactId>
-            </plugin>
-        </plugins>
-    </build>
+    <modules>
+        <module>api</module>
+        <module>core</module>
+        <module>spring</module>
+    </modules>
 </project>

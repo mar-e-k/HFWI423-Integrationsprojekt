@@ -14,7 +14,7 @@ public record AccountDTO(
         Set<RoleDTO> roles
 ) implements DomainDTO {
     public AccountDTO {
-        if (id < 1) {
+        if (id < 0) {
             throw new IllegalArgumentException("AccountDTO parameter 'id' cannot be negative");
         }
         if (uuid == null) {

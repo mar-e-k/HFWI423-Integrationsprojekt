@@ -2,7 +2,7 @@ package de.fhdw.vendix.commons.spring.autoconfigure;
 
 import com.vaadin.flow.server.VaadinServiceInitListener;
 import de.fhdw.vendix.commons.spring.properties.VaadinPropertiesConfiguration;
-import de.fhdw.vendix.commons.ui.utlity.GlobalUiExceptionHandler;
+import de.fhdw.vendix.commons.ui.vaadin.layout.GlobalUiExceptionHandler;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;

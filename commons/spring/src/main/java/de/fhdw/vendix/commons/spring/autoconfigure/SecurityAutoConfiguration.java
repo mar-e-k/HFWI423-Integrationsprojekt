@@ -1,8 +1,10 @@
 package de.fhdw.vendix.commons.spring.autoconfigure;
 
 import de.fhdw.vendix.commons.security.auth.AuthWhitelist;
-import de.fhdw.vendix.commons.security.jwt.JwtAuthenticationFilter;
+import de.fhdw.vendix.commons.security.spring.JwtAuthenticationFilter;
+import de.fhdw.vendix.commons.security.spring.DefaultClassAccessChecker;
 import de.fhdw.vendix.commons.spring.properties.SecurityPropertiesConfiguration;
+import de.fhdw.vendix.security.api.ui.ClassAccessChecker;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
@@ -17,11 +19,17 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.security.web.util.matcher.RequestMatcher;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
-@AutoConfiguration(after = JwtAutoConfiguration.class)
+@AutoConfiguration
 @EnableConfigurationProperties(SecurityPropertiesConfiguration.class)
 public class SecurityAutoConfiguration {
+
+    @Bean
+    @ConditionalOnMissingBean(PasswordEncoder.class)
+    public PasswordEncoder passwordEncoder() {
+        return new BCryptPasswordEncoder();
+    }
 
     @Bean
     @ConditionalOnMissingBean(AuthenticationManager.class)
@@ -29,6 +37,12 @@ public class SecurityAutoConfiguration {
         DaoAuthenticationProvider provider = new DaoAuthenticationProvider(userDetailsService);
         provider.setPasswordEncoder(passwordEncoder);
         return new ProviderManager(provider);
+    }
+
+    @Bean
+    @ConditionalOnMissingBean
+    public ClassAccessChecker classAccessChecker() {
+        return new DefaultClassAccessChecker();
     }
 
     @Bean
@@ -56,15 +70,8 @@ public class SecurityAutoConfiguration {
 //                            .invalidateHttpSession(true)
 //                            .clearAuthentication(true)
                     )
-                    // TODO: add filter back
-//                    .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
+                    .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
                     .build();
         }
-    }
-
-    @Bean
-    @ConditionalOnMissingBean(PasswordEncoder.class)
-    public PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder();
     }
 }

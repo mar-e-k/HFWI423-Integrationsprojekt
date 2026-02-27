@@ -30,7 +30,7 @@ import de.fhdw.vendix.pos.persistance.service.proxy.ArticleProxyService;
 import de.fhdw.vendix.pos.persistance.service.proxy.ReceiptProxyService;
 import de.fhdw.vendix.pos.utility.RegisterClient;
 import de.fhdw.vendix.pos.utility.StoreClient;
-import de.fhdw.vendix.commons.ui.view.AbstractView;
+import de.fhdw.vendix.commons.ui.view.BaseView;
 import jakarta.annotation.security.RolesAllowed;
 import org.springframework.beans.factory.annotation.Value;
 
@@ -43,7 +43,7 @@ import java.util.Optional;
 @PageTitle("Cashier View")
 @CssImport("./styles/styles.css")
 @RolesAllowed({AccountRoleEnum.ROLE_CASHIER})
-public class CashierView extends AbstractView implements BeforeEnterObserver {
+public class CashierView extends BaseView implements BeforeEnterObserver {
 
     private static final BigDecimal MIN_PRICE = new BigDecimal("0.01");
     private static final BigDecimal DEPOSIT_AMOUNT = new BigDecimal("0.25");

@@ -30,10 +30,10 @@ import com.vaadin.flow.component.textfield.TextField;
 import de.fhdw.vendix.commons.core.api.dto.AccountDTO;
 import de.fhdw.vendix.commons.core.api.dto.ReceiptDTO;
 import de.fhdw.vendix.commons.core.persistence.entity.AccountRoleEnum;
-import de.fhdw.vendix.commons.security.auth.AuthContextHolder;
+import de.fhdw.vendix.commons.security.spring.AuthContextHolder;
 import de.fhdw.vendix.pos.persistance.service.proxy.AccountProxyService;
 import de.fhdw.vendix.pos.persistance.service.proxy.ReceiptProxyService;
-import de.fhdw.vendix.commons.ui.view.AbstractView;
+import de.fhdw.vendix.commons.ui.view.BaseView;
 import jakarta.annotation.security.RolesAllowed;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -48,7 +48,7 @@ import java.util.Optional;
 @Route("/payment")
 @PageTitle("Bezahlung")
 @RolesAllowed(AccountRoleEnum.ROLE_CASHIER)
-public class PaymentView extends AbstractView implements BeforeEnterObserver {
+public class PaymentView extends BaseView implements BeforeEnterObserver {
 
     private static final Logger log = LoggerFactory.getLogger(PaymentView.class);
     private final CartItemsManager cartItemsManager;

@@ -21,7 +21,6 @@ import de.fhdw.vendix.commons.core.persistence.entity.AccountRoleEnum;
 import de.fhdw.vendix.commons.ui.utlity.DateTimeFormat;
 import de.fhdw.vendix.store.persistence.service.other.RegisterRegistryService;
 import de.fhdw.vendix.store.utility.RegisterClient;
-import de.fhdw.vendix.commons.ui.view.AbstractAdminView;
 import de.fhdw.vendix.store.view.admin.*;
 import jakarta.annotation.security.RolesAllowed;
 
@@ -32,7 +31,7 @@ import java.util.*;
 
 @Route("")
 @RolesAllowed({AccountRoleEnum.ROLE_ADMIN})
-public class MainView extends AbstractAdminView {
+public class MainView extends BaseAdminView {
 
     private final H2 title = new H2();
 
