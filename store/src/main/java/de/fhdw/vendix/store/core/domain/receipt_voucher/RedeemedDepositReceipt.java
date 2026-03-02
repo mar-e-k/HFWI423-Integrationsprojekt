@@ -1,6 +1,7 @@
-package de.fhdw.vendix.store.core.domain.receipt;
+package de.fhdw.vendix.store.core.domain.receipt_voucher;
 
 import de.fhdw.vendix.commons.core.persistence.entity.GenericEntity;
+import de.fhdw.vendix.store.core.domain.receipt.Receipt;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 

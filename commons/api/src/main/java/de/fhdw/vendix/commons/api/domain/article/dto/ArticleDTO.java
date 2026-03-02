@@ -12,7 +12,7 @@ public record ArticleDTO(
         String description,
         BigDecimal purchasePrice,
         BigDecimal sellingPrice,
-        float taxRate
+        BigDecimal taxRate
 ) implements DomainDTO {
 
     public ArticleDTO {
@@ -43,7 +43,10 @@ public record ArticleDTO(
         if (sellingPrice.compareTo(BigDecimal.ZERO) < 0) {
             throw new IllegalArgumentException("ArticleDTO parameter 'sellingPrice' must be greater than or equal to 0");
         }
-        if (taxRate < 0 || taxRate > 100) {
+        if (taxRate == null) {
+            throw new IllegalArgumentException("ArticleDTO parameter 'taxRate' cannot be null");
+        }
+        if (taxRate.compareTo(BigDecimal.valueOf(0)) < 1 || taxRate.compareTo(BigDecimal.valueOf(100)) > 0) {
             throw new IllegalArgumentException("ArticleDTO parameter 'taxRate' must be between 0 and 100");
         }
     }

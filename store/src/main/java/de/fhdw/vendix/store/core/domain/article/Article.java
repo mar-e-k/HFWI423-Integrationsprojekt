@@ -1,14 +1,18 @@
 package de.fhdw.vendix.store.core.domain.article;
 
-import de.fhdw.vendix.commons.core.persistence.entity.GenericEntity;
+import de.fhdw.vendix.commons.api.structure.entity.Identifiable;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import org.hibernate.annotations.ColumnDefault;
+import org.jspecify.annotations.Nullable;
 
+/**
+ * External import from DB
+ */
 @Entity
 @Table(name = "article")
-public class Article implements GenericEntity<Long> {
+public class Article implements Identifiable<Long> {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -70,32 +74,20 @@ public class Article implements GenericEntity<Long> {
     @Column(name = "has_deposit", nullable = false)
     private boolean hasDeposit = false;
 
+    protected Article() {}
 
-    public Article() {
-        super();
-    }
-
-    public Article(Long id) {
-        this.id = id;
-    }
-
-    public Article(String articleNumber, String description, String manufacturer, String name, Double purchasePrice, Double sellingPrice, Integer stockLevel, String supplier, Double taxRatePercent, String unit, Boolean isAvailable, boolean hasDeposit) {
-        this.articleNumber = articleNumber;
-        this.description = description;
-        this.manufacturer = manufacturer;
-        this.name = name;
-        this.purchasePrice = purchasePrice;
-        this.sellingPrice = sellingPrice;
-        this.stockLevel = stockLevel;
-        this.supplier = supplier;
-        this.taxRatePercent = taxRatePercent;
-        this.unit = unit;
-        this.isAvailable = isAvailable;
-        this.hasDeposit = hasDeposit;
-    }
-
-    public Article(Long id, String articleNumber, String description, String manufacturer, String name, Double purchasePrice, Double sellingPrice, Integer stockLevel, String supplier, Double taxRatePercent, String unit, Boolean isAvailable, boolean hasDeposit) {
-        this.id = id;
+    public Article(String articleNumber,
+                   String description,
+                   String manufacturer,
+                   String name,
+                   Double purchasePrice,
+                   Double sellingPrice,
+                   Integer stockLevel,
+                   String supplier,
+                   Double taxRatePercent,
+                   String unit,
+                   Boolean isAvailable,
+                   boolean hasDeposit) {
         this.articleNumber = articleNumber;
         this.description = description;
         this.manufacturer = manufacturer;
@@ -111,108 +103,55 @@ public class Article implements GenericEntity<Long> {
     }
 
     @Override
-    public Long getId() {
+    public @Nullable Long getId() {
         return id;
-    }
-
-    @Override
-    public void setId(Long id) {
-        this.id = id;
     }
 
     public String getArticleNumber() {
         return articleNumber;
     }
 
-    public void setArticleNumber(String articleNumber) {
-        this.articleNumber = articleNumber;
-    }
-
     public String getDescription() {
         return description;
-    }
-
-    public void setDescription(String description) {
-        this.description = description;
     }
 
     public String getManufacturer() {
         return manufacturer;
     }
 
-    public void setManufacturer(String manufacturer) {
-        this.manufacturer = manufacturer;
-    }
-
     public String getName() {
         return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
     }
 
     public Double getPurchasePrice() {
         return purchasePrice;
     }
 
-    public void setPurchasePrice(Double purchasePrice) {
-        this.purchasePrice = purchasePrice;
-    }
-
     public Double getSellingPrice() {
         return sellingPrice;
-    }
-
-    public void setSellingPrice(Double sellingPrice) {
-        this.sellingPrice = sellingPrice;
     }
 
     public Integer getStockLevel() {
         return stockLevel;
     }
 
-    public void setStockLevel(Integer stockLevel) {
-        this.stockLevel = stockLevel;
-    }
-
     public String getSupplier() {
         return supplier;
-    }
-
-    public void setSupplier(String supplier) {
-        this.supplier = supplier;
     }
 
     public Double getTaxRatePercent() {
         return taxRatePercent;
     }
 
-    public void setTaxRatePercent(Double taxRatePercent) {
-        this.taxRatePercent = taxRatePercent;
-    }
-
     public String getUnit() {
         return unit;
     }
 
-    public void setUnit(String unit) {
-        this.unit = unit;
-    }
-
-    public Boolean getIsAvailable() {
+    public Boolean getAvailable() {
         return isAvailable;
-    }
-
-    public void setIsAvailable(Boolean isAvailable) {
-        this.isAvailable = isAvailable;
     }
 
     public boolean isHasDeposit() {
         return hasDeposit;
-    }
-
-    public void setHasDeposit(boolean hasDeposit) {
-        this.hasDeposit = hasDeposit;
     }
 }

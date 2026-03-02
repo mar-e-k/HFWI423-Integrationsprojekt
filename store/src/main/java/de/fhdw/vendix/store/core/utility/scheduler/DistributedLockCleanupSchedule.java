@@ -1,6 +1,6 @@
 package de.fhdw.vendix.store.core.utility.scheduler;
 
-import de.fhdw.vendix.store.core.domain.lock.DistributedLockService;
+import de.fhdw.vendix.store.core.domain.lock.LockService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -11,17 +11,17 @@ public class DistributedLockCleanupSchedule {
 
     private static final Logger log = LoggerFactory.getLogger(DistributedLockCleanupSchedule.class);
 
-    private final DistributedLockService distributedLockService;
+    private final LockService lockService;
 
-    public DistributedLockCleanupSchedule(DistributedLockService distributedLockService) {
-        this.distributedLockService = distributedLockService;
+    public DistributedLockCleanupSchedule(LockService lockService) {
+        this.lockService = lockService;
     }
 
     @Scheduled(cron = "0 */1 * * * *", zone = "Europe/Berlin")
     public void scheduledCleanup() {
         log.atInfo().log("[SCHEDULED] Performing distributed lock cleanup...");
 
-        distributedLockService.deleteAllExpiredLocks();
+        lockService.deleteAllExpiredLocks();
 
         log.atInfo().log("[SCHEDULED] Successfully performed distributed lock cleanup");
     }

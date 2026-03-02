@@ -1,36 +1,34 @@
 package de.fhdw.vendix.store.core.domain.article;
 
-import de.fhdw.vendix.store.core.domain.AbstractCrudService;
+import de.fhdw.vendix.commons.api.domain.article.dto.ArticleDTO;
+import de.fhdw.vendix.commons.api.domain.article.port.ArticleCommandPort;
+import de.fhdw.vendix.commons.api.domain.article.port.ArticleQueryPort;
+import de.fhdw.vendix.commons.spring.core.crud.AbstractSpringDataCrudLogAdapter;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
 
 @Service
-public class ArticleService extends AbstractCrudService<Article,Long> {
+public class ArticleService extends AbstractSpringDataCrudLogAdapter<Article, Long> implements ArticleCommandPort, ArticleQueryPort {
 
-    public ArticleService(ArticleRepository articleRepository) {
+    private final ArticleRepository articleRepository;
+    private final ArticleMapper articleMapper;
+
+    public ArticleService(ArticleRepository articleRepository, ArticleMapper articleMapper) {
         super(articleRepository);
-    }
-
-    public Optional<Article> findByArticleNumber(String articleNumber) {
-        return ((ArticleRepository) repository).findByArticleNumber(articleNumber);
-    }
-
-    @Override
-    @Deprecated
-    public Article create(Article entity) {
-        throw new UnsupportedOperationException("Operation 'Create' is not supported for articles");
+        this.articleRepository = articleRepository;
+        this.articleMapper = articleMapper;
     }
 
     @Override
-    @Deprecated
-    public Article update(Article entity) {
-        throw new UnsupportedOperationException("Operation 'Update' is not supported for articles");
+    public Optional<ArticleDTO> findByID(long id) {
+        return articleRepository.findById(id)
+                .map(articleMapper::toDTO);
     }
 
     @Override
-    @Deprecated
-    public void delete(Long id) {
-        throw new UnsupportedOperationException("Operation 'Delete' is not supported for articles");
+    public Optional<ArticleDTO> findByGTIN(long gtin) {
+        return articleRepository.findByArticleNumber(String.valueOf(gtin))
+                .map(articleMapper::toDTO);
     }
 }

@@ -8,5 +8,6 @@ import java.util.Optional;
 
 public interface LockQueryPort extends QueryPort {
     Optional<LockDTO> findByTargetTypeAndTargetID(TargetType targetType, long targetID);
+
     boolean existsByTargetTypeAndTargetID(TargetType targetType, long id);
 }

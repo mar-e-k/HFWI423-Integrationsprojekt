@@ -1,6 +1,6 @@
 package de.fhdw.vendix.store.core.domain.account;
 
-import de.fhdw.vendix.store.core.domain.AbstractEntity;
+import de.fhdw.vendix.commons.spring.core.entity.AbstractSpringDataAuditingEntity;
 import de.fhdw.vendix.store.core.domain.role.AccountRole;
 import de.fhdw.vendix.store.core.domain.receipt.Receipt;
 import jakarta.persistence.*;
@@ -9,10 +9,10 @@ import jakarta.validation.constraints.NotNull;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
+import java.util.UUID;
 
 @Entity
-public class Account extends AbstractEntity {
+public class Account extends AbstractSpringDataAuditingEntity<Long> {
 
     @ManyToOne(optional = false)
     @JoinColumn(nullable = false)
@@ -22,35 +22,20 @@ public class Account extends AbstractEntity {
     private List<Receipt> receipts = new ArrayList<>();
 
     @Column(unique = true, nullable = false)
-    @NotNull(message = "Account subject cannot be null")
-    private String uuid;
+    @NotNull(message = "Account field 'uuid' cannot be null")
+    private UUID uuid;
 
     @Column(unique = true, nullable = false)
-    @NotBlank(message = "Account accountUsername must not be blank")
+    @NotBlank(message = "Account field 'accountUsername' cannot be blank")
     private String username;
 
     @Column(nullable = false)
-    @NotBlank(message = "Account accountPassword must not be blank")
+    @NotBlank(message = "Account field 'accountPassword' cannot be blank")
     private String password;
 
-    public Account() {
-        super();
-    }
+    protected Account() {}
 
-    public Account(Long id) {
-        super(id);
-    }
-
-    public Account(AccountRole accountRole, List<Receipt> receipts, String uuid, String username, String password) {
-        this.accountRole = accountRole;
-        this.receipts = receipts != null ? receipts : new ArrayList<>();
-        this.uuid = uuid;
-        this.username = username;
-        this.password = password;
-    }
-
-    public Account(Long id, AccountRole accountRole, List<Receipt> receipts, String uuid, String username, String password) {
-        super(id);
+    public Account(AccountRole accountRole, List<Receipt> receipts, UUID uuid, String username, String password) {
         this.accountRole = accountRole;
         this.receipts = receipts;
         this.uuid = uuid;
@@ -62,51 +47,19 @@ public class Account extends AbstractEntity {
         return accountRole;
     }
 
-    public void setAccountRole(AccountRole accountRole) {
-        this.accountRole = accountRole;
-    }
-
     public List<Receipt> getReceipts() {
         return receipts;
     }
 
-    public void setReceipts(List<Receipt> receipts) {
-        this.receipts = receipts;
-    }
-
-    public String getUuid() {
+    public UUID getUuid() {
         return uuid;
-    }
-
-    public void setUuid(String accountId) {
-        this.uuid = accountId;
     }
 
     public String getUsername() {
         return username;
     }
 
-    public void setUsername(String username) {
-        this.username = username;
-    }
-
     public String getPassword() {
         return password;
-    }
-
-    public void setPassword(String password) {
-        this.password = password;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (o == null || getClass() != o.getClass()) return false;
-        Account account = (Account) o;
-        return Objects.equals(getId(), account.getId()) && Objects.equals(accountRole, account.accountRole) && Objects.equals(uuid, account.uuid) && Objects.equals(username, account.username) && Objects.equals(password, account.password);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(accountRole, receipts, uuid, username, password);
     }
 }

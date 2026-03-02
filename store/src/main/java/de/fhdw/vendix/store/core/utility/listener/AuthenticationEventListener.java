@@ -1,8 +1,8 @@
 package de.fhdw.vendix.store.core.utility.listener;
 
 import de.fhdw.vendix.commons.core.persistence.entity.LockTypeEnum;
-import de.fhdw.vendix.store.core.domain.lock.DistributedLock;
-import de.fhdw.vendix.store.core.domain.lock.DistributedLockService;
+import de.fhdw.vendix.store.core.domain.lock.Lock;
+import de.fhdw.vendix.store.core.domain.lock.LockService;
 import de.fhdw.vendix.store.core.utility.StoreClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -21,11 +21,11 @@ public class AuthenticationEventListener {
 
     private static final Logger log = LoggerFactory.getLogger(AuthenticationEventListener.class);
 
-    private final DistributedLockService distributedLockService;
+    private final LockService lockService;
     private final StoreClient storeClient;
 
-    public AuthenticationEventListener(DistributedLockService distributedLockService, StoreClient storeClient) {
-        this.distributedLockService = distributedLockService;
+    public AuthenticationEventListener(LockService lockService, StoreClient storeClient) {
+        this.lockService = lockService;
         this.storeClient = storeClient;
     }
 
@@ -37,7 +37,7 @@ public class AuthenticationEventListener {
             return;
         }
 
-        DistributedLock lock = new DistributedLock(
+        Lock lock = new Lock(
                 LockTypeEnum.ACCOUNT,
                 context.getAccountId(),
                 storeClient.getInstanceId(),
@@ -45,7 +45,7 @@ public class AuthenticationEventListener {
         );
 
         try {
-            distributedLockService.create(lock);
+            lockService.create(lock);
         } catch (Exception ex) {
             log.atError().log("Failed to create distributed lock", ex);
         }
@@ -60,7 +60,7 @@ public class AuthenticationEventListener {
         }
 
         try {
-            distributedLockService.deleteByLockTypeAndTargetId(LockTypeEnum.ACCOUNT, context.getAccountId());
+            lockService.deleteByLockTypeAndTargetId(LockTypeEnum.ACCOUNT, context.getAccountId());
         } catch (Exception ex) {
             log.atError().log("Failed to delete distributed lock", ex);
         }

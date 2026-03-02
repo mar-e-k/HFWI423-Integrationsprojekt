@@ -1,7 +1,7 @@
 package de.fhdw.vendix.store.core.domain.receipt;
 
+import de.fhdw.vendix.commons.spring.core.entity.AbstractSpringDataAuditingEntity;
 import de.fhdw.vendix.store.core.domain.account.Account;
-import de.fhdw.vendix.store.core.domain.AbstractEntity;
 import de.fhdw.vendix.store.core.domain.receipt_line.ReceiptArticle;
 import de.fhdw.vendix.store.core.domain.register.Register;
 import de.fhdw.vendix.store.core.domain.store.Store;
@@ -18,7 +18,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Entity
-public class Receipt extends AbstractEntity {
+public class Receipt extends AbstractSpringDataAuditingEntity<Long> {
 
     @ManyToOne(optional = false)
     @JoinColumn(nullable = false)
@@ -51,22 +51,7 @@ public class Receipt extends AbstractEntity {
         super();
     }
 
-    public Receipt(Long id) {
-        super(id);
-    }
-
     public Receipt(Store store, Register register, Account account, BigDecimal totalAmount, List<ReceiptArticle> receiptArticles, boolean isDepositOnly, String depositRedemptionCode) {
-        this.store = store;
-        this.register = register;
-        this.account = account;
-        this.totalAmount = totalAmount;
-        this.receiptArticles = receiptArticles;
-        this.isDepositOnly = isDepositOnly;
-        this.depositRedemptionCode = depositRedemptionCode;
-    }
-
-    public Receipt(Long id, Store store, Register register, Account account, BigDecimal totalAmount, List<ReceiptArticle> receiptArticles, boolean isDepositOnly, String depositRedemptionCode) {
-        super(id);
         this.store = store;
         this.register = register;
         this.account = account;
@@ -80,55 +65,27 @@ public class Receipt extends AbstractEntity {
         return store;
     }
 
-    public void setStore(Store store) {
-        this.store = store;
-    }
-
     public Register getRegister() {
         return register;
-    }
-
-    public void setRegister(Register register) {
-        this.register = register;
     }
 
     public Account getAccount() {
         return account;
     }
 
-    public void setAccount(Account account) {
-        this.account = account;
-    }
-
     public BigDecimal getTotalAmount() {
         return totalAmount;
-    }
-
-    public void setTotalAmount(BigDecimal totalAmount) {
-        this.totalAmount = totalAmount;
     }
 
     public List<ReceiptArticle> getReceiptArticles() {
         return receiptArticles;
     }
 
-    public void setReceiptArticles(List<ReceiptArticle> receiptArticle) {
-        this.receiptArticles = receiptArticle;
-    }
-
     public boolean isDepositOnly() {
         return isDepositOnly;
     }
 
-    public void setDepositOnly(boolean depositOnly) {
-        isDepositOnly = depositOnly;
-    }
-
     public String getDepositRedemptionCode() {
         return depositRedemptionCode;
-    }
-
-    public void setDepositRedemptionCode(String depositRedemptionCode) {
-        this.depositRedemptionCode = depositRedemptionCode;
     }
 }

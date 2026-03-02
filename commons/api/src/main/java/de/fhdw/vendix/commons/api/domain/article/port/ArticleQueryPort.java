@@ -7,5 +7,6 @@ import java.util.Optional;
 
 public interface ArticleQueryPort extends QueryPort {
     Optional<ArticleDTO> findByID(long id);
+
     Optional<ArticleDTO> findByGTIN(long gtin);
 }

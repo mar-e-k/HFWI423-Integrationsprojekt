@@ -112,6 +112,7 @@
                             <arg> <!-- Arguments have to be appending for ErrorProne-->
                                 -Xplugin:ErrorProne
                                 -XepOpt:NullAway:AnnotatedPackages=de.fhdw.vendix
+                                -XepOpt:NullAway:ExcludedClassAnnotations=jakarta.persistence.Entity,jakarta.persistence.MappedSuperclass
                                 -Xep:NullAway:ERROR
                                 -Xep:StaticImport:OFF
                             </arg>
