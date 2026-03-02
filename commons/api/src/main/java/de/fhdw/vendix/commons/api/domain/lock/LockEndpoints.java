@@ -4,7 +4,10 @@ import de.fhdw.vendix.commons.api.structure.endpoints.EndpointProvider;
 
 public final class LockEndpoints implements EndpointProvider {
 
-    private final String BASE = "/api/lock";
+    public static final String BASE = "/api/lock";
+
+    public static final String BY_TARGET_TYPE_AND_TARGET_ID = BASE + "/type/{targetType}/id/{targetID}";
+    public static final String BY_INSTANCE_UUID = BASE + "/instance/{instanceUUID}";
 
     private LockEndpoints() {}
 }

@@ -6,25 +6,25 @@ import java.time.Instant;
 import java.util.UUID;
 
 public record LockDTO (
-        long lockId,
-        Lock lockType,
-        long targetId,
-        UUID instanceId,
+        long lockID,
+        TargetType targetType,
+        long targetID,
+        UUID instanceUUID,
         Instant acquiredAt,
         Instant expiresAt
 ) implements DomainDTO {
     public LockDTO {
-        if (lockId < 0) {
-            throw new IllegalArgumentException("LockDTO parameter 'lockId' cannot be negative");
+        if (lockID < 0) {
+            throw new IllegalArgumentException("LockDTO parameter 'lockID' cannot be negative");
         }
-        if (lockType == null) {
-            throw new IllegalArgumentException("LockDTO parameter 'lockType' cannot be null");
+        if (targetType == null) {
+            throw new IllegalArgumentException("LockDTO parameter 'targetType' cannot be null");
         }
-        if (targetId < 0) {
-            throw new IllegalArgumentException("LockDTO parameter 'targetId' cannot be negative");
+        if (targetID < 0) {
+            throw new IllegalArgumentException("LockDTO parameter 'targetID' cannot be negative");
         }
-        if (instanceId == null) {
-            throw new IllegalArgumentException("LockDTO parameter 'instanceId' cannot be null");
+        if (instanceUUID == null) {
+            throw new IllegalArgumentException("LockDTO parameter 'instanceUUID' cannot be null");
         }
         if (acquiredAt == null) {
             throw new IllegalArgumentException("LockDTO parameter 'acquiredAt' cannot be null");

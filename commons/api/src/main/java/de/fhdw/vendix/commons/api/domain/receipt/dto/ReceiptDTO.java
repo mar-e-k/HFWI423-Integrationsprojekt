@@ -1,6 +1,6 @@
 package de.fhdw.vendix.commons.api.domain.receipt.dto;
 
-import de.fhdw.vendix.commons.api.domain.receipt.dto.line.ReceiptLineDTO;
+import de.fhdw.vendix.commons.api.domain.receipt_line.dto.ReceiptLineDTO;
 import de.fhdw.vendix.commons.api.structure.dto.DomainDTO;
 
 import java.util.List;

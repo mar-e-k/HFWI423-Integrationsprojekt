@@ -8,7 +8,7 @@ import java.util.UUID;
 
 public interface AccountQueryPort extends QueryPort {
     Optional<AccountDTO> findByAccount(AccountDTO accountDTO);
-    Optional<AccountDTO> findByID(String id);
+    Optional<AccountDTO> findByID(long id);
     Optional<AccountDTO> findByUUID(UUID uuid);
     Optional<AccountDTO> findByUsername(String username);
 }

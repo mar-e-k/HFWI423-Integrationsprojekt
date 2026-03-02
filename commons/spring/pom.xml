@@ -8,41 +8,14 @@
         <version>1.0.0</version>
     </parent>
 
-    <artifactId>commons-spring</artifactId>
-    <packaging>jar</packaging>
+    <artifactId>commons-spring-parent</artifactId>
+    <packaging>pom</packaging>
 
     <name>commons-spring</name>
     <description>commons-spring</description>
 
-    <dependencies>
-        <dependency>
-            <groupId>de.fhdw.vendix</groupId>
-            <artifactId>commons-core</artifactId>
-            <version>1.0.0</version>
-        </dependency>
-        <dependency>
-            <groupId>de.fhdw.vendix</groupId>
-            <artifactId>commons-api</artifactId>
-            <version>1.0.0</version>
-        </dependency>
-        <dependency>
-            <groupId>de.fhdw.vendix</groupId>
-            <artifactId>commons-security-spring</artifactId>
-            <version>1.0.0</version>
-        </dependency>
-        <dependency>
-            <groupId>de.fhdw.vendix</groupId>
-            <artifactId>commons-ui-vaadin</artifactId>
-            <version>1.0.0</version>
-        </dependency>
-    </dependencies>
-
-    <build>
-        <plugins>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-compiler-plugin</artifactId>
-            </plugin>
-        </plugins>
-    </build>
+    <modules>
+        <module>core</module>
+        <module>starter</module>
+    </modules>
 </project>

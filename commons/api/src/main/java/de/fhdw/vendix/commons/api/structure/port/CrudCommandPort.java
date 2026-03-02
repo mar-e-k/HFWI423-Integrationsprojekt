@@ -1,0 +1,21 @@
+package de.fhdw.vendix.commons.api.structure.port;
+
+public interface CrudCommandPort<T, ID> extends CommandPort {
+    T create(T entity);
+
+    Iterable<T> createAll(Iterable<T> entities);
+
+    T update(T entity);
+
+    Iterable<T> updateAll(Iterable<T> entities);
+
+    void delete(T entity);
+
+    void deleteById(ID id);
+
+    void deleteAll();
+
+    void deleteAll(Iterable<T> entities);
+
+    void deleteAllById(Iterable<ID> ids);
+}

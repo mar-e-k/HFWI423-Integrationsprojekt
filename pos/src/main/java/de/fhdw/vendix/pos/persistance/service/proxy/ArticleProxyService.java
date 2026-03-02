@@ -40,7 +40,7 @@ public class ArticleProxyService extends AbstractProxyService {
     public Optional<ArticleDTO> findByArticleNumber(String number) {
         return getWebClient()
                 .get()
-                .uri(ArticleEndpoints.BY_NUMBER, number)
+                .uri(ArticleEndpoints.BY_GTIN, number)
                 .retrieve()
                 .bodyToMono(ArticleDTO.class)
                 .onErrorResume(WebClientResponseException.NotFound.class, e -> Mono.empty())

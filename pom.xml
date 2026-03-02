@@ -25,6 +25,8 @@
         <module>pos</module>
         <module>store</module>
         <module>commons</module>
+        <module>commons/spring/core</module>
+        <module>commons/spring/starter</module>
     </modules>
 
     <properties>
@@ -36,6 +38,7 @@
         <plaguv-amqp.version>1.1.0</plaguv-amqp.version>
         <nimbus.version>10.7</nimbus.version>
         <mapstruct.version>1.6.3</mapstruct.version>
+        <error-handling.version>5.1.0</error-handling.version>
         <!-- Plugin Versions -->
         <error-prone.version>2.47.0</error-prone.version>
         <error-prone-support.version>0.28.0</error-prone-support.version>
@@ -81,6 +84,12 @@
                 <groupId>org.mapstruct</groupId>
                 <artifactId>mapstruct</artifactId>
                 <version>${mapstruct.version}</version>
+            </dependency>
+            <!-- Source: https://mvnrepository.com/artifact/io.github.wimdeblauwe/error-handling-spring-boot-starter -->
+            <dependency>
+                <groupId>io.github.wimdeblauwe</groupId>
+                <artifactId>error-handling-spring-boot-starter</artifactId>
+                <version>${error-handling.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>

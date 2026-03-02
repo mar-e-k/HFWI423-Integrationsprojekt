@@ -11,7 +11,7 @@ public record SystemDTO(
 ) implements DomainDTO {
     public SystemDTO {
         if (instanceId == null) {
-            throw new IllegalArgumentException("SystemDTO parameter 'instanceId' cannot be null");
+            throw new IllegalArgumentException("SystemDTO parameter 'instanceUUID' cannot be null");
         }
         if (host == null) {
             throw new IllegalArgumentException("SystemDTO parameter 'host' cannot be null");

@@ -6,7 +6,7 @@ public final class ArticleEndpoints implements EndpointProvider {
 
     public static final String BASE = "/api/article";
     public static final String BY_ID = BASE + "/id/{id}";
-    public static final String BY_NUMBER =  BASE + "/number/{number}";
+    public static final String BY_GTIN =  BASE + "/gtin/{gtin}";
 
     private ArticleEndpoints() {}
 }

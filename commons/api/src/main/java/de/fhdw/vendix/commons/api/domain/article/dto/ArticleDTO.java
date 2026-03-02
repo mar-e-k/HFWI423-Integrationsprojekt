@@ -3,10 +3,11 @@ package de.fhdw.vendix.commons.api.domain.article.dto;
 import de.fhdw.vendix.commons.api.structure.dto.DomainDTO;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 public record ArticleDTO(
         long articleId,
-        String gtin,
+        long gtin,
         String name,
         String description,
         BigDecimal purchasePrice,
@@ -18,11 +19,11 @@ public record ArticleDTO(
         if (articleId < 0) {
             throw new IllegalArgumentException("ArticleDTO parameter 'articleId' must be greater than or equal to 0");
         }
-        if (gtin == null) {
-            throw new IllegalArgumentException("ArticleDTO parameter 'gtin' cannot be null");
+        if (gtin < 0) {
+            throw new IllegalArgumentException("ArticleDTO parameter 'gtin' cannot be negative");
         }
-        if (!gtin.matches("^(?:\\d{8}|\\d{12}|\\d{13}|\\d{14})$")) {
-            throw new IllegalArgumentException("ArticleDTO parameter 'gtin' must be a valid GTIN");
+        if (List.of(8, 12, 13, 14).contains(String.valueOf(gtin).length())) {
+            throw new IllegalArgumentException("ArticleDTO parameter 'gtin' must be 8, 12, 13, 14 lengths long");
         }
         if (name == null || name.isEmpty()) {
             throw new IllegalArgumentException("ArticleDTO parameter 'name' cannot be null or empty");
