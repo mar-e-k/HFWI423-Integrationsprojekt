@@ -1,7 +1,9 @@
 package de.fhdw.vendix.pos.persistance.service.proxy;
 
 import de.fhdw.vendix.commons.api.domain.article.ArticleEndpoints;
-import de.fhdw.vendix.commons.core.api.dto.ArticleDTO;
+import de.fhdw.vendix.commons.api.domain.article.dto.ArticleDTO;
+import de.fhdw.vendix.commons.api.domain.article.port.ArticleCommandPort;
+import de.fhdw.vendix.commons.api.domain.article.port.ArticleQueryPort;
 import de.fhdw.vendix.pos.utility.StoreClient;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.stereotype.Service;
@@ -12,7 +14,7 @@ import java.util.List;
 import java.util.Optional;
 
 @Service
-public class ArticleProxyService extends AbstractProxyService {
+public class ArticleProxyService extends AbstractProxyService implements ArticleQueryPort, ArticleCommandPort {
 
     public ArticleProxyService(StoreClient storeClient) {
         super(storeClient);
@@ -27,7 +29,8 @@ public class ArticleProxyService extends AbstractProxyService {
                 .block();
     }
 
-    public Optional<ArticleDTO> findById(Long id) {
+    @Override
+    public Optional<ArticleDTO> findByID(long id) {
         return getWebClient()
                 .get()
                 .uri(ArticleEndpoints.BY_ID, id)
@@ -37,10 +40,11 @@ public class ArticleProxyService extends AbstractProxyService {
                 .blockOptional();
     }
 
-    public Optional<ArticleDTO> findByArticleNumber(String number) {
+    @Override
+    public Optional<ArticleDTO> findByGTIN(long gtin) {
         return getWebClient()
                 .get()
-                .uri(ArticleEndpoints.BY_GTIN, number)
+                .uri(ArticleEndpoints.BY_GTIN, gtin)
                 .retrieve()
                 .bodyToMono(ArticleDTO.class)
                 .onErrorResume(WebClientResponseException.NotFound.class, e -> Mono.empty())

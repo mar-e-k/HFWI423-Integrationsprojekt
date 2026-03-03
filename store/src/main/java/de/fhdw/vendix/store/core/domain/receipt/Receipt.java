@@ -26,24 +26,20 @@ public class Receipt extends AbstractSpringDataAuditingEntity<Long> {
     @JoinColumn(nullable = false)
     private Account account;
 
-    @ManyToOne(optional = true)
-    @JoinColumn(nullable = true)
-    private ReceiptVoucher receiptVoucher;
-
-    @OneToMany(mappedBy = "receipt", orphanRemoval = true)
+    @OneToMany(mappedBy = "receipt", orphanRemoval = true, cascade = CascadeType.ALL)
     private List<ReceiptLine> receiptLines = new ArrayList<>();
 
+    @OneToMany(mappedBy = "receipt", orphanRemoval = true, cascade = CascadeType.ALL)
+    private List<ReceiptVoucher> receiptVouchers = new ArrayList<>();
 
-    public Receipt() {
-        super();
-    }
+    protected Receipt() {}
 
-    public Receipt(Store store, Register register, Account account, ReceiptVoucher receiptVoucher, List<ReceiptLine> receiptLines) {
+    public Receipt(Store store, Register register, Account account, List<ReceiptLine> receiptLines, List<ReceiptVoucher> receiptVouchers) {
         this.store = store;
         this.register = register;
         this.account = account;
-        this.receiptVoucher = receiptVoucher;
         this.receiptLines = receiptLines;
+        this.receiptVouchers = receiptVouchers;
     }
 
     public Store getStore() {
@@ -58,11 +54,11 @@ public class Receipt extends AbstractSpringDataAuditingEntity<Long> {
         return account;
     }
 
-    public ReceiptVoucher getReceiptVoucher() {
-        return receiptVoucher;
-    }
-
     public List<ReceiptLine> getReceiptLines() {
         return receiptLines;
+    }
+
+    public List<ReceiptVoucher> getReceiptVouchers() {
+        return receiptVouchers;
     }
 }

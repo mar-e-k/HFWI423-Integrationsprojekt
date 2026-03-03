@@ -11,7 +11,7 @@ public record ReceiptLineDTO(
         long amount,
         @Nullable PriceOverrideDTO priceOverride,
         @Nullable DiscountOverrideDTO discountOverride
-) implements DomainDTO { // is it really a domain?
+) implements DomainDTO {
     public ReceiptLineDTO {
         if (receipt == null) {
             throw new IllegalArgumentException("ArticleDTO parameter 'receipt' cannot be null");

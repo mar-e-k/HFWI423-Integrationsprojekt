@@ -8,9 +8,9 @@ import org.mapstruct.Mapper;
 import org.mapstruct.factory.Mappers;
 
 @Mapper
-public interface RoleDTOMapper extends DTOMapper<AccountRoleDTO, AccountRoleRequestDTO, AccountRoleResponseDTO> {
+public interface AccountRoleDTOMapper extends DTOMapper<AccountRoleDTO, AccountRoleRequestDTO, AccountRoleResponseDTO> {
 
-    RoleDTOMapper INSTANCE = Mappers.getMapper(RoleDTOMapper.class);
+    AccountRoleDTOMapper INSTANCE = Mappers.getMapper(AccountRoleDTOMapper.class);
 
     @Override
     AccountRoleRequestDTO toRequestDTO(AccountRoleDTO accountRoleDTO);

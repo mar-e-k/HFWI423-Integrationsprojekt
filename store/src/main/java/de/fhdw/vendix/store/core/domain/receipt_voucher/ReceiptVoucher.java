@@ -6,44 +6,33 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 
 import java.time.Instant;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.UUID;
 
 @Entity
 public class ReceiptVoucher extends AbstractSpringDataAuditingEntity<Long> {
 
     @NotNull
-    @OneToMany(mappedBy = "receiptVoucher")
-    private List<Receipt> receipt = new ArrayList<>();
+    @ManyToOne(optional = false)
+    private Receipt receipt;
 
     @Column(nullable = false, unique = true)
-    @NotNull
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID code;
 
-    @Column(nullable = false)
-    private boolean isRedeemed;
-
-    @Column(nullable = false)
-    @NotNull
-    private Instant redeemedAt;
-
-    @Column(nullable = false)
-    @NotNull
     private Instant expiresAt;
+
+    private Instant redeemedAt;
 
     protected ReceiptVoucher() {}
 
-    public ReceiptVoucher(List<Receipt> receipt, UUID code, boolean isRedeemed, Instant redeemedAt, Instant expiresAt) {
+    public ReceiptVoucher(Receipt receipt, UUID code, Instant expiresAt, Instant redeemedAt) {
         this.receipt = receipt;
         this.code = code;
-        this.isRedeemed = isRedeemed;
-        this.redeemedAt = redeemedAt;
         this.expiresAt = expiresAt;
+        this.redeemedAt = redeemedAt;
     }
 
-    public List<Receipt> getReceipt() {
+    public Receipt getReceipt() {
         return receipt;
     }
 
@@ -51,15 +40,11 @@ public class ReceiptVoucher extends AbstractSpringDataAuditingEntity<Long> {
         return code;
     }
 
-    public boolean isRedeemed() {
-        return isRedeemed;
+    public Instant getExpiresAt() {
+        return expiresAt;
     }
 
     public Instant getRedeemedAt() {
         return redeemedAt;
-    }
-
-    public Instant getExpiresAt() {
-        return expiresAt;
     }
 }

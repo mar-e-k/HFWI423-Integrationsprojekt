@@ -2,7 +2,7 @@ package de.fhdw.vendix.commons.api.domain.store.dto;
 
 import de.fhdw.vendix.commons.api.structure.dto.DomainDTO;
 
-// Should we include phone-number and or email
+// Should we include phone-number and or email?
 public record StoreDTO(
         long storeId,
         String country, // should we have an enum for this?

@@ -383,7 +383,7 @@ public class CashierView extends BaseView implements BeforeEnterObserver {
                 return;
             }
 
-            Optional<ArticleDTO> article = articleService.findByArticleNumber(input);
+            Optional<ArticleDTO> article = articleService.findByGTIN(input);
             if (article.isPresent()) {
                 Double price = article.get().getSellingPrice();
 

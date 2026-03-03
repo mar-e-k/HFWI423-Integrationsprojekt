@@ -1,11 +1,11 @@
-package de.fhdw.vendix.commons.api.domain.store_stock.dto;
+package de.fhdw.vendix.commons.api.domain.receipt_line.dto;
 
 import de.fhdw.vendix.commons.api.structure.dto.RequestDTO;
 
-public record StoreStockRequestDTO(
+public record ReceiptLineRequestDTO(
 
 ) implements RequestDTO {
-    public StoreStockRequestDTO {
+    public ReceiptLineRequestDTO {
         throw new UnsupportedOperationException("Not supported yet.");
     }
 }
