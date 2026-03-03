@@ -169,7 +169,7 @@ public class AdminView extends AppLayout implements BeforeEnterObserver {
         grid.addColumn(Account::getUsername)
                 .setHeader("Username")
                 .setSortable(true);
-        grid.addColumn(account -> account.getAccountRole().getRole().name())
+        grid.addColumn(account -> account.getRole().getRole().name())
                 .setHeader("Rolle")
                 .setSortable(true);
 

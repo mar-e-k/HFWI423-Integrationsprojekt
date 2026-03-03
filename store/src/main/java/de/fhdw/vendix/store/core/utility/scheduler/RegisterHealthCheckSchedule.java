@@ -1,7 +1,7 @@
 package de.fhdw.vendix.store.core.utility.scheduler;
 
 import de.fhdw.vendix.store.core.utility.RegisterClient;
-import de.fhdw.vendix.store.core.domain.system.RegisterRegistryService;
+import de.fhdw.vendix.store.core.domain.store_system.RegisterRegistryService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.scheduling.annotation.Scheduled;

@@ -1,20 +1,20 @@
 package de.fhdw.vendix.commons.core.mapper;
 
-import de.fhdw.vendix.commons.api.domain.system.dto.SystemDTO;
-import de.fhdw.vendix.commons.api.domain.system.dto.SystemRequestDTO;
-import de.fhdw.vendix.commons.api.domain.system.dto.SystemResponseDTO;
+import de.fhdw.vendix.commons.api.domain.store_system.dto.StoreSystemDTO;
+import de.fhdw.vendix.commons.api.domain.store_system.dto.StoreSystemRequestDTO;
+import de.fhdw.vendix.commons.api.domain.store_system.dto.StoreSystemResponseDTO;
 import de.fhdw.vendix.commons.api.structure.mapper.DTOMapper;
 import org.mapstruct.Mapper;
 import org.mapstruct.factory.Mappers;
 
 @Mapper
-public interface SystemDTOMapper extends DTOMapper<SystemDTO, SystemRequestDTO, SystemResponseDTO> {
+public interface SystemDTOMapper extends DTOMapper<StoreSystemDTO, StoreSystemRequestDTO, StoreSystemResponseDTO> {
 
     SystemDTOMapper INSTANCE = Mappers.getMapper(SystemDTOMapper.class);
 
     @Override
-    SystemRequestDTO toRequestDTO(SystemDTO systemDTO);
+    StoreSystemRequestDTO toRequestDTO(StoreSystemDTO storeSystemDTO);
 
     @Override
-    SystemResponseDTO toResponseDTO(SystemDTO systemDTO);
+    StoreSystemResponseDTO toResponseDTO(StoreSystemDTO storeSystemDTO);
 }

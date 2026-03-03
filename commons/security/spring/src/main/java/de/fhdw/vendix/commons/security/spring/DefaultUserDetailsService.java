@@ -2,7 +2,7 @@ package de.fhdw.vendix.commons.security.spring;
 
 import de.fhdw.vendix.commons.api.domain.account.dto.AccountDTO;
 import de.fhdw.vendix.commons.api.domain.account.port.AccountQueryPort;
-import de.fhdw.vendix.commons.api.domain.lock.dto.TargetType;
+import de.fhdw.vendix.commons.api.domain.lock.dto.TargetTypeEnum;
 import de.fhdw.vendix.commons.api.domain.lock.port.LockQueryPort;
 import de.fhdw.vendix.commons.security.core.DefaultAuthContext;
 import de.fhdw.vendix.security.api.auth.AuthContext;
@@ -25,7 +25,7 @@ public final class DefaultUserDetailsService implements UserDetailsService {
         AccountDTO accountDTO = accountQueryPort.findByUsername(username)
                 .orElseThrow(() -> new UsernameNotFoundException(username));
 
-        boolean lockExists = lockQueryPort.existsByTargetTypeAndTargetID(TargetType.ACCOUNT, accountDTO.id());
+        boolean lockExists = lockQueryPort.existsByTargetTypeAndTargetID(TargetTypeEnum.ACCOUNT, accountDTO.id());
 
         AuthContext authContext = new DefaultAuthContext(
                 accountDTO,

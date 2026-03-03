@@ -25,8 +25,8 @@ import com.vaadin.flow.router.*;
 import com.vaadin.flow.theme.lumo.Lumo;
 import de.fhdw.vendix.commons.core.persistence.entity.AccountRoleEnum;
 import de.fhdw.vendix.store.core.domain.account.Account;
-import de.fhdw.vendix.store.core.domain.role.AccountRole;
-import de.fhdw.vendix.store.core.domain.role.AccountRoleService;
+import de.fhdw.vendix.store.core.domain.account_role.AccountRole;
+import de.fhdw.vendix.store.core.domain.account_role.AccountRoleService;
 import de.fhdw.vendix.store.core.domain.account.AccountService;
 import de.fhdw.vendix.store.ui.MainView;
 import jakarta.annotation.PostConstruct;
@@ -206,7 +206,7 @@ public class RoleView extends AppLayout implements BeforeEnterObserver {
             Select<AccountRoleEnum> roleEditor = new Select<>();
             roleEditor.clear();
             roleEditor.setItems(List.of(AccountRoleEnum.CASHIER, AccountRoleEnum.ADMIN));
-            roleEditor.setValue(account.getAccountRole().getRole());
+            roleEditor.setValue(account.getRole().getRole());
 
             Button saveButton = new Button("Speichern");
             saveButton.setVisible(false);
@@ -231,7 +231,7 @@ public class RoleView extends AppLayout implements BeforeEnterObserver {
             HorizontalLayout editorLayout = new HorizontalLayout(roleEditor, saveButton);
             editorLayout.setAlignItems(FlexComponent.Alignment.CENTER);
             return editorLayout;
-        }).setHeader("Rolle").setSortable(true).setComparator(Comparator.comparing(account -> account.getAccountRole().getRole().name())).setAutoWidth(true);
+        }).setHeader("Rolle").setSortable(true).setComparator(Comparator.comparing(account -> account.getRole().getRole().name())).setAutoWidth(true);
 
 
         // Löschen-Button-Spalte

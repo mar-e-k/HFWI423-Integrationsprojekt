@@ -12,7 +12,7 @@ import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
 
-@Order(2)
+@Order()
 @Component
 public class SetupStoreInitializer implements ApplicationRunner {
 
@@ -31,6 +31,8 @@ public class SetupStoreInitializer implements ApplicationRunner {
         this.storeService = storeService;
     }
 
+    // TODO: whole logic seems iffy at best. should be rewritten
+
     @Override
     public void run(ApplicationArguments args) {
         log.atInfo().log("spring.filialensystem.startup.setup-store-client-on-startup is: {}", setupStoreClientOnStartup);
@@ -39,18 +41,18 @@ public class SetupStoreInitializer implements ApplicationRunner {
             return;
         }
 
-        //---- Set and get store ----
         Store store;
         if (storeService.count() == 0) {
             log.atWarn().log("No store defined in table [store]. Falling back to default store.");
-            store = new Store();
-            store.setCountry("Deutschland");
-            store.setCity("Wathlingen");
-            store.setStreet("Breuerstraße");
-            store.setStreetNumber("0815");
+            store = new Store(
+                    "Deutschland",
+                    "Wathlingen",
+                    "Breuerstraße",
+                    "0815"
+            );
             store = storeService.create(store);
         } else {
-            store = storeService.findAll().getFirst();
+            store = storeService.findAll().iterator().next();
         }
         storeClient.setStore(store);
     }

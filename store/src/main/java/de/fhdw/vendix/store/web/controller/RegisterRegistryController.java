@@ -1,11 +1,11 @@
 package de.fhdw.vendix.store.web.controller;
 
-import de.fhdw.vendix.commons.api.domain.system.SystemEndpoints;
+import de.fhdw.vendix.commons.api.domain.store_system.StoreSystemEndpoints;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping(SystemEndpoints.BASE)
+@RequestMapping(StoreSystemEndpoints.BASE)
 @Tag(name = "Kassensystem Registry", description = "Endpoints for operations related to the registry of a kassensystem")
 public class RegisterRegistryController {
 

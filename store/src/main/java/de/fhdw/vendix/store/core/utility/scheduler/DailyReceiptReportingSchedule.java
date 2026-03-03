@@ -1,7 +1,7 @@
 package de.fhdw.vendix.store.core.utility.scheduler;
 
 import de.fhdw.vendix.store.core.domain.receipt.Receipt;
-import de.fhdw.vendix.store.core.domain.receipt_line.ReceiptArticle;
+import de.fhdw.vendix.store.core.domain.receipt_line.ReceiptLine;
 import de.fhdw.vendix.store.core.domain.receipt.ReceiptService;
 import de.fhdw.vendix.store.core.utility.StoreClient;
 import org.slf4j.Logger;
@@ -37,14 +37,14 @@ public class DailyReceiptReportingSchedule {
                 .filter(r -> !r.isDepositOnly())
                 .toList();
 
-        List<ReceiptArticle> allArticles = receipts.stream()
+        List<ReceiptLine> allArticles = receipts.stream()
                 .flatMap(r -> receiptService.getReceiptLinkArticles(r).stream())
                 .toList();
 
         Map<Long, Long> articleAmountMap = allArticles.stream()
                 .collect(Collectors.groupingBy(
                         a -> a.getArticle().getId(),
-                        Collectors.summingLong(ReceiptArticle::getAmount)));
+                        Collectors.summingLong(ReceiptLine::getAmount)));
 
         Long storeId = storeClient.getStore().getId();
 //                 TODO: rewrite with new publisher

@@ -1,6 +1,6 @@
 package de.fhdw.vendix.store.core.domain.lock;
 
-import de.fhdw.vendix.commons.api.domain.lock.dto.TargetType;
+import de.fhdw.vendix.commons.api.domain.lock.dto.TargetTypeEnum;
 import de.fhdw.vendix.commons.spring.core.entity.AbstractSpringDataAuditingEntity;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Future;
@@ -15,17 +15,14 @@ import java.util.UUID;
 // TODO: this should really be in redis
 
 @Entity
-@Table(
-        indexes = @Index(columnList = "expires_at"),
-        uniqueConstraints = {@UniqueConstraint(columnNames = {"lock_type", "target_id"})}
-)
+@Table(uniqueConstraints = {@UniqueConstraint(columnNames = {"lock_type", "target_id"})})
 @EntityListeners(AuditingEntityListener.class)
 public class Lock extends AbstractSpringDataAuditingEntity<Long> {
 
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)
     @NotNull
-    private TargetType targetType;
+    private TargetTypeEnum targetTypeEnum;
 
     @Column(nullable = false)
     @NotNull
@@ -44,18 +41,19 @@ public class Lock extends AbstractSpringDataAuditingEntity<Long> {
     @NotNull
     private Instant expiresAt;
 
-    public Lock() {}
+    public Lock() {
+    }
 
-    public Lock(TargetType targetType, long targetId, UUID instanceUUID, Instant acquiredAt, Instant expiresAt) {
-        this.targetType = targetType;
+    public Lock(TargetTypeEnum targetTypeEnum, long targetId, UUID instanceUUID, Instant acquiredAt, Instant expiresAt) {
+        this.targetTypeEnum = targetTypeEnum;
         this.targetId = targetId;
         this.instanceUUID = instanceUUID;
         this.acquiredAt = acquiredAt;
         this.expiresAt = expiresAt;
     }
 
-    public TargetType getTargetType() {
-        return targetType;
+    public TargetTypeEnum getTargetType() {
+        return targetTypeEnum;
     }
 
     public Long getTargetId() {

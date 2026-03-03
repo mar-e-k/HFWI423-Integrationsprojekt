@@ -6,7 +6,7 @@ import com.nimbusds.jose.crypto.MACVerifier;
 import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.SignedJWT;
 import com.nimbusds.jwt.proc.ExpiredJWTException;
-import de.fhdw.vendix.commons.api.domain.role.dto.Role;
+import de.fhdw.vendix.commons.api.domain.account_role.dto.AccountRoleEnum;
 import de.fhdw.vendix.security.api.jwt.claims.JwtClaimsEnum;
 import de.fhdw.vendix.security.api.jwt.JwtPayload;
 
@@ -40,7 +40,7 @@ public final class JwtServiceImpl implements JwtService {
                     .issueTime(now)
                     .expirationTime(exp)
                     .subject(payload.auth().subject().toString())
-                    .claim(JwtClaimsEnum.ROLES.claim(), payload.auth().roles())
+                    .claim(JwtClaimsEnum.ROLES.claim(), payload.auth().accountRoleEnums())
                     .build();
 
             JWSHeader header = new JWSHeader(JWSAlgorithm.HS256);
@@ -73,11 +73,11 @@ public final class JwtServiceImpl implements JwtService {
             }
 
             UUID uuid = UUID.fromString(claims.getSubject());
-            Set<Role> roles = claims.getStringListClaim(JwtClaimsEnum.ROLES.claim()).stream()
-                    .map(Role::valueOf)
+            Set<AccountRoleEnum> accountRoleEnums = claims.getStringListClaim(JwtClaimsEnum.ROLES.claim()).stream()
+                    .map(AccountRoleEnum::valueOf)
                     .collect(Collectors.toUnmodifiableSet());
 
-            return JwtPayload.user(uuid, roles);
+            return JwtPayload.user(uuid, accountRoleEnums);
 
         } catch (ParseException e) {
             throw new IllegalStateException("Invalid JWT format", e);

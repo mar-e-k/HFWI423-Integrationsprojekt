@@ -2,8 +2,8 @@ package de.fhdw.vendix.commons.security.spring;
 
 import de.fhdw.vendix.commons.api.domain.account.dto.AccountDTO;
 import de.fhdw.vendix.commons.api.domain.account.port.AccountQueryPort;
-import de.fhdw.vendix.commons.api.domain.role.dto.Role;
-import de.fhdw.vendix.commons.api.domain.role.dto.RoleDTO;
+import de.fhdw.vendix.commons.api.domain.account_role.dto.AccountRoleEnum;
+import de.fhdw.vendix.commons.api.domain.account_role.dto.AccountRoleDTO;
 import de.fhdw.vendix.commons.security.core.DefaultAuthContext;
 import de.fhdw.vendix.commons.security.core.JwtService;
 import de.fhdw.vendix.security.api.auth.AuthContext;
@@ -62,20 +62,20 @@ public final class JwtAuthenticationFilter extends OncePerRequestFilter {
     // Note: this is here temporarily. Will be refactored to be a separate component that the filter will call with a JwtPayload or similar
     private Authentication resolveAuthentication(String token) throws AuthenticationException {
         JwtPayload payload = jwtService.parseToken(token);
-        Set<Role> roles = payload.auth().roles();
+        Set<AccountRoleEnum> accountRoleEnums = payload.auth().accountRoleEnums();
 
-        if (roles.isEmpty()) {
+        if (accountRoleEnums.isEmpty()) {
             throw new AuthenticationCredentialsNotFoundException("Invalid token. Token has no roles defined");
         }
 
         AccountDTO accountDTO;
-        if (roles.contains(Role.SYSTEM)) {
+        if (accountRoleEnums.contains(AccountRoleEnum.SYSTEM)) {
             accountDTO = new AccountDTO(
                     0,
                     payload.auth().subject(),
                     "system",
                     "system",
-                    Set.of(new RoleDTO(0, Role.SYSTEM))
+                    Set.of(new AccountRoleDTO(0, AccountRoleEnum.SYSTEM))
             );
         } else {
             accountDTO = accountQueryPort.findByUUID(payload.auth().subject())

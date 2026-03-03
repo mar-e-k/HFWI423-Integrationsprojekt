@@ -1,8 +1,8 @@
 package de.fhdw.vendix.security.api.jwt;
 
 import de.fhdw.vendix.commons.api.domain.account.dto.AccountDTO;
-import de.fhdw.vendix.commons.api.domain.role.dto.Role;
-import de.fhdw.vendix.commons.api.domain.role.dto.RoleDTO;
+import de.fhdw.vendix.commons.api.domain.account_role.dto.AccountRoleEnum;
+import de.fhdw.vendix.commons.api.domain.account_role.dto.AccountRoleDTO;
 import de.fhdw.vendix.security.api.auth.AuthContext;
 import de.fhdw.vendix.security.api.jwt.claims.AuthClaims;
 import de.fhdw.vendix.security.api.jwt.claims.ContextClaims;
@@ -19,17 +19,17 @@ public record JwtPayload(
         return new JwtPayload(
                 new AuthClaims(
                         UUID.randomUUID(), // TODO: Change to an actual repeatable instance, like a global system-uuid from a spring bean
-                        Set.of(Role.SYSTEM)
+                        Set.of(AccountRoleEnum.SYSTEM)
                 ),
                 new ContextClaims()
         );
     }
 
-    public static JwtPayload user(UUID uuid, Set<Role> roles) {
+    public static JwtPayload user(UUID uuid, Set<AccountRoleEnum> accountRoleEnums) {
         return new JwtPayload(
                 new AuthClaims(
                         uuid,
-                        roles
+                        accountRoleEnums
                 ),
                 new ContextClaims()
         );
@@ -39,7 +39,7 @@ public record JwtPayload(
         return user(
                 account.uuid(),
                 account.roles().stream()
-                        .map(RoleDTO::role)
+                        .map(AccountRoleDTO::role)
                         .collect(Collectors.toUnmodifiableSet())
         );
     }

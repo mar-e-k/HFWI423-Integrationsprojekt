@@ -93,7 +93,7 @@ public class ReceiptService extends AbstractSpringDataCrudLogAdapter<Receipt, Lo
 //        return receipt;
 //    }
 
-    // TODO: outlayer to commons-core
+    // TODO: this must be done by a receiptVoucherService since it has to check for uniqueness
     private String generateUniqueDepositRedemptionCode() {
         String code;
         Random random = new Random();

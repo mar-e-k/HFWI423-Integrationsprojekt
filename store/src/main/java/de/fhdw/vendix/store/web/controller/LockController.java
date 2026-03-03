@@ -2,7 +2,7 @@ package de.fhdw.vendix.store.web.controller;
 
 import de.fhdw.vendix.commons.api.domain.lock.LockEndpoints;
 import de.fhdw.vendix.commons.api.domain.lock.dto.LockRequestDTO;
-import de.fhdw.vendix.commons.api.domain.lock.dto.TargetType;
+import de.fhdw.vendix.commons.api.domain.lock.dto.TargetTypeEnum;
 import de.fhdw.vendix.commons.api.domain.lock.dto.LockDTO;
 import de.fhdw.vendix.commons.api.domain.lock.port.LockCommandPort;
 import de.fhdw.vendix.commons.api.domain.lock.port.LockQueryPort;
@@ -38,19 +38,19 @@ public class LockController {
 
     @GetMapping(LockEndpoints.BY_TARGET_TYPE_AND_TARGET_ID)
     @Operation(summary = "Find lock by targetType and targetID")
-    public ResponseEntity<LockDTO> getByTargetTypeAndTargetId(@PathVariable TargetType targetType, @PathVariable long targetID) {
+    public ResponseEntity<LockDTO> getByTargetTypeAndTargetId(@PathVariable TargetTypeEnum targetTypeEnum, @PathVariable long targetID) {
         return ResponseEntity
                 .status(HttpStatus.OK)
-                .body(lockQueryPort.findByTargetTypeAndTargetID(targetType, targetID)
+                .body(lockQueryPort.findByTargetTypeAndTargetID(targetTypeEnum, targetID)
                         .orElseThrow(EntityNotFoundException::new));
     }
 
     @DeleteMapping(LockEndpoints.BY_TARGET_TYPE_AND_TARGET_ID)
     @Operation(summary = "Delete all locks by targetType and targetID")
-    public ResponseEntity<Long> deleteByTargetTypeAndTargetId(@PathVariable TargetType targetType, @PathVariable long targetID) {
+    public ResponseEntity<Long> deleteByTargetTypeAndTargetId(@PathVariable TargetTypeEnum targetTypeEnum, @PathVariable long targetID) {
         return ResponseEntity
                 .status(HttpStatus.NO_CONTENT)
-                .body(lockCommandPort.deleteByTargetTypeAndTargetId(targetType, targetID));
+                .body(lockCommandPort.deleteByTargetTypeAndTargetId(targetTypeEnum, targetID));
     }
 
     @DeleteMapping(LockEndpoints.BY_INSTANCE_UUID)

@@ -26,8 +26,8 @@ import com.vaadin.flow.router.Route;
 import com.vaadin.flow.router.RouterLink;
 import com.vaadin.flow.theme.lumo.Lumo;
 import de.fhdw.vendix.commons.core.persistence.entity.AccountRoleEnum;
-import de.fhdw.vendix.store.core.domain.store.StoreLinkStock;
-import de.fhdw.vendix.store.core.domain.store.StoreLinkStockService;
+import de.fhdw.vendix.store.core.domain.store_stock.StoreStock;
+import de.fhdw.vendix.store.core.domain.store_stock.StoreStockService;
 import de.fhdw.vendix.store.ui.MainView;
 import jakarta.annotation.PostConstruct;
 import jakarta.annotation.security.RolesAllowed;
@@ -44,15 +44,15 @@ import java.util.stream.Collectors;
 @RolesAllowed(AccountRoleEnum.ROLE_ADMIN)
 public class StockView extends AppLayout implements BeforeEnterObserver {
 
-    private final StoreLinkStockService storeLinkStockService;
+    private final StoreStockService storeStockService;
 
-    private Grid<StoreLinkStock> grid;
+    private Grid<StoreStock> grid;
     private TextField searchField;
 
-    private List<StoreLinkStock> allStocks;
+    private List<StoreStock> allStocks;
 
-    public StockView(StoreLinkStockService storeLinkStockService) {
-        this.storeLinkStockService = storeLinkStockService;
+    public StockView(StoreStockService storeStockService) {
+        this.storeStockService = storeStockService;
         createHeader();
         addToDrawer(createSidebar());
     }
@@ -179,8 +179,8 @@ public class StockView extends AppLayout implements BeforeEnterObserver {
         setContent(content);
     }
 
-    private Grid<StoreLinkStock> createGrid() {
-        Grid<StoreLinkStock> grid = new Grid<>(StoreLinkStock.class, false);
+    private Grid<StoreStock> createGrid() {
+        Grid<StoreStock> grid = new Grid<>(StoreStock.class, false);
         grid.setSizeFull();
 
         // Filiale – über ID (oder Name, falls vorhanden)
@@ -210,7 +210,7 @@ public class StockView extends AppLayout implements BeforeEnterObserver {
                 .setComparator(this::stockDiff); // Sortierlogik: am stärksten unter Min zuerst
 
         // Aktiv / inaktiv
-        grid.addColumn(StoreLinkStock::isActive)
+        grid.addColumn(StoreStock::isIsActive)
                 .setHeader("Aktiv")
                 .setAutoWidth(true);
 
@@ -222,7 +222,7 @@ public class StockView extends AppLayout implements BeforeEnterObserver {
      * - zeigt aktuellen Wert
      * - Button "Ändern" öffnet Dialog mit Eingabefeld + Speichern/Abbrechen
      */
-    private Component createMinStockCell(StoreLinkStock stock) {
+    private Component createMinStockCell(StoreStock stock) {
         int currentMin = Objects.requireNonNullElse(stock.getMinimumStockLevel(), 5);
         Span valueLabel = new Span(String.valueOf(currentMin));
 
@@ -238,7 +238,7 @@ public class StockView extends AppLayout implements BeforeEnterObserver {
      * - Speichern/Abbrechen
      * - nach Speichern: DB-Update, neu laden, Markierungen + Sortierung aktualisiert
      */
-    private void openMinStockDialog(StoreLinkStock stock) {
+    private void openMinStockDialog(StoreStock stock) {
         Dialog dialog = new Dialog();
         dialog.setHeaderTitle("Mindestbestand ändern");
 
@@ -267,7 +267,7 @@ public class StockView extends AppLayout implements BeforeEnterObserver {
             }
 
             stock.setMinimumStockLevel(value);
-            storeLinkStockService.update(stock);
+            storeStockService.update(stock);
 
             // neu laden & sortieren -> Markierung + Reihenfolge aktualisieren
             loadStocks();
@@ -288,7 +288,7 @@ public class StockView extends AppLayout implements BeforeEnterObserver {
      * Markierung:
      * amount < minStockLevel ⟶ orange + Tooltip "Niedriger Bestand"
      */
-    private Component createAmountCell(StoreLinkStock stock) {
+    private Component createAmountCell(StoreStock stock) {
         int amount = stock.getAmount();
         int min = Objects.requireNonNullElse(stock.getMinimumStockLevel(), 5);
 
@@ -311,7 +311,7 @@ public class StockView extends AppLayout implements BeforeEnterObserver {
      * == 0 -> genau auf Min
      * > 0  -> darüber
      */
-    private int stockDiff(StoreLinkStock s) {
+    private int stockDiff(StoreStock s) {
         int min = Objects.requireNonNullElse(s.getMinimumStockLevel(), 5);
         return s.getAmount() - min;
     }
@@ -321,7 +321,7 @@ public class StockView extends AppLayout implements BeforeEnterObserver {
      * - stärkster Mangel (größtes negatives diff) zuerst
      */
     private void loadStocks() {
-        allStocks = storeLinkStockService.findAll();
+        allStocks = storeStockService.findAll();
         allStocks.sort(Comparator.comparingInt(this::stockDiff));
     }
 
@@ -337,7 +337,7 @@ public class StockView extends AppLayout implements BeforeEnterObserver {
         String filterText = searchField != null ? searchField.getValue() : "";
         String filter = filterText == null ? "" : filterText.trim().toLowerCase(Locale.ROOT);
 
-        List<StoreLinkStock> filtered = allStocks.stream()
+        List<StoreStock> filtered = allStocks.stream()
                 .filter(stock -> {
                     if (filter.isEmpty()) {
                         return true;

@@ -1,6 +1,6 @@
 package de.fhdw.vendix.commons.api.domain.account.dto;
 
-import de.fhdw.vendix.commons.api.domain.role.dto.RoleDTO;
+import de.fhdw.vendix.commons.api.domain.account_role.dto.AccountRoleDTO;
 import de.fhdw.vendix.commons.api.structure.dto.DomainDTO;
 
 import java.util.Set;
@@ -11,7 +11,7 @@ public record AccountDTO(
         UUID uuid,
         String username,
         String password,
-        Set<RoleDTO> roles
+        Set<AccountRoleDTO> roles
 ) implements DomainDTO {
     public AccountDTO {
         if (id < 0) {

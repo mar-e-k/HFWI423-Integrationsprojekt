@@ -1,7 +1,7 @@
 package de.fhdw.vendix.store.core.domain.account;
 
 import de.fhdw.vendix.commons.spring.core.entity.AbstractSpringDataAuditingEntity;
-import de.fhdw.vendix.store.core.domain.role.AccountRole;
+import de.fhdw.vendix.store.core.domain.account_role.AccountRole;
 import de.fhdw.vendix.store.core.domain.receipt.Receipt;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
@@ -16,7 +16,7 @@ public class Account extends AbstractSpringDataAuditingEntity<Long> {
 
     @ManyToOne(optional = false)
     @JoinColumn(nullable = false)
-    private AccountRole accountRole;
+    private AccountRole role;
 
     @OneToMany(mappedBy = "account")
     private List<Receipt> receipts = new ArrayList<>();
@@ -35,16 +35,16 @@ public class Account extends AbstractSpringDataAuditingEntity<Long> {
 
     protected Account() {}
 
-    public Account(AccountRole accountRole, List<Receipt> receipts, UUID uuid, String username, String password) {
-        this.accountRole = accountRole;
+    public Account(AccountRole role, List<Receipt> receipts, UUID uuid, String username, String password) {
+        this.role = role;
         this.receipts = receipts;
         this.uuid = uuid;
         this.username = username;
         this.password = password;
     }
 
-    public AccountRole getAccountRole() {
-        return accountRole;
+    public AccountRole getRole() {
+        return role;
     }
 
     public List<Receipt> getReceipts() {

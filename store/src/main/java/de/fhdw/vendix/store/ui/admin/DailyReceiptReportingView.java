@@ -30,7 +30,7 @@ import de.fhdw.vendix.store.core.domain.account.Account;
 import de.fhdw.vendix.store.core.domain.receipt.Receipt;
 import de.fhdw.vendix.store.core.domain.register.Register;
 import de.fhdw.vendix.store.core.domain.store.Store;
-import de.fhdw.vendix.store.core.domain.receipt_line.ReceiptLinkArticleService;
+import de.fhdw.vendix.store.core.domain.receipt_line.ReceiptLineService;
 import de.fhdw.vendix.store.core.domain.receipt.ReceiptService;
 import de.fhdw.vendix.store.core.utility.StoreClient;
 import de.fhdw.vendix.store.core.utility.scheduler.DailyReceiptReportingSchedule;
@@ -55,7 +55,7 @@ import java.util.stream.Collectors;
 public class DailyReceiptReportingView extends AppLayout implements BeforeEnterObserver {
 
     private final ReceiptService receiptService;
-    private final ReceiptLinkArticleService receiptLinkArticleService;
+    private final ReceiptLineService receiptLineService;
     private final StoreClient storeClient;
     private final DailyReceiptReportingSchedule dailyReceiptReportingSchedule;
 
@@ -75,10 +75,10 @@ public class DailyReceiptReportingView extends AppLayout implements BeforeEnterO
 
     public DailyReceiptReportingView(
             ReceiptService receiptService,
-            ReceiptLinkArticleService receiptLinkArticleService,
+            ReceiptLineService receiptLineService,
             StoreClient storeClient, DailyReceiptReportingSchedule dailyReceiptReportingSchedule) {
         this.receiptService = receiptService;
-        this.receiptLinkArticleService = receiptLinkArticleService;
+        this.receiptLineService = receiptLineService;
         this.storeClient = storeClient;
         this.dailyReceiptReportingSchedule = dailyReceiptReportingSchedule;
 
@@ -281,7 +281,7 @@ public class DailyReceiptReportingView extends AppLayout implements BeforeEnterO
                 .setSortable(true);
         receiptGrid.addColumn(r -> articleCountCache.computeIfAbsent(
                         r.getId(),
-                        id -> receiptLinkArticleService.findByReceipt(r).size()))
+                        id -> receiptLineService.findByReceipt(r).size()))
                 .setHeader("Artikelanzahl")
                 .setAutoWidth(true)
                 .setSortable(true);

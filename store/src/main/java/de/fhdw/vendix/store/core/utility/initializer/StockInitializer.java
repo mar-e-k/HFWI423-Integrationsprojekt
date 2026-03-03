@@ -1,9 +1,9 @@
 package de.fhdw.vendix.store.core.utility.initializer;
 
 import de.fhdw.vendix.store.core.domain.store.Store;
-import de.fhdw.vendix.store.core.domain.store.StoreLinkStock;
+import de.fhdw.vendix.store.core.domain.store_stock.StoreStock;
 import de.fhdw.vendix.store.core.domain.article.Article;
-import de.fhdw.vendix.store.core.domain.store.StoreLinkStockService;
+import de.fhdw.vendix.store.core.domain.store_stock.StoreStockService;
 import de.fhdw.vendix.store.core.domain.store.StoreService;
 import de.fhdw.vendix.store.core.domain.article.ArticleService;
 import org.slf4j.Logger;
@@ -14,6 +14,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.StreamSupport;
 
 @Component
 public class StockInitializer implements CommandLineRunner {
@@ -22,14 +23,14 @@ public class StockInitializer implements CommandLineRunner {
 
     private final StoreService storeService;
     private final ArticleService articleService;
-    private final StoreLinkStockService storeLinkStockService;
+    private final StoreStockService storeStockService;
 
     private static final Long CURRENT_STORE_ID = 1L;
 
-    public StockInitializer(StoreService storeService, ArticleService articleService, StoreLinkStockService storeLinkStockService) {
+    public StockInitializer(StoreService storeService, ArticleService articleService, StoreStockService storeStockService) {
         this.storeService = storeService;
         this.articleService = articleService;
-        this.storeLinkStockService = storeLinkStockService;
+        this.storeStockService = storeStockService;
     }
 
     @Override
@@ -47,25 +48,25 @@ public class StockInitializer implements CommandLineRunner {
         Store currentStore = storeOpt.get();
         String storeIdentifier = String.format("%s, %s", currentStore.getStreet(), currentStore.getCity());
 
-        if (storeLinkStockService.stockExistsForStore(currentStore)) {
+        if (storeStockService.get(currentStore)) {
             logger.info("Stock for store '{}' (ID: {}) is already initialized. Skipping.", storeIdentifier, currentStore.getId());
             return;
         }
 
         logger.info("No stock found for store '{}' (ID: {}). Initializing stock now...", storeIdentifier, currentStore.getId());
 
-        List<Article> allArticles = articleService.findAll();
+        List<Article> allArticles = StreamSupport.stream(articleService.findAll().spliterator(), false).toList();
 
         if (allArticles.isEmpty()) {
             logger.warn("No articles found in the database. Stock initialization will be empty.");
             return;
         }
 
-        List<StoreLinkStock> initialStock = allArticles.stream()
-                .map(article -> new StoreLinkStock(currentStore, article, 0, 5, true))
+        List<StoreStock> initialStock = allArticles.stream()
+                .map(article -> new StoreStock(currentStore, article, 0, 5, true))
                 .toList();
 
-        storeLinkStockService.saveAll(initialStock);
+        storeStockService.createAll(initialStock);
 
         logger.info("Successfully initialized stock for {} articles in store '{}'.", initialStock.size(), storeIdentifier);
     }

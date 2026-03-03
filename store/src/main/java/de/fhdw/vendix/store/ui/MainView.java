@@ -19,7 +19,7 @@ import com.vaadin.flow.router.RouterLink;
 import com.vaadin.flow.theme.lumo.Lumo;
 import de.fhdw.vendix.commons.core.persistence.entity.AccountRoleEnum;
 import de.fhdw.vendix.commons.ui.utlity.DateTimeFormat;
-import de.fhdw.vendix.store.core.domain.system.RegisterRegistryService;
+import de.fhdw.vendix.store.core.domain.store_system.RegisterRegistryService;
 import de.fhdw.vendix.store.core.utility.RegisterClient;
 import de.fhdw.vendix.store.ui.admin.*;
 import jakarta.annotation.security.RolesAllowed;

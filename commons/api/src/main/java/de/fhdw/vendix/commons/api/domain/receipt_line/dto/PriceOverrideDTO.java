@@ -6,7 +6,7 @@ import java.math.BigDecimal;
 
 public record PriceOverrideDTO(
         BigDecimal overriddenPrice,
-        OverrideReason overriddenPriceReason
+        OverrideReasonEnum overriddenPriceReason
 ) implements DTO {
     public PriceOverrideDTO {
         if (overriddenPrice == null) {

@@ -1,7 +1,7 @@
 package de.fhdw.vendix.store.core.domain.register;
 
+import de.fhdw.vendix.commons.spring.core.entity.AbstractSpringDataAuditingEntity;
 import de.fhdw.vendix.store.core.domain.receipt.Receipt;
-import de.fhdw.vendix.store.core.domain.AbstractEntity;
 import de.fhdw.vendix.store.core.domain.store.Store;
 import jakarta.persistence.Entity;
 import jakarta.persistence.JoinColumn;
@@ -10,10 +10,9 @@ import jakarta.persistence.OneToMany;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 
 @Entity
-public class Register extends AbstractEntity {
+public class Register extends AbstractSpringDataAuditingEntity<Long> {
 
     @ManyToOne(optional = false)
     @JoinColumn(nullable = false)
@@ -22,21 +21,9 @@ public class Register extends AbstractEntity {
     @OneToMany(mappedBy = "register")
     private List<Receipt> receipts = new ArrayList<>();
 
-    public Register() {
-        super();
-    }
-
-    public Register(Long id) {
-        super(id);
-    }
+    protected Register() {}
 
     public Register(Store store, List<Receipt> receipts) {
-        this.store = store;
-        this.receipts = receipts;
-    }
-
-    public Register(Long id, Store store, List<Receipt> receipts) {
-        super(id);
         this.store = store;
         this.receipts = receipts;
     }
@@ -45,26 +32,7 @@ public class Register extends AbstractEntity {
         return store;
     }
 
-    public void setStore(Store store) {
-        this.store = store;
-    }
-
     public List<Receipt> getReceipts() {
         return receipts;
-    }
-
-    public void setReceipts(List<Receipt> receipts) {
-        this.receipts = receipts;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (o == null || getClass() != o.getClass()) return false;
-        return Objects.equals(getId(), ((Register) o).getId());
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(store, receipts);
     }
 }

@@ -1,7 +1,7 @@
 package de.fhdw.vendix.store.core.domain.lock;
 
 import de.fhdw.vendix.commons.api.domain.lock.dto.LockDTO;
-import de.fhdw.vendix.commons.api.domain.lock.dto.TargetType;
+import de.fhdw.vendix.commons.api.domain.lock.dto.TargetTypeEnum;
 import de.fhdw.vendix.commons.api.domain.lock.port.LockCommandPort;
 import de.fhdw.vendix.commons.api.domain.lock.port.LockQueryPort;
 import de.fhdw.vendix.commons.spring.core.crud.AbstractSpringDataCrudLogAdapter;
@@ -23,8 +23,8 @@ public class LockService extends AbstractSpringDataCrudLogAdapter<Lock, Long> im
     }
 
     @Override
-    public void deleteByTargetTypeAndTargetId(TargetType targetType, long targetId) {
-        lockRepository.deleteByTargetTypeAndTargetId(targetType, targetId);
+    public void deleteByTargetTypeAndTargetId(TargetTypeEnum targetTypeEnum, long targetId) {
+        lockRepository.deleteByTargetTypeAndTargetId(targetTypeEnum, targetId);
     }
 
     @Override
@@ -38,19 +38,19 @@ public class LockService extends AbstractSpringDataCrudLogAdapter<Lock, Long> im
     }
 
     @Override
-    public Optional<LockDTO> findByTargetTypeAndTargetID(TargetType targetType, long targetID) {
-        if (targetType == null) {
+    public Optional<LockDTO> findByTargetTypeAndTargetID(TargetTypeEnum targetTypeEnum, long targetID) {
+        if (targetTypeEnum == null) {
             throw new IllegalArgumentException("Parameter 'targetType' cannot be null.");
         }
-        return lockRepository.findByTargetTypeAndTargetId(targetType, targetID)
+        return lockRepository.findByTargetTypeAndTargetId(targetTypeEnum, targetID)
                 .map(lockMapper::toDTO);
     }
 
     @Override
-    public boolean existsByTargetTypeAndTargetID(TargetType targetType, long id) {
-        if (targetType == null) {
+    public boolean existsByTargetTypeAndTargetID(TargetTypeEnum targetTypeEnum, long id) {
+        if (targetTypeEnum == null) {
             throw new IllegalArgumentException("Parameter 'targetType' cannot be null.");
         }
-        return lockRepository.existsByTargetTypeAndTargetId(targetType, id);
+        return lockRepository.existsByTargetTypeAndTargetId(targetTypeEnum, id);
     }
 }
