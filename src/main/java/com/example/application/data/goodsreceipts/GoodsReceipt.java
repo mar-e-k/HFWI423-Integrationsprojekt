@@ -9,9 +9,6 @@ import java.time.LocalDateTime;
 @Table(name = "goods_receipt")
 public class GoodsReceipt extends AbstractEntity {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
 
     // Wird automatisch generiert (z. B. WE-2025-00001)
     @Column(name = "receipt_number", unique = true, nullable = false, length = 32)
@@ -60,9 +57,6 @@ public class GoodsReceipt extends AbstractEntity {
 
     // ---- Getter & Setter ----
 
-    public Long getId() {
-        return id;
-    }
 
     public String getReceiptNumber() {
         return receiptNumber;
@@ -123,12 +117,13 @@ public class GoodsReceipt extends AbstractEntity {
     @Override
     public String toString() {
         return "GoodsReceipt{" +
-                "id=" + id +
-                ", receiptNumber='" + receiptNumber + '\'' +
+                "receiptNumber='" + receiptNumber + '\'' +
                 ", supplierName='" + supplierName + '\'' +
                 ", deliveryNoteNumber='" + deliveryNoteNumber + '\'' +
                 ", deliveryDate=" + deliveryDate +
                 ", status=" + status +
+                ", createdAt=" + createdAt +
+                ", updatedAt=" + updatedAt +
                 '}';
     }
 }

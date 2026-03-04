@@ -13,13 +13,13 @@
 
     <properties>
         <java.version>21</java.version>
-        <vaadin.version>24.9.3</vaadin.version>
+        <vaadin.version>25.0.4</vaadin.version>
     </properties>
 
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>3.5.6</version>
+        <version>4.0.0</version>
     </parent>
 
     <repositories>
@@ -45,6 +45,15 @@
     </dependencyManagement>
 
     <dependencies>
+        <dependency>
+            <groupId>io.github.plaguv</groupId>
+            <artifactId>plaguv-amqp-spring-boot-starter</artifactId>
+            <version>1.1.0</version>
+        </dependency>
+        <dependency>
+            <groupId>com.vaadin</groupId>
+            <artifactId>vaadin-dev</artifactId>
+        </dependency>
         <dependency>
             <groupId>com.vaadin</groupId>
             <!-- Replace artifactId with vaadin-core to use only free components -->

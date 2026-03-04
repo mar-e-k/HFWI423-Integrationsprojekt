@@ -100,12 +100,12 @@ public class RestockView extends Div {
             return "";
         });
 
-        grid.setClassNameGenerator(item -> {
-            if (restockOrderService.hasOpenOrderForArticle(item.getArticle())) {
-                return "restock-order-open";
-            }
-            return null;
-        });
+        // grid.setClassNameGenerator(item -> {
+       //     if (restockOrderService.hasOpenOrderForArticle(item.getArticle())) {
+       //         return "restock-order-open";
+        //    }
+       //    return null;
+       // });
 
 
         grid.setHeight("300px");

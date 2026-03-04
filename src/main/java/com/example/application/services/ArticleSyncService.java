@@ -132,7 +132,6 @@ public class ArticleSyncService {
         info.setArticleNumber(ext.getArticleNumber());
         info.setName(ext.getName());
 
-
         info.setStockLevel(0);
         info.setStorageLocation("UNGESETZT");
         info.setReserveStorageLocation(null);
