@@ -5,11 +5,12 @@ import java.util.List;
 
 public final class Table {
 
-    private final List<TableRow> rows;
+    private final List<TableRow> rows = new ArrayList<>();
 
-    public Table() {
-        rows = new ArrayList<>();
-    }
+    private int width;
+    private int height;
+
+    public Table() {}
 
     public Table(int row_count, int column_count) {
         if (row_count < 0) {
@@ -18,8 +19,6 @@ public final class Table {
         if (column_count < 0) {
             throw new IllegalArgumentException("Parameter 'column_count' cannot be negative");
         }
-
-        rows = new ArrayList<>();
 
         for (int i = 0; i < row_count; i++) {
             appendRow();
@@ -50,23 +49,34 @@ public final class Table {
         if (column < 0) {
             throw new IllegalArgumentException("Parameter 'column' cannot be negative");
         }
+        // TODO
     }
 
     public void appendRow() {
         if (rows.isEmpty()) {
             rows.add(TableRow.returnEmptyCellsRow(1));
-            return;
+        } else {
+            rows.add(TableRow.returnEmptyCellsRow(rows.getFirst().size()));
         }
-        rows.add(TableRow.returnEmptyCellsRow(rows.getFirst().size()));
+        height++;
     }
 
     public void appendColumn() {
         if (rows.isEmpty()) {
             rows.add(TableRow.returnEmptyCellsRow(1));
-            return;
+        } else {
+            for (TableRow row : rows) {
+                row.add(new TableCell());
+            }
         }
-        for (TableRow row : rows) {
-            row.add(new TableCell());
-        }
+        width++;
+    }
+
+    public int getWidth() {
+        return width;
+    }
+
+    public int getHeight() {
+        return height;
     }
 }
