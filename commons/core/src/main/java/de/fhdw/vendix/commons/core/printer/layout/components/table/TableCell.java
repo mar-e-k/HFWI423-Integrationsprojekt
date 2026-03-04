@@ -1,15 +1,23 @@
 package de.fhdw.vendix.commons.core.printer.layout.components.table;
 
-public record TableCell(
-   float height,
-   float width
-) {
-    public TableCell {
-        if (height <= 0) {
-            throw new IllegalArgumentException("Parameter 'height' cannot be below 0");
+import de.fhdw.vendix.commons.core.printer.renderer.utility.TextBlock;
+
+public final class TableCell {
+
+    private TextBlock content;
+
+    public TableCell() {
+        content = TextBlock.empty();
+    }
+
+    public TableCell(TextBlock content) {
+        if (content == null) {
+            throw new IllegalArgumentException("TableCell parameter 'content' cannot be null");
         }
-        if (width <= 0) {
-            throw new IllegalArgumentException("Parameter 'width' cannot be below 0");
-        }
+        this.content = content;
+    }
+
+    public TextBlock getContent() {
+        return content;
     }
 }

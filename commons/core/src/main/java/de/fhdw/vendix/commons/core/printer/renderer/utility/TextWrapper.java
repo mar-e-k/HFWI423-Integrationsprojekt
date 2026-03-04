@@ -22,7 +22,7 @@ public final class TextWrapper {
 
         for (String word : text.split(" ")) {
             String testLine = currentLine.isEmpty() ? word : currentLine + " " + word;
-            float width = style.font().getStringWidth(testLine) / 1000 * style.size(); // convert to pixel
+            float width = style.getFont().getStringWidth(testLine) / 1000 * style.getSize(); // convert to pixel
             if (width > availableWidth) {
                 if (!currentLine.isEmpty()) {
                     lines.add(currentLine.toString());

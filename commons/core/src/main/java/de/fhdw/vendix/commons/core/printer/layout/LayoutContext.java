@@ -9,7 +9,7 @@ public final class LayoutContext {
 
     public void drawText(PDPageContentStream stream, String text, TextStyle style, float x, float y) throws IOException {
         stream.beginText();
-        stream.setFont(style.font(), style.size());
+        stream.setFont(style.getFont(), style.getSize());
         stream.newLineAtOffset(x, y);
         stream.showText(text);
         stream.endText();

@@ -7,7 +7,5 @@ import de.fhdw.vendix.commons.core.printer.renderer.SectionRenderer;
 public final class FooterSection implements SectionRenderer {
 
     @Override
-    public void render(ReceiptDTO receipt, LayoutEngine engine) {
-
-    }
+    public void render(ReceiptDTO receipt, LayoutEngine engine) {}
 }

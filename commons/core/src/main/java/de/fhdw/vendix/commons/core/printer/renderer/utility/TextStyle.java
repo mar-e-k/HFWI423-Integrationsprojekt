@@ -2,28 +2,48 @@ package de.fhdw.vendix.commons.core.printer.renderer.utility;
 
 import org.apache.pdfbox.pdmodel.font.*;
 
-public record TextStyle(
-        PDFont font,
-        float size
-) {
-    public TextStyle {
+public final class TextStyle {
+
+    private PDFont font;
+    private float size;
+
+    public TextStyle(PDFont font, float size) {
         if (font == null) {
-            throw new IllegalArgumentException("TextStyle parameter 'font' cannot be null");
+            throw new IllegalArgumentException("Parameter 'font' cannot be null");
         }
         if (size <= 0) {
-            throw new IllegalArgumentException("TextStyle parameter 'size' must be greater than 0");
+            throw new IllegalArgumentException("Parameter 'size' must be greater than zero");
         }
+        this.font = font;
+        this.size = size;
     }
 
-    public TextStyle() {
-        this(new PDType1Font(Standard14Fonts.FontName.HELVETICA), 12);
+    public static TextStyle defaultStyle() {
+        return new TextStyle(
+                new PDType1Font(Standard14Fonts.FontName.HELVETICA),
+                12
+        );
     }
 
-    public TextStyle(PDFont font) {
-        this(font, 12);
+    public PDFont getFont() {
+        return font;
     }
 
-    public TextStyle(float size) {
-        this(new PDType1Font(Standard14Fonts.FontName.HELVETICA), size);
+    public void setFont(PDFont font) {
+        if (font == null) {
+            throw new IllegalArgumentException("Parameter 'font' cannot be null");
+        }
+        this.font = font;
+    }
+
+    public float getSize() {
+        return size;
+    }
+
+    public void setSize(float size) {
+        if (size <= 0) {
+            throw new IllegalArgumentException("Parameter 'size' must be greater than zero");
+        }
+        this.size = size;
     }
 }

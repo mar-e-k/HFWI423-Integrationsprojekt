@@ -1,20 +1,72 @@
 package de.fhdw.vendix.commons.core.printer.layout.components.table;
 
-public record Table(
-        String[] cellHeaders,
-        float[] cellWidths,
-        int rows,
-        boolean drawBorders
-) {
-    public Table {
-        if (cellHeaders == null) {
-            throw new IllegalArgumentException("Table parameter 'cellHeaders' cannot be null");
+import java.util.ArrayList;
+import java.util.List;
+
+public final class Table {
+
+    private final List<TableRow> rows;
+
+    public Table() {
+        rows = new ArrayList<>();
+    }
+
+    public Table(int row_count, int column_count) {
+        if (row_count < 0) {
+            throw new IllegalArgumentException("Parameter 'row_count' cannot be negative");
         }
-        if (cellWidths == null) {
-            throw new IllegalArgumentException("Table parameter 'cellWidths' cannot be null");
+        if (column_count < 0) {
+            throw new IllegalArgumentException("Parameter 'column_count' cannot be negative");
         }
-        if (rows <= 0) {
-            throw new IllegalArgumentException("Table parameter 'rows' must be greater than 0");
+
+        rows = new ArrayList<>();
+
+        for (int i = 0; i < row_count; i++) {
+            appendRow();
+        }
+        for (int i = 0; i < column_count; i++) {
+            appendColumn();
+        }
+    }
+
+    public TableCell getCell(int row, int column) throws IndexOutOfBoundsException {
+        if (row < 0) {
+            throw new IllegalArgumentException("Parameter 'row' cannot be negative");
+        }
+        if (column < 0) {
+            throw new IllegalArgumentException("Parameter 'column' cannot be negative");
+        }
+
+        return rows.get(row).get(column);
+    }
+
+    public void setCell(TableCell cell, int row, int column) throws IndexOutOfBoundsException {
+        if (cell == null) {
+            throw new IllegalArgumentException("Parameter 'cell' cannot be null");
+        }
+        if (row < 0) {
+            throw new IllegalArgumentException("Parameter 'row' cannot be negative");
+        }
+        if (column < 0) {
+            throw new IllegalArgumentException("Parameter 'column' cannot be negative");
+        }
+    }
+
+    public void appendRow() {
+        if (rows.isEmpty()) {
+            rows.add(TableRow.returnEmptyCellsRow(1));
+            return;
+        }
+        rows.add(TableRow.returnEmptyCellsRow(rows.getFirst().size()));
+    }
+
+    public void appendColumn() {
+        if (rows.isEmpty()) {
+            rows.add(TableRow.returnEmptyCellsRow(1));
+            return;
+        }
+        for (TableRow row : rows) {
+            row.add(new TableCell());
         }
     }
 }
