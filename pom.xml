@@ -136,6 +136,12 @@
                                 <artifactId>nullaway</artifactId>
                                 <version>${nullaway.version}</version>
                             </path>
+                            <!-- Source: https://mvnrepository.com/artifact/org.mapstruct/mapstruct-processor -->
+                            <path>
+                                <groupId>org.mapstruct</groupId>
+                                <artifactId>mapstruct-processor</artifactId>
+                                <version>${mapstruct.version}</version>
+                            </path>
                         </annotationProcessorPaths>
                     </configuration>
                 </plugin>

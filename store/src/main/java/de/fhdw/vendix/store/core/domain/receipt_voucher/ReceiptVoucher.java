@@ -32,6 +32,17 @@ public class ReceiptVoucher extends AbstractSpringDataAuditingEntity<Long> {
         this.redeemedAt = redeemedAt;
     }
 
+    public ReceiptVoucher redeem() {
+        if (expiresAt.isBefore(Instant.now())) {
+            throw new VoucherExpiredException("Voucher has already expired at '%s'".formatted(expiresAt.toString()));
+        }
+        if (redeemedAt != null) {
+            throw new VoucherAlreadyRedeemedException("Voucher already redeemed");
+        }
+        redeemedAt = Instant.now();
+        return this;
+    }
+
     public Receipt getReceipt() {
         return receipt;
     }

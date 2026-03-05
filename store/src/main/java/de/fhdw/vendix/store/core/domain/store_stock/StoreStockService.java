@@ -7,7 +7,7 @@ import de.fhdw.vendix.store.core.domain.store.StoreMapper;
 import org.springframework.stereotype.Service;
 
 @Service
-public class StoreStockService extends AbstractSpringDataCrudLogAdapter<StoreStock, Long> implements StoreStockQueryPort, StoreStockCommandPort {
+class StoreStockService extends AbstractSpringDataCrudLogAdapter<StoreStock, Long> implements StoreStockQueryPort, StoreStockCommandPort {
 
    private final StoreStockRepository storeStockRepository;
    private final StoreMapper storeMapper;

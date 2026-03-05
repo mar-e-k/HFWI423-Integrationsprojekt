@@ -2,4 +2,9 @@ package de.fhdw.vendix.store.core.domain.receipt_voucher;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 
-public interface ReceiptVoucherRepository extends JpaRepository<ReceiptVoucher, Long> {}
+import java.util.Optional;
+import java.util.UUID;
+
+interface ReceiptVoucherRepository extends JpaRepository<ReceiptVoucher, Long> {
+    Optional<ReceiptVoucher> findByCode(UUID code);
+}

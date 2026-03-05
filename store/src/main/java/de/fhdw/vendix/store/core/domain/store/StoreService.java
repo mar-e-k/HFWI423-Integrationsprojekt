@@ -4,7 +4,7 @@ import de.fhdw.vendix.commons.spring.core.crud.AbstractSpringDataCrudLogAdapter;
 import org.springframework.stereotype.Service;
 
 @Service
-public class StoreService extends AbstractSpringDataCrudLogAdapter<Store, Long> {
+class StoreService extends AbstractSpringDataCrudLogAdapter<Store, Long> {
 
     private final StoreRepository storeRepository;
     private final StoreMapper storeMapper;

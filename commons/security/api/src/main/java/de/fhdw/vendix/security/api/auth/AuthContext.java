@@ -8,9 +8,6 @@ import org.jspecify.annotations.Nullable;
 public interface AuthContext {
     // Core
     AccountDTO account();
-    // Meta
-    @Nullable StoreDTO store();
-    @Nullable RegisterDTO register();
     // Meta-Security
     boolean isAccountNonExpired();
     boolean isAccountNonLocked();

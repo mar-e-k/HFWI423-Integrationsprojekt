@@ -15,11 +15,11 @@ import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.*;
 import com.vaadin.flow.theme.lumo.Lumo;
-import de.fhdw.vendix.commons.core.persistence.entity.AccountRoleEnum;
+import de.fhdw.vendix.commons.api.domain.account_role.dto.AccountRoleEnum;
+import de.fhdw.vendix.commons.ui.core.utility.DateTimeFormat;
 import de.fhdw.vendix.store.core.domain.account.Account;
 import de.fhdw.vendix.store.core.domain.account.AccountService;
 import de.fhdw.vendix.store.ui.MainView;
-import de.fhdw.vendix.commons.ui.utlity.DateTimeFormat;
 import jakarta.annotation.PostConstruct;
 import jakarta.annotation.security.RolesAllowed;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
@@ -36,12 +36,10 @@ import java.util.stream.Collectors;
 @RolesAllowed(AccountRoleEnum.ROLE_ADMIN)
 public class AdminView extends AppLayout implements BeforeEnterObserver {
 
-    private final AccountService accountService;
 
     private Grid<Account> grid;
 
-    public AdminView(AccountService accountService) {
-        this.accountService = accountService;
+    public AdminView() {
         createHeader();
         addToDrawer(createSidebar());
     }

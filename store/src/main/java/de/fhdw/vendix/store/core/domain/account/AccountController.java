@@ -1,4 +1,4 @@
-package de.fhdw.vendix.store.web.controller;
+package de.fhdw.vendix.store.core.domain.account;
 
 import de.fhdw.vendix.commons.api.domain.account.AccountEndpoints;
 import de.fhdw.vendix.commons.api.domain.account.dto.AccountDTO;
@@ -15,7 +15,7 @@ import java.util.UUID;
 @RestController
 @RequestMapping(AccountEndpoints.BASE)
 @Tag(name = "Account", description = "Endpoints for operations related to accounts")
-public class AccountController {
+class AccountController {
 
     private final AccountQueryPort accountQueryPort;
 

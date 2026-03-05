@@ -17,7 +17,7 @@ public class DistributedLockProxyService extends AbstractProxyService {
     public Mono<Boolean> existsByLockTypeAndTargetId(LockTypeEnum lockType, Long targetId) {
         return getWebClient()
                 .get()
-                .uri("/api/lock/{lockType}/{targetId}/exists", lockType.name(), targetId)
+                .uri("/api/lock/{lockType}/{targetID}/exists", lockType.name(), targetId)
                 .retrieve()
                 .bodyToMono(Boolean.class)
                 .defaultIfEmpty(false);
@@ -26,7 +26,7 @@ public class DistributedLockProxyService extends AbstractProxyService {
     public Mono<DistributedLockDTO> findByLockTypeAndTargetId(LockTypeEnum lockType, Long targetId) {
         return getWebClient()
                 .get()
-                .uri("/api/lock/{lockType}/{targetId}", lockType.name(), targetId)
+                .uri("/api/lock/{lockType}/{targetID}", lockType.name(), targetId)
                 .retrieve()
                 .bodyToMono(DistributedLockDTO.class);
     }
@@ -54,7 +54,7 @@ public class DistributedLockProxyService extends AbstractProxyService {
     public Mono<Long> deleteByLockTypeAndTargetId(LockTypeEnum lockType, Long targetId) {
         return getWebClient()
                 .delete()
-                .uri("/api/lock/{lockType}/{targetId}", lockType.name(), targetId)
+                .uri("/api/lock/{lockType}/{targetID}", lockType.name(), targetId)
                 .retrieve()
                 .bodyToMono(Long.class)
                 .defaultIfEmpty(0L);

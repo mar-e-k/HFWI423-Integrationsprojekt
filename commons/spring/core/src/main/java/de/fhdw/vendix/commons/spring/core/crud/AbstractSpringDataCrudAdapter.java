@@ -14,7 +14,7 @@ import java.util.Optional;
 
 public abstract class AbstractSpringDataCrudAdapter<T extends Identifiable<ID>, ID> implements CrudQueryPort<T, ID>, CrudCommandPort<T, ID> {
 
-    protected final CrudRepository<T, ID> repository;
+    private final CrudRepository<T, ID> repository;
 
     protected AbstractSpringDataCrudAdapter(CrudRepository<T, ID> repository) {
         this.repository = repository;

@@ -7,28 +7,28 @@ import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 
-@Order(1)
 @Component
-public class CleanupStoreHostsAndLocksInitializer implements ApplicationRunner {
+public class CleanupStoreHostsAndLocksInitializer  {
 
-    private static final Logger log = LoggerFactory.getLogger(CleanupStoreHostsAndLocksInitializer.class);
-
-    private final boolean cleanupLocksHostsOnStartup;
-
-    public CleanupStoreHostsAndLocksInitializer(@Value("${spring.filialensystem.startup.cleanup-locks-hosts:true}") boolean cleanupLocksHostsOnStartup) {
-        this.cleanupLocksHostsOnStartup = cleanupLocksHostsOnStartup;
-    }
-
-
-    @Override
-    public void run(ApplicationArguments args) throws Exception {
-        log.atInfo().log("spring.filialensystem.startup.cleanup-locks-hosts-on-startup is: {}", cleanupLocksHostsOnStartup);
-
-        if (!cleanupLocksHostsOnStartup) {
-            return;
-        }
-    }
-
-    // TODO
+//    private static final Logger log = LoggerFactory.getLogger(CleanupStoreHostsAndLocksInitializer.class);
+//
+//    private final boolean cleanupLocksHostsOnStartup;
+//
+//    public CleanupStoreHostsAndLocksInitializer(@Value("${spring.filialensystem.startup.cleanup-locks-hosts:true}") boolean cleanupLocksHostsOnStartup) {
+//        this.cleanupLocksHostsOnStartup = cleanupLocksHostsOnStartup;
+//    }
+//
+//
+//    @Override
+//    public void run(ApplicationArguments args) throws Exception {
+//        log.atInfo().log("spring.filialensystem.startup.cleanup-locks-hosts-on-startup is: {}", cleanupLocksHostsOnStartup);
+//
+//        if (!cleanupLocksHostsOnStartup) {
+//            return;
+//        }
+//    }
+//
+//    // TODO
 }

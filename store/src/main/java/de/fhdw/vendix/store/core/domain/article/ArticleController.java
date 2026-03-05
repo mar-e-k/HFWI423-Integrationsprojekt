@@ -1,4 +1,4 @@
-package de.fhdw.vendix.store.web.controller;
+package de.fhdw.vendix.store.core.domain.article;
 
 import de.fhdw.vendix.commons.api.domain.article.ArticleEndpoints;
 import de.fhdw.vendix.commons.api.domain.article.dto.ArticleDTO;
@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping(ArticleEndpoints.BASE)
 @Tag(name = "Article", description = "Endpoints for operations related to articles")
-public class ArticleController {
+class ArticleController {
 
     private final ArticleQueryPort articleQueryPort;
 

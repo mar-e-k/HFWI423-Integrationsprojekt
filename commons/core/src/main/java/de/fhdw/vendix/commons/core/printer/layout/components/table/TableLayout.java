@@ -7,9 +7,12 @@ import java.io.IOException;
 public final class TableLayout {
 
     private final LayoutEngine engine;
-    private Table table;
+//    private Table table;
 
     public TableLayout(LayoutEngine engine) {
+        if (engine == null) {
+            throw new IllegalArgumentException("Parameter 'engine' cannot be null.");
+        }
         this.engine = engine;
     }
 

@@ -9,7 +9,7 @@ import org.springframework.stereotype.Service;
 import java.util.Optional;
 
 @Service
-public class ArticleService extends AbstractSpringDataCrudLogAdapter<Article, Long> implements ArticleCommandPort, ArticleQueryPort {
+class ArticleService extends AbstractSpringDataCrudLogAdapter<Article, Long> implements ArticleCommandPort, ArticleQueryPort {
 
     private final ArticleRepository articleRepository;
     private final ArticleMapper articleMapper;

@@ -32,7 +32,7 @@ import de.fhdw.vendix.store.core.domain.register.Register;
 import de.fhdw.vendix.store.core.domain.store.Store;
 import de.fhdw.vendix.store.core.domain.receipt_line.ReceiptLineService;
 import de.fhdw.vendix.store.core.domain.receipt.ReceiptService;
-import de.fhdw.vendix.store.core.utility.StoreClient;
+import de.fhdw.vendix.store.core.utility.StoreContext;
 import de.fhdw.vendix.store.core.utility.scheduler.DailyReceiptReportingSchedule;
 import de.fhdw.vendix.store.ui.MainView;
 import jakarta.annotation.PostConstruct;
@@ -56,7 +56,7 @@ public class DailyReceiptReportingView extends AppLayout implements BeforeEnterO
 
     private final ReceiptService receiptService;
     private final ReceiptLineService receiptLineService;
-    private final StoreClient storeClient;
+    private final StoreContext storeContext;
     private final DailyReceiptReportingSchedule dailyReceiptReportingSchedule;
 
     private final Grid<Receipt> receiptGrid = new Grid<>(Receipt.class, false);
@@ -76,10 +76,10 @@ public class DailyReceiptReportingView extends AppLayout implements BeforeEnterO
     public DailyReceiptReportingView(
             ReceiptService receiptService,
             ReceiptLineService receiptLineService,
-            StoreClient storeClient, DailyReceiptReportingSchedule dailyReceiptReportingSchedule) {
+            StoreContext storeContext, DailyReceiptReportingSchedule dailyReceiptReportingSchedule) {
         this.receiptService = receiptService;
         this.receiptLineService = receiptLineService;
-        this.storeClient = storeClient;
+        this.storeContext = storeContext;
         this.dailyReceiptReportingSchedule = dailyReceiptReportingSchedule;
 
         createHeader();
@@ -209,7 +209,7 @@ public class DailyReceiptReportingView extends AppLayout implements BeforeEnterO
         dailyReceiptFilterCheckbox.addValueChangeListener(check -> {
             if (check.getValue()) {
                 dateFilter.setValue(LocalDate.now());
-                storeFilter.setValue(storeClient.getStore());
+                storeFilter.setValue(storeContext.getStore());
                 setManualFiltersEnabled(false);
             } else {
                 setManualFiltersEnabled(true);
@@ -323,13 +323,13 @@ public class DailyReceiptReportingView extends AppLayout implements BeforeEnterO
     private void handleGenerateDailyReceiptButtonClick() {
         List<Receipt> receipts = receiptService.findAll().stream()
                 .filter(r -> r.getCreatedAt().atZone(ZoneId.systemDefault()).toLocalDate().equals(LocalDate.now()))
-                .filter(r -> r.getStore().equals(storeClient.getStore()))
+                .filter(r -> r.getStore().equals(storeContext.getStore()))
                 .toList();
 
         ByteArrayInputStream generatedPdfStream = receiptService.generateDailyReceipt(receipts);
         byte[] pdfBytes = generatedPdfStream.readAllBytes();
 
-        String fileName = "Tagesabschluss-%d-%s.pdf".formatted(storeClient.getStore().getId(), LocalDate.now());
+        String fileName = "Tagesabschluss-%d-%s.pdf".formatted(storeContext.getStore().getId(), LocalDate.now());
 
         DownloadHandler handler = DownloadHandler.fromInputStream(event ->
                 new DownloadResponse(

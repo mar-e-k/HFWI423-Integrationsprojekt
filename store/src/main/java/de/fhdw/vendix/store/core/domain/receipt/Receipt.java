@@ -1,5 +1,6 @@
 package de.fhdw.vendix.store.core.domain.receipt;
 
+import de.fhdw.vendix.commons.api.domain.receipt.dto.ReceiptRequestDTO;
 import de.fhdw.vendix.commons.spring.core.entity.AbstractSpringDataAuditingEntity;
 import de.fhdw.vendix.store.core.domain.account.Account;
 import de.fhdw.vendix.store.core.domain.receipt_line.ReceiptLine;
@@ -33,6 +34,10 @@ public class Receipt extends AbstractSpringDataAuditingEntity<Long> {
     private List<ReceiptVoucher> receiptVouchers = new ArrayList<>();
 
     protected Receipt() {}
+
+    public Receipt(ReceiptRequestDTO dto) {
+
+    }
 
     public Receipt(Store store, Register register, Account account, List<ReceiptLine> receiptLines, List<ReceiptVoucher> receiptVouchers) {
         this.store = store;

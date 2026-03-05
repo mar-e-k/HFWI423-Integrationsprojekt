@@ -6,7 +6,7 @@ import de.fhdw.vendix.commons.spring.core.crud.AbstractSpringDataCrudLogAdapter;
 import org.springframework.stereotype.Service;
 
 @Service
-public class ReceiptLineService extends AbstractSpringDataCrudLogAdapter<ReceiptLine, Long> implements ReceiptLineCommandPort, ReceiptLineQueryPort {
+class ReceiptLineService extends AbstractSpringDataCrudLogAdapter<ReceiptLine, Long> implements ReceiptLineCommandPort, ReceiptLineQueryPort {
 
     private final ReceiptLineRepository receiptLineRepository;
     private final ReceiptLineMapper receiptLineMapper;

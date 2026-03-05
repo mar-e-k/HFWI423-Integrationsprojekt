@@ -13,6 +13,7 @@ import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import org.springframework.http.HttpHeaders;
 import org.springframework.security.authentication.AuthenticationCredentialsNotFoundException;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.Authentication;
@@ -35,14 +36,8 @@ public final class JwtAuthenticationFilter extends OncePerRequestFilter {
     }
 
     @Override
-    protected boolean shouldNotFilter(HttpServletRequest request) {
-        return !request.getServletPath().startsWith("/api/");
-    }
-
-    @Override
-    protected void doFilterInternal(@Nonnull HttpServletRequest request, @Nonnull HttpServletResponse response, @Nonnull FilterChain filterChain) throws ServletException, IOException {
-        String header = request.getHeader("Authorization");
-
+    protected void doFilterInternal(@Nonnull HttpServletRequest request, @Nonnull HttpServletResponse response, @Nonnull FilterChain filterChain) throws IOException, ServletException {
+        String header = request.getHeader(HttpHeaders.AUTHORIZATION);
 
         if (header != null && header.startsWith("Bearer ")) {
             try {
@@ -59,7 +54,7 @@ public final class JwtAuthenticationFilter extends OncePerRequestFilter {
         filterChain.doFilter(request, response);
     }
 
-    // Note: this is here temporarily. Will be refactored to be a separate component that the filter will call with a JwtPayload or similar
+    // TODO: this is here temporarily. Will be refactored to be a separate component that the filter will call with a JwtPayload or similar
     private Authentication resolveAuthentication(String token) throws AuthenticationException {
         JwtPayload payload = jwtService.parseToken(token);
         Set<AccountRoleEnum> accountRoleEnums = payload.auth().accountRoleEnums();

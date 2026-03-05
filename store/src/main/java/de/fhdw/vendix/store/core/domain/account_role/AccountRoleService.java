@@ -6,7 +6,7 @@ import de.fhdw.vendix.commons.spring.core.crud.AbstractSpringDataCrudLogAdapter;
 import org.springframework.stereotype.Service;
 
 @Service
-public class AccountRoleService extends AbstractSpringDataCrudLogAdapter<AccountRole, Long> implements AccountRoleQueryPort, AccountRoleCommandPort {
+class AccountRoleService extends AbstractSpringDataCrudLogAdapter<AccountRole, Long> implements AccountRoleQueryPort, AccountRoleCommandPort {
 
     private final AccountRoleRepository accountRoleRepository;
     private final AccountRoleMapper accountRoleMapper;

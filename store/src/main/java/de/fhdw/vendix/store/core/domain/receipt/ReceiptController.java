@@ -1,4 +1,4 @@
-package de.fhdw.vendix.store.web.controller;
+package de.fhdw.vendix.store.core.domain.receipt;
 
 import de.fhdw.vendix.commons.api.domain.receipt.ReceiptEndpoints;
 import de.fhdw.vendix.commons.api.domain.receipt.dto.ReceiptDTO;
@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping(ReceiptEndpoints.BASE)
 @Tag(name = "Receipt", description = "Endpoints for operations related to receipts")
-public class ReceiptController {
+class ReceiptController {
 
     private final ReceiptCommandPort receiptCommandPort;
 
@@ -26,14 +26,4 @@ public class ReceiptController {
                 .status(HttpStatus.CREATED)
                 .body(receiptCommandPort.create(dto));
     }
-
-// TODO: das sollten wir von Beleg trennen. Seperate Entität -> Voucher ?
-
-//    @PostMapping("/redeem/{depositRedemptionCode}")
-//    public ResponseEntity<ReceiptDTO> redeemDepositReceipt(@PathVariable String depositRedemptionCode) {
-//        return ResponseEntity
-//                .status(HttpStatus.OK)
-//                .body(receiptMapper
-//                        .toDto(receiptService.redeemDepositReceipt(depositRedemptionCode)));
-//    }
 }

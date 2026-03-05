@@ -33,7 +33,7 @@ public final class AuthContextAuthenticationToken extends AbstractAuthentication
 
     @Override
     public @Nullable Object getCredentials() {
-        return null;
+        return ctx;
     }
 
     @Override

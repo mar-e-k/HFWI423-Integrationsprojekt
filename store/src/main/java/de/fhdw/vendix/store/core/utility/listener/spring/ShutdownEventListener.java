@@ -1,7 +1,8 @@
-package de.fhdw.vendix.store.core.utility.listener;
+package de.fhdw.vendix.store.core.utility.listener.spring;
 
+import de.fhdw.vendix.security.api.auth.AppContext;
 import de.fhdw.vendix.store.core.domain.lock.LockService;
-import de.fhdw.vendix.store.core.utility.StoreClient;
+import de.fhdw.vendix.store.core.utility.StoreContext;
 import org.springframework.context.event.ContextClosedEvent;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
@@ -10,15 +11,15 @@ import org.springframework.stereotype.Component;
 public class ShutdownEventListener {
 
     private final LockService lockService;
-    private final StoreClient storeClient;
+    private final AppContext appContext;
 
-    public ShutdownEventListener(LockService lockService, StoreClient storeClient) {
+    public ShutdownEventListener(LockService lockService, AppContext appContext) {
         this.lockService = lockService;
-        this.storeClient = storeClient;
+        this.appContext = appContext;
     }
 
     @EventListener
     public void onContextClosed(ContextClosedEvent event) {
-        lockService.deleteAllByOwnerInstance(storeClient.getInstanceId());
+        lockService.deleteAllByInstanceUUID(appContext.getInstanceUUID());
     }
 }

@@ -4,7 +4,7 @@ import de.fhdw.vendix.commons.spring.core.crud.AbstractSpringDataCrudLogAdapter;
 import org.springframework.stereotype.Service;
 
 @Service
-public class RegisterService extends AbstractSpringDataCrudLogAdapter<Register, Long> {
+class RegisterService extends AbstractSpringDataCrudLogAdapter<Register, Long> {
 
     private final RegisterRepository registerRepository;
     private final RegisterMapper registerMapper;

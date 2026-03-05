@@ -17,12 +17,12 @@
     <dependencies>
         <dependency>
             <groupId>de.fhdw.vendix</groupId>
-            <artifactId>commons-core</artifactId>
+            <artifactId>commons-api</artifactId>
             <version>1.0.0</version>
         </dependency>
         <dependency>
             <groupId>de.fhdw.vendix</groupId>
-            <artifactId>commons-api</artifactId>
+            <artifactId>commons-core</artifactId>
             <version>1.0.0</version>
         </dependency>
         <dependency>

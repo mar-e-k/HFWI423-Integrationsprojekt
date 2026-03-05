@@ -1,4 +1,4 @@
-package de.fhdw.vendix.store.web.controller;
+package de.fhdw.vendix.store.core.domain.lock;
 
 import de.fhdw.vendix.commons.api.domain.lock.LockEndpoints;
 import de.fhdw.vendix.commons.api.domain.lock.dto.LockRequestDTO;
@@ -18,7 +18,7 @@ import java.util.UUID;
 @RestController
 @RequestMapping(LockEndpoints.BASE)
 @Tag(name = "Lock", description = "Endpoints for operations related to locks")
-public class LockController {
+class LockController {
 
     private final LockCommandPort lockCommandPort;
     private final LockQueryPort lockQueryPort;
@@ -47,17 +47,19 @@ public class LockController {
 
     @DeleteMapping(LockEndpoints.BY_TARGET_TYPE_AND_TARGET_ID)
     @Operation(summary = "Delete all locks by targetType and targetID")
-    public ResponseEntity<Long> deleteByTargetTypeAndTargetId(@PathVariable TargetTypeEnum targetTypeEnum, @PathVariable long targetID) {
+    public ResponseEntity<Void> deleteByTargetTypeAndTargetId(@PathVariable TargetTypeEnum targetTypeEnum, @PathVariable long targetID) {
+        lockCommandPort.deleteByTargetTypeAndTargetId(targetTypeEnum, targetID);
         return ResponseEntity
-                .status(HttpStatus.NO_CONTENT)
-                .body(lockCommandPort.deleteByTargetTypeAndTargetId(targetTypeEnum, targetID));
+                .noContent()
+                .build();
     }
 
     @DeleteMapping(LockEndpoints.BY_INSTANCE_UUID)
     @Operation(summary = "Delete all locks by instanceUUID UUID")
     public ResponseEntity<Long> deleteAllByInstanceId(@PathVariable UUID instanceUUID) {
+        lockCommandPort.deleteAllByInstanceUUID(instanceUUID);
         return ResponseEntity
-                .status(HttpStatus.NO_CONTENT)
-                .body(lockCommandPort.deleteAllByInstanceUUID(instanceUUID));
+                .noContent()
+                .build();
     }
 }

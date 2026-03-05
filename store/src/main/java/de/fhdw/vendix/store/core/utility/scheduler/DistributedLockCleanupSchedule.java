@@ -4,25 +4,26 @@ import de.fhdw.vendix.store.core.domain.lock.LockService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 
-@Service
+@Component
 public class DistributedLockCleanupSchedule {
 
-    private static final Logger log = LoggerFactory.getLogger(DistributedLockCleanupSchedule.class);
-
-    private final LockService lockService;
-
-    public DistributedLockCleanupSchedule(LockService lockService) {
-        this.lockService = lockService;
-    }
-
-    @Scheduled(cron = "0 */1 * * * *", zone = "Europe/Berlin")
-    public void scheduledCleanup() {
-        log.atInfo().log("[SCHEDULED] Performing distributed lock cleanup...");
-
-        lockService.deleteAllExpiredLocks();
-
-        log.atInfo().log("[SCHEDULED] Successfully performed distributed lock cleanup");
-    }
+//    private static final Logger log = LoggerFactory.getLogger(DistributedLockCleanupSchedule.class);
+//
+//    private final LockService lockService;
+//
+//    public DistributedLockCleanupSchedule(LockService lockService) {
+//        this.lockService = lockService;
+//    }
+//
+//    @Scheduled(cron = "0 */1 * * * *", zone = "Europe/Berlin")
+//    public void scheduledCleanup() {
+//        log.atInfo().log("[SCHEDULED] Performing distributed lock cleanup...");
+//
+//        lockService.deleteAllExpiredLocks();
+//
+//        log.atInfo().log("[SCHEDULED] Successfully performed distributed lock cleanup");
+//    }
 }

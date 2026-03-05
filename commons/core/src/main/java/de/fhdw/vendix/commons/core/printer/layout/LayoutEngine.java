@@ -34,7 +34,7 @@ public final class LayoutEngine {
     }
 
     public void text(String text, TextStyle style) throws IOException {
-        float requiredSpace = style.size() + GAP_SPACE;
+        float requiredSpace = style.getSize() + GAP_SPACE;
         ensureVerticalSpace(requiredSpace);
         context.drawText(stream, text, style, cursorX, cursorY);
         cursorY -= requiredSpace;

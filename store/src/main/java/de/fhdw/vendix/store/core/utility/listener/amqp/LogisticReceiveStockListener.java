@@ -1,10 +1,11 @@
-package de.fhdw.vendix.store.web.listener;
+package de.fhdw.vendix.store.core.utility.listener.amqp;
 
-import org.springframework.stereotype.Component;
+import io.github.plaguv.core.listener.AmqpListener;
+import org.springframework.stereotype.Service;
 
 //TODO: rewrite in new listener
 
-@Component
+@Service
 public class LogisticReceiveStockListener {
 
     public LogisticReceiveStockListener() {
@@ -12,6 +13,15 @@ public class LogisticReceiveStockListener {
 //        this.articleService = articleService;
 //        this.storeLinkStockService = storeLinkStockService;
     }
+
+    // TODO: replace with actual dto
+//    @AmqpListener
+//    public void receiveStock( event) {
+//        if (event == null) {
+//            throw new IllegalArgumentException("Parameter 'event' cannot be null");
+//        }
+//
+//    }
 
 //    @RabbitListener(queues = "#{T(de.fhdw.commons.api.rabbitmq.DomainQueue).STORE_LOGISTIC_RESTOCK.getQueue()}")
 //    public void handleStock(LogisticMessageDTO logisticMessageDTO) {

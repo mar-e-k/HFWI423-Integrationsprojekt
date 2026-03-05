@@ -10,7 +10,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 @Service
-public class AccountService extends AbstractSpringDataCrudLogAdapter<Account, Long> implements AccountQueryPort, AccountCommandPort {
+class AccountService extends AbstractSpringDataCrudLogAdapter<Account, Long> implements AccountQueryPort, AccountCommandPort {
 
     private final AccountRepository accountRepository;
     private final AccountMapper accountMapper;

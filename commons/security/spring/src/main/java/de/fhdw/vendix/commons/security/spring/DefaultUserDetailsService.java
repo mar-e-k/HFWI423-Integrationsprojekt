@@ -29,8 +29,6 @@ public final class DefaultUserDetailsService implements UserDetailsService {
 
         AuthContext authContext = new DefaultAuthContext(
                 accountDTO,
-                null,
-                null,
                 true,
                 lockExists,
                 true,

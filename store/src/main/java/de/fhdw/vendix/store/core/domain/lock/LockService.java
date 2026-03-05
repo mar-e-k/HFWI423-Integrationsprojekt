@@ -1,6 +1,7 @@
 package de.fhdw.vendix.store.core.domain.lock;
 
 import de.fhdw.vendix.commons.api.domain.lock.dto.LockDTO;
+import de.fhdw.vendix.commons.api.domain.lock.dto.LockRequestDTO;
 import de.fhdw.vendix.commons.api.domain.lock.dto.TargetTypeEnum;
 import de.fhdw.vendix.commons.api.domain.lock.port.LockCommandPort;
 import de.fhdw.vendix.commons.api.domain.lock.port.LockQueryPort;
@@ -11,7 +12,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 @Service
-public class LockService extends AbstractSpringDataCrudLogAdapter<Lock, Long> implements LockCommandPort, LockQueryPort {
+class LockService extends AbstractSpringDataCrudLogAdapter<Lock, Long> implements LockCommandPort, LockQueryPort {
 
     private final LockRepository lockRepository;
     private final LockMapper lockMapper;
@@ -20,6 +21,11 @@ public class LockService extends AbstractSpringDataCrudLogAdapter<Lock, Long> im
         super(lockRepository);
         this.lockRepository = lockRepository;
         this.lockMapper = lockMapper;
+    }
+
+    @Override
+    public LockDTO create(LockRequestDTO dto) {
+        return lockMapper.toDTO(super.create(new Lock(dto)));
     }
 
     @Override

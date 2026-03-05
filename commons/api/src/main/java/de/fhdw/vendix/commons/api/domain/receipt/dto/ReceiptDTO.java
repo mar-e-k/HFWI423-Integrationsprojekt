@@ -15,8 +15,8 @@ public record ReceiptDTO (
         StoreDTO store,
         RegisterDTO register,
         AccountDTO account,
-        @Nullable List<ReceiptLineDTO> lines,
-        @Nullable List<ReceiptVoucherDTO> vouchers
+        List<ReceiptLineDTO> lines,
+        List<ReceiptVoucherDTO> vouchers
 ) implements DomainDTO {
     public ReceiptDTO {
         if (receiptId < 0) {
@@ -25,8 +25,17 @@ public record ReceiptDTO (
         if (store == null) {
             throw new IllegalArgumentException("ReceiptDTO parameter 'store' must not be null");
         }
+        if (register == null) {
+            throw new IllegalArgumentException("ReceiptDTO parameter 'register' must not be null");
+        }
         if (account == null) {
             throw new IllegalArgumentException("ReceiptDTO parameter 'account' must not be null");
+        }
+        if (lines == null) {
+            throw new IllegalArgumentException("ReceiptDTO parameter 'lines' cannot be null");
+        }
+        if (vouchers == null) {
+            throw new IllegalArgumentException("ReceiptDTO parameter 'vouchers' cannot be null");
         }
     }
 }

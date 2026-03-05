@@ -8,7 +8,7 @@ import org.springframework.data.repository.CrudRepository;
 import java.util.Optional;
 import java.util.UUID;
 
-public interface LockRepository extends CrudRepository<Lock, Long> {
+interface LockRepository extends CrudRepository<Lock, Long> {
     boolean existsByTargetTypeAndTargetId(TargetTypeEnum targetTypeEnum, long targetId);
 
     Optional<Lock> findByTargetTypeAndTargetId(TargetTypeEnum targetTypeEnum, long targetId);
