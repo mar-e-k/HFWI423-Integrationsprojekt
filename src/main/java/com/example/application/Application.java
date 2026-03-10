@@ -2,10 +2,11 @@ package com.example.application;
 
 import com.vaadin.flow.component.page.AppShellConfigurator;
 import com.vaadin.flow.server.AppShellSettings;
-import com.vaadin.flow.theme.Theme;
+import io.github.plaguv.contract.envelope.EventEnvelope;
+import io.github.plaguv.contract.envelope.EventEnvelopeBuilder;
+import io.github.plaguv.contract.event.pos.StoreClosedEvent;
 import io.github.plaguv.core.publisher.EventPublisher;
 import org.springframework.boot.SpringApplication;
-import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.context.event.ApplicationStartedEvent;
 import org.springframework.context.event.EventListener;
@@ -18,7 +19,6 @@ import org.springframework.scheduling.annotation.EnableScheduling;
  */
 @EnableScheduling
 @SpringBootApplication
-@Theme(value = "my-app")
 public class Application implements AppShellConfigurator {
 
 private final EventPublisher publisher;
@@ -38,8 +38,16 @@ private final EventPublisher publisher;
         settings.addFavIcon("icon", "icons/icon.png", "32x32");
         settings.addLink("shortcut icon", "icons/icon.png");
     }
-    @EventListener
-    public void message(ApplicationStartedEvent event){
 
+    @EventListener
+    public void message(ApplicationStartedEvent applicationStartedEvent){
+        try {
+            EventEnvelope eventenvelope = EventEnvelopeBuilder.defaults().withContentType(StoreClosedEvent.class).build();
+            publisher.publishMessage(eventenvelope);
+        } catch (Exception e) {
+            // RabbitMQ Exchange nicht vorhanden oder nicht erreichbar - nicht kritisch
+            // Logistik-System kann auch ohne RabbitMQ funktionieren
+            System.err.println("Warning: Could not publish StoreClosedEvent to RabbitMQ: " + e.getMessage());
+        }
     }
 }
