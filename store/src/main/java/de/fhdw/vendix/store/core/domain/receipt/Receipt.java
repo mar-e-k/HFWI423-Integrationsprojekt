@@ -1,6 +1,5 @@
 package de.fhdw.vendix.store.core.domain.receipt;
 
-import de.fhdw.vendix.commons.api.domain.receipt.dto.ReceiptRequestDTO;
 import de.fhdw.vendix.commons.spring.core.entity.AbstractSpringDataAuditingEntity;
 import de.fhdw.vendix.store.core.domain.account.Account;
 import de.fhdw.vendix.store.core.domain.receipt_line.ReceiptLine;
@@ -25,7 +24,7 @@ public class Receipt extends AbstractSpringDataAuditingEntity<Long> {
 
     @ManyToOne(optional = false)
     @JoinColumn(nullable = false)
-    private Account account;
+    private Account cashier;
 
     @OneToMany(mappedBy = "receipt", orphanRemoval = true, cascade = CascadeType.ALL)
     private List<ReceiptLine> receiptLines = new ArrayList<>();
@@ -35,14 +34,10 @@ public class Receipt extends AbstractSpringDataAuditingEntity<Long> {
 
     protected Receipt() {}
 
-    public Receipt(ReceiptRequestDTO dto) {
-
-    }
-
-    public Receipt(Store store, Register register, Account account, List<ReceiptLine> receiptLines, List<ReceiptVoucher> receiptVouchers) {
+    protected Receipt(Store store, Register register, Account cashier, List<ReceiptLine> receiptLines, List<ReceiptVoucher> receiptVouchers) {
         this.store = store;
         this.register = register;
-        this.account = account;
+        this.cashier = cashier;
         this.receiptLines = receiptLines;
         this.receiptVouchers = receiptVouchers;
     }
@@ -55,8 +50,8 @@ public class Receipt extends AbstractSpringDataAuditingEntity<Long> {
         return register;
     }
 
-    public Account getAccount() {
-        return account;
+    public Account getCashier() {
+        return cashier;
     }
 
     public List<ReceiptLine> getReceiptLines() {

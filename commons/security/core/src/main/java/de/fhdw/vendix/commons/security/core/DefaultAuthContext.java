@@ -17,7 +17,7 @@ public record DefaultAuthContext(
 ) implements AuthContext {
     public DefaultAuthContext {
         if (account == null) {
-            throw new IllegalArgumentException("DefaultAuthContext parameter 'account' cannot be null");
+            throw new IllegalArgumentException("DefaultAuthContext parameter 'cashier' cannot be null");
         }
     }
 

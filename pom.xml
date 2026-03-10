@@ -22,11 +22,9 @@
     <description>vendix</description>
 
     <modules>
-        <module>pos</module>
-        <module>store</module>
         <module>commons</module>
-        <module>commons/spring/core</module>
-        <module>commons/spring/starter</module>
+<!--        <module>pos</module>-->
+        <module>store</module>
     </modules>
 
     <properties>
@@ -113,6 +111,7 @@
                                 -Xplugin:ErrorProne
                                 -XepOpt:NullAway:AnnotatedPackages=de.fhdw.vendix
                                 -XepOpt:NullAway:ExcludedClassAnnotations=jakarta.persistence.Entity,jakarta.persistence.MappedSuperclass
+                                -XepOpt:NullAway:TreatGeneratedAsUnannotated=true
                                 -Xep:NullAway:ERROR
                                 -Xep:StaticImport:OFF
                             </arg>

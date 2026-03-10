@@ -22,7 +22,7 @@ public class AccountRole extends AbstractSpringDataAuditingEntity<Long> {
 
     protected AccountRole() {}
 
-    public AccountRole(List<Account> accounts, AccountRoleEnum role) {
+    protected AccountRole(List<Account> accounts, AccountRoleEnum role) {
         this.accounts = accounts;
         this.role = role;
     }

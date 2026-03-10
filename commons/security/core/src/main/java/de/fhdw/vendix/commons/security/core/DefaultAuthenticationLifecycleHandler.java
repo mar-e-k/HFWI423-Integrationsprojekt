@@ -7,19 +7,26 @@ import de.fhdw.vendix.security.api.auth.AppContext;
 import de.fhdw.vendix.security.api.auth.AuthContext;
 import de.fhdw.vendix.security.api.auth.AuthenticationLifecycleHandler;
 
-import java.time.Clock;
 import java.time.Instant;
 
 public class DefaultAuthenticationLifecycleHandler implements AuthenticationLifecycleHandler {
 
-    private final LockCommandPort lockCommandPort;
     private final AppContext appContext;
-    private final Clock clock;
+    private final LockCommandPort lockCommandPort;
 
-    public DefaultAuthenticationLifecycleHandler(LockCommandPort lockCommandPort, AppContext appContext, Clock clock) {
-        this.lockCommandPort = lockCommandPort;
+    public DefaultAuthenticationLifecycleHandler(AppContext appContext, LockCommandPort lockCommandPort) {
         this.appContext = appContext;
-        this.clock = clock;
+        this.lockCommandPort = lockCommandPort;
+    }
+
+    @Override
+    public void onApplicationStart(AppContext appContext) {
+        lockCommandPort.deleteAllExpiredLocks();
+    }
+
+    @Override
+    public void onApplicationShutdown(AppContext appContext) {
+        lockCommandPort.deleteAllByInstanceUUID(appContext.getInstanceUUID());
     }
 
     @Override
@@ -28,7 +35,7 @@ public class DefaultAuthenticationLifecycleHandler implements AuthenticationLife
                 TargetTypeEnum.ACCOUNT,
                 authContext.account().id(),
                 appContext.getInstanceUUID(),
-                Instant.now(clock),
+                Instant.now(),
                 null // TODO: set properties for automatic expiry
         );
         lockCommandPort.create(dto);

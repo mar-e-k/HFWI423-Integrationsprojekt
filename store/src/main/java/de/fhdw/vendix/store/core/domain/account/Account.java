@@ -18,7 +18,7 @@ public class Account extends AbstractSpringDataAuditingEntity<Long> {
     @JoinColumn(nullable = false)
     private AccountRole role;
 
-    @OneToMany(mappedBy = "account")
+    @OneToMany(mappedBy = "cashier")
     private List<Receipt> receipts = new ArrayList<>();
 
     @Column(unique = true, nullable = false)
@@ -35,7 +35,7 @@ public class Account extends AbstractSpringDataAuditingEntity<Long> {
 
     protected Account() {}
 
-    public Account(AccountRole role, List<Receipt> receipts, UUID uuid, String username, String password) {
+    protected Account(AccountRole role, List<Receipt> receipts, UUID uuid, String username, String password) {
         this.role = role;
         this.receipts = receipts;
         this.uuid = uuid;

@@ -18,7 +18,7 @@ public class AccountProxyService extends AbstractProxyService {
     public Optional<AccountDTO> findById(Long id) {
         return getWebClient()
                 .get()
-                .uri("/api/account/id/{id}", id)
+                .uri("/api/cashier/id/{id}", id)
                 .retrieve()
                 .bodyToMono(AccountDTO.class)
                 .onErrorResume(WebClientResponseException.NotFound.class, e -> Mono.empty())
@@ -28,7 +28,7 @@ public class AccountProxyService extends AbstractProxyService {
     public Optional<AccountDTO> findByUuid(String uuid) {
         return getWebClient()
                 .get()
-                .uri("/api/account/subject/{subject}", uuid)
+                .uri("/api/cashier/subject/{subject}", uuid)
                 .retrieve()
                 .bodyToMono(AccountDTO.class)
                 .onErrorResume(WebClientResponseException.NotFound.class, e -> Mono.empty())
@@ -38,7 +38,7 @@ public class AccountProxyService extends AbstractProxyService {
     public Optional<AccountDTO> findByUsername(String username) {
         return getWebClient()
                 .get()
-                .uri("/api/account/name/{accountUsername}", username)
+                .uri("/api/cashier/name/{accountUsername}", username)
                 .retrieve()
                 .bodyToMono(AccountDTO.class)
                 .onErrorResume(WebClientResponseException.NotFound.class, e -> Mono.empty())

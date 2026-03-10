@@ -5,7 +5,6 @@ import de.fhdw.vendix.security.api.auth.AuthenticationLifecycleHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.event.EventListener;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.security.authentication.event.InteractiveAuthenticationSuccessEvent;
 import org.springframework.security.authentication.event.LogoutSuccessEvent;
 
@@ -19,7 +18,6 @@ public final class AuthenticationEventListener {
         this.authenticationLifecycleHandler = authenticationLifecycleHandler;
     }
 
-    @Async
     @EventListener
     public void onAuthenticationSuccess(InteractiveAuthenticationSuccessEvent event) {
         if (event.getAuthentication().getPrincipal() instanceof AuthContext authContext) {
@@ -29,7 +27,6 @@ public final class AuthenticationEventListener {
         }
     }
 
-    @Async
     @EventListener
     public void onLogoutSuccess(LogoutSuccessEvent event) {
         if (event.getAuthentication().getPrincipal() instanceof AuthContext authContext) {

@@ -2,16 +2,21 @@ package de.fhdw.vendix.commons.spring.starter.autoconfigure;
 
 import de.fhdw.vendix.commons.api.domain.account.dto.AccountDTO;
 import de.fhdw.vendix.commons.api.domain.account.port.AccountQueryPort;
+import de.fhdw.vendix.commons.api.domain.lock.port.LockCommandPort;
 import de.fhdw.vendix.commons.api.domain.lock.port.LockQueryPort;
 import de.fhdw.vendix.commons.security.auth.AuthWhitelist;
+import de.fhdw.vendix.commons.security.core.DefaultAuthenticationLifecycleHandler;
 import de.fhdw.vendix.commons.security.spring.DefaultAppContext;
 import de.fhdw.vendix.commons.security.spring.AuthContextHolder;
 import de.fhdw.vendix.commons.security.spring.DefaultUserDetailsService;
 import de.fhdw.vendix.commons.security.spring.JwtAuthenticationFilter;
 import de.fhdw.vendix.commons.security.spring.DefaultClassAccessChecker;
+import de.fhdw.vendix.commons.security.spring.listener.ApplicationEventListener;
+import de.fhdw.vendix.commons.security.spring.listener.AuthenticationEventListener;
 import de.fhdw.vendix.commons.spring.starter.properties.SecurityPropertiesConfiguration;
 import de.fhdw.vendix.security.api.auth.AppContext;
 import de.fhdw.vendix.security.api.auth.AuthContext;
+import de.fhdw.vendix.security.api.auth.AuthenticationLifecycleHandler;
 import de.fhdw.vendix.security.api.ui.ClassAccessChecker;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
@@ -32,7 +37,6 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 import java.util.Optional;
-import java.util.UUID;
 
 @AutoConfiguration
 @EnableConfigurationProperties(SecurityPropertiesConfiguration.class)
@@ -63,14 +67,32 @@ public class SecurityAutoConfiguration {
 
     @Bean
     @ConditionalOnMissingBean
-    public ClassAccessChecker classAccessChecker() {
-        return new DefaultClassAccessChecker();
+    public AppContext appContext(Environment environment) {
+        return new DefaultAppContext(environment);
     }
 
     @Bean
     @ConditionalOnMissingBean
-    public AppContext appContext(Environment environment) {
-        return new DefaultAppContext(environment);
+    public AuthenticationLifecycleHandler authenticationLifecycleHandler(AppContext appContext, LockCommandPort commandPort) {
+        return new DefaultAuthenticationLifecycleHandler(appContext, commandPort);
+    }
+
+    @Bean
+    @ConditionalOnMissingBean
+    public AuthenticationEventListener authenticationEventListener(AuthenticationLifecycleHandler authenticationLifecycleHandler) {
+        return new AuthenticationEventListener(authenticationLifecycleHandler);
+    }
+
+    @Bean
+    @ConditionalOnMissingBean
+    public ApplicationEventListener applicationEventListener(AppContext appContext, AuthenticationLifecycleHandler authenticationLifecycleHandler) {
+        return new ApplicationEventListener(appContext, authenticationLifecycleHandler);
+    }
+
+    @Bean
+    @ConditionalOnMissingBean
+    public ClassAccessChecker classAccessChecker() {
+        return new DefaultClassAccessChecker();
     }
 
     @Bean
@@ -95,8 +117,6 @@ public class SecurityAutoConfiguration {
                     .logout(logout -> logout
                                     .logoutUrl("/logout")
                                     .logoutSuccessUrl("/login?logout")
-//                            .invalidateHttpSession(true)
-//                            .clearAuthentication(true)
                     )
                     .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
                     .build();

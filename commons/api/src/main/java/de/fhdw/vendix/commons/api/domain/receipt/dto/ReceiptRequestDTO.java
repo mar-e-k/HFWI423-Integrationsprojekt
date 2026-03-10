@@ -24,7 +24,7 @@ public record ReceiptRequestDTO(
             throw new IllegalArgumentException("ReceiptRequestDTO parameter 'register' must not be null");
         }
         if (account == null) {
-            throw new IllegalArgumentException("ReceiptRequestDTO parameter 'account' must not be null");
+            throw new IllegalArgumentException("ReceiptRequestDTO parameter 'cashier' must not be null");
         }
         if (lines == null) {
             throw new IllegalArgumentException("ReceiptRequestDTO parameter 'lines' cannot be null");

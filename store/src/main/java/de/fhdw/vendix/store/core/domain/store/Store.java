@@ -4,7 +4,6 @@ import de.fhdw.vendix.commons.spring.core.entity.AbstractSpringDataAuditingEntit
 import de.fhdw.vendix.store.core.domain.receipt.Receipt;
 import de.fhdw.vendix.store.core.domain.register.Register;
 import de.fhdw.vendix.store.core.domain.store_stock.StoreStock;
-import de.fhdw.vendix.store.core.domain.store_system.StoreSystem;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.OneToMany;
@@ -25,9 +24,6 @@ public class Store extends AbstractSpringDataAuditingEntity<Long> {
 
     @OneToMany(mappedBy = "store")
     private List<StoreStock> storeStocks = new ArrayList<>();
-
-    @OneToMany(mappedBy = "store")
-    private List<StoreSystem> storeSystems = new ArrayList<>();
 
     @Column(nullable = false)
     @NotBlank(message = "Country must not be blank")
@@ -55,11 +51,10 @@ public class Store extends AbstractSpringDataAuditingEntity<Long> {
         this.streetNumber = streetNumber;
     }
 
-    public Store(List<Register> registers, List<Receipt> receipts, List<StoreStock> storeStocks, List<StoreSystem> storeSystems, String country, String city, String street, String streetNumber) {
+    public Store(List<Register> registers, List<Receipt> receipts, List<StoreStock> storeStocks, String country, String city, String street, String streetNumber) {
         this.registers = registers;
         this.receipts = receipts;
         this.storeStocks = storeStocks;
-        this.storeSystems = storeSystems;
         this.country = country;
         this.city = city;
         this.street = street;
@@ -76,10 +71,6 @@ public class Store extends AbstractSpringDataAuditingEntity<Long> {
 
     public List<StoreStock> getStoreStocks() {
         return storeStocks;
-    }
-
-    public List<StoreSystem> getStoreSystems() {
-        return storeSystems;
     }
 
     public String getCountry() {

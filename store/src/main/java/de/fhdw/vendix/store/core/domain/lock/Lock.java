@@ -18,7 +18,7 @@ import java.util.UUID;
 @Entity
 @Table(uniqueConstraints = {@UniqueConstraint(columnNames = {"lock_type", "target_id"})})
 @EntityListeners(AuditingEntityListener.class)
-public class Lock extends AbstractSpringDataAuditingEntity<Long> {
+class Lock extends AbstractSpringDataAuditingEntity<Long> {
 
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)
@@ -42,9 +42,9 @@ public class Lock extends AbstractSpringDataAuditingEntity<Long> {
     @NotNull
     private Instant expiresAt;
 
-    public Lock() {}
+    protected Lock() {}
 
-    public Lock(LockRequestDTO dto) {
+    protected Lock(LockRequestDTO dto) {
         this.targetType = dto.targetType();
         this.targetID = dto.targetID();
         this.instanceUUID = dto.instanceUUID();
@@ -52,7 +52,7 @@ public class Lock extends AbstractSpringDataAuditingEntity<Long> {
         this.expiresAt = dto.expiresAt();
     }
 
-    public Lock(TargetTypeEnum targetType, long targetID, UUID instanceUUID, Instant acquiredAt, Instant expiresAt) {
+    protected Lock(TargetTypeEnum targetType, long targetID, UUID instanceUUID, Instant acquiredAt, Instant expiresAt) {
         this.targetType = targetType;
         this.targetID = targetID;
         this.instanceUUID = instanceUUID;

@@ -12,7 +12,7 @@ import org.jspecify.annotations.Nullable;
  */
 @Entity
 @Table(name = "article")
-public class Article implements Identifiable<Long> {
+class Article implements Identifiable<Long> {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -76,7 +76,7 @@ public class Article implements Identifiable<Long> {
 
     protected Article() {}
 
-    public Article(String articleNumber,
+    protected Article(String articleNumber,
                    String description,
                    String manufacturer,
                    String name,

@@ -6,7 +6,6 @@ import de.fhdw.vendix.commons.api.domain.receipt_voucher.dto.ReceiptVoucherDTO;
 import de.fhdw.vendix.commons.api.domain.register.dto.RegisterDTO;
 import de.fhdw.vendix.commons.api.domain.store.dto.StoreDTO;
 import de.fhdw.vendix.commons.api.structure.dto.DomainDTO;
-import org.jspecify.annotations.Nullable;
 
 import java.util.List;
 
@@ -14,7 +13,7 @@ public record ReceiptDTO (
         long receiptId,
         StoreDTO store,
         RegisterDTO register,
-        AccountDTO account,
+        AccountDTO cashier,
         List<ReceiptLineDTO> lines,
         List<ReceiptVoucherDTO> vouchers
 ) implements DomainDTO {
@@ -28,8 +27,8 @@ public record ReceiptDTO (
         if (register == null) {
             throw new IllegalArgumentException("ReceiptDTO parameter 'register' must not be null");
         }
-        if (account == null) {
-            throw new IllegalArgumentException("ReceiptDTO parameter 'account' must not be null");
+        if (cashier == null) {
+            throw new IllegalArgumentException("ReceiptDTO parameter 'cashier' must not be null");
         }
         if (lines == null) {
             throw new IllegalArgumentException("ReceiptDTO parameter 'lines' cannot be null");

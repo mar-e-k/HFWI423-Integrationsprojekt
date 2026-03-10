@@ -2,13 +2,11 @@ package de.fhdw.vendix.commons.spring.starter.properties;
 
 import de.fhdw.vendix.commons.security.core.JwtProperties;
 import org.springframework.boot.context.properties.ConfigurationProperties;
-import org.springframework.validation.annotation.Validated;
 
 import java.time.Duration;
 import java.util.UUID;
 
 @ConfigurationProperties(prefix = "vendix.security.jwt")
-@Validated
 public record JwtPropertiesConfiguration(
         String privateKey,
         Duration expiration

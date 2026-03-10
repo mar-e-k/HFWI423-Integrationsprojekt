@@ -17,10 +17,10 @@
     <description>commons</description>
 
     <modules>
+        <module>api</module>
         <module>core</module>
         <module>security</module>
         <module>spring</module>
         <module>ui</module>
-        <module>api</module>
     </modules>
 </project>

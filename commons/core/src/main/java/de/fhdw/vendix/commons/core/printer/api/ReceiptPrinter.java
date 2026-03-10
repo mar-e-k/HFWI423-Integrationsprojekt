@@ -224,11 +224,11 @@ public final class ReceiptPrinter {
 //                Map<Account, BigDecimal> accTotals = regEntry.getValue();
 //
 //                for (Map.Entry<Account, BigDecimal> accEntry : accTotals.entrySet()) {
-//                    Account account = accEntry.getKey();
+//                    Account cashier = accEntry.getKey();
 //                    BigDecimal total = accEntry.getValue();
 //
 //                    totalsPerCashier
-//                            .computeIfAbsent(account, a -> new HashMap<>())
+//                            .computeIfAbsent(cashier, a -> new HashMap<>())
 //                            .put(register, total);
 //                }
 //            }
@@ -332,14 +332,14 @@ public final class ReceiptPrinter {
 //
 //            for (Map.Entry<Account, Map<Register, BigDecimal>> cashierEntry : totalsPerCashier.entrySet()) {
 //
-//                Account account = cashierEntry.getKey();
+//                Account cashier = cashierEntry.getKey();
 //                Map<Register, BigDecimal> perRegister = cashierEntry.getValue();
 //
 //                contentStream.beginText();
 //                contentStream.setFont(boldFont, 14);
 //                contentStream.newLineAtOffset(margin, y);
 //                contentStream.showText(
-//                        "Kassierer " + account.getUsername() + ": " +
+//                        "Kassierer " + cashier.getUsername() + ": " +
 //                                String.format("%.2f EUR",
 //                                        perRegister.values().stream()
 //                                                .reduce(BigDecimal.ZERO, BigDecimal::add))
