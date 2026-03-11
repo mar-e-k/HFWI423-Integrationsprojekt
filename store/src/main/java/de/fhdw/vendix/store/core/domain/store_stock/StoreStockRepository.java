@@ -2,4 +2,8 @@ package de.fhdw.vendix.store.core.domain.store_stock;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 
-interface StoreStockRepository extends JpaRepository<StoreStock, Long> {}
+import java.util.Optional;
+
+interface StoreStockRepository extends JpaRepository<StoreStock, Long> {
+    Optional<StoreStock> findByStoreIDAndArticleID(long storeID, long articleID);
+}

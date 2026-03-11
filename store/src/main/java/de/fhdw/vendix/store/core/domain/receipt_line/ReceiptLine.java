@@ -25,10 +25,10 @@ public class ReceiptLine extends AbstractSpringDataAuditingEntity<Long> {
     private long amount;
 
     @DecimalMin(value = "0.00")
-    private BigDecimal overridePrice;
+    private BigDecimal overriddenPrice;
 
     @Enumerated(EnumType.STRING)
-    private OverrideReasonEnum overridePriceReason;
+    private OverrideReasonEnum overriddenPriceReason;
 
     @DecimalMin(value = "0.00")
     @DecimalMax(value = "100.00")
@@ -39,18 +39,26 @@ public class ReceiptLine extends AbstractSpringDataAuditingEntity<Long> {
 
     protected ReceiptLine() {}
 
-    public ReceiptLine(Receipt receipt, Article article, long amount) {
+    protected ReceiptLine(Receipt receipt, Article article, long amount) {
         this.receipt = receipt;
         this.article = article;
         this.amount = amount;
     }
 
-    public ReceiptLine(Receipt receipt, Article article, long amount, BigDecimal overridePrice, OverrideReasonEnum overridePriceReason, BigDecimal overriddenDiscount, OverrideReasonEnum overrideDiscountReason) {
+    protected ReceiptLine(
+            Receipt receipt,
+            Article article,
+            long amount,
+            BigDecimal overriddenPrice,
+            OverrideReasonEnum overriddenPriceReason,
+            BigDecimal overriddenDiscount,
+            OverrideReasonEnum overrideDiscountReason
+    ) {
         this.receipt = receipt;
         this.article = article;
         this.amount = amount;
-        this.overridePrice = overridePrice;
-        this.overridePriceReason = overridePriceReason;
+        this.overriddenPrice = overriddenPrice;
+        this.overriddenPriceReason = overriddenPriceReason;
         this.overriddenDiscount = overriddenDiscount;
         this.overrideDiscountReason = overrideDiscountReason;
     }
@@ -67,12 +75,12 @@ public class ReceiptLine extends AbstractSpringDataAuditingEntity<Long> {
         return amount;
     }
 
-    public BigDecimal getOverridePrice() {
-        return overridePrice;
+    public BigDecimal getOverriddenPrice() {
+        return overriddenPrice;
     }
 
-    public OverrideReasonEnum getOverridePriceReason() {
-        return overridePriceReason;
+    public OverrideReasonEnum getOverriddenPriceReason() {
+        return overriddenPriceReason;
     }
 
     public BigDecimal getOverriddenDiscount() {
@@ -81,5 +89,15 @@ public class ReceiptLine extends AbstractSpringDataAuditingEntity<Long> {
 
     public OverrideReasonEnum getOverrideDiscountReason() {
         return overrideDiscountReason;
+    }
+
+    public void overridePrice(BigDecimal overridePrice, OverrideReasonEnum overridePriceReason) {
+        this.overriddenPrice = overridePrice;
+        this.overriddenPriceReason = overridePriceReason;
+    }
+
+    public void overrideDiscount(BigDecimal overrideDiscount, OverrideReasonEnum overrideDiscountReason) {
+        this.overriddenDiscount = overrideDiscount;
+        this.overrideDiscountReason = overrideDiscountReason;
     }
 }

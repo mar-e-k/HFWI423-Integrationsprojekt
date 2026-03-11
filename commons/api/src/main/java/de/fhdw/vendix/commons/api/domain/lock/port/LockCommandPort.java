@@ -8,7 +8,7 @@ import de.fhdw.vendix.commons.api.structure.port.CommandPort;
 import java.util.UUID;
 
 public interface LockCommandPort extends CommandPort {
-    LockDTO create(LockRequestDTO entity);
+    LockDTO create(LockDTO entity);
 
     void deleteByTargetTypeAndTargetId(TargetTypeEnum targetTypeEnum, long targetId);
 

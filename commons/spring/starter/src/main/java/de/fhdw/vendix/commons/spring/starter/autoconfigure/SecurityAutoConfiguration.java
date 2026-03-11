@@ -1,6 +1,5 @@
 package de.fhdw.vendix.commons.spring.starter.autoconfigure;
 
-import de.fhdw.vendix.commons.api.domain.account.dto.AccountDTO;
 import de.fhdw.vendix.commons.api.domain.account.port.AccountQueryPort;
 import de.fhdw.vendix.commons.api.domain.lock.port.LockCommandPort;
 import de.fhdw.vendix.commons.api.domain.lock.port.LockQueryPort;
@@ -60,8 +59,7 @@ public class SecurityAutoConfiguration {
     @ConditionalOnMissingBean
     public AuditorAware<String> auditorAware() {
         return () -> AuthContextHolder.current()
-                .map(AuthContext::account)
-                .map(AccountDTO::username)
+                .map(AuthContext::accountUsername)
                 .or(() -> Optional.of("unknown"));
     }
 

@@ -1,13 +1,14 @@
 package de.fhdw.vendix.commons.api.domain.account_role.dto;
 
 import de.fhdw.vendix.commons.api.structure.dto.DomainDTO;
+import org.jspecify.annotations.Nullable;
 
 public record AccountRoleDTO(
-        long id,
+        @Nullable Long id,
         AccountRoleEnum role
 ) implements DomainDTO {
     public AccountRoleDTO {
-        if (id < 0) {
+        if (id != null && id < 0) {
             throw new IllegalArgumentException("RoleDTO parameter 'id' cannot be negative");
         }
         if (role == null) {

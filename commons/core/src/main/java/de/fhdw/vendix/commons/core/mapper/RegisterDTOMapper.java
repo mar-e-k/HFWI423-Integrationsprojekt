@@ -13,7 +13,7 @@ public interface RegisterDTOMapper extends DTOMapper<RegisterDTO, RegisterReques
     RegisterDTOMapper INSTANCE = Mappers.getMapper(RegisterDTOMapper.class);
 
     @Override
-    RegisterRequestDTO toRequestDTO(RegisterDTO registerDTO);
+    RegisterDTO toDTO(RegisterRequestDTO dto);
 
     @Override
     RegisterResponseDTO toResponseDTO(RegisterDTO registerDTO);

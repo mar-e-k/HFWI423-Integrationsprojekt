@@ -13,7 +13,7 @@ public interface ReceiptLineDTOMapper extends DTOMapper<ReceiptLineDTO, ReceiptL
     ReceiptLineDTOMapper INSTANCE = Mappers.getMapper(ReceiptLineDTOMapper.class);
 
     @Override
-    ReceiptLineRequestDTO toRequestDTO(ReceiptLineDTO receiptLineDTO);
+    ReceiptLineDTO toDTO(ReceiptLineRequestDTO dto);
 
     @Override
     ReceiptLineResponseDTO toResponseDTO(ReceiptLineDTO receiptLineDTO);

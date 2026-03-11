@@ -1,6 +1,6 @@
 package de.fhdw.vendix.commons.security.core;
 
-import de.fhdw.vendix.commons.api.domain.lock.dto.LockRequestDTO;
+import de.fhdw.vendix.commons.api.domain.lock.dto.LockDTO;
 import de.fhdw.vendix.commons.api.domain.lock.dto.TargetTypeEnum;
 import de.fhdw.vendix.commons.api.domain.lock.port.LockCommandPort;
 import de.fhdw.vendix.security.api.auth.AppContext;
@@ -8,6 +8,9 @@ import de.fhdw.vendix.security.api.auth.AuthContext;
 import de.fhdw.vendix.security.api.auth.AuthenticationLifecycleHandler;
 
 import java.time.Instant;
+import java.time.temporal.ChronoUnit;
+import java.time.temporal.TemporalUnit;
+import java.util.Objects;
 
 public class DefaultAuthenticationLifecycleHandler implements AuthenticationLifecycleHandler {
 
@@ -31,21 +34,24 @@ public class DefaultAuthenticationLifecycleHandler implements AuthenticationLife
 
     @Override
     public void onAuthenticationSuccess(AuthContext authContext) {
-        LockRequestDTO dto = new LockRequestDTO(
+        Long accountID = Objects.requireNonNull(authContext.accountID());
+        LockDTO dto = new LockDTO(
+                null,
                 TargetTypeEnum.ACCOUNT,
-                authContext.account().id(),
+                accountID,
                 appContext.getInstanceUUID(),
                 Instant.now(),
-                null // TODO: set properties for automatic expiry
+                Instant.now().plus(1, ChronoUnit.HOURS) // TODO: set properties for automatic expiry. Could also be End of Day
         );
         lockCommandPort.create(dto);
     }
 
     @Override
     public void onAuthenticationLogout(AuthContext authContext) {
+        Long accountID = Objects.requireNonNull(authContext.accountID());
         lockCommandPort.deleteByTargetTypeAndTargetId(
                 TargetTypeEnum.ACCOUNT,
-                authContext.account().id()
+                accountID
         );
     }
 }

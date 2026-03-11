@@ -1,16 +1,28 @@
 package de.fhdw.vendix.security.api.auth;
 
-import de.fhdw.vendix.commons.api.domain.account.dto.AccountDTO;
-import de.fhdw.vendix.commons.api.domain.register.dto.RegisterDTO;
-import de.fhdw.vendix.commons.api.domain.store.dto.StoreDTO;
-import org.jspecify.annotations.Nullable;
+import de.fhdw.vendix.commons.api.domain.account_role.dto.AccountRoleEnum;
+
+import java.util.Set;
+import java.util.UUID;
 
 public interface AuthContext {
     // Core
-    AccountDTO account();
+    Long accountID();
+
+    UUID accountUUID();
+
+    String accountUsername();
+
+    String accountPassword();
+
+    Set<AccountRoleEnum> accountRoles();
+
     // Meta-Security
     boolean isAccountNonExpired();
+
     boolean isAccountNonLocked();
+
     boolean isCredentialsNonExpired();
+
     boolean isEnabled();
 }

@@ -33,7 +33,7 @@
         <vaadin.version>25.0.5</vaadin.version>
         <swagger.version>2.2.42</swagger.version>
         <pdfbox.version>3.0.6</pdfbox.version>
-        <plaguv-amqp.version>1.1.0</plaguv-amqp.version>
+        <plaguv-amqp.version>1.2.0</plaguv-amqp.version>
         <nimbus.version>10.7</nimbus.version>
         <mapstruct.version>1.6.3</mapstruct.version>
         <error-handling.version>5.1.0</error-handling.version>

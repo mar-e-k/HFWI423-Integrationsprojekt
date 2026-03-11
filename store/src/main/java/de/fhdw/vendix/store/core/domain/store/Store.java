@@ -10,20 +10,10 @@ import jakarta.persistence.OneToMany;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 @Entity
 public class Store extends AbstractSpringDataAuditingEntity<Long> {
-
-    @OneToMany(mappedBy = "store")
-    private List<Register> registers = new ArrayList<>();
-
-    @OneToMany(mappedBy = "store")
-    private List<Receipt> receipts = new ArrayList<>();
-
-    @OneToMany(mappedBy = "store")
-    private List<StoreStock> storeStocks = new ArrayList<>();
 
     @Column(nullable = false)
     @NotBlank(message = "Country must not be blank")
@@ -42,35 +32,22 @@ public class Store extends AbstractSpringDataAuditingEntity<Long> {
     @Pattern(regexp = "^[0-9]\\d*[A-Z]?$", message = "Street number must include a number in the beginning")
     private String streetNumber;
 
+    @OneToMany(mappedBy = "store")
+    private Set<Register> registers = new HashSet<>();
+
+    @OneToMany(mappedBy = "store")
+    private Set<Receipt> receipts = new HashSet<>();
+
+    @OneToMany(mappedBy = "store")
+    private Set<StoreStock> stocks = new HashSet<>();
+
     protected Store() {}
 
-    public Store(String country, String city, String street, String streetNumber) {
+    protected Store(String country, String city, String street, String streetNumber) {
         this.country = country;
         this.city = city;
         this.street = street;
         this.streetNumber = streetNumber;
-    }
-
-    public Store(List<Register> registers, List<Receipt> receipts, List<StoreStock> storeStocks, String country, String city, String street, String streetNumber) {
-        this.registers = registers;
-        this.receipts = receipts;
-        this.storeStocks = storeStocks;
-        this.country = country;
-        this.city = city;
-        this.street = street;
-        this.streetNumber = streetNumber;
-    }
-
-    public List<Register> getRegisters() {
-        return registers;
-    }
-
-    public List<Receipt> getReceipts() {
-        return receipts;
-    }
-
-    public List<StoreStock> getStoreStocks() {
-        return storeStocks;
     }
 
     public String getCountry() {
@@ -87,5 +64,17 @@ public class Store extends AbstractSpringDataAuditingEntity<Long> {
 
     public String getStreetNumber() {
         return streetNumber;
+    }
+
+    public Set<Register> getRegisters() {
+        return Collections.unmodifiableSet(registers);
+    }
+
+    public Set<Receipt> getReceipts() {
+        return Collections.unmodifiableSet(receipts);
+    }
+
+    public Set<StoreStock> getStocks() {
+        return Collections.unmodifiableSet(stocks);
     }
 }

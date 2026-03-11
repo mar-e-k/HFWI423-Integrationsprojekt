@@ -13,7 +13,7 @@ public interface ArticleDTOMapper extends DTOMapper<ArticleDTO, ArticleRequestDT
     ArticleDTOMapper INSTANCE = Mappers.getMapper(ArticleDTOMapper.class);
 
     @Override
-    ArticleRequestDTO toRequestDTO(ArticleDTO articleDTO);
+    ArticleDTO toDTO(ArticleRequestDTO dto);
 
     @Override
     ArticleResponseDTO toResponseDTO(ArticleDTO articleDTO);

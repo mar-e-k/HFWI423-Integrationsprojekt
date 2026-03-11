@@ -15,7 +15,7 @@ public final class DefaultClassAccessChecker implements ClassAccessChecker {
     @Override
     public boolean hasAccess(Class<?> viewClass) {
         Optional<AuthContext> ctx = AuthContextHolder.current();
-        if (ctx.isEmpty() || ctx.get().account().roles().isEmpty()) {
+        if (ctx.isEmpty() || ctx.get().accountRoles().isEmpty()) {
             return false;
         }
 

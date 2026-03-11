@@ -13,7 +13,7 @@ public interface LockDTOMapper extends DTOMapper<LockDTO, LockRequestDTO, LockRe
     LockDTOMapper INSTANCE = Mappers.getMapper(LockDTOMapper.class);
 
     @Override
-    LockRequestDTO toRequestDTO(LockDTO lockDTO);
+    LockDTO toDTO(LockRequestDTO dto);
 
     @Override
     LockResponseDTO toResponseDTO(LockDTO lockDTO);

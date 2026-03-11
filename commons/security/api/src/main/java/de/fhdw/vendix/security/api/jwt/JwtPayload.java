@@ -1,15 +1,11 @@
 package de.fhdw.vendix.security.api.jwt;
 
-import de.fhdw.vendix.commons.api.domain.account.dto.AccountDTO;
 import de.fhdw.vendix.commons.api.domain.account_role.dto.AccountRoleEnum;
-import de.fhdw.vendix.commons.api.domain.account_role.dto.AccountRoleDTO;
-import de.fhdw.vendix.security.api.auth.AuthContext;
 import de.fhdw.vendix.security.api.jwt.claims.AuthClaims;
 import de.fhdw.vendix.security.api.jwt.claims.ContextClaims;
 
 import java.util.Set;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 public record JwtPayload(
         AuthClaims auth,
@@ -33,18 +29,5 @@ public record JwtPayload(
                 ),
                 new ContextClaims()
         );
-    }
-
-    public static JwtPayload user(AccountDTO account) {
-        return user(
-                account.uuid(),
-                account.roles().stream()
-                        .map(AccountRoleDTO::role)
-                        .collect(Collectors.toUnmodifiableSet())
-        );
-    }
-
-    public static JwtPayload user(AuthContext ctx) {
-        return user(ctx.account());
     }
 }

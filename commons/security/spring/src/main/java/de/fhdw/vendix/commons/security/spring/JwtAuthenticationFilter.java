@@ -63,20 +63,21 @@ public final class JwtAuthenticationFilter extends OncePerRequestFilter {
             throw new AuthenticationCredentialsNotFoundException("Invalid token. Token has no roles defined");
         }
 
-        AccountDTO accountDTO;
-        if (accountRoleEnums.contains(AccountRoleEnum.SYSTEM)) {
-            accountDTO = new AccountDTO(
-                    0,
+        AccountDTO account;
+
+        if (accountRoleEnums.size() == 1 && accountRoleEnums.contains(AccountRoleEnum.SYSTEM)) {
+            account = new AccountDTO(
+                    null,
                     payload.auth().subject(),
                     "system",
-                    "system",
-                    Set.of(new AccountRoleDTO(0, AccountRoleEnum.SYSTEM))
+                    "system"
             );
         } else {
-            accountDTO = accountQueryPort.findByUUID(payload.auth().subject())
-                    .orElseThrow(() -> new BadCredentialsException("Invalid token. UUID does not exist"));
+            account = accountQueryPort.findByUUID(payload.auth().subject())
+                    .orElseThrow(() -> new BadCredentialsException("Invalid token. Account with specified UUID does not exist"));
         }
-        AuthContext authContext = new DefaultAuthContext(accountDTO);
+
+        AuthContext authContext = new DefaultAuthContext(account, payload.auth().accountRoleEnums());
         return new AuthContextAuthenticationToken(authContext);
     }
 }

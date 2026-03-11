@@ -1,20 +1,18 @@
 package de.fhdw.vendix.commons.api.domain.account.dto;
 
-import de.fhdw.vendix.commons.api.domain.account_role.dto.AccountRoleDTO;
 import de.fhdw.vendix.commons.api.structure.dto.DomainDTO;
+import org.jspecify.annotations.Nullable;
 
-import java.util.Set;
 import java.util.UUID;
 
 public record AccountDTO(
-        long id,
+        @Nullable Long id,
         UUID uuid,
         String username,
-        String password,
-        Set<AccountRoleDTO> roles
+        String password
 ) implements DomainDTO {
     public AccountDTO {
-        if (id < 0) {
+        if (id != null && id < 0) {
             throw new IllegalArgumentException("AccountDTO parameter 'id' cannot be negative");
         }
         if (uuid == null) {
@@ -25,9 +23,6 @@ public record AccountDTO(
         }
         if (password == null) {
             throw new IllegalArgumentException("AccountDTO parameter 'password' cannot be null");
-        }
-        if (roles == null) {
-            throw new IllegalArgumentException("AccountDTO parameter 'role' cannot be null");
         }
     }
 }

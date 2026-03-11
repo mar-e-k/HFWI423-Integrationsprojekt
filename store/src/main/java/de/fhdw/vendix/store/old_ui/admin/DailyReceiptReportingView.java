@@ -295,11 +295,11 @@ public class DailyReceiptReportingView
 //        }).setHeader("Aktionen");
 //    }
 //
-//    private void handleReceiptButtonClick(Long receiptId) {
-//        ByteArrayInputStream generatedPdfStream = receiptService.generateReceipt(receiptId, false);
+//    private void handleReceiptButtonClick(Long id) {
+//        ByteArrayInputStream generatedPdfStream = receiptService.generateReceipt(id, false);
 //        byte[] pdfBytes = generatedPdfStream.readAllBytes();
 //
-//        String fileName = "Bon-%d-%s.pdf".formatted(receiptId, LocalDate.now());
+//        String fileName = "Bon-%d-%s.pdf".formatted(id, LocalDate.now());
 //
 //        DownloadHandler handler = DownloadHandler.fromInputStream(event ->
 //                new DownloadResponse(

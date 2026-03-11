@@ -8,8 +8,7 @@ import de.fhdw.vendix.store.core.domain.register.Register;
 import de.fhdw.vendix.store.core.domain.store.Store;
 import jakarta.persistence.*;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 @Entity
 public class Receipt extends AbstractSpringDataAuditingEntity<Long> {
@@ -30,16 +29,14 @@ public class Receipt extends AbstractSpringDataAuditingEntity<Long> {
     private List<ReceiptLine> receiptLines = new ArrayList<>();
 
     @OneToMany(mappedBy = "receipt", orphanRemoval = true, cascade = CascadeType.ALL)
-    private List<ReceiptVoucher> receiptVouchers = new ArrayList<>();
+    private Set<ReceiptVoucher> receiptVouchers = new HashSet<>();
 
     protected Receipt() {}
 
-    protected Receipt(Store store, Register register, Account cashier, List<ReceiptLine> receiptLines, List<ReceiptVoucher> receiptVouchers) {
+    protected Receipt(Store store, Register register, Account cashier) {
         this.store = store;
         this.register = register;
         this.cashier = cashier;
-        this.receiptLines = receiptLines;
-        this.receiptVouchers = receiptVouchers;
     }
 
     public Store getStore() {
@@ -55,10 +52,10 @@ public class Receipt extends AbstractSpringDataAuditingEntity<Long> {
     }
 
     public List<ReceiptLine> getReceiptLines() {
-        return receiptLines;
+        return Collections.unmodifiableList(receiptLines);
     }
 
-    public List<ReceiptVoucher> getReceiptVouchers() {
-        return receiptVouchers;
+    public Set<ReceiptVoucher> getReceiptVouchers() {
+        return Collections.unmodifiableSet(receiptVouchers);
     }
 }

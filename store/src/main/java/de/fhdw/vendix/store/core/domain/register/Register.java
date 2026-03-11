@@ -8,8 +8,7 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 @Entity
 public class Register extends AbstractSpringDataAuditingEntity<Long> {
@@ -19,20 +18,19 @@ public class Register extends AbstractSpringDataAuditingEntity<Long> {
     private Store store;
 
     @OneToMany(mappedBy = "register")
-    private List<Receipt> receipts = new ArrayList<>();
+    private Set<Receipt> receipts = new HashSet<>();
 
     protected Register() {}
 
-    public Register(Store store, List<Receipt> receipts) {
+    public Register(Store store) {
         this.store = store;
-        this.receipts = receipts;
     }
 
     public Store getStore() {
         return store;
     }
 
-    public List<Receipt> getReceipts() {
-        return receipts;
+    public Set<Receipt> getReceipts() {
+        return Collections.unmodifiableSet(receipts);
     }
 }

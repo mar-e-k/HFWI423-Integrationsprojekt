@@ -19,22 +19,22 @@ public class StoreStock extends AbstractSpringDataAuditingEntity<Long> {
     private Article article;
 
     @Min(value = 0)
-    private int amount;
+    private long currentAmount;
 
     @NotNull
     @Min(value = 0)
     @Column(nullable = false)
-    private int minimumStockLevel = 5; // Serves as an alert and definition for what quantifies as low stock
+    private long criticalAmount = 5; // Serves as an alert and definition for what quantifies as low stock
 
     private boolean isActive;
 
     protected StoreStock() {}
 
-    public StoreStock(Store store, Article article, int amount, int minimumStockLevel, boolean isActive) {
+    protected StoreStock(Store store, Article article, long currentAmount, long criticalAmount, boolean isActive) {
         this.store = store;
         this.article = article;
-        this.amount = amount;
-        this.minimumStockLevel = minimumStockLevel;
+        this.currentAmount = currentAmount;
+        this.criticalAmount = criticalAmount;
         this.isActive = isActive;
     }
 
@@ -46,15 +46,22 @@ public class StoreStock extends AbstractSpringDataAuditingEntity<Long> {
         return article;
     }
 
-    public int getAmount() {
-        return amount;
+    public long getCurrentAmount() {
+        return currentAmount;
     }
 
-    public int getMinimumStockLevel() {
-        return minimumStockLevel;
+    public long getCriticalAmount() {
+        return criticalAmount;
     }
 
     public boolean isActive() {
         return isActive;
+    }
+
+    protected void restockArticle(long amount) {
+        if (amount < 1) {
+            throw new IllegalArgumentException("Parameter 'amount' must be greater than 0.");
+        }
+        this.currentAmount += amount;
     }
 }

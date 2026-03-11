@@ -6,6 +6,7 @@ import de.fhdw.vendix.commons.api.structure.dto.DomainDTO;
 import org.jspecify.annotations.Nullable;
 
 public record ReceiptLineDTO(
+        @Nullable Long id,
         ReceiptDTO receipt,
         ArticleDTO article,
         long amount,
@@ -13,14 +14,17 @@ public record ReceiptLineDTO(
         @Nullable DiscountOverrideDTO discountOverride
 ) implements DomainDTO {
     public ReceiptLineDTO {
+        if (id != null && id < 0) {
+            throw new IllegalArgumentException("ReceiptLineDTO parameter 'id' cannot be negative");
+        }
         if (receipt == null) {
-            throw new IllegalArgumentException("ArticleDTO parameter 'receipt' cannot be null");
+            throw new IllegalArgumentException("ReceiptLineDTO parameter 'receipt' cannot be null");
         }
         if (article == null) {
-            throw new IllegalArgumentException("ArticleDTO parameter 'article' cannot be null");
+            throw new IllegalArgumentException("ReceiptLineDTO parameter 'article' cannot be null");
         }
         if (amount < 1) {
-            throw new IllegalArgumentException("ArticleDTO parameter 'amount' must be greater than or equal to 1");
+            throw new IllegalArgumentException("ReceiptLineDTO parameter 'amount' must be greater than or equal to 1");
         }
     }
 }

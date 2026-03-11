@@ -13,7 +13,7 @@ public interface AccountDTOMapper extends DTOMapper<AccountDTO, AccountRequestDT
     AccountDTOMapper INSTANCE =  Mappers.getMapper(AccountDTOMapper.class);
 
     @Override
-    AccountRequestDTO toRequestDTO(AccountDTO accountDTO);
+    AccountDTO toDTO(AccountRequestDTO dto);
 
     @Override
     AccountResponseDTO toResponseDTO(AccountDTO accountDTO);

@@ -8,14 +8,18 @@ import java.time.Instant;
 import java.util.UUID;
 
 public record ReceiptVoucherDTO(
+        @Nullable Long id,
         ReceiptDTO receipt,
         UUID code,
         @Nullable Instant expiresAt,
         @Nullable Instant redeemedAt
 ) implements DomainDTO {
     public ReceiptVoucherDTO {
+        if (id != null && id < 0) {
+            throw new IllegalArgumentException("ReceiptVoucherDTO parameter 'id' cannot be negative");
+        }
         if (receipt == null) {
-            throw new IllegalArgumentException("ReceiptVoucherDTO parameter 'receipt' must not be null");
+            throw new IllegalArgumentException("ReceiptVoucherDTO parameter 'receipt' cannot be null");
         }
         if (code == null) {
             throw new IllegalArgumentException("ReceiptVoucherDTO parameter 'code' cannot be null");

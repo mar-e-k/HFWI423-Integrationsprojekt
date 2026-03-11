@@ -13,7 +13,7 @@ public interface StoreDTOMapper extends DTOMapper<StoreDTO, StoreRequestDTO, Sto
     StoreDTOMapper INSTANCE = Mappers.getMapper(StoreDTOMapper.class);
 
     @Override
-    StoreRequestDTO toRequestDTO(StoreDTO storeDTO);
+    StoreDTO toDTO(StoreRequestDTO dto);
 
     @Override
     StoreResponseDTO toResponseDTO(StoreDTO storeDTO);

@@ -1,23 +1,26 @@
 package de.fhdw.vendix.commons.api.domain.article.dto;
 
 import de.fhdw.vendix.commons.api.structure.dto.DomainDTO;
+import org.jspecify.annotations.Nullable;
 
 import java.math.BigDecimal;
 import java.util.List;
 
 public record ArticleDTO(
-        long articleId,
+        @Nullable Long id,
         long gtin,
         String name,
         String description,
+        String manufacturer,
+        String supplier,
+        String unit,
         BigDecimal purchasePrice,
         BigDecimal sellingPrice,
         BigDecimal taxRate
 ) implements DomainDTO {
-
     public ArticleDTO {
-        if (articleId < 0) {
-            throw new IllegalArgumentException("ArticleDTO parameter 'articleId' must be greater than or equal to 0");
+        if (id != null && id < 0) {
+            throw new IllegalArgumentException("ArticleDTO parameter 'id' cannot be negative");
         }
         if (gtin < 0) {
             throw new IllegalArgumentException("ArticleDTO parameter 'gtin' cannot be negative");
@@ -30,6 +33,15 @@ public record ArticleDTO(
         }
         if (description == null || description.isEmpty()) {
             throw new IllegalArgumentException("ArticleDTO parameter 'description' cannot be null or empty");
+        }
+        if (manufacturer == null || manufacturer.isEmpty()) {
+            throw new IllegalArgumentException("ArticleDTO parameter 'manufacturer' cannot be null or empty");
+        }
+        if (supplier == null || supplier.isEmpty()) {
+            throw new IllegalArgumentException("ArticleDTO parameter 'supplier' cannot be null or empty");
+        }
+        if (unit == null || unit.isEmpty()) {
+            throw new IllegalArgumentException("ArticleDTO parameter 'unit' cannot be null or empty");
         }
         if (purchasePrice == null) {
             throw new IllegalArgumentException("ArticleDTO parameter 'purchasePrice' cannot be null");

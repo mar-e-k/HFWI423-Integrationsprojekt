@@ -4,7 +4,7 @@ import de.fhdw.vendix.commons.api.domain.receipt.dto.ReceiptDTO;
 import de.fhdw.vendix.commons.api.domain.receipt.port.ReceiptQueryPort;
 import de.fhdw.vendix.commons.api.domain.store_stock.port.StoreStockQueryPort;
 import de.fhdw.vendix.store.application.context.StoreContext;
-import io.github.plaguv.core.publisher.EventPublisher;
+import io.github.plaguv.amqp.core.publisher.EventPublisher;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -39,7 +39,7 @@ public class DailyReceiptReportingSchedule {
     public void sendDailyReceiptReport() {
         log.atInfo().log("Sending daily receipt report...");
 
-        List<ReceiptDTO> receipts = receiptQueryPort.findAllByStoreToday(storeContext.getStore().storeId());
+        List<ReceiptDTO> receipts = receiptQueryPort.findAllByStoreToday(storeContext.getStore().id());
 
         for (ReceiptDTO receipt : receipts) {
             // TODO

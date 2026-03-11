@@ -2,36 +2,34 @@ package de.fhdw.vendix.store.core.domain.account_role;
 
 import de.fhdw.vendix.commons.api.domain.account_role.dto.AccountRoleEnum;
 import de.fhdw.vendix.commons.spring.core.entity.AbstractSpringDataAuditingEntity;
-import de.fhdw.vendix.store.core.domain.account.Account;
+import de.fhdw.vendix.store.core.domain.account_role_assignment.AccountRoleAssignment;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 @Entity
 public class AccountRole extends AbstractSpringDataAuditingEntity<Long> {
-
-    @OneToMany(mappedBy = "role")
-    private List<Account> accounts = new ArrayList<>();
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, unique = true)
     @NotNull
     private AccountRoleEnum role;
 
+    @OneToMany(mappedBy = "role")
+    private Set<AccountRoleAssignment> accounts = new HashSet<>();
+
     protected AccountRole() {}
 
-    protected AccountRole(List<Account> accounts, AccountRoleEnum role) {
-        this.accounts = accounts;
+    protected AccountRole(AccountRoleEnum role) {
         this.role = role;
-    }
-
-    public List<Account> getAccounts() {
-        return accounts;
     }
 
     public AccountRoleEnum getRole() {
         return role;
+    }
+
+    public Set<AccountRoleAssignment> getAccounts() {
+        return Collections.unmodifiableSet(accounts);
     }
 }

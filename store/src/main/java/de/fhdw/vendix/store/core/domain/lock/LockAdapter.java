@@ -5,6 +5,7 @@ import de.fhdw.vendix.commons.api.domain.lock.dto.LockRequestDTO;
 import de.fhdw.vendix.commons.api.domain.lock.dto.TargetTypeEnum;
 import de.fhdw.vendix.commons.api.domain.lock.port.LockCommandPort;
 import de.fhdw.vendix.commons.api.domain.lock.port.LockQueryPort;
+import de.fhdw.vendix.commons.core.mapper.LockDTOMapper;
 import de.fhdw.vendix.commons.spring.core.crud.AbstractSpringDataCrudLogAdapter;
 import org.springframework.stereotype.Service;
 
@@ -24,8 +25,10 @@ class LockAdapter extends AbstractSpringDataCrudLogAdapter<Lock, Long> implement
     }
 
     @Override
-    public LockDTO create(LockRequestDTO dto) {
-        return lockMapper.toDTO(super.create(new Lock(dto)));
+    public LockDTO create(LockDTO dto) {
+        Lock lock = lockMapper.toEntity(dto);
+        lock = super.create(lock);
+        return lockMapper.toDTO(lock);
     }
 
     @Override

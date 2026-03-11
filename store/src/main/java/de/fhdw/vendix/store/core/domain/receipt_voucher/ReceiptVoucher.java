@@ -25,22 +25,11 @@ public class ReceiptVoucher extends AbstractSpringDataAuditingEntity<Long> {
 
     protected ReceiptVoucher() {}
 
-    public ReceiptVoucher(Receipt receipt, UUID code, Instant expiresAt, Instant redeemedAt) {
+    protected ReceiptVoucher(Receipt receipt, UUID code, Instant expiresAt, Instant redeemedAt) {
         this.receipt = receipt;
         this.code = code;
         this.expiresAt = expiresAt;
         this.redeemedAt = redeemedAt;
-    }
-
-    public ReceiptVoucher redeem() {
-        if (expiresAt.isBefore(Instant.now())) {
-            throw new VoucherExpiredException("Voucher has already expired at '%s'".formatted(expiresAt.toString()));
-        }
-        if (redeemedAt != null) {
-            throw new VoucherAlreadyRedeemedException("Voucher already redeemed");
-        }
-        redeemedAt = Instant.now();
-        return this;
     }
 
     public Receipt getReceipt() {
@@ -57,5 +46,16 @@ public class ReceiptVoucher extends AbstractSpringDataAuditingEntity<Long> {
 
     public Instant getRedeemedAt() {
         return redeemedAt;
+    }
+
+    public ReceiptVoucher redeem() {
+        if (expiresAt.isBefore(Instant.now())) {
+            throw new VoucherExpiredException("Voucher has already expired at '%s'".formatted(expiresAt.toString()));
+        }
+        if (redeemedAt != null) {
+            throw new VoucherAlreadyRedeemedException("Voucher already redeemed");
+        }
+        redeemedAt = Instant.now();
+        return this;
     }
 }

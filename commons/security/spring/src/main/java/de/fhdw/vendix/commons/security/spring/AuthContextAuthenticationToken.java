@@ -1,8 +1,6 @@
 package de.fhdw.vendix.commons.security.spring;
 
-import de.fhdw.vendix.commons.api.domain.account_role.dto.AccountRoleDTO;
 import de.fhdw.vendix.security.api.auth.AuthContext;
-import org.jspecify.annotations.Nullable;
 import org.springframework.security.authentication.AbstractAuthenticationToken;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 
@@ -20,10 +18,9 @@ public final class AuthContextAuthenticationToken extends AbstractAuthentication
     }
 
     public AuthContextAuthenticationToken(AuthContext ctx) {
-        Set<SimpleGrantedAuthority> authorities = ctx.account().roles().stream()
-                .map(AccountRoleDTO::role)
+        Set<SimpleGrantedAuthority> authorities = ctx.accountRoles().stream()
                 .map(Enum::name)
-                .map("ROLE_"::concat)
+                .map(role -> "ROLE_" + role)
                 .map(SimpleGrantedAuthority::new)
                 .collect(Collectors.toUnmodifiableSet());
         super(authorities);
@@ -32,12 +29,12 @@ public final class AuthContextAuthenticationToken extends AbstractAuthentication
     }
 
     @Override
-    public @Nullable Object getCredentials() {
+    public Object getCredentials() {
         return ctx;
     }
 
     @Override
-    public @Nullable Object getPrincipal() {
+    public Object getPrincipal() {
         return ctx;
     }
 }

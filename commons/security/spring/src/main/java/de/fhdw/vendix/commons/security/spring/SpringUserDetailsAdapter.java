@@ -1,6 +1,5 @@
 package de.fhdw.vendix.commons.security.spring;
 
-import de.fhdw.vendix.commons.api.domain.account_role.dto.AccountRoleDTO;
 import de.fhdw.vendix.security.api.auth.AuthContext;
 import org.jspecify.annotations.Nullable;
 import org.springframework.security.core.GrantedAuthority;
@@ -22,27 +21,26 @@ public record SpringUserDetailsAdapter(
 
     @Override
     public String getName() {
-        return ctx.account().username();
+        return ctx.accountUsername();
     }
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return ctx.account().roles().stream()
-                .map(AccountRoleDTO::role)
+        return ctx.accountRoles().stream()
                 .map(Enum::name)
-                .map("ROLE_"::concat)
+                .map(role -> "ROLE_" + role)
                 .map(SimpleGrantedAuthority::new)
                 .collect(Collectors.toUnmodifiableSet());
     }
 
     @Override
     public @Nullable String getPassword() {
-        return ctx.account().password();
+        return ctx.accountPassword();
     }
 
     @Override
     public String getUsername() {
-        return ctx.account().username();
+        return ctx.accountUsername();
     }
 
     @Override

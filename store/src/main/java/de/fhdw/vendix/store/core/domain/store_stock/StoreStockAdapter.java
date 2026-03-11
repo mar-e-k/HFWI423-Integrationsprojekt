@@ -4,6 +4,7 @@ import de.fhdw.vendix.commons.api.domain.store_stock.port.StoreStockCommandPort;
 import de.fhdw.vendix.commons.api.domain.store_stock.port.StoreStockQueryPort;
 import de.fhdw.vendix.commons.spring.core.crud.AbstractSpringDataCrudLogAdapter;
 import de.fhdw.vendix.store.core.domain.store.StoreMapper;
+import jakarta.persistence.EntityNotFoundException;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -16,5 +17,13 @@ class StoreStockAdapter extends AbstractSpringDataCrudLogAdapter<StoreStock, Lon
         super(storeStockRepository);
         this.storeStockRepository = storeStockRepository;
         this.storeMapper = storeMapper;
+    }
+
+    @Override
+    public void restockArticle(long storeID, long articleID, long articleQuantity) {
+        StoreStock storeStock = storeStockRepository.findByStoreIDAndArticleID(storeID, articleID)
+                .orElseThrow(EntityNotFoundException::new);
+        storeStock.restockArticle(articleQuantity);
+        super.update(storeStock);
     }
 }

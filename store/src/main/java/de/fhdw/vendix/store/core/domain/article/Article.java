@@ -8,11 +8,11 @@ import org.hibernate.annotations.ColumnDefault;
 import org.jspecify.annotations.Nullable;
 
 /**
- * External import from DB
+ * External Read-Only import from DB
  */
 @Entity
 @Table(name = "article")
-class Article implements Identifiable<Long> {
+public class Article implements Identifiable<Long> {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
