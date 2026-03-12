@@ -9,8 +9,8 @@ public record StoreStockDTO(
         @Nullable Long id,
         StoreDTO store,
         ArticleDTO article,
+        PreferenceAmountDTO preferenceAmount,
         long currentAmount,
-        long criticalAmount,
         boolean isActive
 ) implements DomainDTO {
     public StoreStockDTO {
@@ -23,11 +23,11 @@ public record StoreStockDTO(
         if (article == null) {
             throw new IllegalArgumentException("StoreStockDTO parameter 'article' cannot be null");
         }
+        if (preferenceAmount == null) {
+            throw new IllegalArgumentException("StoreStockDTO parameter 'preferenceAmount' cannot be null");
+        }
         if (currentAmount < 0) {
             throw new IllegalArgumentException("StoreStockDTO parameter 'currentAmount' cannot be negative");
-        }
-        if (criticalAmount < 0) {
-            throw new IllegalArgumentException("StoreStockDTO parameter 'criticalAmount' cannot be negative");
         }
     }
 }

@@ -10,11 +10,12 @@ import org.jspecify.annotations.Nullable;
 @MappedSuperclass
 public abstract class AbstractSpringDataEntity<ID> implements Identifiable<ID> {
 
-    @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Id
     private ID id;
 
     protected AbstractSpringDataEntity() {}
+
 
     @Override
     public @Nullable ID getId() {

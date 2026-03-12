@@ -9,11 +9,17 @@ import java.util.Set;
 import java.util.UUID;
 
 public interface AccountQueryPort extends QueryPort {
+    boolean existsByUuid(UUID uuid);
+
+    boolean existsByUsername(String username);
+
+    boolean existsByRole(AccountRoleEnum role);
+
     Optional<AccountDTO> findByID(long id);
 
     Optional<AccountDTO> findByUUID(UUID uuid);
 
     Optional<AccountDTO> findByUsername(String username);
 
-    Set<AccountRoleEnum> findRolesByAccount(long id);
+    Set<AccountRoleEnum> findRolesForAccount(long id);
 }

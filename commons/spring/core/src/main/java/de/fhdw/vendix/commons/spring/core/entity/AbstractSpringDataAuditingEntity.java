@@ -9,16 +9,16 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.time.Instant;
 
-@MappedSuperclass
 @EntityListeners(AuditingEntityListener.class)
+@MappedSuperclass
 public abstract class AbstractSpringDataAuditingEntity<ID> extends AbstractSpringDataVersioningEntity<ID> {
 
-    @CreatedDate
     @Column(updatable = false)
+    @CreatedDate
     private Instant createdAt;
 
-    @CreatedBy
     @Column(updatable = false)
+    @CreatedBy
     private String createdBy;
 
     @LastModifiedDate

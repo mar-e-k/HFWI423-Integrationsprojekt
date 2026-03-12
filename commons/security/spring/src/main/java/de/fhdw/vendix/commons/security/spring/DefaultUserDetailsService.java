@@ -2,7 +2,6 @@ package de.fhdw.vendix.commons.security.spring;
 
 import de.fhdw.vendix.commons.api.domain.account.dto.AccountDTO;
 import de.fhdw.vendix.commons.api.domain.account.port.AccountQueryPort;
-import de.fhdw.vendix.commons.api.domain.account_role.dto.AccountRoleDTO;
 import de.fhdw.vendix.commons.api.domain.account_role.dto.AccountRoleEnum;
 import de.fhdw.vendix.commons.api.domain.lock.dto.TargetTypeEnum;
 import de.fhdw.vendix.commons.api.domain.lock.port.LockQueryPort;
@@ -32,7 +31,7 @@ public final class DefaultUserDetailsService implements UserDetailsService {
 
         Objects.requireNonNull(accountDTO.id());
 
-        Set<AccountRoleEnum> roles = accountQueryPort.findRolesByAccount(accountDTO.id());
+        Set<AccountRoleEnum> roles = accountQueryPort.findRolesForAccount(accountDTO.id());
 
         boolean lockExists = lockQueryPort.existsByTargetTypeAndTargetID(TargetTypeEnum.ACCOUNT, accountDTO.id());
 

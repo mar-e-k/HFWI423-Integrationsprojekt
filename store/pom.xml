@@ -8,8 +8,18 @@
         <version>1.0.0</version>
     </parent>
 
-    <artifactId>store</artifactId>
-    <packaging>jar</packaging>
+    <artifactId>store-parent</artifactId>
+    <packaging>pom</packaging>
+
+    <name>store</name>
+    <description>store</description>
+
+    <modules>
+        <module>app</module>
+        <module>core</module>
+        <module>ui</module>
+        <module>web</module>
+    </modules>
 
     <dependencies>
         <!-- Application -->
@@ -78,13 +88,4 @@
             <artifactId>spring-boot-starter-actuator</artifactId>
         </dependency>
     </dependencies>
-
-    <build>
-        <plugins>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-compiler-plugin</artifactId>
-            </plugin>
-        </plugins>
-    </build>
 </project>

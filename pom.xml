@@ -101,6 +101,7 @@
                     <artifactId>maven-compiler-plugin</artifactId>
                     <version>${maven-compiler-plugin.version}</version>
                     <configuration>
+                        <excludes>**pos/*.java</excludes>
                         <release>${java.version}</release>
                         <encoding>${project.build.sourceEncoding}</encoding>
                         <compilerArgs>
