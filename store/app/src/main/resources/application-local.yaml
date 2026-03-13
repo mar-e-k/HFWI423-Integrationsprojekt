@@ -1,0 +1,29 @@
+spring:
+  datasource:
+    driver-class-name: org.postgresql.Driver
+    url: jdbc:postgresql://postgres:5432/vendix
+    username: user
+    password: pass
+
+  jpa:
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+    hibernate:
+      ddl-auto: create-drop
+    show-sql: false
+    properties:
+      hibernate:
+        format_sql: false
+
+  redis:
+    host: redis
+    port: 6379
+
+  rabbitmq:
+    host: rabbitmq
+    port: 5672
+    username: user
+    password: pass
+    virtual-host: /
+
+grafana:
+  url: http://grafana:3000

@@ -1,29 +1,12 @@
 package de.fhdw.vendix.store.core.event.initializer;
 
-import de.fhdw.vendix.store.app.app.properties.StartupProperties;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.event.EventListener;
-import org.springframework.stereotype.Component;
 
-@Component
-public class CleanupStoreHostsAndLocksInitializer  {
-
-    private static final Logger log = LoggerFactory.getLogger(CleanupStoreHostsAndLocksInitializer.class);
-
-    private final StartupProperties startupProperties;
-
-    public CleanupStoreHostsAndLocksInitializer(StartupProperties startupProperties) {
-        this.startupProperties = startupProperties;
-    }
+public class CleanupStoreHostsAndLocksInitializer {
 
     @EventListener
-    public void onApplicationStart(ApplicationReadyEvent event) {
-        log.atInfo().log(startupProperties.toString());
-        if (!startupProperties.cleanupLocks()) {
-            return;
-        }
+    public void onApplicationReadyEvent(ApplicationReadyEvent event) {
         System.out.println("TODO");
     }
 }

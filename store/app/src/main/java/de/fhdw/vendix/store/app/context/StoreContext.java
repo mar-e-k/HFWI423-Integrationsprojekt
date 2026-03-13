@@ -1,4 +1,4 @@
-package de.fhdw.vendix.store.app.app.context;
+package de.fhdw.vendix.store.app.context;
 
 import de.fhdw.vendix.commons.api.domain.store.dto.StoreDTO;
 import org.jspecify.annotations.Nullable;

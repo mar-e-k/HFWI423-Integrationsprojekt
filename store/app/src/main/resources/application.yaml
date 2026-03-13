@@ -1,0 +1,21 @@
+server:
+  reactive:
+    session:
+      cookie:
+        name: REACTIVE_${spring.application.name}
+  servlet:
+    session:
+      cookie:
+        name: SERVLET_${spring.application.name}
+
+spring:
+  application:
+    name: store
+  profiles:
+    active: local
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health, info

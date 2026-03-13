@@ -1,4 +1,4 @@
-package de.fhdw.vendix.store.web.web.controller;
+package de.fhdw.vendix.store.web.controller;
 
 import de.fhdw.vendix.commons.api.domain.receipt.ReceiptEndpoints;
 import de.fhdw.vendix.commons.api.domain.receipt.dto.ReceiptDTO;

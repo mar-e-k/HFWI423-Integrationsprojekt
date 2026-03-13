@@ -1,4 +1,4 @@
-package de.fhdw.vendix.store.web.web.listener;
+package de.fhdw.vendix.store.web.listener;
 
 import de.fhdw.vendix.commons.api.domain.store_stock.port.StoreStockCommandPort;
 import de.fhdw.vendix.store.app.app.context.StoreContext;

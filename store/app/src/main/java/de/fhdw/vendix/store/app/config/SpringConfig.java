@@ -1,4 +1,4 @@
-package de.fhdw.vendix.store.app.app.config;
+package de.fhdw.vendix.store.app.config;
 
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.jpa.repository.config.EnableJpaAuditing;

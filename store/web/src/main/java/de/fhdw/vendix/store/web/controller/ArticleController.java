@@ -1,4 +1,4 @@
-package de.fhdw.vendix.store.web.web.controller;
+package de.fhdw.vendix.store.web.controller;
 
 import de.fhdw.vendix.commons.api.domain.article.ArticleEndpoints;
 import de.fhdw.vendix.commons.api.domain.article.dto.ArticleDTO;
