@@ -2,10 +2,20 @@ package de.fhdw.vendix.store.core.persistance.receipt;
 
 import de.fhdw.vendix.commons.api.domain.receipt.dto.ReceiptDTO;
 import de.fhdw.vendix.commons.api.structure.mapper.EntityMapper;
-import de.fhdw.vendix.store.core.persistance.EntityMapperConfig;
+import de.fhdw.vendix.commons.spring.core.mapper.config.SpringMapperConfig;
+import de.fhdw.vendix.store.core.persistance.account.AccountMapper;
+import de.fhdw.vendix.store.core.persistance.register.RegisterMapper;
+import de.fhdw.vendix.store.core.persistance.store.StoreMapper;
 import org.mapstruct.Mapper;
 
-@Mapper(config = EntityMapperConfig.class)
+@Mapper(
+        config = SpringMapperConfig.class,
+        uses = {
+                StoreMapper.class,
+                RegisterMapper.class,
+                AccountMapper.class,
+        }
+)
 public interface ReceiptMapper extends EntityMapper<Receipt, ReceiptDTO> {
 
     @Override

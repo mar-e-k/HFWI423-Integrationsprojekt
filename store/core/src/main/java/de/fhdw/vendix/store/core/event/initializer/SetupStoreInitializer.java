@@ -1,9 +1,6 @@
 package de.fhdw.vendix.store.core.event.initializer;
 
-import org.springframework.stereotype.Component;
 
-
-@Component
 public class SetupStoreInitializer {
 
 //    private static final Logger log = LoggerFactory.getLogger(SetupStoreInitializer.class);

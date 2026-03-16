@@ -18,37 +18,27 @@
         <dependency>
             <groupId>de.fhdw.vendix</groupId>
             <artifactId>store-core</artifactId>
-            <version>1.0.0</version>
         </dependency>
 
         <dependency>
             <groupId>de.fhdw.vendix</groupId>
             <artifactId>store-web</artifactId>
-            <version>1.0.0</version>
         </dependency>
 
         <dependency>
             <groupId>de.fhdw.vendix</groupId>
             <artifactId>store-ui</artifactId>
-            <version>1.0.0</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.vaadin</groupId>
+            <artifactId>vaadin-dev</artifactId>
+            <optional>true</optional>
         </dependency>
 
         <dependency>
             <groupId>de.fhdw.vendix</groupId>
             <artifactId>commons-spring-starter</artifactId>
-            <version>1.0.0</version>
-        </dependency>
-
-
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-security</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-test</artifactId>
-            <scope>test</scope>
         </dependency>
 
         <dependency>

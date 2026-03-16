@@ -18,8 +18,8 @@
     <version>1.0.0</version>
     <packaging>pom</packaging>
 
-    <name>vendix</name>
-    <description>vendix</description>
+    <name>vendix-parent</name>
+    <description>vendix-parent</description>
 
     <modules>
         <module>commons</module>
@@ -113,6 +113,7 @@
                                 -XepOpt:NullAway:AnnotatedPackages=de.fhdw.vendix
                                 -XepOpt:NullAway:ExcludedClassAnnotations=jakarta.persistence.Entity,jakarta.persistence.MappedSuperclass
                                 -XepOpt:NullAway:TreatGeneratedAsUnannotated=true
+                                -XepDisableWarningsInGeneratedCode
                                 -Xep:NullAway:ERROR
                                 -Xep:StaticImport:OFF
                             </arg>

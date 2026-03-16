@@ -1,7 +1,7 @@
 package de.fhdw.vendix.store.web.listener;
 
 import de.fhdw.vendix.commons.api.domain.store_stock.port.StoreStockCommandPort;
-import de.fhdw.vendix.store.app.app.context.StoreContext;
+import de.fhdw.vendix.store.commons.context.StoreContext;
 import io.github.plaguv.amqp.api.event.pos.LogisticArticleOrderEvent;
 import io.github.plaguv.amqp.core.listener.AmqpListener;
 import org.springframework.stereotype.Service;

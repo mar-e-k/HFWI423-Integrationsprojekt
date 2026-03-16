@@ -3,13 +3,13 @@ package de.fhdw.vendix.store.core.persistance.article;
 import de.fhdw.vendix.commons.api.domain.article.dto.ArticleDTO;
 import de.fhdw.vendix.commons.api.domain.article.port.ArticleCommandPort;
 import de.fhdw.vendix.commons.api.domain.article.port.ArticleQueryPort;
-import de.fhdw.vendix.commons.spring.core.crud.AbstractSpringDataCrudLogAdapter;
+import de.fhdw.vendix.commons.spring.core.crud.AbstractCrudLogAdapter;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
 
 @Service
-class ArticleAdapter extends AbstractSpringDataCrudLogAdapter<Article, Long> implements ArticleCommandPort, ArticleQueryPort {
+class ArticleAdapter extends AbstractCrudLogAdapter<Article, Long> implements ArticleCommandPort, ArticleQueryPort {
 
     private final ArticleRepository articleRepository;
     private final ArticleMapper articleMapper;

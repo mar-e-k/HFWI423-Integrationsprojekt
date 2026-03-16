@@ -31,7 +31,7 @@ public final class DefaultUserDetailsService implements UserDetailsService {
 
         Objects.requireNonNull(accountDTO.id());
 
-        Set<AccountRoleEnum> roles = accountQueryPort.findRolesForAccount(accountDTO.id());
+        Set<AccountRoleEnum> roles = accountQueryPort.findAllAccountRolesByAccountId(accountDTO.id());
 
         boolean lockExists = lockQueryPort.existsByTargetTypeAndTargetID(TargetTypeEnum.ACCOUNT, accountDTO.id());
 

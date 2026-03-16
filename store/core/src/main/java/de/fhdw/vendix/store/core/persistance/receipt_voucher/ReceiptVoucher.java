@@ -16,7 +16,6 @@ public class ReceiptVoucher extends AbstractSpringDataAuditingEntity<Long> {
     private Receipt receipt;
 
     @Column(nullable = false, unique = true)
-    @GeneratedValue(strategy = GenerationType.UUID)
     private UUID code;
 
     private Instant expiresAt;

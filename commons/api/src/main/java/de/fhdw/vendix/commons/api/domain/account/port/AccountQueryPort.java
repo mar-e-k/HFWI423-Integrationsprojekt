@@ -13,13 +13,11 @@ public interface AccountQueryPort extends QueryPort {
 
     boolean existsByUsername(String username);
 
-    boolean existsByRole(AccountRoleEnum role);
-
-    Optional<AccountDTO> findByID(long id);
+    Optional<AccountDTO> findById(Long id);
 
     Optional<AccountDTO> findByUUID(UUID uuid);
 
     Optional<AccountDTO> findByUsername(String username);
 
-    Set<AccountRoleEnum> findRolesForAccount(long id);
+    Set<AccountRoleEnum> findAllAccountRolesByAccountId(Long id);
 }

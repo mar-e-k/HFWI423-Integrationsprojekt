@@ -15,7 +15,7 @@ import java.util.UUID;
 // TODO: this should really be in redis
 
 @Entity
-@Table(uniqueConstraints = {@UniqueConstraint(columnNames = {"lock_type", "target_id"})})
+@Table(uniqueConstraints = {@UniqueConstraint(columnNames = {"target_type", "target_id"})})
 @EntityListeners(AuditingEntityListener.class)
 public class Lock extends AbstractSpringDataAuditingEntity<Long> {
 
@@ -24,7 +24,7 @@ public class Lock extends AbstractSpringDataAuditingEntity<Long> {
     @NotNull
     private TargetTypeEnum targetType;
 
-    @Column(nullable = false)
+    @Column(nullable = false, name = "target_id")
     @NotNull
     private long targetID;
 

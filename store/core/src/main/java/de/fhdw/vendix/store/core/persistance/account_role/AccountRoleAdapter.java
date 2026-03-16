@@ -2,11 +2,11 @@ package de.fhdw.vendix.store.core.persistance.account_role;
 
 import de.fhdw.vendix.commons.api.domain.account_role.port.AccountRoleCommandPort;
 import de.fhdw.vendix.commons.api.domain.account_role.port.AccountRoleQueryPort;
-import de.fhdw.vendix.commons.spring.core.crud.AbstractSpringDataCrudLogAdapter;
+import de.fhdw.vendix.commons.spring.core.crud.AbstractCrudLogAdapter;
 import org.springframework.stereotype.Service;
 
 @Service
-class AccountRoleAdapter extends AbstractSpringDataCrudLogAdapter<AccountRole, Long> implements AccountRoleQueryPort, AccountRoleCommandPort {
+class AccountRoleAdapter extends AbstractCrudLogAdapter<AccountRole, Long> implements AccountRoleQueryPort, AccountRoleCommandPort {
 
     private final AccountRoleRepository accountRoleRepository;
     private final AccountRoleMapper accountRoleMapper;

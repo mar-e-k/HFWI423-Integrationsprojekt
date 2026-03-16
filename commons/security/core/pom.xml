@@ -18,7 +18,6 @@
         <dependency>
             <groupId>de.fhdw.vendix</groupId>
             <artifactId>commons-security-api</artifactId>
-            <version>1.0.0</version>
         </dependency>
         <dependency>
             <groupId>com.nimbusds</groupId>

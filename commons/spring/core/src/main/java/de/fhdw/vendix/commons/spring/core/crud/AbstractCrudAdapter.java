@@ -11,14 +11,18 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.StreamSupport;
 
-public abstract class AbstractSpringDataCrudAdapter<T extends Identifiable<ID>, ID> implements CrudQueryPort<T, ID>, CrudCommandPort<T, ID> {
+public abstract class AbstractCrudAdapter<T extends Identifiable<ID>, ID>
+        implements CrudQueryPort<T, ID>, CrudCommandPort<T, ID> {
 
     private final CrudRepository<T, ID> repository;
 
-    protected AbstractSpringDataCrudAdapter(CrudRepository<T, ID> repository) {
+    protected AbstractCrudAdapter(CrudRepository<T, ID> repository) {
         this.repository = repository;
     }
+
+
 
     @Override
     public T create(T entity) {
@@ -32,7 +36,6 @@ public abstract class AbstractSpringDataCrudAdapter<T extends Identifiable<ID>, 
         }
 
         T created = repository.save(entity);
-        afterCreate(created);
 
         return created;
     }
@@ -64,7 +67,6 @@ public abstract class AbstractSpringDataCrudAdapter<T extends Identifiable<ID>, 
         }
 
         T updated = repository.save(entity);
-        afterUpdate(updated);
 
         return updated;
     }
@@ -91,7 +93,6 @@ public abstract class AbstractSpringDataCrudAdapter<T extends Identifiable<ID>, 
         }
 
         repository.delete(entity);
-        afterDeleteEntity(entity);
     }
 
     @Override
@@ -101,14 +102,12 @@ public abstract class AbstractSpringDataCrudAdapter<T extends Identifiable<ID>, 
         }
 
         repository.deleteById(id);
-        afterDeleteById(id);
     }
 
     @Override
     @Transactional
     public void deleteAll() {
         repository.deleteAll();
-        afterDeleteAll();
     }
 
     @Override
@@ -119,7 +118,6 @@ public abstract class AbstractSpringDataCrudAdapter<T extends Identifiable<ID>, 
         }
 
         entities.forEach(this::delete);
-        afterDeleteAll();
     }
 
     @Override
@@ -154,11 +152,43 @@ public abstract class AbstractSpringDataCrudAdapter<T extends Identifiable<ID>, 
     }
 
     @Override
+    public boolean existsAll(Iterable<T> entities) {
+        if(entities == null) {
+            throw new IllegalArgumentException("Parameter 'entities' cannot be null");
+        }
+
+        Iterable<ID> ids = iterableEntitiesToIds(entities);
+
+        return existsAllById(ids);
+    }
+
+    @Override
+    public boolean existsAllById(Iterable<ID> ids) {
+        boolean allExist = true;
+
+        for (ID id : ids) {
+            allExist = allExist && existsById(id);
+        }
+
+        return allExist;
+    }
+
+    @Override
+    public Optional<T> find(T entity) {
+        if (entity == null) {
+            throw new IllegalArgumentException("Parameter 'entity' cannot be null");
+        }
+        if (entity.getId() == null) {
+            throw new IllegalArgumentException("Parameter 'entity' with field 'id' cannot be null");
+        }
+        return repository.findById(entity.getId());
+    }
+
+    @Override
     public Optional<T> findById(ID id) {
         if (id == null) {
             throw new IllegalArgumentException("Parameter 'id' cannot be null");
         }
-
         return repository.findById(id);
     }
 
@@ -168,11 +198,21 @@ public abstract class AbstractSpringDataCrudAdapter<T extends Identifiable<ID>, 
     }
 
     @Override
+    public Iterable<T> findAll(Iterable<T> entities) {
+        if (entities == null) {
+            throw new IllegalArgumentException("Parameter 'entities' cannot be null");
+        }
+
+        Iterable<ID> ids = iterableEntitiesToIds(entities);
+
+        return repository.findAllById(ids);
+    }
+
+    @Override
     public Iterable<T> findAllById(Iterable<ID> ids) {
         if (ids == null) {
             throw new IllegalArgumentException("Parameter 'ids' cannot be null");
         }
-
         return repository.findAllById(ids);
     }
 
@@ -181,13 +221,13 @@ public abstract class AbstractSpringDataCrudAdapter<T extends Identifiable<ID>, 
         return repository.count();
     }
 
-    protected void afterCreate(T entity) {}
+    private Iterable<ID> iterableEntitiesToIds(Iterable<T> entities) {
+        if (entities == null) {
+            throw new IllegalArgumentException("Parameter 'entities' cannot be null");
+        }
 
-    protected void afterUpdate(T entity) {}
-
-    protected void afterDeleteById(ID id) {}
-
-    protected void afterDeleteEntity(T entity) {}
-
-    protected void afterDeleteAll() {};
+        return StreamSupport.stream(entities.spliterator(), false)
+                .map(Identifiable::getId)
+                .toList();
+    }
 }

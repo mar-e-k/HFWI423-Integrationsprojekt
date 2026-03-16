@@ -5,7 +5,7 @@ import de.fhdw.vendix.commons.api.domain.store.dto.StoreDTO;
 import de.fhdw.vendix.commons.api.domain.store_stock.dto.StoreStockDTO;
 import de.fhdw.vendix.commons.api.domain.store_stock.port.StoreStockCommandPort;
 import de.fhdw.vendix.commons.api.domain.store_stock.port.StoreStockQueryPort;
-import de.fhdw.vendix.commons.spring.core.crud.AbstractSpringDataCrudLogAdapter;
+import de.fhdw.vendix.commons.spring.core.crud.AbstractCrudLogAdapter;
 import de.fhdw.vendix.store.core.persistance.article.ArticleMapper;
 import de.fhdw.vendix.store.core.persistance.store.StoreMapper;
 import jakarta.persistence.EntityNotFoundException;
@@ -16,7 +16,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
-class StoreStockAdapter extends AbstractSpringDataCrudLogAdapter<StoreStock, Long> implements StoreStockQueryPort, StoreStockCommandPort {
+class StoreStockAdapter extends AbstractCrudLogAdapter<StoreStock, Long> implements StoreStockQueryPort, StoreStockCommandPort {
 
    private final StoreStockRepository storeStockRepository;
    private final StoreStockMapper storeStockMapper;

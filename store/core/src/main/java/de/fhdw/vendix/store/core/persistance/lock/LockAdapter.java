@@ -4,14 +4,14 @@ import de.fhdw.vendix.commons.api.domain.lock.dto.LockDTO;
 import de.fhdw.vendix.commons.api.domain.lock.dto.TargetTypeEnum;
 import de.fhdw.vendix.commons.api.domain.lock.port.LockCommandPort;
 import de.fhdw.vendix.commons.api.domain.lock.port.LockQueryPort;
-import de.fhdw.vendix.commons.spring.core.crud.AbstractSpringDataCrudLogAdapter;
+import de.fhdw.vendix.commons.spring.core.crud.AbstractCrudLogAdapter;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
 import java.util.UUID;
 
 @Service
-class LockAdapter extends AbstractSpringDataCrudLogAdapter<Lock, Long> implements LockCommandPort, LockQueryPort {
+class LockAdapter extends AbstractCrudLogAdapter<Lock, Long> implements LockCommandPort, LockQueryPort {
 
     private final LockRepository lockRepository;
     private final LockMapper lockMapper;

@@ -4,10 +4,10 @@ import de.fhdw.vendix.commons.api.domain.article.dto.ArticleDTO;
 import de.fhdw.vendix.commons.api.domain.article.dto.ArticleRequestDTO;
 import de.fhdw.vendix.commons.api.domain.article.dto.ArticleResponseDTO;
 import de.fhdw.vendix.commons.api.structure.mapper.DTOMapper;
-import de.fhdw.vendix.commons.spring.core.mapper.config.DTOMapperConfig;
+import de.fhdw.vendix.commons.spring.core.mapper.config.SpringMapperConfig;
 import org.mapstruct.Mapper;
 
-@Mapper(config = DTOMapperConfig.class)
+@Mapper(config = SpringMapperConfig.class)
 public interface ArticleDTOMapper extends DTOMapper<ArticleDTO, ArticleRequestDTO, ArticleResponseDTO> {
 
     @Override

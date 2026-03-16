@@ -4,10 +4,10 @@ import de.fhdw.vendix.commons.api.structure.mapper.DTOMapper;
 import de.fhdw.vendix.commons.api.domain.store.dto.StoreDTO;
 import de.fhdw.vendix.commons.api.domain.store.dto.StoreRequestDTO;
 import de.fhdw.vendix.commons.api.domain.store.dto.StoreResponseDTO;
-import de.fhdw.vendix.commons.spring.core.mapper.config.DTOMapperConfig;
+import de.fhdw.vendix.commons.spring.core.mapper.config.SpringMapperConfig;
 import org.mapstruct.Mapper;
 
-@Mapper(config = DTOMapperConfig.class)
+@Mapper(config = SpringMapperConfig.class)
 public interface StoreDTOMapper extends DTOMapper<StoreDTO, StoreRequestDTO, StoreResponseDTO> {
 
     @Override

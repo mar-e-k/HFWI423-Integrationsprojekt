@@ -6,7 +6,7 @@ import de.fhdw.vendix.commons.api.domain.receipt.port.ReceiptQueryPort;
 import de.fhdw.vendix.commons.api.domain.receipt_line.dto.ReceiptLineDTO;
 import de.fhdw.vendix.commons.api.domain.store_stock.dto.StoreStockDTO;
 import de.fhdw.vendix.commons.api.domain.store_stock.port.StoreStockQueryPort;
-import de.fhdw.vendix.store.app.app.context.StoreContext;
+import de.fhdw.vendix.store.commons.context.StoreContext;
 import io.github.plaguv.amqp.api.envelope.EventEnvelope;
 import io.github.plaguv.amqp.api.envelope.EventEnvelopeBuilder;
 import io.github.plaguv.amqp.api.event.pos.LogisticArticleOrderEvent;
@@ -55,13 +55,13 @@ public class DailyReceiptReportingSchedule {
 
         storeID = storeContext.getStore().id();
 
-        Set<ReceiptDTO> receipts = receiptQueryPort.findAllByStoreToday(storeID);
+        Set<ReceiptDTO> receipts = receiptQueryPort.findAllByStoreIdAndCreatedAtToday(storeID);
         Set<ArticleDTO> articles = new HashSet<>();
 
         // Get all articles of the day and record their count.
         // This can probably also be a GROUP-BY in SQL, but native SQL is to generally be avoided
         for (ReceiptDTO receipt : receipts) {
-            receiptQueryPort.findLinesForReceipt(Objects.requireNonNull(receipt.id())).stream()
+            receiptQueryPort.findAllReceiptLinesByReceiptId(Objects.requireNonNull(receipt.id())).stream()
                     .map(ReceiptLineDTO::article)
                     .forEach(articles::add);
         }

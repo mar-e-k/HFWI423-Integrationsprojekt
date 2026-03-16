@@ -1,8 +1,10 @@
 package de.fhdw.vendix.store.core.persistance.account;
 
-import de.fhdw.vendix.commons.api.domain.account_role.dto.AccountRoleEnum;
+import de.fhdw.vendix.commons.api.domain.account.dto.AccountDTO;
 import de.fhdw.vendix.store.core.persistance.account_role.AccountRole;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 import java.util.Optional;
 import java.util.Set;
@@ -13,11 +15,16 @@ interface AccountRepository extends JpaRepository<Account, Long> {
 
     boolean existsByUsername(String username);
 
-    boolean existsByRole(AccountRoleEnum role);
-
     Optional<Account> findByUuid(UUID uuid);
 
     Optional<Account> findByUsername(String username);
 
-    Set<AccountRole> findRolesForAccount(long id);
+    @Query(
+        """
+        SELECT ara.role
+        FROM AccountRoleAssignment ara
+        WHERE ara.account.id = :accountId
+        """
+    )
+    Set<AccountRole> findAllAccountRolesByAccountId(@Param("accountId") Long id);
 }

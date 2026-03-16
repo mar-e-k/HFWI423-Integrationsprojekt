@@ -19,3 +19,7 @@ management:
     web:
       exposure:
         include: health, info
+
+amqp:
+  central-exchange: central
+  central-application: ${spring.application.name}

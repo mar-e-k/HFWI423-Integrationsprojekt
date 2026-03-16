@@ -28,7 +28,7 @@ class AccountController {
     public ResponseEntity<AccountDTO> getAccountById(@PathVariable long id) {
         return ResponseEntity
                 .status(HttpStatus.OK)
-                .body(accountQueryPort.findByID(id)
+                .body(accountQueryPort.findById(id)
                         .orElseThrow(EntityNotFoundException::new));
     }
 

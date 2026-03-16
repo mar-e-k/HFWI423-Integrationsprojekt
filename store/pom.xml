@@ -15,10 +15,30 @@
     <description>store</description>
 
     <modules>
+        <module>bom</module>
         <module>app</module>
         <module>core</module>
         <module>ui</module>
         <module>web</module>
         <module>commons</module>
     </modules>
+
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>de.fhdw.vendix</groupId>
+                <artifactId>commons-bom</artifactId>
+                <version>${project.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+            <dependency>
+                <groupId>de.fhdw.vendix</groupId>
+                <artifactId>store-bom</artifactId>
+                <version>${project.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
 </project>

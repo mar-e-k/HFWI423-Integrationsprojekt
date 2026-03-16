@@ -4,16 +4,15 @@ import de.fhdw.vendix.commons.api.domain.receipt.dto.ReceiptDTO;
 import de.fhdw.vendix.commons.api.domain.receipt.port.ReceiptCommandPort;
 import de.fhdw.vendix.commons.api.domain.receipt.port.ReceiptQueryPort;
 import de.fhdw.vendix.commons.api.domain.receipt_line.dto.ReceiptLineDTO;
-import de.fhdw.vendix.commons.spring.core.crud.AbstractSpringDataCrudLogAdapter;
+import de.fhdw.vendix.commons.spring.core.crud.AbstractCrudLogAdapter;
 import de.fhdw.vendix.store.core.persistance.receipt_line.ReceiptLineMapper;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDate;
 import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
-class ReceiptAdapter extends AbstractSpringDataCrudLogAdapter<Receipt, Long> implements ReceiptCommandPort, ReceiptQueryPort {
+class ReceiptAdapter extends AbstractCrudLogAdapter<Receipt, Long> implements ReceiptCommandPort, ReceiptQueryPort {
 
     private final ReceiptRepository receiptRepository;
     private final ReceiptMapper receiptMapper;
@@ -27,33 +26,36 @@ class ReceiptAdapter extends AbstractSpringDataCrudLogAdapter<Receipt, Long> imp
     }
 
     @Override
-    public Set<ReceiptDTO> findAllByDate(LocalDate date) {
-        return Set.of();
+    public Set<ReceiptDTO> findAllByStoreId(Long storeID) {
+        return receiptRepository.findAllByStoreId(storeID).stream()
+                .map(receiptMapper::toDTO)
+                .collect(Collectors.toUnmodifiableSet());
     }
 
     @Override
-    public Set<ReceiptDTO> findAllByStore(long storeID) {
-        return Set.of();
+    public Set<ReceiptDTO> findAllByRegisterId(Long registerID) {
+        return receiptRepository.findAllByRegisterId(registerID).stream()
+                .map(receiptMapper::toDTO)
+                .collect(Collectors.toUnmodifiableSet());
     }
 
     @Override
-    public Set<ReceiptDTO> findAllByStoreToday(long storeID) {
-        return Set.of();
+    public Set<ReceiptDTO> findAllByCashierId(Long cashierID) {
+        return receiptRepository.findAllByCashierId(cashierID).stream()
+                .map(receiptMapper::toDTO)
+                .collect(Collectors.toUnmodifiableSet());
     }
 
     @Override
-    public Set<ReceiptDTO> findAllByRegister(long registerID) {
-        return Set.of();
+    public Set<ReceiptDTO> findAllByStoreIdAndCreatedAtToday(Long storeID) {
+        return receiptRepository.findAllByStoreIdAndCreatedAtToday(storeID).stream()
+                .map(receiptMapper::toDTO)
+                .collect(Collectors.toUnmodifiableSet());
     }
 
     @Override
-    public Set<ReceiptDTO> findAllByCashier(long cashierID) {
-        return Set.of();
-    }
-
-    @Override
-    public Set<ReceiptLineDTO> findLinesForReceipt(long id) {
-        return receiptRepository.findLinesForReceipt(id).stream()
+    public Set<ReceiptLineDTO> findAllReceiptLinesByReceiptId(Long id) {
+        return receiptRepository.findAllReceiptLinesByReceiptId(id).stream()
                 .map(receiptLineMapper::toDTO)
                 .collect(Collectors.toUnmodifiableSet());
     }

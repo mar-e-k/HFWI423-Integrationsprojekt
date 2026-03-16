@@ -1,10 +1,5 @@
 package de.fhdw.vendix.store.core.event.initializer;
 
-import org.springframework.context.annotation.Profile;
-import org.springframework.stereotype.Component;
-
-@Component
-@Profile("local") // TODO
 public class StockInitializer {
 
 //    private static final Logger logger = LoggerFactory.getLogger(StockInitializer.class);

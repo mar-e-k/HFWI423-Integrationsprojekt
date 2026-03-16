@@ -4,7 +4,7 @@ import de.fhdw.vendix.commons.api.domain.account.dto.AccountDTO;
 import de.fhdw.vendix.commons.api.domain.account.port.AccountCommandPort;
 import de.fhdw.vendix.commons.api.domain.account.port.AccountQueryPort;
 import de.fhdw.vendix.commons.api.domain.account_role.dto.AccountRoleEnum;
-import de.fhdw.vendix.commons.spring.core.crud.AbstractSpringDataCrudLogAdapter;
+import de.fhdw.vendix.commons.spring.core.crud.AbstractCrudLogAdapter;
 import de.fhdw.vendix.store.core.persistance.account_role.AccountRole;
 import org.springframework.stereotype.Service;
 
@@ -14,7 +14,7 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service
-class AccountAdapter extends AbstractSpringDataCrudLogAdapter<Account, Long> implements AccountQueryPort, AccountCommandPort {
+class AccountAdapter extends AbstractCrudLogAdapter<Account, Long> implements AccountQueryPort, AccountCommandPort {
 
     private final AccountRepository accountRepository;
     private final AccountMapper accountMapper;
@@ -42,19 +42,8 @@ class AccountAdapter extends AbstractSpringDataCrudLogAdapter<Account, Long> imp
     }
 
     @Override
-    public boolean existsByRole(AccountRoleEnum role) {
-        if (role == null) {
-            throw new IllegalArgumentException("Parameter 'role' cannot be null");
-        }
-        return accountRepository.existsByRole(role);
-    }
-
-    @Override
-    public Optional<AccountDTO> findByID(long id) {
-        if (id < 0) {
-            throw new IllegalArgumentException("Parameter 'id' cannot be negative");
-        }
-        return accountRepository.findById(id)
+    public Optional<AccountDTO> findById(Long id) {
+        return super.findById(id)
                 .map(accountMapper::toDTO);
     }
 
@@ -77,11 +66,11 @@ class AccountAdapter extends AbstractSpringDataCrudLogAdapter<Account, Long> imp
     }
 
     @Override
-    public Set<AccountRoleEnum> findRolesForAccount(long id) {
+    public Set<AccountRoleEnum> findAllAccountRolesByAccountId(Long id) {
         if (id < 0) {
             throw new IllegalArgumentException("Parameter 'id' cannot be negative");
         }
-        return accountRepository.findRolesForAccount(id).stream()
+        return accountRepository.findAllAccountRolesByAccountId(id).stream()
                 .map(AccountRole::getRole)
                 .collect(Collectors.toUnmodifiableSet());
     }

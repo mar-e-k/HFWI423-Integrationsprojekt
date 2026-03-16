@@ -22,7 +22,7 @@ public class Register extends AbstractSpringDataAuditingEntity<Long> {
 
     protected Register() {}
 
-    public Register(Store store) {
+    protected Register(Store store) {
         this.store = store;
     }
 

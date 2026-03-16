@@ -9,7 +9,7 @@ import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
 
 @Entity
-@Table(uniqueConstraints = @UniqueConstraint(columnNames = {"account", "role"}))
+@Table(uniqueConstraints = @UniqueConstraint(columnNames = {"account_id", "role_id"}))
 public class AccountRoleAssignment extends AbstractSpringDataAuditingEntity<Long> {
 
     @ManyToOne(optional = false)

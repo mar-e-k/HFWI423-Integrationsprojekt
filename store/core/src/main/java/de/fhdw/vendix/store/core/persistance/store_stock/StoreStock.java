@@ -8,7 +8,7 @@ import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
 
 @Entity
-@Table(uniqueConstraints = @UniqueConstraint(columnNames = {"store", "article"}))
+@Table(uniqueConstraints = @UniqueConstraint(columnNames = {"store_id", "article_id"}))
 public class StoreStock extends AbstractSpringDataAuditingEntity<Long> {
 
     @ManyToOne(optional = false)
