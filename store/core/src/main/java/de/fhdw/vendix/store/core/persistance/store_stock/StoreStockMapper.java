@@ -7,6 +7,8 @@ import de.fhdw.vendix.store.core.persistance.article.ArticleMapper;
 import de.fhdw.vendix.store.core.persistance.store.StoreMapper;
 import org.mapstruct.Mapper;
 
+import java.util.List;
+
 @Mapper(
         config = SpringMapperConfig.class,
         uses = {
@@ -14,11 +16,17 @@ import org.mapstruct.Mapper;
                 ArticleMapper.class,
         }
 )
-public interface StoreStockMapper extends EntityMapper<StoreStock, StoreStockDTO> {
+public interface StoreStockMapper extends EntityMapper<Long, StoreStock, StoreStockDTO> {
 
     @Override
     StoreStockDTO toDTO(StoreStock entity);
 
     @Override
     StoreStock toEntity(StoreStockDTO storeStockDTO);
+
+    @Override
+    List<StoreStockDTO> toDTOs(Iterable<StoreStock> entities);
+
+    @Override
+    List<StoreStock> toEntities(Iterable<StoreStockDTO> storeStockDTOS);
 }

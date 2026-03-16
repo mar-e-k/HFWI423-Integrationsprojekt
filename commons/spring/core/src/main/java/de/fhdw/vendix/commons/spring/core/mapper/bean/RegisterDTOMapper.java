@@ -7,6 +7,8 @@ import de.fhdw.vendix.commons.api.domain.register.dto.RegisterResponseDTO;
 import de.fhdw.vendix.commons.spring.core.mapper.config.SpringMapperConfig;
 import org.mapstruct.Mapper;
 
+import java.util.List;
+
 @Mapper(
         config = SpringMapperConfig.class,
         uses = {
@@ -20,4 +22,10 @@ public interface RegisterDTOMapper extends DTOMapper<RegisterDTO, RegisterReques
 
     @Override
     RegisterResponseDTO toResponseDTO(RegisterDTO registerDTO);
+
+    @Override
+    List<RegisterDTO> toDomainDTOs(Iterable<RegisterRequestDTO> requestDTOs);
+
+    @Override
+    List<RegisterResponseDTO> toResponseDTOs(Iterable<RegisterDTO> domainDTOs);
 }

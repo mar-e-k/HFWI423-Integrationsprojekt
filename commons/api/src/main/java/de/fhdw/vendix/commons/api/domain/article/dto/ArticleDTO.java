@@ -17,7 +17,7 @@ public record ArticleDTO(
         BigDecimal purchasePrice,
         BigDecimal sellingPrice,
         BigDecimal taxRate
-) implements DomainDTO {
+) implements DomainDTO<Long> {
     public ArticleDTO {
         if (id != null && id < 0) {
             throw new IllegalArgumentException("ArticleDTO parameter 'id' cannot be negative");
@@ -61,5 +61,10 @@ public record ArticleDTO(
         if (taxRate.compareTo(BigDecimal.valueOf(0)) < 1 || taxRate.compareTo(BigDecimal.valueOf(100)) > 0) {
             throw new IllegalArgumentException("ArticleDTO parameter 'taxRate' must be between 0 and 100");
         }
+    }
+
+    @Override
+    public @Nullable Long getIdentifiable() {
+        return id;
     }
 }

@@ -1,5 +1,6 @@
 package de.fhdw.vendix.commons.api.structure.port;
 
+import java.util.List;
 import java.util.Optional;
 
 public interface CrudQueryPort<T, ID> extends QueryPort {
@@ -16,11 +17,11 @@ public interface CrudQueryPort<T, ID> extends QueryPort {
 
     Optional<T> findById(ID id);
 
-    Iterable<T> findAll();
+    List<T> findAll();
 
-    Iterable<T> findAll(Iterable<T> entities);
+    List<T> findAll(Iterable<T> entities);
 
-    Iterable<T> findAllById(Iterable<ID> ids);
+    List<T> findAllById(Iterable<ID> ids);
 
     long count();
 }

@@ -13,7 +13,7 @@ public record LockDTO (
         UUID instanceUUID,
         Instant acquiredAt,
         Instant expiresAt
-) implements DomainDTO {
+) implements DomainDTO<Long> {
     public LockDTO {
         if (id != null && id < 0) {
             throw new IllegalArgumentException("LockDTO parameter 'id' cannot be negative");
@@ -36,5 +36,10 @@ public record LockDTO (
         if (acquiredAt.isAfter(expiresAt)) {
             throw new IllegalArgumentException("LockDTO parameter 'acquiredAt' cannot be after parameter 'expiresAt'");
         }
+    }
+
+    @Override
+    public @Nullable Long getIdentifiable() {
+        return id;
     }
 }

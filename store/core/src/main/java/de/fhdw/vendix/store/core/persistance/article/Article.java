@@ -103,7 +103,7 @@ public class Article implements Identifiable<Long> {
     }
 
     @Override
-    public @Nullable Long getId() {
+    public @Nullable Long getIdentifiable() {
         return id;
     }
 

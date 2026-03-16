@@ -6,7 +6,7 @@ import org.jspecify.annotations.Nullable;
 public record AccountRoleDTO(
         @Nullable Long id,
         AccountRoleEnum role
-) implements DomainDTO {
+) implements DomainDTO<Long> {
     public AccountRoleDTO {
         if (id != null && id < 0) {
             throw new IllegalArgumentException("RoleDTO parameter 'id' cannot be negative");
@@ -14,5 +14,10 @@ public record AccountRoleDTO(
         if (role == null) {
             throw new IllegalArgumentException("RoleDTO parameter 'role' cannot be null");
         }
+    }
+
+    @Override
+    public @Nullable Long getIdentifiable() {
+        return id;
     }
 }

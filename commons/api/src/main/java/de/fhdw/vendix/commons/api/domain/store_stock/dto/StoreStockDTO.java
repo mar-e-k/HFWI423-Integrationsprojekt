@@ -12,7 +12,7 @@ public record StoreStockDTO(
         PreferenceAmountDTO preferenceAmount,
         long currentAmount,
         boolean isActive
-) implements DomainDTO {
+) implements DomainDTO<Long> {
     public StoreStockDTO {
         if (id != null && id < 0) {
             throw new IllegalArgumentException("StoreStockDTO parameter 'id' cannot be negative");
@@ -29,5 +29,10 @@ public record StoreStockDTO(
         if (currentAmount < 0) {
             throw new IllegalArgumentException("StoreStockDTO parameter 'currentAmount' cannot be negative");
         }
+    }
+
+    @Override
+    public @Nullable Long getIdentifiable() {
+        return id;
     }
 }

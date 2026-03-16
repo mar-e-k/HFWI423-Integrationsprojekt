@@ -7,6 +7,8 @@ import de.fhdw.vendix.commons.api.structure.mapper.DTOMapper;
 import de.fhdw.vendix.commons.spring.core.mapper.config.SpringMapperConfig;
 import org.mapstruct.Mapper;
 
+import java.util.List;
+
 @Mapper(config = SpringMapperConfig.class)
 public interface ArticleDTOMapper extends DTOMapper<ArticleDTO, ArticleRequestDTO, ArticleResponseDTO> {
 
@@ -15,4 +17,10 @@ public interface ArticleDTOMapper extends DTOMapper<ArticleDTO, ArticleRequestDT
 
     @Override
     ArticleResponseDTO toResponseDTO(ArticleDTO articleDTO);
+
+    @Override
+    List<ArticleDTO> toDomainDTOs(Iterable<ArticleRequestDTO> requestDTOs);
+
+    @Override
+    List<ArticleResponseDTO> toResponseDTOs(Iterable<ArticleDTO> domainDTOs);
 }

@@ -8,6 +8,8 @@ import de.fhdw.vendix.store.core.persistance.register.RegisterMapper;
 import de.fhdw.vendix.store.core.persistance.store.StoreMapper;
 import org.mapstruct.Mapper;
 
+import java.util.List;
+
 @Mapper(
         config = SpringMapperConfig.class,
         uses = {
@@ -16,11 +18,17 @@ import org.mapstruct.Mapper;
                 AccountMapper.class,
         }
 )
-public interface ReceiptMapper extends EntityMapper<Receipt, ReceiptDTO> {
+public interface ReceiptMapper extends EntityMapper<Long, Receipt, ReceiptDTO> {
 
     @Override
     ReceiptDTO toDTO(Receipt entity);
 
     @Override
     Receipt toEntity(ReceiptDTO receiptDTO);
+
+    @Override
+    List<ReceiptDTO> toDTOs(Iterable<Receipt> entities);
+
+    @Override
+    List<Receipt> toEntities(Iterable<ReceiptDTO> receiptDTOS);
 }

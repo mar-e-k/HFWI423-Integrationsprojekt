@@ -10,7 +10,7 @@ public record AccountDTO(
         UUID uuid,
         String username,
         String password
-) implements DomainDTO {
+) implements DomainDTO<Long> {
     public AccountDTO {
         if (id != null && id < 0) {
             throw new IllegalArgumentException("AccountDTO parameter 'id' cannot be negative");
@@ -24,5 +24,10 @@ public record AccountDTO(
         if (password == null) {
             throw new IllegalArgumentException("AccountDTO parameter 'password' cannot be null");
         }
+    }
+
+    @Override
+    public @Nullable Long getIdentifiable() {
+        return id;
     }
 }

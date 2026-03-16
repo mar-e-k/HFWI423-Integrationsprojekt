@@ -1,13 +1,13 @@
 package de.fhdw.vendix.commons.api.domain.receipt_line.dto;
 
-import de.fhdw.vendix.commons.api.structure.dto.DTO;
+import de.fhdw.vendix.commons.api.structure.dto.EmbeddableDTO;
 
 import java.math.BigDecimal;
 
 public record DiscountOverrideDTO(
         BigDecimal overriddenDiscount,
         OverrideReasonEnum overriddenDiscountReason
-) implements DTO {
+) implements EmbeddableDTO {
     public DiscountOverrideDTO {
         if (overriddenDiscount == null) {
             throw new IllegalArgumentException("DiscountOverrideDTO parameter 'overriddenDiscount' cannot be null");

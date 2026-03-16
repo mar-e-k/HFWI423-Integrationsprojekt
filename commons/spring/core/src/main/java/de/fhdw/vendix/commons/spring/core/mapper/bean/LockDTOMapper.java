@@ -7,6 +7,8 @@ import de.fhdw.vendix.commons.api.structure.mapper.DTOMapper;
 import de.fhdw.vendix.commons.spring.core.mapper.config.SpringMapperConfig;
 import org.mapstruct.Mapper;
 
+import java.util.List;
+
 @Mapper(config = SpringMapperConfig.class)
 public interface LockDTOMapper extends DTOMapper<LockDTO, LockRequestDTO, LockResponseDTO> {
 
@@ -15,4 +17,10 @@ public interface LockDTOMapper extends DTOMapper<LockDTO, LockRequestDTO, LockRe
 
     @Override
     LockResponseDTO toResponseDTO(LockDTO lockDTO);
+
+    @Override
+    List<LockDTO> toDomainDTOs(Iterable<LockRequestDTO> requestDTOs);
+
+    @Override
+    List<LockResponseDTO> toResponseDTOs(Iterable<LockDTO> domainDTOs);
 }
