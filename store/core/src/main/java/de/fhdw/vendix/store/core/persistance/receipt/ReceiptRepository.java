@@ -8,11 +8,12 @@ import org.springframework.data.repository.query.Param;
 import java.util.Set;
 
 interface ReceiptRepository extends JpaRepository<Receipt, Long> {
-    Set<Receipt> findAllByStoreId(Long storeID);
 
-    Set<Receipt> findAllByRegisterId(Long registerID);
+    Set<Receipt> findAllByStoreId(Long storeId);
 
-    Set<Receipt> findAllByCashierId(Long cashierID);
+    Set<Receipt> findAllByRegisterId(Long registerId);
+
+    Set<Receipt> findAllByCashierId(Long cashierId);
 
     @Query(
                     """
@@ -22,7 +23,7 @@ interface ReceiptRepository extends JpaRepository<Receipt, Long> {
                       AND r.createdAt >= CURRENT_DATE
                     """
     )
-    Set<Receipt> findAllByStoreIdAndCreatedAtToday(@Param("storeId") Long storeID);
+    Set<Receipt> findAllByStoreIdAndCreatedAtToday(@Param("storeId") Long storeId);
 
     @Query(
                     """

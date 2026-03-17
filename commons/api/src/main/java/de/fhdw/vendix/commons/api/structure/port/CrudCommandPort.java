@@ -1,8 +1,10 @@
 package de.fhdw.vendix.commons.api.structure.port;
 
+import de.fhdw.vendix.commons.api.structure.entity.Identifiable;
+
 import java.util.List;
 
-public interface CrudCommandPort<T, ID> extends CommandPort {
+public interface CrudCommandPort<T extends Identifiable<ID>, ID> extends CommandPort {
     T create(T entity);
 
     List<T> createAll(Iterable<T> entities);

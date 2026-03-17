@@ -12,7 +12,7 @@ import java.util.List;
         config = SpringMapperConfig.class,
         uses = {StoreMapper.class}
 )
-public interface RegisterMapper extends EntityMapper<Long, Register, RegisterDTO> {
+public interface RegisterMapper extends EntityMapper<Register, RegisterDTO> {
 
     @Override
     RegisterDTO toDTO(Register entity);

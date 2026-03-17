@@ -12,7 +12,7 @@ import java.util.List;
         config = SpringMapperConfig.class,
         uses = {ReceiptMapper.class}
 )
-public interface ReceiptVoucherMapper extends EntityMapper<Long, ReceiptVoucher, ReceiptVoucherDTO> {
+public interface ReceiptVoucherMapper extends EntityMapper<ReceiptVoucher, ReceiptVoucherDTO> {
 
     @Override
     ReceiptVoucherDTO toDTO(ReceiptVoucher entity);

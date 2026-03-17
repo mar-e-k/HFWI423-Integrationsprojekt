@@ -15,15 +15,14 @@ spring:
         format_sql: false
 
   redis:
-    host: redis
+    host: localhost
     port: 6379
 
   rabbitmq:
-    host: rabbitmq
+    host: localhost
     port: 5672
     username: user
     password: pass
-    virtual-host: /
 
 grafana:
   url: http://grafana:3000

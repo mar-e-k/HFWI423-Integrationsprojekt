@@ -8,7 +8,7 @@ import org.mapstruct.Mapper;
 import java.util.List;
 
 @Mapper(config = SpringMapperConfig.class)
-public interface ArticleMapper extends EntityMapper<Long, Article, ArticleDTO> {
+public interface ArticleMapper extends EntityMapper<Article, ArticleDTO> {
 
     @Override
     ArticleDTO toDTO(Article entity);

@@ -9,7 +9,6 @@ import de.fhdw.vendix.security.api.auth.AuthenticationLifecycleHandler;
 
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
-import java.time.temporal.TemporalUnit;
 import java.util.Objects;
 
 public class DefaultAuthenticationLifecycleHandler implements AuthenticationLifecycleHandler {
@@ -24,7 +23,7 @@ public class DefaultAuthenticationLifecycleHandler implements AuthenticationLife
 
     @Override
     public void onApplicationStart(AppContext appContext) {
-        lockCommandPort.deleteAllExpiredLocks();
+        lockCommandPort.deleteAllByExpiresAtNow();
     }
 
     @Override

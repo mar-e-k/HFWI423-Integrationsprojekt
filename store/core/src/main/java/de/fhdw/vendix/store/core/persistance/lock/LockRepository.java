@@ -1,23 +1,30 @@
 package de.fhdw.vendix.store.core.persistance.lock;
 
 import de.fhdw.vendix.commons.api.domain.lock.dto.TargetTypeEnum;
+import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.CrudRepository;
 
 import java.util.Optional;
 import java.util.UUID;
 
-interface LockRepository extends CrudRepository<Lock, Long> {
+interface LockRepository extends JpaRepository<Lock, Long> {
+
     boolean existsByTargetTypeAndTargetId(TargetTypeEnum targetTypeEnum, long targetId);
 
     Optional<Lock> findByTargetTypeAndTargetId(TargetTypeEnum targetTypeEnum, long targetId);
 
     @Modifying
-    @Query(value = "DELETE FROM distributed_lock WHERE expires_at < now()", nativeQuery = true)
-    void deleteAllExpiredLocks();
+    @Query(
+                            """                
+                            DELETE
+                            FROM Lock
+                            WHERE createdAt < CURRENT_TIMESTAMP
+                            """
+    )
+    void deleteAllByExpiresAtNow();
 
     void deleteAllByInstanceUUID(UUID instanceUUID);
 
-    void deleteByTargetTypeAndTargetId(TargetTypeEnum targetTypeEnum, long targetId);
+    void deleteAllByTargetTypeAndTargetId(TargetTypeEnum targetType, long targetId);
 }

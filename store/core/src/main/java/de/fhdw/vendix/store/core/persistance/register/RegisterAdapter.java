@@ -1,17 +1,18 @@
 package de.fhdw.vendix.store.core.persistance.register;
 
-import de.fhdw.vendix.commons.spring.core.crud.AbstractCrudLogAdapter;
+import de.fhdw.vendix.commons.api.domain.register.dto.RegisterDTO;
+import de.fhdw.vendix.commons.spring.core.crud.AbstractDtoCrudAdapter;
 import org.springframework.stereotype.Service;
 
 @Service
-class RegisterAdapter extends AbstractCrudLogAdapter<Register, Long> {
+class RegisterAdapter extends AbstractDtoCrudAdapter<Register, RegisterDTO, Long> {
 
-    private final RegisterRepository registerRepository;
+    private final RegisterEntityAdapter registerEntityAdapter;
     private final RegisterMapper registerMapper;
 
-    public RegisterAdapter(RegisterRepository registerRepository, RegisterMapper registerMapper) {
-        super(registerRepository);
-        this.registerRepository = registerRepository;
+    RegisterAdapter(RegisterEntityAdapter registerEntityAdapter, RegisterMapper registerMapper) {
+        super(registerEntityAdapter, registerMapper);
+        this.registerEntityAdapter = registerEntityAdapter;
         this.registerMapper = registerMapper;
     }
 }

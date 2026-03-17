@@ -22,7 +22,7 @@ public class DistributedLockCleanupSchedule {
         log.atInfo().log("[SCHEDULED] Performing distributed lock cleanup...");
 
         // TODO: This can also be implemented in Postgres, or even better, redis
-        lockCommandPort.deleteAllExpiredLocks();
+        lockCommandPort.deleteAllByExpiresAtNow();
 
         log.atInfo().log("[SCHEDULED] Successfully performed distributed lock cleanup");
     }

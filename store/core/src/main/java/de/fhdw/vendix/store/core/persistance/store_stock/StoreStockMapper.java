@@ -16,7 +16,7 @@ import java.util.List;
                 ArticleMapper.class,
         }
 )
-public interface StoreStockMapper extends EntityMapper<Long, StoreStock, StoreStockDTO> {
+public interface StoreStockMapper extends EntityMapper<StoreStock, StoreStockDTO> {
 
     @Override
     StoreStockDTO toDTO(StoreStock entity);

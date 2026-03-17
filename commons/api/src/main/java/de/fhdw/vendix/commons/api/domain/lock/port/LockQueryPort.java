@@ -7,7 +7,8 @@ import de.fhdw.vendix.commons.api.structure.port.QueryPort;
 import java.util.Optional;
 
 public interface LockQueryPort extends QueryPort {
-    Optional<LockDTO> findByTargetTypeAndTargetID(TargetTypeEnum targetTypeEnum, long targetID);
 
     boolean existsByTargetTypeAndTargetID(TargetTypeEnum targetTypeEnum, long id);
+
+    Optional<LockDTO> findByTargetTypeAndTargetID(TargetTypeEnum targetTypeEnum, long targetID);
 }

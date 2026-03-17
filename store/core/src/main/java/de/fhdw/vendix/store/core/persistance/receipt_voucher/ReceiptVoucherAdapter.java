@@ -3,36 +3,37 @@ package de.fhdw.vendix.store.core.persistance.receipt_voucher;
 import de.fhdw.vendix.commons.api.domain.receipt_voucher.dto.ReceiptVoucherDTO;
 import de.fhdw.vendix.commons.api.domain.receipt_voucher.port.ReceiptVoucherCommandPort;
 import de.fhdw.vendix.commons.api.domain.receipt_voucher.port.ReceiptVoucherQueryPort;
-import de.fhdw.vendix.commons.spring.core.crud.AbstractCrudLogAdapter;
-import jakarta.persistence.EntityNotFoundException;
+import de.fhdw.vendix.commons.spring.core.crud.AbstractDtoCrudAdapter;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
 import java.util.UUID;
 
 @Service
-class ReceiptVoucherAdapter extends AbstractCrudLogAdapter<ReceiptVoucher, Long> implements ReceiptVoucherCommandPort, ReceiptVoucherQueryPort {
+class ReceiptVoucherAdapter extends AbstractDtoCrudAdapter<ReceiptVoucher, ReceiptVoucherDTO, Long> implements ReceiptVoucherQueryPort, ReceiptVoucherCommandPort {
 
-    private final ReceiptVoucherRepository receiptVoucherRepository;
+    private final ReceiptVoucherEntityAdapter receiptVoucherEntityAdapter;
     private final ReceiptVoucherMapper receiptVoucherMapper;
 
-    public ReceiptVoucherAdapter(ReceiptVoucherRepository receiptVoucherRepository, ReceiptVoucherMapper receiptVoucherMapper) {
-        super(receiptVoucherRepository);
-        this.receiptVoucherRepository = receiptVoucherRepository;
+    ReceiptVoucherAdapter(ReceiptVoucherEntityAdapter receiptVoucherEntityAdapter, ReceiptVoucherMapper receiptVoucherMapper) {
+        super(receiptVoucherEntityAdapter, receiptVoucherMapper);
+        this.receiptVoucherEntityAdapter = receiptVoucherEntityAdapter;
         this.receiptVoucherMapper = receiptVoucherMapper;
     }
 
     @Override
     public Optional<ReceiptVoucherDTO> findByCode(UUID code) {
-        return receiptVoucherRepository.findByCode(code)
-                .map(receiptVoucherMapper::toDTO);
+        if (code == null) {
+            return Optional.empty();
+        }
+        return receiptVoucherEntityAdapter.findByCode(code).map(receiptVoucherMapper::toDTO);
     }
 
     @Override
     public void redeemCode(UUID code) {
-        ReceiptVoucher voucher = receiptVoucherRepository.findByCode(code)
-                .map(ReceiptVoucher::redeem)
-                .orElseThrow(EntityNotFoundException::new);
-        super.update(voucher);
+        if (code == null) {
+            throw new IllegalArgumentException("Parameter 'code' cannot be null");
+        }
+        receiptVoucherEntityAdapter.redeemCode(code);
     }
 }

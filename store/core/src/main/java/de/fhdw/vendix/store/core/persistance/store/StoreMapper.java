@@ -8,7 +8,7 @@ import org.mapstruct.Mapper;
 import java.util.List;
 
 @Mapper(config = SpringMapperConfig.class)
-public interface StoreMapper extends EntityMapper<Long, Store, StoreDTO> {
+public interface StoreMapper extends EntityMapper<Store, StoreDTO> {
 
     @Override
     StoreDTO toDTO(Store entity);

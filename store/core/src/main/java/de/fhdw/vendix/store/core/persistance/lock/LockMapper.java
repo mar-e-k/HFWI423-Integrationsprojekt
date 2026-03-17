@@ -8,7 +8,7 @@ import org.mapstruct.Mapper;
 import java.util.List;
 
 @Mapper(config = SpringMapperConfig.class)
-public interface LockMapper extends EntityMapper<Long, Lock, LockDTO> {
+public interface LockMapper extends EntityMapper<Lock, LockDTO> {
 
     @Override
     LockDTO toDTO(Lock entity);

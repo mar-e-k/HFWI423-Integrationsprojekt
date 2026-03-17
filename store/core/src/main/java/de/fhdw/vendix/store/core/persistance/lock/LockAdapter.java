@@ -4,60 +4,76 @@ import de.fhdw.vendix.commons.api.domain.lock.dto.LockDTO;
 import de.fhdw.vendix.commons.api.domain.lock.dto.TargetTypeEnum;
 import de.fhdw.vendix.commons.api.domain.lock.port.LockCommandPort;
 import de.fhdw.vendix.commons.api.domain.lock.port.LockQueryPort;
-import de.fhdw.vendix.commons.spring.core.crud.AbstractCrudLogAdapter;
+import de.fhdw.vendix.commons.spring.core.crud.AbstractDtoCrudAdapter;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
 import java.util.UUID;
 
 @Service
-class LockAdapter extends AbstractCrudLogAdapter<Lock, Long> implements LockCommandPort, LockQueryPort {
+class LockAdapter extends AbstractDtoCrudAdapter<Lock, LockDTO, Long> implements LockQueryPort, LockCommandPort {
 
-    private final LockRepository lockRepository;
+    private final LockEntityAdapter lockEntityAdapter;
     private final LockMapper lockMapper;
 
-    protected LockAdapter(LockRepository lockRepository, LockMapper lockMapper) {
-        super(lockRepository);
-        this.lockRepository = lockRepository;
+    LockAdapter(LockEntityAdapter lockEntityAdapter, LockMapper lockMapper) {
+        super(lockEntityAdapter, lockMapper);
+        this.lockEntityAdapter = lockEntityAdapter;
         this.lockMapper = lockMapper;
     }
 
     @Override
-    public LockDTO create(LockDTO dto) {
-        Lock lock = lockMapper.toEntity(dto);
-        lock = super.create(lock);
-        return lockMapper.toDTO(lock);
-    }
-
-    @Override
-    public void deleteByTargetTypeAndTargetId(TargetTypeEnum targetTypeEnum, long targetId) {
-        lockRepository.deleteByTargetTypeAndTargetId(targetTypeEnum, targetId);
-    }
-
-    @Override
-    public void deleteAllByInstanceUUID(UUID instanceUUID) {
-        lockRepository.deleteAllByInstanceUUID(instanceUUID);
-    }
-
-    @Override
-    public void deleteAllExpiredLocks() {
-        lockRepository.deleteAllExpiredLocks();
-    }
-
-    @Override
-    public Optional<LockDTO> findByTargetTypeAndTargetID(TargetTypeEnum targetTypeEnum, long targetID) {
+    public Optional<LockDTO> findByTargetTypeAndTargetID(TargetTypeEnum targetTypeEnum, long targetId) {
         if (targetTypeEnum == null) {
-            throw new IllegalArgumentException("Parameter 'targetType' cannot be null.");
+            return Optional.empty();
         }
-        return lockRepository.findByTargetTypeAndTargetId(targetTypeEnum, targetID)
+        if (targetId < 0) {
+            return Optional.empty();
+        }
+        return lockEntityAdapter.findByTargetTypeAndTargetId(targetTypeEnum, targetId)
                 .map(lockMapper::toDTO);
     }
 
     @Override
-    public boolean existsByTargetTypeAndTargetID(TargetTypeEnum targetTypeEnum, long id) {
+    public boolean existsByTargetTypeAndTargetID(TargetTypeEnum targetTypeEnum, long targetId) {
         if (targetTypeEnum == null) {
-            throw new IllegalArgumentException("Parameter 'targetType' cannot be null.");
+            return false;
         }
-        return lockRepository.existsByTargetTypeAndTargetId(targetTypeEnum, id);
+        if (targetId < 0) {
+            return false;
+        }
+        return lockEntityAdapter.existsByTargetTypeAndTargetId(targetTypeEnum, targetId);
+    }
+
+    @Override
+    public LockDTO create(LockDTO dto) {
+        if (dto == null) {
+            throw new IllegalArgumentException("Parameter 'dto' cannot be null");
+        }
+        return super.create(dto);
+    }
+
+    @Override
+    public void deleteAllByExpiresAtNow() {
+        lockEntityAdapter.deleteAllByExpiresAtNow();
+    }
+
+    @Override
+    public void deleteAllByInstanceUUID(UUID instanceUUID) {
+        if (instanceUUID == null) {
+            throw new IllegalArgumentException("Parameter 'instanceUUID' cannot be null");
+        }
+        lockEntityAdapter.deleteAllByInstanceUUID(instanceUUID);
+    }
+
+    @Override
+    public void deleteByTargetTypeAndTargetId(TargetTypeEnum targetTypeEnum, long targetId) {
+        if (targetTypeEnum == null) {
+            throw new IllegalArgumentException("Parameter 'targetType' cannot be null");
+        }
+        if (targetId < 0) {
+            throw new IllegalArgumentException("Parameter 'targetId' cannot be negative");
+        }
+        lockEntityAdapter.deleteAllByTargetTypeAndTargetId(targetTypeEnum, targetId);
     }
 }

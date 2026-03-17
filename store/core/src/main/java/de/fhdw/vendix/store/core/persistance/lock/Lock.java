@@ -24,9 +24,9 @@ public class Lock extends AbstractSpringDataAuditingEntity<Long> {
     @NotNull
     private TargetTypeEnum targetType;
 
-    @Column(nullable = false, name = "target_id")
+    @Column(nullable = false)
     @NotNull
-    private long targetID;
+    private long targetId;
 
     @Column(nullable = false)
     @NotBlank
@@ -43,9 +43,9 @@ public class Lock extends AbstractSpringDataAuditingEntity<Long> {
 
     protected Lock() {}
 
-    protected Lock(TargetTypeEnum targetType, long targetID, UUID instanceUUID, Instant acquiredAt, Instant expiresAt) {
+    protected Lock(TargetTypeEnum targetType, long targetId, UUID instanceUUID, Instant acquiredAt, Instant expiresAt) {
         this.targetType = targetType;
-        this.targetID = targetID;
+        this.targetId = targetId;
         this.instanceUUID = instanceUUID;
         this.acquiredAt = acquiredAt;
         this.expiresAt = expiresAt;
@@ -55,8 +55,8 @@ public class Lock extends AbstractSpringDataAuditingEntity<Long> {
         return targetType;
     }
 
-    public Long getTargetID() {
-        return targetID;
+    public Long getTargetId() {
+        return targetId;
     }
 
     public UUID getInstanceUUID() {

@@ -1,9 +1,11 @@
 package de.fhdw.vendix.commons.api.structure.port;
 
+import de.fhdw.vendix.commons.api.structure.entity.Identifiable;
+
 import java.util.List;
 import java.util.Optional;
 
-public interface CrudQueryPort<T, ID> extends QueryPort {
+public interface CrudQueryPort<T extends Identifiable<ID>, ID> extends QueryPort {
 
     boolean exists(T entity);
 

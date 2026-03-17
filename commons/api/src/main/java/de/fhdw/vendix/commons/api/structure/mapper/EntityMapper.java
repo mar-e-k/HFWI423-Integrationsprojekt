@@ -5,10 +5,7 @@ import de.fhdw.vendix.commons.api.structure.entity.Identifiable;
 
 import java.util.List;
 
-public interface EntityMapper<
-        ID,
-        ENT extends Identifiable<ID>,
-        DTO extends DomainDTO<ID>> extends Mapper {
+public interface EntityMapper<ENT extends Identifiable<?>, DTO extends DomainDTO<?>> extends Mapper {
 
     DTO toDTO(ENT entity);
 

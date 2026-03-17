@@ -24,21 +24,21 @@ class ArticleController {
         this.articleQueryPort = articleQueryPort;
     }
 
-    @GetMapping(ArticleEndpoints.BY_ID)
-    @Operation(summary = "Get article by id")
-    public ResponseEntity<ArticleDTO> getArticleById(@PathVariable Long id) {
-        return ResponseEntity
-                .status(HttpStatus.OK)
-                .body(articleQueryPort.findByID(id)
-                        .orElseThrow(EntityNotFoundException::new));
-    }
-
-    @GetMapping(ArticleEndpoints.BY_GTIN)
-    @Operation(summary = "Get article by GTIN")
-    public ResponseEntity<ArticleDTO> getArticleByGTIN(@PathVariable long gtin) {
-        return ResponseEntity
-                .status(HttpStatus.OK)
-                .body(articleQueryPort.findByGTIN(gtin)
-                        .orElseThrow(EntityNotFoundException::new));
-    }
+//    @GetMapping(ArticleEndpoints.BY_ID)
+//    @Operation(summary = "Get article by id")
+//    public ResponseEntity<ArticleDTO> getArticleById(@PathVariable Long id) {
+//        return ResponseEntity
+//                .status(HttpStatus.OK)
+//                .body(articleQueryPort.findById(id)
+//                        .orElseThrow(EntityNotFoundException::new));
+//    }
+//
+//    @GetMapping(ArticleEndpoints.BY_GTIN)
+//    @Operation(summary = "Get article by GTIN")
+//    public ResponseEntity<ArticleDTO> getArticleByGTIN(@PathVariable long gtin) {
+//        return ResponseEntity
+//                .status(HttpStatus.OK)
+//                .body(articleQueryPort.findByGtin(gtin)
+//                        .orElseThrow(EntityNotFoundException::new));
+//    }
 }

@@ -18,7 +18,7 @@ import java.util.List;
                 AccountMapper.class,
         }
 )
-public interface ReceiptMapper extends EntityMapper<Long, Receipt, ReceiptDTO> {
+public interface ReceiptMapper extends EntityMapper<Receipt, ReceiptDTO> {
 
     @Override
     ReceiptDTO toDTO(Receipt entity);

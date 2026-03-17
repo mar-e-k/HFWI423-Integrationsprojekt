@@ -8,7 +8,7 @@ import org.mapstruct.Mapper;
 import java.util.List;
 
 @Mapper(config = SpringMapperConfig.class)
-public interface AccountMapper extends EntityMapper<Long, Account, AccountDTO> {
+public interface AccountMapper extends EntityMapper<Account, AccountDTO> {
 
     @Override
     AccountDTO toDTO(Account entity);

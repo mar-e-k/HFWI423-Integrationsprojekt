@@ -11,30 +11,26 @@ import java.util.Optional;
 import java.util.function.Function;
 import java.util.function.UnaryOperator;
 
-public abstract class AbstractMappedCrudAdapter<T extends Identifiable<ID>, ID, D extends Record & DomainDTO<ID>>
-        implements CrudQueryPort<D, ID>, CrudCommandPort<D, ID> {
+public abstract class AbstractDtoCrudAdapter<ENT extends Identifiable<ID>, DTO extends Record & DomainDTO<ID>, ID> implements CrudQueryPort<DTO, ID>, CrudCommandPort<DTO, ID> {
 
-    private final CrudQueryPort<T, ID> queryPort;
-    private final CrudCommandPort<T, ID> commandPort;
-    private final EntityMapper<ID, T, D> mapper;
+    private final CrudQueryPort<ENT, ID> queryPort;
+    private final CrudCommandPort<ENT, ID> commandPort;
+    private final EntityMapper<ENT, DTO> mapper;
 
-    protected AbstractMappedCrudAdapter(CrudQueryPort<T, ID> queryPort, CrudCommandPort<T, ID> commandPort, EntityMapper<ID, T, D> mapper) {
-        if (queryPort == null) {
-            throw new IllegalArgumentException("Parameter 'queryPort' cannot be null");
-        }
-        if (commandPort == null) {
-            throw new IllegalArgumentException("Parameter 'commandPort' cannot be null");
-        }
-        if (mapper == null) {
-            throw new IllegalArgumentException("Parameter 'mapper' cannot be null");
-        }
+    protected AbstractDtoCrudAdapter(CrudQueryPort<ENT, ID> queryPort, CrudCommandPort<ENT, ID> commandPort, EntityMapper<ENT, DTO> mapper) {
         this.queryPort = queryPort;
         this.commandPort = commandPort;
         this.mapper = mapper;
     }
 
+    protected <P extends CrudQueryPort<ENT, ID> & CrudCommandPort<ENT, ID>> AbstractDtoCrudAdapter(P adapter, EntityMapper<ENT, DTO> mapper) {
+        this.queryPort = adapter;
+        this.commandPort = adapter;
+        this.mapper = mapper;
+    }
+
     @Override
-    public D create(D dto) {
+    public DTO create(DTO dto) {
         if (dto == null) {
             throw new IllegalArgumentException("Parameter 'dto' cannot be null");
         }
@@ -42,7 +38,7 @@ public abstract class AbstractMappedCrudAdapter<T extends Identifiable<ID>, ID, 
     }
 
     @Override
-    public List<D> createAll(Iterable<D> dtos) {
+    public List<DTO> createAll(Iterable<DTO> dtos) {
         if (dtos == null) {
             throw new IllegalArgumentException("Parameter 'dtos' cannot be null");
         }
@@ -50,7 +46,7 @@ public abstract class AbstractMappedCrudAdapter<T extends Identifiable<ID>, ID, 
     }
 
     @Override
-    public D update(D dto) {
+    public DTO update(DTO dto) {
         if (dto == null) {
             throw new IllegalArgumentException("Parameter 'dto' cannot be null");
         }
@@ -58,7 +54,7 @@ public abstract class AbstractMappedCrudAdapter<T extends Identifiable<ID>, ID, 
     }
 
     @Override
-    public List<D> updateAll(Iterable<D> dtos) {
+    public List<DTO> updateAll(Iterable<DTO> dtos) {
         if (dtos == null) {
             throw new IllegalArgumentException("Parameter 'dtos' cannot be null");
         }
@@ -66,11 +62,11 @@ public abstract class AbstractMappedCrudAdapter<T extends Identifiable<ID>, ID, 
     }
 
     @Override
-    public void delete(D dto) {
+    public void delete(DTO dto) {
         if (dto == null) {
             throw new IllegalArgumentException("Parameter 'dto' cannot be null");
         }
-        T entity = mapper.toEntity(dto);
+        ENT entity = mapper.toEntity(dto);
         commandPort.delete(entity);
     }
 
@@ -88,11 +84,11 @@ public abstract class AbstractMappedCrudAdapter<T extends Identifiable<ID>, ID, 
     }
 
     @Override
-    public void deleteAll(Iterable<D> dtos) {
+    public void deleteAll(Iterable<DTO> dtos) {
         if (dtos == null) {
             throw new IllegalArgumentException("Parameter 'dtos' cannot be null");
         }
-        List<T> bases = mapper.toEntities(dtos);
+        List<ENT> bases = mapper.toEntities(dtos);
         commandPort.deleteAll(bases);
     }
 
@@ -105,7 +101,7 @@ public abstract class AbstractMappedCrudAdapter<T extends Identifiable<ID>, ID, 
     }
 
     @Override
-    public boolean exists(D dto) {
+    public boolean exists(DTO dto) {
         if (dto == null) {
             return false;
         }
@@ -128,12 +124,12 @@ public abstract class AbstractMappedCrudAdapter<T extends Identifiable<ID>, ID, 
     }
 
     @Override
-    public boolean existsAll(Iterable<D> dtos) {
+    public boolean existsAll(Iterable<DTO> dtos) {
         if (dtos == null) {
             return false;
         }
 
-        List<T> bases = mapper.toEntities(dtos);
+        List<ENT> bases = mapper.toEntities(dtos);
         return queryPort.existsAll(bases);
     }
 
@@ -147,7 +143,7 @@ public abstract class AbstractMappedCrudAdapter<T extends Identifiable<ID>, ID, 
     }
 
     @Override
-    public Optional<D> find(D dto) {
+    public Optional<DTO> find(DTO dto) {
         if (dto == null) {
             return Optional.empty();
         }
@@ -161,7 +157,7 @@ public abstract class AbstractMappedCrudAdapter<T extends Identifiable<ID>, ID, 
     }
 
     @Override
-    public Optional<D> findById(ID id) {
+    public Optional<DTO> findById(ID id) {
         if (id == null) {
             return Optional.empty();
         }
@@ -170,21 +166,21 @@ public abstract class AbstractMappedCrudAdapter<T extends Identifiable<ID>, ID, 
     }
 
     @Override
-    public List<D> findAll() {
+    public List<DTO> findAll() {
         return mapper.toDTOs(queryPort.findAll());
     }
 
     @Override
-    public List<D> findAll(Iterable<D> dtos) {
+    public List<DTO> findAll(Iterable<DTO> dtos) {
         if (dtos == null) {
             throw new IllegalArgumentException("Parameter 'dtos' cannot be null");
         }
-        List<T> entities = mapper.toEntities(dtos);
+        List<ENT> entities = mapper.toEntities(dtos);
         return mapper.toDTOs(queryPort.findAll(entities));
     }
 
     @Override
-    public List<D> findAllById(Iterable<ID> ids) {
+    public List<DTO> findAllById(Iterable<ID> ids) {
         if (ids == null) {
             throw new IllegalArgumentException("Parameter 'ids' cannot be null");
         }
@@ -196,7 +192,15 @@ public abstract class AbstractMappedCrudAdapter<T extends Identifiable<ID>, ID, 
         return queryPort.count();
     }
 
-    private D applyEntityOperation(D dto, UnaryOperator<T> operation) {
+
+    /**
+     * Performs an operation with the dto where the dto has to be converted to an entity beforehand.
+     * A usual transformation flow of the dto is: DTO --[map]--> Entity --[operation]--> Entity --[map]--> DTO
+     * @param dto to be converted to an entity
+     * @param operation to be used on the converted dto
+     * @return the transformed dto, after an operation has been done with it
+     */
+    private DTO applyEntityOperation(DTO dto, UnaryOperator<ENT> operation) {
         if (dto == null) {
             throw new IllegalArgumentException("Parameter 'dto' cannot be null");
         }
@@ -204,12 +208,19 @@ public abstract class AbstractMappedCrudAdapter<T extends Identifiable<ID>, ID, 
             throw new IllegalArgumentException("Parameter 'operation' cannot be null");
         }
 
-        T entity = mapper.toEntity(dto);
-        T result = operation.apply(entity);
+        ENT entity = mapper.toEntity(dto);
+        ENT result = operation.apply(entity);
         return mapper.toDTO(result);
     }
 
-    private List<D> applyEntityOperation(Iterable<D> dtos, Function<Iterable<T>, Iterable<T>> operation) {
+    /**
+     * Performs an operation with the list of dtos where the dto has to be converted to an entity beforehand.
+     * A usual transformation flow of the dto is: DTO --[map]--> Entity --[operation]--> Entity --[map]--> DTO
+     * @param dtos to be converted to an entity
+     * @param operation to be used on the converted dto
+     * @return the transformed dtos, after an operation has been done with them
+     */
+    private List<DTO> applyEntityOperation(Iterable<DTO> dtos, Function<Iterable<ENT>, Iterable<ENT>> operation) {
         if (dtos == null) {
             throw new IllegalArgumentException("Parameter 'dtos' cannot be null");
         }
@@ -217,8 +228,8 @@ public abstract class AbstractMappedCrudAdapter<T extends Identifiable<ID>, ID, 
             throw new IllegalArgumentException("Parameter 'operation' cannot be null");
         }
 
-        List<T> entities = mapper.toEntities(dtos);
-        Iterable<T> result = operation.apply(entities);
+        List<ENT> entities = mapper.toEntities(dtos);
+        Iterable<ENT> result = operation.apply(entities);
         return mapper.toDTOs(result);
     }
 }

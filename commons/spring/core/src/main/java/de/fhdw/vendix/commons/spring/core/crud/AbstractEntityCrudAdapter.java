@@ -13,21 +13,19 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.StreamSupport;
 
-public abstract class AbstractCrudAdapter<T extends Identifiable<ID>, ID>
-        implements CrudQueryPort<T, ID>, CrudCommandPort<T, ID> {
+public abstract class AbstractEntityCrudAdapter<ENT extends Identifiable<ID>, ID>
+        extends OperationHook<ENT>
+        implements CrudQueryPort<ENT, ID>, CrudCommandPort<ENT, ID> {
 
-    private final ListCrudRepository<T, ID> repository;
+    private final ListCrudRepository<ENT, ID> repository;
 
-    protected AbstractCrudAdapter(ListCrudRepository<T, ID> repository) {
-        if (repository == null) {
-            throw new IllegalArgumentException("Parameter 'repository' cannot be null");
-        }
+    protected AbstractEntityCrudAdapter(ListCrudRepository<ENT, ID> repository) {
         this.repository = repository;
     }
 
     @Override
     @Transactional
-    public T create(T entity) {
+    public ENT create(ENT entity) {
         if (entity == null) {
             throw new IllegalArgumentException("Parameter 'entity' cannot be null");
         }
@@ -38,7 +36,7 @@ public abstract class AbstractCrudAdapter<T extends Identifiable<ID>, ID>
         }
 
         beforeCreate(entity);
-        T created = repository.save(entity);
+        ENT created = repository.save(entity);
         afterCreate(created);
 
         return created;
@@ -46,18 +44,18 @@ public abstract class AbstractCrudAdapter<T extends Identifiable<ID>, ID>
 
     @Override
     @Transactional
-    public List<T> createAll(Iterable<T> entities) {
+    public List<ENT> createAll(Iterable<ENT> entities) {
         if (entities == null) {
             throw new IllegalArgumentException("Parameter 'entities' cannot be null");
         }
 
-        for (T entity : entities) {
+        for (ENT entity : entities) {
             if (entity == null) {
                 throw new IllegalArgumentException("Parameter 'entities' contains null 'entity'");
             }
             beforeCreate(entity);
         }
-        List<T> created = repository.saveAll(entities);
+        List<ENT> created = repository.saveAll(entities);
         created.forEach(this::afterCreate);
 
         return created;
@@ -65,7 +63,7 @@ public abstract class AbstractCrudAdapter<T extends Identifiable<ID>, ID>
 
     @Override
     @Transactional
-    public T update(T entity) {
+    public ENT update(ENT entity) {
         if (entity == null) {
             throw new IllegalArgumentException("Parameter 'entity' cannot be null");
         }
@@ -79,7 +77,7 @@ public abstract class AbstractCrudAdapter<T extends Identifiable<ID>, ID>
         }
 
         beforeUpdate(entity);
-        T updated = repository.save(entity);
+        ENT updated = repository.save(entity);
         afterUpdate(updated);
 
         return updated;
@@ -87,12 +85,12 @@ public abstract class AbstractCrudAdapter<T extends Identifiable<ID>, ID>
 
     @Override
     @Transactional
-    public List<T> updateAll(Iterable<T> entities) {
+    public List<ENT> updateAll(Iterable<ENT> entities) {
         if (entities == null) {
             throw new IllegalArgumentException("Parameter 'entities' cannot be null");
         }
 
-        for (T entity : entities) {
+        for (ENT entity : entities) {
             if (entity == null) {
                 throw new IllegalArgumentException("Parameter 'entities' contains a null 'entity'");
             }
@@ -101,7 +99,7 @@ public abstract class AbstractCrudAdapter<T extends Identifiable<ID>, ID>
             }
             beforeUpdate(entity);
         }
-        List<T> updated = repository.saveAll(entities);
+        List<ENT> updated = repository.saveAll(entities);
         updated.forEach(this::afterUpdate);
 
         return updated;
@@ -109,7 +107,7 @@ public abstract class AbstractCrudAdapter<T extends Identifiable<ID>, ID>
 
     @Override
     @Transactional
-    public void delete(T entity) {
+    public void delete(ENT entity) {
         if (entity == null) {
             throw new IllegalArgumentException("Parameter 'entity' cannot be null");
         }
@@ -126,7 +124,7 @@ public abstract class AbstractCrudAdapter<T extends Identifiable<ID>, ID>
             throw new IllegalArgumentException("Parameter 'id' cannot be null");
         }
 
-        T deleted = repository.findById(id)
+        ENT deleted = repository.findById(id)
                 .orElseThrow(EntityNotFoundException::new);
 
         beforeDelete(deleted);
@@ -137,7 +135,7 @@ public abstract class AbstractCrudAdapter<T extends Identifiable<ID>, ID>
     @Override
     @Transactional
     public void deleteAll() {
-        List<T> deleted = repository.findAll();
+        List<ENT> deleted = repository.findAll();
 
         deleted.forEach(this::beforeDelete);
         repository.deleteAll();
@@ -146,12 +144,12 @@ public abstract class AbstractCrudAdapter<T extends Identifiable<ID>, ID>
 
     @Override
     @Transactional
-    public void deleteAll(Iterable<T> entities) {
+    public void deleteAll(Iterable<ENT> entities) {
         if (entities == null) {
             throw new IllegalArgumentException("Parameter 'entities' cannot be null");
         }
 
-        List<T> deleted = findAll(entities);
+        List<ENT> deleted = findAll(entities);
 
         deleted.forEach(this::beforeDelete);
         repository.deleteAll(entities);
@@ -165,7 +163,7 @@ public abstract class AbstractCrudAdapter<T extends Identifiable<ID>, ID>
             throw new IllegalArgumentException("Parameter 'ids' cannot be null");
         }
 
-        List<T> deleted = findAllById(ids);
+        List<ENT> deleted = findAllById(ids);
 
         deleted.forEach(this::beforeDelete);
         repository.deleteAllById(ids);
@@ -174,7 +172,7 @@ public abstract class AbstractCrudAdapter<T extends Identifiable<ID>, ID>
 
     @Override
     @Transactional(readOnly = true)
-    public boolean exists(T entity) {
+    public boolean exists(ENT entity) {
         if (entity == null) {
             return false;
         }
@@ -199,13 +197,13 @@ public abstract class AbstractCrudAdapter<T extends Identifiable<ID>, ID>
 
     @Override
     @Transactional(readOnly = true)
-    public boolean existsAll(Iterable<T> entities) {
+    public boolean existsAll(Iterable<ENT> entities) {
         if (entities == null) {
             throw new IllegalArgumentException("Parameter 'entities' cannot be null");
         }
 
         List<ID> ids = new ArrayList<>();
-        for (T entity : entities) {
+        for (ENT entity : entities) {
             if (entity == null) {
                 return false;
             }
@@ -228,13 +226,13 @@ public abstract class AbstractCrudAdapter<T extends Identifiable<ID>, ID>
             throw new IllegalArgumentException("Parameter 'ids' cannot be null");
         }
 
-        List<T> found = repository.findAllById(ids);
+        List<ENT> found = repository.findAllById(ids);
         return found.size() == StreamSupport.stream(ids.spliterator(), false).count();
     }
 
     @Override
     @Transactional(readOnly = true)
-    public Optional<T> find(T entity) {
+    public Optional<ENT> find(ENT entity) {
         if (entity == null) {
             return Optional.empty();
         }
@@ -249,7 +247,7 @@ public abstract class AbstractCrudAdapter<T extends Identifiable<ID>, ID>
 
     @Override
     @Transactional(readOnly = true)
-    public Optional<T> findById(ID id) {
+    public Optional<ENT> findById(ID id) {
         if (id == null) {
             return Optional.empty();
         }
@@ -259,13 +257,13 @@ public abstract class AbstractCrudAdapter<T extends Identifiable<ID>, ID>
 
     @Override
     @Transactional(readOnly = true)
-    public List<T> findAll() {
+    public List<ENT> findAll() {
         return repository.findAll();
     }
 
     @Override
     @Transactional(readOnly = true)
-    public List<T> findAll(Iterable<T> entities) {
+    public List<ENT> findAll(Iterable<ENT> entities) {
         if (entities == null) {
             throw new IllegalArgumentException("Parameter 'entities' cannot be null");
         }
@@ -276,7 +274,7 @@ public abstract class AbstractCrudAdapter<T extends Identifiable<ID>, ID>
 
     @Override
     @Transactional(readOnly = true)
-    public List<T> findAllById(Iterable<ID> ids) {
+    public List<ENT> findAllById(Iterable<ID> ids) {
         if (ids == null) {
             throw new IllegalArgumentException("Parameter 'ids' cannot be null");
         }
@@ -289,9 +287,9 @@ public abstract class AbstractCrudAdapter<T extends Identifiable<ID>, ID>
         return repository.count();
     }
 
-    private List<ID> extractIds(Iterable<T> entities) {
+    private List<ID> extractIds(Iterable<ENT> entities) {
         List<ID> ids = new ArrayList<>();
-        for (T entity : entities) {
+        for (ENT entity : entities) {
             if (entity == null) {
                 throw new IllegalArgumentException("Parameter 'entities' contains a null entity");
             }
@@ -306,16 +304,4 @@ public abstract class AbstractCrudAdapter<T extends Identifiable<ID>, ID>
         }
         return ids;
     }
-
-    protected void beforeCreate(T entity) {}
-
-    protected void afterCreate(T entity) {}
-
-    protected void beforeUpdate(T entity) {}
-
-    protected void afterUpdate(T entity) {}
-
-    protected void beforeDelete(T entity) {}
-
-    protected void afterDelete(T entity) {}
 }
