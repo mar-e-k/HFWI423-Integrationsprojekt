@@ -26,6 +26,7 @@ public final class DefaultUserDetailsService implements UserDetailsService {
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+        System.out.println("Trying for username");
         AccountDTO accountDTO = accountQueryPort.findByUsername(username)
                 .orElseThrow(() -> new UsernameNotFoundException(username));
 

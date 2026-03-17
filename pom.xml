@@ -29,6 +29,9 @@
 
     <properties>
         <java.version>25</java.version>
+        <!-- Module Versions -->
+        <commons.version>1.0.0</commons.version>
+        <store.version>1.0.0</store.version>
         <!-- Dependency Versions -->
         <vaadin.version>25.0.5</vaadin.version>
         <swagger.version>2.2.42</swagger.version>

@@ -17,17 +17,17 @@
     <dependencies>
         <dependency>
             <groupId>de.fhdw.vendix</groupId>
-            <artifactId>commons-ui-core</artifactId>
+            <artifactId>commons-security-spring</artifactId>
         </dependency>
 
         <dependency>
             <groupId>de.fhdw.vendix</groupId>
-            <artifactId>commons-security-api</artifactId>
+            <artifactId>commons-ui-core</artifactId>
         </dependency>
 
         <dependency>
             <groupId>com.vaadin</groupId>
-            <artifactId>vaadin-core</artifactId>
+            <artifactId>vaadin-spring-boot-starter</artifactId>
         </dependency>
     </dependencies>
 

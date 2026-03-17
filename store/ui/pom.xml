@@ -17,12 +17,12 @@
     <dependencies>
         <dependency>
             <groupId>de.fhdw.vendix</groupId>
-            <artifactId>store-core</artifactId>
+            <artifactId>commons-ui-vaadin</artifactId>
         </dependency>
 
         <dependency>
-            <groupId>com.vaadin</groupId>
-            <artifactId>vaadin-spring-boot-starter</artifactId>
+            <groupId>de.fhdw.vendix</groupId>
+            <artifactId>store-core</artifactId>
         </dependency>
     </dependencies>
 

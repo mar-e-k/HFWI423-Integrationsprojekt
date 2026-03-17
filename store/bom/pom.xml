@@ -1,44 +1,45 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
-    <parent>
-        <groupId>de.fhdw.vendix</groupId>
-        <artifactId>vendix-parent</artifactId>
-        <version>1.0.0</version>
-    </parent>
 
+    <groupId>de.fhdw.vendix</groupId>
     <artifactId>store-bom</artifactId>
+    <version>1.0.0</version>
     <packaging>pom</packaging>
 
     <name>store-bom</name>
     <description>store-bom</description>
+
+    <properties>
+        <store.version>${project.version}</store.version>
+    </properties>
 
     <dependencyManagement>
         <dependencies>
             <dependency>
                 <groupId>de.fhdw.vendix</groupId>
                 <artifactId>store-app</artifactId>
-                <version>${project.version}</version>
+                <version>${store.version}</version>
             </dependency>
             <dependency>
                 <groupId>de.fhdw.vendix</groupId>
                 <artifactId>store-commons</artifactId>
-                <version>${project.version}</version>
+                <version>${store.version}</version>
             </dependency>
             <dependency>
                 <groupId>de.fhdw.vendix</groupId>
                 <artifactId>store-core</artifactId>
-                <version>${project.version}</version>
+                <version>${store.version}</version>
             </dependency>
             <dependency>
                 <groupId>de.fhdw.vendix</groupId>
                 <artifactId>store-ui</artifactId>
-                <version>${project.version}</version>
+                <version>${store.version}</version>
             </dependency>
             <dependency>
                 <groupId>de.fhdw.vendix</groupId>
                 <artifactId>store-web</artifactId>
-                <version>${project.version}</version>
+                <version>${store.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>

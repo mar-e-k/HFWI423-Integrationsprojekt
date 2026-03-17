@@ -2,17 +2,17 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <parent>
-        <groupId>de.fhdw.vendix</groupId>
-        <artifactId>vendix-parent</artifactId>
-        <version>1.0.0</version>
-    </parent>
-
+    <groupId>de.fhdw.vendix</groupId>
     <artifactId>commons-bom</artifactId>
+    <version>1.0.0</version>
     <packaging>pom</packaging>
 
     <name>commons-bom</name>
     <description>commons-bom</description>
+
+    <properties>
+        <commons.version>${project.version}</commons.version>
+    </properties>
 
     <dependencyManagement>
         <dependencies>
@@ -20,51 +20,51 @@
             <dependency>
                 <groupId>de.fhdw.vendix</groupId>
                 <artifactId>commons-api</artifactId>
-                <version>${project.version}</version>
+                <version>${commons.version}</version>
             </dependency>
             <!-- commons-core -->
             <dependency>
                 <groupId>de.fhdw.vendix</groupId>
                 <artifactId>commons-core</artifactId>
-                <version>${project.version}</version>
+                <version>${commons.version}</version>
             </dependency>
             <!-- commons-security -->
             <dependency>
                 <groupId>de.fhdw.vendix</groupId>
                 <artifactId>commons-security-api</artifactId>
-                <version>${project.version}</version>
+                <version>${commons.version}</version>
             </dependency>
             <dependency>
                 <groupId>de.fhdw.vendix</groupId>
                 <artifactId>commons-security-core</artifactId>
-                <version>${project.version}</version>
+                <version>${commons.version}</version>
             </dependency>
             <dependency>
                 <groupId>de.fhdw.vendix</groupId>
                 <artifactId>commons-security-spring</artifactId>
-                <version>${project.version}</version>
+                <version>${commons.version}</version>
             </dependency>
             <!-- commons-spring -->
             <dependency>
                 <groupId>de.fhdw.vendix</groupId>
                 <artifactId>commons-spring-core</artifactId>
-                <version>${project.version}</version>
+                <version>${commons.version}</version>
             </dependency>
             <dependency>
                 <groupId>de.fhdw.vendix</groupId>
                 <artifactId>commons-spring-starter</artifactId>
-                <version>${project.version}</version>
+                <version>${commons.version}</version>
             </dependency>
             <!-- commons-ui -->
             <dependency>
                 <groupId>de.fhdw.vendix</groupId>
                 <artifactId>commons-ui-core</artifactId>
-                <version>${project.version}</version>
+                <version>${commons.version}</version>
             </dependency>
             <dependency>
                 <groupId>de.fhdw.vendix</groupId>
                 <artifactId>commons-ui-vaadin</artifactId>
-                <version>${project.version}</version>
+                <version>${commons.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>

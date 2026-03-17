@@ -1,0 +1,24 @@
+.scrolling-bar-wrapper {
+    overflow: hidden;
+    white-space: nowrap;
+    width: 100%;
+    position: relative;
+    height: 40px;
+    background-color: #333;
+    color: #fff;
+}
+
+.scrolling-bar-text {
+    display: inline-block;
+    padding-left: 100%;
+    animation: scrollText 15s linear infinite;
+}
+
+@keyframes scrollText {
+    0% { transform: translateX(0%); }
+    100% { transform: translateX(-100%); }
+}
+
+.scrolling-bar-wrapper:hover .scrolling-bar-text {
+    animation-play-state: paused;
+}
