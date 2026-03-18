@@ -31,6 +31,14 @@ public class ReceiptVoucher extends AbstractSpringDataAuditingEntity<Long> {
         this.redeemedAt = redeemedAt;
     }
 
+    protected ReceiptVoucher(Long id, Receipt receipt, UUID code, Instant expiresAt, Instant redeemedAt) {
+        super(id);
+        this.receipt = receipt;
+        this.code = code;
+        this.expiresAt = expiresAt;
+        this.redeemedAt = redeemedAt;
+    }
+
     public Receipt getReceipt() {
         return receipt;
     }

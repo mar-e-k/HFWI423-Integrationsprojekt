@@ -74,20 +74,53 @@ public class Article implements Identifiable<Long> {
     @Column(name = "has_deposit", nullable = false)
     private boolean hasDeposit = false;
 
-    protected Article() {}
+    protected Article() {
+    }
 
-    protected Article(String articleNumber,
-                   String description,
-                   String manufacturer,
-                   String name,
-                   Double purchasePrice,
-                   Double sellingPrice,
-                   Integer stockLevel,
-                   String supplier,
-                   Double taxRatePercent,
-                   String unit,
-                   Boolean isAvailable,
-                   boolean hasDeposit) {
+    protected Article(
+            String articleNumber,
+            String description,
+            String manufacturer,
+            String name,
+            Double purchasePrice,
+            Double sellingPrice,
+            Integer stockLevel,
+            String supplier,
+            Double taxRatePercent,
+            String unit,
+            Boolean isAvailable,
+            boolean hasDeposit
+    ) {
+        this.articleNumber = articleNumber;
+        this.description = description;
+        this.manufacturer = manufacturer;
+        this.name = name;
+        this.purchasePrice = purchasePrice;
+        this.sellingPrice = sellingPrice;
+        this.stockLevel = stockLevel;
+        this.supplier = supplier;
+        this.taxRatePercent = taxRatePercent;
+        this.unit = unit;
+        this.isAvailable = isAvailable;
+        this.hasDeposit = hasDeposit;
+    }
+
+    protected Article(
+            Long id,
+            String articleNumber,
+            String description,
+            String manufacturer,
+            String name,
+            Double purchasePrice,
+            Double sellingPrice,
+            Integer stockLevel,
+            String supplier,
+            Double taxRatePercent,
+            String unit,
+            Boolean isAvailable,
+            boolean hasDeposit
+    ) {
+        this.id = id;
         this.articleNumber = articleNumber;
         this.description = description;
         this.manufacturer = manufacturer;

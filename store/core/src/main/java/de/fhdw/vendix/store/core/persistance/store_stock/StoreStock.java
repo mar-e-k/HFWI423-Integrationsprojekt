@@ -28,7 +28,29 @@ public class StoreStock extends AbstractSpringDataAuditingEntity<Long> {
 
     protected StoreStock() {}
 
-    protected StoreStock(Store store, Article article, long currentAmount, PreferenceAmount preferenceAmount, boolean isActive) {
+    protected StoreStock(
+            Store store,
+            Article article,
+            long currentAmount,
+            PreferenceAmount preferenceAmount,
+            boolean isActive
+    ) {
+        this.store = store;
+        this.article = article;
+        this.currentAmount = currentAmount;
+        this.preferenceAmount = preferenceAmount;
+        this.isActive = isActive;
+    }
+
+    protected StoreStock(
+            Long id,
+            Store store,
+            Article article,
+            long currentAmount,
+            PreferenceAmount preferenceAmount,
+            boolean isActive
+    ) {
+        super(id);
         this.store = store;
         this.article = article;
         this.currentAmount = currentAmount;

@@ -1,4 +1,4 @@
-package de.fhdw.vendix.commons.ui.vaadin.components;
+package de.fhdw.vendix.commons.ui.vaadin.component;
 
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;

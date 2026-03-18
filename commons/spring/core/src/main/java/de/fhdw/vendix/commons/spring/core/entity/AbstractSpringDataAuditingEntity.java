@@ -29,6 +29,10 @@ public abstract class AbstractSpringDataAuditingEntity<ID> extends AbstractSprin
 
     protected AbstractSpringDataAuditingEntity() {}
 
+    protected AbstractSpringDataAuditingEntity(ID id) {
+        super(id);
+    }
+
     public Instant getCreatedAt() {
         return createdAt;
     }

@@ -10,4 +10,8 @@ public abstract class AbstractSpringDataVersioningEntity<ID> extends AbstractSpr
     private Long version;
 
     protected AbstractSpringDataVersioningEntity() {}
+
+    protected AbstractSpringDataVersioningEntity(ID id) {
+        super(id);
+    }
 }

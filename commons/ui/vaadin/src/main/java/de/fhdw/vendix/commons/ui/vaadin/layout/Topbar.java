@@ -4,8 +4,8 @@ import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.html.H1;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
-import de.fhdw.vendix.commons.ui.vaadin.components.LiveClockComponent;
-import de.fhdw.vendix.commons.ui.vaadin.components.ThemeToggleComponent;
+import de.fhdw.vendix.commons.ui.vaadin.component.LiveClockComponent;
+import de.fhdw.vendix.commons.ui.vaadin.component.ThemeToggleComponent;
 
 public final class Topbar extends HorizontalLayout {
 

@@ -25,6 +25,12 @@ public class AccountRoleAssignment extends AbstractSpringDataAuditingEntity<Long
         this.role = role;
     }
 
+    protected AccountRoleAssignment(Long id, Account account, AccountRole role) {
+        super(id);
+        this.account = account;
+        this.role = role;
+    }
+
     public Account getAccount() {
         return account;
     }

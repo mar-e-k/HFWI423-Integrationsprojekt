@@ -26,6 +26,11 @@ public class Register extends AbstractSpringDataAuditingEntity<Long> {
         this.store = store;
     }
 
+    protected Register(Long id, Store store) {
+        super(id);
+        this.store = store;
+    }
+
     public Store getStore() {
         return store;
     }

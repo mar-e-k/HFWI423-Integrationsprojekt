@@ -39,6 +39,13 @@ public class Receipt extends AbstractSpringDataAuditingEntity<Long> {
         this.cashier = cashier;
     }
 
+    protected Receipt(Long id, Store store, Register register, Account cashier) {
+        super(id);
+        this.store = store;
+        this.register = register;
+        this.cashier = cashier;
+    }
+
     public Store getStore() {
         return store;
     }

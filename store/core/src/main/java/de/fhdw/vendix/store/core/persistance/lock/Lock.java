@@ -51,6 +51,15 @@ public class Lock extends AbstractSpringDataAuditingEntity<Long> {
         this.expiresAt = expiresAt;
     }
 
+    protected Lock(Long id, TargetTypeEnum targetType, long targetId, UUID instanceUUID, Instant acquiredAt, Instant expiresAt) {
+        super(id);
+        this.targetType = targetType;
+        this.targetId = targetId;
+        this.instanceUUID = instanceUUID;
+        this.acquiredAt = acquiredAt;
+        this.expiresAt = expiresAt;
+    }
+
     public TargetTypeEnum getTargetType() {
         return targetType;
     }

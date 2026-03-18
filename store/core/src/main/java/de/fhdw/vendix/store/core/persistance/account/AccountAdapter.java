@@ -5,14 +5,11 @@ import de.fhdw.vendix.commons.api.domain.account.port.AccountCommandPort;
 import de.fhdw.vendix.commons.api.domain.account.port.AccountQueryPort;
 import de.fhdw.vendix.commons.api.domain.account_role.dto.AccountRoleEnum;
 import de.fhdw.vendix.commons.spring.core.crud.AbstractDtoCrudAdapter;
-import de.fhdw.vendix.store.core.persistance.account_role.AccountRole;
 import org.springframework.stereotype.Service;
 
-import java.util.Collections;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 @Service
 class AccountAdapter extends AbstractDtoCrudAdapter<Account, AccountDTO, Long> implements AccountQueryPort, AccountCommandPort {
@@ -43,6 +40,14 @@ class AccountAdapter extends AbstractDtoCrudAdapter<Account, AccountDTO, Long> i
     }
 
     @Override
+    public boolean existsByRole(AccountRoleEnum role) {
+        if (role == null) {
+            return false;
+        }
+        return accountEntityAdapter.existsByRole(role);
+    }
+
+    @Override
     public Optional<AccountDTO> findById(Long id) {
         if (id == null) {
             return Optional.empty();
@@ -67,12 +72,10 @@ class AccountAdapter extends AbstractDtoCrudAdapter<Account, AccountDTO, Long> i
     }
 
     @Override
-    public Set<AccountRoleEnum> findAllAccountRolesByAccountId(Long id) {
+    public Set<AccountRoleEnum> findAllRolesByAccount_Id(Long id) {
         if (id < 0) {
-            return Collections.emptySet();
+            return Set.of();
         }
-        return accountEntityAdapter.findAllAccountRolesByAccountId(id).stream()
-                .map(AccountRole::getRole)
-                .collect(Collectors.toUnmodifiableSet());
+        return accountEntityAdapter.findAllAccountRolesByAccountId(id);
     }
 }

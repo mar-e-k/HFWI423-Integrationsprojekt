@@ -38,6 +38,13 @@ public class Account extends AbstractSpringDataAuditingEntity<Long> {
         this.password = password;
     }
 
+    protected Account(Long id, UUID uuid, String username, String password) {
+        super(id);
+        this.uuid = uuid;
+        this.username = username;
+        this.password = password;
+    }
+
     public UUID getUuid() {
         return uuid;
     }

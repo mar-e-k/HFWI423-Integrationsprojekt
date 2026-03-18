@@ -16,6 +16,13 @@ public abstract class AbstractSpringDataEntity<ID> implements Identifiable<ID> {
 
     protected AbstractSpringDataEntity() {}
 
+    protected AbstractSpringDataEntity(ID id) {
+        this.id = id;
+    }
+
+    public ID getId() {
+        return id;
+    }
 
     @Override
     public @Nullable ID getIdentifiable() {

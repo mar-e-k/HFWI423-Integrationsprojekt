@@ -50,6 +50,14 @@ public class Store extends AbstractSpringDataAuditingEntity<Long> {
         this.streetNumber = streetNumber;
     }
 
+    protected Store(Long id, String country, String city, String street, String streetNumber) {
+        super(id);
+        this.country = country;
+        this.city = city;
+        this.street = street;
+        this.streetNumber = streetNumber;
+    }
+
     public String getCountry() {
         return country;
     }

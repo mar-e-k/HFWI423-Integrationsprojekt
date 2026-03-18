@@ -5,6 +5,11 @@ import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.server.auth.AnonymousAllowed;
 import com.vaadin.flow.theme.aura.Aura;
+import de.fhdw.vendix.commons.api.domain.account.dto.AccountDTO;
+import de.fhdw.vendix.commons.api.domain.account.port.AccountCommandPort;
+import de.fhdw.vendix.commons.api.domain.account.port.AccountQueryPort;
+import de.fhdw.vendix.commons.api.structure.port.CrudCommandPort;
+import de.fhdw.vendix.commons.api.structure.port.CrudQueryPort;
 import de.fhdw.vendix.commons.ui.vaadin.view.AbstractLoginView;
 import org.springframework.security.authentication.AuthenticationManager;
 
@@ -14,7 +19,13 @@ import org.springframework.security.authentication.AuthenticationManager;
 @AnonymousAllowed
 public class LoginView extends AbstractLoginView {
 
-    public LoginView(AuthenticationManager authenticationManager) {
-        super(authenticationManager);
+    public LoginView(
+            AuthenticationManager authenticationManager,
+            AccountQueryPort accountQueryPort,
+            AccountCommandPort accountCommandPort,
+            CrudQueryPort<AccountDTO, Long> crudQueryPort,
+            CrudCommandPort<AccountDTO, Long> crudCommandPort
+    ) {
+        super(authenticationManager, accountQueryPort, accountCommandPort, crudQueryPort, crudCommandPort);
     }
 }

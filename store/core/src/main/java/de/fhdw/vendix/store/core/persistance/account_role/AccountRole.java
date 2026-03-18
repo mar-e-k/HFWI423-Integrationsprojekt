@@ -25,6 +25,11 @@ public class AccountRole extends AbstractSpringDataAuditingEntity<Long> {
         this.role = role;
     }
 
+    protected AccountRole(Long id, AccountRoleEnum role) {
+        super(id);
+        this.role = role;
+    }
+
     public AccountRoleEnum getRole() {
         return role;
     }

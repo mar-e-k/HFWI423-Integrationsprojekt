@@ -24,6 +24,8 @@ public class ReceiptLine extends AbstractSpringDataAuditingEntity<Long> {
     @Min(1)
     private long amount;
 
+    //TODO: make embeddable
+
     @DecimalMin(value = "0.00")
     private BigDecimal overriddenPrice;
 
@@ -45,6 +47,13 @@ public class ReceiptLine extends AbstractSpringDataAuditingEntity<Long> {
         this.amount = amount;
     }
 
+    protected ReceiptLine(Long id, Receipt receipt, Article article, long amount) {
+        super(id);
+        this.receipt = receipt;
+        this.article = article;
+        this.amount = amount;
+    }
+
     protected ReceiptLine(
             Receipt receipt,
             Article article,
@@ -54,6 +63,26 @@ public class ReceiptLine extends AbstractSpringDataAuditingEntity<Long> {
             BigDecimal overriddenDiscount,
             OverrideReasonEnum overrideDiscountReason
     ) {
+        this.receipt = receipt;
+        this.article = article;
+        this.amount = amount;
+        this.overriddenPrice = overriddenPrice;
+        this.overriddenPriceReason = overriddenPriceReason;
+        this.overriddenDiscount = overriddenDiscount;
+        this.overrideDiscountReason = overrideDiscountReason;
+    }
+
+    public ReceiptLine(
+            Long id,
+            Receipt receipt,
+            Article article,
+            long amount,
+            BigDecimal overriddenPrice,
+            OverrideReasonEnum overriddenPriceReason,
+            BigDecimal overriddenDiscount,
+            OverrideReasonEnum overrideDiscountReason
+    ) {
+        super(id);
         this.receipt = receipt;
         this.article = article;
         this.amount = amount;
