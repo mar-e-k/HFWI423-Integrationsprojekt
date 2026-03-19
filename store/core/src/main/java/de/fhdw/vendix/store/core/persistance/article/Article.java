@@ -1,6 +1,7 @@
 package de.fhdw.vendix.store.core.persistance.article;
 
 import de.fhdw.vendix.commons.api.structure.entity.Identifiable;
+import de.fhdw.vendix.commons.api.structure.mapper.Default;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
@@ -105,8 +106,9 @@ public class Article implements Identifiable<Long> {
         this.hasDeposit = hasDeposit;
     }
 
+    @Default
     protected Article(
-            Long id,
+            @Nullable Long id,
             String articleNumber,
             String description,
             String manufacturer,
@@ -135,8 +137,7 @@ public class Article implements Identifiable<Long> {
         this.hasDeposit = hasDeposit;
     }
 
-    @Override
-    public @Nullable Long getIdentifiable() {
+    public Long getId() {
         return id;
     }
 
@@ -187,4 +188,10 @@ public class Article implements Identifiable<Long> {
     public boolean isHasDeposit() {
         return hasDeposit;
     }
+
+    @Override
+    public @Nullable Long getIdentifiable() {
+        return id;
+    }
+
 }

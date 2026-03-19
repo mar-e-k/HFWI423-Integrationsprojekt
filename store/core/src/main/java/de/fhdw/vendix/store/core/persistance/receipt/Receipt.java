@@ -1,5 +1,6 @@
 package de.fhdw.vendix.store.core.persistance.receipt;
 
+import de.fhdw.vendix.commons.api.structure.mapper.Default;
 import de.fhdw.vendix.commons.spring.core.entity.AbstractSpringDataAuditingEntity;
 import de.fhdw.vendix.store.core.persistance.account.Account;
 import de.fhdw.vendix.store.core.persistance.receipt_line.ReceiptLine;
@@ -7,6 +8,7 @@ import de.fhdw.vendix.store.core.persistance.receipt_voucher.ReceiptVoucher;
 import de.fhdw.vendix.store.core.persistance.register.Register;
 import de.fhdw.vendix.store.core.persistance.store.Store;
 import jakarta.persistence.*;
+import org.jspecify.annotations.Nullable;
 
 import java.util.*;
 
@@ -39,7 +41,8 @@ public class Receipt extends AbstractSpringDataAuditingEntity<Long> {
         this.cashier = cashier;
     }
 
-    protected Receipt(Long id, Store store, Register register, Account cashier) {
+    @Default
+    protected Receipt(@Nullable Long id, Store store, Register register, Account cashier) {
         super(id);
         this.store = store;
         this.register = register;

@@ -1,11 +1,8 @@
 package de.fhdw.vendix.commons.api.structure.mapper;
 
-import de.fhdw.vendix.commons.api.structure.dto.DomainDTO;
-import de.fhdw.vendix.commons.api.structure.entity.Identifiable;
-
 import java.util.List;
 
-public interface EntityMapper<ENT extends Identifiable<?>, DTO extends DomainDTO<?>> extends Mapper {
+public interface EntityMapper<ENT, DTO> extends Mapper {
 
     DTO toDTO(ENT entity);
 

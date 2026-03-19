@@ -13,7 +13,9 @@ import java.util.List;
         config = SpringMapperConfig.class,
         uses = {
                 ReceiptMapper.class,
-                ArticleMapper.class
+                ArticleMapper.class,
+                DiscountOverrideMapper.class,
+                PriceOverrideMapper.class,
         }
 )
 public interface ReceiptLineMapper extends EntityMapper<ReceiptLine, ReceiptLineDTO> {

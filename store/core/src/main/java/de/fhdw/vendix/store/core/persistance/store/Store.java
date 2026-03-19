@@ -1,5 +1,6 @@
 package de.fhdw.vendix.store.core.persistance.store;
 
+import de.fhdw.vendix.commons.api.structure.mapper.Default;
 import de.fhdw.vendix.commons.spring.core.entity.AbstractSpringDataAuditingEntity;
 import de.fhdw.vendix.store.core.persistance.receipt.Receipt;
 import de.fhdw.vendix.store.core.persistance.register.Register;
@@ -9,6 +10,7 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.OneToMany;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
+import org.jspecify.annotations.Nullable;
 
 import java.util.*;
 
@@ -50,7 +52,8 @@ public class Store extends AbstractSpringDataAuditingEntity<Long> {
         this.streetNumber = streetNumber;
     }
 
-    protected Store(Long id, String country, String city, String street, String streetNumber) {
+    @Default
+    protected Store(@Nullable Long id, String country, String city, String street, String streetNumber) {
         super(id);
         this.country = country;
         this.city = city;

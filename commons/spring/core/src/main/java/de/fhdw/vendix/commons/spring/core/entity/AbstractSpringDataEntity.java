@@ -12,15 +12,16 @@ public abstract class AbstractSpringDataEntity<ID> implements Identifiable<ID> {
 
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Id
+    @Nullable
     private ID id;
 
     protected AbstractSpringDataEntity() {}
 
-    protected AbstractSpringDataEntity(ID id) {
+    protected AbstractSpringDataEntity(@Nullable ID id) {
         this.id = id;
     }
 
-    public ID getId() {
+    public @Nullable ID getId() {
         return id;
     }
 

@@ -1,11 +1,13 @@
 package de.fhdw.vendix.store.core.persistance.lock;
 
 import de.fhdw.vendix.commons.api.domain.lock.dto.TargetTypeEnum;
+import de.fhdw.vendix.commons.api.structure.mapper.Default;
 import de.fhdw.vendix.commons.spring.core.entity.AbstractSpringDataAuditingEntity;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Future;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import org.jspecify.annotations.Nullable;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
@@ -51,7 +53,8 @@ public class Lock extends AbstractSpringDataAuditingEntity<Long> {
         this.expiresAt = expiresAt;
     }
 
-    protected Lock(Long id, TargetTypeEnum targetType, long targetId, UUID instanceUUID, Instant acquiredAt, Instant expiresAt) {
+    @Default
+    protected Lock(@Nullable Long id, TargetTypeEnum targetType, long targetId, UUID instanceUUID, Instant acquiredAt, Instant expiresAt) {
         super(id);
         this.targetType = targetType;
         this.targetId = targetId;

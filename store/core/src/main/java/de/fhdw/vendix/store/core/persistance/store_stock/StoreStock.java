@@ -1,11 +1,13 @@
 package de.fhdw.vendix.store.core.persistance.store_stock;
 
+import de.fhdw.vendix.commons.api.structure.mapper.Default;
 import de.fhdw.vendix.commons.spring.core.entity.AbstractSpringDataAuditingEntity;
 import de.fhdw.vendix.store.core.persistance.article.Article;
 import de.fhdw.vendix.store.core.persistance.store.Store;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
+import org.jspecify.annotations.Nullable;
 
 @Entity
 @Table(uniqueConstraints = @UniqueConstraint(columnNames = {"store_id", "article_id"}))
@@ -42,8 +44,9 @@ public class StoreStock extends AbstractSpringDataAuditingEntity<Long> {
         this.isActive = isActive;
     }
 
+    @Default
     protected StoreStock(
-            Long id,
+            @Nullable Long id,
             Store store,
             Article article,
             long currentAmount,

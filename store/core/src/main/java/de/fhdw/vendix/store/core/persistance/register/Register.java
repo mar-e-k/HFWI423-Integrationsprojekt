@@ -1,5 +1,6 @@
 package de.fhdw.vendix.store.core.persistance.register;
 
+import de.fhdw.vendix.commons.api.structure.mapper.Default;
 import de.fhdw.vendix.commons.spring.core.entity.AbstractSpringDataAuditingEntity;
 import de.fhdw.vendix.store.core.persistance.receipt.Receipt;
 import de.fhdw.vendix.store.core.persistance.store.Store;
@@ -7,6 +8,7 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
+import org.jspecify.annotations.Nullable;
 
 import java.util.*;
 
@@ -26,7 +28,8 @@ public class Register extends AbstractSpringDataAuditingEntity<Long> {
         this.store = store;
     }
 
-    protected Register(Long id, Store store) {
+    @Default
+    protected Register(@Nullable Long id, Store store) {
         super(id);
         this.store = store;
     }

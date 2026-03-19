@@ -1,9 +1,11 @@
 package de.fhdw.vendix.store.core.persistance.receipt_voucher;
 
+import de.fhdw.vendix.commons.api.structure.mapper.Default;
 import de.fhdw.vendix.commons.spring.core.entity.AbstractSpringDataAuditingEntity;
 import de.fhdw.vendix.store.core.persistance.receipt.Receipt;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
+import org.jspecify.annotations.Nullable;
 
 import java.time.Instant;
 import java.util.UUID;
@@ -31,7 +33,8 @@ public class ReceiptVoucher extends AbstractSpringDataAuditingEntity<Long> {
         this.redeemedAt = redeemedAt;
     }
 
-    protected ReceiptVoucher(Long id, Receipt receipt, UUID code, Instant expiresAt, Instant redeemedAt) {
+    @Default
+    protected ReceiptVoucher(@Nullable Long id, Receipt receipt, UUID code, Instant expiresAt, Instant redeemedAt) {
         super(id);
         this.receipt = receipt;
         this.code = code;

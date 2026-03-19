@@ -1,11 +1,13 @@
 package de.fhdw.vendix.store.core.persistance.account;
 
+import de.fhdw.vendix.commons.api.structure.mapper.Default;
 import de.fhdw.vendix.commons.spring.core.entity.AbstractSpringDataAuditingEntity;
 import de.fhdw.vendix.store.core.persistance.account_role_assignment.AccountRoleAssignment;
 import de.fhdw.vendix.store.core.persistance.receipt.Receipt;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import org.jspecify.annotations.Nullable;
 
 import java.util.*;
 
@@ -38,7 +40,8 @@ public class Account extends AbstractSpringDataAuditingEntity<Long> {
         this.password = password;
     }
 
-    protected Account(Long id, UUID uuid, String username, String password) {
+    @Default
+    protected Account(@Nullable Long id, UUID uuid, String username, String password) {
         super(id);
         this.uuid = uuid;
         this.username = username;

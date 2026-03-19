@@ -6,19 +6,14 @@ import de.fhdw.vendix.commons.api.domain.lock.port.LockCommandPort;
 import de.fhdw.vendix.commons.api.domain.lock.port.LockQueryPort;
 import de.fhdw.vendix.commons.security.core.DefaultAuthenticationLifecycleHandler;
 import de.fhdw.vendix.commons.security.spring.DefaultAppContext;
-import de.fhdw.vendix.commons.security.spring.AuthContextHolder;
 import de.fhdw.vendix.commons.security.spring.DefaultUserDetailsService;
 import de.fhdw.vendix.commons.security.spring.JwtAuthenticationFilter;
-import de.fhdw.vendix.commons.security.spring.DefaultClassAccessChecker;
 import de.fhdw.vendix.commons.security.spring.listener.ApplicationEventListener;
 import de.fhdw.vendix.commons.security.spring.listener.AuthenticationEventListener;
 import de.fhdw.vendix.security.api.auth.AppContext;
-import de.fhdw.vendix.security.api.auth.AuthContext;
 import de.fhdw.vendix.security.api.auth.AuthenticationLifecycleHandler;
-import de.fhdw.vendix.security.api.ui.ClassAccessChecker;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
-import org.springframework.boot.security.autoconfigure.web.servlet.PathRequest;
 import org.springframework.context.annotation.Bean;
 import org.springframework.core.annotation.Order;
 import org.springframework.core.env.Environment;
@@ -26,6 +21,8 @@ import org.springframework.data.domain.AuditorAware;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -58,8 +55,9 @@ public class SecurityAutoConfiguration {
     @Bean
     @ConditionalOnMissingBean
     public AuditorAware<String> auditorAware() {
-        return () -> AuthContextHolder.current()
-                .map(AuthContext::accountUsername)
+        return () -> Optional.ofNullable(SecurityContextHolder.getContext().getAuthentication())
+                .filter(Authentication::isAuthenticated)
+                .map(Authentication::getName)
                 .or(() -> Optional.of("unknown"));
     }
 
@@ -85,12 +83,6 @@ public class SecurityAutoConfiguration {
     @ConditionalOnMissingBean
     public ApplicationEventListener applicationEventListener(AppContext appContext, AuthenticationLifecycleHandler authenticationLifecycleHandler) {
         return new ApplicationEventListener(appContext, authenticationLifecycleHandler);
-    }
-
-    @Bean
-    @ConditionalOnMissingBean
-    public ClassAccessChecker classAccessChecker() {
-        return new DefaultClassAccessChecker();
     }
 
     @Bean

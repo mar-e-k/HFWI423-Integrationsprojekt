@@ -1,10 +1,11 @@
 package de.fhdw.vendix.store.core.persistance.account_role;
 
 import de.fhdw.vendix.commons.api.domain.account_role.dto.AccountRoleEnum;
+import de.fhdw.vendix.commons.api.structure.mapper.Default;
 import de.fhdw.vendix.commons.spring.core.entity.AbstractSpringDataAuditingEntity;
 import de.fhdw.vendix.store.core.persistance.account_role_assignment.AccountRoleAssignment;
 import jakarta.persistence.*;
-import jakarta.validation.constraints.NotNull;
+import org.jspecify.annotations.Nullable;
 
 import java.util.*;
 
@@ -13,7 +14,6 @@ public class AccountRole extends AbstractSpringDataAuditingEntity<Long> {
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, unique = true)
-    @NotNull
     private AccountRoleEnum role;
 
     @OneToMany(mappedBy = "role")
@@ -25,7 +25,8 @@ public class AccountRole extends AbstractSpringDataAuditingEntity<Long> {
         this.role = role;
     }
 
-    protected AccountRole(Long id, AccountRoleEnum role) {
+    @Default
+    protected AccountRole(@Nullable Long id, AccountRoleEnum role) {
         super(id);
         this.role = role;
     }
