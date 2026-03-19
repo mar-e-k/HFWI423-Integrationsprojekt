@@ -3,10 +3,10 @@ package de.fhdw.vendix.commons.security.spring;
 import de.fhdw.vendix.commons.api.domain.account.dto.AccountDTO;
 import de.fhdw.vendix.commons.api.domain.account.port.AccountQueryPort;
 import de.fhdw.vendix.commons.api.domain.account_role.dto.AccountRoleEnum;
-import de.fhdw.vendix.commons.api.domain.account_role.dto.AccountRoleDTO;
 import de.fhdw.vendix.commons.security.core.DefaultAuthContext;
 import de.fhdw.vendix.commons.security.core.JwtService;
-import de.fhdw.vendix.security.api.auth.AuthContext;
+import de.fhdw.vendix.commons.security.spring.token.AuthenticationContextToken;
+import de.fhdw.vendix.security.api.authentication.AuthContext;
 import de.fhdw.vendix.security.api.jwt.JwtPayload;
 import jakarta.annotation.Nonnull;
 import jakarta.servlet.FilterChain;
@@ -78,6 +78,6 @@ public final class JwtAuthenticationFilter extends OncePerRequestFilter {
         }
 
         AuthContext authContext = new DefaultAuthContext(account, payload.auth().accountRoleEnums());
-        return new AuthContextAuthenticationToken(authContext);
+        return new AuthenticationContextToken(authContext);
     }
 }

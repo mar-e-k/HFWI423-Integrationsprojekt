@@ -1,6 +1,6 @@
 package de.fhdw.vendix.commons.security.spring;
 
-import de.fhdw.vendix.security.api.auth.AuthContext;
+import de.fhdw.vendix.security.api.authentication.AuthContext;
 import org.jspecify.annotations.Nullable;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;

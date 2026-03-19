@@ -10,8 +10,9 @@ import de.fhdw.vendix.commons.api.domain.account.port.AccountCommandPort;
 import de.fhdw.vendix.commons.api.domain.account.port.AccountQueryPort;
 import de.fhdw.vendix.commons.api.structure.port.CrudCommandPort;
 import de.fhdw.vendix.commons.api.structure.port.CrudQueryPort;
+import de.fhdw.vendix.commons.security.spring.authentication.AuthenticationHandler;
 import de.fhdw.vendix.commons.ui.vaadin.view.AbstractLoginView;
-import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 @StyleSheet(Aura.STYLESHEET)
 @Route(value = "login", autoLayout = false)
@@ -20,12 +21,13 @@ import org.springframework.security.authentication.AuthenticationManager;
 public class LoginView extends AbstractLoginView {
 
     public LoginView(
-            AuthenticationManager authenticationManager,
+            AuthenticationHandler authenticationHandler,
+            PasswordEncoder passwordEncoder,
             AccountQueryPort accountQueryPort,
             AccountCommandPort accountCommandPort,
             CrudQueryPort<AccountDTO, Long> crudQueryPort,
             CrudCommandPort<AccountDTO, Long> crudCommandPort
     ) {
-        super(authenticationManager, accountQueryPort, accountCommandPort, crudQueryPort, crudCommandPort);
+        super(authenticationHandler, passwordEncoder, accountQueryPort, accountCommandPort, crudQueryPort, crudCommandPort);
     }
 }

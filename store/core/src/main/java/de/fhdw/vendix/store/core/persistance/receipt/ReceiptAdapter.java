@@ -59,9 +59,4 @@ class ReceiptAdapter extends AbstractDtoCrudAdapter<Receipt, ReceiptDTO, Long> i
                 .map(receiptLineMapper::toDTO)
                 .collect(Collectors.toUnmodifiableSet());
     }
-
-    @Override
-    public ReceiptDTO create(ReceiptDTO entity) {
-       return super.create(entity);
-    }
 }

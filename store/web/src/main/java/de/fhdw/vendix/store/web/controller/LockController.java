@@ -41,7 +41,7 @@ class LockController {
     }
 
     @GetMapping(LockEndpoints.BY_TARGET_TYPE_AND_TARGET_ID)
-    @Operation(summary = "Find lock by targetType and targetID")
+    @Operation(summary = "Find lock by targetType and targetId")
     public ResponseEntity<LockDTO> getByTargetTypeAndTargetId(@PathVariable TargetTypeEnum targetTypeEnum, @PathVariable long targetID) {
         return ResponseEntity
                 .status(HttpStatus.OK)
@@ -50,7 +50,7 @@ class LockController {
     }
 
     @DeleteMapping(LockEndpoints.BY_TARGET_TYPE_AND_TARGET_ID)
-    @Operation(summary = "Delete all locks by targetType and targetID")
+    @Operation(summary = "Delete all locks by targetType and targetId")
     public ResponseEntity<Void> deleteByTargetTypeAndTargetId(@PathVariable TargetTypeEnum targetTypeEnum, @PathVariable long targetID) {
         lockCommandPort.deleteByTargetTypeAndTargetId(targetTypeEnum, targetID);
         return ResponseEntity

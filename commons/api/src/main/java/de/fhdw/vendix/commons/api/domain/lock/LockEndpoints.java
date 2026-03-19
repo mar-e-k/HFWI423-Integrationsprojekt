@@ -6,7 +6,7 @@ public final class LockEndpoints implements EndpointProvider {
 
     public static final String BASE = "/api/lock";
 
-    public static final String BY_TARGET_TYPE_AND_TARGET_ID = BASE + "/type/{targetType}/id/{targetID}";
+    public static final String BY_TARGET_TYPE_AND_TARGET_ID = BASE + "/type/{targetType}/id/{targetId}";
     public static final String BY_INSTANCE_UUID = BASE + "/instance/{instanceUUID}";
 
     private LockEndpoints() {}

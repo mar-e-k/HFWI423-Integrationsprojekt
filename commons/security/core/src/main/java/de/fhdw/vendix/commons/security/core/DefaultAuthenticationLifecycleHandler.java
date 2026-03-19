@@ -3,9 +3,8 @@ package de.fhdw.vendix.commons.security.core;
 import de.fhdw.vendix.commons.api.domain.lock.dto.LockDTO;
 import de.fhdw.vendix.commons.api.domain.lock.dto.TargetTypeEnum;
 import de.fhdw.vendix.commons.api.domain.lock.port.LockCommandPort;
-import de.fhdw.vendix.security.api.auth.AppContext;
-import de.fhdw.vendix.security.api.auth.AuthContext;
-import de.fhdw.vendix.security.api.auth.AuthenticationLifecycleHandler;
+import de.fhdw.vendix.security.api.authentication.AppContext;
+import de.fhdw.vendix.security.api.authentication.AuthContext;
 
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;

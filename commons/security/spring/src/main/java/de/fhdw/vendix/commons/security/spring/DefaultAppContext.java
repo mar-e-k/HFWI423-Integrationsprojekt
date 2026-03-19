@@ -1,6 +1,6 @@
 package de.fhdw.vendix.commons.security.spring;
 
-import de.fhdw.vendix.security.api.auth.AppContext;
+import de.fhdw.vendix.security.api.authentication.AppContext;
 import org.springframework.boot.web.server.context.WebServerInitializedEvent;
 import org.springframework.context.event.EventListener;
 import org.springframework.core.env.Environment;

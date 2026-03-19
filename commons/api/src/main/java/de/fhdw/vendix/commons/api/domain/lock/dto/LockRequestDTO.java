@@ -18,7 +18,7 @@ public record LockRequestDTO(
             throw new IllegalArgumentException("LockRequestDTO parameter 'targetType' cannot be null");
         }
         if (targetID < 0) {
-            throw new IllegalArgumentException("LockRequestDTO parameter 'targetID' cannot be negative");
+            throw new IllegalArgumentException("LockRequestDTO parameter 'targetId' cannot be negative");
         }
         if (instanceUUID == null) {
             throw new IllegalArgumentException("LockRequestDTO parameter 'instanceUUID' cannot be null");

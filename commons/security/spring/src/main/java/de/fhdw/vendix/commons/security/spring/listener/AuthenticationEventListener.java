@@ -1,11 +1,11 @@
 package de.fhdw.vendix.commons.security.spring.listener;
 
-import de.fhdw.vendix.security.api.auth.AuthContext;
-import de.fhdw.vendix.security.api.auth.AuthenticationLifecycleHandler;
+import de.fhdw.vendix.security.api.authentication.AuthContext;
+import de.fhdw.vendix.commons.security.core.AuthenticationLifecycleHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.event.EventListener;
-import org.springframework.security.authentication.event.InteractiveAuthenticationSuccessEvent;
+import org.springframework.security.authentication.event.AuthenticationSuccessEvent;
 import org.springframework.security.authentication.event.LogoutSuccessEvent;
 
 public final class AuthenticationEventListener {
@@ -19,7 +19,9 @@ public final class AuthenticationEventListener {
     }
 
     @EventListener
-    public void onAuthenticationSuccess(InteractiveAuthenticationSuccessEvent event) {
+    public void onAuthenticationSuccess(AuthenticationSuccessEvent event) {
+        log.atInfo().log(event.toString());
+        log.atInfo().log(event.getAuthentication().toString());
         if (event.getAuthentication().getPrincipal() instanceof AuthContext authContext) {
             authenticationLifecycleHandler.onAuthenticationSuccess(authContext);
         } else  {
@@ -29,6 +31,8 @@ public final class AuthenticationEventListener {
 
     @EventListener
     public void onLogoutSuccess(LogoutSuccessEvent event) {
+        log.atInfo().log(event.toString());
+        log.atInfo().log(event.getAuthentication().toString());
         if (event.getAuthentication().getPrincipal() instanceof AuthContext authContext) {
             authenticationLifecycleHandler.onAuthenticationLogout(authContext);
         } else  {

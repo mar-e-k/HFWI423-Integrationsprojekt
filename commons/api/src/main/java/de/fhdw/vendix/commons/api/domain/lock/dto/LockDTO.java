@@ -9,7 +9,7 @@ import java.util.UUID;
 public record LockDTO (
         @Nullable Long id,
         TargetTypeEnum targetType,
-        long targetID,
+        long targetId,
         UUID instanceUUID,
         Instant acquiredAt,
         Instant expiresAt
@@ -21,8 +21,8 @@ public record LockDTO (
         if (targetType == null) {
             throw new IllegalArgumentException("LockDTO parameter 'targetType' cannot be null");
         }
-        if (targetID < 0) {
-            throw new IllegalArgumentException("LockDTO parameter 'targetID' cannot be negative");
+        if (targetId < 0) {
+            throw new IllegalArgumentException("LockDTO parameter 'targetId' cannot be negative");
         }
         if (instanceUUID == null) {
             throw new IllegalArgumentException("LockDTO parameter 'instanceUUID' cannot be null");

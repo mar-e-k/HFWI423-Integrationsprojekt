@@ -1,4 +1,4 @@
-package de.fhdw.vendix.security.api.auth;
+package de.fhdw.vendix.security.api.authentication;
 
 import java.util.UUID;
 

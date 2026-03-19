@@ -2,7 +2,7 @@ package de.fhdw.vendix.commons.security.core;
 
 import de.fhdw.vendix.commons.api.domain.account.dto.AccountDTO;
 import de.fhdw.vendix.commons.api.domain.account_role.dto.AccountRoleEnum;
-import de.fhdw.vendix.security.api.auth.AuthContext;
+import de.fhdw.vendix.security.api.authentication.AuthContext;
 
 import java.util.Collections;
 import java.util.Objects;
