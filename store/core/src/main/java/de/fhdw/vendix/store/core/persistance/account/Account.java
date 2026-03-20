@@ -6,7 +6,6 @@ import de.fhdw.vendix.store.core.persistance.account_role_assignment.AccountRole
 import de.fhdw.vendix.store.core.persistance.receipt.Receipt;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
 import org.jspecify.annotations.Nullable;
 
 import java.util.*;
@@ -15,8 +14,17 @@ import java.util.*;
 public class Account extends AbstractSpringDataAuditingEntity<Long> {
 
     @Column(unique = true, nullable = false)
-    @NotNull(message = "Account field 'uuid' cannot be null")
     private UUID uuid;
+
+//    Maybe add later
+
+//    @Column(nullable = false)
+//    @Pattern(regexp = "^\\+?(\\d{1,3})?[-.\\s]?(\\(?\\d{1,4}\\)?)[-.\\s]?(\\d{1,4})[-.\\s]?(\\d{1,9})$")
+//    private String phone;
+//
+//    @Column(nullable = false)
+//    @Pattern(regexp = "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$")
+//    private String email;
 
     @Column(unique = true, nullable = false)
     @NotBlank(message = "Account field 'accountUsername' cannot be blank")
@@ -51,6 +59,14 @@ public class Account extends AbstractSpringDataAuditingEntity<Long> {
     public UUID getUuid() {
         return uuid;
     }
+
+//    public String getPhone() {
+//        return phone;
+//    }
+//
+//    public String getEmail() {
+//        return email;
+//    }
 
     public String getUsername() {
         return username;

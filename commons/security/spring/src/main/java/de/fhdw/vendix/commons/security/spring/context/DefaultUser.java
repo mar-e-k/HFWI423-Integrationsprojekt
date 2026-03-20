@@ -1,31 +1,34 @@
-package de.fhdw.vendix.commons.security.spring;
+package de.fhdw.vendix.commons.security.spring.context;
 
-import de.fhdw.vendix.security.api.authentication.AuthContext;
+import de.fhdw.vendix.security.api.context.AuthContext;
+import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
-import java.security.Principal;
 import java.util.Collection;
 import java.util.stream.Collectors;
 
-public record SpringUserDetailsAdapter(
-        AuthContext ctx
-) implements UserDetails, Principal {
-    public SpringUserDetailsAdapter {
+public record DefaultUser(
+        AuthContext ctx,
+        boolean isAccountNonExpired,
+        boolean isAccountNonLocked,
+        boolean isCredentialsNonExpired,
+        boolean isEnabled
+) implements UserDetails {
+    public DefaultUser {
         if (ctx == null) {
             throw new IllegalArgumentException("SpringUserDetailsAdapter parameter 'ctx' cannot be null");
         }
     }
 
-    @Override
-    public String getName() {
-        return ctx.accountUsername();
+    public DefaultUser(AuthContext ctx) {
+        this(ctx, true, true, true, true);
     }
 
     @Override
-    public Collection<? extends GrantedAuthority> getAuthorities() {
+    public @NonNull Collection<? extends GrantedAuthority> getAuthorities() {
         return ctx.accountRoles().stream()
                 .map(Enum::name)
                 .map(role -> "ROLE_" + role)
@@ -39,27 +42,27 @@ public record SpringUserDetailsAdapter(
     }
 
     @Override
-    public String getUsername() {
+    public @NonNull String getUsername() {
         return ctx.accountUsername();
     }
 
     @Override
     public boolean isAccountNonExpired() {
-        return ctx.isAccountNonExpired();
+        return isAccountNonExpired;
     }
 
     @Override
     public boolean isAccountNonLocked() {
-        return ctx.isAccountNonLocked();
+        return isAccountNonLocked;
     }
 
     @Override
     public boolean isCredentialsNonExpired() {
-        return ctx.isCredentialsNonExpired();
+        return isCredentialsNonExpired;
     }
 
     @Override
     public boolean isEnabled() {
-        return ctx.isEnabled();
+        return isEnabled;
     }
 }

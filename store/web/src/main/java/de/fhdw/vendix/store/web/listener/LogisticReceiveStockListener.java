@@ -4,6 +4,7 @@ import de.fhdw.vendix.commons.api.domain.store_stock.port.StoreStockCommandPort;
 import de.fhdw.vendix.store.commons.context.StoreContext;
 import io.github.plaguv.amqp.api.event.pos.LogisticArticleOrderEvent;
 import io.github.plaguv.amqp.core.listener.AmqpListener;
+import jakarta.annotation.Nonnull;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -18,10 +19,7 @@ public class LogisticReceiveStockListener {
     }
 
     @AmqpListener
-    public void receiveStock(LogisticArticleOrderEvent event) {
-        if (event == null) {
-            throw new NullPointerException("Received null event");
-        }
+    public void onLogisticArticleOrderEvent(@Nonnull LogisticArticleOrderEvent event) {
         if (storeContext.getStore() == null || storeContext.getStore().id() == null) {
             throw new IllegalStateException("Cannot handle event, as storeContext is not set properly");
         }

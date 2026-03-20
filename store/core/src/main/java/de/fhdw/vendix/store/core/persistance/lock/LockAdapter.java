@@ -5,6 +5,8 @@ import de.fhdw.vendix.commons.api.domain.lock.dto.TargetTypeEnum;
 import de.fhdw.vendix.commons.api.domain.lock.port.LockCommandPort;
 import de.fhdw.vendix.commons.api.domain.lock.port.LockQueryPort;
 import de.fhdw.vendix.commons.spring.core.crud.AbstractDtoCrudAdapter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
@@ -13,6 +15,7 @@ import java.util.UUID;
 @Service
 class LockAdapter extends AbstractDtoCrudAdapter<Lock, LockDTO, Long> implements LockQueryPort, LockCommandPort {
 
+    private static final Logger log = LoggerFactory.getLogger(LockAdapter.class);
     private final LockEntityAdapter lockEntityAdapter;
     private final LockMapper lockMapper;
 
@@ -23,7 +26,7 @@ class LockAdapter extends AbstractDtoCrudAdapter<Lock, LockDTO, Long> implements
     }
 
     @Override
-    public Optional<LockDTO> findByTargetTypeAndTargetID(TargetTypeEnum targetTypeEnum, long targetId) {
+    public Optional<LockDTO> findByTargetTypeAndTargetID(TargetTypeEnum targetTypeEnum, Long targetId) {
         if (targetTypeEnum == null) {
             return Optional.empty();
         }
@@ -35,7 +38,7 @@ class LockAdapter extends AbstractDtoCrudAdapter<Lock, LockDTO, Long> implements
     }
 
     @Override
-    public boolean existsByTargetTypeAndTargetID(TargetTypeEnum targetTypeEnum, long targetId) {
+    public boolean existsByTargetTypeAndTargetID(TargetTypeEnum targetTypeEnum, Long targetId) {
         if (targetTypeEnum == null) {
             return false;
         }
@@ -46,28 +49,25 @@ class LockAdapter extends AbstractDtoCrudAdapter<Lock, LockDTO, Long> implements
     }
 
     @Override
-    public LockDTO create(LockDTO dto) {
-        if (dto == null) {
-            throw new IllegalArgumentException("Parameter 'dto' cannot be null");
-        }
-        return super.create(dto);
-    }
-
-    @Override
     public void deleteAllByExpiresAtNow() {
+        log.atInfo().log("Deleting all expired locks");
         lockEntityAdapter.deleteAllByExpiresAtNow();
+        log.atInfo().log("Successfully deleted all expired locks");
     }
 
     @Override
     public void deleteAllByInstanceUUID(UUID instanceUUID) {
+        log.atInfo().log("Deleting all locks by instance");
         if (instanceUUID == null) {
             throw new IllegalArgumentException("Parameter 'instanceUUID' cannot be null");
         }
         lockEntityAdapter.deleteAllByInstanceUUID(instanceUUID);
+        log.atInfo().log("Successfully deleted all locks by instance");
     }
 
     @Override
     public void deleteByTargetTypeAndTargetId(TargetTypeEnum targetTypeEnum, long targetId) {
+        log.atInfo().log("Deleting all locks by target type and target id");
         if (targetTypeEnum == null) {
             throw new IllegalArgumentException("Parameter 'targetType' cannot be null");
         }
@@ -75,5 +75,6 @@ class LockAdapter extends AbstractDtoCrudAdapter<Lock, LockDTO, Long> implements
             throw new IllegalArgumentException("Parameter 'targetId' cannot be negative");
         }
         lockEntityAdapter.deleteAllByTargetTypeAndTargetId(targetTypeEnum, targetId);
+        log.atInfo().log("Successfully deleted all locks by target type and target id");
     }
 }

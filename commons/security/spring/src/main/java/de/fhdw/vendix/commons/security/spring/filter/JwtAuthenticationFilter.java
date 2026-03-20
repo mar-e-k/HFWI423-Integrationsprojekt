@@ -1,12 +1,9 @@
-package de.fhdw.vendix.commons.security.spring;
+package de.fhdw.vendix.commons.security.spring.filter;
 
 import de.fhdw.vendix.commons.api.domain.account.dto.AccountDTO;
 import de.fhdw.vendix.commons.api.domain.account.port.AccountQueryPort;
 import de.fhdw.vendix.commons.api.domain.account_role.dto.AccountRoleEnum;
-import de.fhdw.vendix.commons.security.core.DefaultAuthContext;
 import de.fhdw.vendix.commons.security.core.JwtService;
-import de.fhdw.vendix.commons.security.spring.token.AuthenticationContextToken;
-import de.fhdw.vendix.security.api.authentication.AuthContext;
 import de.fhdw.vendix.security.api.jwt.JwtPayload;
 import jakarta.annotation.Nonnull;
 import jakarta.servlet.FilterChain;
@@ -16,6 +13,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.http.HttpHeaders;
 import org.springframework.security.authentication.AuthenticationCredentialsNotFoundException;
 import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.context.SecurityContext;
@@ -77,7 +75,6 @@ public final class JwtAuthenticationFilter extends OncePerRequestFilter {
                     .orElseThrow(() -> new BadCredentialsException("Invalid token. Account with specified UUID does not exist"));
         }
 
-        AuthContext authContext = new DefaultAuthContext(account, payload.auth().accountRoleEnums());
-        return new AuthenticationContextToken(authContext);
+        return new UsernamePasswordAuthenticationToken(account.username(), account.password());
     }
 }

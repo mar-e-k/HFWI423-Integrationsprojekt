@@ -17,10 +17,6 @@
     <dependencies>
         <dependency>
             <groupId>de.fhdw.vendix</groupId>
-            <artifactId>commons-security-api</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>de.fhdw.vendix</groupId>
             <artifactId>commons-security-core</artifactId>
         </dependency>
         <dependency>

@@ -1,10 +1,11 @@
-package de.fhdw.vendix.commons.security.core;
+package de.fhdw.vendix.commons.security.spring.authentication;
 
 import de.fhdw.vendix.commons.api.domain.lock.dto.LockDTO;
 import de.fhdw.vendix.commons.api.domain.lock.dto.TargetTypeEnum;
 import de.fhdw.vendix.commons.api.domain.lock.port.LockCommandPort;
-import de.fhdw.vendix.security.api.authentication.AppContext;
-import de.fhdw.vendix.security.api.authentication.AuthContext;
+import de.fhdw.vendix.commons.security.core.AuthenticationLifecycleHandler;
+import de.fhdw.vendix.security.api.context.AppContext;
+import de.fhdw.vendix.security.api.context.AuthContext;
 
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
@@ -32,7 +33,7 @@ public class DefaultAuthenticationLifecycleHandler implements AuthenticationLife
 
     @Override
     public void onAuthenticationSuccess(AuthContext authContext) {
-        Long accountID = Objects.requireNonNull(authContext.accountID());
+        Long accountID = Objects.requireNonNull(authContext.accountId());
         LockDTO dto = new LockDTO(
                 null,
                 TargetTypeEnum.ACCOUNT,
@@ -46,7 +47,7 @@ public class DefaultAuthenticationLifecycleHandler implements AuthenticationLife
 
     @Override
     public void onAuthenticationLogout(AuthContext authContext) {
-        Long accountID = Objects.requireNonNull(authContext.accountID());
+        Long accountID = Objects.requireNonNull(authContext.accountId());
         lockCommandPort.deleteByTargetTypeAndTargetId(
                 TargetTypeEnum.ACCOUNT,
                 accountID

@@ -5,6 +5,8 @@ import de.fhdw.vendix.commons.api.domain.account.port.AccountCommandPort;
 import de.fhdw.vendix.commons.api.domain.account.port.AccountQueryPort;
 import de.fhdw.vendix.commons.api.domain.account_role.dto.AccountRoleEnum;
 import de.fhdw.vendix.commons.spring.core.crud.AbstractDtoCrudAdapter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
@@ -14,6 +16,7 @@ import java.util.UUID;
 @Service
 class AccountAdapter extends AbstractDtoCrudAdapter<Account, AccountDTO, Long> implements AccountQueryPort, AccountCommandPort {
 
+    private static final Logger log = LoggerFactory.getLogger(AccountAdapter.class);
     private final AccountEntityAdapter accountEntityAdapter;
     private final AccountMapper accountMapper;
 
@@ -48,14 +51,6 @@ class AccountAdapter extends AbstractDtoCrudAdapter<Account, AccountDTO, Long> i
     }
 
     @Override
-    public Optional<AccountDTO> findById(Long id) {
-        if (id == null) {
-            return Optional.empty();
-        }
-        return super.findById(id);
-    }
-
-    @Override
     public Optional<AccountDTO> findByUUID(UUID uuid) {
         if (uuid == null) {
             return Optional.empty();
@@ -77,5 +72,32 @@ class AccountAdapter extends AbstractDtoCrudAdapter<Account, AccountDTO, Long> i
             return Set.of();
         }
         return accountEntityAdapter.findAllAccountRolesByAccountId(id);
+    }
+
+    @Override
+    public void assignRole(Long accountId, Long roleId) {
+        if (accountId == null || accountId <= 0) {
+            throw new IllegalArgumentException();
+        }
+        if (roleId == null || roleId <= 0) {
+            throw new IllegalArgumentException();
+        }
+        // TODO
+    }
+
+    @Override
+    public void removeRole(Long accountId, Long roleId) {
+        if (accountId == null || accountId <= 0) {
+            throw new IllegalArgumentException();
+        }
+        if (roleId == null || roleId <= 0) {
+            throw new IllegalArgumentException();
+        }
+        // TODO
+    }
+
+    @Override
+    public boolean hasRole(Long accountId, Long roleId) {
+        return false;
     }
 }

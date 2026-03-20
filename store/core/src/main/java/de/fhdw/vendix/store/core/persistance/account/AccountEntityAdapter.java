@@ -76,4 +76,31 @@ class AccountEntityAdapter extends AbstractEntityCrudAdapter<Account, Long> {
                 .map(AccountRole::getRole)
                 .collect(Collectors.toUnmodifiableSet());
     }
+
+    @Transactional
+    public void assignRole(Long accountId, Long roleId) {
+        if (accountId == null || accountId <= 0) {
+            throw new IllegalArgumentException();
+        }
+        if (roleId == null || roleId <= 0) {
+            throw new IllegalArgumentException();
+        }
+        // TODO
+    }
+
+    @Transactional
+    public void removeRole(Long accountId, Long roleId) {
+        if (accountId == null || accountId <= 0) {
+            throw new IllegalArgumentException();
+        }
+        if (roleId == null || roleId <= 0) {
+            throw new IllegalArgumentException();
+        }
+        // TODO
+    }
+
+    @Transactional(readOnly = true)
+    public boolean hasRole(Long accountId, Long roleId) {
+        return false;
+    }
 }

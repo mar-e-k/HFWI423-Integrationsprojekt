@@ -7,5 +7,5 @@ import java.util.Optional;
 
 public interface StoreStockQueryPort extends QueryPort {
 
-    Optional<StoreStockDTO> findByStoreIDAndArticleID(long storeID, long articleID);
+    Optional<StoreStockDTO> findByStoreIDAndArticleID(Long storeID, Long articleID);
 }

@@ -1,6 +1,6 @@
 package de.fhdw.vendix.commons.security.spring.listener;
 
-import de.fhdw.vendix.security.api.authentication.AuthContext;
+import de.fhdw.vendix.commons.security.spring.context.DefaultUser;
 import de.fhdw.vendix.commons.security.core.AuthenticationLifecycleHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -22,10 +22,11 @@ public final class AuthenticationEventListener {
     public void onAuthenticationSuccess(AuthenticationSuccessEvent event) {
         log.atInfo().log(event.toString());
         log.atInfo().log(event.getAuthentication().toString());
-        if (event.getAuthentication().getPrincipal() instanceof AuthContext authContext) {
-            authenticationLifecycleHandler.onAuthenticationSuccess(authContext);
+        if (event.getAuthentication().getPrincipal() instanceof DefaultUser userDetails) {
+            authenticationLifecycleHandler.onAuthenticationSuccess(userDetails.ctx());
         } else  {
             log.atError().log("Unexpected authentication event type '{}'", event.getAuthentication().getClass());
+            log.atError().log("Unexpected authentication event type '{}'", event.getAuthentication().getPrincipal());
         }
     }
 
@@ -33,10 +34,11 @@ public final class AuthenticationEventListener {
     public void onLogoutSuccess(LogoutSuccessEvent event) {
         log.atInfo().log(event.toString());
         log.atInfo().log(event.getAuthentication().toString());
-        if (event.getAuthentication().getPrincipal() instanceof AuthContext authContext) {
-            authenticationLifecycleHandler.onAuthenticationLogout(authContext);
+        if (event.getAuthentication().getPrincipal() instanceof DefaultUser userDetails) {
+            authenticationLifecycleHandler.onAuthenticationLogout(userDetails.ctx());
         } else  {
             log.atError().log("Unexpected authentication event type '{}'", event.getAuthentication().getClass());
+            log.atError().log("Unexpected authentication event type '{}'", event.getAuthentication().getPrincipal());
         }
     }
 }

@@ -22,12 +22,12 @@ class StoreStockAdapter extends AbstractDtoCrudAdapter<StoreStock, StoreStockDTO
 
 
     @Override
-    public void restockArticle(long storeID, long articleID, long articleQuantity) {
+    public void restockArticle(Long storeID, Long articleID, Long articleQuantity) {
         storeStockEntityAdapter.restockArticle(storeID, articleID, articleQuantity);
     }
 
     @Override
-    public Optional<StoreStockDTO> findByStoreIDAndArticleID(long storeID, long articleID) {
+    public Optional<StoreStockDTO> findByStoreIDAndArticleID(Long storeID, Long articleID) {
         return storeStockEntityAdapter.findByStoreAndArticle(storeID, articleID)
                 .map(storeStockMapper::toDTO);
     }

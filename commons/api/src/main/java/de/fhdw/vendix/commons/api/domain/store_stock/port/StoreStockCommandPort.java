@@ -4,5 +4,5 @@ import de.fhdw.vendix.commons.api.structure.port.CommandPort;
 
 public interface StoreStockCommandPort extends CommandPort {
 
-    void restockArticle(long storeID, long articleID, long articleQuantity);
+    void restockArticle(Long storeID, Long articleID, Long articleQuantity);
 }

@@ -20,8 +20,6 @@ class ReceiptVoucherController {
     @PutMapping(ReceiptVoucherEndpoints.BY_CODE)
     public ResponseEntity<Boolean> redeemDepositReceipt(@PathVariable UUID code) {
         receiptVoucherCommandPort.redeemCode(code);
-        return ResponseEntity
-                .noContent()
-                .build();
+        return ResponseEntity.noContent().build();
     }
 }
