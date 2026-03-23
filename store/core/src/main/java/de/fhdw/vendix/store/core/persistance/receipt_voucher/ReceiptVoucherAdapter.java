@@ -3,7 +3,7 @@ package de.fhdw.vendix.store.core.persistance.receipt_voucher;
 import de.fhdw.vendix.commons.api.domain.receipt_voucher.dto.ReceiptVoucherDTO;
 import de.fhdw.vendix.commons.api.domain.receipt_voucher.port.ReceiptVoucherCommandPort;
 import de.fhdw.vendix.commons.api.domain.receipt_voucher.port.ReceiptVoucherQueryPort;
-import de.fhdw.vendix.commons.spring.core.crud.AbstractDtoCrudAdapter;
+import de.fhdw.vendix.commons.spring.data.crud.AbstractDtoCrudAdapter;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;

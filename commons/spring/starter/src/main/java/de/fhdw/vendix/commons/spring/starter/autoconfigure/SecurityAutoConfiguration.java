@@ -1,9 +1,9 @@
 package de.fhdw.vendix.commons.spring.starter.autoconfigure;
 
 import com.vaadin.flow.spring.security.VaadinSecurityConfigurer;
-import de.fhdw.vendix.commons.api.domain.account.port.AccountQueryPort;
 import de.fhdw.vendix.commons.api.domain.lock.port.LockCommandPort;
-import de.fhdw.vendix.commons.api.domain.lock.port.LockQueryPort;
+import de.fhdw.vendix.commons.api.specification.authentication.AuthenticationQueryApi;
+import de.fhdw.vendix.commons.api.specification.authorization.AuthorizationQueryApi;
 import de.fhdw.vendix.commons.security.spring.authentication.DefaultAuthenticationLifecycleHandler;
 import de.fhdw.vendix.commons.security.spring.context.DefaultAppContext;
 import de.fhdw.vendix.commons.security.spring.authentication.DefaultUserDetailsService;
@@ -11,7 +11,7 @@ import de.fhdw.vendix.commons.security.spring.filter.JwtAuthenticationFilter;
 import de.fhdw.vendix.commons.security.spring.listener.ApplicationEventListener;
 import de.fhdw.vendix.commons.security.spring.listener.AuthenticationEventListener;
 import de.fhdw.vendix.security.api.context.AppContext;
-import de.fhdw.vendix.commons.security.core.AuthenticationLifecycleHandler;
+import de.fhdw.vendix.security.api.AuthenticationLifecycleHandler;
 import de.fhdw.vendix.security.api.context.AuthContext;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
@@ -49,8 +49,8 @@ public class SecurityAutoConfiguration {
 
     @Bean
     @ConditionalOnMissingBean
-    public UserDetailsService userDetailsService(AccountQueryPort accountQueryPort, LockQueryPort lockQueryPort) {
-        return new DefaultUserDetailsService(accountQueryPort, lockQueryPort);
+    public UserDetailsService userDetailsService(AuthenticationQueryApi authenticationQueryApi, AuthorizationQueryApi authorizationQueryApi) {
+        return new DefaultUserDetailsService(authenticationQueryApi, authorizationQueryApi);
     }
 
     @Bean
@@ -97,7 +97,7 @@ public class SecurityAutoConfiguration {
                 .authorizeHttpRequests(auth -> auth
                         .anyRequest().authenticated()
                 )
-                .addFilterAt(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
+                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
                 .build();
     }
 

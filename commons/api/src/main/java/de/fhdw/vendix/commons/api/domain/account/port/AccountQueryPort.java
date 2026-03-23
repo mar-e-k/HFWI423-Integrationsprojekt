@@ -1,6 +1,7 @@
 package de.fhdw.vendix.commons.api.domain.account.port;
 
 import de.fhdw.vendix.commons.api.domain.account.dto.AccountDTO;
+import de.fhdw.vendix.commons.api.domain.account.web.AccountQueryApi;
 import de.fhdw.vendix.commons.api.domain.account_role.dto.AccountRoleEnum;
 import de.fhdw.vendix.commons.api.structure.port.QueryPort;
 
@@ -8,7 +9,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 
-public interface AccountQueryPort extends QueryPort {
+public interface AccountQueryPort extends QueryPort, AccountQueryApi {
     boolean existsByUuid(UUID uuid);
 
     boolean existsByUsername(String username);
@@ -22,4 +23,6 @@ public interface AccountQueryPort extends QueryPort {
     Optional<AccountDTO> findByUsername(String username);
 
     Set<AccountRoleEnum> findAllRolesByAccount_Id(Long id);
+
+    boolean hasRole(Long accountId, Long roleId);
 }

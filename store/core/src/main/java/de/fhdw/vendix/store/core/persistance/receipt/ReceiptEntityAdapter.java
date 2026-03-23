@@ -1,6 +1,6 @@
 package de.fhdw.vendix.store.core.persistance.receipt;
 
-import de.fhdw.vendix.commons.spring.core.crud.AbstractEntityCrudAdapter;
+import de.fhdw.vendix.commons.spring.data.crud.AbstractEntityCrudAdapter;
 import de.fhdw.vendix.store.core.persistance.receipt_line.ReceiptLine;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

@@ -1,7 +1,7 @@
 package de.fhdw.vendix.store.core.persistance.store_stock;
 
 import de.fhdw.vendix.commons.api.structure.mapper.Default;
-import de.fhdw.vendix.commons.spring.core.entity.AbstractSpringDataAuditingEntity;
+import de.fhdw.vendix.commons.spring.data.entity.AbstractSpringDataAuditingEntity;
 import de.fhdw.vendix.store.core.persistance.article.Article;
 import de.fhdw.vendix.store.core.persistance.store.Store;
 import jakarta.persistence.*;

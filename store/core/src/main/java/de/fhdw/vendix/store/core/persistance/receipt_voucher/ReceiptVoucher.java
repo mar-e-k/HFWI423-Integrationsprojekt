@@ -1,7 +1,7 @@
 package de.fhdw.vendix.store.core.persistance.receipt_voucher;
 
 import de.fhdw.vendix.commons.api.structure.mapper.Default;
-import de.fhdw.vendix.commons.spring.core.entity.AbstractSpringDataAuditingEntity;
+import de.fhdw.vendix.commons.spring.data.entity.AbstractSpringDataAuditingEntity;
 import de.fhdw.vendix.store.core.persistance.receipt.Receipt;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;

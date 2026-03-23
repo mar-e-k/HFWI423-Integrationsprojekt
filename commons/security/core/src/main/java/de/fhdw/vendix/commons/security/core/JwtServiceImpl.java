@@ -7,6 +7,7 @@ import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.SignedJWT;
 import com.nimbusds.jwt.proc.ExpiredJWTException;
 import de.fhdw.vendix.commons.api.domain.account_role.dto.AccountRoleEnum;
+import de.fhdw.vendix.security.api.JwtProperties;
 import de.fhdw.vendix.security.api.jwt.claims.JwtClaimsEnum;
 import de.fhdw.vendix.security.api.jwt.JwtPayload;
 
@@ -19,7 +20,7 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
-public final class JwtServiceImpl implements JwtService {
+public final class JwtServiceImpl implements de.fhdw.vendix.security.api.JwtService {
 
     private final byte[] secret;
     private final Duration expiration;

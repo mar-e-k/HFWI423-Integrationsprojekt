@@ -3,7 +3,7 @@ package de.fhdw.vendix.store.core.persistance.store_stock;
 import de.fhdw.vendix.commons.api.domain.store_stock.dto.StoreStockDTO;
 import de.fhdw.vendix.commons.api.domain.store_stock.port.StoreStockCommandPort;
 import de.fhdw.vendix.commons.api.domain.store_stock.port.StoreStockQueryPort;
-import de.fhdw.vendix.commons.spring.core.crud.AbstractDtoCrudAdapter;
+import de.fhdw.vendix.commons.spring.data.crud.AbstractDtoCrudAdapter;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;

@@ -1,6 +1,6 @@
 package de.fhdw.vendix.store.core.persistance.receipt_line;
 
-import de.fhdw.vendix.commons.spring.core.entity.AbstractSpringDataAuditingEntity;
+import de.fhdw.vendix.commons.spring.data.entity.AbstractSpringDataAuditingEntity;
 import de.fhdw.vendix.store.core.persistance.receipt.Receipt;
 import de.fhdw.vendix.store.core.persistance.article.Article;
 import jakarta.persistence.*;

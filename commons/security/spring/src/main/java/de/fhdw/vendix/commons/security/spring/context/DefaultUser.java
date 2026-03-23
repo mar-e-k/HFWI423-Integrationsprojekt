@@ -19,7 +19,7 @@ public record DefaultUser(
 ) implements UserDetails {
     public DefaultUser {
         if (ctx == null) {
-            throw new IllegalArgumentException("SpringUserDetailsAdapter parameter 'ctx' cannot be null");
+            throw new IllegalArgumentException("DefaultUser parameter 'ctx' cannot be null");
         }
     }
 

@@ -4,7 +4,7 @@ import de.fhdw.vendix.commons.api.domain.lock.dto.LockDTO;
 import de.fhdw.vendix.commons.api.domain.lock.dto.TargetTypeEnum;
 import de.fhdw.vendix.commons.api.domain.lock.port.LockCommandPort;
 import de.fhdw.vendix.commons.api.domain.lock.port.LockQueryPort;
-import de.fhdw.vendix.commons.spring.core.crud.AbstractDtoCrudAdapter;
+import de.fhdw.vendix.commons.spring.data.crud.AbstractDtoCrudAdapter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;

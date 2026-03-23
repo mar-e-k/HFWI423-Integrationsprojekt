@@ -3,7 +3,7 @@ package de.fhdw.vendix.store.core.persistance.receipt_line;
 import de.fhdw.vendix.commons.api.domain.receipt_line.dto.ReceiptLineDTO;
 import de.fhdw.vendix.commons.api.domain.receipt_line.port.ReceiptLineCommandPort;
 import de.fhdw.vendix.commons.api.domain.receipt_line.port.ReceiptLineQueryPort;
-import de.fhdw.vendix.commons.spring.core.crud.AbstractDtoCrudAdapter;
+import de.fhdw.vendix.commons.spring.data.crud.AbstractDtoCrudAdapter;
 import org.springframework.stereotype.Service;
 
 @Service

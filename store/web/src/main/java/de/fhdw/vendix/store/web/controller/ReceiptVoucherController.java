@@ -1,6 +1,6 @@
 package de.fhdw.vendix.store.web.controller;
 
-import de.fhdw.vendix.commons.api.domain.receipt_voucher.ReceiptVoucherEndpoints;
+import de.fhdw.vendix.commons.api.domain.receipt_voucher.web.ReceiptVoucherEndpoints;
 import de.fhdw.vendix.commons.api.domain.receipt_voucher.port.ReceiptVoucherCommandPort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;

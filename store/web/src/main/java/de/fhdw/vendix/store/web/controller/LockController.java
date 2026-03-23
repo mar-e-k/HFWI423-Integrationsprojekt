@@ -1,6 +1,6 @@
 package de.fhdw.vendix.store.web.controller;
 
-import de.fhdw.vendix.commons.api.domain.lock.LockEndpoints;
+import de.fhdw.vendix.commons.api.domain.lock.web.LockEndpoints;
 import de.fhdw.vendix.commons.api.domain.lock.dto.LockRequestDTO;
 import de.fhdw.vendix.commons.api.domain.lock.dto.TargetTypeEnum;
 import de.fhdw.vendix.commons.api.domain.lock.dto.LockDTO;

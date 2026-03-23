@@ -19,22 +19,37 @@
             <groupId>de.fhdw.vendix</groupId>
             <artifactId>commons-api</artifactId>
         </dependency>
+
         <dependency>
             <groupId>de.fhdw.vendix</groupId>
             <artifactId>commons-core</artifactId>
         </dependency>
+
         <dependency>
             <groupId>de.fhdw.vendix</groupId>
             <artifactId>commons-security-spring</artifactId>
         </dependency>
+
         <dependency>
             <groupId>de.fhdw.vendix</groupId>
             <artifactId>commons-spring-core</artifactId>
         </dependency>
+
+        <dependency>
+            <groupId>de.fhdw.vendix</groupId>
+            <artifactId>commons-spring-data</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>de.fhdw.vendix</groupId>
+            <artifactId>commons-spring-web</artifactId>
+        </dependency>
+
         <dependency>
             <groupId>de.fhdw.vendix</groupId>
             <artifactId>commons-ui-vaadin</artifactId>
         </dependency>
+
         <dependency>
             <groupId>io.github.wimdeblauwe</groupId>
             <artifactId>error-handling-spring-boot-starter</artifactId>

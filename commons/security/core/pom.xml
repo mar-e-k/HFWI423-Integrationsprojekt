@@ -19,6 +19,7 @@
             <groupId>de.fhdw.vendix</groupId>
             <artifactId>commons-security-api</artifactId>
         </dependency>
+
         <dependency>
             <groupId>com.nimbusds</groupId>
             <artifactId>nimbus-jose-jwt</artifactId>

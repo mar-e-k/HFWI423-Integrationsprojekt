@@ -2,7 +2,7 @@ package de.fhdw.vendix.store.core.persistance.lock;
 
 import de.fhdw.vendix.commons.api.domain.lock.dto.TargetTypeEnum;
 import de.fhdw.vendix.commons.api.structure.mapper.Default;
-import de.fhdw.vendix.commons.spring.core.entity.AbstractSpringDataAuditingEntity;
+import de.fhdw.vendix.commons.spring.data.entity.AbstractSpringDataAuditingEntity;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Future;
 import org.jspecify.annotations.Nullable;

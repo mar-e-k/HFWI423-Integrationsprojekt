@@ -1,7 +1,7 @@
 package de.fhdw.vendix.store.core.persistance.receipt;
 
 import de.fhdw.vendix.commons.api.structure.mapper.Default;
-import de.fhdw.vendix.commons.spring.core.entity.AbstractSpringDataAuditingEntity;
+import de.fhdw.vendix.commons.spring.data.entity.AbstractSpringDataAuditingEntity;
 import de.fhdw.vendix.store.core.persistance.account.Account;
 import de.fhdw.vendix.store.core.persistance.receipt_line.ReceiptLine;
 import de.fhdw.vendix.store.core.persistance.receipt_voucher.ReceiptVoucher;

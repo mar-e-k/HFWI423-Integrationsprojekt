@@ -2,7 +2,7 @@ package de.fhdw.vendix.store.core.persistance.account_role;
 
 import de.fhdw.vendix.commons.api.domain.account_role.dto.AccountRoleEnum;
 import de.fhdw.vendix.commons.api.structure.mapper.Default;
-import de.fhdw.vendix.commons.spring.core.entity.AbstractSpringDataAuditingEntity;
+import de.fhdw.vendix.commons.spring.data.entity.AbstractSpringDataAuditingEntity;
 import de.fhdw.vendix.store.core.persistance.account_role_assignment.AccountRoleAssignment;
 import jakarta.persistence.*;
 import org.jspecify.annotations.Nullable;

@@ -1,7 +1,7 @@
 package de.fhdw.vendix.store.core.persistance.account;
 
 import de.fhdw.vendix.commons.api.domain.account_role.dto.AccountRoleEnum;
-import de.fhdw.vendix.commons.spring.core.crud.AbstractEntityCrudAdapter;
+import de.fhdw.vendix.commons.spring.data.crud.AbstractEntityCrudAdapter;
 import de.fhdw.vendix.store.core.persistance.account_role.AccountRole;
 import de.fhdw.vendix.store.core.persistance.account_role_assignment.AccountRoleAssignment;
 import de.fhdw.vendix.store.core.persistance.account_role_assignment.AccountRoleAssignmentRepository;

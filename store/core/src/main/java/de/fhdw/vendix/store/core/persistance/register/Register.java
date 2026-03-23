@@ -1,7 +1,7 @@
 package de.fhdw.vendix.store.core.persistance.register;
 
 import de.fhdw.vendix.commons.api.structure.mapper.Default;
-import de.fhdw.vendix.commons.spring.core.entity.AbstractSpringDataAuditingEntity;
+import de.fhdw.vendix.commons.spring.data.entity.AbstractSpringDataAuditingEntity;
 import de.fhdw.vendix.store.core.persistance.receipt.Receipt;
 import de.fhdw.vendix.store.core.persistance.store.Store;
 import jakarta.persistence.Entity;

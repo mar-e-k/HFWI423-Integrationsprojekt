@@ -3,7 +3,7 @@ package de.fhdw.vendix.store.core.persistance.article;
 import de.fhdw.vendix.commons.api.domain.article.dto.ArticleDTO;
 import de.fhdw.vendix.commons.api.domain.article.port.ArticleCommandPort;
 import de.fhdw.vendix.commons.api.domain.article.port.ArticleQueryPort;
-import de.fhdw.vendix.commons.spring.core.crud.AbstractDtoCrudAdapter;
+import de.fhdw.vendix.commons.spring.data.crud.AbstractDtoCrudAdapter;
 import org.springframework.stereotype.Service;
 
 @Service

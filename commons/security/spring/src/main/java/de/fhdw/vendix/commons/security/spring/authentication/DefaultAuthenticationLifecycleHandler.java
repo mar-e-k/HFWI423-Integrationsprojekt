@@ -3,7 +3,7 @@ package de.fhdw.vendix.commons.security.spring.authentication;
 import de.fhdw.vendix.commons.api.domain.lock.dto.LockDTO;
 import de.fhdw.vendix.commons.api.domain.lock.dto.TargetTypeEnum;
 import de.fhdw.vendix.commons.api.domain.lock.port.LockCommandPort;
-import de.fhdw.vendix.commons.security.core.AuthenticationLifecycleHandler;
+import de.fhdw.vendix.security.api.AuthenticationLifecycleHandler;
 import de.fhdw.vendix.security.api.context.AppContext;
 import de.fhdw.vendix.security.api.context.AuthContext;
 

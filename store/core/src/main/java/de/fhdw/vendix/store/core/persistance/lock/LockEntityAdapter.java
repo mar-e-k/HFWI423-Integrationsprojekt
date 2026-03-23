@@ -1,7 +1,7 @@
 package de.fhdw.vendix.store.core.persistance.lock;
 
 import de.fhdw.vendix.commons.api.domain.lock.dto.TargetTypeEnum;
-import de.fhdw.vendix.commons.spring.core.crud.AbstractEntityCrudAdapter;
+import de.fhdw.vendix.commons.spring.data.crud.AbstractEntityCrudAdapter;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 

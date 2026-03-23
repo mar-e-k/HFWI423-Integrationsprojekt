@@ -1,7 +1,7 @@
 package de.fhdw.vendix.store.core.persistance.store;
 
 import de.fhdw.vendix.commons.api.domain.store.dto.StoreDTO;
-import de.fhdw.vendix.commons.spring.core.crud.AbstractDtoCrudAdapter;
+import de.fhdw.vendix.commons.spring.data.crud.AbstractDtoCrudAdapter;
 import org.springframework.stereotype.Service;
 
 @Service

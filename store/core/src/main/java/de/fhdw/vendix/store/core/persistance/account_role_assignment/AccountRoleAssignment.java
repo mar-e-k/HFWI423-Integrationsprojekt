@@ -1,6 +1,6 @@
 package de.fhdw.vendix.store.core.persistance.account_role_assignment;
 
-import de.fhdw.vendix.commons.spring.core.entity.AbstractSpringDataAuditingEntity;
+import de.fhdw.vendix.commons.spring.data.entity.AbstractSpringDataAuditingEntity;
 import de.fhdw.vendix.store.core.persistance.account.Account;
 import de.fhdw.vendix.store.core.persistance.account_role.AccountRole;
 import jakarta.persistence.Entity;

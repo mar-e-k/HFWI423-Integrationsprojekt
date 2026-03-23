@@ -1,6 +1,6 @@
 package de.fhdw.vendix.store.web.controller;
 
-import de.fhdw.vendix.commons.api.domain.receipt.ReceiptEndpoints;
+import de.fhdw.vendix.commons.api.domain.receipt.web.ReceiptEndpoints;
 import de.fhdw.vendix.commons.api.domain.receipt.dto.ReceiptDTO;
 import de.fhdw.vendix.commons.api.domain.receipt.dto.ReceiptRequestDTO;
 import de.fhdw.vendix.commons.api.domain.receipt.port.ReceiptCommandPort;
