@@ -5,7 +5,7 @@ import com.vaadin.flow.router.Route;
 import de.fhdw.vendix.commons.ui.vaadin.view.AbstractRootView;
 import io.github.plaguv.amqp.api.envelope.EventEnvelope;
 import io.github.plaguv.amqp.api.envelope.EventEnvelopeBuilder;
-import io.github.plaguv.amqp.api.event.pos.LogisticArticleOrderEvent;
+import io.github.plaguv.amqp.api.event.logistic.ArticleSentEvent;
 import io.github.plaguv.amqp.core.publisher.EventPublisher;
 import jakarta.annotation.security.RolesAllowed;
 
@@ -24,7 +24,7 @@ public class RootView extends AbstractRootView {
         Button submitButton = new Button("Submit");
         submitButton.addClickListener(event -> {
                     EventEnvelope envelope = EventEnvelopeBuilder.defaults()
-                            .withContentType(LogisticArticleOrderEvent.class)
+                            .withContentType(ArticleSentEvent.class)
                             .build();
                     publisher.publishMessage(envelope);
                 }

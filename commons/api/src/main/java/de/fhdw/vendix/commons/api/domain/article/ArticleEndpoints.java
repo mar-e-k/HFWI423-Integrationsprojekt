@@ -1,8 +1,8 @@
 package de.fhdw.vendix.commons.api.domain.article;
 
-import de.fhdw.vendix.commons.api.structure.endpoints.EndpointProvider;
+import de.fhdw.vendix.commons.api.structure.web.WebEndpoint;
 
-public final class ArticleEndpoints implements EndpointProvider {
+public final class ArticleEndpoints implements WebEndpoint {
 
     public static final String BASE = "/api/article";
     public static final String BY_ID = BASE + "/id/{id}";

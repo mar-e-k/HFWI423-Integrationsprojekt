@@ -1,8 +1,8 @@
 package de.fhdw.vendix.commons.api.domain.lock;
 
-import de.fhdw.vendix.commons.api.structure.endpoints.EndpointProvider;
+import de.fhdw.vendix.commons.api.structure.web.WebEndpoint;
 
-public final class LockEndpoints implements EndpointProvider {
+public final class LockEndpoints implements WebEndpoint {
 
     public static final String BASE = "/api/lock";
 

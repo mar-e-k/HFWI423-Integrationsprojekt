@@ -22,7 +22,7 @@
 
         <dependency>
             <groupId>de.fhdw.vendix</groupId>
-            <artifactId>store-commons</artifactId>
+            <artifactId>store-api</artifactId>
         </dependency>
 
         <dependency>

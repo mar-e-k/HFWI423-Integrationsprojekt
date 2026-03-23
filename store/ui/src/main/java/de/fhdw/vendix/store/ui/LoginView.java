@@ -17,12 +17,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 @AnonymousAllowed
 public class LoginView extends AbstractLoginView {
 
-    public LoginView(
-            AuthenticationContext authenticationContext,
-            PasswordEncoder passwordEncoder,
-            AccountCommandPort accountCommandPort,
-            AccountRoleCommandPort accountRoleCommandPort
-    ) {
-        super(authenticationContext, passwordEncoder, accountCommandPort, accountRoleCommandPort);
+    public LoginView(AuthenticationContext authenticationContext) {
+        super(authenticationContext);
     }
 }

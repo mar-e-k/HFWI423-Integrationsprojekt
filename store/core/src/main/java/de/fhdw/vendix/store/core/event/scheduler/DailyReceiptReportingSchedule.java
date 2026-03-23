@@ -6,11 +6,11 @@ import de.fhdw.vendix.commons.api.domain.receipt.port.ReceiptQueryPort;
 import de.fhdw.vendix.commons.api.domain.receipt_line.dto.ReceiptLineDTO;
 import de.fhdw.vendix.commons.api.domain.store_stock.dto.StoreStockDTO;
 import de.fhdw.vendix.commons.api.domain.store_stock.port.StoreStockQueryPort;
-import de.fhdw.vendix.store.commons.context.StoreContext;
+import de.fhdw.vendix.store.api.context.StoreContext;
 import io.github.plaguv.amqp.api.envelope.EventEnvelope;
 import io.github.plaguv.amqp.api.envelope.EventEnvelopeBuilder;
-import io.github.plaguv.amqp.api.event.pos.LogisticArticleOrderEvent;
-import io.github.plaguv.amqp.api.event.pos.LogisticArticleUrgentOrderEvent;
+import io.github.plaguv.amqp.api.event.pos.ArticleOrderEvent;
+import io.github.plaguv.amqp.api.event.pos.ArticleUrgentOrderEvent;
 import io.github.plaguv.amqp.core.publisher.EventPublisher;
 import jakarta.persistence.EntityNotFoundException;
 import org.slf4j.Logger;
@@ -91,7 +91,7 @@ public class DailyReceiptReportingSchedule {
     }
 
     private void sendNormalArticleOrder(long articleID, long amount) {
-        LogisticArticleOrderEvent event = new LogisticArticleOrderEvent(
+        ArticleOrderEvent event = new ArticleOrderEvent(
                 storeID,
                 articleID,
                 amount
@@ -103,7 +103,7 @@ public class DailyReceiptReportingSchedule {
     }
 
     private void sendUrgentArticleOrder(long articleID, long amount) {
-        LogisticArticleUrgentOrderEvent event = new LogisticArticleUrgentOrderEvent(
+        ArticleUrgentOrderEvent event = new ArticleUrgentOrderEvent(
                 storeID,
                 articleID,
                 amount

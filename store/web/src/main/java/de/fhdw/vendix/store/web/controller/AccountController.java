@@ -1,6 +1,6 @@
 package de.fhdw.vendix.store.web.controller;
 
-import de.fhdw.vendix.commons.api.domain.account.AccountEndpoints;
+import de.fhdw.vendix.commons.api.domain.account.web.AccountEndpoints;
 import de.fhdw.vendix.commons.api.domain.account.dto.AccountDTO;
 import de.fhdw.vendix.commons.api.domain.account.port.AccountQueryPort;
 import io.swagger.v3.oas.annotations.Operation;

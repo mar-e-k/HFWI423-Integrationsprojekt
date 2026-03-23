@@ -1,7 +1,7 @@
 package de.fhdw.vendix.store.app.properties;
 
 
-import de.fhdw.vendix.store.commons.configuration.StartupProperties;
+import de.fhdw.vendix.store.api.configuration.StartupProperties;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
 @ConfigurationProperties(prefix = "vendix.store.startup")

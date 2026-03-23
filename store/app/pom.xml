@@ -17,6 +17,11 @@
     <dependencies>
         <dependency>
             <groupId>de.fhdw.vendix</groupId>
+            <artifactId>store-api</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>de.fhdw.vendix</groupId>
             <artifactId>store-core</artifactId>
         </dependency>
 

@@ -1,0 +1,26 @@
+services:
+  grafana:
+    image: grafana/grafana:main
+    ports:
+      - "3000:3000"
+    networks:
+      - monitor-net
+
+  loki:
+    image: grafana/loki
+    networks:
+      - monitor-net
+
+  promtail:
+    image: grafana/promtail
+    networks:
+      - monitor-net
+
+  prometheus:
+    image: prom/prometheus:main
+    networks:
+      - monitor-net
+
+networks:
+  monitor-net:
+    driver: bridge

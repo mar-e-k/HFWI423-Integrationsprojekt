@@ -1,8 +1,8 @@
 package de.fhdw.vendix.commons.api.domain.register;
 
-import de.fhdw.vendix.commons.api.structure.endpoints.EndpointProvider;
+import de.fhdw.vendix.commons.api.structure.web.WebEndpoint;
 
-public final class RegisterEndpoints implements EndpointProvider {
+public final class RegisterEndpoints implements WebEndpoint {
 
     public static final String BASE = "/api/register";
 

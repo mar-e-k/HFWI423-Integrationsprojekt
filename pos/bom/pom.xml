@@ -1,0 +1,46 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>de.fhdw.vendix</groupId>
+    <artifactId>pos-bom</artifactId>
+    <version>1.0.0</version>
+    <packaging>pom</packaging>
+
+    <name>pos-bom</name>
+    <description>pos-bom</description>
+
+    <properties>
+        <pos.version>${project.version}</pos.version>
+    </properties>
+
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>de.fhdw.vendix</groupId>
+                <artifactId>pos-api</artifactId>
+                <version>${pos.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>de.fhdw.vendix</groupId>
+                <artifactId>pos-app</artifactId>
+                <version>${pos.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>de.fhdw.vendix</groupId>
+                <artifactId>pos-core</artifactId>
+                <version>${pos.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>de.fhdw.vendix</groupId>
+                <artifactId>pos-ui</artifactId>
+                <version>${pos.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>de.fhdw.vendix</groupId>
+                <artifactId>pos-web</artifactId>
+                <version>${pos.version}</version>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+</project>

@@ -16,11 +16,11 @@
 
     <modules>
         <module>bom</module>
-        <module>app</module>
+        <module>api</module>
         <module>core</module>
-        <module>ui</module>
         <module>web</module>
-        <module>commons</module>
+        <module>ui</module>
+        <module>app</module>
     </modules>
 
     <dependencyManagement>
