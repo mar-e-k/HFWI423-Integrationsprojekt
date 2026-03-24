@@ -2,7 +2,7 @@ package de.fhdw.vendix.store.web.controller;
 
 import de.fhdw.vendix.commons.api.domain.account.web.AccountEndpoints;
 import de.fhdw.vendix.commons.api.domain.account.dto.AccountDTO;
-import de.fhdw.vendix.commons.api.domain.account.port.AccountQueryPort;
+import de.fhdw.vendix.commons.api.domain.account.web.AccountQueryApi;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.persistence.EntityNotFoundException;
@@ -17,18 +17,18 @@ import java.util.UUID;
 @Tag(name = "Account", description = "Endpoints for operations related to accounts")
 class AccountController {
 
-    private final AccountQueryPort accountQueryPort;
+    private final AccountQueryApi accountQueryApi;
 
-    public AccountController(AccountQueryPort accountQueryPort) {
-        this.accountQueryPort = accountQueryPort;
+    AccountController(AccountQueryApi accountQueryApi) {
+        this.accountQueryApi = accountQueryApi;
     }
 
-    @GetMapping(AccountEndpoints.BY_ID)
-    @Operation(summary = "Retrieve account by id")
-    public ResponseEntity<AccountDTO> getAccountById(@PathVariable long id) {
+    @GetMapping(AccountEndpoints.BY_USERNAME)
+    @Operation(summary = "Retrieve account by accountUsername")
+    public ResponseEntity<AccountDTO> getAccountByUsername(@PathVariable String username) {
         return ResponseEntity
                 .status(HttpStatus.OK)
-                .body(accountQueryPort.findById(id)
+                .body(accountQueryApi.findByUsername(username)
                         .orElseThrow(EntityNotFoundException::new));
     }
 
@@ -37,16 +37,25 @@ class AccountController {
     public ResponseEntity<AccountDTO> getAccountByUuid(@PathVariable UUID uuid) {
         return ResponseEntity
                 .status(HttpStatus.OK)
-                .body(accountQueryPort.findByUUID(uuid)
+                .body(accountQueryApi.findByUUID(uuid)
                         .orElseThrow(EntityNotFoundException::new));
     }
 
-    @GetMapping(AccountEndpoints.BY_USERNAME)
-    @Operation(summary = "Retrieve account by accountUsername")
-    public ResponseEntity<AccountDTO> getAccountByUsername(@PathVariable String username) {
+    @GetMapping(AccountEndpoints.BY_PHONE)
+    @Operation(summary = "Retrieve account by subject")
+    public ResponseEntity<AccountDTO> getAccountByPhone(@PathVariable String phone) {
         return ResponseEntity
                 .status(HttpStatus.OK)
-                .body(accountQueryPort.findByUsername(username)
+                .body(accountQueryApi.findByPhone(phone)
+                        .orElseThrow(EntityNotFoundException::new));
+    }
+
+    @GetMapping(AccountEndpoints.BY_EMAIL)
+    @Operation(summary = "Retrieve account by subject")
+    public ResponseEntity<AccountDTO> getAccountByEmail(@PathVariable String email) {
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(accountQueryApi.findByEmail(email)
                         .orElseThrow(EntityNotFoundException::new));
     }
 }

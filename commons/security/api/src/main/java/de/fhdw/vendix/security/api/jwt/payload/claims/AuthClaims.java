@@ -1,4 +1,4 @@
-package de.fhdw.vendix.security.api.jwt.claims;
+package de.fhdw.vendix.security.api.jwt.payload.claims;
 
 import de.fhdw.vendix.commons.api.domain.account_role.dto.AccountRoleEnum;
 

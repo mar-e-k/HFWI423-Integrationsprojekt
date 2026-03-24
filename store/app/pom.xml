@@ -42,6 +42,11 @@
         </dependency>
 
         <dependency>
+            <groupId>org.postgresql</groupId>
+            <artifactId>postgresql</artifactId>
+        </dependency>
+
+        <dependency>
             <groupId>de.fhdw.vendix</groupId>
             <artifactId>commons-spring-starter</artifactId>
         </dependency>

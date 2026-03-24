@@ -2,8 +2,8 @@ package de.fhdw.vendix.commons.security.spring.authentication;
 
 import de.fhdw.vendix.commons.api.domain.account.dto.AccountDTO;
 import de.fhdw.vendix.commons.api.domain.account_role.dto.AccountRoleEnum;
-import de.fhdw.vendix.commons.api.specification.authentication.AuthenticationQueryApi;
-import de.fhdw.vendix.commons.api.specification.authorization.AuthorizationQueryApi;
+import de.fhdw.vendix.security.api.authentication.AuthenticationQueryApi;
+import de.fhdw.vendix.security.api.authorization.AuthorizationQueryApi;
 import de.fhdw.vendix.commons.security.core.DefaultAuthContext;
 import de.fhdw.vendix.commons.security.spring.context.DefaultUser;
 import de.fhdw.vendix.security.api.context.AuthContext;

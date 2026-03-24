@@ -15,7 +15,7 @@ public final class DefaultAppContext implements AppContext {
     private final String hostname;
     private final String serverName;
 
-    private int serverPort;
+    private volatile int serverPort;
 
     public DefaultAppContext(Environment environment) {
         this.instanceUUID = UUID.randomUUID();

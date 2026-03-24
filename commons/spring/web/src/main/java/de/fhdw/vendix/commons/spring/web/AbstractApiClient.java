@@ -1,8 +1,8 @@
 package de.fhdw.vendix.commons.spring.web;
 
 import de.fhdw.vendix.commons.api.structure.web.WebEndpoint;
-import de.fhdw.vendix.security.api.JwtService;
-import de.fhdw.vendix.security.api.jwt.JwtPayload;
+import de.fhdw.vendix.security.api.jwt.JwtService;
+import de.fhdw.vendix.security.api.jwt.payload.JwtPayload;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.MediaType;

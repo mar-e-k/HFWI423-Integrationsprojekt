@@ -1,4 +1,4 @@
-package de.fhdw.vendix.security.api;
+package de.fhdw.vendix.security.api.jwt;
 
 import java.time.Duration;
 

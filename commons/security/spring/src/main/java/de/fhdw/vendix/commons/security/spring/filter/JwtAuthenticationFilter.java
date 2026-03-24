@@ -1,10 +1,10 @@
 package de.fhdw.vendix.commons.security.spring.filter;
 
 import de.fhdw.vendix.commons.api.domain.account.dto.AccountDTO;
-import de.fhdw.vendix.commons.api.domain.account.port.AccountQueryPort;
 import de.fhdw.vendix.commons.api.domain.account_role.dto.AccountRoleEnum;
-import de.fhdw.vendix.security.api.JwtService;
-import de.fhdw.vendix.security.api.jwt.JwtPayload;
+import de.fhdw.vendix.security.api.authentication.AuthenticationQueryApi;
+import de.fhdw.vendix.security.api.jwt.JwtService;
+import de.fhdw.vendix.security.api.jwt.payload.JwtPayload;
 import jakarta.annotation.Nonnull;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -26,11 +26,11 @@ import java.util.Set;
 public final class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private final JwtService jwtService;
-    private final AccountQueryPort accountQueryPort;
+    private final AuthenticationQueryApi authenticationQueryApi;
 
-    public JwtAuthenticationFilter(JwtService jwtService, AccountQueryPort accountQueryPort) {
+    public JwtAuthenticationFilter(JwtService jwtService, AuthenticationQueryApi authenticationQueryApi) {
         this.jwtService = jwtService;
-        this.accountQueryPort = accountQueryPort;
+        this.authenticationQueryApi = authenticationQueryApi;
     }
 
     @Override
@@ -71,10 +71,13 @@ public final class JwtAuthenticationFilter extends OncePerRequestFilter {
                     "system"
             );
         } else {
-            account = accountQueryPort.findByUUID(payload.auth().subject())
+            account = authenticationQueryApi.findByUUID(payload.auth().subject())
                     .orElseThrow(() -> new BadCredentialsException("Invalid token. Account with specified UUID does not exist"));
         }
 
-        return new UsernamePasswordAuthenticationToken(account.username(), account.password());
+        return new UsernamePasswordAuthenticationToken(
+                account.username(),
+                account.password()
+        );
     }
 }

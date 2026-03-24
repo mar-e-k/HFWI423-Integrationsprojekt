@@ -7,9 +7,10 @@ import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.SignedJWT;
 import com.nimbusds.jwt.proc.ExpiredJWTException;
 import de.fhdw.vendix.commons.api.domain.account_role.dto.AccountRoleEnum;
-import de.fhdw.vendix.security.api.JwtProperties;
-import de.fhdw.vendix.security.api.jwt.claims.JwtClaimsEnum;
-import de.fhdw.vendix.security.api.jwt.JwtPayload;
+import de.fhdw.vendix.security.api.jwt.JwtProperties;
+import de.fhdw.vendix.security.api.jwt.JwtService;
+import de.fhdw.vendix.security.api.jwt.payload.claims.JwtClaimsEnum;
+import de.fhdw.vendix.security.api.jwt.payload.JwtPayload;
 
 import java.nio.charset.StandardCharsets;
 import java.text.ParseException;
@@ -20,7 +21,7 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
-public final class JwtServiceImpl implements de.fhdw.vendix.security.api.JwtService {
+public final class JwtServiceImpl implements JwtService {
 
     private final byte[] secret;
     private final Duration expiration;

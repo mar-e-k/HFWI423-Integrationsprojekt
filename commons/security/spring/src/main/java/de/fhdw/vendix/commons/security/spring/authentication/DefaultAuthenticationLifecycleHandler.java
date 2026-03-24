@@ -2,55 +2,52 @@ package de.fhdw.vendix.commons.security.spring.authentication;
 
 import de.fhdw.vendix.commons.api.domain.lock.dto.LockDTO;
 import de.fhdw.vendix.commons.api.domain.lock.dto.TargetTypeEnum;
-import de.fhdw.vendix.commons.api.domain.lock.port.LockCommandPort;
 import de.fhdw.vendix.security.api.AuthenticationLifecycleHandler;
+import de.fhdw.vendix.security.api.authorization.AuthorizationCommandApi;
 import de.fhdw.vendix.security.api.context.AppContext;
 import de.fhdw.vendix.security.api.context.AuthContext;
 
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
-import java.util.Objects;
 
 public class DefaultAuthenticationLifecycleHandler implements AuthenticationLifecycleHandler {
 
     private final AppContext appContext;
-    private final LockCommandPort lockCommandPort;
+    private final AuthorizationCommandApi authorizationCommandApi;
 
-    public DefaultAuthenticationLifecycleHandler(AppContext appContext, LockCommandPort lockCommandPort) {
+    public DefaultAuthenticationLifecycleHandler(AppContext appContext, AuthorizationCommandApi authorizationCommandApi) {
         this.appContext = appContext;
-        this.lockCommandPort = lockCommandPort;
+        this.authorizationCommandApi = authorizationCommandApi;
     }
 
     @Override
     public void onApplicationStart(AppContext appContext) {
-        lockCommandPort.deleteAllByExpiresAtNow();
+        authorizationCommandApi.deleteAllExpiredLocks();
     }
 
     @Override
     public void onApplicationShutdown(AppContext appContext) {
-        lockCommandPort.deleteAllByInstanceUUID(appContext.getInstanceUUID());
+        authorizationCommandApi.deleteAllInstanceLocks(appContext.getInstanceUUID());
     }
 
     @Override
     public void onAuthenticationSuccess(AuthContext authContext) {
-        Long accountID = Objects.requireNonNull(authContext.accountId());
-        LockDTO dto = new LockDTO(
+        LockDTO lock = new LockDTO(
                 null,
                 TargetTypeEnum.ACCOUNT,
-                accountID,
+                authContext.accountId(),
                 appContext.getInstanceUUID(),
                 Instant.now(),
                 Instant.now().plus(1, ChronoUnit.HOURS) // TODO: set properties for automatic expiry. Could also be End of Day
         );
-        lockCommandPort.create(dto);
+        authorizationCommandApi.createLock(lock);
     }
 
     @Override
     public void onAuthenticationLogout(AuthContext authContext) {
-        Long accountID = Objects.requireNonNull(authContext.accountId());
-        lockCommandPort.deleteByTargetTypeAndTargetId(
+        authorizationCommandApi.deleteLockByTarget(
                 TargetTypeEnum.ACCOUNT,
-                accountID
+                authContext.accountId()
         );
     }
 }

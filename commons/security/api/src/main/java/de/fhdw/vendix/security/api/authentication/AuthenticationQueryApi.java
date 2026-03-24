@@ -1,4 +1,4 @@
-package de.fhdw.vendix.commons.api.specification.authentication;
+package de.fhdw.vendix.security.api.authentication;
 
 import de.fhdw.vendix.commons.api.domain.account.dto.AccountDTO;
 import de.fhdw.vendix.commons.api.structure.web.QueryApi;

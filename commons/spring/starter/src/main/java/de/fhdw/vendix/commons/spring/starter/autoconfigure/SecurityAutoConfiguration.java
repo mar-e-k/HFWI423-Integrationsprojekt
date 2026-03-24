@@ -1,9 +1,9 @@
 package de.fhdw.vendix.commons.spring.starter.autoconfigure;
 
 import com.vaadin.flow.spring.security.VaadinSecurityConfigurer;
-import de.fhdw.vendix.commons.api.domain.lock.port.LockCommandPort;
-import de.fhdw.vendix.commons.api.specification.authentication.AuthenticationQueryApi;
-import de.fhdw.vendix.commons.api.specification.authorization.AuthorizationQueryApi;
+import de.fhdw.vendix.security.api.authentication.AuthenticationQueryApi;
+import de.fhdw.vendix.security.api.authorization.AuthorizationCommandApi;
+import de.fhdw.vendix.security.api.authorization.AuthorizationQueryApi;
 import de.fhdw.vendix.commons.security.spring.authentication.DefaultAuthenticationLifecycleHandler;
 import de.fhdw.vendix.commons.security.spring.context.DefaultAppContext;
 import de.fhdw.vendix.commons.security.spring.authentication.DefaultUserDetailsService;
@@ -19,8 +19,6 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.core.annotation.Order;
 import org.springframework.core.env.Environment;
 import org.springframework.data.domain.AuditorAware;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -39,12 +37,6 @@ public class SecurityAutoConfiguration {
     @ConditionalOnMissingBean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
-    }
-
-    @Bean
-    @ConditionalOnMissingBean
-    public AuthenticationManager authenticationManager(AuthenticationConfiguration config) {
-        return config.getAuthenticationManager();
     }
 
     @Bean
@@ -73,8 +65,8 @@ public class SecurityAutoConfiguration {
 
     @Bean
     @ConditionalOnMissingBean
-    public AuthenticationLifecycleHandler authenticationLifecycleHandler(AppContext appContext, LockCommandPort commandPort) {
-        return new DefaultAuthenticationLifecycleHandler(appContext, commandPort);
+    public AuthenticationLifecycleHandler authenticationLifecycleHandler(AppContext appContext, AuthorizationCommandApi authorizationCommandApi) {
+        return new DefaultAuthenticationLifecycleHandler(appContext, authorizationCommandApi);
     }
 
     @Bean

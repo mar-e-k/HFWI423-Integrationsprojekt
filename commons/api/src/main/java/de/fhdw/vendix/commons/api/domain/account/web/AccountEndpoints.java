@@ -8,9 +8,10 @@ public final class AccountEndpoints implements WebEndpoint {
 
     public static final String BASE = "/api/account";
 
-    public static final String BY_ID = BASE + "/id/{id}";
     public static final String BY_UUID = BASE + "/uuid/{uuid}";
-    public static final String BY_USERNAME = BASE + "/name/{username}";
+    public static final String BY_USERNAME = BASE + "/username/{username}";
+    public static final String BY_PHONE = BASE + "/phone/{phone}";
+    public static final String BY_EMAIL = BASE + "/email/{email}";
 
     private AccountEndpoints() {}
 
@@ -22,9 +23,10 @@ public final class AccountEndpoints implements WebEndpoint {
     @Override
     public Set<String> getEndpoints() {
         return Set.of(
-                BY_ID,
                 BY_UUID,
-                BY_USERNAME
+                BY_USERNAME,
+                BY_PHONE,
+                BY_EMAIL
         );
     }
 }

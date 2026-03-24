@@ -1,8 +1,8 @@
-package de.fhdw.vendix.security.api.jwt;
+package de.fhdw.vendix.security.api.jwt.payload;
 
 import de.fhdw.vendix.commons.api.domain.account_role.dto.AccountRoleEnum;
-import de.fhdw.vendix.security.api.jwt.claims.AuthClaims;
-import de.fhdw.vendix.security.api.jwt.claims.ContextClaims;
+import de.fhdw.vendix.security.api.jwt.payload.claims.AuthClaims;
+import de.fhdw.vendix.security.api.jwt.payload.claims.ContextClaims;
 
 import java.util.Set;
 import java.util.UUID;

@@ -45,14 +45,14 @@ class LockController {
     public ResponseEntity<LockDTO> getByTargetTypeAndTargetId(@PathVariable TargetTypeEnum targetTypeEnum, @PathVariable long targetID) {
         return ResponseEntity
                 .status(HttpStatus.OK)
-                .body(lockQueryPort.findByTargetTypeAndTargetID(targetTypeEnum, targetID)
+                .body(lockQueryPort.findByTarget(targetTypeEnum, targetID)
                         .orElseThrow(EntityNotFoundException::new));
     }
 
     @DeleteMapping(LockEndpoints.BY_TARGET_TYPE_AND_TARGET_ID)
     @Operation(summary = "Delete all locks by targetType and targetId")
     public ResponseEntity<Void> deleteByTargetTypeAndTargetId(@PathVariable TargetTypeEnum targetTypeEnum, @PathVariable long targetID) {
-        lockCommandPort.deleteByTargetTypeAndTargetId(targetTypeEnum, targetID);
+        lockCommandPort.deleteLockByTarget(targetTypeEnum, targetID);
         return ResponseEntity
                 .noContent()
                 .build();
@@ -61,7 +61,7 @@ class LockController {
     @DeleteMapping(LockEndpoints.BY_INSTANCE_UUID)
     @Operation(summary = "Delete all locks by instanceUUID UUID")
     public ResponseEntity<Long> deleteAllByInstanceId(@PathVariable UUID instanceUUID) {
-        lockCommandPort.deleteAllByInstanceUUID(instanceUUID);
+        lockCommandPort.deleteAllInstanceLocks(instanceUUID);
         return ResponseEntity
                 .noContent()
                 .build();

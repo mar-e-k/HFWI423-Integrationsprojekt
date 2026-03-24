@@ -1,6 +1,6 @@
 package de.fhdw.vendix.commons.spring.starter.properties;
 
-import de.fhdw.vendix.security.api.JwtProperties;
+import de.fhdw.vendix.security.api.jwt.JwtProperties;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
 import java.time.Duration;

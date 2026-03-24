@@ -1,4 +1,4 @@
-package de.fhdw.vendix.security.api.jwt.claims;
+package de.fhdw.vendix.security.api.jwt.payload.claims;
 
 public enum JwtClaimsEnum {
     SUBJECT("sub"),

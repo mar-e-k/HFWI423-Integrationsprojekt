@@ -1,6 +1,6 @@
-package de.fhdw.vendix.security.api;
+package de.fhdw.vendix.security.api.jwt;
 
-import de.fhdw.vendix.security.api.jwt.JwtPayload;
+import de.fhdw.vendix.security.api.jwt.payload.JwtPayload;
 
 public interface JwtService {
     String generateToken(JwtPayload jwtPayload);

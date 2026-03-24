@@ -1,4 +1,4 @@
-package de.fhdw.vendix.commons.api.specification.authorization;
+package de.fhdw.vendix.security.api.authorization;
 
 import de.fhdw.vendix.commons.api.domain.account_role.dto.AccountRoleEnum;
 import de.fhdw.vendix.commons.api.structure.web.QueryApi;

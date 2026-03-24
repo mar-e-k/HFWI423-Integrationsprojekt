@@ -2,8 +2,8 @@ package de.fhdw.vendix.store.core.specification;
 
 import de.fhdw.vendix.commons.api.domain.account.dto.AccountDTO;
 import de.fhdw.vendix.commons.api.domain.account.port.AccountQueryPort;
-import de.fhdw.vendix.commons.api.specification.authentication.AuthenticationCommandApi;
-import de.fhdw.vendix.commons.api.specification.authentication.AuthenticationQueryApi;
+import de.fhdw.vendix.security.api.authentication.AuthenticationCommandApi;
+import de.fhdw.vendix.security.api.authentication.AuthenticationQueryApi;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
@@ -28,15 +28,13 @@ class AuthenticationAdapter implements AuthenticationQueryApi, AuthenticationCom
         return accountQueryPort.findByUUID(uuid);
     }
 
-    // TODO
     @Override
     public Optional<AccountDTO> findByPhone(String phone) {
-        return Optional.empty();
+        return accountQueryPort.findByPhone(phone);
     }
 
-    // TODO
     @Override
     public Optional<AccountDTO> findByEmail(String email) {
-        return Optional.empty();
+        return accountQueryPort.findByEmail(email);
     }
 }
