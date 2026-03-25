@@ -1,9 +1,24 @@
 package de.fhdw.vendix.pos.core.persistence;
 
+import de.fhdw.vendix.commons.api.domain.article.web.ArticleCommandApi;
+import de.fhdw.vendix.commons.api.domain.article.web.ArticleQueryApi;
+import de.fhdw.vendix.commons.spring.web.AbstractApiClient;
+import de.fhdw.vendix.security.api.jwt.JwtService;
+import de.fhdw.vendix.security.api.jwt.payload.JwtPayload;
 import org.springframework.stereotype.Service;
 
 @Service
-public class ArticleAdapter  {
+class ArticleClientAdapter extends AbstractApiClient implements ArticleQueryApi, ArticleCommandApi {
+
+
+    protected ArticleClientAdapter(JwtService jwtService) {
+        super(jwtService, "localhost:8080");
+    }
+
+    @Override
+    protected JwtPayload buildJwtPayload() {
+        return null;
+    }
 
 //    public ArticleProxyService(StoreClient storeClient) {
 //        super(storeClient);

@@ -21,12 +21,12 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
-public final class JwtServiceImpl implements JwtService {
+public final class DefaultJwtService implements JwtService {
 
     private final byte[] secret;
     private final Duration expiration;
 
-    public JwtServiceImpl(JwtProperties jwtProperties) {
+    public DefaultJwtService(JwtProperties jwtProperties) {
         this.secret = jwtProperties.privateKey().getBytes(StandardCharsets.UTF_8);
         this.expiration = jwtProperties.expiration();
     }

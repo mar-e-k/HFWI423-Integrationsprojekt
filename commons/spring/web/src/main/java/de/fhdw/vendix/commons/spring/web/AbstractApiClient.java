@@ -1,6 +1,5 @@
 package de.fhdw.vendix.commons.spring.web;
 
-import de.fhdw.vendix.commons.api.structure.web.WebEndpoint;
 import de.fhdw.vendix.security.api.jwt.JwtService;
 import de.fhdw.vendix.security.api.jwt.payload.JwtPayload;
 import org.springframework.http.HttpHeaders;
@@ -21,14 +20,6 @@ public abstract class AbstractApiClient {
         this.jwtService = jwtService;
         this.webClient = WebClient.builder()
                 .baseUrl(baseUrl)
-                .defaultHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
-                .build();
-    }
-
-    protected AbstractApiClient(JwtService jwtService, WebEndpoint endpoint) {
-        this.jwtService = jwtService;
-        this.webClient = WebClient.builder()
-                .baseUrl(endpoint.getBasePath())
                 .defaultHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
                 .build();
     }

@@ -52,11 +52,11 @@ class AccountAdapter extends AbstractDtoCrudAdapter<Account, AccountDTO, Long> i
     }
 
     @Override
-    public Set<AccountRoleEnum> findAllRoles(Long accountId) {
-        if (accountId < 0) {
+    public Set<AccountRoleEnum> findAllRoles(Long id) {
+        if (id < 0) {
             return Set.of();
         }
-        return accountEntityAdapter.findAllAccountRolesByAccountId(accountId);
+        return accountEntityAdapter.findAllAccountRolesByAccountId(id);
     }
 
     @Override

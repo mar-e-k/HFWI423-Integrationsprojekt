@@ -17,7 +17,7 @@
     <dependencies>
         <dependency>
             <groupId>de.fhdw.vendix</groupId>
-            <artifactId>commons-spring-core</artifactId>
+            <artifactId>store-api</artifactId>
         </dependency>
 
         <dependency>
@@ -28,11 +28,6 @@
         <dependency>
             <groupId>de.fhdw.vendix</groupId>
             <artifactId>commons-security-api</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>de.fhdw.vendix</groupId>
-            <artifactId>store-api</artifactId>
         </dependency>
 
         <dependency>

@@ -3,7 +3,7 @@ package de.fhdw.vendix.commons.spring.starter.autoconfigure;
 import de.fhdw.vendix.security.api.authentication.AuthenticationQueryApi;
 import de.fhdw.vendix.security.api.jwt.JwtProperties;
 import de.fhdw.vendix.security.api.jwt.JwtService;
-import de.fhdw.vendix.commons.security.core.JwtServiceImpl;
+import de.fhdw.vendix.commons.security.core.DefaultJwtService;
 import de.fhdw.vendix.commons.security.spring.filter.JwtAuthenticationFilter;
 import de.fhdw.vendix.commons.spring.starter.properties.JwtPropertiesConfiguration;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
@@ -18,7 +18,7 @@ public class JwtAutoConfiguration {
     @Bean
     @ConditionalOnMissingBean
     public JwtService jwtService(JwtProperties jwtProperties) {
-        return new JwtServiceImpl(jwtProperties);
+        return new DefaultJwtService(jwtProperties);
     }
 
     @Bean

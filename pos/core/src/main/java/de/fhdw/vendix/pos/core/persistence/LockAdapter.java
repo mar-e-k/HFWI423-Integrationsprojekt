@@ -1,9 +1,58 @@
 package de.fhdw.vendix.pos.core.persistence;
 
+import de.fhdw.vendix.commons.api.domain.lock.dto.LockDTO;
+import de.fhdw.vendix.commons.api.domain.lock.dto.TargetTypeEnum;
+import de.fhdw.vendix.commons.api.domain.lock.web.LockCommandApi;
+import de.fhdw.vendix.commons.api.domain.lock.web.LockQueryApi;
+import de.fhdw.vendix.commons.spring.web.AbstractApiClient;
+import de.fhdw.vendix.security.api.jwt.JwtService;
+import de.fhdw.vendix.security.api.jwt.payload.JwtPayload;
 import org.springframework.stereotype.Service;
 
+import java.util.Optional;
+import java.util.UUID;
+
 @Service
-public class LockAdapter {
+class LockAdapter extends AbstractApiClient implements LockQueryApi, LockCommandApi {
+
+    protected LockAdapter(JwtService jwtService) {
+        super(jwtService, "localhost:8080");
+    }
+
+    @Override
+    protected JwtPayload buildJwtPayload() {
+        return null;
+    }
+
+    @Override
+    public LockDTO create(LockDTO entity) {
+        return null;
+    }
+
+    @Override
+    public void deleteLockByTarget(TargetTypeEnum targetTypeEnum, long targetId) {
+
+    }
+
+    @Override
+    public void deleteAllInstanceLocks(UUID instanceUUID) {
+
+    }
+
+    @Override
+    public void deleteAllExpiredLocks() {
+
+    }
+
+    @Override
+    public boolean existsByTarget(TargetTypeEnum targetTypeEnum, Long id) {
+        return false;
+    }
+
+    @Override
+    public Optional<LockDTO> findByTarget(TargetTypeEnum targetTypeEnum, Long targetID) {
+        return Optional.empty();
+    }
 
 //    public DistributedLockProxyService(StoreClient storeClient) {
 //        super(storeClient);

@@ -39,7 +39,8 @@ public final class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         if (header != null && header.startsWith("Bearer ")) {
             try {
-                Authentication authentication = resolveAuthentication(header.substring(7));
+                String token = header.split(" ")[1]; // Gets the token after 'Bearer ...'
+                Authentication authentication = resolveAuthentication(token);
                 SecurityContext context = SecurityContextHolder.createEmptyContext(); // Avoids edge-case auth leaking in multithreading environment
                 context.setAuthentication(authentication);
                 SecurityContextHolder.setContext(context);
