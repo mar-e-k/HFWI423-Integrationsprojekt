@@ -2,10 +2,10 @@ package com.example.application;
 
 import com.vaadin.flow.component.page.AppShellConfigurator;
 import com.vaadin.flow.server.AppShellSettings;
-import io.github.plaguv.contract.envelope.EventEnvelope;
-import io.github.plaguv.contract.envelope.EventEnvelopeBuilder;
-import io.github.plaguv.contract.event.pos.StoreClosedEvent;
-import io.github.plaguv.core.publisher.EventPublisher;
+import io.github.plaguv.amqp.api.envelope.EventEnvelope;
+import io.github.plaguv.amqp.api.envelope.EventEnvelopeBuilder;
+import io.github.plaguv.amqp.api.event.logistic.ArticleSentEvent;
+import io.github.plaguv.amqp.core.publisher.EventPublisher;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.context.event.ApplicationStartedEvent;
@@ -42,7 +42,7 @@ private final EventPublisher publisher;
     @EventListener
     public void message(ApplicationStartedEvent applicationStartedEvent){
         try {
-            EventEnvelope eventenvelope = EventEnvelopeBuilder.defaults().withContentType(StoreClosedEvent.class).build();
+            EventEnvelope eventenvelope = EventEnvelopeBuilder.defaults().withContentType(ArticleSentEvent.class).build();
             publisher.publishMessage(eventenvelope);
         } catch (Exception e) {
             // RabbitMQ Exchange nicht vorhanden oder nicht erreichbar - nicht kritisch

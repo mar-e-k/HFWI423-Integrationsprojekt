@@ -1,8 +1,8 @@
 package com.example.application.amqp;
 
-import com.example.application.amqp.events.LogisticArticleOrder;
-import com.example.application.amqp.events.LogisticUrgentArticleOrder;
-import io.github.plaguv.core.listener.AmqpListener;
+import io.github.plaguv.amqp.api.event.pos.ArticleOrderEvent;
+import io.github.plaguv.amqp.api.event.pos.ArticleUrgentOrderEvent;
+import io.github.plaguv.amqp.core.listener.AmqpEventListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -24,8 +24,8 @@ public class LogisticOrderListener {
      *
      * @param order Die Bestellanforderung mit storeId, articleId und Menge
      */
-    @AmqpListener
-    public void onLogisticArticleOrder(LogisticArticleOrder order) {
+    @AmqpEventListener
+    public void onLogisticArticleOrder(ArticleOrderEvent order) {
         logger.info("📦 Normale Bestellung erhalten - StoreID: {}, ArticleID: {}, Quantity: {}",
                 order.storeId(), order.articleId(), order.quantity());
 
@@ -41,8 +41,8 @@ public class LogisticOrderListener {
      *
      * @param order Die Sonderbestellung mit storeId, articleId und Menge
      */
-    @AmqpListener
-    public void onLogisticUrgentArticleOrder(LogisticUrgentArticleOrder order) {
+    @AmqpEventListener
+    public void onLogisticUrgentArticleOrder(ArticleUrgentOrderEvent order) {
         logger.info("🚨 Dringende Bestellung erhalten - StoreID: {}, ArticleID: {}, Quantity: {}",
                 order.storeId(), order.articleId(), order.quantity());
 

@@ -1,6 +1,6 @@
 package com.example.application.amqp;
 
-import io.github.plaguv.core.publisher.EventPublisher;
+import io.github.plaguv.amqp.core.publisher.EventPublisher;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
