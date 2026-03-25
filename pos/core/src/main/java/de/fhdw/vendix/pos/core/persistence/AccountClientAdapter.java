@@ -48,7 +48,7 @@ class AccountClientAdapter extends AbstractApiClient implements AccountQueryApi,
 
     @Override
     protected JwtPayload buildJwtPayload() {
-        return null;
+        return JwtPayload.system();
     }
 
 

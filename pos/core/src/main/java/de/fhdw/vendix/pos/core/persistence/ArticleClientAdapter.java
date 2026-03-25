@@ -17,7 +17,7 @@ class ArticleClientAdapter extends AbstractApiClient implements ArticleQueryApi,
 
     @Override
     protected JwtPayload buildJwtPayload() {
-        return null;
+        return JwtPayload.system();
     }
 
 //    public ArticleProxyService(StoreClient storeClient) {

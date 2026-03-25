@@ -25,6 +25,7 @@ public class LogisticReceiveStockListener {
     @AmqpEventListener
     public void onArticleSentEvent(@Nonnull ArticleSentEvent event) {
         log.atInfo().log("onArticleSentEvent");
+        log.atInfo().log(event.toString());
 //        if (storeContext.getStore() == null || storeContext.getStore().id() == null) {
 //            throw new IllegalStateException("Cannot handle event, as storeContext is not set properly");
 //        }

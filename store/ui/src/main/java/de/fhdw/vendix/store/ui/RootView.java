@@ -23,8 +23,13 @@ public class RootView extends AbstractRootView {
     private void configureSubmitButton() {
         Button submitButton = new Button("Submit");
         submitButton.addClickListener(event -> {
+                    ArticleSentEvent articleSentEvent = new ArticleSentEvent(
+                            1L,
+                            1L,
+                            5
+                    );
                     EventEnvelope envelope = EventEnvelopeBuilder.defaults()
-                            .withContentType(ArticleSentEvent.class)
+                            .withContent(articleSentEvent)
                             .build();
                     publisher.publishMessage(envelope);
                 }

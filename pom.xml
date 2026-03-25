@@ -23,7 +23,7 @@
 
     <modules>
         <module>commons</module>
-        <module>pos</module>
+<!--        <module>pos</module>-->
         <module>store</module>
     </modules>
 
@@ -41,6 +41,7 @@
         <mapstruct.version>1.6.3</mapstruct.version>
         <error-handling.version>5.1.0</error-handling.version>
         <!-- Plugin Versions -->
+        <openapi-generator.version>7.21.0</openapi-generator.version>
         <error-prone.version>2.47.0</error-prone.version>
         <error-prone-support.version>0.28.0</error-prone-support.version>
         <nullaway.version>0.13.1</nullaway.version>
@@ -148,6 +149,12 @@
                             </path>
                         </annotationProcessorPaths>
                     </configuration>
+                </plugin>
+                <!-- Source: https://mvnrepository.com/artifact/org.openapitools/openapi-generator-maven-plugin -->
+                <plugin>
+                    <groupId>org.openapitools</groupId>
+                    <artifactId>openapi-generator-maven-plugin</artifactId>
+                    <version>${openapi-generator.version}</version>
                 </plugin>
             </plugins>
         </pluginManagement>

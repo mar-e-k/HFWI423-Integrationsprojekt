@@ -22,6 +22,11 @@
 
         <dependency>
             <groupId>de.fhdw.vendix</groupId>
+            <artifactId>commons-spring-core</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>de.fhdw.vendix</groupId>
             <artifactId>commons-spring-data</artifactId>
         </dependency>
 

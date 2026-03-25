@@ -16,6 +16,10 @@
     <name>commons-api</name>
     <description>commons-api</description>
 
+    <properties>
+        <openapi-domain.name>account</openapi-domain.name>
+    </properties>
+
     <dependencies>
         <dependency>
             <groupId>org.jspecify</groupId>
@@ -29,6 +33,38 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
             </plugin>
+
+<!--            <plugin>-->
+<!--                <groupId>org.openapitools</groupId>-->
+<!--                <artifactId>openapi-generator-maven-plugin</artifactId>-->
+<!--                <executions>-->
+<!--                    <execution>-->
+<!--                        <id>generate-${openapi-domain.name}-api</id>-->
+<!--                        <phase>generate-sources</phase>-->
+<!--                        <goals>-->
+<!--                            <goal>generate</goal>-->
+<!--                        </goals>-->
+<!--                        <configuration>-->
+<!--                            <inputSpec>-->
+<!--                                ${project.basedir}/src/main/resources/openapi/${openapi-domain.name}.yaml-->
+<!--                            </inputSpec>-->
+
+<!--                            <output>-->
+<!--                                ${project.build.directory}/generated-sources/openapi/${openapi-domain.name}-->
+<!--                            </output>-->
+
+<!--                            <configurationFile>-->
+<!--                                ${project.basedir}/src/main/resources/openapi/config/spring-config.json-->
+<!--                            </configurationFile>-->
+
+<!--                            <generatorName>spring</generatorName>-->
+
+<!--                            <apiPackage>${project.groupId}.${openapi-domain.name}.api</apiPackage>-->
+<!--                            <modelPackage>${project.groupId}.${openapi-domain.name}.dto</modelPackage>-->
+<!--                        </configuration>-->
+<!--                    </execution>-->
+<!--                </executions>-->
+<!--            </plugin>-->
         </plugins>
     </build>
 </project>

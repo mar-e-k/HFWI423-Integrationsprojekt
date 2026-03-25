@@ -1,0 +1,122 @@
+openapi: 3.0.3
+info:
+  title: Account API
+  version: 1.0.0
+
+paths:
+  /api/accounts/by-username/{username}:
+    get:
+      operationId: getAccountByUsername
+      summary: Retrieve account by username
+      parameters:
+        - name: username
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Account found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AccountDTO'
+
+  /api/accounts/by-uuid/{uuid}:
+    get:
+      operationId: getAccountByUuid
+      summary: Retrieve account by UUID
+      parameters:
+        - name: uuid
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Account found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AccountDTO'
+
+  /api/accounts/by-phone/{phone}:
+    get:
+      operationId: getAccountByPhone
+      summary: Retrieve account by phone
+      parameters:
+        - name: phone
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Account found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AccountDTO'
+
+  /api/accounts/by-email/{email}:
+    get:
+      operationId: getAccountByEmail
+      summary: Retrieve account by email
+      parameters:
+        - name: email
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Account found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AccountDTO'
+
+  /api/accounts/{id}/roles:
+    get:
+      operationId: getAccountRoles
+      summary: Retrieve all account roles by account ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: Roles
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/AccountRoleEnum'
+
+components:
+  schemas:
+    AccountDTO:
+      type: object
+      description: Reuse existing AccountDTO via typeMappings
+      properties:
+        id:
+          type: integer
+          format: int64
+        uuid:
+          type: string
+          format: uuid
+        username:
+          type: string
+        password:
+          type: string
+    AccountRoleEnum:
+      type: string
+      description: Reuse existing AccountRoleEnum
+      enum:
+        - ADMIN
+        - USER
