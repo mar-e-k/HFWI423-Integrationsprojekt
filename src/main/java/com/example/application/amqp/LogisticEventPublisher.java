@@ -1,5 +1,9 @@
 package com.example.application.amqp;
 
+import io.github.plaguv.amqp.api.envelope.EventEnvelope;
+import io.github.plaguv.amqp.api.envelope.EventEnvelopeBuilder;
+import io.github.plaguv.amqp.api.event.logistic.ArticleSentEvent;
+import io.github.plaguv.amqp.core.listener.MessageRejectedException;
 import io.github.plaguv.amqp.core.publisher.EventPublisher;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -36,7 +40,7 @@ public class LogisticEventPublisher {
      * @param quantity  Die Menge der versendeten Artikel
      */
     public void publishArticleDelivery(long storeId, long articleId, long quantity) {
-        try {
+
             // TODO: Implementieren sobald Event-Klasse von Plaguv verfügbar ist
             // - Event-Klasse: LogisticArticleDelivery oder ähnlich
             // - Mit storeId, articleId, quantity
@@ -46,32 +50,11 @@ public class LogisticEventPublisher {
             logger.info("📤 Lieferung schicken - StoreID: {}, ArticleID: {}, Quantity: {} " +
                     "(Event-Klasse noch nicht verfügbar)", storeId, articleId, quantity);
 
-        } catch (Exception e) {
-            logger.error("❌ Fehler beim Schicken der Lieferung: {}", e.getMessage(), e);
-        }
-    }
+            ArticleSentEvent articleSentEvent = new ArticleSentEvent(storeId, articleId, quantity);
 
-    /**
-     * Publishen eines Lieferstatus-Updates.
-     *
-     * Wird aufgerufen, wenn sich der Status einer Bestellung ändert.
-     *
-     * @param storeId Die ID der Filiale
-     * @param status  Der aktuelle Status (z.B. "IN_TRANSIT", "DELIVERED", etc.)
-     */
-    public void publishDeliveryStatusUpdate(long storeId, String status) {
-        try {
-            // TODO: Implementieren sobald Event-Klasse von Plaguv verfügbar ist
-            // - Event-Klasse: LogisticDeliveryStatus oder ähnlich
-            // - Mit storeId, status, timestamp
-            // - Scope: Gezielte Benachrichtigung an Filiale (EventScope.DIRECT)
-            // - Wildcard: String.valueOf(storeId) für gezieltes Routing
+            EventEnvelope eventEnvelope = EventEnvelopeBuilder.defaults().withContent(articleSentEvent).build();
 
-            logger.info("📤 Status-Update schicken - StoreID: {}, Status: {} " +
-                    "(Event-Klasse noch nicht verfügbar)", storeId, status);
+            eventPublisher.publishMessage(eventEnvelope);
 
-        } catch (Exception e) {
-            logger.error("❌ Fehler beim Schicken des Status-Updates: {}", e.getMessage(), e);
-        }
     }
 }
