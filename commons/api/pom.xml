@@ -32,13 +32,6 @@
             <plugin>
                 <groupId>org.openapitools</groupId>
                 <artifactId>openapi-generator-maven-plugin</artifactId>
-                <configuration>
-                    <inputSpec>${project.basedir}/src/main/resources/openapi/account.yaml</inputSpec>
-                    <output>${project.build.directory}/generated-sources/openapi</output>
-                    <generatorName>spring</generatorName>
-                    <groupId>${project.groupId}</groupId>
-                    <artifactId>${project.artifactId}</artifactId>
-                </configuration>
                 <executions>
                     <execution>
                         <id>server</id>

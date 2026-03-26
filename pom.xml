@@ -148,6 +148,11 @@
                     <groupId>org.openapitools</groupId>
                     <artifactId>openapi-generator-maven-plugin</artifactId>
                     <version>${openapi-generator.version}</version>
+                    <configuration>
+                        <inputSpec>commons/api/src/main/resources/openapi.yaml</inputSpec>
+                        <output>${project.build.directory}/generated-sources/openapi</output>
+                        <generatorName>spring</generatorName>
+                    </configuration>
                 </plugin>
             </plugins>
         </pluginManagement>
