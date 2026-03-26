@@ -34,7 +34,7 @@ public class ArticleController {
             return new ResponseEntity<>(createdArticle, HttpStatus.CREATED);
         } catch (IllegalArgumentException e) {
             // Fängt die Duplikat-Prüfung aus dem Service ab
-            return new ResponseEntity<>(null, HttpStatus.CONFLICT); // 409 Conflict
+            return ResponseEntity.status(HttpStatus.CONFLICT).build(); // 409 Conflict
         }
     }
 
@@ -62,7 +62,7 @@ public class ArticleController {
             ArticleResponseDTO article = articleService.findArticleById(id);
             return ResponseEntity.ok(article); // 200 OK
         } catch (NoSuchElementException e) {
-            return new ResponseEntity<>(null, HttpStatus.NOT_FOUND); // 404 Not Found
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build(); // 409 Conflict
         }
     }
 
@@ -78,7 +78,7 @@ public class ArticleController {
             ArticleResponseDTO updatedArticle = articleService.updateArticle(id, articleDetails);
             return ResponseEntity.ok(updatedArticle); // 200 OK
         } catch (NoSuchElementException e) {
-            return new ResponseEntity<>(null, HttpStatus.NOT_FOUND); // 404 Not Found
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build(); // 409 Conflict
         }
     }
 

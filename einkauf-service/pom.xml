@@ -5,7 +5,7 @@
 	<parent>
 		<groupId>org.springframework.boot</groupId>
 		<artifactId>spring-boot-starter-parent</artifactId>
-		<version>3.3.5</version> <relativePath/>
+		<version>4.0.4</version> <relativePath/>
 	</parent>
 	<groupId>fhdw.de</groupId>
 	<artifactId>einkauf-service</artifactId>
@@ -38,7 +38,7 @@
 			<dependency>
 				<groupId>com.vaadin</groupId>
 				<artifactId>vaadin-bom</artifactId>
-				<version>24.4.4</version> <type>pom</type>
+				<version>25.0.7</version> <type>pom</type>
 				<scope>import</scope>
 			</dependency>
 		</dependencies>
@@ -48,6 +48,22 @@
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-web</artifactId>
+		</dependency>
+
+		<dependency>
+			<groupId>io.github.plaguv</groupId>
+			<artifactId>plaguv-amqp-spring-boot-starter</artifactId>
+			<version>1.3.0</version>
+		</dependency>
+
+		<dependency>
+			<groupId>com.vaadin</groupId>
+			<artifactId>vaadin-dev</artifactId>
+		</dependency>
+
+		<dependency>
+			<groupId>com.vaadin</groupId>
+			<artifactId>hilla</artifactId>
 		</dependency>
 
 		<dependency>

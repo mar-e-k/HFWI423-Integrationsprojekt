@@ -11,8 +11,192 @@ import java.util.Set;
 
 @Entity
 @Table(name = "article")
-@Data
 public class Article {
+    public Article() {
+    }
+
+    public Article(Long id, String articleNumber, String name, double purchasePrice, Double taxRatePercent, Double sellingPrice, String manufacturer, Set<Supplier> suppliers, Supplier mainSupplier, Integer stockLevel, String description, Boolean isAvailable, Boolean hasDeposit, Set<Category> categories, String productImage, LocalDateTime dateCreated, LocalDate expirationDate, Double widthCm, Double heightCm, Double depthCm) {
+        this.id = id;
+        this.articleNumber = articleNumber;
+        this.name = name;
+        this.purchasePrice = purchasePrice;
+        this.taxRatePercent = taxRatePercent;
+        this.sellingPrice = sellingPrice;
+        this.manufacturer = manufacturer;
+        this.suppliers = suppliers;
+        this.mainSupplier = mainSupplier;
+        this.stockLevel = stockLevel;
+        this.description = description;
+        this.isAvailable = isAvailable;
+        this.hasDeposit = hasDeposit;
+        this.categories = categories;
+        this.productImage = productImage;
+        this.dateCreated = dateCreated;
+        this.expirationDate = expirationDate;
+        this.widthCm = widthCm;
+        this.heightCm = heightCm;
+        this.depthCm = depthCm;
+    }
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public String getArticleNumber() {
+        return articleNumber;
+    }
+
+    public void setArticleNumber(String articleNumber) {
+        this.articleNumber = articleNumber;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public double getPurchasePrice() {
+        return purchasePrice;
+    }
+
+    public void setPurchasePrice(double purchasePrice) {
+        this.purchasePrice = purchasePrice;
+    }
+
+    public Double getTaxRatePercent() {
+        return taxRatePercent;
+    }
+
+    public void setTaxRatePercent(Double taxRatePercent) {
+        this.taxRatePercent = taxRatePercent;
+    }
+
+    public Double getSellingPrice() {
+        return sellingPrice;
+    }
+
+    public void setSellingPrice(Double sellingPrice) {
+        this.sellingPrice = sellingPrice;
+    }
+
+    public String getManufacturer() {
+        return manufacturer;
+    }
+
+    public void setManufacturer(String manufacturer) {
+        this.manufacturer = manufacturer;
+    }
+
+    public Set<Supplier> getSuppliers() {
+        return suppliers;
+    }
+
+    public void setSuppliers(Set<Supplier> suppliers) {
+        this.suppliers = suppliers;
+    }
+
+    public Supplier getMainSupplier() {
+        return mainSupplier;
+    }
+
+    public void setMainSupplier(Supplier mainSupplier) {
+        this.mainSupplier = mainSupplier;
+    }
+
+    public Integer getStockLevel() {
+        return stockLevel;
+    }
+
+    public void setStockLevel(Integer stockLevel) {
+        this.stockLevel = stockLevel;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    public Boolean getAvailable() {
+        return isAvailable;
+    }
+
+    public void setAvailable(Boolean available) {
+        isAvailable = available;
+    }
+
+    public Boolean getHasDeposit() {
+        return hasDeposit;
+    }
+
+    public void setHasDeposit(Boolean hasDeposit) {
+        this.hasDeposit = hasDeposit;
+    }
+
+    public Set<Category> getCategories() {
+        return categories;
+    }
+
+    public void setCategories(Set<Category> categories) {
+        this.categories = categories;
+    }
+
+    public String getProductImage() {
+        return productImage;
+    }
+
+    public void setProductImage(String productImage) {
+        this.productImage = productImage;
+    }
+
+    public LocalDateTime getDateCreated() {
+        return dateCreated;
+    }
+
+    public void setDateCreated(LocalDateTime dateCreated) {
+        this.dateCreated = dateCreated;
+    }
+
+    public LocalDate getExpirationDate() {
+        return expirationDate;
+    }
+
+    public void setExpirationDate(LocalDate expirationDate) {
+        this.expirationDate = expirationDate;
+    }
+
+    public Double getWidthCm() {
+        return widthCm;
+    }
+
+    public void setWidthCm(Double widthCm) {
+        this.widthCm = widthCm;
+    }
+
+    public Double getHeightCm() {
+        return heightCm;
+    }
+
+    public void setHeightCm(Double heightCm) {
+        this.heightCm = heightCm;
+    }
+
+    public Double getDepthCm() {
+        return depthCm;
+    }
+
+    public void setDepthCm(Double depthCm) {
+        this.depthCm = depthCm;
+    }
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

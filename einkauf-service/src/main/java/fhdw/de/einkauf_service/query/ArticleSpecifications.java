@@ -70,8 +70,8 @@ public class ArticleSpecifications {
 
             // 6. Statusfilter: Filtern nach Verfügbarkeit
             // null = alle Artikel, true = nur verfügbar, false = nur nicht verfügbar
-            if (filter.getIsAvailable() != null) {
-                if (filter.getIsAvailable()) {
+            if (filter.getAvailable() != null) {
+                if (filter.getAvailable()) {
                     predicates.add(criteriaBuilder.isTrue(root.get("isAvailable")));
                 } else {
                     predicates.add(criteriaBuilder.isFalse(root.get("isAvailable")));

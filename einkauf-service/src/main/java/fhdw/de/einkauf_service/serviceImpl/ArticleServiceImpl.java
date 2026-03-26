@@ -1,7 +1,6 @@
 package fhdw.de.einkauf_service.serviceImpl;
 
 import com.vaadin.flow.server.auth.AnonymousAllowed;
-import com.vaadin.hilla.BrowserCallable;
 import com.vaadin.hilla.crud.CrudRepositoryService;
 import fhdw.de.einkauf_service.dto.ArticleFilterDTO;
 import fhdw.de.einkauf_service.dto.ArticleRequestDTO;
@@ -30,7 +29,6 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.*;
 import java.util.stream.Collectors;
 
-@BrowserCallable
 @AnonymousAllowed
 @Service
 public class ArticleServiceImpl extends CrudRepositoryService<Article, Long, ArticleRepository> implements ArticleService {
@@ -179,7 +177,7 @@ public class ArticleServiceImpl extends CrudRepositoryService<Article, Long, Art
         existingArticle.setManufacturer(updatedArticleRequestDTO.getManufacturer());
         existingArticle.setStockLevel(updatedArticleRequestDTO.getStockLevel());
         existingArticle.setDescription(updatedArticleRequestDTO.getDescription());
-        existingArticle.setIsAvailable(updatedArticleRequestDTO.getIsAvailable());
+        existingArticle.setAvailable(updatedArticleRequestDTO.getAvailable());
         existingArticle.setHasDeposit(updatedArticleRequestDTO.getHasDeposit());
         existingArticle.setCategories(mapCategoryIdsToEntities(updatedArticleRequestDTO.getCategoryIds()));
         existingArticle.setProductImage(updatedArticleRequestDTO.getProductImage());
@@ -261,7 +259,7 @@ public class ArticleServiceImpl extends CrudRepositoryService<Article, Long, Art
         dto.setManufacturer(entity.getManufacturer());
         dto.setStockLevel(entity.getStockLevel());
         dto.setDescription(entity.getDescription());
-        dto.setIsAvailable(entity.getIsAvailable());
+        dto.setIsAvailable(entity.getAvailable());
         dto.setHasDeposit(entity.getHasDeposit());
         dto.setWidthCm(entity.getWidthCm());
         dto.setHeightCm(entity.getHeightCm());

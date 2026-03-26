@@ -1,7 +1,7 @@
 package fhdw.de.einkauf_service.controller;
 
+import fhdw.de.einkauf_service.service.PurchaseOrderService;
 import fhdw.de.einkauf_service.service.ShoppingCartService;
-import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -9,10 +9,13 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/api/v1/cart")
-@RequiredArgsConstructor
 public class ShoppingCartController {
 
     private final ShoppingCartService cartService;
+
+    public ShoppingCartController(ShoppingCartService cartService) {
+        this.cartService = cartService;
+    }
 
     // Fügt einen Artikel zum Session-Warenkorb hinzu/ändert die Menge
     @PostMapping("/add")
