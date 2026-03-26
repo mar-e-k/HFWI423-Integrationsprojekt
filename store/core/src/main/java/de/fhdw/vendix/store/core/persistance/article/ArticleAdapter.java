@@ -6,6 +6,8 @@ import de.fhdw.vendix.commons.api.domain.article.port.ArticleQueryPort;
 import de.fhdw.vendix.commons.spring.data.crud.AbstractDtoCrudAdapter;
 import org.springframework.stereotype.Service;
 
+import java.util.Optional;
+
 @Service
 class ArticleAdapter extends AbstractDtoCrudAdapter<Article, ArticleDTO, Long> implements ArticleQueryPort, ArticleCommandPort {
 
@@ -16,5 +18,11 @@ class ArticleAdapter extends AbstractDtoCrudAdapter<Article, ArticleDTO, Long> i
         super(articleEntityAdapter, articleMapper);
         this.articleEntityAdapter = articleEntityAdapter;
         this.articleMapper = articleMapper;
+    }
+
+    @Override
+    public Optional<ArticleDTO> findByGtin(String gtin) {
+        return articleEntityAdapter.findByGtin(gtin)
+                .map(articleMapper::toDTO);
     }
 }

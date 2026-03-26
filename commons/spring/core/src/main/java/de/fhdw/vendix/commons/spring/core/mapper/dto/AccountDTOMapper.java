@@ -1,4 +1,4 @@
-package de.fhdw.vendix.commons.spring.core.mapper.bean;
+package de.fhdw.vendix.commons.spring.core.mapper.dto;
 
 import de.fhdw.vendix.commons.api.domain.account.dto.AccountDTO;
 import de.fhdw.vendix.commons.api.domain.account.dto.AccountRequestDTO;

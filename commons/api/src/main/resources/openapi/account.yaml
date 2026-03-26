@@ -1,0 +1,28 @@
+openapi: 3.0.3
+info:
+  title: Account API
+  version: 1.0.0
+
+paths:
+  /account:
+    get:
+      tags:
+        - Account
+      operationId: getAccount
+      responses:
+        '200':
+          description: account response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Account'
+
+components:
+  schemas:
+    Account:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string

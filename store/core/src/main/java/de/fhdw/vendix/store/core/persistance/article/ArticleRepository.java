@@ -2,4 +2,10 @@ package de.fhdw.vendix.store.core.persistance.article;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 
-interface ArticleRepository extends JpaRepository<Article,Long> {}
+import java.util.Optional;
+
+interface ArticleRepository extends JpaRepository<Article, Long> {
+    Optional<Article> findById(Long id);
+
+    Optional<Article> findByArticleNumber(String articleNumber);
+}

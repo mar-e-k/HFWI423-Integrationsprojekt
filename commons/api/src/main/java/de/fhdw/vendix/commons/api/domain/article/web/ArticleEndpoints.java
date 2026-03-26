@@ -8,7 +8,6 @@ public final class ArticleEndpoints implements WebEndpoint {
 
     public static final String BASE = "/api/article";
 
-    public static final String BY_ID = BASE + "/id/{id}";
     public static final String BY_GTIN =  BASE + "/gtin/{gtin}";
 
     private ArticleEndpoints() {}
@@ -21,7 +20,6 @@ public final class ArticleEndpoints implements WebEndpoint {
     @Override
     public Set<String> getEndpoints() {
         return Set.of(
-                BY_ID,
                 BY_GTIN
         );
     }

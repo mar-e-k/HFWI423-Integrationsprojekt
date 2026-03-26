@@ -14,7 +14,7 @@ import java.util.Optional;
 import java.util.stream.StreamSupport;
 
 public abstract class AbstractEntityCrudAdapter<ENT extends Identifiable<ID>, ID>
-        extends OperationHook<ENT>
+        extends OperationHook
         implements CrudQueryPort<ENT, ID>, CrudCommandPort<ENT, ID> {
 
     private final ListCrudRepository<ENT, ID> repository;

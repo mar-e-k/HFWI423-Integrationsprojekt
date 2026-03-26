@@ -6,9 +6,7 @@ import de.fhdw.vendix.commons.api.domain.lock.dto.TargetTypeEnum;
 import de.fhdw.vendix.commons.api.domain.lock.dto.LockDTO;
 import de.fhdw.vendix.commons.api.domain.lock.port.LockCommandPort;
 import de.fhdw.vendix.commons.api.domain.lock.port.LockQueryPort;
-import de.fhdw.vendix.commons.spring.core.mapper.bean.LockDTOMapper;
-import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.tags.Tag;
+import de.fhdw.vendix.commons.spring.core.mapper.dto.LockDTOMapper;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -18,9 +16,7 @@ import java.util.UUID;
 
 @RestController
 @RequestMapping(LockEndpoints.BASE)
-@Tag(name = "Lock", description = "Endpoints for operations related to locks")
 class LockController {
-
 
     private final LockDTOMapper lockDTOMapper;
     private final LockCommandPort lockCommandPort;
@@ -33,7 +29,6 @@ class LockController {
     }
 
     @PostMapping
-    @Operation(summary = "Create lock by lockRequestDTO")
     public ResponseEntity<LockDTO> createLock(@RequestBody LockRequestDTO dto) {
         return ResponseEntity
                 .status(HttpStatus.CREATED)
@@ -41,7 +36,6 @@ class LockController {
     }
 
     @GetMapping(LockEndpoints.BY_TARGET_TYPE_AND_TARGET_ID)
-    @Operation(summary = "Find lock by targetType and targetId")
     public ResponseEntity<LockDTO> getByTargetTypeAndTargetId(@PathVariable TargetTypeEnum targetTypeEnum, @PathVariable long targetID) {
         return ResponseEntity
                 .status(HttpStatus.OK)
@@ -50,7 +44,6 @@ class LockController {
     }
 
     @DeleteMapping(LockEndpoints.BY_TARGET_TYPE_AND_TARGET_ID)
-    @Operation(summary = "Delete all locks by targetType and targetId")
     public ResponseEntity<Void> deleteByTargetTypeAndTargetId(@PathVariable TargetTypeEnum targetTypeEnum, @PathVariable long targetID) {
         lockCommandPort.deleteLockByTarget(targetTypeEnum, targetID);
         return ResponseEntity
@@ -59,7 +52,6 @@ class LockController {
     }
 
     @DeleteMapping(LockEndpoints.BY_INSTANCE_UUID)
-    @Operation(summary = "Delete all locks by instanceUUID UUID")
     public ResponseEntity<Long> deleteAllByInstanceId(@PathVariable UUID instanceUUID) {
         lockCommandPort.deleteAllInstanceLocks(instanceUUID);
         return ResponseEntity

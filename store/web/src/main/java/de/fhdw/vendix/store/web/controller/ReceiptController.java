@@ -4,15 +4,13 @@ import de.fhdw.vendix.commons.api.domain.receipt.web.ReceiptEndpoints;
 import de.fhdw.vendix.commons.api.domain.receipt.dto.ReceiptDTO;
 import de.fhdw.vendix.commons.api.domain.receipt.dto.ReceiptRequestDTO;
 import de.fhdw.vendix.commons.api.domain.receipt.port.ReceiptCommandPort;
-import de.fhdw.vendix.commons.spring.core.mapper.bean.ReceiptDTOMapper;
-import io.swagger.v3.oas.annotations.tags.Tag;
+import de.fhdw.vendix.commons.spring.core.mapper.dto.ReceiptDTOMapper;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping(ReceiptEndpoints.BASE)
-@Tag(name = "Receipt", description = "Endpoints for operations related to receipts")
 class ReceiptController {
 
     private final ReceiptDTOMapper receiptDTOMapper;

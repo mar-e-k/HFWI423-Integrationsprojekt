@@ -29,6 +29,55 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
             </plugin>
+            <plugin>
+                <groupId>org.openapitools</groupId>
+                <artifactId>openapi-generator-maven-plugin</artifactId>
+                <configuration>
+                    <inputSpec>${project.basedir}/src/main/resources/openapi/account.yaml</inputSpec>
+                    <output>${project.build.directory}/generated-sources/openapi</output>
+                    <generatorName>spring</generatorName>
+                    <groupId>${project.groupId}</groupId>
+                    <artifactId>${project.artifactId}</artifactId>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>server</id>
+                        <goals>
+                            <goal>generate</goal>
+                        </goals>
+
+                        <configuration>
+                            <configOptions>
+                                <library>spring-boot</library>
+                                <interfaceOnly>true</interfaceOnly>
+                                <useSpringBoot4>true</useSpringBoot4>
+                                <useJackson3>true</useJackson3>
+                                <useJakartaEe>true</useJakartaEe>
+                                <openApiNullable>false</openApiNullable>
+                            </configOptions>
+                            <apiPackage>${project.groupId}.server.api</apiPackage>
+                            <modelPackage>${project.groupId}.server.model</modelPackage>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>client</id>
+                        <goals>
+                            <goal>generate</goal>
+                        </goals>
+
+                        <configuration>
+                            <configOptions>
+                                <library>spring-http-interface</library>
+                                <useSpringBoot4>true</useSpringBoot4>
+                                <useJakartaEe>true</useJakartaEe>
+                                <useResponseEntity>false</useResponseEntity>
+                            </configOptions>
+                            <apiPackage>${project.groupId}.client.api</apiPackage>
+                            <modelPackage>${project.groupId}.client.model</modelPackage>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
         </plugins>
     </build>
 </project>
