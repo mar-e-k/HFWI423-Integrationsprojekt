@@ -14,80 +14,34 @@ tags:
     description: Operations related to Accounts
 
 paths:
-  /api/account/id/{id}:
+  /api/account:
     get:
+      operationId: getAccount
+      description: "Get Account by Parameters"
       tags:
         - Account
-      operationId: getAccountById
       parameters:
         - name: id
-          in: path
-          required: true
+          in: query
+          required: false
+          schema:
+            type: integer
+            format: int64
+        - name: uuid
+          in: query
+          required: false
+          schema:
+            type: integer
+            format: int64
+        - name: username
+          in: query
+          required: false
           schema:
             type: integer
             format: int64
       responses:
         200:
-          description: Successfully Retrieve
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Account"
-
-  /api/account/id/{id}/roles:
-    get:
-      tags:
-        - Account
-      operationId: getAccountRolesById
-      parameters:
-        - name: id
-          in: path
-          required: true
-          schema:
-            $ref: "#/components/schemas/Account/properties/id"
-      responses:
-        200:
-          description: Successfully Retrieve
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: "#/components/schemas/AccountRole"
-
-  /api/account/uuid/{uuid}:
-    get:
-      tags:
-        - Account
-      operationId: getAccountByUUID
-      parameters:
-        - name: uuid
-          in: path
-          required: true
-          schema:
-            $ref: "#/components/schemas/Account/properties/uuid"
-      responses:
-        200:
-          description: Successfully Retrieve
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Account"
-
-  /api/account/username/{username}:
-    get:
-      tags:
-        - Account
-      operationId: getAccountByUsername
-      parameters:
-        - name: username
-          in: path
-          required: true
-          schema:
-            $ref: "#/components/schemas/Account/properties/username"
-      responses:
-        200:
-          description: Successfully Retrieve
+          description: Successfully retrieved account
           content:
             application/json:
               schema:
