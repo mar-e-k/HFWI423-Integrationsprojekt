@@ -1,7 +1,5 @@
 package fhdw.de.einkauf_service.dto;
 
-import lombok.Data;
-
 import java.util.List;
 
 /**
@@ -24,6 +22,9 @@ public class ArticleFilterDTO {
     // Statusfilter
     // Wird als Boolean definiert, um null zu erlauben, wenn der Filter nicht gesetzt ist.
     private Boolean isAvailable;
+
+    public ArticleFilterDTO() {
+    }
 
     public ArticleFilterDTO(String name, String articleNumber, Long supplierId, String manufacturer, List<Long> categoryIds, Boolean isAvailable) {
         this.name = name;

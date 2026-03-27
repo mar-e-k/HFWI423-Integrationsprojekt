@@ -102,7 +102,7 @@ public class SupplierView extends VerticalLayout {
         grid.addColumn(SupplierResponseDTO::getCity).setHeader("Stadt").setAutoWidth(true).setSortable(true);
         grid.addColumn(SupplierResponseDTO::getPhone).setHeader("Telefon").setAutoWidth(true).setSortable(true);
         grid.addColumn(SupplierResponseDTO::getEmail).setHeader("E-Mail").setAutoWidth(true).setSortable(true);
-        grid.addColumn(s -> s.getIsActive() != null && s.getIsActive()
+        grid.addColumn(s -> s.getActive() != null && s.getActive()
                         ? "Aktiv"
                         : "Inaktiv")
                 .setHeader("Status")
@@ -175,11 +175,11 @@ public class SupplierView extends VerticalLayout {
 
         if ("Aktiv".equals(status)) {
             suppliers = suppliers.stream()
-                    .filter(s -> Boolean.TRUE.equals(s.getIsActive()))
+                    .filter(s -> Boolean.TRUE.equals(s.getActive()))
                     .toList();
         } else if ("Inaktiv".equals(status)) {
             suppliers = suppliers.stream()
-                    .filter(s -> Boolean.FALSE.equals(s.getIsActive()))
+                    .filter(s -> Boolean.FALSE.equals(s.getActive()))
                     .toList();
         }
 
@@ -314,7 +314,7 @@ public class SupplierView extends VerticalLayout {
             country.setValue(safe(supplier.getCountry()));
             email.setValue(safe(supplier.getEmail()));
             phone.setValue(safe(supplier.getPhone()));
-            activeCheckbox.setValue(supplier.getIsActive());
+            activeCheckbox.setValue(supplier.getActive());
 
             if (supplier.getPaymentTerm() != null) {
                 paymentTermBox.setValue(supplier.getPaymentTerm());
@@ -365,7 +365,7 @@ public class SupplierView extends VerticalLayout {
                 req.setEmail(email.getValue());
                 req.setPhone(phone.getValue());
                 req.setPaymentTermId(paymentTermBox.getValue().getId());
-                req.setIsActive(activeCheckbox.getValue());
+                req.setActive(activeCheckbox.getValue());
 
                 // Collect contact persons
                 List<ContactPersonRequestDTO> contactPersonRequests = new ArrayList<>();
@@ -423,7 +423,7 @@ public class SupplierView extends VerticalLayout {
                 new Span("Land: " + safe(supplier.getCountry())),
                 new Span("E-Mail: " + safe(supplier.getEmail())),
                 new Span("Telefon: " + safe(supplier.getPhone())),
-                new Span("Status: " + (supplier.getIsActive() != null && supplier.getIsActive() ? "Aktiv" : "Inaktiv")),
+                new Span("Status: " + (supplier.getActive() != null && supplier.getActive() ? "Aktiv" : "Inaktiv")),
                 new Span("Zahlungsbedingungen: " +
                         (supplier.getPaymentTerm() != null ? supplier.getPaymentTerm().getDefinition() : "-")));
 

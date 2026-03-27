@@ -5,17 +5,20 @@ import fhdw.de.einkauf_service.entity.Article;
 import fhdw.de.einkauf_service.repository.ArticleRepository;
 import fhdw.de.einkauf_service.service.ShoppingCartService;
 import jakarta.persistence.EntityNotFoundException;
-import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.Map;
 
 @Service
-@RequiredArgsConstructor
 public class ShoppingCartServiceImpl implements ShoppingCartService {
 
     private final ShoppingCartSession cartSession;
     private final ArticleRepository articleRepository;
+
+    public ShoppingCartServiceImpl(ShoppingCartSession cartSession, ArticleRepository articleRepository) {
+        this.cartSession = cartSession;
+        this.articleRepository = articleRepository;
+    }
 
     // Methode für Akzeptanzkriterium 3: Prüft unseren eigenen Lagerbestand
     @Override

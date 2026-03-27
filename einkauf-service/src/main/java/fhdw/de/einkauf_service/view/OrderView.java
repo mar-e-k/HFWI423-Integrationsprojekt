@@ -312,7 +312,7 @@ public class OrderView extends VerticalLayout {
 
         // Warnung wenn Lieferant inaktiv ist
         SupplierResponseDTO supplier = supplierCache.get(order.supplierId());
-        if (supplier != null && !supplier.getIsActive()) {
+        if (supplier != null && !supplier.getActive()) {
             Span warning = new Span("⚠️ Der Lieferant ist inaktiv. Artikel können möglicherweise nicht bestellt werden.");
             warning.getStyle().set("color", "#C92525");
             warning.getStyle().set("font-weight", "bold");

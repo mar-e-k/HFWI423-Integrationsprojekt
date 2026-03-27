@@ -1,7 +1,6 @@
 package fhdw.de.einkauf_service.dto;
 
 import fhdw.de.einkauf_service.enums.OrderStatus;
-import lombok.Data;
 
 import java.time.LocalDate;
 
@@ -17,6 +16,9 @@ public class OrderFilterDTO {
         this.orderDateTo = orderDateTo;
         this.status = status;
         this.articleId = articleId;
+    }
+
+    public OrderFilterDTO() {
     }
 
     public void setOrderNumber(String orderNumber) {

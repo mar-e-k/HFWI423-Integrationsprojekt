@@ -2,9 +2,7 @@ package fhdw.de.einkauf_service.entity;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
-import lombok.Data;
 import lombok.EqualsAndHashCode;
-
 import java.util.HashSet;
 import java.util.Set;
 

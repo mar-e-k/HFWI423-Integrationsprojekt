@@ -4,7 +4,6 @@ import fhdw.de.einkauf_service.entity.Contingent;
 import fhdw.de.einkauf_service.enums.OrderStatus;
 import fhdw.de.einkauf_service.repository.ContingentRepository;
 import fhdw.de.einkauf_service.repository.OrderRepository;
-import lombok.RequiredArgsConstructor;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -12,11 +11,15 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 
 @Service
-@RequiredArgsConstructor
 public class ContingentCleanupService {
 
     private final ContingentRepository contingentRepository;
     private final OrderRepository orderRepository;
+
+    public ContingentCleanupService(ContingentRepository contingentRepository, OrderRepository orderRepository) {
+        this.contingentRepository = contingentRepository;
+        this.orderRepository = orderRepository;
+    }
 
     /**
      * Prüft alle 2 Minuten alle Kontingente.

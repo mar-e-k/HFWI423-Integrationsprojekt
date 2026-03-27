@@ -1,7 +1,6 @@
 package fhdw.de.einkauf_service.dto;
 
 import jakarta.validation.constraints.NotBlank;
-import lombok.Data;
 
 public class CategoryRequestDTO {
     public String getName() {

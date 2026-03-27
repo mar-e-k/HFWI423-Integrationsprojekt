@@ -10,7 +10,6 @@ import fhdw.de.einkauf_service.repository.ContingentRepository;
 import fhdw.de.einkauf_service.repository.OrderItemRepository;
 import fhdw.de.einkauf_service.repository.SupplierRepository;
 import fhdw.de.einkauf_service.service.ContingentService;
-import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -20,13 +19,19 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @Service
-@RequiredArgsConstructor
 public class ContingentServiceImpl implements ContingentService {
 
     private final ContingentRepository contingentRepository;
     private final ArticleRepository articleRepository;
     private final SupplierRepository supplierRepository;
     private final OrderItemRepository orderItemRepository;
+
+    public ContingentServiceImpl(ContingentRepository contingentRepository, ArticleRepository articleRepository, SupplierRepository supplierRepository, OrderItemRepository orderItemRepository) {
+        this.contingentRepository = contingentRepository;
+        this.articleRepository = articleRepository;
+        this.supplierRepository = supplierRepository;
+        this.orderItemRepository = orderItemRepository;
+    }
 
     // --- Mapper-Methode ---
     private ContingentResponseDTO mapToResponseDTO(Contingent contingent, Article article, Supplier supplier, Integer originalQuantity) {

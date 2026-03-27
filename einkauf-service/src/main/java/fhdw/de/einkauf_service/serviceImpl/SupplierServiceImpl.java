@@ -106,7 +106,7 @@ public class SupplierServiceImpl implements SupplierService {
         existingSupplier.setEmail(updatedSupplierRequestDTO.getEmail());
         existingSupplier.setPhone(updatedSupplierRequestDTO.getPhone());
         existingSupplier.setPaymentTerm(paymentTerm);
-        existingSupplier.setIsActive(updatedSupplierRequestDTO.getIsActive());
+        existingSupplier.setActive(updatedSupplierRequestDTO.getActive());
 
         // ContactPersons aktualisieren
         existingSupplier.getContactPeople().clear();
@@ -147,7 +147,7 @@ public class SupplierServiceImpl implements SupplierService {
         entity.setCountry(dto.getCountry());
         entity.setEmail(dto.getEmail());
         entity.setPhone(dto.getPhone());
-        entity.setIsActive(dto.getIsActive() != null ? dto.getIsActive() : true);
+        entity.setActive(dto.getActive() != null ? dto.getActive() : true);
 
         if (dto.getContactPeople() != null) {
             Set<ContactPerson> contactPeople = dto.getContactPeople().stream()
@@ -192,7 +192,7 @@ public class SupplierServiceImpl implements SupplierService {
         dto.setCountry(entity.getCountry());
         dto.setEmail(entity.getEmail());
         dto.setPhone(entity.getPhone());
-        dto.setIsActive(entity.getIsActive());
+        dto.setActive(entity.getActive());
 
         // PaymentTerm als DTO setzen
         if (entity.getPaymentTerm() != null) {

@@ -1,7 +1,6 @@
 package fhdw.de.einkauf_service.entity;
 
 import jakarta.persistence.*;
-import lombok.Data;
 import lombok.EqualsAndHashCode;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
@@ -12,9 +11,104 @@ import java.util.Set;
 
 @Entity
 @Table(name = "shelf")
-@Data
 @EqualsAndHashCode(exclude = "levels")
 public class Shelf {
+
+    public Shelf() {
+    }
+
+    public Shelf(Long id, Double widthCm, Double heightCm, Double depthCm, String name, String description, Category category, Set<ShelfLevel> levels, LocalDateTime dateCreated, LocalDateTime dateUpdated) {
+        this.id = id;
+        this.widthCm = widthCm;
+        this.heightCm = heightCm;
+        this.depthCm = depthCm;
+        this.name = name;
+        this.description = description;
+        this.category = category;
+        this.levels = levels;
+        this.dateCreated = dateCreated;
+        this.dateUpdated = dateUpdated;
+    }
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public Double getWidthCm() {
+        return widthCm;
+    }
+
+    public void setWidthCm(Double widthCm) {
+        this.widthCm = widthCm;
+    }
+
+    public Double getHeightCm() {
+        return heightCm;
+    }
+
+    public void setHeightCm(Double heightCm) {
+        this.heightCm = heightCm;
+    }
+
+    public Double getDepthCm() {
+        return depthCm;
+    }
+
+    public void setDepthCm(Double depthCm) {
+        this.depthCm = depthCm;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    public Category getCategory() {
+        return category;
+    }
+
+    public void setCategory(Category category) {
+        this.category = category;
+    }
+
+    public Set<ShelfLevel> getLevels() {
+        return levels;
+    }
+
+    public void setLevels(Set<ShelfLevel> levels) {
+        this.levels = levels;
+    }
+
+    public LocalDateTime getDateCreated() {
+        return dateCreated;
+    }
+
+    public void setDateCreated(LocalDateTime dateCreated) {
+        this.dateCreated = dateCreated;
+    }
+
+    public LocalDateTime getDateUpdated() {
+        return dateUpdated;
+    }
+
+    public void setDateUpdated(LocalDateTime dateUpdated) {
+        this.dateUpdated = dateUpdated;
+    }
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

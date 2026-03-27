@@ -259,7 +259,7 @@ public class ArticleServiceImpl extends CrudRepositoryService<Article, Long, Art
         dto.setManufacturer(entity.getManufacturer());
         dto.setStockLevel(entity.getStockLevel());
         dto.setDescription(entity.getDescription());
-        dto.setIsAvailable(entity.getAvailable());
+        dto.setAvailable(entity.getAvailable());
         dto.setHasDeposit(entity.getHasDeposit());
         dto.setWidthCm(entity.getWidthCm());
         dto.setHeightCm(entity.getHeightCm());
@@ -349,7 +349,7 @@ public class ArticleServiceImpl extends CrudRepositoryService<Article, Long, Art
         dto.setCountry(supplier.getCountry());
         dto.setEmail(supplier.getEmail());
         dto.setPhone(supplier.getPhone());
-        dto.setIsActive(supplier.getIsActive());
+        dto.setActive(supplier.getActive());
 
         // Payment Term
         if (supplier.getPaymentTerm() != null) {
@@ -388,3 +388,4 @@ public class ArticleServiceImpl extends CrudRepositoryService<Article, Long, Art
         return dto;
     }
 }
+

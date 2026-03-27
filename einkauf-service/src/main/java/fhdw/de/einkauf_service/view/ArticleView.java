@@ -178,7 +178,7 @@ public class ArticleView extends VerticalLayout {
         availabilityRadio.setItems("Verfügbar", "Nicht verfügbar");
         if (article != null) {
             // Bearbeiten: enabled, mit aktuellem Wert
-            availabilityRadio.setValue(Boolean.TRUE.equals(article.getIsAvailable()) ? "Verfügbar" : "Nicht verfügbar");
+            availabilityRadio.setValue(Boolean.TRUE.equals(article.getAvailable()) ? "Verfügbar" : "Nicht verfügbar");
             availabilityRadio.setEnabled(true);
         } else {
             // Erstellen: disabled, standardmäßig "Nicht verfügbar"
@@ -364,7 +364,7 @@ public class ArticleView extends VerticalLayout {
 
                 req.setStockLevel(Integer.parseInt(stockLevel.getValue()));
                 req.setDescription(description.getValue());
-                req.setIsAvailable("Verfügbar".equals(availabilityRadio.getValue()));
+                req.setAvailable("Verfügbar".equals(availabilityRadio.getValue()));
                 req.setHasDeposit("Ja".equals(pfandRadio.getValue()));
                 req.setDepthCm(Double.parseDouble(depthCm.getValue()));
                 req.setHeightCm(Double.parseDouble(heightCm.getValue()));
@@ -430,9 +430,9 @@ public class ArticleView extends VerticalLayout {
         // Setze Verfügbarkeitsfilter basierend auf der Auswahl
         String selectedAvailability = availabilityFilter.getValue();
         if ("Verfügbar".equals(selectedAvailability)) {
-            filter.setIsAvailable(true);
+            filter.setAvailable(true);
         } else if ("Nicht verfügbar".equals(selectedAvailability)) {
-            filter.setIsAvailable(false);
+            filter.setAvailable(false);
         }
 
         Set<CategoryResponseDTO> selectedCategories = categoryBox.getSelectedItems();
@@ -596,7 +596,7 @@ public class ArticleView extends VerticalLayout {
                         article.getHeightCm(),
                         article.getWidthCm(),
                         article.getDepthCm())),
-                new Span("Verfügbar: " + safe(Boolean.TRUE.equals(article.getIsAvailable()) ? "Ja" : "Nein")),
+                new Span("Verfügbar: " + safe(Boolean.TRUE.equals(article.getAvailable()) ? "Ja" : "Nein")),
                 pfandLayout,
                 new Span("Beschreibung / Produktdetails: " + safe(article.getDescription()))
         );

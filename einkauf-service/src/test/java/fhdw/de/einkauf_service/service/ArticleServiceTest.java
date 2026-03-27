@@ -3,6 +3,7 @@ package fhdw.de.einkauf_service.service;
 import fhdw.de.einkauf_service.dto.ArticleRequestDTO;
 import fhdw.de.einkauf_service.entity.Article;
 import fhdw.de.einkauf_service.entity.Supplier;
+import fhdw.de.einkauf_service.repository.ArticleCategoryRepository;
 import fhdw.de.einkauf_service.repository.ArticleRepository;
 import fhdw.de.einkauf_service.repository.SupplierRepository;
 import fhdw.de.einkauf_service.serviceImpl.ArticleServiceImpl;
@@ -15,8 +16,10 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.junit.jupiter.MockitoSettings; // NEU: Import hinzufügen
 import org.mockito.quality.Strictness; // NEU: Import hinzufügen
 
+import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Optional;
+import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -31,6 +34,8 @@ public class ArticleServiceTest {
     private ArticleRepository articleRepository;
     @Mock
     private SupplierRepository supplierRepository;
+    @Mock
+    private ArticleCategoryRepository categoryRepository;
 
     @InjectMocks
     private ArticleServiceImpl articleServiceImpl;
@@ -50,10 +55,12 @@ public class ArticleServiceTest {
         validRequest.setPurchasePrice(10.00);
         validRequest.setTaxRatePercent(19.0);
         validRequest.setManufacturer("Hersteller X");
-        validRequest.setSupplierId(SUPPLIER_ID);
+        validRequest.setSupplierIds(Set.of(SUPPLIER_ID)); // Set supplierIds
+        validRequest.setMainSupplierId(SUPPLIER_ID); // This sets mainSupplierId
+        validRequest.setCategoryIds(Set.of()); // Set empty categoryIds
         validRequest.setStockLevel(100);
         validRequest.setDescription("Beschreibung");
-        validRequest.setIsAvailable(true);
+        validRequest.setAvailable(true);
         validRequest.setHasDeposit(false);
         validRequest.setDepthCm(10.0);
         validRequest.setHeightCm(10.0);
@@ -66,6 +73,7 @@ public class ArticleServiceTest {
 
         // Stubbing des SupplierRepository (jetzt LENIENT)
         when(supplierRepository.findById(SUPPLIER_ID)).thenReturn(Optional.of(mockSupplier));
+        when(supplierRepository.findAllById(Set.of(SUPPLIER_ID))).thenReturn(List.of(mockSupplier));
 
         // Entität, die das Repository nach dem Speichern zurückgeben würde
         savedEntity = new Article();
@@ -74,7 +82,8 @@ public class ArticleServiceTest {
         savedEntity.setPurchasePrice(10.00);
         savedEntity.setTaxRatePercent(19.0);
         savedEntity.setSellingPrice(11.90);
-        savedEntity.setSupplier(mockSupplier);
+        savedEntity.setSuppliers(Set.of(mockSupplier)); // Set suppliers
+        savedEntity.setMainSupplier(mockSupplier); // Set mainSupplier
     }
 
 
@@ -135,18 +144,21 @@ public class ArticleServiceTest {
     }
 
     @Test
-    void shouldRecalculateSellingPriceOnUpdate() {
+    void shouldUpdateSellingPriceOnUpdate() {
         // ARRANGE
         ArticleRequestDTO updateRequest = new ArticleRequestDTO();
         updateRequest.setArticleNumber("4008400403337");
         updateRequest.setName("Geänderter Name");
         updateRequest.setPurchasePrice(20.00);
         updateRequest.setTaxRatePercent(10.0);
+        updateRequest.setSellingPrice(22.00); // Set selling price in DTO
         updateRequest.setManufacturer("Hersteller X");
-        updateRequest.setSupplierId(SUPPLIER_ID);
+        updateRequest.setSupplierIds(Set.of(SUPPLIER_ID)); // Set supplierIds
+        updateRequest.setMainSupplierId(SUPPLIER_ID); // This sets mainSupplierId
+        updateRequest.setCategoryIds(Set.of()); // Set empty categoryIds
         updateRequest.setStockLevel(100);
         updateRequest.setDescription("Beschreibung");
-        updateRequest.setIsAvailable(true);
+        updateRequest.setAvailable(true);
         updateRequest.setHasDeposit(false);
         updateRequest.setDepthCm(10.0);
         updateRequest.setHeightCm(10.0);
@@ -158,11 +170,13 @@ public class ArticleServiceTest {
         existingArticle.setPurchasePrice(savedEntity.getPurchasePrice());
         existingArticle.setTaxRatePercent(savedEntity.getTaxRatePercent());
         existingArticle.setSellingPrice(11.90);
-        existingArticle.setSupplier(mockSupplier);
+        existingArticle.setSuppliers(Set.of(mockSupplier)); // Set suppliers
+        existingArticle.setMainSupplier(mockSupplier); // Set mainSupplier
 
         Article updatedArticle = existingArticle;
         updatedArticle.setPurchasePrice(20.00);
         updatedArticle.setTaxRatePercent(10.0);
+        updatedArticle.setSellingPrice(22.00); // Set selling price on updated article
 
         // Mocks konfigurieren
         when(articleRepository.findById(1L)).thenReturn(Optional.of(existingArticle));

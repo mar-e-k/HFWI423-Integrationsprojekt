@@ -11,7 +11,6 @@ import fhdw.de.einkauf_service.repository.*;
 import fhdw.de.einkauf_service.service.PurchaseOrderService;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityNotFoundException;
-import lombok.RequiredArgsConstructor;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -23,7 +22,6 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @Service
-@RequiredArgsConstructor
 public class PurchaseOrderServiceImpl implements PurchaseOrderService {
 
     private final OrderRepository orderRepository;
@@ -33,6 +31,16 @@ public class PurchaseOrderServiceImpl implements PurchaseOrderService {
     private final ShoppingCartSession cartSession;
     private final ContingentRepository contingentRepository;
     private final SupplierRepository supplierRepository;
+
+    public PurchaseOrderServiceImpl(OrderRepository orderRepository, OrderItemRepository orderItemRepository, ArticleRepository articleRepository, EntityManager entityManager, ShoppingCartSession cartSession, ContingentRepository contingentRepository, SupplierRepository supplierRepository) {
+        this.orderRepository = orderRepository;
+        this.orderItemRepository = orderItemRepository;
+        this.articleRepository = articleRepository;
+        this.entityManager = entityManager;
+        this.cartSession = cartSession;
+        this.contingentRepository = contingentRepository;
+        this.supplierRepository = supplierRepository;
+    }
 
     private String getNextOrderNumber() {
         Long nextValue = (Long) entityManager.createNativeQuery(
@@ -73,7 +81,7 @@ public class PurchaseOrderServiceImpl implements PurchaseOrderService {
                     }
 
                     // Prüfen, ob Artikel verfügbar ist
-                    if (Boolean.FALSE.equals(article.getIsAvailable())) {
+                    if (Boolean.FALSE.equals(article.getAvailable())) {
                         throw new IllegalStateException("Artikel " + article.getName() + " ist derzeit nicht verfügbar.");
                     }
 
@@ -184,7 +192,7 @@ public class PurchaseOrderServiceImpl implements PurchaseOrderService {
         Supplier supplier = originalOrder.getSupplier();
 
         // --- PRÜFUNG DER VERFÜGBARKEIT
-        if (!supplier.getIsActive()) {
+        if (!supplier.getActive()) {
             throw new IllegalStateException("Lieferant " + supplier.getName() + " ist nicht mehr aktiv.");
         }
 
@@ -195,7 +203,7 @@ public class PurchaseOrderServiceImpl implements PurchaseOrderService {
                             .orElseThrow(() -> new EntityNotFoundException("Artikel " + itemDto.articleId() + " nicht gefunden."));
 
                     // Prüfen, ob Artikel noch verfügbar ist (angenommen, das Feld existiert in Article)
-                    if (Boolean.FALSE.equals(article.getIsAvailable())) {
+                    if (Boolean.FALSE.equals(article.getAvailable())) {
                         System.out.println("WARNUNG: Artikel " + article.getName() + " ist nicht mehr verfügbar und wird übersprungen.");
                         return false;
                     }
