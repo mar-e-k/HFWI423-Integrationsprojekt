@@ -18,7 +18,6 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.IntegerField;
 import com.vaadin.flow.router.Route;
 import fhdw.de.einkauf_service.config.ShoppingCartSession;
-import fhdw.de.einkauf_service.dto.ArticleFilterDTO;
 import fhdw.de.einkauf_service.dto.ArticleResponseDTO;
 import fhdw.de.einkauf_service.dto.OrderResponseDTO;
 import fhdw.de.einkauf_service.dto.SupplierResponseDTO;
@@ -28,7 +27,6 @@ import fhdw.de.einkauf_service.service.PurchaseOrderService;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 /**
  * Warenkorb-Ansicht für Nachbestellungen
@@ -187,18 +185,14 @@ public class ShoppingCartView extends VerticalLayout {
             return;
         }
 
-        ArticleFilterDTO emptyFilter = new ArticleFilterDTO();
-        List<ArticleResponseDTO> allArticles = articleService.findFilteredArticles(emptyFilter);
-
-        List<ArticleResponseDTO> articlesInCart = allArticles.stream()
-                .filter(article -> cartItems.containsKey(article.getId()))
-                .collect(Collectors.toList());
-
         List<CartItemDisplay> displayItems = new ArrayList<>();
-        for (ArticleResponseDTO article : articlesInCart) {
-            Integer quantity = cartItems.get(article.getId());
-            double subtotal = article.getPurchasePrice() * quantity;
-            displayItems.add(new CartItemDisplay(article, quantity, subtotal));
+        for (Map.Entry<Long, Integer> entry : cartItems.entrySet()) {
+            try {
+                ArticleResponseDTO article = articleService.findArticleById(entry.getKey());
+                double subtotal = article.getPurchasePrice() * entry.getValue();
+                displayItems.add(new CartItemDisplay(article, entry.getValue(), subtotal));
+            } catch (Exception ignored) {
+            }
         }
 
         grid.setItems(displayItems);
@@ -264,6 +258,9 @@ public class ShoppingCartView extends VerticalLayout {
             List<OrderResponseDTO> orders = orderService.createAndSendOrdersFromCart();
             showOrderConfirmation(orders);
             updateGrid();
+            Notification amqpNotification = Notification.show(
+                    "Logistik & Kassensystem wurden benachrichtigt", 4000, Notification.Position.BOTTOM_END);
+            amqpNotification.addThemeVariants(NotificationVariant.LUMO_SUCCESS);
         } catch (IllegalStateException e) {
             Notification.show(e.getMessage(), 5000, Notification.Position.MIDDLE)
                     .addThemeVariants(NotificationVariant.LUMO_ERROR);

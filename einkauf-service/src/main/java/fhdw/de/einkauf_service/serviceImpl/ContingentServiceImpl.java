@@ -1,5 +1,6 @@
 package fhdw.de.einkauf_service.serviceImpl;
 
+import fhdw.de.einkauf_service.amqp.EinkaufEventPublisher;
 import fhdw.de.einkauf_service.dto.ContingentResponseDTO;
 import fhdw.de.einkauf_service.entity.Article;
 import fhdw.de.einkauf_service.entity.Contingent;
@@ -10,6 +11,7 @@ import fhdw.de.einkauf_service.repository.ContingentRepository;
 import fhdw.de.einkauf_service.repository.OrderItemRepository;
 import fhdw.de.einkauf_service.repository.SupplierRepository;
 import fhdw.de.einkauf_service.service.ContingentService;
+import jakarta.persistence.EntityNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -25,12 +27,24 @@ public class ContingentServiceImpl implements ContingentService {
     private final ArticleRepository articleRepository;
     private final SupplierRepository supplierRepository;
     private final OrderItemRepository orderItemRepository;
+    private final EinkaufEventPublisher eventPublisher;
 
-    public ContingentServiceImpl(ContingentRepository contingentRepository, ArticleRepository articleRepository, SupplierRepository supplierRepository, OrderItemRepository orderItemRepository) {
+    public ContingentServiceImpl(ContingentRepository contingentRepository, ArticleRepository articleRepository, SupplierRepository supplierRepository, OrderItemRepository orderItemRepository, EinkaufEventPublisher eventPublisher) {
         this.contingentRepository = contingentRepository;
         this.articleRepository = articleRepository;
         this.supplierRepository = supplierRepository;
         this.orderItemRepository = orderItemRepository;
+        this.eventPublisher = eventPublisher;
+    }
+
+    @Transactional
+    @Override
+    public void deleteContingent(Long contingentId) {
+        Contingent contingent = contingentRepository.findById(contingentId)
+                .orElseThrow(() -> new EntityNotFoundException("Kontingent mit ID " + contingentId + " nicht gefunden."));
+
+        contingentRepository.delete(contingent);
+        eventPublisher.publishDeleteQuota(contingent.getArticleId());
     }
 
     // --- Mapper-Methode ---

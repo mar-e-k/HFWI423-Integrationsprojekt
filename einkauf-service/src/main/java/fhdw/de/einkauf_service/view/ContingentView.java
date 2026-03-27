@@ -1,6 +1,7 @@
 package fhdw.de.einkauf_service.view;
 
 import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.html.Span;
@@ -162,34 +163,41 @@ public class ContingentView extends VerticalLayout {
 
     private HorizontalLayout createToolbar() {
 
-        // Der Button, der die Artikel in den Warenkorb legt
         Button addToCartButton = new Button("Zum Warenkorb hinzufügen", VaadinIcon.CART_O.create());
         addToCartButton.setThemeName("primary");
-
-        // Button ist zunächst deaktiviert
         addToCartButton.setEnabled(false);
 
-        // 1. Selection Listener: Button aktivieren/deaktivieren
+        Button deleteButton = new Button("Kontingent löschen", VaadinIcon.TRASH.create());
+        deleteButton.addThemeVariants(ButtonVariant.LUMO_ERROR);
+        deleteButton.setEnabled(false);
+
         grid.asMultiSelect().addValueChangeListener(event -> {
-            // Button nur aktivieren, wenn mindestens ein Element ausgewählt ist
-            addToCartButton.setEnabled(!event.getValue().isEmpty());
+            boolean hasSelection = !event.getValue().isEmpty();
+            addToCartButton.setEnabled(hasSelection);
+            deleteButton.setEnabled(hasSelection);
         });
 
-        // 2. Click Listener: Artikel zum Warenkorb hinzufügen Logik
         addToCartButton.addClickListener(event -> {
             Set<ContingentResponseDTO> selectedContingents = grid.asMultiSelect().getValue();
-
-            // Logik, um die Artikel dem Warenkorb hinzuzufügen
             processReorder(selectedContingents);
-
-            // Auswahl in der Tabelle zurücksetzen, da die Aktion ausgeführt wurde
             grid.asMultiSelect().clear();
             updateGrid();
         });
 
-        HorizontalLayout toolbar = new HorizontalLayout(addToCartButton);
+        deleteButton.addClickListener(event -> {
+            Set<ContingentResponseDTO> selected = grid.asMultiSelect().getValue();
+            selected.forEach(contingent -> contingentService.deleteContingent(contingent.getId()));
+            grid.asMultiSelect().clear();
+            updateGrid();
+            Notification n = Notification.show(
+                    selected.size() + " Kontingent(e) gelöscht. Logistik wurde benachrichtigt.",
+                    4000, Notification.Position.BOTTOM_END);
+            n.addThemeVariants(NotificationVariant.LUMO_SUCCESS);
+        });
+
+        HorizontalLayout toolbar = new HorizontalLayout(addToCartButton, deleteButton);
         toolbar.setWidthFull();
-        toolbar.setJustifyContentMode(FlexComponent.JustifyContentMode.END); // Button rechts ausrichten
+        toolbar.setJustifyContentMode(FlexComponent.JustifyContentMode.END);
         return toolbar;
     }
 }

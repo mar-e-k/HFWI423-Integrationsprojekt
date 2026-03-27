@@ -104,6 +104,7 @@ public class ArticleServiceImpl extends CrudRepositoryService<Article, Long, Art
     // 2. READ (GET by ID)
     // ==================================================================================
     @Override
+    @Transactional(readOnly = true)
     public ArticleResponseDTO findArticleById(Long id) {
         Article article = articleRepository.findById(id)
                 .orElseThrow(() -> new NoSuchElementException("Article with ID " + id + " not found."));

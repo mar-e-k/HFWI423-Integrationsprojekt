@@ -7,4 +7,6 @@ import java.util.List;
 public interface ContingentService {
 
     List<ContingentResponseDTO> getAllAvailableContingents();
+
+    void deleteContingent(Long contingentId);
 }

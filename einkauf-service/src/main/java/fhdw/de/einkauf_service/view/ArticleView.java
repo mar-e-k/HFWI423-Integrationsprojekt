@@ -61,6 +61,7 @@ public class ArticleView extends VerticalLayout {
     private final Button manageCategoriesButton = new Button("Kategorieverwaltung", new Icon(VaadinIcon.TAGS));
 
     private final Map<Long, SupplierResponseDTO> supplierCache;
+    private final List<CategoryResponseDTO> categoryCache;
     private final Map<Long, Integer> selectedArticles = new HashMap<>();
 
     private final ArticleCategoryService categoryService;
@@ -72,6 +73,12 @@ public class ArticleView extends VerticalLayout {
         this.categoryService = categoryService;
         this.supplierCache = supplierService.findAllSuppliers().stream()
                 .collect(Collectors.toMap(SupplierResponseDTO::getId, Function.identity(), (a, b) -> a));
+        this.categoryCache = categoryService.getAllCategories();
+        this.categoryCache.sort((a, b) -> {
+            String n1 = a.getName() != null ? a.getName() : "";
+            String n2 = b.getName() != null ? b.getName() : "";
+            return n1.compareToIgnoreCase(n2);
+        });
 
         setSizeFull();
         setAlignItems(Alignment.CENTER);
@@ -94,13 +101,7 @@ public class ArticleView extends VerticalLayout {
         availabilityFilter.setItems("Verfügbar", "Nicht verfügbar");
         availabilityFilter.setValue("Verfügbar");
 
-        List<CategoryResponseDTO> allFilterCategories = categoryService.getAllCategories();
-        allFilterCategories.sort((a, b) -> {
-            String n1 = a.getName() != null ? a.getName() : "";
-            String n2 = b.getName() != null ? b.getName() : "";
-            return n1.compareToIgnoreCase(n2);
-        });
-        categoryBox.setItems(allFilterCategories);
+        categoryBox.setItems(categoryCache);
         categoryBox.setItemLabelGenerator(CategoryResponseDTO::getName);
         categoryBox.setClearButtonVisible(true);
 
@@ -189,12 +190,7 @@ public class ArticleView extends VerticalLayout {
 
         MultiSelectComboBox<CategoryResponseDTO> categorySelect =
                 new MultiSelectComboBox<>("Kategorie");
-        List<CategoryResponseDTO> allCategories = categoryService.getAllCategories();
-        allCategories.sort((a, b) -> {
-            String n1 = a.getName() != null ? a.getName() : "";
-            String n2 = b.getName() != null ? b.getName() : "";
-            return n1.compareToIgnoreCase(n2);
-        });
+        List<CategoryResponseDTO> allCategories = categoryCache;
         categorySelect.setItems(allCategories);
         categorySelect.setItemLabelGenerator(CategoryResponseDTO::getName);
         categorySelect.setRequired(true);
@@ -650,7 +646,7 @@ public class ArticleView extends VerticalLayout {
     private static TextField createSearchField(String label) {
         TextField tf = new TextField(label);
         tf.setClearButtonVisible(true);
-        tf.setValueChangeMode(ValueChangeMode.EAGER);
+        tf.setValueChangeMode(ValueChangeMode.LAZY);
         return tf;
     }
 
@@ -730,7 +726,9 @@ public class ArticleView extends VerticalLayout {
             String n2 = b.getName() != null ? b.getName() : "";
             return n1.compareToIgnoreCase(n2);
         });
-        categoryBox.setItems(all);
+        categoryCache.clear();
+        categoryCache.addAll(all);
+        categoryBox.setItems(categoryCache);
         categoryBox.setItemLabelGenerator(CategoryResponseDTO::getName);
         updateList();
     }

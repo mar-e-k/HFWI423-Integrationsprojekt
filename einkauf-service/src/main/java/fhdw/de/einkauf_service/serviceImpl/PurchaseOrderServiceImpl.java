@@ -1,5 +1,6 @@
 package fhdw.de.einkauf_service.serviceImpl;
 
+import fhdw.de.einkauf_service.amqp.EinkaufEventPublisher;
 import fhdw.de.einkauf_service.config.ShoppingCartSession;
 import fhdw.de.einkauf_service.dto.OrderFilterDTO;
 import fhdw.de.einkauf_service.dto.OrderItemRequestDTO;
@@ -31,8 +32,9 @@ public class PurchaseOrderServiceImpl implements PurchaseOrderService {
     private final ShoppingCartSession cartSession;
     private final ContingentRepository contingentRepository;
     private final SupplierRepository supplierRepository;
+    private final EinkaufEventPublisher einkaufEventPublisher;
 
-    public PurchaseOrderServiceImpl(OrderRepository orderRepository, OrderItemRepository orderItemRepository, ArticleRepository articleRepository, EntityManager entityManager, ShoppingCartSession cartSession, ContingentRepository contingentRepository, SupplierRepository supplierRepository) {
+    public PurchaseOrderServiceImpl(OrderRepository orderRepository, OrderItemRepository orderItemRepository, ArticleRepository articleRepository, EntityManager entityManager, ShoppingCartSession cartSession, ContingentRepository contingentRepository, SupplierRepository supplierRepository, EinkaufEventPublisher einkaufEventPublisher) {
         this.orderRepository = orderRepository;
         this.orderItemRepository = orderItemRepository;
         this.articleRepository = articleRepository;
@@ -40,6 +42,7 @@ public class PurchaseOrderServiceImpl implements PurchaseOrderService {
         this.cartSession = cartSession;
         this.contingentRepository = contingentRepository;
         this.supplierRepository = supplierRepository;
+        this.einkaufEventPublisher = einkaufEventPublisher;
     }
 
     private String getNextOrderNumber() {
@@ -152,6 +155,8 @@ public class PurchaseOrderServiceImpl implements PurchaseOrderService {
             contingent.setAvailableQuantity(itemDto.quantity());
 
             contingentRepository.save(contingent);
+
+            einkaufEventPublisher.publishNewQuota(itemDto.articleId(), itemDto.quantity());
         }
 
         savedOrder.setTotalAmount(totalAmount);

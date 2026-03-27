@@ -1,6 +1,7 @@
 package fhdw.de.einkauf_service.dto;
 
 import java.util.List;
+import java.util.Objects;
 
 /**
  * Data Transfer Object zum Halten der dynamischen Such- und Filterkriterien
@@ -81,5 +82,22 @@ public class ArticleFilterDTO {
 
     public void setAvailable(Boolean available) {
         isAvailable = available;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof ArticleFilterDTO that)) return false;
+        return Objects.equals(name, that.name)
+                && Objects.equals(articleNumber, that.articleNumber)
+                && Objects.equals(supplierId, that.supplierId)
+                && Objects.equals(manufacturer, that.manufacturer)
+                && Objects.equals(categoryIds, that.categoryIds)
+                && Objects.equals(isAvailable, that.isAvailable);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(name, articleNumber, supplierId, manufacturer, categoryIds, isAvailable);
     }
 }
