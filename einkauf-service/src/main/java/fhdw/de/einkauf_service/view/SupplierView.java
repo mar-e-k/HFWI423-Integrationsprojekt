@@ -62,7 +62,7 @@ public class SupplierView extends VerticalLayout {
         this.contactPersonRepository = contactPersonRepository;
 
         setSizeFull();
-        setAlignItems(Alignment.CENTER);
+        addClassName("page-view");
 
         add(new H2("Lieferantenverwaltung"));
 
@@ -70,13 +70,14 @@ public class SupplierView extends VerticalLayout {
         configureCrudButtons();
         configureSearchFields();
 
-
         HorizontalLayout searchLayout = new HorizontalLayout(
                 nameField, cityField, statusFilter, clearButton
         );
         searchLayout.setAlignItems(Alignment.END);
+        searchLayout.addClassName("search-toolbar");
 
         HorizontalLayout crudButtons = new HorizontalLayout(addButton, editButton, deleteButton);
+        crudButtons.addClassName("action-toolbar");
 
         // configure statusFilter (class field)
         statusFilter.setItems("Alle", "Aktiv", "Inaktiv");

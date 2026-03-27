@@ -26,7 +26,7 @@ public class MessageView extends VerticalLayout implements BeforeEnterObserver {
         this.notificationRepository = notificationRepository;
 
         setSizeFull();
-        setPadding(true);
+        addClassName("page-view");
 
         add(new H2("Nachrichten von Logistik"));
         configureGrid();

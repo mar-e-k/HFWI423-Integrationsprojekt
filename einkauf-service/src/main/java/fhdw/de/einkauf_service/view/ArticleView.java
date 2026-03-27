@@ -81,7 +81,7 @@ public class ArticleView extends VerticalLayout {
         });
 
         setSizeFull();
-        setAlignItems(Alignment.CENTER);
+        addClassName("page-view");
 
         add(new H2("Artikelverwaltung"));
 
@@ -110,9 +110,11 @@ public class ArticleView extends VerticalLayout {
         HorizontalLayout searchLayout = new HorizontalLayout(
                 articleNumberField, nameField, supplierBox, categoryBox, availabilityFilter, clearButton
         );
+        searchLayout.addClassName("search-toolbar");
 
         HorizontalLayout crudButtons = new HorizontalLayout(addButton, editButton, deleteButton, addToCartButton, manageCategoriesButton);
         manageCategoriesButton.getStyle().set("margin-left", "var(--lumo-space-l)");
+        crudButtons.addClassName("action-toolbar");
         add(crudButtons);
         configureCrudButtons();
 

@@ -38,9 +38,9 @@ public class ContingentView extends VerticalLayout {
 
         // Layout-Einstellungen
         setSizeFull();
-        setPadding(true);
+        addClassName("page-view");
 
-        H2 title = new H2("📦 Aktive Kontingente");
+        H2 title = new H2("Aktive Kontingente");
         add(title);
 
         configureGrid();
@@ -198,6 +198,7 @@ public class ContingentView extends VerticalLayout {
         HorizontalLayout toolbar = new HorizontalLayout(addToCartButton, deleteButton);
         toolbar.setWidthFull();
         toolbar.setJustifyContentMode(FlexComponent.JustifyContentMode.END);
+        toolbar.addClassName("action-toolbar");
         return toolbar;
     }
 }

@@ -1,28 +1,34 @@
-/* Navigation Link Styling */
+/* =====================================================
+   NAV LINKS — on dark header (#18181b)
+   ===================================================== */
+
 a.nav-link {
-    padding: 8px 16px;
+    padding: 6px 12px;
     text-decoration: none;
-    color: var(--lumo-text-color);
+    color: #a1a1aa;
     font-weight: 500;
-    transition: all 0.3s ease;
-    border-bottom: 3px solid transparent;
-    display: inline-block;
+    font-size: 0.82rem;
+    border-radius: 6px;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    white-space: nowrap;
+    transition: color 0.15s, background 0.15s;
+    letter-spacing: 0.01em;
 }
 
 a.nav-link:hover {
-    color: var(--lumo-primary-color);
-    background-color: var(--lumo-contrast-5pct);
-    border-radius: 4px;
+    color: #fafafa;
+    background: #27272a;
 }
 
-/* Active/Highlighted Navigation Link */
+/* Current page */
 a.nav-link[highlight] {
-    color: var(--lumo-primary-color);
+    color: #fafafa;
     font-weight: 600;
-    border-bottom: 3px solid var(--lumo-primary-color);
-    background-color: var(--lumo-contrast-5pct);
+    background: #3f3f46;
 }
 
 a.nav-link[highlight]:hover {
-    background-color: var(--lumo-contrast-10pct);
+    background: #52525b;
 }

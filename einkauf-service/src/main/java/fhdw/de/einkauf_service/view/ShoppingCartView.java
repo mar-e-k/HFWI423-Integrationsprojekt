@@ -62,9 +62,9 @@ public class ShoppingCartView extends VerticalLayout {
         this.orderService = orderService;
 
         setSizeFull();
-        setPadding(true);
+        addClassName("page-view");
 
-        H2 title = new H2("🛒 Warenkorb");
+        H2 title = new H2("Warenkorb");
         add(title);
 
         configureGrid();

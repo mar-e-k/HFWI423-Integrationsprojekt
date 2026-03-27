@@ -62,7 +62,7 @@ public class OrderView extends VerticalLayout {
                 .collect(Collectors.toMap(SupplierResponseDTO::getId, Function.identity(), (a, b) -> a));
 
         setSizeFull();
-        setAlignItems(Alignment.CENTER);
+        addClassName("page-view");
 
         add(new H2("Bestellhistorie"));
 
@@ -75,10 +75,12 @@ public class OrderView extends VerticalLayout {
         );
         searchLayout.setAlignItems(Alignment.END);
         searchLayout.setWidthFull();
+        searchLayout.addClassName("search-toolbar");
 
         HorizontalLayout buttonLayout = new HorizontalLayout(reorderButton);
         buttonLayout.setWidthFull();
         buttonLayout.setJustifyContentMode(FlexComponent.JustifyContentMode.END);
+        buttonLayout.addClassName("action-toolbar");
 
         add(searchLayout, grid, buttonLayout);
         setFlexGrow(1, grid);

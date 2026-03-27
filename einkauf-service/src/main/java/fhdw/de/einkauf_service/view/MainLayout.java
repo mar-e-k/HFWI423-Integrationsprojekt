@@ -1,6 +1,7 @@
 package fhdw.de.einkauf_service.view;
 
 import com.vaadin.flow.component.applayout.AppLayout;
+import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.H1;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.icon.VaadinIcon;
@@ -15,6 +16,9 @@ import com.vaadin.flow.component.dependency.CssImport;
 import fhdw.de.einkauf_service.repository.ReceivedDealNotificationRepository;
 
 @CssImport("./styles/navigation.css")
+@CssImport("./styles/global.css")
+@CssImport(value = "./styles/grid-theme.css", themeFor = "vaadin-grid")
+@CssImport(value = "./styles/button-theme.css", themeFor = "vaadin-button")
 public class MainLayout extends AppLayout implements AfterNavigationObserver {
 
     private final ReceivedDealNotificationRepository notificationRepository;
@@ -26,8 +30,17 @@ public class MainLayout extends AppLayout implements AfterNavigationObserver {
     }
 
     private void createHeader() {
+        // Brand icon
+        Span brandIcon = new Span(VaadinIcon.SHOP.create());
+        brandIcon.addClassName("app-brand-icon");
+
+        // Title
         H1 title = new H1("Einkaufssystem");
-        title.addClassNames(LumoUtility.FontSize.LARGE, LumoUtility.Margin.NONE);
+        title.addClassNames("app-title", LumoUtility.Margin.NONE);
+
+        // Brand group: icon + title
+        Div brand = new Div(brandIcon, title);
+        brand.addClassName("app-brand");
 
         RouterLink homeLink = new RouterLink("Home", HomeView.class);
         RouterLink articlesLink = new RouterLink("Artikel", ArticleView.class);
@@ -70,17 +83,17 @@ public class MainLayout extends AppLayout implements AfterNavigationObserver {
                 homeLink, articlesLink, suppliersLink, cartLink,
                 contingentsLink, ordersLink, shelvesLink, placementsLink, messagesLink
         );
-        navLinks.setSpacing(true);
-        navLinks.setPadding(true);
+        navLinks.setSpacing(false);
+        navLinks.setPadding(false);
         navLinks.setAlignItems(FlexComponent.Alignment.CENTER);
-        navLinks.addClassNames(LumoUtility.Gap.MEDIUM, LumoUtility.Margin.NONE, LumoUtility.Padding.Vertical.SMALL);
+        navLinks.addClassNames(LumoUtility.Gap.XSMALL, LumoUtility.Margin.NONE);
 
-        HorizontalLayout header = new HorizontalLayout(title, navLinks);
+        HorizontalLayout header = new HorizontalLayout(brand, navLinks);
         header.setWidthFull();
         header.setAlignItems(FlexComponent.Alignment.CENTER);
         header.setJustifyContentMode(FlexComponent.JustifyContentMode.BETWEEN);
         header.addClassNames(
-                LumoUtility.Background.CONTRAST_5,
+                "app-header",
                 LumoUtility.Padding.Horizontal.LARGE,
                 LumoUtility.Padding.Vertical.SMALL
         );
