@@ -2,8 +2,8 @@ package de.fhdw.vendix.commons.security.spring.authentication;
 
 import de.fhdw.vendix.commons.api.domain.account.dto.AccountDTO;
 import de.fhdw.vendix.commons.api.domain.account_role.dto.AccountRoleEnum;
-import de.fhdw.vendix.security.api.authentication.AuthenticationQueryApi;
-import de.fhdw.vendix.security.api.authorization.AuthorizationQueryApi;
+import de.fhdw.vendix.security.api.authentication.AuthenticationQueryPort;
+import de.fhdw.vendix.security.api.authorization.AuthorizationQueryPort;
 import de.fhdw.vendix.commons.security.core.DefaultAuthContext;
 import de.fhdw.vendix.commons.security.spring.context.DefaultUser;
 import de.fhdw.vendix.security.api.context.AuthContext;
@@ -20,12 +20,12 @@ import java.util.UUID;
 
 public class DefaultUserDetailsService implements UserDetailsService {
 
-    private final AuthenticationQueryApi authenticationQueryApi;
-    private final AuthorizationQueryApi authorizationQueryApi;
+    private final AuthenticationQueryPort authenticationQueryPort;
+    private final AuthorizationQueryPort authorizationQueryPort;
 
-    public DefaultUserDetailsService(AuthenticationQueryApi authenticationQueryApi, AuthorizationQueryApi authorizationQueryApi) {
-        this.authenticationQueryApi = authenticationQueryApi;
-        this.authorizationQueryApi = authorizationQueryApi;
+    public DefaultUserDetailsService(AuthenticationQueryPort authenticationQueryPort, AuthorizationQueryPort authorizationQueryPort) {
+        this.authenticationQueryPort = authenticationQueryPort;
+        this.authorizationQueryPort = authorizationQueryPort;
     }
 
     @Override
@@ -35,9 +35,9 @@ public class DefaultUserDetailsService implements UserDetailsService {
 
         Objects.requireNonNull(account.id(), "this really shouldn't happen");
 
-        Set<AccountRoleEnum> roles = authorizationQueryApi.findRolesByAccountId(account.id());
+        Set<AccountRoleEnum> roles = authorizationQueryPort.findRolesByAccountId(account.id());
 
-        boolean isAccountLocked = authorizationQueryApi.isAccountLocked(account.id());
+        boolean isAccountLocked = authorizationQueryPort.isAccountLocked(account.id());
 
         AuthContext authContext = new DefaultAuthContext(
                 account,
@@ -60,17 +60,17 @@ public class DefaultUserDetailsService implements UserDetailsService {
 
         try {
             UUID uuid = UUID.fromString(identifier);
-            return authenticationQueryApi.findByUUID(uuid);
+            return authenticationQueryPort.findByUUID(uuid);
         } catch (IllegalArgumentException ignored) {}
 
         if (identifier.contains("@")) {
-            return authenticationQueryApi.findByEmail(identifier);
+            return authenticationQueryPort.findByEmail(identifier);
         }
 
         if (identifier.matches("\\+?[0-9]+")) {
-            return authenticationQueryApi.findByPhone(identifier);
+            return authenticationQueryPort.findByPhone(identifier);
         }
 
-        return authenticationQueryApi.findByUsername(identifier);
+        return authenticationQueryPort.findByUsername(identifier);
     }
 }

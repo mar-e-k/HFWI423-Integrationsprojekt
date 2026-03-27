@@ -1,9 +1,9 @@
 package de.fhdw.vendix.commons.spring.starter.autoconfigure;
 
 import com.vaadin.flow.spring.security.VaadinSecurityConfigurer;
-import de.fhdw.vendix.security.api.authentication.AuthenticationQueryApi;
-import de.fhdw.vendix.security.api.authorization.AuthorizationCommandApi;
-import de.fhdw.vendix.security.api.authorization.AuthorizationQueryApi;
+import de.fhdw.vendix.security.api.authentication.AuthenticationQueryPort;
+import de.fhdw.vendix.security.api.authorization.AuthorizationCommandPort;
+import de.fhdw.vendix.security.api.authorization.AuthorizationQueryPort;
 import de.fhdw.vendix.commons.security.spring.authentication.DefaultAuthenticationLifecycleHandler;
 import de.fhdw.vendix.commons.security.spring.context.DefaultAppContext;
 import de.fhdw.vendix.commons.security.spring.authentication.DefaultUserDetailsService;
@@ -41,8 +41,8 @@ public class SecurityAutoConfiguration {
 
     @Bean
     @ConditionalOnMissingBean
-    public UserDetailsService userDetailsService(AuthenticationQueryApi authenticationQueryApi, AuthorizationQueryApi authorizationQueryApi) {
-        return new DefaultUserDetailsService(authenticationQueryApi, authorizationQueryApi);
+    public UserDetailsService userDetailsService(AuthenticationQueryPort authenticationQueryPort, AuthorizationQueryPort authorizationQueryPort) {
+        return new DefaultUserDetailsService(authenticationQueryPort, authorizationQueryPort);
     }
 
     @Bean
@@ -65,8 +65,8 @@ public class SecurityAutoConfiguration {
 
     @Bean
     @ConditionalOnMissingBean
-    public AuthenticationLifecycleHandler authenticationLifecycleHandler(AppContext appContext, AuthorizationCommandApi authorizationCommandApi) {
-        return new DefaultAuthenticationLifecycleHandler(appContext, authorizationCommandApi);
+    public AuthenticationLifecycleHandler authenticationLifecycleHandler(AppContext appContext, AuthorizationCommandPort authorizationCommandPort) {
+        return new DefaultAuthenticationLifecycleHandler(appContext, authorizationCommandPort);
     }
 
     @Bean

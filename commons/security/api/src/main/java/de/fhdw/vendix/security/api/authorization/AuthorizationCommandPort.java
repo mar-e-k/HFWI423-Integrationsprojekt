@@ -2,11 +2,11 @@ package de.fhdw.vendix.security.api.authorization;
 
 import de.fhdw.vendix.commons.api.domain.lock.dto.LockDTO;
 import de.fhdw.vendix.commons.api.domain.lock.dto.TargetTypeEnum;
-import de.fhdw.vendix.commons.api.structure.web.CommandApi;
+import de.fhdw.vendix.commons.api.structure.port.CommandPort;
 
 import java.util.UUID;
 
-public interface AuthorizationCommandApi extends CommandApi {
+public interface AuthorizationCommandPort extends CommandPort {
 
     LockDTO createLock(LockDTO entity);
 

@@ -8,7 +8,9 @@ import de.fhdw.vendix.commons.spring.data.crud.AbstractDtoCrudAdapter;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 class LockAdapter extends AbstractDtoCrudAdapter<Lock, LockDTO, Long> implements LockQueryPort, LockCommandPort {
@@ -23,26 +25,45 @@ class LockAdapter extends AbstractDtoCrudAdapter<Lock, LockDTO, Long> implements
     }
 
     @Override
-    public boolean existsByTarget(TargetTypeEnum targetTypeEnum, Long targetId) {
-        if (targetTypeEnum == null) {
-            return false;
-        }
-        if (targetId < 0) {
-            return false;
-        }
-        return lockEntityAdapter.existsByTargetTypeAndTargetId(targetTypeEnum, targetId);
-    }
-
-    @Override
     public Optional<LockDTO> findByTarget(TargetTypeEnum targetTypeEnum, Long targetId) {
         if (targetTypeEnum == null) {
             return Optional.empty();
         }
-        if (targetId < 0) {
+        if (targetId == null || targetId < 0) {
             return Optional.empty();
         }
         return lockEntityAdapter.findByTargetTypeAndTargetId(targetTypeEnum, targetId)
                 .map(lockMapper::toDTO);
+    }
+
+    @Override
+    public Set<LockDTO> findAllByTargetType(TargetTypeEnum targetType) {
+        if (targetType == null) {
+            return Set.of();
+        }
+        return lockEntityAdapter.findAllByTargetType(targetType).stream()
+                .map(lockMapper::toDTO)
+                .collect(Collectors.toSet());
+    }
+
+    @Override
+    public Set<LockDTO> findAllByTargetId(long targetId) {
+        if (targetId < 0) {
+            return Set.of();
+        }
+        return lockEntityAdapter.findAllByTargetId(targetId).stream()
+                .map(lockMapper::toDTO)
+                .collect(Collectors.toSet());
+    }
+
+    @Override
+    public Set<LockDTO> findAllByInstanceUUID(UUID instanceUUID) {
+        if (instanceUUID == null) {
+            return Set.of();
+        }
+        return lockEntityAdapter.findAllByInstanceUUID(instanceUUID).stream()
+                .map(lockMapper::toDTO)
+                .collect(Collectors.toSet());
     }
 
     @Override

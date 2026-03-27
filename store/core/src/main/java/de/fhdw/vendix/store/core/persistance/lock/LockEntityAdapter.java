@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 
 @Service
@@ -42,6 +43,30 @@ class LockEntityAdapter extends AbstractEntityCrudAdapter<Lock, Long> {
             return Optional.empty();
         }
         return lockRepository.findByTargetTypeAndTargetId(targetTypeEnum, targetId);
+    }
+
+    @Transactional(readOnly = true)
+    public Set<Lock> findAllByTargetType(TargetTypeEnum targetType) {
+        if (targetType == null) {
+            return Set.of();
+        }
+        return lockRepository.findAllByTargetType(targetType);
+    }
+
+    @Transactional(readOnly = true)
+    public Set<Lock> findAllByTargetId(long targetId) {
+        if (targetId < 0L) {
+            return Set.of();
+        }
+        return lockRepository.findAllByTargetId(targetId);
+    }
+
+    @Transactional(readOnly = true)
+    public Set<Lock> findAllByInstanceUUID(UUID instanceUUID) {
+        if (instanceUUID == null) {
+            return Set.of();
+        }
+        return lockRepository.findAllByInstanceUUID(instanceUUID);
     }
 
     @Transactional

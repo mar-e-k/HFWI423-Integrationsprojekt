@@ -1,13 +1,12 @@
 package de.fhdw.vendix.commons.api.domain.receipt.port;
 
 import de.fhdw.vendix.commons.api.domain.receipt.dto.ReceiptDTO;
-import de.fhdw.vendix.commons.api.domain.receipt.web.ReceiptQueryApi;
 import de.fhdw.vendix.commons.api.domain.receipt_line.dto.ReceiptLineDTO;
 import de.fhdw.vendix.commons.api.structure.port.QueryPort;
 
 import java.util.Set;
 
-public interface ReceiptQueryPort extends QueryPort, ReceiptQueryApi {
+public interface ReceiptQueryPort extends QueryPort {
     Set<ReceiptDTO> findAllByStoreId(Long storeID);
 
     Set<ReceiptDTO> findAllByRegisterId(Long registerID);

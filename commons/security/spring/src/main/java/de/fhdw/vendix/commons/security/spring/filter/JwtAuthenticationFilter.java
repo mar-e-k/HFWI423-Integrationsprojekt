@@ -2,7 +2,7 @@ package de.fhdw.vendix.commons.security.spring.filter;
 
 import de.fhdw.vendix.commons.api.domain.account.dto.AccountDTO;
 import de.fhdw.vendix.commons.api.domain.account_role.dto.AccountRoleEnum;
-import de.fhdw.vendix.security.api.authentication.AuthenticationQueryApi;
+import de.fhdw.vendix.security.api.authentication.AuthenticationQueryPort;
 import de.fhdw.vendix.security.api.jwt.JwtService;
 import de.fhdw.vendix.security.api.jwt.payload.JwtPayload;
 import jakarta.annotation.Nonnull;
@@ -26,11 +26,11 @@ import java.util.Set;
 public final class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private final JwtService jwtService;
-    private final AuthenticationQueryApi authenticationQueryApi;
+    private final AuthenticationQueryPort authenticationQueryPort;
 
-    public JwtAuthenticationFilter(JwtService jwtService, AuthenticationQueryApi authenticationQueryApi) {
+    public JwtAuthenticationFilter(JwtService jwtService, AuthenticationQueryPort authenticationQueryPort) {
         this.jwtService = jwtService;
-        this.authenticationQueryApi = authenticationQueryApi;
+        this.authenticationQueryPort = authenticationQueryPort;
     }
 
     @Override
@@ -72,7 +72,7 @@ public final class JwtAuthenticationFilter extends OncePerRequestFilter {
                     "system"
             );
         } else {
-            account = authenticationQueryApi.findByUUID(payload.auth().subject())
+            account = authenticationQueryPort.findByUUID(payload.auth().subject())
                     .orElseThrow(() -> new BadCredentialsException("Invalid token. Account with specified UUID does not exist"));
         }
 

@@ -5,9 +5,11 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.Set;
 
-public interface AccountRoleAssignmentRepository extends JpaRepository<AccountRoleAssignment, Long> {
+interface AccountRoleAssignmentRepository extends JpaRepository<AccountRoleAssignment, Long> {
 
-    boolean existsByRole_Role(AccountRoleEnum role);
+    Set<AccountRoleAssignment> findAllByAccount_Id(Long accountId);
 
-    Set<AccountRoleAssignment> findAllByAccount_Id(Long id);
+    Set<AccountRoleAssignment> findAllByRole_Id(Long roleId);
+
+    Set<AccountRoleAssignment> findAllByRole_Role(AccountRoleEnum roleRole);
 }

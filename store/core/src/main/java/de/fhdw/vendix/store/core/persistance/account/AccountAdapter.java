@@ -3,24 +3,31 @@ package de.fhdw.vendix.store.core.persistance.account;
 import de.fhdw.vendix.commons.api.domain.account.dto.AccountDTO;
 import de.fhdw.vendix.commons.api.domain.account.port.AccountCommandPort;
 import de.fhdw.vendix.commons.api.domain.account.port.AccountQueryPort;
+import de.fhdw.vendix.commons.api.domain.account_role.dto.AccountRoleDTO;
 import de.fhdw.vendix.commons.api.domain.account_role.dto.AccountRoleEnum;
 import de.fhdw.vendix.commons.spring.data.crud.AbstractDtoCrudAdapter;
+import de.fhdw.vendix.store.core.persistance.account_role.AccountRoleMapper;
+import de.fhdw.vendix.store.core.persistance.account_role_assignment.AccountRoleAssignment;
+import jakarta.persistence.EntityNotFoundException;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 class AccountAdapter extends AbstractDtoCrudAdapter<Account, AccountDTO, Long> implements AccountQueryPort, AccountCommandPort {
 
     private final AccountEntityAdapter accountEntityAdapter;
     private final AccountMapper accountMapper;
+    private final AccountRoleMapper accountRoleMapper;
 
-    AccountAdapter(AccountEntityAdapter accountEntityAdapter, AccountMapper accountMapper) {
+    AccountAdapter(AccountEntityAdapter accountEntityAdapter, AccountMapper accountMapper, AccountRoleMapper accountRoleMapper) {
         super(accountEntityAdapter, accountMapper);
         this.accountEntityAdapter = accountEntityAdapter;
         this.accountMapper = accountMapper;
+        this.accountRoleMapper = accountRoleMapper;
     }
 
     @Override
@@ -52,11 +59,13 @@ class AccountAdapter extends AbstractDtoCrudAdapter<Account, AccountDTO, Long> i
     }
 
     @Override
-    public Set<AccountRoleEnum> findAllRoles(Long id) {
+    public Set<AccountRoleDTO> findAllRoles(Long id) {
         if (id < 0) {
             return Set.of();
         }
-        return accountEntityAdapter.findAllAccountRolesByAccountId(id);
+        return accountEntityAdapter.findAllRoles(id).stream()
+                .map(accountRoleMapper::toDTO)
+                .collect(Collectors.toUnmodifiableSet());
     }
 
     @Override

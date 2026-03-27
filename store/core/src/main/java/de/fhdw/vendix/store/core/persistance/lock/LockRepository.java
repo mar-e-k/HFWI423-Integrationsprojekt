@@ -6,6 +6,7 @@ import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 
 interface LockRepository extends JpaRepository<Lock, Long> {
@@ -13,6 +14,12 @@ interface LockRepository extends JpaRepository<Lock, Long> {
     boolean existsByTargetTypeAndTargetId(TargetTypeEnum targetTypeEnum, long targetId);
 
     Optional<Lock> findByTargetTypeAndTargetId(TargetTypeEnum targetTypeEnum, long targetId);
+
+    Set<Lock> findAllByTargetType(TargetTypeEnum targetType);
+
+    Set<Lock> findAllByTargetId(long targetId);
+
+    Set<Lock> findAllByInstanceUUID(UUID instanceUUID);
 
     @Modifying
     @Query(
