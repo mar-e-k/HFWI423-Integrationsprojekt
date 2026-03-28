@@ -13,6 +13,10 @@ public class NewArticleNotificationService {
         counter.incrementAndGet();
     }
 
+    public void decrement() {
+        counter.updateAndGet(current -> Math.max(0, current - 1));
+    }
+
     public int getCount() {
         return counter.get();
     }
