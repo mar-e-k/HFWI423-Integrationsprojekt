@@ -1,9 +1,14 @@
 package com.example.application.amqp.storeEvents;
 
+import com.example.application.data.articleInfo.ArticleInfo;
+import com.example.application.data.articleInfo.ArticleInfoRepository;
+import com.example.application.data.orderPicking.MessageLogistic;
+import com.example.application.data.orderPicking.MessageLogisticRepository;
 import io.github.plaguv.amqp.api.event.pos.ArticleOrderEvent;
 import io.github.plaguv.amqp.api.event.pos.ArticleUrgentOrderEvent;
 import io.github.plaguv.amqp.core.listener.AmqpEventListener;
 import io.github.plaguv.amqp.core.listener.MessageRejectedException;
+import jakarta.transaction.Transactional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -11,61 +16,92 @@ import org.springframework.stereotype.Component;
 /**
  * AMQP Event Listener für Bestellungen von Filialen.
  *
- * Diese Komponente empfängt Bestellungen von den Filialen (über die Kasse):
- * - LogisticArticleOrder: Normale wöchentliche Bestellung bei Unterbestand
- * - LogisticUrgentArticleOrder: Sonderkommission bei kritischem Bestand (< 5 Artikel)
+ * Empfängt Bestellungen über die plaguv-Library:
+ * - ArticleOrderEvent:       Normale wöchentliche Bestellung bei Unterbestand
+ * - ArticleUrgentOrderEvent: Sonderkommission bei kritischem Bestand (< 5 Artikel)
+ *
+ * Der Inhalt wird als MessageLogistic in die DB geschrieben,
+ * damit der WeeklyKommissionScheduler daraus Kommissionen erzeugen kann.
  */
 @Component
 public class LogisticOrderListener {
 
     private static final Logger logger = LoggerFactory.getLogger(LogisticOrderListener.class);
-    private final LogisticEventPublisher logisticEventPublisher;
 
-    public LogisticOrderListener(LogisticEventPublisher LogisticEventPublisher) {
-        this.logisticEventPublisher = LogisticEventPublisher;
+    private final MessageLogisticRepository msgRepo;
+    private final ArticleInfoRepository articleRepo;
+
+    public LogisticOrderListener(MessageLogisticRepository msgRepo,
+                                 ArticleInfoRepository articleRepo) {
+        this.msgRepo = msgRepo;
+        this.articleRepo = articleRepo;
     }
 
     /**
-     * Behandelt normale Bestellungen (wöchentlich, bei unter Mindestbestand 50).
-     *
-     * @param order Die Bestellanforderung mit storeId, articleId und Menge
+     * 1.1 – Normale Bestellung: Inhalt in DB schreiben.
      */
     @AmqpEventListener
+    @Transactional
     public void onLogisticArticleOrder(ArticleOrderEvent order) {
-        if(order==null){
-            throw new MessageRejectedException("Bestellung war nur ein leerer Sack, smallest order ever frfr");
+        if (order == null) {
+            throw new MessageRejectedException("ArticleOrderEvent war null");
         }
         logger.info("📦 Normale Bestellung erhalten - StoreID: {}, ArticleID: {}, Quantity: {}",
                 order.storeId(), order.articleId(), order.quantity());
 
-        // TODO: Implementieren
-        // - Bestellung in Logistik-System registrieren
-        // - Bestandsreservierung durchführen
-        // - Picking-Liste erstellen
-        // - Lieferstatus tracken
-
-        logisticEventPublisher.publishArticleDelivery(order.storeId(), order.articleId(), order.quantity());
+        saveAsMessageLogistic(order.storeId(), order.articleId(), order.quantity());
     }
 
     /**
-     * Behandelt Sonderkommissionen (bei unter 5 Artikeln am selben Tag).
-     *
-     * @param order Die Sonderbestellung mit storeId, articleId und Menge
+     * 1.1 + 1.2 – Dringende Bestellung: Inhalt in DB schreiben
+     *             und Sonderkommissionierung auslösen.
      */
     @AmqpEventListener
+    @Transactional
     public void onLogisticUrgentArticleOrder(ArticleUrgentOrderEvent order) {
-        if(order==null){
-            throw new MessageRejectedException("Bestellung war nur ein leerer Sack, smallest order ever frfr");
+        if (order == null) {
+            throw new MessageRejectedException("ArticleUrgentOrderEvent war null");
         }
         logger.info("🚨 Dringende Bestellung erhalten - StoreID: {}, ArticleID: {}, Quantity: {}",
                 order.storeId(), order.articleId(), order.quantity());
 
-        // TODO: Implementieren
-        // - Bestellung mit hoher Priorität registrieren
-        // - Sofortige Picking priorisieren
-        // - Express-Versand einplanen
-        // - Filiale benachrichtigen (über Lieferungsveröffentlichung)
+        // Ganz normal in die DB schreiben (wie bei normaler Bestellung)
+        saveAsMessageLogistic(order.storeId(), order.articleId(), order.quantity());
 
-        logisticEventPublisher.publishArticleDelivery(order.storeId(), order.articleId(), order.quantity());
+        // TODO 1.2: Sonderkommissionierungs-Service aufrufen sobald fertig
+        // sonderKommissionService.erstelleSonderkommission(String.valueOf(order.storeId()));
+        logger.info("⚠️ Sonderkommissionierung für StoreID {} noch nicht implementiert", order.storeId());
+    }
+
+    /**
+     * Wandelt ein eingehendes Event in einen MessageLogistic-Eintrag um.
+     * Alte verarbeitete Einträge des Stores werden vorher bereinigt.
+     */
+    private void saveAsMessageLogistic(long storeId, long articleId, long quantity) {
+
+        // Artikel über die numerische articleId in article_info suchen
+        ArticleInfo article = articleRepo.findByArticleId(articleId);
+        if (article == null) {
+            logger.warn("⚠️ Artikel mit articleId {} nicht in article_info gefunden – Message wird ignoriert.",
+                    articleId);
+            return;
+        }
+
+        String storeIdStr = String.valueOf(storeId);
+
+        // Alte verarbeitete Einträge dieses Stores bereinigen
+        msgRepo.deleteProcessedByStore(storeIdStr);
+
+        // Neuen Eintrag speichern
+        MessageLogistic msg = new MessageLogistic();
+        msg.setStoreId(storeIdStr);
+        msg.setArticleNumber(article.getArticleNumber());
+        msg.setQuantity(quantity);
+        msg.setProcessed(false);
+
+        msgRepo.save(msg);
+
+        logger.info("✅ MessageLogistic gespeichert - Store: {}, Artikel: {} ({}), Menge: {}",
+                storeIdStr, article.getArticleNumber(), article.getName(), quantity);
     }
 }
