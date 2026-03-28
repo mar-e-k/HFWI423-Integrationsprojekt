@@ -5,7 +5,6 @@ import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.applayout.AppLayout;
 import com.vaadin.flow.component.applayout.DrawerToggle;
 import com.vaadin.flow.component.avatar.Avatar;
-import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.Footer;
 import com.vaadin.flow.component.html.H1;
 import com.vaadin.flow.component.html.H2;
@@ -15,6 +14,7 @@ import com.vaadin.flow.component.icon.SvgIcon;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.Scroller;
+import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.sidenav.SideNav;
 import com.vaadin.flow.component.sidenav.SideNavItem;
 import com.vaadin.flow.router.AfterNavigationEvent;
@@ -27,72 +27,71 @@ import com.vaadin.flow.theme.lumo.LumoUtility;
 
 import java.util.List;
 
-/**
- * Globales Layout (Header + Drawer + Footer).
- */
 @Layout
 @AnonymousAllowed
 public class MainLayout extends AppLayout implements AfterNavigationObserver {
 
-    private H1 viewTitle;
     private final NewArticleNotificationService newArticleNotificationService;
-    private SideNavItem articleNavItem;
+
+    private H1 viewTitle;
     private Span articleBadge;
 
     public MainLayout(NewArticleNotificationService newArticleNotificationService) {
         this.newArticleNotificationService = newArticleNotificationService;
 
         setPrimarySection(Section.DRAWER);
-        addDrawerContent();
+        setDrawerOpened(true);
+        getStyle().set("--vaadin-app-layout-drawer-width", "280px");
+
+
         addHeaderContent();
+        addDrawerContent();
 
-        // Polling für Badge-Aktualisierung
-        UI.getCurrent().setPollInterval(5000);
-        UI.getCurrent().addPollListener(e -> updateArticleBadge());
-
-        //Hintergrundfarbe für die App
-        // getElement().getThemeList().add("dark");
+        configurePolling();
+        updateArticleBadge();
     }
 
-    // ---------------------------------------------------------------------
-    // Badge-Logik
-    // ---------------------------------------------------------------------
+    // --------------------------------------------------
+    // Initialisierung
+    // --------------------------------------------------
 
-    private void updateArticleBadge() {
-        if (articleBadge == null) {
-            return;
+    private void configurePolling() {
+        UI currentUi = UI.getCurrent();
+        if (currentUi != null) {
+            currentUi.setPollInterval(5000);
+            currentUi.addPollListener(event -> updateArticleBadge());
         }
-        int count = newArticleNotificationService.getCount();
-        articleBadge.setText(String.valueOf(count));
     }
 
-    // ---------------------------------------------------------------------
+    // --------------------------------------------------
     // Header
-    // ---------------------------------------------------------------------
+    // --------------------------------------------------
 
     private void addHeaderContent() {
-        // Left: Drawer Toggle + AppName
-        DrawerToggle toggle = new DrawerToggle();
-        toggle.setAriaLabel("Menü umschalten");
+        DrawerToggle drawerToggle = new DrawerToggle();
+        drawerToggle.setAriaLabel("Menü umschalten");
 
         Span appName = new Span("Logistic");
         appName.addClassNames(
-                LumoUtility.FontSize.XLARGE,
-                LumoUtility.FontWeight.BOLD,
-                LumoUtility.Margin.NONE
-        );
-
-        // Center: aktueller Seitentitel (wird in afterNavigation gesetzt)
-        viewTitle = new H1();
-        viewTitle.addClassNames(
-                LumoUtility.FontSize.MEDIUM,
-                LumoUtility.Margin.NONE,
+                LumoUtility.FontSize.SMALL,
+                LumoUtility.FontWeight.MEDIUM,
                 LumoUtility.TextColor.SECONDARY
         );
 
-        // User-Bereich (noch nen Platzhalter)
-        Avatar userAvatar = new Avatar("User");
-        userAvatar.addClassNames(LumoUtility.Margin.End.MEDIUM);
+        viewTitle = new H1();
+        viewTitle.addClassNames(
+                LumoUtility.FontSize.XLARGE,
+                LumoUtility.FontWeight.SEMIBOLD,
+                LumoUtility.Margin.NONE
+        );
+
+        HorizontalLayout brandArea = new HorizontalLayout(drawerToggle, appName);
+        brandArea.setAlignItems(FlexComponent.Alignment.CENTER);
+        brandArea.setSpacing(true);
+        brandArea.getStyle().set("gap", "0.75rem");
+
+        Avatar avatar = new Avatar("User");
+        avatar.getStyle().set("background-color", "var(--lumo-contrast-10pct)");
 
         Span userName = new Span("Demo User");
         userName.addClassNames(
@@ -100,40 +99,56 @@ public class MainLayout extends AppLayout implements AfterNavigationObserver {
                 LumoUtility.TextColor.SECONDARY
         );
 
-        HorizontalLayout userArea = new HorizontalLayout(userName, userAvatar);
+        HorizontalLayout userArea = new HorizontalLayout(userName, avatar);
         userArea.setAlignItems(FlexComponent.Alignment.CENTER);
-        userArea.addClassNames(LumoUtility.Gap.SMALL);
+        userArea.getStyle().set("gap", "0.5rem");
 
-        HorizontalLayout headerBar = new HorizontalLayout(toggle, appName, viewTitle, userArea);
-        headerBar.setDefaultVerticalComponentAlignment(FlexComponent.Alignment.CENTER);
-        headerBar.setWidthFull();
-        headerBar.addClassNames(
+        HorizontalLayout header = new HorizontalLayout(brandArea, viewTitle, userArea);
+        header.setWidthFull();
+        header.setDefaultVerticalComponentAlignment(FlexComponent.Alignment.CENTER);
+        header.expand(viewTitle);
+
+        header.addClassNames(
                 LumoUtility.Padding.Horizontal.MEDIUM,
-                LumoUtility.Padding.Vertical.XSMALL,
+                LumoUtility.Padding.Vertical.SMALL,
                 LumoUtility.BoxSizing.BORDER
         );
 
-        // Hintergrund + leichter Schatten
-        headerBar.getStyle().set("background-color", "var(--lumo-base-color)");
-        headerBar.getStyle().set("box-shadow", "0 1px 0 0 var(--lumo-contrast-10pct)");
-        headerBar.setHeight("var(--lumo-size-l)");
-        headerBar.getStyle().set("border-bottom", "1px solid var(--lumo-contrast-10pct)");
-        // Titel in der Mitte, User rechts
-        headerBar.expand(viewTitle);
-        headerBar.setJustifyContentMode(FlexComponent.JustifyContentMode.BETWEEN);
+        header.getStyle()
+                .set("background", "var(--lumo-base-color)")
+                .set("border-bottom", "1px solid var(--lumo-contrast-10pct)")
+                .set("min-height", "72px")
+                .set("padding-left", "1rem")
+                .set("padding-right", "1rem");
 
-        addToNavbar(headerBar);
+        addToNavbar(header);
     }
 
-    // ---------------------------------------------------------------------
-    // Drawer / Navigation
-    // ---------------------------------------------------------------------
+    // --------------------------------------------------
+    // Drawer
+    // --------------------------------------------------
 
     private void addDrawerContent() {
-        // App-Brand im Drawer
-        H2 drawerTitle = new H2("Logistic Cockpit");
-        drawerTitle.addClassNames(
-                LumoUtility.FontSize.MEDIUM,
+        Header drawerHeader = createDrawerHeader();
+        Scroller navigationScroller = new Scroller(createNavigation());
+        navigationScroller.setSizeFull();
+        navigationScroller.addClassNames(LumoUtility.Padding.SMALL);
+
+        Footer drawerFooter = createFooter();
+
+        VerticalLayout drawerLayout = new VerticalLayout(drawerHeader, navigationScroller, drawerFooter);
+        drawerLayout.setSizeFull();
+        drawerLayout.setPadding(false);
+        drawerLayout.setSpacing(false);
+        drawerLayout.setFlexGrow(1, navigationScroller);
+
+        addToDrawer(drawerLayout);
+    }
+
+    private Header createDrawerHeader() {
+        H2 title = new H2("Logistic Cockpit");
+        title.addClassNames(
+                LumoUtility.FontSize.LARGE,
                 LumoUtility.FontWeight.SEMIBOLD,
                 LumoUtility.Margin.NONE
         );
@@ -143,114 +158,134 @@ public class MainLayout extends AppLayout implements AfterNavigationObserver {
                 LumoUtility.FontSize.XSMALL,
                 LumoUtility.TextColor.SECONDARY
         );
+        subtitle.getStyle()
+                .set("line-height", "1.3")
+                .set("white-space", "normal");
 
-        VerticalHeader header = new VerticalHeader(drawerTitle, subtitle);
+        Header header = new Header(title, subtitle);
+        header.addClassNames(
+                LumoUtility.Padding.MEDIUM,
+                LumoUtility.Display.FLEX,
+                LumoUtility.FlexDirection.COLUMN,
+                LumoUtility.Gap.XSMALL
+        );
 
-        Scroller scroller = new Scroller(createNavigation());
-        scroller.addClassNames(LumoUtility.Padding.SMALL);
+        header.getStyle()
+                .set("border-bottom", "1px solid var(--lumo-contrast-10pct)")
+                .set("background", "var(--lumo-base-color)")
+                .set("min-height", "96px")
+                .set("justify-content", "center");
 
-        addToDrawer(header, scroller, createFooter());
+        return header;
     }
 
     private SideNav createNavigation() {
         SideNav nav = new SideNav();
         nav.addClassNames(
-                LumoUtility.Padding.NONE,
-                LumoUtility.Gap.SMALL
+                LumoUtility.Padding.XSMALL,
+                LumoUtility.Gap.XSMALL
         );
 
-        // "Überschrift" für die Navigation als deaktiviertes Item
-        SideNavItem sectionTitleItem = new SideNavItem("Navigation");
-        sectionTitleItem.addClassNames(
+        Span sectionTitle = new Span("Navigation");
+        sectionTitle.addClassNames(
                 LumoUtility.FontSize.XSMALL,
                 LumoUtility.TextColor.SECONDARY,
                 LumoUtility.Padding.Horizontal.SMALL,
                 LumoUtility.Padding.Top.SMALL
         );
-        sectionTitleItem.setEnabled(false);  // nicht klickbar
-        nav.addItem(sectionTitleItem);
 
         List<MenuEntry> menuEntries = MenuConfiguration.getMenuEntries();
-        menuEntries.forEach(entry -> {
-            SideNavItem item;
-            if (entry.icon() != null) {
-                item = new SideNavItem(entry.title(), entry.path(), new SvgIcon(entry.icon()));
-            } else {
-                item = new SideNavItem(entry.title(), entry.path());
-            }
 
-            item.addClassNames(
-                    LumoUtility.BorderRadius.MEDIUM,
-                    LumoUtility.Padding.Horizontal.SMALL
-            );
+        VerticalLayout navWrapper = new VerticalLayout();
+        navWrapper.setPadding(false);
+        navWrapper.setSpacing(false);
+        navWrapper.add(sectionTitle);
 
-            String path = entry.path();
-            String normalizedPath = path.startsWith("/") ? path.substring(1) : path;
-
-            // Pfad für Badge
-            if ("new-articles".equals(normalizedPath)) {
-
-                articleNavItem = item;
-                articleBadge = new Span();
-                articleBadge.addClassNames(
-                        LumoUtility.Padding.Horizontal.XSMALL,
-                        LumoUtility.Padding.Vertical.XSMALL,
-                        LumoUtility.BorderRadius.LARGE
-                );
-                articleBadge.getElement().getThemeList().add("badge pill primary");
-
-                articleBadge.setText("0");
-                articleBadge.setVisible(true);
-
-                item.setSuffixComponent(articleBadge);
-            }
-
+        for (MenuEntry entry : menuEntries) {
+            SideNavItem item = createNavItem(entry);
             nav.addItem(item);
-        });
+        }
 
+        navWrapper.add(nav);
         return nav;
     }
 
-    private static class VerticalHeader extends Header {
-        public VerticalHeader(H2 title, Span subtitle) {
-            addClassNames(
-                    LumoUtility.Padding.MEDIUM,
-                    LumoUtility.Display.FLEX,
-                    LumoUtility.FlexDirection.COLUMN,
-                    LumoUtility.Gap.XSMALL
-            );
+    private SideNavItem createNavItem(MenuEntry entry) {
+        SideNavItem item;
 
-            getStyle().set("border-bottom", "1px solid var(--lumo-contrast-10pct)");
-            getStyle().set("background-color", "var(--lumo-base-color)");
-            setHeight("var(--lumo-size-l)");
-
-            add(title, subtitle);
+        if (entry.icon() != null) {
+            item = new SideNavItem(entry.title(), entry.path(), new SvgIcon(entry.icon()));
+        } else {
+            item = new SideNavItem(entry.title(), entry.path());
         }
+
+        item.addClassNames(
+                LumoUtility.BorderRadius.MEDIUM,
+                LumoUtility.Padding.Horizontal.SMALL,
+                LumoUtility.Padding.Vertical.XSMALL
+        );
+
+        String path = entry.path();
+        String normalizedPath = path.startsWith("/") ? path.substring(1) : path;
+
+        if ("new-articles".equals(normalizedPath)) {
+            articleBadge = createArticleBadge();
+            item.setSuffixComponent(articleBadge);
+        }
+
+        return item;
+    }
+
+    private Span createArticleBadge() {
+        Span badge = new Span("0");
+        badge.addClassNames(
+                LumoUtility.Padding.Horizontal.XSMALL,
+                LumoUtility.Padding.Vertical.XSMALL,
+                LumoUtility.BorderRadius.LARGE,
+                LumoUtility.FontSize.XSMALL,
+                LumoUtility.FontWeight.SEMIBOLD
+        );
+        badge.getElement().getThemeList().add("badge pill primary");
+        badge.setVisible(false);
+        return badge;
     }
 
     private Footer createFooter() {
-        Footer footer = new Footer();
-        footer.addClassNames(
-                LumoUtility.Padding.MEDIUM,
-                LumoUtility.TextColor.SECONDARY,
-                LumoUtility.FontSize.XSMALL
+        Span info = new Span("© " + java.time.Year.now().getValue() + " Logistic Demo • v1.0");
+        info.addClassNames(
+                LumoUtility.FontSize.XSMALL,
+                LumoUtility.TextColor.SECONDARY
         );
 
-        // Oberkante als feine Linie
+        Footer footer = new Footer(info);
+        footer.addClassNames(LumoUtility.Padding.MEDIUM);
         footer.getStyle().set("border-top", "1px solid var(--lumo-contrast-10pct)");
 
-        Span info = new Span("© " + java.time.Year.now().getValue() + " Logistic Demo • v1.0");
-        footer.add(info);
         return footer;
     }
 
-    // ---------------------------------------------------------------------
-    // Page Title
-    // ---------------------------------------------------------------------
+    // --------------------------------------------------
+    // Badge
+    // --------------------------------------------------
+
+    private void updateArticleBadge() {
+        if (articleBadge == null) {
+            return;
+        }
+
+        int count = newArticleNotificationService.getCount();
+        articleBadge.setText(String.valueOf(count));
+        articleBadge.setVisible(count > 0);
+    }
+
+    // --------------------------------------------------
+    // Navigation Title
+    // --------------------------------------------------
 
     @Override
     public void afterNavigation(AfterNavigationEvent event) {
         viewTitle.setText(getCurrentPageTitle());
+        updateArticleBadge();
     }
 
     private String getCurrentPageTitle() {
