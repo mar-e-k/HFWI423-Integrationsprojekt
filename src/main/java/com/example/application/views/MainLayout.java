@@ -181,32 +181,15 @@ public class MainLayout extends AppLayout implements AfterNavigationObserver {
 
     private SideNav createNavigation() {
         SideNav nav = new SideNav();
-        nav.addClassNames(
-                LumoUtility.Padding.XSMALL,
-                LumoUtility.Gap.XSMALL
-        );
-
-        Span sectionTitle = new Span("Navigation");
-        sectionTitle.addClassNames(
-                LumoUtility.FontSize.XSMALL,
-                LumoUtility.TextColor.SECONDARY,
-                LumoUtility.Padding.Horizontal.SMALL,
-                LumoUtility.Padding.Top.SMALL
-        );
+        nav.addClassName("app-sidenav");
 
         List<MenuEntry> menuEntries = MenuConfiguration.getMenuEntries();
-
-        VerticalLayout navWrapper = new VerticalLayout();
-        navWrapper.setPadding(false);
-        navWrapper.setSpacing(false);
-        navWrapper.add(sectionTitle);
 
         for (MenuEntry entry : menuEntries) {
             SideNavItem item = createNavItem(entry);
             nav.addItem(item);
         }
 
-        navWrapper.add(nav);
         return nav;
     }
 
@@ -219,11 +202,7 @@ public class MainLayout extends AppLayout implements AfterNavigationObserver {
             item = new SideNavItem(entry.title(), entry.path());
         }
 
-        item.addClassNames(
-                LumoUtility.BorderRadius.MEDIUM,
-                LumoUtility.Padding.Horizontal.SMALL,
-                LumoUtility.Padding.Vertical.XSMALL
-        );
+        item.addClassName("app-nav-item");
 
         String path = entry.path();
         String normalizedPath = path.startsWith("/") ? path.substring(1) : path;
