@@ -1,5 +1,8 @@
 package com.example.application.views.orderPickingView;
 
+import com.example.application.amqp.storeEvents.LogisticEventPublisher;
+import com.example.application.data.articleInfo.ArticleInfo;
+import com.example.application.data.articleInfo.ArticleInfoRepository;
 import com.example.application.data.orderPicking.Kommission;
 import com.example.application.data.orderPicking.MessageLogistic;
 import com.example.application.data.orderPicking.MessageLogisticRepository;
@@ -33,13 +36,21 @@ public class orderPickingMainView extends VerticalLayout {
     private final KommissionService service;
     private final MessageLogisticRepository msgRepo;
     private final ArticleInfoService articleInfoService;
+    private final ArticleInfoRepository articleInfoRepository;
+    private final LogisticEventPublisher logisticEventPublisher;
     private final Grid<Kommission> grid = new Grid<>(Kommission.class, false);
 
 
-    public orderPickingMainView(KommissionService service, MessageLogisticRepository msgRepo,  ArticleInfoService articleInfoService) {
+    public orderPickingMainView(KommissionService service,
+                                MessageLogisticRepository msgRepo,
+                                ArticleInfoService articleInfoService,
+                                ArticleInfoRepository articleInfoRepository,
+                                LogisticEventPublisher logisticEventPublisher) {
         this.service = service;
         this.msgRepo = msgRepo;
         this.articleInfoService = articleInfoService;
+        this.articleInfoRepository = articleInfoRepository;
+        this.logisticEventPublisher = logisticEventPublisher;
         setSizeFull();
 
         // Order Picking Nr. als ComponentColumn, damit wir stylen können
@@ -87,7 +98,7 @@ public class orderPickingMainView extends VerticalLayout {
 
                         if (!success) {
                             Notification notif = new Notification();
-                            notif.addThemeVariants(NotificationVariant.LUMO_ERROR); // Rot + Fehler-Icon
+                            notif.addThemeVariants(NotificationVariant.LUMO_ERROR);
 
                             notif.setPosition(Notification.Position.MIDDLE);
                             notif.setDuration(5000);
@@ -102,6 +113,10 @@ public class orderPickingMainView extends VerticalLayout {
                     }
                     k.setFinished(true);
                     service.save(k);
+
+                    // 3. NEU: Bestätigung an Kasse senden über plaguv-Library
+                    publishDeliveryToStore(k, artikel);
+
                     refreshGridItems();
                 }
             });
@@ -265,6 +280,38 @@ public class orderPickingMainView extends VerticalLayout {
     }
 
     /**
+     * Sendet für jeden Artikel der abgeschlossenen Kommission
+     * eine Bestätigungsnachricht an die Kasse über die plaguv-Library.
+     */
+    private void publishDeliveryToStore(Kommission k, List<MessageLogistic> artikel) {
+        for (MessageLogistic msg : artikel) {
+            try {
+                ArticleInfo article = articleInfoRepository.findByArticleNumber(msg.getArticleNumber());
+
+                if (article == null || article.getArticleId() == null) {
+                    continue;
+                }
+
+                long storeId = Long.parseLong(k.getStoreId());
+                long articleId = article.getArticleId();
+                long quantity = msg.getQuantity();
+
+                logisticEventPublisher.publishArticleDelivery(storeId, articleId, quantity);
+
+                Notification.show("✅ Rückmeldung an Store " + storeId + " gesendet (Artikel " + articleId + ", Menge " + quantity + ")")
+                        .addThemeVariants(NotificationVariant.LUMO_SUCCESS);
+
+            } catch (NumberFormatException e) {
+                Notification.show("❌ Fehler: StoreID '" + k.getStoreId() + "' ist keine gültige Zahl")
+                        .addThemeVariants(NotificationVariant.LUMO_ERROR);
+            } catch (Exception e) {
+                Notification.show("❌ Fehler beim Senden an Kasse: " + e.getMessage())
+                        .addThemeVariants(NotificationVariant.LUMO_ERROR);
+            }
+        }
+    }
+
+    /**
      * Lädt alle Kommissionen neu und sortiert fertige ans Ende.
      */
     private void refreshGridItems() {
@@ -274,7 +321,7 @@ public class orderPickingMainView extends VerticalLayout {
     }
 
     /**
-     * Einfache „Ausgrau“-Logik direkt am Span,
+     * Einfache „Ausgrau"-Logik direkt am Span,
      * ganz ohne extra CSS-Datei.
      */
     private void styleCell(Span span, Boolean finished) {
