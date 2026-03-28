@@ -59,7 +59,7 @@ public class EinkaufEventListener {
         // Nur wenn articleId noch nicht in contingent existiert:
         logger.info("ArticleID {} ist neu -> Badge-Zähler wird erhöht", articleId);
         newArticleNotificationService.increment();
-        
+
     }
 
     @AmqpEventListener
