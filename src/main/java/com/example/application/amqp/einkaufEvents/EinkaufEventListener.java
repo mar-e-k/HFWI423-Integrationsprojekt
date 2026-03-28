@@ -1,5 +1,7 @@
 package com.example.application.amqp.einkaufEvents;
 
+import com.example.application.data.messagingEvent.MessagingEvent;
+import com.example.application.services.MessagingEventService;
 import io.github.plaguv.amqp.api.event.payment.DeleteQuotaEvent;
 import io.github.plaguv.amqp.api.event.payment.NewQuotaEvent;
 import io.github.plaguv.amqp.core.listener.AmqpEventListener;
@@ -20,7 +22,10 @@ public class EinkaufEventListener {
 
     private static final Logger logger = LoggerFactory.getLogger(EinkaufEventListener.class);
 
-    public EinkaufEventListener() {
+    private final MessagingEventService messagingEventService;
+
+    public EinkaufEventListener(MessagingEventService messagingEventService) {
+        this.messagingEventService = messagingEventService;
     }
 
     /**
@@ -36,6 +41,10 @@ public class EinkaufEventListener {
 
         logger.info("💰 Neue Quote/Budget erhalten - ArticleID: {}, Amount: {}",
                 event.articleId(), event.amount());
+
+        // Speichere das Event in der Datenbank
+        MessagingEvent messagingEvent = new MessagingEvent("NewQuota", event.articleId(), Long.valueOf(event.amount()), "Neue Quote freigegeben");
+        messagingEventService.save(messagingEvent);
 
         // TODO: Implementieren
         // - Quote im Logistik-System registrieren
@@ -59,6 +68,10 @@ public class EinkaufEventListener {
         logger.info("🗑️ Quote gelöscht/aufgehoben - ArticleID: {}",
                 event.articleId());
 
+        // Speichere das Event in der Datenbank
+        MessagingEvent messagingEvent = new MessagingEvent("DeleteQuota", event.articleId(), null, "Quote gelöscht");
+        messagingEventService.save(messagingEvent);
+
         // TODO: Implementieren
         // - Quote im Logistik-System als gelöscht markieren
         // - Verfügbares Budget für Artikel auf 0 setzen
@@ -67,4 +80,3 @@ public class EinkaufEventListener {
         // - Quote-Löschung in Audit-Trail protokollieren
     }
 }
-
