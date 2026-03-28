@@ -1,7 +1,9 @@
 package com.example.application.amqp.einkaufEvents;
 
+import com.example.application.data.contingent.ContingentRepository;
 import com.example.application.data.messagingEvent.MessagingEvent;
 import com.example.application.services.MessagingEventService;
+import com.example.application.services.NewArticleNotificationService;
 import io.github.plaguv.amqp.api.event.payment.DeleteQuotaEvent;
 import io.github.plaguv.amqp.api.event.payment.NewQuotaEvent;
 import io.github.plaguv.amqp.core.listener.AmqpEventListener;
@@ -10,73 +12,70 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
-/**
- * AMQP Event Listener für Events vom Einkauf-System.
- *
- * Diese Komponente empfängt Budget- und Quota-Events vom Einkauf-Service:
- * - NewQuotaEvent: Neue Quote/Budget für einen Artikel wurde freigegeben
- * - DeleteQuotaEvent: Quote/Budget für einen Artikel wurde gelöscht/aufgehoben
- */
 @Component
 public class EinkaufEventListener {
 
     private static final Logger logger = LoggerFactory.getLogger(EinkaufEventListener.class);
 
     private final MessagingEventService messagingEventService;
+    private final NewArticleNotificationService newArticleNotificationService;
+    private final ContingentRepository contingentRepository;
 
-    public EinkaufEventListener(MessagingEventService messagingEventService) {
+    public EinkaufEventListener(MessagingEventService messagingEventService,
+                                NewArticleNotificationService newArticleNotificationService,
+                                ContingentRepository contingentRepository) {
         this.messagingEventService = messagingEventService;
+        this.newArticleNotificationService = newArticleNotificationService;
+        this.contingentRepository = contingentRepository;
     }
 
-    /**
-     * Behandelt neue Quote/Budget-Freigabe vom Einkauf-System.
-     *
-     * @param event Das NewQuotaEvent mit articleId und verfügbarem Budget
-     */
     @AmqpEventListener
     public void onNewQuotaEvent(NewQuotaEvent event) {
         if (event == null) {
             throw new MessageRejectedException("NewQuotaEvent war null - ungültiges Event");
         }
 
-        logger.info("💰 Neue Quote/Budget erhalten - ArticleID: {}, Amount: {}",
-                event.articleId(), event.amount());
+        Long articleId = event.articleId();
 
-        // Speichere das Event in der Datenbank
-        MessagingEvent messagingEvent = new MessagingEvent("NewQuota", event.articleId(), Long.valueOf(event.amount()), "Neue Quote freigegeben");
+        logger.info("Neue Quote/Budget erhalten - ArticleID: {}, Amount: {}",
+                articleId, event.amount());
+
+        MessagingEvent messagingEvent = new MessagingEvent(
+                "NewQuota",
+                articleId,
+                Long.valueOf(event.amount()),
+                "Neue Quote freigegeben"
+        );
         messagingEventService.save(messagingEvent);
 
-        // TODO: Implementieren
-        // - Quote im Logistik-System registrieren
-        // - Verfügbares Budget für Artikel aktualisieren
-        // - Bestandsverwaltung an neue Quote anpassen
-        // - Evtl. Bestellmenge-Limits neu berechnen
-        // - Quote-Logging in Audit-Trail speichern
+        // Prüfen, ob Artikel bereits als Kontingent existiert
+        boolean alreadyExists = contingentRepository.existsByArticleId(articleId);
+
+        if (alreadyExists) {
+            logger.info("ArticleID {} existiert bereits in contingent -> Nachricht wird für Badge ignoriert", articleId);
+            return;
+        }
+
+        // Nur wenn articleId noch nicht in contingent existiert:
+        logger.info("ArticleID {} ist neu -> Badge-Zähler wird erhöht", articleId);
+        newArticleNotificationService.increment();
+        
     }
 
-    /**
-     * Behandelt Quota-Löschung/Aufhebung vom Einkauf-System.
-     *
-     * @param event Das DeleteQuotaEvent mit ArticleId
-     */
     @AmqpEventListener
     public void onDeleteQuotaEvent(DeleteQuotaEvent event) {
         if (event == null) {
             throw new MessageRejectedException("DeleteQuotaEvent war null - ungültiges Event");
         }
 
-        logger.info("🗑️ Quote gelöscht/aufgehoben - ArticleID: {}",
-                event.articleId());
+        logger.info("Quote gelöscht/aufgehoben - ArticleID: {}", event.articleId());
 
-        // Speichere das Event in der Datenbank
-        MessagingEvent messagingEvent = new MessagingEvent("DeleteQuota", event.articleId(), null, "Quote gelöscht");
+        MessagingEvent messagingEvent = new MessagingEvent(
+                "DeleteQuota",
+                event.articleId(),
+                null,
+                "Quote gelöscht"
+        );
         messagingEventService.save(messagingEvent);
-
-        // TODO: Implementieren
-        // - Quote im Logistik-System als gelöscht markieren
-        // - Verfügbares Budget für Artikel auf 0 setzen
-        // - Laufende Bestellungen für diesen Artikel prüfen
-        // - Benutzer benachrichtigen wenn Quote über Limits hinaus war
-        // - Quote-Löschung in Audit-Trail protokollieren
     }
 }
