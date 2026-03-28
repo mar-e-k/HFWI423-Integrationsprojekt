@@ -4,6 +4,7 @@ import com.example.application.data.articleInfo.ArticleInfo;
 import com.example.application.data.storageLocation.StorageLocation;
 import com.example.application.services.ArticleSyncService;
 import com.example.application.services.NewArticleCandidate;
+import com.example.application.services.NewArticleNotificationService;
 import com.example.application.services.StorageLocationService;
 import com.example.application.views.MainLayout;
 import com.example.application.views.components.StorageLocationPickerDialog;
@@ -22,6 +23,7 @@ import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import org.vaadin.lineawesome.LineAwesomeIconUrl;
 
+
 import java.util.List;
 
 @PageTitle("Neue Artikel") // Titel im Browser-Tab
@@ -38,23 +40,28 @@ public class NewArticlesView extends Div {
     // Grid, das die "Kandidaten" für neue Artikel anzeigt
     private final Grid<NewArticleCandidate> grid = new Grid<>(NewArticleCandidate.class, false);
 
-    public NewArticlesView(ArticleSyncService articleSyncService, StorageLocationService storageLocationService) {
+    private final NewArticleNotificationService newArticleNotificationService;
+
+    public NewArticlesView(ArticleSyncService articleSyncService,
+                           StorageLocationService storageLocationService,
+                           NewArticleNotificationService newArticleNotificationService) {
         this.articleSyncService = articleSyncService;
         this.storageLocationService = storageLocationService;
+        this.newArticleNotificationService = newArticleNotificationService;
 
-        setSizeFull(); // View soll die komplette Fläche einnehmen
+        setSizeFull();
 
         VerticalLayout layout = new VerticalLayout();
         layout.setPadding(false);
         layout.setSpacing(true);
         layout.setSizeFull();
 
-        configureGrid();   // Spalten und Layout des Grids konfigurieren
+        configureGrid();
 
-        layout.add(grid);  // Grid ins Layout einfügen
-        add(layout);       // Layout in die View hängen
+        layout.add(grid);
+        add(layout);
 
-        refresh();         // Daten initial laden
+        refresh();
     }
 
     /**
@@ -138,13 +145,15 @@ public class NewArticlesView extends Div {
                             minStockField.getValue()
                     );
 
-                    // Lagerplatz nach dem Anlegen auf USED setzen (falls einer gewählt wurde)
+                    // Lagerplatz auf USED setzen
                     if (selectedLocationHolder[0] != null) {
                         selectedLocationHolder[0].setStorageStatus("Used");
                         storageLocationService.save(selectedLocationHolder[0]);
                     }
 
-                    // Erfolgsnachricht anzeigen
+                    // Badge um 1 verringern
+                    newArticleNotificationService.decrement();
+
                     Notification n = Notification.show(
                             "Artikel " + created.getArticleNumber() + " angelegt",
                             3000,
@@ -152,7 +161,6 @@ public class NewArticlesView extends Div {
                     );
                     n.addThemeVariants(NotificationVariant.LUMO_SUCCESS);
 
-                    // Grid-Daten neu laden, damit der angelegte Kandidat verschwindet (falls Logik so ist)
                     refresh();
                 } catch (Exception ex) {
                     // Fehlerfall: Fehlermeldung anzeigen
