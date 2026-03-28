@@ -1,9 +1,8 @@
-package com.example.application.amqp;
+package com.example.application.amqp.storeEvents;
 
 import io.github.plaguv.amqp.api.envelope.EventEnvelope;
 import io.github.plaguv.amqp.api.envelope.EventEnvelopeBuilder;
 import io.github.plaguv.amqp.api.event.logistic.ArticleSentEvent;
-import io.github.plaguv.amqp.core.listener.MessageRejectedException;
 import io.github.plaguv.amqp.core.publisher.EventPublisher;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

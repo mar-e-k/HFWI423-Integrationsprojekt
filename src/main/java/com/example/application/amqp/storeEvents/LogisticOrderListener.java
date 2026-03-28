@@ -1,4 +1,4 @@
-package com.example.application.amqp;
+package com.example.application.amqp.storeEvents;
 
 import io.github.plaguv.amqp.api.event.pos.ArticleOrderEvent;
 import io.github.plaguv.amqp.api.event.pos.ArticleUrgentOrderEvent;
