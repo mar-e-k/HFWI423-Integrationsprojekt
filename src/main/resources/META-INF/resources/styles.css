@@ -1,5 +1,5 @@
-@import url('./main-layout.css');
-@import url('./views/gridwith-filters-view.css');
+@import url('main-layout.css');
+@import url('views/gridwith-filters-view.css');
 
 vaadin-grid::part(missing-minstock-row) {
     background-color: #ffcccc !important; /* hellrot */
@@ -22,4 +22,3 @@ vaadin-grid::part(missing-minstock-row):hover {
     opacity: 0.5;
     pointer-events: none;
 }
-

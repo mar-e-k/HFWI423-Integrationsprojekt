@@ -1,0 +1,167 @@
+:host {
+  --vaadin-app-layout-drawer-width: 290px;
+}
+
+/* Drawer allgemein */
+vaadin-app-layout::part(drawer) {
+  background: var(--lumo-base-color);
+  border-right: 1px solid var(--lumo-contrast-10pct);
+}
+
+/* Drawer Scrollbereich */
+.app-drawer-scroller {
+  padding: 0.5rem;
+}
+
+.app-drawer-layout {
+  background: var(--lumo-base-color);
+}
+
+/* Drawer Header */
+.app-drawer-header {
+  padding: 1rem 1rem 0.9rem 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  border-bottom: 1px solid var(--lumo-contrast-10pct);
+  background: var(--lumo-base-color);
+}
+
+.app-drawer-title {
+  margin: 0;
+  font-size: 1.2rem;
+  font-weight: 600;
+  line-height: 1.2;
+}
+
+.app-drawer-subtitle {
+  font-size: 0.78rem;
+  color: var(--lumo-secondary-text-color);
+  line-height: 1.35;
+}
+
+/* Navigation */
+.app-sidenav {
+  padding: 0.35rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+
+/* Eintrag */
+.app-nav-item {
+  border-radius: 12px;
+  margin: 0;
+  min-height: 46px;
+  transition: background-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+/* Inhalt des Eintrags */
+.app-nav-item::part(content) {
+  min-height: 46px;
+  padding: 0 0.8rem;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+}
+
+/* Hover */
+.app-nav-item::part(content):hover {
+  background-color: var(--lumo-contrast-5pct);
+}
+
+/* Aktive Seite */
+.app-nav-item[aria-current='page']::part(content) {
+  background-color: var(--lumo-primary-color-10pct);
+  color: var(--lumo-primary-text-color);
+  font-weight: 600;
+}
+
+/* Icon-Größe / Ausrichtung */
+.app-nav-item vaadin-icon,
+.app-nav-item svg {
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
+  color: var(--lumo-secondary-text-color);
+}
+
+/* Aktives Icon */
+.app-nav-item[aria-current='page'] vaadin-icon,
+.app-nav-item[aria-current='page'] svg {
+  color: var(--lumo-primary-text-color);
+}
+
+/* Badge im Menü */
+.menu-badge {
+  margin-left: auto;
+  min-width: 22px;
+  height: 22px;
+  padding: 0 6px;
+  border-radius: 999px;
+  background: var(--lumo-primary-color);
+  color: white;
+  font-size: 0.72rem;
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+}
+
+/* Topbar */
+.app-topbar {
+  background: var(--lumo-base-color);
+  border-bottom: 1px solid var(--lumo-contrast-10pct);
+  min-height: 72px;
+  padding: 0.75rem 1rem;
+  box-sizing: border-box;
+}
+
+.app-topbar-left {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.app-topbar-user {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.app-name {
+  font-size: 0.95rem;
+  font-weight: 500;
+  color: var(--lumo-secondary-text-color);
+  white-space: nowrap;
+}
+
+.app-view-title {
+  margin: 0;
+  font-size: 1.7rem;
+  font-weight: 700;
+  line-height: 1.2;
+  color: var(--lumo-body-text-color);
+}
+
+.app-user-name {
+  font-size: 0.9rem;
+  color: var(--lumo-secondary-text-color);
+}
+
+.app-user-avatar {
+  background-color: var(--lumo-contrast-10pct);
+}
+
+/* Footer im Drawer */
+.app-drawer-footer {
+  border-top: 1px solid var(--lumo-contrast-10pct);
+  padding: 0.9rem 1rem;
+}
+
+.app-drawer-footer-text {
+  color: var(--lumo-secondary-text-color);
+  font-size: 0.78rem;
+}

@@ -23,8 +23,8 @@ import com.vaadin.flow.router.Layout;
 import com.vaadin.flow.server.auth.AnonymousAllowed;
 import com.vaadin.flow.server.menu.MenuConfiguration;
 import com.vaadin.flow.server.menu.MenuEntry;
-import com.vaadin.flow.theme.lumo.LumoUtility;
 
+import java.time.Year;
 import java.util.List;
 
 @Layout
@@ -41,8 +41,6 @@ public class MainLayout extends AppLayout implements AfterNavigationObserver {
 
         setPrimarySection(Section.DRAWER);
         setDrawerOpened(true);
-        getStyle().set("--vaadin-app-layout-drawer-width", "280px");
-
 
         addHeaderContent();
         addDrawerContent();
@@ -50,10 +48,6 @@ public class MainLayout extends AppLayout implements AfterNavigationObserver {
         configurePolling();
         updateArticleBadge();
     }
-
-    // --------------------------------------------------
-    // Initialisierung
-    // --------------------------------------------------
 
     private void configurePolling() {
         UI currentUi = UI.getCurrent();
@@ -63,76 +57,51 @@ public class MainLayout extends AppLayout implements AfterNavigationObserver {
         }
     }
 
-    // --------------------------------------------------
-    // Header
-    // --------------------------------------------------
-
     private void addHeaderContent() {
         DrawerToggle drawerToggle = new DrawerToggle();
         drawerToggle.setAriaLabel("Menü umschalten");
 
         Span appName = new Span("Logistic");
-        appName.addClassNames(
-                LumoUtility.FontSize.SMALL,
-                LumoUtility.FontWeight.MEDIUM,
-                LumoUtility.TextColor.SECONDARY
-        );
+        appName.addClassName("app-name");
 
         viewTitle = new H1();
-        viewTitle.addClassNames(
-                LumoUtility.FontSize.XLARGE,
-                LumoUtility.FontWeight.SEMIBOLD,
-                LumoUtility.Margin.NONE
-        );
+        viewTitle.addClassName("app-view-title");
 
         HorizontalLayout brandArea = new HorizontalLayout(drawerToggle, appName);
+        brandArea.setPadding(false);
+        brandArea.setSpacing(false);
         brandArea.setAlignItems(FlexComponent.Alignment.CENTER);
-        brandArea.setSpacing(true);
-        brandArea.getStyle().set("gap", "0.75rem");
+        brandArea.addClassName("app-topbar-left");
 
         Avatar avatar = new Avatar("User");
-        avatar.getStyle().set("background-color", "var(--lumo-contrast-10pct)");
+        avatar.addClassName("app-user-avatar");
 
         Span userName = new Span("Demo User");
-        userName.addClassNames(
-                LumoUtility.FontSize.SMALL,
-                LumoUtility.TextColor.SECONDARY
-        );
+        userName.addClassName("app-user-name");
 
         HorizontalLayout userArea = new HorizontalLayout(userName, avatar);
+        userArea.setPadding(false);
+        userArea.setSpacing(false);
         userArea.setAlignItems(FlexComponent.Alignment.CENTER);
-        userArea.getStyle().set("gap", "0.5rem");
+        userArea.addClassName("app-topbar-user");
 
-        HorizontalLayout header = new HorizontalLayout(brandArea, viewTitle, userArea);
-        header.setWidthFull();
-        header.setDefaultVerticalComponentAlignment(FlexComponent.Alignment.CENTER);
-        header.expand(viewTitle);
+        HorizontalLayout headerBar = new HorizontalLayout(brandArea, viewTitle, userArea);
+        headerBar.setWidthFull();
+        headerBar.setPadding(false);
+        headerBar.setSpacing(false);
+        headerBar.setDefaultVerticalComponentAlignment(FlexComponent.Alignment.CENTER);
+        headerBar.expand(viewTitle);
+        headerBar.addClassName("app-topbar");
 
-        header.addClassNames(
-                LumoUtility.Padding.Horizontal.MEDIUM,
-                LumoUtility.Padding.Vertical.SMALL,
-                LumoUtility.BoxSizing.BORDER
-        );
-
-        header.getStyle()
-                .set("background", "var(--lumo-base-color)")
-                .set("border-bottom", "1px solid var(--lumo-contrast-10pct)")
-                .set("min-height", "72px")
-                .set("padding-left", "1rem")
-                .set("padding-right", "1rem");
-
-        addToNavbar(header);
+        addToNavbar(headerBar);
     }
-
-    // --------------------------------------------------
-    // Drawer
-    // --------------------------------------------------
 
     private void addDrawerContent() {
         Header drawerHeader = createDrawerHeader();
+
         Scroller navigationScroller = new Scroller(createNavigation());
         navigationScroller.setSizeFull();
-        navigationScroller.addClassNames(LumoUtility.Padding.SMALL);
+        navigationScroller.addClassName("app-drawer-scroller");
 
         Footer drawerFooter = createFooter();
 
@@ -141,40 +110,20 @@ public class MainLayout extends AppLayout implements AfterNavigationObserver {
         drawerLayout.setPadding(false);
         drawerLayout.setSpacing(false);
         drawerLayout.setFlexGrow(1, navigationScroller);
+        drawerLayout.addClassName("app-drawer-layout");
 
         addToDrawer(drawerLayout);
     }
 
     private Header createDrawerHeader() {
         H2 title = new H2("Logistic Cockpit");
-        title.addClassNames(
-                LumoUtility.FontSize.LARGE,
-                LumoUtility.FontWeight.SEMIBOLD,
-                LumoUtility.Margin.NONE
-        );
+        title.addClassName("app-drawer-title");
 
         Span subtitle = new Span("Warehouse & Stock Management");
-        subtitle.addClassNames(
-                LumoUtility.FontSize.XSMALL,
-                LumoUtility.TextColor.SECONDARY
-        );
-        subtitle.getStyle()
-                .set("line-height", "1.3")
-                .set("white-space", "normal");
+        subtitle.addClassName("app-drawer-subtitle");
 
         Header header = new Header(title, subtitle);
-        header.addClassNames(
-                LumoUtility.Padding.MEDIUM,
-                LumoUtility.Display.FLEX,
-                LumoUtility.FlexDirection.COLUMN,
-                LumoUtility.Gap.XSMALL
-        );
-
-        header.getStyle()
-                .set("border-bottom", "1px solid var(--lumo-contrast-10pct)")
-                .set("background", "var(--lumo-base-color)")
-                .set("min-height", "96px")
-                .set("justify-content", "center");
+        header.addClassName("app-drawer-header");
 
         return header;
     }
@@ -184,10 +133,8 @@ public class MainLayout extends AppLayout implements AfterNavigationObserver {
         nav.addClassName("app-sidenav");
 
         List<MenuEntry> menuEntries = MenuConfiguration.getMenuEntries();
-
         for (MenuEntry entry : menuEntries) {
-            SideNavItem item = createNavItem(entry);
-            nav.addItem(item);
+            nav.addItem(createNavItem(entry));
         }
 
         return nav;
@@ -217,35 +164,20 @@ public class MainLayout extends AppLayout implements AfterNavigationObserver {
 
     private Span createArticleBadge() {
         Span badge = new Span("0");
-        badge.addClassNames(
-                LumoUtility.Padding.Horizontal.XSMALL,
-                LumoUtility.Padding.Vertical.XSMALL,
-                LumoUtility.BorderRadius.LARGE,
-                LumoUtility.FontSize.XSMALL,
-                LumoUtility.FontWeight.SEMIBOLD
-        );
-        badge.getElement().getThemeList().add("badge pill primary");
+        badge.addClassName("menu-badge");
         badge.setVisible(false);
         return badge;
     }
 
     private Footer createFooter() {
-        Span info = new Span("© " + java.time.Year.now().getValue() + " Logistic Demo • v1.0");
-        info.addClassNames(
-                LumoUtility.FontSize.XSMALL,
-                LumoUtility.TextColor.SECONDARY
-        );
+        Span info = new Span("© " + Year.now().getValue() + " Logistic Demo • v1.0");
+        info.addClassName("app-drawer-footer-text");
 
         Footer footer = new Footer(info);
-        footer.addClassNames(LumoUtility.Padding.MEDIUM);
-        footer.getStyle().set("border-top", "1px solid var(--lumo-contrast-10pct)");
+        footer.addClassName("app-drawer-footer");
 
         return footer;
     }
-
-    // --------------------------------------------------
-    // Badge
-    // --------------------------------------------------
 
     private void updateArticleBadge() {
         if (articleBadge == null) {
@@ -256,10 +188,6 @@ public class MainLayout extends AppLayout implements AfterNavigationObserver {
         articleBadge.setText(String.valueOf(count));
         articleBadge.setVisible(count > 0);
     }
-
-    // --------------------------------------------------
-    // Navigation Title
-    // --------------------------------------------------
 
     @Override
     public void afterNavigation(AfterNavigationEvent event) {
