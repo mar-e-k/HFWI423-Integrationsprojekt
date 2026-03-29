@@ -60,18 +60,18 @@ public class MainLayout extends AppLayout implements AfterNavigationObserver {
     private void addHeaderContent() {
         DrawerToggle drawerToggle = new DrawerToggle();
         drawerToggle.setAriaLabel("Menü umschalten");
+        drawerToggle.addClassName("app-drawer-toggle");
 
-        Span appName = new Span("Logistic");
-        appName.addClassName("app-name");
+        Span appName = new Span("Logistic Cockpit");
+        appName.addClassName("app-header-eyebrow");
 
         viewTitle = new H1();
         viewTitle.addClassName("app-view-title");
 
-        HorizontalLayout brandArea = new HorizontalLayout(drawerToggle, appName);
-        brandArea.setPadding(false);
-        brandArea.setSpacing(false);
-        brandArea.setAlignItems(FlexComponent.Alignment.CENTER);
-        brandArea.addClassName("app-topbar-left");
+        VerticalLayout titleBlock = new VerticalLayout(appName, viewTitle);
+        titleBlock.setPadding(false);
+        titleBlock.setSpacing(false);
+        titleBlock.addClassName("app-header-title-block");
 
         Avatar avatar = new Avatar("User");
         avatar.addClassName("app-user-avatar");
@@ -81,16 +81,16 @@ public class MainLayout extends AppLayout implements AfterNavigationObserver {
 
         HorizontalLayout userArea = new HorizontalLayout(userName, avatar);
         userArea.setPadding(false);
-        userArea.setSpacing(false);
+        userArea.setSpacing(true);
         userArea.setAlignItems(FlexComponent.Alignment.CENTER);
         userArea.addClassName("app-topbar-user");
 
-        HorizontalLayout headerBar = new HorizontalLayout(brandArea, viewTitle, userArea);
+        HorizontalLayout headerBar = new HorizontalLayout(drawerToggle, titleBlock, userArea);
         headerBar.setWidthFull();
         headerBar.setPadding(false);
         headerBar.setSpacing(false);
         headerBar.setDefaultVerticalComponentAlignment(FlexComponent.Alignment.CENTER);
-        headerBar.expand(viewTitle);
+        headerBar.expand(titleBlock);
         headerBar.addClassName("app-topbar");
 
         addToNavbar(headerBar);

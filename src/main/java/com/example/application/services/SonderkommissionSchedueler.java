@@ -12,37 +12,27 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
-public class WeeklyKommissionScheduler {
+public class SonderkommissionSchedueler {
 
     private final KommissionService kommissionService;
     private final MessageLogisticRepository msgRepo;
 
-    public WeeklyKommissionScheduler(KommissionService kommissionService,
+    public SonderkommissionSchedueler(KommissionService kommissionService,
                                      MessageLogisticRepository msgRepo) {
         this.kommissionService = kommissionService;
         this.msgRepo = msgRepo;
     }
 
-    // Jeden Montag um 12:00
+
     @Transactional
-    @Scheduled(cron = "* * 12 * * MON")
-    public void createWeeklyKommissionen() {
+    public void createSonderKommission(String storeId) {
 
-        //Alle Stores, die unverarbeitete Messages haben
-        List<String> stores = msgRepo.findDistinctStoresWithUnprocessed();
-
-        for (String storeId : stores) {
-
-            //Alle unprocessed Messages für diesen Store laden
+            // 2. Alle unprocessed Messages für diesen Store laden
             List<MessageLogistic> artikel =
                     msgRepo.findByStoreIdAndQuantityGreaterThanAndProcessedFalse(storeId, 0);
 
-            //Wenn KEINE Artikel – dann nichts machen
-            if (artikel.isEmpty()) {
-                continue;
-            }
 
-            //Neue Kommission initialisiern
+            // 3. Neue Kommission
             Kommission k = new Kommission();
             k.setStoreId(storeId);
             k.setDate(LocalDateTime.now());
@@ -53,7 +43,7 @@ public class WeeklyKommissionScheduler {
 
             kommissionService.save(k);
 
-            //Alle Messages dem Auftrag zuordnen
+            // 4. Alle Messages dem Auftrag zuordnen
             for (MessageLogistic msg : artikel) {
                 msg.setKommission(k);
                 msg.setQuantity(msg.getQuantity());
@@ -61,8 +51,6 @@ public class WeeklyKommissionScheduler {
                 msgRepo.save(msg);
             }
 
-        }
-
-        System.out.println("Wöchentliche Kommissionen erstellt.");
+        System.out.println("Sonderkommission erstellt!");
     }
 }

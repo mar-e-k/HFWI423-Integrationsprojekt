@@ -1,5 +1,6 @@
 package com.example.application.services;
 
+import com.example.application.amqp.einkaufEvents.EinkaufEventPublisher;
 import com.example.application.data.articleInfo.ArticleInfo;
 import com.example.application.data.articleInfo.RestockItem;
 import com.example.application.data.contingent.Contingent;
@@ -8,21 +9,24 @@ import com.example.application.data.restockorder.RestockOrder;
 import com.example.application.data.restockorder.RestockOrderRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
 import java.time.LocalDateTime;
 import java.util.Comparator;
 import java.util.List;
 
 @Service
 public class RestockOrderService {
+    private static final int LOW_CONTINGENT_THRESHOLD = 50;
 
     private final RestockOrderRepository restockOrderRepository;
     private final ContingentRepository contingentRepository;
+    private final EinkaufEventPublisher einkaufEventPublisher;
 
     public RestockOrderService(RestockOrderRepository restockOrderRepository,
-                               ContingentRepository contingentRepository) {
+                               ContingentRepository contingentRepository,
+                               EinkaufEventPublisher einkaufEventPublisher) {
         this.restockOrderRepository = restockOrderRepository;
         this.contingentRepository = contingentRepository;
+        this.einkaufEventPublisher = einkaufEventPublisher;
     }
 
     public boolean hasOpenOrderForArticle(ArticleInfo article) {
@@ -64,6 +68,10 @@ public class RestockOrderService {
                 + ", articleId=" + article.getArticleId()
                 + ", contingentKey=" + contingentKey);
 
+        Integer stockBefore = contingentRepository.sumAvailableQuantityByArticleId(contingentKey); // NEU
+        if (stockBefore == null) { // NEU
+            stockBefore = 0; // NEU
+        }
         List<Contingent> contingents =
                 contingentRepository.findAllByArticleId(contingentKey);
 
@@ -96,6 +104,15 @@ public class RestockOrderService {
             throw new IllegalStateException(
                     "Nicht genug Kontingent verfügbar, es fehlen: " + remainingToRemove + " Stück."
             );
+        }
+
+        Integer stockAfter = contingentRepository.sumAvailableQuantityByArticleId(contingentKey); // NEU
+        if (stockAfter == null) { // NEU
+            stockAfter = 0; // NEU
+        }
+
+        if (stockAfter < LOW_CONTINGENT_THRESHOLD) {
+            einkaufEventPublisher.publishNewDeal(contingentKey.longValue());
         }
 
         // 🌟 HIER wird die RestockOrder angelegt

@@ -108,7 +108,7 @@ public class orderPickingMainView extends VerticalLayout {
 
                             notif.open();
                             cb.setValue(false); // Checkbox zurücksetzen
-                            return;
+                            continue;
                         }
                     }
                     k.setFinished(true);

@@ -27,6 +27,7 @@ import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import org.vaadin.lineawesome.LineAwesomeIconUrl;
 
+import java.util.List;
 import java.util.Objects;
 
 @PageTitle("Storage Location")
@@ -163,8 +164,29 @@ public class StorageLocationView extends Div {
     }
 
     private void refreshGrid() {
-        grid.setItems(service.findAll());     // neue Liste holen
-        grid.getDataProvider().refreshAll();  // und den Provider refreshen
+        List<StorageLocation> locations = service.findAll();
+
+        locations.sort(
+                java.util.Comparator
+                        .comparingInt(this::extractZoneNumber)
+                        .thenComparing(StorageLocation::getShelfID)
+                        .thenComparing(StorageLocation::getCompartmentID)
+        );
+
+        grid.setItems(locations);
+        grid.getDataProvider().refreshAll();
+    }
+
+    private int extractZoneNumber(StorageLocation location) {
+        if (location == null || location.getStorageZone() == null) {
+            return Integer.MAX_VALUE;
+        }
+
+        try {
+            return Integer.parseInt(location.getStorageZone().replace("Zone", "").trim());
+        } catch (NumberFormatException e) {
+            return Integer.MAX_VALUE;
+        }
     }
 
     private void openAddDialog() {
@@ -342,4 +364,5 @@ public class StorageLocationView extends Div {
         return "Z" + zoneNumber + ".S" + (shelf != null ? shelf : 0)
                 + ".C" + (compartment != null ? compartment : 0);
     }
+
 }
