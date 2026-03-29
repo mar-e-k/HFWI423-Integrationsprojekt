@@ -133,4 +133,57 @@ vaadin-grid::part(missing-minstock-row):hover {
 .mobile-filters {
     display: none;
 }
+.app-topbar {
+    height: 82px;
+    padding: 0 24px;
+    border-bottom: 1px solid #e5e7eb;
+    background: white;
+    box-sizing: border-box;
+    display: flex;
+    align-items: center;
+}
+
+.app-drawer-toggle {
+    margin-right: 16px;
+    flex-shrink: 0;
+}
+
+.app-header-title-block {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 2px;
+    margin: 0;
+}
+
+.app-header-eyebrow {
+    font-size: 0.82rem;
+    font-weight: 600;
+    color: #64748b;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    line-height: 1;
+}
+
+.app-view-title {
+    margin: 0;
+    font-size: 2rem;
+    font-weight: 700;
+    color: #1e293b;
+    line-height: 1.1;
+}
+
+.app-topbar-user {
+    gap: 10px;
+    flex-shrink: 0;
+}
+
+.app-user-name {
+    font-size: 0.95rem;
+    color: #64748b;
+}
+
+.app-user-avatar {
+    --vaadin-avatar-size: 36px;
+}
 
