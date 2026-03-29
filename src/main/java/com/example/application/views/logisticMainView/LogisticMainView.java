@@ -159,44 +159,34 @@ public class LogisticMainView extends Div {
          * Lädt die Liste/ das Grid neu.
          */
         public Filters(Runnable onSearch) {
-            // === Layout-Basis ===
             setWidthFull();
             addClassName("filter-layout");
-            // Einheitliche Abstände & Box-Modell via Lumo Utility-Klassen
-            addClassNames(
-                    LumoUtility.Padding.Horizontal.LARGE,
-                    LumoUtility.Padding.Vertical.MEDIUM,
-                    LumoUtility.BoxSizing.BORDER
-            );
 
-            // === Feld-Konfiguration (Platzhalter & "leichte" Guidance) ===
-            articleName.setPlaceholder("Search Name");
-            articleNumber.setPlaceholder("Search Number");
-            stockLevel.setPlaceholder("Minimum Inventory"); // Wird später als Integer geparst (mit Fallback)
-            storageLocation.setPlaceholder("Search Storage Location");
+            articleName.setPlaceholder("Search name");
+            articleNumber.setPlaceholder("Search number");
+            stockLevel.setPlaceholder("Minimum inventory");
+            storageLocation.setPlaceholder("Search storage location");
 
-            // === Aktionen ===
+            articleName.addClassName("filter-field");
+            articleNumber.addClassName("filter-field");
+            stockLevel.addClassName("filter-field");
+            storageLocation.addClassName("filter-field");
 
-            // Leert alle Felder und triggert eine neue Suche
-            Button resetBtn = new Button("Reset Search", e -> {
+            Button resetBtn = new Button("Reset", e -> {
                 articleName.clear();
                 articleNumber.clear();
                 stockLevel.clear();
                 storageLocation.clear();
-                onSearch.run(); // Grid neu laden ohne Filter
+                onSearch.run();
             });
-            resetBtn.addThemeVariants(ButtonVariant.LUMO_TERTIARY); // eher "sekundäre" Aktion
+            resetBtn.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
 
-            // Startet die Suche mit den aktuell eingegebenen Filterwerten.
-            Button searchBtn = new Button("Search Article", e -> onSearch.run());
-            searchBtn.addThemeVariants(ButtonVariant.LUMO_PRIMARY); // wichtigste Aktion
+            Button searchBtn = new Button("Search", e -> onSearch.run());
+            searchBtn.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
 
-            // Buttons in separatem Container, um Abstände zu steuern
             Div actions = new Div(resetBtn, searchBtn);
-            actions.addClassName(LumoUtility.Gap.SMALL);
-            actions.addClassName("actions");
+            actions.addClassName("filter-actions");
 
-            // Komponenten der Ansicht hinzufügen (Reihenfolge = UI-Reihenfolge)
             add(articleName, articleNumber, stockLevel, storageLocation, actions);
         }
 
@@ -258,87 +248,77 @@ public class LogisticMainView extends Div {
      * @return das konfigurierte Grid als Component
      */
     private Component createGrid() {
-
-        // Grid für ArticleInfo, ohne automatische Spalten (false)
         grid = new Grid<>(ArticleInfo.class, false);
+        grid.addClassName("article-grid");
 
-        // Spalte: Artikelname (Text)
         grid.addColumn(ArticleInfo::getName)
                 .setHeader("Article Name")
-                .setKey("articleName")     // Key für spätere Referenzen/Tests
-                .setAutoWidth(true)        // passt sich Inhalt an, verhindert horizontales Scrollen
+                .setKey("articleName")
+                .setFlexGrow(2)
                 .setSortable(true);
 
-        // Spalte: Artikelnummer
         grid.addColumn(ArticleInfo::getArticleNumber)
                 .setHeader("Article Number")
                 .setKey("articleNumber")
-                .setAutoWidth(true)
+                .setFlexGrow(1)
                 .setSortable(true);
 
-        // Spalte: Gesamter Bestand dieses Artikels (inkl. Reservepaletten)
         grid.addColumn(ArticleInfo::getTotalStock)
                 .setHeader("Total Stock")
                 .setKey("totalStock")
                 .setAutoWidth(true)
                 .setSortable(true);
 
-        // Spalte: Entnahmebestand (Pick-Fach)
         grid.addColumn(ArticleInfo::getStockLevel)
                 .setHeader("Pick Stock")
                 .setKey("stockLevel")
                 .setAutoWidth(true)
                 .setSortable(true);
 
-        // Spalte: Reservepaletten (Integer)
         grid.addColumn(ArticleInfo::getReservePallets)
-                .setHeader("Reserve (Pallets)")
+                .setHeader("Reserve")
                 .setKey("reservePallets")
                 .setAutoWidth(true)
                 .setSortable(true);
 
-        // Spalte: Aktionen (z.B. Bestände bearbeiten)
         grid.addComponentColumn(item -> {
-            Button editStock = new Button("Edit stock");
-            // Klick öffnet Dialog zum Ändern des Bestands
+            Button editStock = new Button("Edit");
+            editStock.addThemeVariants(ButtonVariant.LUMO_SMALL, ButtonVariant.LUMO_CONTRAST);
+            editStock.addClassName("edit-stock-btn");
+
             editStock.addClickListener(e -> {
                 StockChangeDialog dlg = new StockChangeDialog(
                         articleInfoService,
                         item,
-                        this::refreshGrid   // damit das Grid danach aktualisiert wird
+                        this::refreshGrid
                 );
                 dlg.open();
             });
             return editStock;
-        }).setHeader("Actions");
+        }).setHeader("Actions").setAutoWidth(true).setFlexGrow(0);
 
-        // Spalte: Lagerort mit Button, der den Picker öffnet
         grid.addComponentColumn(item -> {
-                    // Label: entweder vorhandener Lagerort oder "Select location"
                     String label = item.getStorageLocation() != null && !item.getStorageLocation().isBlank()
                             ? item.getStorageLocation()
                             : "Select location";
 
                     Button link = new Button(label);
-                    link.addThemeVariants(ButtonVariant.LUMO_TERTIARY_INLINE); // wie ein Link
-                    // Öffnet Dialog, um einen Lagerort auszuwählen
+                    link.addThemeVariants(ButtonVariant.LUMO_TERTIARY_INLINE);
+                    link.addClassName("location-link");
                     link.addClickListener(e -> openAvailableLocationsDialog(item));
 
                     return link;
                 }).setHeader("Storage Location")
                 .setKey("storageLocation")
                 .setAutoWidth(true)
-                .setSortable(false); // Sortierung hier eher nicht sinnvoll, da Button-Spalte
+                .setFlexGrow(0);
 
-        // verschiedenfarbige Streifen + Umbruch langer Inhalte
         grid.addThemeVariants(
                 GridVariant.LUMO_ROW_STRIPES,
                 GridVariant.LUMO_WRAP_CELL_CONTENT
         );
 
-        // Grid füllt verfügbaren Platz unter Div und Suchfeldern
         grid.setSizeFull();
-
         return grid;
     }
 
