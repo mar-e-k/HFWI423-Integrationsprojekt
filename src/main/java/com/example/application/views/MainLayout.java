@@ -2,6 +2,8 @@ package com.example.application.views;
 
 import com.example.application.services.NewArticleCountService;
 import com.example.application.services.NewArticleNotificationService;
+import com.vaadin.flow.component.AttachEvent;
+import com.vaadin.flow.component.DetachEvent;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.applayout.AppLayout;
 import com.vaadin.flow.component.applayout.DrawerToggle;
@@ -24,6 +26,7 @@ import com.vaadin.flow.router.Layout;
 import com.vaadin.flow.server.auth.AnonymousAllowed;
 import com.vaadin.flow.server.menu.MenuConfiguration;
 import com.vaadin.flow.server.menu.MenuEntry;
+import com.vaadin.flow.shared.Registration;
 
 import java.time.Year;
 import java.util.List;
@@ -37,8 +40,10 @@ public class MainLayout extends AppLayout implements AfterNavigationObserver {
 
     private H1 viewTitle;
     private Span articleBadge;
+    private Registration broadcasterRegistration;
 
-    public MainLayout(NewArticleNotificationService newArticleNotificationService, NewArticleCountService newArticleCountService) {
+    public MainLayout(NewArticleNotificationService newArticleNotificationService,
+                      NewArticleCountService newArticleCountService) {
         this.newArticleNotificationService = newArticleNotificationService;
         this.newArticleCountService = newArticleCountService;
 
@@ -47,34 +52,45 @@ public class MainLayout extends AppLayout implements AfterNavigationObserver {
 
         addHeaderContent();
         addDrawerContent();
-
-        registerCurrentUi();
         updateArticleBadge();
     }
 
-    private void registerCurrentUi() {
-        UI ui = UI.getCurrent();
-        if (ui != null) {
-            newArticleNotificationService.register(ui);
+    @Override
+    protected void onAttach(AttachEvent attachEvent) {
+        super.onAttach(attachEvent);
+        UI ui = attachEvent.getUI();
 
-            ui.addDetachListener(event ->
-                    newArticleNotificationService.unregister(ui));
+        broadcasterRegistration = newArticleNotificationService.register(
+                ui,
+                count -> updateBadgeWithCount(count)
+        );
+    }
 
-            ui.getPage().executeJs("""
-            window.addEventListener('new-article-arrived', () => {
-                $0.$server.refreshBadge();
-            });
-        """, getElement());
+    @Override
+    protected void onDetach(DetachEvent detachEvent) {
+        super.onDetach(detachEvent);
+        if (broadcasterRegistration != null) {
+            broadcasterRegistration.remove();
+            broadcasterRegistration = null;
         }
     }
+
+    /**
+     * Direkter Aufruf aus NewArticlesView (gleiche UI, kein ui.access() nötig).
+     */
     public void refreshArticleBadge() {
         updateArticleBadge();
-        getUI().ifPresent(UI::push);
     }
 
-    @com.vaadin.flow.component.ClientCallable
-    private void refreshBadge() {
-        updateArticleBadge();
+    private void updateArticleBadge() {
+        int count = newArticleCountService.getCount();
+        updateBadgeWithCount(count);
+    }
+
+    private void updateBadgeWithCount(int count) {
+        if (articleBadge == null) return;
+        articleBadge.setText(String.valueOf(count));
+        articleBadge.setVisible(count > 0);
     }
 
     private void addHeaderContent() {
@@ -197,16 +213,6 @@ public class MainLayout extends AppLayout implements AfterNavigationObserver {
         footer.addClassName("app-drawer-footer");
 
         return footer;
-    }
-
-    private void updateArticleBadge() {
-        if (articleBadge == null) {
-            return;
-        }
-
-        int count = newArticleCountService.getCount();
-        articleBadge.setText(String.valueOf(count));
-        articleBadge.setVisible(count > 0);
     }
 
     @Override

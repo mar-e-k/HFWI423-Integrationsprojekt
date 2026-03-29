@@ -14,6 +14,7 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.context.event.ApplicationStartedEvent;
 import org.springframework.context.event.EventListener;
+import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.scheduling.annotation.EnableScheduling;
 
 @EnableScheduling
@@ -22,6 +23,7 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 @StyleSheet(Lumo.UTILITY_STYLESHEET)
 @Push
 @StyleSheet("styles.css")
+@EnableAsync
 
 public class Application implements AppShellConfigurator {
 
