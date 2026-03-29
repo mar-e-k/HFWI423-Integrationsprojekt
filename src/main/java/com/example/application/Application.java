@@ -2,6 +2,7 @@ package com.example.application;
 
 import com.vaadin.flow.component.dependency.StyleSheet;
 import com.vaadin.flow.component.page.AppShellConfigurator;
+import com.vaadin.flow.component.page.Push;
 import com.vaadin.flow.server.AppShellSettings;
 import com.vaadin.flow.theme.Theme;
 import com.vaadin.flow.theme.lumo.Lumo;
@@ -15,16 +16,13 @@ import org.springframework.boot.context.event.ApplicationStartedEvent;
 import org.springframework.context.event.EventListener;
 import org.springframework.scheduling.annotation.EnableScheduling;
 
-/**
- * The entry point of the Spring Boot application.
- * Use the @PWA annotation make the application installable on phones, tablets
- * and some desktop browsers.
- */
 @EnableScheduling
 @SpringBootApplication
 @StyleSheet(Lumo.STYLESHEET)
 @StyleSheet(Lumo.UTILITY_STYLESHEET)
+@Push
 @StyleSheet("styles.css")
+
 public class Application implements AppShellConfigurator {
 
 private final EventPublisher publisher;

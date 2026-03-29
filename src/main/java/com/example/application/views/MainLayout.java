@@ -1,5 +1,6 @@
 package com.example.application.views;
 
+import com.example.application.services.NewArticleCountService;
 import com.example.application.services.NewArticleNotificationService;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.applayout.AppLayout;
@@ -32,12 +33,14 @@ import java.util.List;
 public class MainLayout extends AppLayout implements AfterNavigationObserver {
 
     private final NewArticleNotificationService newArticleNotificationService;
+    private final NewArticleCountService newArticleCountService;
 
     private H1 viewTitle;
     private Span articleBadge;
 
-    public MainLayout(NewArticleNotificationService newArticleNotificationService) {
+    public MainLayout(NewArticleNotificationService newArticleNotificationService, NewArticleCountService newArticleCountService) {
         this.newArticleNotificationService = newArticleNotificationService;
+        this.newArticleCountService = newArticleCountService;
 
         setPrimarySection(Section.DRAWER);
         setDrawerOpened(true);
@@ -45,16 +48,33 @@ public class MainLayout extends AppLayout implements AfterNavigationObserver {
         addHeaderContent();
         addDrawerContent();
 
-        configurePolling();
+        registerCurrentUi();
         updateArticleBadge();
     }
 
-    private void configurePolling() {
-        UI currentUi = UI.getCurrent();
-        if (currentUi != null) {
-            currentUi.setPollInterval(5000);
-            currentUi.addPollListener(event -> updateArticleBadge());
+    private void registerCurrentUi() {
+        UI ui = UI.getCurrent();
+        if (ui != null) {
+            newArticleNotificationService.register(ui);
+
+            ui.addDetachListener(event ->
+                    newArticleNotificationService.unregister(ui));
+
+            ui.getPage().executeJs("""
+            window.addEventListener('new-article-arrived', () => {
+                $0.$server.refreshBadge();
+            });
+        """, getElement());
         }
+    }
+    public void refreshArticleBadge() {
+        updateArticleBadge();
+        getUI().ifPresent(UI::push);
+    }
+
+    @com.vaadin.flow.component.ClientCallable
+    private void refreshBadge() {
+        updateArticleBadge();
     }
 
     private void addHeaderContent() {
@@ -184,7 +204,7 @@ public class MainLayout extends AppLayout implements AfterNavigationObserver {
             return;
         }
 
-        int count = newArticleNotificationService.getCount();
+        int count = newArticleCountService.getCount();
         articleBadge.setText(String.valueOf(count));
         articleBadge.setVisible(count > 0);
     }

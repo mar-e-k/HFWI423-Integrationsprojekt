@@ -71,18 +71,6 @@ public class EinkaufEventListener {
         );
         messagingEventService.save(messagingEvent);
 
-        // Prüfen, ob Artikel bereits als Kontingent existiert
-        boolean alreadyExists = contingentRepository.existsByArticleId(articleId);
-
-        if (alreadyExists) {
-            logger.info("ArticleID {} existiert bereits in contingent -> Nachricht wird für Badge ignoriert", articleId);
-            return;
-        }
-
-        // Nur wenn articleId noch nicht in contingent existiert:
-        logger.info("ArticleID {} ist neu -> Badge-Zähler wird erhöht", articleId);
-        newArticleNotificationService.increment();
-
     }
     
     @Transactional

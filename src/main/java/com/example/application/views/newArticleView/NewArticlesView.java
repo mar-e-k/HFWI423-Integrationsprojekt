@@ -151,8 +151,6 @@ public class NewArticlesView extends Div {
                         storageLocationService.save(selectedLocationHolder[0]);
                     }
 
-                    // Badge um 1 verringern
-                    newArticleNotificationService.decrement();
 
                     Notification n = Notification.show(
                             "Artikel " + created.getArticleNumber() + " angelegt",
@@ -162,6 +160,12 @@ public class NewArticlesView extends Div {
                     n.addThemeVariants(NotificationVariant.LUMO_SUCCESS);
 
                     refresh();
+
+                    MainLayout layout = findMainLayout();
+                    if (layout != null) {
+                        layout.refreshArticleBadge();
+                    }
+
                 } catch (Exception ex) {
                     // Fehlerfall: Fehlermeldung anzeigen
                     Notification n = Notification.show(ex.getMessage(), 5000, Notification.Position.MIDDLE);
@@ -185,6 +189,17 @@ public class NewArticlesView extends Div {
         // Grid-Größe setzen (hier feste Höhe + volle Breite)
         grid.setHeight("500px");
         grid.setWidthFull();
+    }
+
+    private MainLayout findMainLayout() {
+        com.vaadin.flow.component.Component current = this;
+        while (current.getParent().isPresent()) {
+            current = current.getParent().get();
+            if (current instanceof MainLayout layout) {
+                return layout;
+            }
+        }
+        return null;
     }
 
     /**
