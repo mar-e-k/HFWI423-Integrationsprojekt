@@ -136,12 +136,22 @@ public class EinkaufEventListener {
 	}
 	//Einträge der gewünschten Kommissionierungen für diesen Artikel löschen
 	private void deleteComissionEntrys(Long articleId) {
-	    long deletedCount = messageLogisticRepository.deleteByArticleId(articleId);
+		ArticleInfo articleInfo = articleInfoRepo.findByArticleId(articleId);
+
+	    if (articleInfo == null) {
+	        logger.info("Kein ArticleInfo-Eintrag gefunden für ArticleID {} -> keine MessageLogistic-Einträge löschbar", articleId);
+	        return;
+	    }
+
+	    String articleNumber = articleInfo.getArticleNumber();
+
+	    long deletedCount = messageLogisticRepository.deleteByArticleNumber(articleNumber);
+	    
 	    logger.info("{} offene Filial-Bedarfe gelöscht für ArticleID {}", deletedCount, articleId);
 	}
 	//Einträge aus Order picking listen auch löschen damit nichts versucht wird loszuschicken
 	private void deleteOrderPickingEntrys(Long articleId) {
-		long deletedCount = kommissionPositionRepository.deleteByArticle_id_ArticleId(articleId);
+		long deletedCount = kommissionPositionRepository.deleteByArticleId(articleId);
 		logger.info("{} offene Filial-Bedarfe gelöscht für ArticleID {}", deletedCount, articleId);
 	}
 	

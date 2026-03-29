@@ -24,7 +24,7 @@ public interface MessageLogisticRepository extends JpaRepository<MessageLogistic
 
     List<MessageLogistic> findByKommissionId(Long kommissionId);
 
- 	int deleteByArticleId(Long articleId);
+ 	int deleteByArticleNumber(String articleNumber);
  	
     @Query("select distinct m.storeId from MessageLogistic m where m.quantity > 0 and m.processed = false")
     List<String> findDistinctStoresWithUnprocessed();
