@@ -4,6 +4,7 @@ import com.example.application.data.articleInfo.ArticleInfo;
 import com.example.application.data.articleInfo.ArticleInfoRepository;
 import com.example.application.data.orderPicking.MessageLogistic;
 import com.example.application.data.orderPicking.MessageLogisticRepository;
+import com.example.application.services.SonderkommissionSchedueler;
 import io.github.plaguv.amqp.api.event.pos.ArticleOrderEvent;
 import io.github.plaguv.amqp.api.event.pos.ArticleUrgentOrderEvent;
 import io.github.plaguv.amqp.core.listener.AmqpEventListener;
@@ -30,11 +31,14 @@ public class LogisticOrderListener {
 
     private final MessageLogisticRepository msgRepo;
     private final ArticleInfoRepository articleRepo;
+    private final SonderkommissionSchedueler kommissionService;
 
     public LogisticOrderListener(MessageLogisticRepository msgRepo,
-                                 ArticleInfoRepository articleRepo) {
+                                 ArticleInfoRepository articleRepo,
+                                 SonderkommissionSchedueler kommissionService) {
         this.msgRepo = msgRepo;
         this.articleRepo = articleRepo;
+        this.kommissionService = kommissionService;
     }
 
     /**
@@ -69,7 +73,7 @@ public class LogisticOrderListener {
         saveAsMessageLogistic(order.storeId(), order.articleId(), order.quantity());
 
         // TODO 1.2: Sonderkommissionierungs-Service aufrufen sobald fertig
-        // sonderKommissionService.erstelleSonderkommission(String.valueOf(order.storeId()));
+        kommissionService.createSonderKommission(String.valueOf(order.storeId()));
         logger.info("⚠️ Sonderkommissionierung für StoreID {} noch nicht implementiert", order.storeId());
     }
 

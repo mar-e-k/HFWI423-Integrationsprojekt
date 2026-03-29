@@ -135,6 +135,7 @@ public class ArticleInfoService {
         return articleInfoRepository.bulkUpdateStorageLocation(oldLocation, newLocation);
     }
 
+    //Passt die zu kommissionierende Menge nicht mit der Menge im Stock_Level überein bzw. ist größer, so wird eine neue Palette angebrochen
     @Transactional
     public boolean updateStock(String articleNumber, int change) {
 
@@ -145,16 +146,17 @@ public class ArticleInfoService {
             return false;
         }
 
-        int newStock = (article.getStockLevel() - change);
-        if (newStock < 0) {
-            return false;
+        while (article.getStockLevel() - change < 0) {
+            change = Math.abs(article.getStockLevel() - change);
+            updateStockLevelWithPalletLogic(article.getArticleId(),0);
         }
-        article.setStockLevel(newStock);
 
-        articleInfoRepository.save(article);
+        if (article.getStockLevel() - change >= 0) {
+            article.setStockLevel(article.getStockLevel() - change);
+            articleInfoRepository.save(article);
+            System.out.println("erfolgreich geupdated");
 
-        System.out.println("Bestand von Artikel " + articleNumber +
-                " geändert um " + change + " → Neuer Bestand: " + newStock);
+        }
         return true;
     }
 
