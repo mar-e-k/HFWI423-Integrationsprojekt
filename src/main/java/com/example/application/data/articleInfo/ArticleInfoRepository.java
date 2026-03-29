@@ -42,5 +42,7 @@ public interface ArticleInfoRepository
 
     @Query("select a.stockLevel from ArticleInfo a where a.articleNumber = :articleNumber")
     int findStockLevelForArticle(@Param("articleNumber") String articleNumber);
+    
+    int deleteByArticleId(Long articleId);
 
 }

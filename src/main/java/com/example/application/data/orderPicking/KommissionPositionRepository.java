@@ -8,4 +8,7 @@ import java.util.List;
 @Repository
 public interface KommissionPositionRepository extends JpaRepository<KommissionPosition, Long> {
     List<KommissionPosition> findByKommission(Kommission kommission);
+    
+    //löschen aufgrund der verknüfung zur article info db
+    int deleteByArticle_id_ArticleId(Long articleId);
 }
