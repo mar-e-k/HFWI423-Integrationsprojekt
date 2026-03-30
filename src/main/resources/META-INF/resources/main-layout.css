@@ -2,13 +2,13 @@
   --vaadin-app-layout-drawer-width: 290px;
 }
 
-/* Drawer allgemein */
+/* ── Drawer ─────────────────────────────────────────────── */
 vaadin-app-layout::part(drawer) {
   background: var(--lumo-base-color);
   border-right: 1px solid var(--lumo-contrast-10pct);
+  box-shadow: 2px 0 12px rgba(15, 23, 42, 0.06);
 }
 
-/* Drawer Scrollbereich */
 .app-drawer-scroller {
   padding: 0.5rem;
 }
@@ -17,106 +17,121 @@ vaadin-app-layout::part(drawer) {
   background: var(--lumo-base-color);
 }
 
-/* Drawer Header */
+/* ── Drawer Header ───────────────────────────────────────── */
 .app-drawer-header {
-  padding: 1rem 1rem 0.9rem 1rem;
+  padding: 1.2rem 1rem 1rem 1rem;
   display: flex;
   flex-direction: column;
   gap: 0.25rem;
   border-bottom: 1px solid var(--lumo-contrast-10pct);
-  background: var(--lumo-base-color);
+  background: linear-gradient(135deg, var(--lumo-primary-color-10pct) 0%, var(--lumo-base-color) 100%);
 }
 
 .app-drawer-title {
   margin: 0;
-  font-size: 1.2rem;
-  font-weight: 600;
+  font-size: 1.15rem;
+  font-weight: 700;
   line-height: 1.2;
+  color: var(--lumo-primary-text-color);
+  letter-spacing: -0.01em;
 }
 
 .app-drawer-subtitle {
-  font-size: 0.78rem;
+  font-size: 0.76rem;
   color: var(--lumo-secondary-text-color);
   line-height: 1.35;
+  font-weight: 500;
 }
 
-/* Navigation */
+/* ── Navigation ──────────────────────────────────────────── */
 .app-sidenav {
-  padding: 0.35rem;
+  padding: 0.4rem;
   display: flex;
   flex-direction: column;
-  gap: 0.3rem;
+  gap: 0.2rem;
 }
 
-/* Eintrag */
 .app-nav-item {
-  border-radius: 12px;
+  border-radius: 10px;
   margin: 0;
-  min-height: 46px;
-  transition: background-color 0.15s ease, box-shadow 0.15s ease;
+  min-height: 44px;
+  transition: background-color 0.12s ease, box-shadow 0.12s ease;
+  position: relative;
 }
 
-/* Inhalt des Eintrags */
 .app-nav-item::part(content) {
-  min-height: 46px;
-  padding: 0 0.8rem;
-  border-radius: 12px;
+  min-height: 44px;
+  padding: 0 0.85rem;
+  border-radius: 10px;
   display: flex;
   align-items: center;
-  gap: 0.8rem;
+  gap: 0.75rem;
+  font-size: 0.9rem;
+  font-weight: 500;
 }
 
-/* Hover */
 .app-nav-item::part(content):hover {
   background-color: var(--lumo-contrast-5pct);
 }
 
-/* Aktive Seite */
+/* Active: left accent bar */
+.app-nav-item[aria-current='page'] {
+  background: var(--lumo-primary-color-10pct);
+  box-shadow: inset 3px 0 0 var(--lumo-primary-color);
+}
+
 .app-nav-item[aria-current='page']::part(content) {
-  background-color: var(--lumo-primary-color-10pct);
+  background-color: transparent;
   color: var(--lumo-primary-text-color);
   font-weight: 600;
 }
 
-/* Icon-Größe / Ausrichtung */
+/* Icons */
 .app-nav-item vaadin-icon,
 .app-nav-item svg {
-  width: 18px;
-  height: 18px;
+  width: 17px;
+  height: 17px;
   flex-shrink: 0;
-  color: var(--lumo-secondary-text-color);
+  color: var(--lumo-tertiary-text-color);
+  transition: color 0.12s ease;
 }
 
-/* Aktives Icon */
 .app-nav-item[aria-current='page'] vaadin-icon,
 .app-nav-item[aria-current='page'] svg {
-  color: var(--lumo-primary-text-color);
+  color: var(--lumo-primary-color);
 }
 
-/* Badge im Menü */
+/* ── Notification Badge ──────────────────────────────────── */
 .menu-badge {
   margin-left: auto;
-  min-width: 22px;
-  height: 22px;
-  padding: 0 6px;
+  min-width: 20px;
+  height: 20px;
+  padding: 0 5px;
   border-radius: 999px;
   background: var(--lumo-primary-color);
   color: white;
-  font-size: 0.72rem;
-  font-weight: 600;
+  font-size: 0.7rem;
+  font-weight: 700;
   display: inline-flex;
   align-items: center;
   justify-content: center;
   box-sizing: border-box;
+  animation: badge-pulse 2.5s ease-in-out infinite;
 }
 
-/* Topbar */
+@keyframes badge-pulse {
+  0%, 100% { box-shadow: 0 0 0 2px var(--lumo-primary-color-10pct); }
+  50%       { box-shadow: 0 0 0 5px transparent; }
+}
+
+/* ── Topbar ──────────────────────────────────────────────── */
 .app-topbar {
-  background: var(--lumo-base-color);
+  height: 72px;
+  padding: 0 24px;
   border-bottom: 1px solid var(--lumo-contrast-10pct);
-  min-height: 72px;
-  padding: 0.75rem 1rem;
+  background: white;
   box-sizing: border-box;
+  box-shadow: 0 1px 8px rgba(15, 23, 42, 0.06);
 }
 
 .app-topbar-left {
@@ -128,7 +143,39 @@ vaadin-app-layout::part(drawer) {
 .app-topbar-user {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
+  gap: 10px;
+  flex-shrink: 0;
+}
+
+.app-drawer-toggle {
+  margin-right: 8px;
+  flex-shrink: 0;
+}
+
+.app-header-title-block {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 1px;
+  margin: 0;
+}
+
+.app-header-eyebrow {
+  font-size: 0.73rem;
+  font-weight: 600;
+  color: var(--lumo-primary-color);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  line-height: 1;
+}
+
+.app-view-title {
+  margin: 0;
+  font-size: 1.6rem;
+  font-weight: 700;
+  color: #1e293b;
+  line-height: 1.1;
+  letter-spacing: -0.02em;
 }
 
 .app-name {
@@ -138,30 +185,24 @@ vaadin-app-layout::part(drawer) {
   white-space: nowrap;
 }
 
-.app-view-title {
-  margin: 0;
-  font-size: 1.7rem;
-  font-weight: 700;
-  line-height: 1.2;
-  color: var(--lumo-body-text-color);
-}
-
 .app-user-name {
-  font-size: 0.9rem;
-  color: var(--lumo-secondary-text-color);
+  font-size: 0.88rem;
+  color: #64748b;
+  font-weight: 500;
 }
 
 .app-user-avatar {
-  background-color: var(--lumo-contrast-10pct);
+  --vaadin-avatar-size: 34px;
+  background-color: var(--lumo-primary-color-10pct);
 }
 
-/* Footer im Drawer */
+/* ── Drawer Footer ───────────────────────────────────────── */
 .app-drawer-footer {
   border-top: 1px solid var(--lumo-contrast-10pct);
-  padding: 0.9rem 1rem;
+  padding: 0.8rem 1rem;
 }
 
 .app-drawer-footer-text {
-  color: var(--lumo-secondary-text-color);
-  font-size: 0.78rem;
+  color: var(--lumo-tertiary-text-color);
+  font-size: 0.75rem;
 }

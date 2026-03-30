@@ -68,8 +68,8 @@ public class LogisticMainView extends Div {
         this.storageLocationService = storageLocationService;
 
         // === Grundlayout der Seite ===
-        setSizeFull(); // View soll die ganze verfügbare Fläche nutzen
-        addClassNames("gridwith-filters-view");
+        setSizeFull();
+        addClassNames("gridwith-filters-view", "logistic-main-view");
 
         // Filterleiste: ruft bei Änderungen/Buttons refreshGrid() auf
         filters = new Filters(this::refreshGrid);
@@ -78,9 +78,6 @@ public class LogisticMainView extends Div {
         Component gridComponent = createGrid();
         setupDataProvider(); // Datenquelle an das Grid binden
 
-        // === Seite zusammensetzen ===
-        // 1) Mobile Filter-Kopf (toggle), 2) volle Filterleiste (Desktop/ausklappbar mobil),
-        // 3) Grid mit Artikeln
         VerticalLayout layout = new VerticalLayout(
                 createMobileFilters(),
                 filters,
@@ -88,10 +85,13 @@ public class LogisticMainView extends Div {
         );
         layout.setSizeFull();
         layout.setPadding(false);
-        layout.setSpacing(false); // keine extra Abstände zwischen den Komponenten
+        layout.setSpacing(false);
 
-        // Alles in die Haupt-View hängen
-        add(layout);
+        Div card = new Div(layout);
+        card.addClassName("content-card");
+        card.setSizeFull();
+
+        add(card);
     }
 
     /**
@@ -252,70 +252,90 @@ public class LogisticMainView extends Div {
         grid.addClassName("article-grid");
 
         grid.addColumn(ArticleInfo::getName)
-                .setHeader("Article Name")
+                .setHeader("Artikelname")
                 .setKey("articleName")
                 .setFlexGrow(2)
                 .setSortable(true);
 
         grid.addColumn(ArticleInfo::getArticleNumber)
-                .setHeader("Article Number")
+                .setHeader("Artikelnummer")
                 .setKey("articleNumber")
                 .setFlexGrow(1)
                 .setSortable(true);
 
-        grid.addColumn(ArticleInfo::getTotalStock)
-                .setHeader("Total Stock")
-                .setKey("totalStock")
-                .setAutoWidth(true)
-                .setSortable(true);
-
-        grid.addColumn(ArticleInfo::getStockLevel)
-                .setHeader("Pick Stock")
-                .setKey("stockLevel")
-                .setAutoWidth(true)
-                .setSortable(true);
-
-        grid.addColumn(ArticleInfo::getReservePallets)
-                .setHeader("Reserve")
-                .setKey("reservePallets")
-                .setAutoWidth(true)
-                .setSortable(true);
+        grid.addComponentColumn(item -> {
+            Span s = new Span(String.valueOf(item.getTotalStock()));
+            s.getStyle().set("font-weight", "700").set("color", "#1e293b").set("font-size", "0.9rem");
+            return s;
+        }).setHeader("Total Stock").setAutoWidth(true).setSortable(false);
 
         grid.addComponentColumn(item -> {
-            Button editStock = new Button("Edit");
-            editStock.addThemeVariants(ButtonVariant.LUMO_SMALL, ButtonVariant.LUMO_CONTRAST);
+            int stock = item.getStockLevel() != null ? item.getStockLevel() : 0;
+            int min   = item.getMinStock()   != null ? item.getMinStock()   : 0;
+            Span badge = new Span(String.valueOf(stock));
+            badge.getStyle()
+                .set("padding", "2px 10px")
+                .set("border-radius", "999px")
+                .set("font-weight", "600")
+                .set("font-size", "0.8rem");
+            if (stock == 0) {
+                badge.getStyle().set("background", "#fee2e2").set("color", "#dc2626");
+            } else if (min > 0 && stock < min) {
+                badge.getStyle().set("background", "#fef3c7").set("color", "#d97706");
+            } else {
+                badge.getStyle().set("background", "#dcfce7").set("color", "#16a34a");
+            }
+            return badge;
+        }).setHeader("Pick Stock").setAutoWidth(true).setSortable(false);
+
+        grid.addComponentColumn(item -> {
+            int pal = item.getReservePallets() != null ? item.getReservePallets() : 0;
+            Span s = new Span(pal + " Pal.");
+            s.getStyle().set("color", "#64748b").set("font-size", "0.85rem").set("font-weight", "500");
+            return s;
+        }).setHeader("Reserve").setAutoWidth(true).setSortable(false);
+
+        grid.addComponentColumn(item -> {
+            Button editStock = new Button("Bestand");
+            editStock.addThemeVariants(ButtonVariant.LUMO_SMALL, ButtonVariant.LUMO_PRIMARY);
             editStock.addClassName("edit-stock-btn");
-
-            editStock.addClickListener(e -> {
-                StockChangeDialog dlg = new StockChangeDialog(
-                        articleInfoService,
-                        item,
-                        this::refreshGrid
-                );
-                dlg.open();
-            });
+            editStock.addClickListener(e -> new StockChangeDialog(articleInfoService, item, this::refreshGrid).open());
             return editStock;
-        }).setHeader("Actions").setAutoWidth(true).setFlexGrow(0);
+        }).setHeader("Aktion").setAutoWidth(true).setFlexGrow(0);
 
         grid.addComponentColumn(item -> {
-                    String label = item.getStorageLocation() != null && !item.getStorageLocation().isBlank()
-                            ? item.getStorageLocation()
-                            : "Select location";
+            boolean hasLocation = item.getStorageLocation() != null && !item.getStorageLocation().isBlank();
+            String label = hasLocation ? item.getStorageLocation() : "+ Lagerplatz";
 
-                    Button link = new Button(label);
-                    link.addThemeVariants(ButtonVariant.LUMO_TERTIARY_INLINE);
-                    link.addClassName("location-link");
-                    link.addClickListener(e -> openAvailableLocationsDialog(item));
-
-                    return link;
-                }).setHeader("Storage Location")
-                .setKey("storageLocation")
-                .setAutoWidth(true)
-                .setFlexGrow(0);
+            Span badge = new Span(label);
+            badge.getStyle()
+                .set("padding", "3px 10px")
+                .set("border-radius", "999px")
+                .set("font-size", "0.8rem")
+                .set("font-weight", "600")
+                .set("cursor", "pointer")
+                .set("transition", "opacity 0.15s");
+            if (hasLocation) {
+                badge.getStyle()
+                    .set("background", "#dbeafe")
+                    .set("color", "#1d4ed8");
+            } else {
+                badge.getStyle()
+                    .set("background", "#f1f5f9")
+                    .set("color", "#94a3b8")
+                    .set("border", "1px dashed #cbd5e1");
+            }
+            badge.addClickListener(e -> openAvailableLocationsDialog(item));
+            return badge;
+        }).setHeader("Lagerplatz")
+          .setKey("storageLocation")
+          .setAutoWidth(true)
+          .setFlexGrow(0);
 
         grid.addThemeVariants(
                 GridVariant.LUMO_ROW_STRIPES,
-                GridVariant.LUMO_WRAP_CELL_CONTENT
+                GridVariant.LUMO_WRAP_CELL_CONTENT,
+                GridVariant.LUMO_NO_BORDER
         );
 
         grid.setSizeFull();

@@ -1,85 +1,73 @@
 @import url('main-layout.css');
 @import url('views/gridwith-filters-view.css');
 
+/* ══════════════════════════════════════════════════════════
+   GRID ROW STATES
+══════════════════════════════════════════════════════════ */
 vaadin-grid::part(missing-minstock-row) {
-    background-color: #ffcccc !important; /* hellrot */
+    background-color: #fee2e2 !important;
 }
-
 vaadin-grid::part(missing-minstock-row):hover {
-    background-color: #ff9999 !important;
-}
-/* Restock: Zeile grau, wenn Bestellung offen */
-:host ::part(body-row).restock-order-open {
-    background-color: #f3f3f3 !important;
-    color: #666666 !important;
+    background-color: #fecaca !important;
 }
 
+:host ::part(body-row).restock-order-open {
+    background-color: #f8fafc !important;
+    color: #64748b !important;
+}
 :host ::part(body-row).restock-order-open:hover {
-    background-color: #e0e0e0 !important;
+    background-color: #f1f5f9 !important;
 }
 
 :host ::part(row).finished-row {
-    opacity: 0.5;
+    opacity: 0.45;
     pointer-events: none;
 }
+
+/* ══════════════════════════════════════════════════════════
+   MAIN VIEW WRAPPER
+══════════════════════════════════════════════════════════ */
 .logistic-main-view {
-    background: #f5f7fb;
-    padding: 16px;
-}
-
-.filter-layout {
-    display: grid;
-    grid-template-columns: repeat(4, minmax(180px, 1fr)) auto;
-    gap: 16px;
-    align-items: end;
-    padding: 20px 24px;
-    border-bottom: 1px solid #e5e7eb;
-    background: #fafbfc;
-}
-
-.article-grid::part(header-cell) {
-    background: #f8fafc;
-    font-weight: 600;
-    color: #334155;
-}
-
-.article-grid::part(cell) {
-    padding-top: 14px;
-    padding-bottom: 14px;
-}
-
-.logistic-main-view {
-    background: #f5f7fb;
+    background: #f1f5f9;
+    padding: 20px;
+    box-sizing: border-box;
 }
 
 .logistic-main-layout {
     background: transparent;
 }
 
+/* ══════════════════════════════════════════════════════════
+   CONTENT CARD
+══════════════════════════════════════════════════════════ */
 .content-card {
     background: white;
-    border-radius: 18px;
-    box-shadow: 0 6px 18px rgba(15, 23, 42, 0.08);
+    border-radius: 16px;
+    box-shadow: 0 4px 20px rgba(15, 23, 42, 0.08);
+    border: 1px solid #e2e8f0;
     padding: 0;
     overflow: hidden;
     height: 100%;
 }
 
+/* ══════════════════════════════════════════════════════════
+   FILTER BAR
+══════════════════════════════════════════════════════════ */
 .filter-layout {
     display: grid;
     grid-template-columns: repeat(4, minmax(180px, 1fr)) auto;
-    gap: 16px;
+    gap: 12px 16px;
     align-items: end;
-    padding: 20px 24px;
-    border-bottom: 1px solid #e5e7eb;
-    background: #fafbfc;
+    padding: 18px 20px;
+    border-bottom: 1px solid #e2e8f0;
+    background: #f8fafc;
     box-sizing: border-box;
     width: 100%;
 }
 
 .filter-actions {
     display: flex;
-    gap: 10px;
+    gap: 8px;
     align-items: end;
     justify-content: flex-end;
     flex-wrap: wrap;
@@ -89,7 +77,6 @@ vaadin-grid::part(missing-minstock-row):hover {
     .filter-layout {
         grid-template-columns: 1fr 1fr;
     }
-
     .filter-actions {
         grid-column: 1 / -1;
         justify-content: flex-start;
@@ -102,25 +89,45 @@ vaadin-grid::part(missing-minstock-row):hover {
     }
 }
 
+/* ══════════════════════════════════════════════════════════
+   ARTICLE GRID
+══════════════════════════════════════════════════════════ */
 .article-grid {
-    border-radius: 0 0 18px 18px;
+    border-radius: 0 0 16px 16px;
     overflow: hidden;
 }
 
 .article-grid::part(header-cell) {
     background: #f8fafc;
-    font-weight: 600;
-    color: #334155;
-    border-bottom: 1px solid #e2e8f0;
+    font-weight: 700;
+    font-size: 0.78rem;
+    color: #64748b;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    border-bottom: 2px solid #e2e8f0;
 }
 
 .article-grid::part(cell) {
-    padding-top: 14px;
-    padding-bottom: 14px;
+    padding-top: 12px;
+    padding-bottom: 12px;
+    font-size: 0.9rem;
+    color: #1e293b;
+    border-bottom: 1px solid #f1f5f9;
 }
 
+/* ══════════════════════════════════════════════════════════
+   BUTTONS
+══════════════════════════════════════════════════════════ */
 .edit-stock-btn {
-    border-radius: 10px;
+    border-radius: 8px;
+    font-size: 0.82rem;
+    font-weight: 600;
+    transition: transform 0.1s ease, box-shadow 0.1s ease;
+}
+
+.edit-stock-btn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 3px 8px rgba(0, 0, 0, 0.12);
 }
 
 .location-link {
@@ -128,19 +135,33 @@ vaadin-grid::part(missing-minstock-row):hover {
     color: #2563eb;
     padding: 0;
     min-width: auto;
+    transition: color 0.12s ease;
 }
 
+.location-link:hover {
+    color: #1d4ed8;
+    text-decoration: underline;
+}
+
+/* ══════════════════════════════════════════════════════════
+   MOBILE FILTER TOGGLE
+══════════════════════════════════════════════════════════ */
 .mobile-filters {
     display: none;
 }
+
+/* ══════════════════════════════════════════════════════════
+   TOPBAR OVERRIDE
+══════════════════════════════════════════════════════════ */
 .app-topbar {
-    height: 82px;
+    height: 72px;
     padding: 0 24px;
-    border-bottom: 1px solid #e5e7eb;
+    border-bottom: 1px solid #e2e8f0;
     background: white;
     box-sizing: border-box;
     display: flex;
     align-items: center;
+    box-shadow: 0 1px 8px rgba(15, 23, 42, 0.06);
 }
 
 .app-drawer-toggle {
@@ -157,20 +178,21 @@ vaadin-grid::part(missing-minstock-row):hover {
 }
 
 .app-header-eyebrow {
-    font-size: 0.82rem;
+    font-size: 0.73rem;
     font-weight: 600;
-    color: #64748b;
-    letter-spacing: 0.08em;
+    color: var(--lumo-primary-color);
+    letter-spacing: 0.1em;
     text-transform: uppercase;
     line-height: 1;
 }
 
 .app-view-title {
     margin: 0;
-    font-size: 2rem;
+    font-size: 1.6rem;
     font-weight: 700;
     color: #1e293b;
     line-height: 1.1;
+    letter-spacing: -0.02em;
 }
 
 .app-topbar-user {
@@ -179,11 +201,11 @@ vaadin-grid::part(missing-minstock-row):hover {
 }
 
 .app-user-name {
-    font-size: 0.95rem;
+    font-size: 0.88rem;
     color: #64748b;
+    font-weight: 500;
 }
 
 .app-user-avatar {
-    --vaadin-avatar-size: 36px;
+    --vaadin-avatar-size: 34px;
 }
-

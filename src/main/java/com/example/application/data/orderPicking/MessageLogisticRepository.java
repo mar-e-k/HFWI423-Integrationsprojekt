@@ -1,4 +1,4 @@
-﻿package com.example.application.data.orderPicking;
+package com.example.application.data.orderPicking;
 
 import jakarta.transaction.Transactional;
 import org.springframework.data.jpa.repository.JpaRepository;
