@@ -101,7 +101,7 @@ public class NewArticlesView extends Div {
             piecesPerPalletField.setWidth("120px");
 
             IntegerField minStockField = new IntegerField();
-            minStockField.setPlaceholder("Mindestbestand");
+            minStockField.setPlaceholder("Mindestbestand (in Pal.)");
             minStockField.setMin(0);
             minStockField.setWidth("130px");
 

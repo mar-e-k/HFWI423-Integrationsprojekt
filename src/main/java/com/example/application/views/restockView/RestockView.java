@@ -67,7 +67,7 @@ public class RestockView extends Div {
         grid.addColumn(RestockItem::getArticleNumber).setHeader("Artikelnummer");
         grid.addColumn(RestockItem::getName).setHeader("Name");
         grid.addColumn(RestockItem::getReservePallets).setHeader("Reserve Paletten");
-        grid.addColumn(RestockItem::getMinStockDisplay).setHeader("Mindestbestand");
+        grid.addColumn(RestockItem::getMinStockDisplay).setHeader("Mindestbestand (in Pal.)");
         grid.addColumn(RestockItem::getOrderAmountDisplay).setHeader("Nachbestellmenge");
         grid.addComponentColumn(item -> {
 
@@ -160,7 +160,7 @@ public class RestockView extends Div {
     // CSV Export
     private String buildCsv() {
         List<RestockItem> items = restockService.getArticlesToRestock();
-        StringBuilder sb = new StringBuilder("Artikelnummer;Name;Reserve Paletten;Mindestbestand;Nachbestellmenge\n");
+        StringBuilder sb = new StringBuilder("Artikelnummer;Name;Reserve Paletten;Mindestbestand (in Pal.);Nachbestellmenge (in Pal.)\n");
 
         for (RestockItem a : items) {
             sb.append(a.getArticleNumber()).append(";")
