@@ -22,39 +22,33 @@ public class BadgeNotifier {
     /**
      * Wartet asynchron, bis der neue Artikel in der DB sichtbar ist,
      * dann benachrichtigt alle UIs. Für eingehende AMQP-Nachrichten.
+     * Läuft 2s weiter um auch schnell aufeinanderfolgende Events abzufangen.
      */
     @Async
     public void notifyAfterNewQuota() {
-        int previousCount = countService.getCount();
+        int previous = countService.getCount();
 
         for (int attempt = 0; attempt < 10; attempt++) {
-            int currentCount = countService.getCount();
-
-            if (currentCount > previousCount) {
-                logger.info("Neuer Artikel sichtbar nach {} Versuch(en), Count={}",
-                        attempt + 1, currentCount);
-                notificationService.notifyAll(currentCount);
-                return;
-            }
-
             try {
                 Thread.sleep(200);
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
                 return;
             }
-        }
 
-        // Fallback nach 2 Sekunden
-        logger.warn("Artikel nach 2s noch nicht sichtbar – sende Fallback-Count");
-        notificationService.notifyAll(countService.getCount());
+            int current = countService.getCount();
+            if (current != previous) {
+                logger.info("Badge-Count geaendert: {} -> {} (Versuch {})", previous, current, attempt + 1);
+                notificationService.notifyAll(current);
+                previous = current;
+            }
+        }
     }
 
     /**
      * Sofortige Benachrichtigung aller UIs mit aktuellem Count.
-     * Für manuelle Aufrufe (z.B. nach Anlegen eines Artikels in NewArticlesView).
+     * Muss nach dem Commit der aufrufenden Transaktion aufgerufen werden.
      */
-    @Async
     public void notifyNow() {
         notificationService.notifyAll(countService.getCount());
     }

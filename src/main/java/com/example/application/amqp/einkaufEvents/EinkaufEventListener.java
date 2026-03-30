@@ -10,7 +10,6 @@ import com.example.application.data.storageLocation.StorageLocation;
 import com.example.application.data.storageLocation.StorageLocationRepository;
 import com.example.application.services.BadgeNotifier;
 import com.example.application.services.MessagingEventService;
-import com.example.application.services.NewArticleNotificationService;
 import io.github.plaguv.amqp.api.event.payment.DeleteQuotaEvent;
 import io.github.plaguv.amqp.api.event.payment.NewQuotaEvent;
 import io.github.plaguv.amqp.core.listener.AmqpEventListener;
@@ -19,6 +18,8 @@ import jakarta.transaction.Transactional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.support.TransactionSynchronization;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
 
 import java.util.Optional;
 
@@ -96,8 +97,13 @@ public class EinkaufEventListener {
 		);
 		messagingEventService.save(messagingEvent);
 
-		// Sofortige Benachrichtigung – DB ist hier durch @Transactional bereits konsistent
-		badgeNotifier.notifyNow();
+		// Nach Commit benachrichtigen – erst dann ist die DB konsistent sichtbar
+		TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
+			@Override
+			public void afterCommit() {
+				badgeNotifier.notifyNow();
+			}
+		});
 	}
 
 	private void freeStorageLocations(Long articleId) {
@@ -169,7 +175,7 @@ public class EinkaufEventListener {
 			return 0;
 
 		} catch (Exception e) {
-			logger.warn("Lagerplatz '{}' konnte nicht gelesen werden", generalId, e);
+			logger.error("Lagerplatz '{}' konnte nicht freigegeben werden – bleibt gesperrt!", generalId, e);
 			return 0;
 		}
 	}

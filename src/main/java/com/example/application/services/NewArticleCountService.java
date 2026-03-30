@@ -12,6 +12,6 @@ public class NewArticleCountService {
     }
 
     public int getCount() {
-        return articleSyncService.findNewArticlesFromContingents().size();
+        return (int) articleSyncService.countNewArticles();
     }
 }

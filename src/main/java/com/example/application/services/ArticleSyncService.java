@@ -30,6 +30,11 @@ public class ArticleSyncService {
     }
 
     @Transactional(readOnly = true)
+    public long countNewArticles() {
+        return contingentRepository.countNewArticles();
+    }
+
+    @Transactional(readOnly = true)
     public List<NewArticleCandidate> findNewArticlesFromContingents() {
         List<Contingent> contingents = contingentRepository.findAll();
 

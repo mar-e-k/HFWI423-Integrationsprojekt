@@ -52,7 +52,6 @@ public class MainLayout extends AppLayout implements AfterNavigationObserver {
 
         addHeaderContent();
         addDrawerContent();
-        updateArticleBadge();
     }
 
     @Override
