@@ -2,11 +2,17 @@
   --vaadin-app-layout-drawer-width: 290px;
 }
 
-/* ── Drawer ─────────────────────────────────────────────── */
+/* ══════════════════════════════════════════════════════════
+   DRAWER
+══════════════════════════════════════════════════════════ */
 vaadin-app-layout::part(drawer) {
-  background: var(--lumo-base-color);
-  border-right: 1px solid var(--lumo-contrast-10pct);
-  box-shadow: 2px 0 12px rgba(15, 23, 42, 0.06);
+  background: #0f172a;
+  border-right: none;
+  box-shadow: 4px 0 24px rgba(0, 0, 0, 0.25);
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
 }
 
 .app-drawer-scroller {
@@ -14,75 +20,98 @@ vaadin-app-layout::part(drawer) {
 }
 
 .app-drawer-layout {
-  background: var(--lumo-base-color);
+  width: 100%;
+  box-sizing: border-box;
+  background: #0f172a;
 }
 
 /* ── Drawer Header ───────────────────────────────────────── */
 .app-drawer-header {
-  padding: 1.2rem 1rem 1rem 1rem;
+  width: 100%;
+  box-sizing: border-box;
+  padding: 1.4rem 1.1rem 1.1rem 1.1rem;
   display: flex;
   flex-direction: column;
-  gap: 0.25rem;
-  border-bottom: 1px solid var(--lumo-contrast-10pct);
-  background: linear-gradient(135deg, var(--lumo-primary-color-10pct) 0%, var(--lumo-base-color) 100%);
+  gap: 0.2rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  background: linear-gradient(145deg, #1e3a8a 0%, #312e81 100%);
+  position: relative;
+  overflow: hidden;
+}
+
+/* Decorative glow blob in header */
+.app-drawer-header::after {
+  content: '';
+  position: absolute;
+  top: -20px;
+  right: -20px;
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  background: rgba(99, 102, 241, 0.35);
+  filter: blur(20px);
+  pointer-events: none;
 }
 
 .app-drawer-title {
   margin: 0;
-  font-size: 1.15rem;
-  font-weight: 700;
+  font-size: 1.1rem;
+  font-weight: 800;
   line-height: 1.2;
-  color: var(--lumo-primary-text-color);
+  color: white;
   letter-spacing: -0.01em;
 }
 
 .app-drawer-subtitle {
-  font-size: 0.76rem;
-  color: var(--lumo-secondary-text-color);
+  font-size: 0.73rem;
+  color: rgba(255, 255, 255, 0.55);
   line-height: 1.35;
   font-weight: 500;
+  letter-spacing: 0.02em;
 }
 
 /* ── Navigation ──────────────────────────────────────────── */
 .app-sidenav {
-  padding: 0.4rem;
+  padding: 0.5rem;
   display: flex;
   flex-direction: column;
-  gap: 0.2rem;
+  gap: 0.15rem;
 }
 
 .app-nav-item {
   border-radius: 10px;
   margin: 0;
-  min-height: 44px;
-  transition: background-color 0.12s ease, box-shadow 0.12s ease;
+  min-height: 42px;
+  transition: background-color 0.15s ease;
   position: relative;
 }
 
 .app-nav-item::part(content) {
-  min-height: 44px;
+  min-height: 42px;
   padding: 0 0.85rem;
   border-radius: 10px;
   display: flex;
   align-items: center;
   gap: 0.75rem;
-  font-size: 0.9rem;
+  font-size: 0.875rem;
   font-weight: 500;
+  color: rgba(255, 255, 255, 0.65);
 }
 
 .app-nav-item::part(content):hover {
-  background-color: var(--lumo-contrast-5pct);
+  background-color: rgba(255, 255, 255, 0.07);
+  color: rgba(255, 255, 255, 0.9);
 }
 
-/* Active: left accent bar */
+/* Active item */
 .app-nav-item[aria-current='page'] {
-  background: var(--lumo-primary-color-10pct);
-  box-shadow: inset 3px 0 0 var(--lumo-primary-color);
+  background: linear-gradient(90deg, rgba(99, 102, 241, 0.25) 0%, rgba(99, 102, 241, 0.05) 100%);
+  box-shadow: inset 3px 0 0 #6366f1;
 }
 
 .app-nav-item[aria-current='page']::part(content) {
   background-color: transparent;
-  color: var(--lumo-primary-text-color);
+  color: white;
   font-weight: 600;
 }
 
@@ -92,13 +121,18 @@ vaadin-app-layout::part(drawer) {
   width: 17px;
   height: 17px;
   flex-shrink: 0;
-  color: var(--lumo-tertiary-text-color);
-  transition: color 0.12s ease;
+  color: rgba(255, 255, 255, 0.4);
+  transition: color 0.15s ease;
+}
+
+.app-nav-item::part(content):hover vaadin-icon,
+.app-nav-item::part(content):hover svg {
+  color: rgba(255, 255, 255, 0.8);
 }
 
 .app-nav-item[aria-current='page'] vaadin-icon,
 .app-nav-item[aria-current='page'] svg {
-  color: var(--lumo-primary-color);
+  color: #818cf8;
 }
 
 /* ── Notification Badge ──────────────────────────────────── */
@@ -106,38 +140,54 @@ vaadin-app-layout::part(drawer) {
   margin-left: auto;
   min-width: 20px;
   height: 20px;
-  padding: 0 5px;
+  padding: 0 6px;
   border-radius: 999px;
-  background: var(--lumo-primary-color);
+  background: linear-gradient(135deg, #6366f1, #8b5cf6);
   color: white;
-  font-size: 0.7rem;
+  font-size: 0.68rem;
   font-weight: 700;
   display: inline-flex;
   align-items: center;
   justify-content: center;
   box-sizing: border-box;
+  box-shadow: 0 0 10px rgba(99, 102, 241, 0.6);
   animation: badge-pulse 2.5s ease-in-out infinite;
 }
 
 @keyframes badge-pulse {
-  0%, 100% { box-shadow: 0 0 0 2px var(--lumo-primary-color-10pct); }
-  50%       { box-shadow: 0 0 0 5px transparent; }
+  0%, 100% { box-shadow: 0 0 8px rgba(99, 102, 241, 0.5); }
+  50%       { box-shadow: 0 0 18px rgba(99, 102, 241, 0.9); }
 }
 
 /* ── Topbar ──────────────────────────────────────────────── */
 .app-topbar {
   height: 72px;
-  padding: 0 24px;
-  border-bottom: 1px solid var(--lumo-contrast-10pct);
+  padding: 0 28px;
+  border-bottom: 1px solid #e2e8f0;
   background: white;
   box-sizing: border-box;
-  box-shadow: 0 1px 8px rgba(15, 23, 42, 0.06);
+  box-shadow: 0 1px 12px rgba(15, 23, 42, 0.07);
+  position: relative;
+  overflow: hidden;
+}
+
+.app-topbar::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, #6366f1, #8b5cf6, #06b6d4);
+  pointer-events: none;
 }
 
 .app-topbar-left {
   display: flex;
   align-items: center;
   gap: 0.75rem;
+  position: relative;
+  z-index: 1;
 }
 
 .app-topbar-user {
@@ -145,11 +195,14 @@ vaadin-app-layout::part(drawer) {
   align-items: center;
   gap: 10px;
   flex-shrink: 0;
+  position: relative;
+  z-index: 1;
 }
 
 .app-drawer-toggle {
   margin-right: 8px;
   flex-shrink: 0;
+  color: rgba(255, 255, 255, 0.85) !important;
 }
 
 .app-header-title-block {
@@ -161,17 +214,17 @@ vaadin-app-layout::part(drawer) {
 }
 
 .app-header-eyebrow {
-  font-size: 0.73rem;
+  font-size: 0.7rem;
   font-weight: 600;
-  color: var(--lumo-primary-color);
-  letter-spacing: 0.1em;
+  color: #6366f1;
+  letter-spacing: 0.12em;
   text-transform: uppercase;
   line-height: 1;
 }
 
 .app-view-title {
   margin: 0;
-  font-size: 1.6rem;
+  font-size: 1.5rem;
   font-weight: 700;
   color: #1e293b;
   line-height: 1.1;
@@ -179,9 +232,9 @@ vaadin-app-layout::part(drawer) {
 }
 
 .app-name {
-  font-size: 0.95rem;
+  font-size: 0.9rem;
   font-weight: 500;
-  color: var(--lumo-secondary-text-color);
+  color: #64748b;
   white-space: nowrap;
 }
 
@@ -193,16 +246,16 @@ vaadin-app-layout::part(drawer) {
 
 .app-user-avatar {
   --vaadin-avatar-size: 34px;
-  background-color: var(--lumo-primary-color-10pct);
+  background-color: #ede9fe !important;
 }
 
 /* ── Drawer Footer ───────────────────────────────────────── */
 .app-drawer-footer {
-  border-top: 1px solid var(--lumo-contrast-10pct);
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
   padding: 0.8rem 1rem;
 }
 
 .app-drawer-footer-text {
-  color: var(--lumo-tertiary-text-color);
-  font-size: 0.75rem;
+  color: rgba(255, 255, 255, 0.3);
+  font-size: 0.73rem;
 }
