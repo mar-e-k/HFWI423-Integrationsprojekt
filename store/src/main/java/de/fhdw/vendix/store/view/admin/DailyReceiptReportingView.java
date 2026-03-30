@@ -43,6 +43,8 @@ import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
+import com.vaadin.flow.component.notification.Notification;
+import com.vaadin.flow.component.notification.NotificationVariant;
 
 import java.io.ByteArrayInputStream;
 import java.time.LocalDate;
@@ -100,19 +102,18 @@ public class DailyReceiptReportingView extends AppLayout implements BeforeEnterO
         liveClockLabel.getStyle().set("font-weight", "bold");
 
         Button themeToggleButton = new Button(new Icon(VaadinIcon.ADJUST), click -> {
-            UI.getCurrent().getPage().executeJs("return document.documentElement.getAttribute('theme');")
+            UI ui = UI.getCurrent(); // UI-Referenz sichern BEVOR async-Aufruf
+            ui.getPage().executeJs("return document.documentElement.getAttribute('theme');")
                     .then(String.class, currentClientTheme -> {
-                        var themeList = UI.getCurrent().getElement().getThemeList();
+                        var themeList = ui.getElement().getThemeList();
                         boolean isClientDark = "dark".equals(currentClientTheme);
 
                         if (isClientDark) {
                             themeList.remove(Lumo.DARK);
-                            UI.getCurrent().getPage().executeJs("localStorage.setItem('theme', 'light');");
-                            UI.getCurrent().getPage().executeJs("document.documentElement.removeAttribute('theme');");
+                            ui.getPage().executeJs("localStorage.setItem('theme', 'light'); document.documentElement.removeAttribute('theme');");
                         } else {
                             themeList.add(Lumo.DARK);
-                            UI.getCurrent().getPage().executeJs("localStorage.setItem('theme', 'dark');");
-                            UI.getCurrent().getPage().executeJs("document.documentElement.setAttribute('theme', 'dark');");
+                            ui.getPage().executeJs("localStorage.setItem('theme', 'dark'); document.documentElement.setAttribute('theme', 'dark');");
                         }
                     });
         });
@@ -153,12 +154,12 @@ public class DailyReceiptReportingView extends AppLayout implements BeforeEnterO
         sidebar.setAlignItems(FlexComponent.Alignment.STRETCH);
 
         sidebar.add(
-                createSidebarLink("Home", VaadinIcon.HOME, MainView.class),
-                createSidebarLink("Admin View", VaadinIcon.USER, AdminView.class),
-                createSidebarLink("Role View", VaadinIcon.GROUP, RoleView.class),
-                createSidebarLink("Register View", VaadinIcon.CASH, RegisterAddView.class),
-                createSidebarLink("Stock View", VaadinIcon.PACKAGE, StockView.class),
-                createSidebarLink("Daily Receipt Reporting", VaadinIcon.RECORDS, DailyReceiptReportingView.class)
+                createSidebarLink("Home",    VaadinIcon.HOME,    MainView.class),
+                createSidebarLink("Admin",   VaadinIcon.USER,    AdminView.class),
+                createSidebarLink("Accounts", VaadinIcon.GROUP,  RoleView.class),
+                createSidebarLink("Kassen",  VaadinIcon.CASH,    RegisterAddView.class),
+                createSidebarLink("Bestand", VaadinIcon.PACKAGE, StockView.class),
+                createSidebarLink("Belege",  VaadinIcon.RECORDS, DailyReceiptReportingView.class)
         );
         return sidebar;
     }
@@ -324,32 +325,58 @@ public class DailyReceiptReportingView extends AppLayout implements BeforeEnterO
     }
 
     private void handleGenerateDailyReceiptButtonClick() {
-        List<Receipt> receipts = receiptService.findAll().stream()
+        List<Receipt> tagesbelege = receiptService.findAll().stream()
                 .filter(r -> r.getCreatedAt().atZone(ZoneId.systemDefault()).toLocalDate().equals(LocalDate.now()))
                 .filter(r -> r.getStore().equals(storeClient.getStore()))
                 .toList();
 
-        ByteArrayInputStream generatedPdfStream = receiptService.generateDailyReceipt(receipts);
-        byte[] pdfBytes = generatedPdfStream.readAllBytes();
+        if (tagesbelege.isEmpty()) {
+            Notification.show(
+                    "Keine Belege für heute vorhanden. Tagesabschluss kann nicht erstellt werden.",
+                    4000,
+                    Notification.Position.MIDDLE
+            ).addThemeVariants(NotificationVariant.LUMO_WARNING);
+            return;
+        }
 
-        String fileName = "Tagesabschluss-%d-%s.pdf".formatted(storeClient.getStore().getId(), LocalDate.now());
+        try {
+            ByteArrayInputStream generatedPdfStream = receiptService.generateDailyReceipt(tagesbelege);
+            byte[] pdfBytes = generatedPdfStream.readAllBytes();
 
-        DownloadHandler handler = DownloadHandler.fromInputStream(event ->
-                new DownloadResponse(
-                        new ByteArrayInputStream(pdfBytes),
-                        fileName,
-                        "application/pdf",
-                        pdfBytes.length
-                )
-        );
+            String fileName = "Tagesabschluss-%d-%s.pdf".formatted(
+                    storeClient.getStore().getId(), LocalDate.now()
+            );
 
-        Anchor a = new Anchor(handler, "");
-        a.getElement().setAttribute("download", fileName);
-        a.getElement().setAttribute("style", "display:none");
+            DownloadHandler handler = DownloadHandler.fromInputStream(event ->
+                    new DownloadResponse(
+                            new ByteArrayInputStream(pdfBytes),
+                            fileName,
+                            "application/pdf",
+                            pdfBytes.length
+                    )
+            );
 
-        UI.getCurrent().add(a); // Changed from add(a) to UI.getCurrent().add(a)
-        a.getElement().callJsFunction("click");
-        a.getElement().executeJs("this.remove()");
+            Anchor a = new Anchor(handler, "");
+            a.getElement().setAttribute("download", fileName);
+            a.getElement().setAttribute("style", "display:none");
+
+            UI.getCurrent().add(a);
+            a.getElement().callJsFunction("click");
+            a.getElement().executeJs("this.remove()");
+
+            Notification.show(
+                    "Tagesabschluss wird heruntergeladen.",
+                    2500,
+                    Notification.Position.TOP_CENTER
+            ).addThemeVariants(NotificationVariant.LUMO_SUCCESS);
+
+        } catch (Exception e) {
+            Notification.show(
+                    "Fehler beim Erstellen des Tagesabschlusses: " + e.getMessage(),
+                    5000,
+                    Notification.Position.MIDDLE
+            ).addThemeVariants(NotificationVariant.LUMO_ERROR);
+        }
     }
 
     private Set<Store> distinctStores() {

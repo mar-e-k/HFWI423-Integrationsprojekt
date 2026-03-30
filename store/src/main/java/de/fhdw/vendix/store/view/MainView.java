@@ -67,19 +67,18 @@ public class MainView extends AppLayout implements BeforeEnterObserver {
         liveClockLabel.getStyle().set("font-weight", "bold");
 
         Button themeToggleButton = new Button(new Icon(VaadinIcon.ADJUST), click -> {
-            UI.getCurrent().getPage().executeJs("return document.documentElement.getAttribute('theme');")
+            UI ui = UI.getCurrent(); // UI-Referenz sichern BEVOR async-Aufruf
+            ui.getPage().executeJs("return document.documentElement.getAttribute('theme');")
                     .then(String.class, currentClientTheme -> {
-                        var themeList = UI.getCurrent().getElement().getThemeList();
+                        var themeList = ui.getElement().getThemeList();
                         boolean isClientDark = "dark".equals(currentClientTheme);
 
                         if (isClientDark) {
                             themeList.remove(Lumo.DARK);
-                            UI.getCurrent().getPage().executeJs("localStorage.setItem('theme', 'light');");
-                            UI.getCurrent().getPage().executeJs("document.documentElement.removeAttribute('theme');");
+                            ui.getPage().executeJs("localStorage.setItem('theme', 'light'); document.documentElement.removeAttribute('theme');");
                         } else {
                             themeList.add(Lumo.DARK);
-                            UI.getCurrent().getPage().executeJs("localStorage.setItem('theme', 'dark');");
-                            UI.getCurrent().getPage().executeJs("document.documentElement.setAttribute('theme', 'dark');");
+                            ui.getPage().executeJs("localStorage.setItem('theme', 'dark'); document.documentElement.setAttribute('theme', 'dark');");
                         }
                     });
         });
@@ -120,12 +119,12 @@ public class MainView extends AppLayout implements BeforeEnterObserver {
         sidebar.setAlignItems(FlexComponent.Alignment.STRETCH);
 
         sidebar.add(
-                createSidebarLink("Home", VaadinIcon.HOME, MainView.class),
-                createSidebarLink("Admin", VaadinIcon.USER, AdminView.class),
-                createSidebarLink("Accounts ", VaadinIcon.GROUP, RoleView.class),
-                createSidebarLink("Kassen", VaadinIcon.CASH, RegisterAddView.class),
+                createSidebarLink("Home",    VaadinIcon.HOME,    MainView.class),
+                createSidebarLink("Admin",   VaadinIcon.USER,    AdminView.class),
+                createSidebarLink("Accounts", VaadinIcon.GROUP,  RoleView.class),
+                createSidebarLink("Kassen",  VaadinIcon.CASH,    RegisterAddView.class),
                 createSidebarLink("Bestand", VaadinIcon.PACKAGE, StockView.class),
-                createSidebarLink("Belege", VaadinIcon.RECORDS, DailyReceiptReportingView.class)
+                createSidebarLink("Belege",  VaadinIcon.RECORDS, DailyReceiptReportingView.class)
         );
         return sidebar;
     }
