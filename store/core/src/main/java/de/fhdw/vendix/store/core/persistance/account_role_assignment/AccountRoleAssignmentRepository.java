@@ -1,6 +1,6 @@
 package de.fhdw.vendix.store.core.persistance.account_role_assignment;
 
-import de.fhdw.vendix.commons.api.domain.account_role.dto.AccountRoleEnum;
+import de.fhdw.vendix.commons.api.domain.account_role.AccountRole;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.Set;
@@ -11,5 +11,5 @@ interface AccountRoleAssignmentRepository extends JpaRepository<AccountRoleAssig
 
     Set<AccountRoleAssignment> findAllByRole_Id(Long roleId);
 
-    Set<AccountRoleAssignment> findAllByRole_Role(AccountRoleEnum roleRole);
+    Set<AccountRoleAssignment> findAllByRole_Role(AccountRole roleRole);
 }

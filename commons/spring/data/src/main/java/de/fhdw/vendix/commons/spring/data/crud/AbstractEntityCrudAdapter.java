@@ -1,8 +1,8 @@
 package de.fhdw.vendix.commons.spring.data.crud;
 
 import de.fhdw.vendix.commons.api.structure.entity.Identifiable;
-import de.fhdw.vendix.commons.api.structure.port.CrudCommandPort;
-import de.fhdw.vendix.commons.api.structure.port.CrudQueryPort;
+import de.fhdw.vendix.commons.api.structure.service.CrudCommandService;
+import de.fhdw.vendix.commons.api.structure.service.CrudQueryService;
 import jakarta.persistence.EntityExistsException;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.data.repository.ListCrudRepository;
@@ -15,7 +15,7 @@ import java.util.stream.StreamSupport;
 
 public abstract class AbstractEntityCrudAdapter<ENT extends Identifiable<ID>, ID>
         extends OperationHook
-        implements CrudQueryPort<ENT, ID>, CrudCommandPort<ENT, ID> {
+        implements CrudQueryService<ENT, ID>, CrudCommandService<ENT, ID> {
 
     private final ListCrudRepository<ENT, ID> repository;
 

@@ -1,6 +1,6 @@
 package de.fhdw.vendix.store.core.persistance.lock;
 
-import de.fhdw.vendix.commons.api.domain.lock.dto.TargetTypeEnum;
+import de.fhdw.vendix.commons.api.domain.lock.TargetType;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -11,11 +11,11 @@ import java.util.UUID;
 
 interface LockRepository extends JpaRepository<Lock, Long> {
 
-    boolean existsByTargetTypeAndTargetId(TargetTypeEnum targetTypeEnum, long targetId);
+    boolean existsByTargetTypeAndTargetId(TargetType targetType, long targetId);
 
-    Optional<Lock> findByTargetTypeAndTargetId(TargetTypeEnum targetTypeEnum, long targetId);
+    Optional<Lock> findByTargetTypeAndTargetId(TargetType targetType, long targetId);
 
-    Set<Lock> findAllByTargetType(TargetTypeEnum targetType);
+    Set<Lock> findAllByTargetType(TargetType targetType);
 
     Set<Lock> findAllByTargetId(long targetId);
 
@@ -33,5 +33,5 @@ interface LockRepository extends JpaRepository<Lock, Long> {
 
     void deleteAllByInstanceUUID(UUID instanceUUID);
 
-    void deleteAllByTargetTypeAndTargetId(TargetTypeEnum targetType, long targetId);
+    void deleteAllByTargetTypeAndTargetId(TargetType targetType, long targetId);
 }

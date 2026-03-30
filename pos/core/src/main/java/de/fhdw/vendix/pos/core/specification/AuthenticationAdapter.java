@@ -1,41 +1,35 @@
 package de.fhdw.vendix.pos.core.specification;
 
-import de.fhdw.vendix.commons.api.domain.account.dto.AccountDTO;
-import de.fhdw.vendix.commons.api.domain.account.port.AccountQueryPort;
-import de.fhdw.vendix.commons.api.domain.account.web.AccountQueryApi;
-import de.fhdw.vendix.security.api.authentication.AuthenticationCommandApi;
-import de.fhdw.vendix.security.api.authentication.AuthenticationQueryApi;
+import de.fhdw.vendix.commons.api.domain.account.AccountDTO;
+import de.fhdw.vendix.security.api.authentication.AuthenticationService;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
 import java.util.UUID;
 
 @Service
-class AuthenticationAdapter implements AuthenticationQueryApi, AuthenticationCommandApi {
+class AuthenticationAdapter implements AuthenticationService {
 
-    private final AccountQueryApi accountQueryApi;
-
-    AuthenticationAdapter(AccountQueryApi accountQueryApi) {
-        this.accountQueryApi = accountQueryApi;
-    }
-
-    @Override
-    public Optional<AccountDTO> findByUsername(String username) {
-        return accountQueryApi.findByUsername(username);
+    AuthenticationAdapter() {
     }
 
     @Override
     public Optional<AccountDTO> findByUUID(UUID uuid) {
-        return accountQueryApi.findByUUID(uuid);
+        return Optional.empty();
+    }
+
+    @Override
+    public Optional<AccountDTO> findByUsername(String username) {
+        return Optional.empty();
     }
 
     @Override
     public Optional<AccountDTO> findByPhone(String phone) {
-        return accountQueryApi.findByPhone(phone);
+        return Optional.empty();
     }
 
     @Override
     public Optional<AccountDTO> findByEmail(String email) {
-        return accountQueryApi.findByEmail(email);
+        return Optional.empty();
     }
 }

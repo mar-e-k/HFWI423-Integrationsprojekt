@@ -1,10 +1,9 @@
 package de.fhdw.vendix.store.core.persistance.receipt;
 
-import de.fhdw.vendix.commons.api.domain.receipt.dto.ReceiptDTO;
-import de.fhdw.vendix.commons.api.domain.receipt.port.ReceiptCommandPort;
-import de.fhdw.vendix.commons.api.domain.receipt.port.ReceiptQueryPort;
-import de.fhdw.vendix.commons.api.domain.receipt_line.dto.ReceiptLineDTO;
+import de.fhdw.vendix.commons.api.domain.receipt.ReceiptDTO;
+import de.fhdw.vendix.commons.api.domain.receipt_line.ReceiptLineDTO;
 import de.fhdw.vendix.commons.spring.data.crud.AbstractDtoCrudAdapter;
+import de.fhdw.vendix.store.core.persistance.receipt.port.ReceiptService;
 import de.fhdw.vendix.store.core.persistance.receipt_line.ReceiptLineMapper;
 import org.springframework.stereotype.Service;
 
@@ -12,7 +11,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
-class ReceiptAdapter extends AbstractDtoCrudAdapter<Receipt, ReceiptDTO, Long> implements ReceiptQueryPort, ReceiptCommandPort {
+class ReceiptAdapter extends AbstractDtoCrudAdapter<Receipt, ReceiptDTO, Long> implements ReceiptService {
 
     private final ReceiptEntityAdapter receiptEntityAdapter;
     private final ReceiptMapper receiptMapper;

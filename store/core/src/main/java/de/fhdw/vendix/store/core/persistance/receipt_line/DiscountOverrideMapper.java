@@ -1,6 +1,6 @@
 package de.fhdw.vendix.store.core.persistance.receipt_line;
 
-import de.fhdw.vendix.commons.api.domain.receipt_line.dto.DiscountOverrideDTO;
+import de.fhdw.vendix.commons.api.domain.receipt_line.DiscountOverrideDTO;
 import de.fhdw.vendix.commons.api.structure.mapper.EntityMapper;
 import de.fhdw.vendix.commons.spring.core.mapper.config.SpringMapperConfig;
 import org.mapstruct.Mapper;

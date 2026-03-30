@@ -1,6 +1,6 @@
 package de.fhdw.vendix.store.core.persistance.lock;
 
-import de.fhdw.vendix.commons.api.domain.lock.dto.TargetTypeEnum;
+import de.fhdw.vendix.commons.api.domain.lock.TargetType;
 import de.fhdw.vendix.commons.spring.data.crud.AbstractEntityCrudAdapter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -24,29 +24,29 @@ class LockEntityAdapter extends AbstractEntityCrudAdapter<Lock, Long> {
     }
 
     @Transactional(readOnly = true)
-    public boolean existsByTargetTypeAndTargetId(TargetTypeEnum targetTypeEnum, long targetId) {
-        if (targetTypeEnum == null) {
+    public boolean existsByTargetTypeAndTargetId(TargetType targetType, long targetId) {
+        if (targetType == null) {
             return false;
         }
         if (targetId < 0L) {
             return false;
         }
-        return lockRepository.existsByTargetTypeAndTargetId(targetTypeEnum, targetId);
+        return lockRepository.existsByTargetTypeAndTargetId(targetType, targetId);
     }
 
     @Transactional(readOnly = true)
-    public Optional<Lock> findByTargetTypeAndTargetId(TargetTypeEnum targetTypeEnum, long targetId) {
-        if (targetTypeEnum == null) {
+    public Optional<Lock> findByTargetTypeAndTargetId(TargetType targetType, long targetId) {
+        if (targetType == null) {
             return Optional.empty();
         }
         if (targetId < 0L) {
             return Optional.empty();
         }
-        return lockRepository.findByTargetTypeAndTargetId(targetTypeEnum, targetId);
+        return lockRepository.findByTargetTypeAndTargetId(targetType, targetId);
     }
 
     @Transactional(readOnly = true)
-    public Set<Lock> findAllByTargetType(TargetTypeEnum targetType) {
+    public Set<Lock> findAllByTargetType(TargetType targetType) {
         if (targetType == null) {
             return Set.of();
         }
@@ -87,7 +87,7 @@ class LockEntityAdapter extends AbstractEntityCrudAdapter<Lock, Long> {
     }
 
     @Transactional
-    public void deleteAllByTargetTypeAndTargetId(TargetTypeEnum targetType, long targetId) {
+    public void deleteAllByTargetTypeAndTargetId(TargetType targetType, long targetId) {
         log.atInfo().log("[DELETE] Deleting all locks by target type and target id");
         if (targetType == null) {
             throw new IllegalArgumentException("Parameter 'targetType' cannot be null");

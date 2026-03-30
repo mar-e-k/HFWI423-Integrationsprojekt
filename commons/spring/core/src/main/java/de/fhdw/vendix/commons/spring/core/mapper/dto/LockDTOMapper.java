@@ -1,8 +1,8 @@
 package de.fhdw.vendix.commons.spring.core.mapper.dto;
 
-import de.fhdw.vendix.commons.api.domain.lock.dto.LockDTO;
-import de.fhdw.vendix.commons.api.domain.lock.dto.LockRequestDTO;
-import de.fhdw.vendix.commons.api.domain.lock.dto.LockResponseDTO;
+import de.fhdw.vendix.commons.api.domain.lock.LockDTO;
+import de.fhdw.vendix.commons.api.domain.lock.LockRequestDTO;
+import de.fhdw.vendix.commons.api.domain.lock.LockResponseDTO;
 import de.fhdw.vendix.commons.api.structure.mapper.DTOMapper;
 import de.fhdw.vendix.commons.spring.core.mapper.config.SpringMapperConfig;
 import org.mapstruct.Mapper;

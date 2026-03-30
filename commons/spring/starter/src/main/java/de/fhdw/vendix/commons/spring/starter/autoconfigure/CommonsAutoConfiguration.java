@@ -9,7 +9,7 @@ import java.time.Clock;
 import java.time.ZoneOffset;
 
 @AutoConfiguration
-@ComponentScan(basePackages = "de.fhdw.vendix.commons.spring.core.mapper.dto") // MapStruct Impl classes in /target
+@ComponentScan(basePackages = "de.fhdw.vendix.commons.spring.core.mapper.dto")
 public class CommonsAutoConfiguration {
 
     @Bean

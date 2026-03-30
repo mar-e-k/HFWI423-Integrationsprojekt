@@ -1,6 +1,6 @@
 package de.fhdw.vendix.store.core.persistance.receipt_voucher;
 
-import de.fhdw.vendix.commons.api.domain.receipt_voucher.dto.ReceiptVoucherDTO;
+import de.fhdw.vendix.commons.api.domain.receipt_voucher.ReceiptVoucherDTO;
 import de.fhdw.vendix.commons.api.structure.mapper.EntityMapper;
 import de.fhdw.vendix.commons.spring.core.mapper.config.SpringMapperConfig;
 import de.fhdw.vendix.store.core.persistance.receipt.ReceiptMapper;

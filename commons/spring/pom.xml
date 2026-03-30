@@ -17,7 +17,6 @@
     <modules>
         <module>core</module>
         <module>data</module>
-        <module>web</module>
         <module>starter</module>
     </modules>
 </project>

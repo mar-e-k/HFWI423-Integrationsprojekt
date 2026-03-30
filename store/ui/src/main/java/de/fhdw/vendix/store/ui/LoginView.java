@@ -6,10 +6,7 @@ import com.vaadin.flow.router.Route;
 import com.vaadin.flow.server.auth.AnonymousAllowed;
 import com.vaadin.flow.spring.security.AuthenticationContext;
 import com.vaadin.flow.theme.aura.Aura;
-import de.fhdw.vendix.commons.api.domain.account.port.AccountCommandPort;
-import de.fhdw.vendix.commons.api.domain.account_role.port.AccountRoleCommandPort;
 import de.fhdw.vendix.commons.ui.vaadin.view.AbstractLoginView;
-import org.springframework.security.crypto.password.PasswordEncoder;
 
 @StyleSheet(Aura.STYLESHEET)
 @Route(value = "login", autoLayout = false)

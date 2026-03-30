@@ -1,6 +1,6 @@
 package de.fhdw.vendix.store.core.persistance.article;
 
-import de.fhdw.vendix.commons.api.domain.article.dto.ArticleDTO;
+import de.fhdw.vendix.commons.api.domain.article.ArticleDTO;
 import de.fhdw.vendix.commons.api.structure.mapper.EntityMapper;
 import de.fhdw.vendix.commons.spring.core.mapper.config.SpringMapperConfig;
 import org.mapstruct.InheritInverseConfiguration;

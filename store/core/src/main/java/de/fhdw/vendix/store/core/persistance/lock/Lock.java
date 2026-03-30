@@ -1,6 +1,6 @@
 package de.fhdw.vendix.store.core.persistance.lock;
 
-import de.fhdw.vendix.commons.api.domain.lock.dto.TargetTypeEnum;
+import de.fhdw.vendix.commons.api.domain.lock.TargetType;
 import de.fhdw.vendix.commons.api.structure.mapper.Default;
 import de.fhdw.vendix.commons.spring.data.entity.AbstractSpringDataAuditingEntity;
 import jakarta.persistence.*;
@@ -21,7 +21,7 @@ public class Lock extends AbstractSpringDataAuditingEntity<Long> {
 
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)
-    private TargetTypeEnum targetType;
+    private TargetType targetType;
 
     @Column(nullable = false)
     private long targetId;
@@ -39,7 +39,7 @@ public class Lock extends AbstractSpringDataAuditingEntity<Long> {
 
     protected Lock() {}
 
-    protected Lock(TargetTypeEnum targetType, long targetId, UUID instanceUUID, Instant acquiredAt, Instant expiresAt) {
+    protected Lock(TargetType targetType, long targetId, UUID instanceUUID, Instant acquiredAt, Instant expiresAt) {
         this.targetType = targetType;
         this.targetId = targetId;
         this.instanceUUID = instanceUUID;
@@ -48,7 +48,7 @@ public class Lock extends AbstractSpringDataAuditingEntity<Long> {
     }
 
     @Default
-    protected Lock(@Nullable Long id, TargetTypeEnum targetType, long targetId, UUID instanceUUID, Instant acquiredAt, Instant expiresAt) {
+    protected Lock(@Nullable Long id, TargetType targetType, long targetId, UUID instanceUUID, Instant acquiredAt, Instant expiresAt) {
         super(id);
         this.targetType = targetType;
         this.targetId = targetId;
@@ -57,7 +57,7 @@ public class Lock extends AbstractSpringDataAuditingEntity<Long> {
         this.expiresAt = expiresAt;
     }
 
-    public TargetTypeEnum getTargetType() {
+    public TargetType getTargetType() {
         return targetType;
     }
 

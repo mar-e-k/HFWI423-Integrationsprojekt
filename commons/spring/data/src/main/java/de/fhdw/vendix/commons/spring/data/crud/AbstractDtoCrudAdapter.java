@@ -3,27 +3,27 @@ package de.fhdw.vendix.commons.spring.data.crud;
 import de.fhdw.vendix.commons.api.structure.dto.DomainDTO;
 import de.fhdw.vendix.commons.api.structure.entity.Identifiable;
 import de.fhdw.vendix.commons.api.structure.mapper.EntityMapper;
-import de.fhdw.vendix.commons.api.structure.port.CrudCommandPort;
-import de.fhdw.vendix.commons.api.structure.port.CrudQueryPort;
+import de.fhdw.vendix.commons.api.structure.service.CrudCommandService;
+import de.fhdw.vendix.commons.api.structure.service.CrudQueryService;
 
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Function;
 import java.util.function.UnaryOperator;
 
-public abstract class AbstractDtoCrudAdapter<ENT extends Identifiable<ID>, DTO extends Record & DomainDTO<ID>, ID> implements CrudQueryPort<DTO, ID>, CrudCommandPort<DTO, ID> {
+public abstract class AbstractDtoCrudAdapter<ENT extends Identifiable<ID>, DTO extends Record & DomainDTO<ID>, ID> implements CrudQueryService<DTO, ID>, CrudCommandService<DTO, ID> {
 
-    private final CrudQueryPort<ENT, ID> queryPort;
-    private final CrudCommandPort<ENT, ID> commandPort;
+    private final CrudQueryService<ENT, ID> queryPort;
+    private final CrudCommandService<ENT, ID> commandPort;
     private final EntityMapper<ENT, DTO> mapper;
 
-    protected AbstractDtoCrudAdapter(CrudQueryPort<ENT, ID> queryPort, CrudCommandPort<ENT, ID> commandPort, EntityMapper<ENT, DTO> mapper) {
+    protected AbstractDtoCrudAdapter(CrudQueryService<ENT, ID> queryPort, CrudCommandService<ENT, ID> commandPort, EntityMapper<ENT, DTO> mapper) {
         this.queryPort = queryPort;
         this.commandPort = commandPort;
         this.mapper = mapper;
     }
 
-    protected <P extends CrudQueryPort<ENT, ID> & CrudCommandPort<ENT, ID>> AbstractDtoCrudAdapter(P adapter, EntityMapper<ENT, DTO> mapper) {
+    protected <P extends CrudQueryService<ENT, ID> & CrudCommandService<ENT, ID>> AbstractDtoCrudAdapter(P adapter, EntityMapper<ENT, DTO> mapper) {
         this.queryPort = adapter;
         this.commandPort = adapter;
         this.mapper = mapper;

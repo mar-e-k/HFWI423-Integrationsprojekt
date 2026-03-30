@@ -1,16 +1,15 @@
 package de.fhdw.vendix.store.core.persistance.receipt_voucher;
 
-import de.fhdw.vendix.commons.api.domain.receipt_voucher.dto.ReceiptVoucherDTO;
-import de.fhdw.vendix.commons.api.domain.receipt_voucher.port.ReceiptVoucherCommandPort;
-import de.fhdw.vendix.commons.api.domain.receipt_voucher.port.ReceiptVoucherQueryPort;
+import de.fhdw.vendix.commons.api.domain.receipt_voucher.ReceiptVoucherDTO;
 import de.fhdw.vendix.commons.spring.data.crud.AbstractDtoCrudAdapter;
+import de.fhdw.vendix.store.core.persistance.receipt_voucher.port.ReceiptVoucherService;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
 import java.util.UUID;
 
 @Service
-class ReceiptVoucherAdapter extends AbstractDtoCrudAdapter<ReceiptVoucher, ReceiptVoucherDTO, Long> implements ReceiptVoucherQueryPort, ReceiptVoucherCommandPort {
+class ReceiptVoucherAdapter extends AbstractDtoCrudAdapter<ReceiptVoucher, ReceiptVoucherDTO, Long> implements ReceiptVoucherService {
 
     private final ReceiptVoucherEntityAdapter receiptVoucherEntityAdapter;
     private final ReceiptVoucherMapper receiptVoucherMapper;

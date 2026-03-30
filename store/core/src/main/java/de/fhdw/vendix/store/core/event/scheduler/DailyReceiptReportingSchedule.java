@@ -1,12 +1,12 @@
 package de.fhdw.vendix.store.core.event.scheduler;
 
-import de.fhdw.vendix.commons.api.domain.article.dto.ArticleDTO;
-import de.fhdw.vendix.commons.api.domain.receipt.dto.ReceiptDTO;
-import de.fhdw.vendix.commons.api.domain.receipt.port.ReceiptQueryPort;
-import de.fhdw.vendix.commons.api.domain.receipt_line.dto.ReceiptLineDTO;
-import de.fhdw.vendix.commons.api.domain.store_stock.dto.StoreStockDTO;
-import de.fhdw.vendix.commons.api.domain.store_stock.port.StoreStockQueryPort;
-import de.fhdw.vendix.store.api.context.StoreContext;
+import de.fhdw.vendix.commons.api.domain.article.ArticleDTO;
+import de.fhdw.vendix.commons.api.domain.receipt.ReceiptDTO;
+import de.fhdw.vendix.security.api.context.StoreContext;
+import de.fhdw.vendix.store.core.persistance.receipt.port.ReceiptService;
+import de.fhdw.vendix.commons.api.domain.receipt_line.ReceiptLineDTO;
+import de.fhdw.vendix.commons.api.domain.store_stock.StoreStockDTO;
+import de.fhdw.vendix.store.core.persistance.store_stock.port.StoreStockService;
 import io.github.plaguv.amqp.api.envelope.EventEnvelope;
 import io.github.plaguv.amqp.api.envelope.EventEnvelopeBuilder;
 import io.github.plaguv.amqp.api.event.pos.ArticleOrderEvent;
@@ -28,34 +28,35 @@ public class DailyReceiptReportingSchedule {
     private final EventPublisher eventPublisher;
     private final StoreContext storeContext;
 
-    private final ReceiptQueryPort receiptQueryPort;
-    private final StoreStockQueryPort storeStockQueryPort;
-
-    private long storeID;
+    private final ReceiptService receiptQueryPort;
+    private final StoreStockService storeStockQueryPort;
 
     public DailyReceiptReportingSchedule(
             EventPublisher eventPublisher,
             StoreContext storeContext,
-            ReceiptQueryPort receiptQueryPort,
-            StoreStockQueryPort storeStockQueryPort
+            ReceiptService receiptPort,
+            StoreStockService storeStockPort
     ) {
         this.eventPublisher = eventPublisher;
         this.storeContext = storeContext;
-        this.receiptQueryPort = receiptQueryPort;
-        this.storeStockQueryPort = storeStockQueryPort;
+        this.receiptQueryPort = receiptPort;
+        this.storeStockQueryPort = storeStockPort;
     }
+
 
     @Scheduled(cron = "0 0 22 * * *", zone = "Europe/Berlin")
     public void sendDailyReceiptReport() {
-        log.atInfo().log("Sending daily receipt report...");
+        log.atInfo().log("[SCHEDULED] Sending daily receipt report...");
 
         if (storeContext.getStore() == null || storeContext.getStore().id() == null) {
             throw new IllegalStateException("Cannot sent daily report, as store context isn't set properly");
         }
 
-        storeID = storeContext.getStore().id();
+        Long storeId;
 
-        Set<ReceiptDTO> receipts = receiptQueryPort.findAllByStoreIdAndCreatedAtToday(storeID);
+        storeId = storeContext.getStore().id();
+
+        Set<ReceiptDTO> receipts = receiptQueryPort.findAllByStoreIdAndCreatedAtToday(storeId);
         Set<ArticleDTO> articles = new HashSet<>();
 
         // Get all articles of the day and record their count.
@@ -68,14 +69,14 @@ public class DailyReceiptReportingSchedule {
 
         // Check the current amount against the stores needed amount and order accordingly
         for (ArticleDTO article : articles) {
-            StoreStockDTO stock = storeStockQueryPort.findByStoreIDAndArticleID(storeID, Objects.requireNonNull(article.id()))
+            StoreStockDTO stock = storeStockQueryPort.findByStoreIDAndArticleID(storeId, Objects.requireNonNull(article.id()))
                     .orElseThrow(EntityNotFoundException::new);
 
             long currentAmount = stock.currentAmount();
             long deltaAmount = Math.max(0, stock.preferenceAmount().max() - currentAmount);
 
             if (currentAmount < stock.preferenceAmount().minimum()) {
-                sendUrgentArticleOrder(article.id(), deltaAmount);
+                sendUrgentArticleOrder(storeId, article.id(), deltaAmount);
             } else if (currentAmount > stock.preferenceAmount().average()) {
                 log.atInfo().log("Order ignored for article '{}' as current stock '{}' is higher than specified average '{}'",
                         article,
@@ -83,17 +84,17 @@ public class DailyReceiptReportingSchedule {
                         stock.preferenceAmount().average()
                         );
             } else {
-                sendNormalArticleOrder(article.id(), deltaAmount);
+                sendNormalArticleOrder(storeId, article.id(), deltaAmount);
             }
         }
 
-        log.atInfo().log("Successfully sent daily receipt report");
+        log.atInfo().log("[SCHEDULED] Successfully sent daily receipt report");
     }
 
-    private void sendNormalArticleOrder(long articleID, long amount) {
+    private void sendNormalArticleOrder(long storeId, long articleId, long amount) {
         ArticleOrderEvent event = new ArticleOrderEvent(
-                storeID,
-                articleID,
+                storeId,
+                articleId,
                 amount
         );
         EventEnvelope eventEnvelope = EventEnvelopeBuilder.defaults()
@@ -102,10 +103,10 @@ public class DailyReceiptReportingSchedule {
         eventPublisher.publishMessage(eventEnvelope);
     }
 
-    private void sendUrgentArticleOrder(long articleID, long amount) {
+    private void sendUrgentArticleOrder(long storeId, long articleId, long amount) {
         ArticleUrgentOrderEvent event = new ArticleUrgentOrderEvent(
-                storeID,
-                articleID,
+                storeId,
+                articleId,
                 amount
         );
         EventEnvelope eventEnvelope = EventEnvelopeBuilder.defaults()

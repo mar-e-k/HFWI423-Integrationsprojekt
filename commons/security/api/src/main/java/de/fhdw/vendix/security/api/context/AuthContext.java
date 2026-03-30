@@ -1,12 +1,11 @@
 package de.fhdw.vendix.security.api.context;
 
-import de.fhdw.vendix.commons.api.domain.account_role.dto.AccountRoleEnum;
+import de.fhdw.vendix.commons.api.domain.account_role.AccountRole;
 
 import java.util.Set;
 import java.util.UUID;
 
 public interface AuthContext {
-
     Long accountId();
 
     UUID accountUUID();
@@ -15,5 +14,5 @@ public interface AuthContext {
 
     String accountPassword();
 
-    Set<AccountRoleEnum> accountRoles();
+    Set<AccountRole> accountRoles();
 }

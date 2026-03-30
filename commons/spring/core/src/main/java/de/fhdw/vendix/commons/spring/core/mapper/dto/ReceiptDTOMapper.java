@@ -1,9 +1,9 @@
 package de.fhdw.vendix.commons.spring.core.mapper.dto;
 
 import de.fhdw.vendix.commons.api.structure.mapper.DTOMapper;
-import de.fhdw.vendix.commons.api.domain.receipt.dto.ReceiptDTO;
-import de.fhdw.vendix.commons.api.domain.receipt.dto.ReceiptRequestDTO;
-import de.fhdw.vendix.commons.api.domain.receipt.dto.ReceiptResponseDTO;
+import de.fhdw.vendix.commons.api.domain.receipt.ReceiptDTO;
+import de.fhdw.vendix.commons.api.domain.receipt.ReceiptRequestDTO;
+import de.fhdw.vendix.commons.api.domain.receipt.ReceiptResponseDTO;
 import de.fhdw.vendix.commons.spring.core.mapper.config.SpringMapperConfig;
 import org.mapstruct.Mapper;
 

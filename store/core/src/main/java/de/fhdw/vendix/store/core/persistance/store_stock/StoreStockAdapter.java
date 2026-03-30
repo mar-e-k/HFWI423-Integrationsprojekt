@@ -1,15 +1,14 @@
 package de.fhdw.vendix.store.core.persistance.store_stock;
 
-import de.fhdw.vendix.commons.api.domain.store_stock.dto.StoreStockDTO;
-import de.fhdw.vendix.commons.api.domain.store_stock.port.StoreStockCommandPort;
-import de.fhdw.vendix.commons.api.domain.store_stock.port.StoreStockQueryPort;
+import de.fhdw.vendix.commons.api.domain.store_stock.StoreStockDTO;
 import de.fhdw.vendix.commons.spring.data.crud.AbstractDtoCrudAdapter;
+import de.fhdw.vendix.store.core.persistance.store_stock.port.StoreStockService;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
 
 @Service
-class StoreStockAdapter extends AbstractDtoCrudAdapter<StoreStock, StoreStockDTO, Long> implements StoreStockQueryPort, StoreStockCommandPort {
+class StoreStockAdapter extends AbstractDtoCrudAdapter<StoreStock, StoreStockDTO, Long> implements StoreStockService {
 
     private final StoreStockEntityAdapter storeStockEntityAdapter;
     private final StoreStockMapper storeStockMapper;

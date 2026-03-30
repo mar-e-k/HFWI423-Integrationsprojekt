@@ -1,6 +1,6 @@
 package de.fhdw.vendix.store.core.persistance.store_stock;
 
-import de.fhdw.vendix.commons.api.domain.store_stock.dto.StoreStockDTO;
+import de.fhdw.vendix.commons.api.domain.store_stock.StoreStockDTO;
 import de.fhdw.vendix.commons.api.structure.mapper.EntityMapper;
 import de.fhdw.vendix.commons.spring.core.mapper.config.SpringMapperConfig;
 import de.fhdw.vendix.store.core.persistance.article.ArticleMapper;

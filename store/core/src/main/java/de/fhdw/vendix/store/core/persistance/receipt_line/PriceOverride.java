@@ -1,6 +1,6 @@
 package de.fhdw.vendix.store.core.persistance.receipt_line;
 
-import de.fhdw.vendix.commons.api.domain.receipt_line.dto.OverrideReasonEnum;
+import de.fhdw.vendix.commons.api.domain.receipt_line.OverrideReason;
 import de.fhdw.vendix.commons.api.structure.mapper.Default;
 import jakarta.persistence.Column;
 import jakarta.persistence.Embeddable;
@@ -20,21 +20,21 @@ public class PriceOverride {
 
     @Enumerated(EnumType.STRING)
     @Column(name = "price_override_reason")
-    private OverrideReasonEnum reason;
+    private OverrideReason overrideReason;
 
     protected PriceOverride() {}
 
     @Default
-    protected PriceOverride(BigDecimal price, OverrideReasonEnum reason) {
+    protected PriceOverride(BigDecimal price, OverrideReason overrideReason) {
         this.price = price;
-        this.reason = reason;
+        this.overrideReason = overrideReason;
     }
 
     public BigDecimal getPrice() {
         return price;
     }
 
-    public OverrideReasonEnum getReason() {
-        return reason;
+    public OverrideReason getOverrideReason() {
+        return overrideReason;
     }
 }

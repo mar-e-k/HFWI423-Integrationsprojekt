@@ -1,8 +1,8 @@
 package de.fhdw.vendix.commons.security.spring.filter;
 
-import de.fhdw.vendix.commons.api.domain.account.dto.AccountDTO;
-import de.fhdw.vendix.commons.api.domain.account_role.dto.AccountRoleEnum;
-import de.fhdw.vendix.security.api.authentication.AuthenticationQueryPort;
+import de.fhdw.vendix.commons.api.domain.account.AccountDTO;
+import de.fhdw.vendix.commons.api.domain.account_role.AccountRole;
+import de.fhdw.vendix.security.api.authentication.AuthenticationService;
 import de.fhdw.vendix.security.api.jwt.JwtService;
 import de.fhdw.vendix.security.api.jwt.payload.JwtPayload;
 import jakarta.annotation.Nonnull;
@@ -26,11 +26,11 @@ import java.util.Set;
 public final class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private final JwtService jwtService;
-    private final AuthenticationQueryPort authenticationQueryPort;
+    private final AuthenticationService authenticationPort;
 
-    public JwtAuthenticationFilter(JwtService jwtService, AuthenticationQueryPort authenticationQueryPort) {
+    public JwtAuthenticationFilter(JwtService jwtService, AuthenticationService authenticationPort) {
         this.jwtService = jwtService;
-        this.authenticationQueryPort = authenticationQueryPort;
+        this.authenticationPort = authenticationPort;
     }
 
     @Override
@@ -56,15 +56,15 @@ public final class JwtAuthenticationFilter extends OncePerRequestFilter {
     // TODO: this is here temporarily. Will be refactored to be a separate component that the filter will call with a JwtPayload or similar
     private Authentication resolveAuthentication(String token) throws AuthenticationException {
         JwtPayload payload = jwtService.parseToken(token);
-        Set<AccountRoleEnum> accountRoleEnums = payload.auth().accountRoleEnums();
+        Set<AccountRole> accountRoles = payload.auth().accountRoles();
 
-        if (accountRoleEnums.isEmpty()) {
+        if (accountRoles.isEmpty()) {
             throw new AuthenticationCredentialsNotFoundException("Invalid token. Token has no roles defined");
         }
 
         AccountDTO account;
 
-        if (accountRoleEnums.size() == 1 && accountRoleEnums.contains(AccountRoleEnum.SYSTEM)) {
+        if (accountRoles.size() == 1 && accountRoles.contains(AccountRole.SYSTEM)) {
             account = new AccountDTO(
                     null,
                     payload.auth().subject(),
@@ -72,7 +72,7 @@ public final class JwtAuthenticationFilter extends OncePerRequestFilter {
                     "system"
             );
         } else {
-            account = authenticationQueryPort.findByUUID(payload.auth().subject())
+            account = authenticationPort.findByUUID(payload.auth().subject())
                     .orElseThrow(() -> new BadCredentialsException("Invalid token. Account with specified UUID does not exist"));
         }
 

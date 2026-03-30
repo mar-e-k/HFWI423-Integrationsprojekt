@@ -19,6 +19,11 @@
             <groupId>de.fhdw.vendix</groupId>
             <artifactId>commons-api</artifactId>
         </dependency>
+
+        <dependency>
+            <groupId>de.fhdw.vendix</groupId>
+            <artifactId>commons-security-api</artifactId>
+        </dependency>
     </dependencies>
 
     <build>

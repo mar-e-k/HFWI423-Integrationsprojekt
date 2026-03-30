@@ -1,14 +1,12 @@
 package de.fhdw.vendix.store.core.specification;
 
-import de.fhdw.vendix.commons.api.domain.account.port.AccountQueryPort;
-import de.fhdw.vendix.commons.api.domain.account_role.dto.AccountRoleDTO;
-import de.fhdw.vendix.commons.api.domain.account_role.dto.AccountRoleEnum;
-import de.fhdw.vendix.commons.api.domain.lock.dto.LockDTO;
-import de.fhdw.vendix.commons.api.domain.lock.dto.TargetTypeEnum;
-import de.fhdw.vendix.commons.api.domain.lock.port.LockCommandPort;
-import de.fhdw.vendix.commons.api.domain.lock.port.LockQueryPort;
-import de.fhdw.vendix.security.api.authorization.AuthorizationCommandPort;
-import de.fhdw.vendix.security.api.authorization.AuthorizationQueryPort;
+import de.fhdw.vendix.commons.api.domain.account_role.AccountRole;
+import de.fhdw.vendix.commons.api.domain.account_role.AccountRoleDTO;
+import de.fhdw.vendix.commons.api.domain.lock.LockDTO;
+import de.fhdw.vendix.commons.api.domain.lock.TargetType;
+import de.fhdw.vendix.store.core.persistance.lock.port.LockService;
+import de.fhdw.vendix.security.api.authorization.AuthorizationService;
+import de.fhdw.vendix.store.core.persistance.account.port.AccountService;
 import org.springframework.stereotype.Service;
 
 import java.util.Set;
@@ -16,47 +14,45 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service
-class AuthorizationAdapter implements AuthorizationQueryPort, AuthorizationCommandPort {
+class AuthorizationAdapter implements AuthorizationService {
 
-    private final AccountQueryPort accountQueryPort;
-    private final LockQueryPort lockQueryPort;
-    private final LockCommandPort lockCommandPort;
+    private final AccountService accountPort;
+    private final LockService lockPort;
 
-    AuthorizationAdapter(AccountQueryPort accountQueryPort, LockQueryPort lockQueryPort, LockCommandPort lockCommandPort) {
-        this.accountQueryPort = accountQueryPort;
-        this.lockQueryPort = lockQueryPort;
-        this.lockCommandPort = lockCommandPort;
+    AuthorizationAdapter(AccountService accountPort, LockService lockPort) {
+        this.accountPort = accountPort;
+        this.lockPort = lockPort;
     }
 
     @Override
-    public Set<AccountRoleEnum> findRolesByAccountId(Long accountId) {
-        return accountQueryPort.findAllRoles(accountId).stream()
+    public Set<AccountRole> findRolesByAccountId(Long accountId) {
+        return accountPort.findAllRoles(accountId).stream()
                 .map(AccountRoleDTO::role)
                 .collect(Collectors.toUnmodifiableSet());
     }
 
     @Override
     public boolean isAccountLocked(Long accountId) {
-        return lockQueryPort.findByTarget(TargetTypeEnum.ACCOUNT, accountId).isPresent();
+        return lockPort.findByTarget(TargetType.ACCOUNT, accountId).isPresent();
     }
 
     @Override
     public LockDTO createLock(LockDTO entity) {
-        return lockCommandPort.create(entity);
+        return lockPort.create(entity);
     }
 
     @Override
-    public void deleteLockByTarget(TargetTypeEnum targetTypeEnum, long targetId) {
-        lockCommandPort.deleteLockByTarget(targetTypeEnum, targetId);
+    public void deleteLockByTarget(TargetType targetType, long targetId) {
+        lockPort.deleteLockByTarget(targetType, targetId);
     }
 
     @Override
     public void deleteAllInstanceLocks(UUID instanceUUID) {
-        lockCommandPort.deleteAllInstanceLocks(instanceUUID);
+        lockPort.deleteAllInstanceLocks(instanceUUID);
     }
 
     @Override
     public void deleteAllExpiredLocks() {
-        lockCommandPort.deleteAllExpiredLocks();
+        lockPort.deleteAllExpiredLocks();
     }
 }

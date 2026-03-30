@@ -1,10 +1,9 @@
 package de.fhdw.vendix.store.web.listener;
 
-import de.fhdw.vendix.commons.api.domain.store_stock.port.StoreStockCommandPort;
-import de.fhdw.vendix.store.api.context.StoreContext;
+import de.fhdw.vendix.security.api.context.StoreContext;
+import de.fhdw.vendix.store.core.persistance.store_stock.port.StoreStockService;
 import io.github.plaguv.amqp.api.event.logistic.ArticleSentEvent;
 import io.github.plaguv.amqp.core.listener.AmqpEventListener;
-import jakarta.annotation.Nonnull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -15,17 +14,22 @@ public class LogisticReceiveStockListener {
     private static final Logger log = LoggerFactory.getLogger(LogisticReceiveStockListener.class);
 
     private final StoreContext storeContext;
-    private final StoreStockCommandPort storeStockCommandPort;
+    private final StoreStockService storeStockPort;
 
-    public LogisticReceiveStockListener(StoreContext storeContext, StoreStockCommandPort storeStockCommandPort) {
+    public LogisticReceiveStockListener(StoreContext storeContext, StoreStockService storeStockPort) {
         this.storeContext = storeContext;
-        this.storeStockCommandPort = storeStockCommandPort;
+        this.storeStockPort = storeStockPort;
     }
 
     @AmqpEventListener
-    public void onArticleSentEvent(@Nonnull ArticleSentEvent event) {
+    public void onArticleSentEvent(ArticleSentEvent event) {
         log.atInfo().log("onArticleSentEvent");
-        log.atInfo().log(event.toString());
+        if (event != null) {
+            log.atInfo().log("onArticleSentEvent: {}", event);
+        } else {
+            log.atInfo().log("onArticleSentEvent received, but it was empty");
+        }
+//        log.atInfo().log(event.toString());
 //        if (storeContext.getStore() == null || storeContext.getStore().id() == null) {
 //            throw new IllegalStateException("Cannot handle event, as storeContext is not set properly");
 //        }

@@ -1,10 +1,9 @@
 package de.fhdw.vendix.store.core.persistance.lock;
 
-import de.fhdw.vendix.commons.api.domain.lock.dto.LockDTO;
-import de.fhdw.vendix.commons.api.domain.lock.dto.TargetTypeEnum;
-import de.fhdw.vendix.commons.api.domain.lock.port.LockCommandPort;
-import de.fhdw.vendix.commons.api.domain.lock.port.LockQueryPort;
+import de.fhdw.vendix.commons.api.domain.lock.LockDTO;
+import de.fhdw.vendix.commons.api.domain.lock.TargetType;
 import de.fhdw.vendix.commons.spring.data.crud.AbstractDtoCrudAdapter;
+import de.fhdw.vendix.store.core.persistance.lock.port.LockService;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
@@ -13,7 +12,7 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service
-class LockAdapter extends AbstractDtoCrudAdapter<Lock, LockDTO, Long> implements LockQueryPort, LockCommandPort {
+class LockAdapter extends AbstractDtoCrudAdapter<Lock, LockDTO, Long> implements LockService {
 
     private final LockEntityAdapter lockEntityAdapter;
     private final LockMapper lockMapper;
@@ -25,19 +24,19 @@ class LockAdapter extends AbstractDtoCrudAdapter<Lock, LockDTO, Long> implements
     }
 
     @Override
-    public Optional<LockDTO> findByTarget(TargetTypeEnum targetTypeEnum, Long targetId) {
-        if (targetTypeEnum == null) {
+    public Optional<LockDTO> findByTarget(TargetType targetType, Long targetId) {
+        if (targetType == null) {
             return Optional.empty();
         }
         if (targetId == null || targetId < 0) {
             return Optional.empty();
         }
-        return lockEntityAdapter.findByTargetTypeAndTargetId(targetTypeEnum, targetId)
+        return lockEntityAdapter.findByTargetTypeAndTargetId(targetType, targetId)
                 .map(lockMapper::toDTO);
     }
 
     @Override
-    public Set<LockDTO> findAllByTargetType(TargetTypeEnum targetType) {
+    public Set<LockDTO> findAllByTargetType(TargetType targetType) {
         if (targetType == null) {
             return Set.of();
         }
@@ -80,13 +79,13 @@ class LockAdapter extends AbstractDtoCrudAdapter<Lock, LockDTO, Long> implements
     }
 
     @Override
-    public void deleteLockByTarget(TargetTypeEnum targetTypeEnum, long targetId) {
-        if (targetTypeEnum == null) {
+    public void deleteLockByTarget(TargetType targetType, long targetId) {
+        if (targetType == null) {
             throw new IllegalArgumentException("Parameter 'targetType' cannot be null");
         }
         if (targetId < 0) {
             throw new IllegalArgumentException("Parameter 'targetId' cannot be negative");
         }
-        lockEntityAdapter.deleteAllByTargetTypeAndTargetId(targetTypeEnum, targetId);
+        lockEntityAdapter.deleteAllByTargetTypeAndTargetId(targetType, targetId);
     }
 }

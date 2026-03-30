@@ -21,19 +21,12 @@
             <groupId>org.jspecify</groupId>
             <artifactId>jspecify</artifactId>
         </dependency>
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-web</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-webflux</artifactId>
-        </dependency>
+
         <dependency>
             <groupId>io.swagger.core.v3</groupId>
             <artifactId>swagger-annotations</artifactId>
-            <version>2.2.45</version>
         </dependency>
+
         <dependency>
             <groupId>jakarta.validation</groupId>
             <artifactId>jakarta.validation-api</artifactId>
@@ -45,64 +38,6 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
-            </plugin>
-            <plugin>
-                <groupId>org.openapitools</groupId>
-                <artifactId>openapi-generator-maven-plugin</artifactId>
-                <configuration>
-                    <inputSpec>${project.basedir}/src/main/resources/openapi.yaml</inputSpec>
-                    <output>${project.build.directory}/generated-sources/openapi</output>
-                    <ignoreFileOverride>${project.basedir}/src/main/resources/.openapi-generator-ignore</ignoreFileOverride>
-                    <generatorName>spring</generatorName>
-
-                    <typeMappings>
-                        <typeMapping>Account=AccountDTO</typeMapping>
-                        <typeMapping>AccountRole=AccountRoleEnum</typeMapping>
-                    </typeMappings>
-
-                    <importMappings>
-                        <importMapping>AccountDTO=de.fhdw.vendix.commons.api.domain.account.dto.AccountDTO</importMapping>
-                        <importMapping>AccountRoleEnum=de.fhdw.vendix.commons.api.domain.account_role.dto.AccountRoleEnum</importMapping>
-                    </importMappings>
-                </configuration>
-                <executions>
-                    <execution>
-                        <id>server</id>
-                        <goals>
-                            <goal>generate</goal>
-                        </goals>
-
-                        <configuration>
-                            <configOptions>
-                                <library>spring-boot</library>
-                                <interfaceOnly>true</interfaceOnly>
-                                <openApiNullable>false</openApiNullable>
-                                <useSpringBoot4>true</useSpringBoot4>
-                                <useJackson3>true</useJackson3>
-                                <useJakartaEe>true</useJakartaEe>
-                            </configOptions>
-                            <apiPackage>${project.groupId}.server.api</apiPackage>
-                            <modelPackage>${project.groupId}.server.model</modelPackage>
-                        </configuration>
-                    </execution>
-                    <execution>
-                        <id>client</id>
-                        <goals>
-                            <goal>generate</goal>
-                        </goals>
-
-                        <configuration>
-                            <configOptions>
-                                <library>spring-http-interface</library>
-                                <openApiNullable>false</openApiNullable>
-                                <useSpringBoot4>true</useSpringBoot4>
-                                <useJakartaEe>true</useJakartaEe>
-                            </configOptions>
-                            <apiPackage>${project.groupId}.client.api</apiPackage>
-                            <modelPackage>${project.groupId}.client.model</modelPackage>
-                        </configuration>
-                    </execution>
-                </executions>
             </plugin>
         </plugins>
     </build>

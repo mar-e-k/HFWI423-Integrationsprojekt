@@ -1,11 +1,11 @@
 package de.fhdw.vendix.commons.security.spring.authentication;
 
-import de.fhdw.vendix.commons.api.domain.account.dto.AccountDTO;
-import de.fhdw.vendix.commons.api.domain.account_role.dto.AccountRoleEnum;
-import de.fhdw.vendix.security.api.authentication.AuthenticationQueryPort;
-import de.fhdw.vendix.security.api.authorization.AuthorizationQueryPort;
-import de.fhdw.vendix.commons.security.core.DefaultAuthContext;
+import de.fhdw.vendix.commons.api.domain.account.AccountDTO;
+import de.fhdw.vendix.commons.api.domain.account_role.AccountRole;
+import de.fhdw.vendix.commons.security.core.context.DefaultAuthContext;
 import de.fhdw.vendix.commons.security.spring.context.DefaultUser;
+import de.fhdw.vendix.security.api.authentication.AuthenticationService;
+import de.fhdw.vendix.security.api.authorization.AuthorizationService;
 import de.fhdw.vendix.security.api.context.AuthContext;
 import org.jspecify.annotations.NonNull;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -20,12 +20,12 @@ import java.util.UUID;
 
 public class DefaultUserDetailsService implements UserDetailsService {
 
-    private final AuthenticationQueryPort authenticationQueryPort;
-    private final AuthorizationQueryPort authorizationQueryPort;
+    private final AuthenticationService authenticationPort;
+    private final AuthorizationService authorizationPort;
 
-    public DefaultUserDetailsService(AuthenticationQueryPort authenticationQueryPort, AuthorizationQueryPort authorizationQueryPort) {
-        this.authenticationQueryPort = authenticationQueryPort;
-        this.authorizationQueryPort = authorizationQueryPort;
+    public DefaultUserDetailsService(AuthenticationService authenticationPort, AuthorizationService authorizationPort) {
+        this.authenticationPort = authenticationPort;
+        this.authorizationPort = authorizationPort;
     }
 
     @Override
@@ -35,9 +35,9 @@ public class DefaultUserDetailsService implements UserDetailsService {
 
         Objects.requireNonNull(account.id(), "this really shouldn't happen");
 
-        Set<AccountRoleEnum> roles = authorizationQueryPort.findRolesByAccountId(account.id());
+        Set<AccountRole> roles = authorizationPort.findRolesByAccountId(account.id());
 
-        boolean isAccountLocked = authorizationQueryPort.isAccountLocked(account.id());
+        boolean isAccountLocked = authorizationPort.isAccountLocked(account.id());
 
         AuthContext authContext = new DefaultAuthContext(
                 account,
@@ -60,17 +60,17 @@ public class DefaultUserDetailsService implements UserDetailsService {
 
         try {
             UUID uuid = UUID.fromString(identifier);
-            return authenticationQueryPort.findByUUID(uuid);
+            return authenticationPort.findByUUID(uuid);
         } catch (IllegalArgumentException ignored) {}
 
         if (identifier.contains("@")) {
-            return authenticationQueryPort.findByEmail(identifier);
+            return authenticationPort.findByEmail(identifier);
         }
 
         if (identifier.matches("\\+?[0-9]+")) {
-            return authenticationQueryPort.findByPhone(identifier);
+            return authenticationPort.findByPhone(identifier);
         }
 
-        return authenticationQueryPort.findByUsername(identifier);
+        return authenticationPort.findByUsername(identifier);
     }
 }

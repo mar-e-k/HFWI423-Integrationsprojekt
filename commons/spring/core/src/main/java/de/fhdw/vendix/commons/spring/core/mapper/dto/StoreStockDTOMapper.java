@@ -1,8 +1,8 @@
 package de.fhdw.vendix.commons.spring.core.mapper.dto;
 
-import de.fhdw.vendix.commons.api.domain.store_stock.dto.StoreStockDTO;
-import de.fhdw.vendix.commons.api.domain.store_stock.dto.StoreStockRequestDTO;
-import de.fhdw.vendix.commons.api.domain.store_stock.dto.StoreStockResponseDTO;
+import de.fhdw.vendix.commons.api.domain.store_stock.StoreStockDTO;
+import de.fhdw.vendix.commons.api.domain.store_stock.StoreStockRequestDTO;
+import de.fhdw.vendix.commons.api.domain.store_stock.StoreStockResponseDTO;
 import de.fhdw.vendix.commons.api.structure.mapper.DTOMapper;
 import de.fhdw.vendix.commons.spring.core.mapper.config.SpringMapperConfig;
 import org.mapstruct.Mapper;

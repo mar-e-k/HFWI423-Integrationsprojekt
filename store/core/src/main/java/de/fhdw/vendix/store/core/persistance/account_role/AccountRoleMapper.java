@@ -1,6 +1,6 @@
 package de.fhdw.vendix.store.core.persistance.account_role;
 
-import de.fhdw.vendix.commons.api.domain.account_role.dto.AccountRoleDTO;
+import de.fhdw.vendix.commons.api.domain.account_role.AccountRoleDTO;
 import de.fhdw.vendix.commons.api.structure.mapper.EntityMapper;
 import de.fhdw.vendix.commons.spring.core.mapper.config.SpringMapperConfig;
 import org.mapstruct.Mapper;

@@ -1,13 +1,9 @@
 package de.fhdw.vendix.commons.spring.starter.autoconfigure;
 
-import com.vaadin.flow.spring.security.VaadinSecurityConfigurer;
-import de.fhdw.vendix.security.api.authentication.AuthenticationQueryPort;
-import de.fhdw.vendix.security.api.authorization.AuthorizationCommandPort;
-import de.fhdw.vendix.security.api.authorization.AuthorizationQueryPort;
+import de.fhdw.vendix.security.api.authentication.AuthenticationService;
+import de.fhdw.vendix.security.api.authorization.AuthorizationService;
 import de.fhdw.vendix.commons.security.spring.authentication.DefaultAuthenticationLifecycleHandler;
-import de.fhdw.vendix.commons.security.spring.context.DefaultAppContext;
 import de.fhdw.vendix.commons.security.spring.authentication.DefaultUserDetailsService;
-import de.fhdw.vendix.commons.security.spring.filter.JwtAuthenticationFilter;
 import de.fhdw.vendix.commons.security.spring.listener.ApplicationEventListener;
 import de.fhdw.vendix.commons.security.spring.listener.AuthenticationEventListener;
 import de.fhdw.vendix.security.api.context.AppContext;
@@ -16,21 +12,16 @@ import de.fhdw.vendix.security.api.context.AuthContext;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.annotation.Bean;
-import org.springframework.core.annotation.Order;
-import org.springframework.core.env.Environment;
 import org.springframework.data.domain.AuditorAware;
-import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 import java.util.Optional;
 
-@AutoConfiguration
+@AutoConfiguration(after = SecurityContextAutoConfiguration.class)
 public class SecurityAutoConfiguration {
 
     @Bean
@@ -41,8 +32,8 @@ public class SecurityAutoConfiguration {
 
     @Bean
     @ConditionalOnMissingBean
-    public UserDetailsService userDetailsService(AuthenticationQueryPort authenticationQueryPort, AuthorizationQueryPort authorizationQueryPort) {
-        return new DefaultUserDetailsService(authenticationQueryPort, authorizationQueryPort);
+    public UserDetailsService userDetailsService(AuthenticationService authenticationPort, AuthorizationService authorizationPort) {
+        return new DefaultUserDetailsService(authenticationPort, authorizationPort);
     }
 
     @Bean
@@ -59,14 +50,8 @@ public class SecurityAutoConfiguration {
 
     @Bean
     @ConditionalOnMissingBean
-    public AppContext appContext(Environment environment) {
-        return new DefaultAppContext(environment);
-    }
-
-    @Bean
-    @ConditionalOnMissingBean
-    public AuthenticationLifecycleHandler authenticationLifecycleHandler(AppContext appContext, AuthorizationCommandPort authorizationCommandPort) {
-        return new DefaultAuthenticationLifecycleHandler(appContext, authorizationCommandPort);
+    public AuthenticationLifecycleHandler authenticationLifecycleHandler(AppContext appContext, AuthorizationService authorizationPort) {
+        return new DefaultAuthenticationLifecycleHandler(appContext, authorizationPort);
     }
 
     @Bean
@@ -79,27 +64,5 @@ public class SecurityAutoConfiguration {
     @ConditionalOnMissingBean
     public ApplicationEventListener applicationEventListener(AppContext appContext, AuthenticationLifecycleHandler authenticationLifecycleHandler) {
         return new ApplicationEventListener(appContext, authenticationLifecycleHandler);
-    }
-
-    @Bean
-    @Order(0)
-    public SecurityFilterChain apiSecurity(HttpSecurity http, JwtAuthenticationFilter jwtAuthenticationFilter) {
-        return http
-                .securityMatcher("/api/**")
-                .authorizeHttpRequests(auth -> auth
-                        .anyRequest().authenticated()
-                )
-                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
-                .build();
-    }
-
-    @Bean
-    @Order(1)
-    public SecurityFilterChain vaadinSecurity(HttpSecurity http) {
-        return http
-                .with(VaadinSecurityConfigurer.vaadin(), configurer -> configurer
-                        .loginView("/login")
-                )
-                .build();
     }
 }

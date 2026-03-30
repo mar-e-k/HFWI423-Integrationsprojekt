@@ -1,6 +1,6 @@
 package de.fhdw.vendix.commons.core.printer.renderer.receipt;
 
-import de.fhdw.vendix.commons.api.domain.receipt.dto.ReceiptDTO;
+import de.fhdw.vendix.commons.api.domain.receipt.ReceiptDTO;
 import de.fhdw.vendix.commons.core.printer.layout.LayoutContext;
 import de.fhdw.vendix.commons.core.printer.layout.LayoutEngine;
 import de.fhdw.vendix.commons.core.printer.renderer.ReceiptRenderer;
