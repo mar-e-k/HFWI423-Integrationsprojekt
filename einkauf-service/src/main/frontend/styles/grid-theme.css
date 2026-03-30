@@ -1,0 +1,64 @@
+/* =====================================================
+   VAADIN GRID — Modern theme  (themeFor: vaadin-grid)
+   ===================================================== */
+
+/* --- Header ---------------------------------------- */
+[part~="header-cell"] {
+    background: #fafafa;
+    color: #71717a;
+    font-size: 0.7rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.07em;
+    padding-top: 11px;
+    padding-bottom: 11px;
+    border-bottom: 1px solid #e4e4e7;
+}
+
+/* Sort icon */
+[part~="header-cell"] vaadin-grid-sorter {
+    color: #a1a1aa;
+}
+[part~="header-cell"] vaadin-grid-sorter[direction] {
+    color: #4f46e5;
+}
+
+/* --- Body cells ------------------------------------ */
+[part~="body-cell"] {
+    padding-top: 12px;
+    padding-bottom: 12px;
+    font-size: 0.875rem;
+    color: #18181b;
+    border-bottom: 1px solid #f4f4f5;
+    transition: background 0.1s;
+}
+
+/* Alternating row stripes */
+tr:nth-child(odd) [part~="body-cell"] {
+    background: #ffffff;
+}
+tr:nth-child(even) [part~="body-cell"] {
+    background: #fafafa;
+}
+
+/* Row hover */
+tr:hover [part~="body-cell"] {
+    background: #f0f0ff !important;
+}
+
+/* Selected row */
+[part~="selected-row"] [part~="body-cell"],
+[part~="selected-row"]:hover [part~="body-cell"] {
+    background: #ede9fe !important;
+    color: #4338ca;
+}
+
+/* First / last column padding */
+[part~="first-column"][part~="header-cell"],
+[part~="first-column"][part~="body-cell"] {
+    padding-left: 20px;
+}
+[part~="last-column"][part~="header-cell"],
+[part~="last-column"][part~="body-cell"] {
+    padding-right: 20px;
+}

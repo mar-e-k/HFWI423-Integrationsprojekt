@@ -1,0 +1,96 @@
+/* =====================================================
+   VAADIN BUTTON — Modern theme  (themeFor: vaadin-button)
+   ===================================================== */
+
+/* --- Base: shape, padding, font, transition -------- */
+[part="button"] {
+    border-radius: 7px;
+    font-weight: 600;
+    font-size: 0.84rem;
+    letter-spacing: 0.01em;
+    padding: 0 16px;
+    min-height: 36px;
+    gap: 6px;
+    transition: background 0.15s ease, box-shadow 0.15s ease, transform 0.12s ease;
+}
+
+[part="button"]:hover {
+    transform: translateY(-1px);
+}
+
+[part="button"]:active {
+    transform: translateY(0);
+}
+
+/* --- DEFAULT (outlined / contrast) ---------------- */
+:host(:not([theme])) [part="button"],
+:host([theme=""]) [part="button"] {
+    background: #ffffff;
+    border: 1px solid #d4d4d8;
+    color: #18181b;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+}
+
+:host(:not([theme])) [part="button"]:hover,
+:host([theme=""]) [part="button"]:hover {
+    background: #f9f9f9;
+    border-color: #a1a1aa;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.09);
+}
+
+/* --- PRIMARY -------------------------------------- */
+:host([theme~="primary"]) [part="button"] {
+    background: #4f46e5;
+    border-color: #4f46e5;
+    color: #ffffff;
+    box-shadow: 0 1px 3px rgba(79,70,229,0.35);
+}
+
+:host([theme~="primary"]) [part="button"]:hover {
+    background: #4338ca;
+    border-color: #4338ca;
+    box-shadow: 0 3px 10px rgba(79,70,229,0.4);
+}
+
+/* --- ERROR / DANGER ------------------------------- */
+:host([theme~="error"]) [part="button"] {
+    box-shadow: 0 1px 3px rgba(239,68,68,0.2);
+}
+
+:host([theme~="error"]) [part="button"]:hover {
+    box-shadow: 0 3px 8px rgba(239,68,68,0.3);
+}
+
+/* --- SUCCESS --------------------------------------- */
+:host([theme~="success"]) [part="button"] {
+    box-shadow: 0 1px 3px rgba(16,185,129,0.2);
+}
+
+/* --- TERTIARY (ghost) ------------------------------ */
+:host([theme~="tertiary"]) [part="button"] {
+    background: transparent;
+    border-color: transparent;
+    color: #52525b;
+    box-shadow: none;
+}
+
+:host([theme~="tertiary"]) [part="button"]:hover {
+    background: #f4f4f5;
+    transform: none;
+    box-shadow: none;
+}
+
+/* --- SMALL ---------------------------------------- */
+:host([theme~="small"]) [part="button"] {
+    min-height: 28px;
+    padding: 0 10px;
+    font-size: 0.78rem;
+    border-radius: 5px;
+}
+
+/* --- ICON-only ------------------------------------ */
+:host([theme~="icon"]) [part="button"] {
+    padding: 0 8px;
+    min-width: 36px;
+    justify-content: center;
+}
