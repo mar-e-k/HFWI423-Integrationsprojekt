@@ -72,7 +72,22 @@ public class ReceiptService extends AbstractCrudService<Receipt, Long> {
         }
 
         BigDecimal totalAmount = articles.stream()
-                .map(article -> article.getPrice().multiply(BigDecimal.valueOf(article.getAmount())))
+                .map(article -> {
+                    BigDecimal basePrice = article.getPrice();
+                    BigDecimal discount = article.getDiscountedByPercent();
+                    int amount = article.getAmount();
+
+                    if (discount != null && discount.compareTo(BigDecimal.ZERO) > 0) {
+                        BigDecimal factor = BigDecimal.ONE.subtract(
+                                discount.divide(BigDecimal.valueOf(100), 4, java.math.RoundingMode.HALF_UP)
+                        );
+                        BigDecimal discountedPrice = basePrice.multiply(factor)
+                                .setScale(2, java.math.RoundingMode.HALF_UP);
+                        return discountedPrice.multiply(BigDecimal.valueOf(amount));
+                    }
+
+                    return basePrice.multiply(BigDecimal.valueOf(amount));
+                })
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
 
         boolean isDepositOnly = articles.stream()
@@ -103,6 +118,7 @@ public class ReceiptService extends AbstractCrudService<Receipt, Long> {
                     article.getOverridePrice(),
                     article.getOverrideReason(),
                     article.getDiscountedByPercent(),
+                    article.getDiscountedQuantity(),
                     article.getDepositStatus())));
         }
 
@@ -129,12 +145,14 @@ public class ReceiptService extends AbstractCrudService<Receipt, Long> {
     }
 
     private String generateUniqueDepositRedemptionCode() {
-        String code;
-        Random random = new Random();
-        do {
-            code = String.format("%05d", random.nextInt(100000));
-        } while (receiptRepository.findByDepositRedemptionCode(code).isPresent());
-        return code;
+        for (int attempt = 0; attempt < 20; attempt++) {
+            // UUID-basiert: kryptographisch zufällig, keine Race Condition durch Einzigartigkeit
+            String code = java.util.UUID.randomUUID().toString().replace("-", "").substring(0, 8).toUpperCase();
+            if (receiptRepository.findByDepositRedemptionCode(code).isEmpty()) {
+                return code;
+            }
+        }
+        throw new IllegalStateException("Konnte keinen eindeutigen Pfandbon-Code generieren.");
     }
 
     public ByteArrayInputStream generateReceipt(Long receiptId, boolean isCashPayment) {
@@ -144,10 +162,9 @@ public class ReceiptService extends AbstractCrudService<Receipt, Long> {
     }
 
     public ByteArrayInputStream generateReceipt(Receipt receipt, boolean isCashPayment) {
-        try {
+        try (PDDocument document = new PDDocument()) {
             List<ReceiptArticle> articles = receiptLinkArticleRepository.findByReceipt(receipt);
 
-            PDDocument document = new PDDocument();
             PDPage page = new PDPage();
             document.addPage(page);
 
@@ -301,11 +318,14 @@ public class ReceiptService extends AbstractCrudService<Receipt, Long> {
 
             return new ByteArrayInputStream(out.toByteArray());
         } catch (Exception e) {
-            return null;
+            throw new RuntimeException("Fehler beim Generieren des Belegs: " + e.getMessage(), e);
         }
     }
 
     public ByteArrayInputStream generateDailyReceipt(List<Receipt> receipts) {
+        if (receipts == null || receipts.isEmpty()) {
+            throw new IllegalArgumentException("Keine Belege für den Tagesabschluss vorhanden.");
+        }
         try {
             Map<Register, Map<Account, List<Receipt>>> grouped =
                     receipts.stream().collect(
@@ -351,222 +371,251 @@ public class ReceiptService extends AbstractCrudService<Receipt, Long> {
                 }
             }
 
+            // Hinweis: try-with-resources funktioniert hier nicht direkt wegen der
+            // inneren Variable contentStream — daher finally-Block:
             PDDocument document = new PDDocument();
-            PDPage page = new PDPage();
-            document.addPage(page);
+            try {
+                PDPage page = new PDPage();
+                document.addPage(page);
 
-            PDPageContentStream contentStream = new PDPageContentStream(document, page);
+                PDPageContentStream contentStream = new PDPageContentStream(document, page);
 
-            PDType1Font font = new PDType1Font(Standard14Fonts.FontName.HELVETICA);
-            PDType1Font boldFont = new PDType1Font(Standard14Fonts.FontName.HELVETICA_BOLD);
+                PDType1Font font = new PDType1Font(Standard14Fonts.FontName.HELVETICA);
+                PDType1Font boldFont = new PDType1Font(Standard14Fonts.FontName.HELVETICA_BOLD);
 
-            float y = 750;
-            float margin = 50;
+                float y = 750;
+                float margin = 50;
 
-            contentStream.beginText();
-            contentStream.setFont(boldFont, 18);
-            contentStream.newLineAtOffset(margin, y);
-            contentStream.showText("Tagesabschluss");
-            contentStream.endText();
-            y -= 25;
-
-            contentStream.beginText();
-            contentStream.setFont(boldFont, 14);
-            contentStream.newLineAtOffset(margin, y);
-            contentStream.showText("Filiale: " + receipts.getFirst().getStore().getId());
-            contentStream.endText();
-            y -= 30;
-
-            contentStream.beginText();
-            contentStream.setFont(font, 12);
-            contentStream.newLineAtOffset(margin, y);
-            contentStream.showText("Datum: " + LocalDateTime.now().format(fmt));
-            contentStream.endText();
-            y -= 20;
-
-            contentStream.moveTo(margin, y);
-            contentStream.lineTo(550, y);
-            contentStream.stroke();
-            y -= 30;
-
-            contentStream.beginText();
-            contentStream.setFont(boldFont, 14);
-            contentStream.newLineAtOffset(margin, y);
-            contentStream.showText("Beleganzahl: %d".formatted(receipts.size()));
-            contentStream.endText();
-            y -= 20;
-
-            contentStream.beginText();
-            contentStream.setFont(boldFont, 14);
-            contentStream.newLineAtOffset(margin, y);
-            contentStream.showText("Kontoanzahl: %d".formatted(totalsPerAccount.values().stream()
-                    .map(Map::keySet)
-                    .flatMap(Set::stream)
-                    .collect(Collectors.toSet())
-                    .size()));
-            contentStream.endText();
-            y -= 20;
-
-            contentStream.beginText();
-            contentStream.setFont(boldFont, 14);
-            contentStream.newLineAtOffset(margin, y);
-            contentStream.showText("Kassenanzahl: %d".formatted(totalsPerRegister.size()));
-            contentStream.endText();
-            y -= 20;
-
-            contentStream.moveTo(margin, y);
-            contentStream.lineTo(550, y);
-            contentStream.stroke();
-            y -= 30;
-
-            for (Register register : totalsPerRegister.keySet()) {
-                BigDecimal registerTotal = totalsPerRegister.get(register);
+                contentStream.beginText();
+                contentStream.setFont(boldFont, 18);
+                contentStream.newLineAtOffset(margin, y);
+                contentStream.showText("Tagesabschluss");
+                contentStream.endText();
+                y -= 25;
 
                 contentStream.beginText();
                 contentStream.setFont(boldFont, 14);
                 contentStream.newLineAtOffset(margin, y);
-                contentStream.showText("Kasse " + register.getId() + ": " + registerTotal + " EUR");
+                contentStream.showText("Filiale: " + receipts.getFirst().getStore().getId());
+                contentStream.endText();
+                y -= 30;
+
+                contentStream.beginText();
+                contentStream.setFont(font, 12);
+                contentStream.newLineAtOffset(margin, y);
+                contentStream.showText("Datum: " + LocalDateTime.now().format(fmt));
                 contentStream.endText();
                 y -= 20;
 
-                Map<Account, BigDecimal> accountTotals = totalsPerAccount.get(register);
+                contentStream.moveTo(margin, y);
+                contentStream.lineTo(550, y);
+                contentStream.stroke();
+                y -= 30;
 
-                for (Map.Entry<Account, BigDecimal> accEntry : accountTotals.entrySet()) {
+                contentStream.beginText();
+                contentStream.setFont(boldFont, 14);
+                contentStream.newLineAtOffset(margin, y);
+                contentStream.showText("Beleganzahl: %d".formatted(receipts.size()));
+                contentStream.endText();
+                y -= 20;
+
+                contentStream.beginText();
+                contentStream.setFont(boldFont, 14);
+                contentStream.newLineAtOffset(margin, y);
+                contentStream.showText("Kontoanzahl: %d".formatted(totalsPerAccount.values().stream()
+                        .map(Map::keySet)
+                        .flatMap(Set::stream)
+                        .collect(Collectors.toSet())
+                        .size()));
+                contentStream.endText();
+                y -= 20;
+
+                contentStream.beginText();
+                contentStream.setFont(boldFont, 14);
+                contentStream.newLineAtOffset(margin, y);
+                contentStream.showText("Kassenanzahl: %d".formatted(totalsPerRegister.size()));
+                contentStream.endText();
+                y -= 20;
+
+                contentStream.moveTo(margin, y);
+                contentStream.lineTo(550, y);
+                contentStream.stroke();
+                y -= 30;
+
+                for (Register register : totalsPerRegister.keySet()) {
+                    BigDecimal registerTotal = totalsPerRegister.get(register);
+
                     contentStream.beginText();
-                    contentStream.setFont(font, 12);
-                    contentStream.newLineAtOffset(margin + 30, y);
-                    contentStream.showText("Kassierer " + accEntry.getKey().getUsername() + ": " + accEntry.getValue() + " EUR");
+                    contentStream.setFont(boldFont, 14);
+                    contentStream.newLineAtOffset(margin, y);
+                    contentStream.showText("Kasse " + register.getId() + ": " + registerTotal + " EUR");
                     contentStream.endText();
-                    y -= 18;
+                    y -= 20;
+
+                    Map<Account, BigDecimal> accountTotals = totalsPerAccount.get(register);
+
+                    for (Map.Entry<Account, BigDecimal> accEntry : accountTotals.entrySet()) {
+                        contentStream.beginText();
+                        contentStream.setFont(font, 12);
+                        contentStream.newLineAtOffset(margin + 30, y);
+                        contentStream.showText("Kassierer " + accEntry.getKey().getUsername() + ": " + accEntry.getValue() + " EUR");
+                        contentStream.endText();
+                        y -= 18;
+                    }
+
+                    y -= 10;
                 }
 
-                y -= 10;
-            }
+                contentStream.moveTo(margin, y);
+                contentStream.lineTo(550, y);
+                contentStream.stroke();
+                y -= 30;
 
-            contentStream.moveTo(margin, y);
-            contentStream.lineTo(550, y);
-            contentStream.stroke();
-            y -= 30;
+                for (Map.Entry<Account, Map<Register, BigDecimal>> cashierEntry : totalsPerCashier.entrySet()) {
 
-            for (Map.Entry<Account, Map<Register, BigDecimal>> cashierEntry : totalsPerCashier.entrySet()) {
+                    Account account = cashierEntry.getKey();
+                    Map<Register, BigDecimal> perRegister = cashierEntry.getValue();
 
-                Account account = cashierEntry.getKey();
-                Map<Register, BigDecimal> perRegister = cashierEntry.getValue();
+                    contentStream.beginText();
+                    contentStream.setFont(boldFont, 14);
+                    contentStream.newLineAtOffset(margin, y);
+                    contentStream.showText(
+                            "Kassierer " + account.getUsername() + ": " +
+                                    String.format("%.2f EUR",
+                                            perRegister.values().stream()
+                                                    .reduce(BigDecimal.ZERO, BigDecimal::add))
+                    );
+                    contentStream.endText();
+                    y -= 20;
+
+                    for (Map.Entry<Register, BigDecimal> regEntry : perRegister.entrySet()) {
+
+                        contentStream.beginText();
+                        contentStream.setFont(font, 12);
+                        contentStream.newLineAtOffset(margin + 30, y);
+                        contentStream.showText(
+                                "Kasse " + regEntry.getKey().getId() + ": " +
+                                        String.format("%.2f EUR", regEntry.getValue())
+                        );
+                        contentStream.endText();
+                        y -= 18;
+                    }
+
+                    y -= 10;
+                }
+
+
+                contentStream.moveTo(margin, y);
+                contentStream.lineTo(550, y);
+                contentStream.stroke();
+                y -= 30;
+
+                contentStream.beginText();
+                contentStream.setFont(boldFont, 12);
+                contentStream.newLineAtOffset(margin, y);
+                contentStream.showText("Beleg-ID");
+                contentStream.newLineAtOffset(70, 0);
+                contentStream.showText("Beleg-Art");
+                contentStream.newLineAtOffset(90, 0);
+                contentStream.showText("Kasse");
+                contentStream.newLineAtOffset(70, 0);
+                contentStream.showText("Kassierer");
+                contentStream.newLineAtOffset(90, 0);
+                contentStream.showText("Preis");
+                contentStream.newLineAtOffset(60, 0);
+                contentStream.showText("Datum");
+                contentStream.endText();
+                y -= 20;
+
+                for (Receipt receipt : receipts) {
+                    contentStream.beginText();
+                    contentStream.setFont(font, 11);
+                    contentStream.newLineAtOffset(margin, y);
+                    contentStream.showText("%d".formatted(receipt.getId()));
+                    contentStream.newLineAtOffset(70, 0);
+                    if (receipt.isDepositOnly()) {
+                        contentStream.showText("PFAND");
+                    } else {
+                        contentStream.showText("BELEG");
+                    }
+                    contentStream.newLineAtOffset(90, 0);
+                    contentStream.showText("%d".formatted(receipt.getRegister().getId()));
+                    contentStream.newLineAtOffset(70, 0);
+                    contentStream.showText("%s".formatted(receipt.getAccount().getUsername()));
+                    contentStream.newLineAtOffset(90, 0);
+                    contentStream.showText("%s".formatted(receipt.getTotalAmount()));
+                    contentStream.newLineAtOffset(60, 0);
+                    contentStream.showText("%s".formatted(receipt.getCreatedAt().atZone(ZoneId.systemDefault()).format(fmt)));
+                    contentStream.endText();
+
+                    if (y < 100) {
+                        contentStream.close();
+
+                        PDPage newPage = new PDPage();
+                        document.addPage(newPage);
+
+                        contentStream = new PDPageContentStream(document, newPage);
+                        y = 750;
+
+                        // Spalten-Header auf neuer Seite wiederholen
+                        contentStream.beginText();
+                        contentStream.setFont(boldFont, 12);
+                        contentStream.newLineAtOffset(margin, y);
+                        contentStream.showText("Beleg-ID");
+                        contentStream.newLineAtOffset(70, 0);
+                        contentStream.showText("Beleg-Art");
+                        contentStream.newLineAtOffset(90, 0);
+                        contentStream.showText("Kasse");
+                        contentStream.newLineAtOffset(70, 0);
+                        contentStream.showText("Kassierer");
+                        contentStream.newLineAtOffset(90, 0);
+                        contentStream.showText("Preis");
+                        contentStream.newLineAtOffset(60, 0);
+                        contentStream.showText("Datum");
+                        contentStream.endText();
+                        y -= 20;
+                    } else {
+                        y -= 18;
+                    }
+
+                }
+
+                y -= 20;
+
+                contentStream.moveTo(margin, y);
+                contentStream.lineTo(550, y);
+                contentStream.stroke();
+                y -= 30;
 
                 contentStream.beginText();
                 contentStream.setFont(boldFont, 14);
                 contentStream.newLineAtOffset(margin, y);
                 contentStream.showText(
-                        "Kassierer " + account.getUsername() + ": " +
-                                String.format("%.2f EUR",
-                                        perRegister.values().stream()
-                                                .reduce(BigDecimal.ZERO, BigDecimal::add))
+                        "Gesamtbetrag: " +
+                                receipts.stream()
+                                        .map(Receipt::getTotalAmount)
+                                        .reduce(BigDecimal.ZERO, BigDecimal::add) +
+                                " EUR"
                 );
                 contentStream.endText();
-                y -= 20;
 
-                for (Map.Entry<Register, BigDecimal> regEntry : perRegister.entrySet()) {
+                contentStream.close();
 
-                    contentStream.beginText();
-                    contentStream.setFont(font, 12);
-                    contentStream.newLineAtOffset(margin + 30, y);
-                    contentStream.showText(
-                            "Kasse " + regEntry.getKey().getId() + ": " +
-                                    String.format("%.2f EUR", regEntry.getValue())
-                    );
-                    contentStream.endText();
-                    y -= 18;
+                ByteArrayOutputStream out = new ByteArrayOutputStream();
+                document.save(out);
+
+                return new ByteArrayInputStream(out.toByteArray());
+
+            } catch (Exception e) {
+                throw new RuntimeException("Fehler beim Generieren des Tagesabschlusses: " + e.getMessage(), e);
+            } finally {
+                try {
+                    document.close();
+                } catch (Exception ignored) {
                 }
-
-                y -= 10;
             }
-
-
-            contentStream.moveTo(margin, y);
-            contentStream.lineTo(550, y);
-            contentStream.stroke();
-            y -= 30;
-
-            contentStream.beginText();
-            contentStream.setFont(boldFont, 12);
-            contentStream.newLineAtOffset(margin, y);
-            contentStream.showText("Beleg-ID");
-            contentStream.newLineAtOffset(70, 0);
-            contentStream.showText("Beleg-Art");
-            contentStream.newLineAtOffset(90, 0);
-            contentStream.showText("Kasse");
-            contentStream.newLineAtOffset(70, 0);
-            contentStream.showText("Kassierer");
-            contentStream.newLineAtOffset(90, 0);
-            contentStream.showText("Preis");
-            contentStream.newLineAtOffset(60, 0);
-            contentStream.showText("Datum");
-            contentStream.endText();
-            y -= 20;
-
-            for (Receipt receipt : receipts) {
-                contentStream.beginText();
-                contentStream.setFont(font, 11);
-                contentStream.newLineAtOffset(margin, y);
-                contentStream.showText("%d".formatted(receipt.getId()));
-                contentStream.newLineAtOffset(70, 0);
-                if (receipt.isDepositOnly()) {
-                    contentStream.showText("PFAND");
-                } else {
-                    contentStream.showText("BELEG");
-                }
-                contentStream.newLineAtOffset(90, 0);
-                contentStream.showText("%d".formatted(receipt.getRegister().getId()));
-                contentStream.newLineAtOffset(70, 0);
-                contentStream.showText("%s".formatted(receipt.getAccount().getUsername()));
-                contentStream.newLineAtOffset(90, 0);
-                contentStream.showText("%s".formatted(receipt.getTotalAmount()));
-                contentStream.newLineAtOffset(60, 0);
-                contentStream.showText("%s".formatted(receipt.getCreatedAt().atZone(ZoneId.systemDefault()).format(fmt)));
-                contentStream.endText();
-
-                if (y < 100) {
-                    contentStream.close();
-
-                    PDPage newPage = new PDPage();
-                    document.addPage(newPage);
-
-                    contentStream = new PDPageContentStream(document, newPage);
-                    y = 750;
-                } else {
-                    y -= 18;
-                }
-
-            }
-
-            y -= 20;
-
-            contentStream.moveTo(margin, y);
-            contentStream.lineTo(550, y);
-            contentStream.stroke();
-            y -= 30;
-
-            contentStream.beginText();
-            contentStream.setFont(boldFont, 14);
-            contentStream.newLineAtOffset(margin, y);
-            contentStream.showText(
-                    "Gesamtbetrag: " +
-                            receipts.stream()
-                                    .map(Receipt::getTotalAmount)
-                                    .reduce(BigDecimal.ZERO, BigDecimal::add) +
-                            " EUR"
-            );
-            contentStream.endText();
-
-            contentStream.close();
-
-            ByteArrayOutputStream out = new ByteArrayOutputStream();
-            document.save(out);
-
-            return new ByteArrayInputStream(out.toByteArray());
-
         } catch (Exception e) {
-            return null;
+            throw new RuntimeException("Fehler beim Aufbereiten der Tagesabschluss-Daten: " + e.getMessage(), e);
         }
     }
 }

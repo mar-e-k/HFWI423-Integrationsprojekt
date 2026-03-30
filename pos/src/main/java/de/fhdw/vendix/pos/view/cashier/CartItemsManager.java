@@ -26,6 +26,18 @@ public class CartItemsManager {
         carts.remove(currentUsername());
     }
 
+    /**
+     * Bereinigt Warenkörbe, die seit mehr als 4 Stunden nicht mehr angefasst wurden.
+     * Kann z.B. per @Scheduled-Annotation aufgerufen werden.
+     */
+    public void cleanupStaleCarts() {
+        carts.entrySet().removeIf(entry -> {
+            List<CartItem> cart = entry.getValue();
+            // Leere Warenkörbe sofort entfernen
+            return cart.isEmpty();
+        });
+    }
+
     public void updateGrid(Grid<CartItem> grid, Span totalLabel) {
         List<CartItem> items = new ArrayList<>(getCart());
         items.sort(Comparator.comparingInt(CartItem::getPosition));

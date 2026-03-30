@@ -45,6 +45,9 @@ public class ReceiptArticle implements GenericEntity<Long> {
     @DecimalMax(value = "100.00", message = "Discounted amount must be <= 100.00")
     private BigDecimal discountedByPercent;
 
+    @Column(name = "discounted_quantity")
+    private Integer discountedQuantity;
+
     @Enumerated(EnumType.STRING)
     @Column(name = "deposit_status", nullable = false)
     @NotNull(message = "Deposit status cannot be null")
@@ -54,7 +57,7 @@ public class ReceiptArticle implements GenericEntity<Long> {
         super();
     }
 
-    public ReceiptArticle(Receipt receipt, Article article, BigDecimal price, Integer amount, BigDecimal taxRate, BigDecimal overridePrice, String overrideReason, BigDecimal discountedByPercent, DepositStatus depositStatus) {
+    public ReceiptArticle(Receipt receipt, Article article, BigDecimal price, Integer amount, BigDecimal taxRate, BigDecimal overridePrice, String overrideReason, BigDecimal discountedByPercent, Integer discountedQuantity, DepositStatus depositStatus) {
         this.receipt = receipt;
         this.article = article;
         this.price = price;
@@ -63,6 +66,7 @@ public class ReceiptArticle implements GenericEntity<Long> {
         this.overridePrice = overridePrice;
         this.overrideReason = overrideReason;
         this.discountedByPercent = discountedByPercent;
+        this.discountedQuantity = discountedQuantity;
         this.depositStatus = depositStatus;
     }
 
@@ -159,5 +163,13 @@ public class ReceiptArticle implements GenericEntity<Long> {
 
     public void setDepositStatus(DepositStatus depositStatus) {
         this.depositStatus = depositStatus;
+    }
+
+    public Integer getDiscountedQuantity() {
+        return discountedQuantity;
+    }
+
+    public void setDiscountedQuantity(Integer discountedQuantity) {
+        this.discountedQuantity = discountedQuantity;
     }
 }

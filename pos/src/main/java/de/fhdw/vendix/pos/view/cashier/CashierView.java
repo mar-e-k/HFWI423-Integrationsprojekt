@@ -35,6 +35,7 @@ import de.fhdw.vendix.pos.utility.StoreClient;
 import de.fhdw.vendix.commons.ui.view.AbstractView;
 import jakarta.annotation.security.RolesAllowed;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.crypto.bcrypt.BCrypt;
 
 import java.math.BigDecimal;
 import java.util.Collections;
@@ -542,7 +543,7 @@ public class CashierView extends AbstractView implements BeforeEnterObserver {
         dialog.add(passwordField);
 
         Button confirmButton = new Button("Bestätigen", e -> {
-            if (passwordField.getValue().equals(password)) {
+            if (BCrypt.checkpw(passwordField.getValue(), password)) {
                 dialog.close();
                 cartGrid.getEditor().editItem(item);
                 priceEditor.setReadOnly(false);
@@ -690,6 +691,11 @@ public class CashierView extends AbstractView implements BeforeEnterObserver {
         dialog.setHeaderTitle("Pfandartikel: " + article.getName());
 
         Button fullBottleButton = new Button("Vollflasche verkaufen", e -> {
+            if (article.getSellingPrice() == null) {
+                dialog.close();
+                showInitialPriceDialog(article); // Kassierer muss Preis manuell setzen
+                return;
+            }
             addArticleToCart(article, DepositStatus.FULL, BigDecimal.valueOf(article.getSellingPrice()));
             dialog.close();
         });

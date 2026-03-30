@@ -39,7 +39,7 @@ public class Receipt extends AbstractEntity {
     @Column(name = "is_deposit_only", nullable = false)
     private boolean isDepositOnly = false;
 
-    @Column(name = "deposit_redemption_code", length = 5)
+    @Column(unique = true)
     private String depositRedemptionCode;
 
     public Receipt() {

@@ -178,7 +178,7 @@ public class CartItem implements GenericEntity<Long> {
         return null;
     }
 
-    @Override
     @Deprecated
+    @Override
     public void setId(Long id) {}
 }

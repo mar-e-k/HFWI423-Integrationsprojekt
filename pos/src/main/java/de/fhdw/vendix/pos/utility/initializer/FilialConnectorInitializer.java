@@ -42,6 +42,8 @@ import java.util.UUID;
         this.registerClient = registerClient;
     }
 
+    private static final int MAX_RETRIES = 10;
+
     @Override
     public void run(ApplicationArguments args) {
         log.atInfo().log("spring.kassensystem.connect-to-filial-on-startup is: {}", connectToFilialOnStartup);
@@ -56,21 +58,33 @@ import java.util.UUID;
                 registerClient.getPort()
         );
 
-        log.atInfo().log("Searching for Filialsystem...");
+        log.atInfo().log("Suche nach Filialsystem...");
 
-        while (true) {
+        int attempt = 0;
+        long delayMs = 2000;
+
+        while (attempt < MAX_RETRIES) {
             try {
                 registerAtFilialsystem(dto);
-                break;
+                log.atInfo().log("Filialsystem gefunden. Kassensystem erfolgreich registriert.");
+                return;
             } catch (Exception e) {
-                log.atWarn().log("Filialsystem not available. Retrying in 5 seconds...");
+                attempt++;
+                log.atWarn().log("Filialsystem nicht erreichbar (Versuch {}/{}). Nächster Versuch in {} ms...",
+                        attempt, MAX_RETRIES, delayMs);
+                if (attempt >= MAX_RETRIES) {
+                    throw new IllegalStateException(
+                            "Filialsystem nach " + MAX_RETRIES + " Versuchen nicht erreichbar. Anwendung wird beendet.", e);
+                }
                 try {
-                    Thread.sleep(5000);
-                } catch (InterruptedException ignored) {}
+                    Thread.sleep(delayMs);
+                } catch (InterruptedException ie) {
+                    Thread.currentThread().interrupt();
+                    throw new IllegalStateException("Startvorgang unterbrochen.", ie);
+                }
+                delayMs = Math.min(delayMs * 2, 30000); // exponentieller Backoff, max 30 Sek.
             }
         }
-
-        log.atInfo().log("Filialsystem found. Kassensystem registered successfully.");
     }
 
     private void registerAtFilialsystem(SystemClientDTO dto) {

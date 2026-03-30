@@ -102,4 +102,14 @@ public class ReceiptLinkArticleDTO extends AbstractDTO<Long>{
     public void setDepositStatus(DepositStatus depositStatus) {
         this.depositStatus = depositStatus;
     }
+
+    private Integer discountedQuantity;
+
+    public Integer getDiscountedQuantity() {
+        return discountedQuantity;
+    }
+
+    public void setDiscountedQuantity(Integer discountedQuantity) {
+        this.discountedQuantity = discountedQuantity;
+    }
 }
