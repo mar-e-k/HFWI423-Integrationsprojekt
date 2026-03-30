@@ -1,18 +1,22 @@
 package com.example.application.views.restockView;
 
+import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.dependency.Uses;
 import com.vaadin.flow.component.grid.Grid;
+import com.vaadin.flow.component.grid.GridVariant;
+import com.vaadin.flow.component.html.Anchor;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.icon.Icon;
+import com.vaadin.flow.component.notification.Notification;
+import com.vaadin.flow.component.orderedlayout.FlexComponent;
+import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.Menu;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import org.vaadin.lineawesome.LineAwesomeIconUrl;
-import com.vaadin.flow.component.notification.Notification;
-import com.vaadin.flow.component.button.Button;
-import com.vaadin.flow.component.html.Anchor;
 
 import com.example.application.services.RestockService;
 import com.example.application.services.RestockOrderService;
@@ -21,7 +25,6 @@ import com.example.application.data.articleInfo.RestockItem;
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 import java.util.List;
-
 
 @PageTitle("Restock")
 @Route("restock")
@@ -32,27 +35,26 @@ public class RestockView extends Div {
     private final RestockService restockService;
     private final RestockOrderService restockOrderService;
     private final Grid<RestockItem> grid = new Grid<>(RestockItem.class, false);
-    private final Span emptyMessage = new Span("Es müssen aktuell keine Artikel nachbestellt werden.");
-    private final Span minStockWarning = new Span("Warnung: Für einige Artikel ist kein Mindestbestand eingetragen.");
+    private final Span emptyMessage = new Span("Es muessen aktuell keine Artikel nachbestellt werden.");
+    private final Div minStockWarning = new Div();
 
     public RestockView(RestockService restockService,
                        RestockOrderService restockOrderService) {
         this.restockService = restockService;
         this.restockOrderService = restockOrderService;
-        VerticalLayout layout = new VerticalLayout();
-        layout.setSizeFull();
 
-        // Export-Button (Anchor-Variante)
+        setSizeFull();
+
+        // Toolbar
+        Button refreshButton = new Button("Aktualisieren", event -> {
+            updateGrid();
+        });
+
         Anchor exportButton = new Anchor();
         exportButton.setText("Exportieren");
         exportButton.getElement().setAttribute("download", true);
+        exportButton.getStyle().set("text-decoration", "none");
 
-        // Aktualisieren-Button
-        Button refreshButton = new Button("Aktualisieren", event -> {
-            updateGrid();
-            updateCsvDownload(exportButton);
-        });
-        // alle Bestellungen freigeben Button
         Button approveAllButton = new Button("Alle Bestellungen freigeben", event -> {
             try {
                 approveAllOrders();
@@ -62,70 +64,103 @@ public class RestockView extends Div {
                 Notification.show(ex.getMessage(), 5000, Notification.Position.MIDDLE);
             }
         });
+        approveAllButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
 
-        // Grid-Spalten definieren
-        grid.addColumn(RestockItem::getArticleNumber).setHeader("Artikelnummer");
-        grid.addColumn(RestockItem::getName).setHeader("Name");
-        grid.addColumn(RestockItem::getReservePallets).setHeader("Reserve Paletten");
-        grid.addColumn(RestockItem::getMinStockDisplay).setHeader("Mindestbestand (in Pal.)");
-        grid.addColumn(RestockItem::getOrderAmountDisplay).setHeader("Nachbestellmenge");
+        HorizontalLayout toolbar = new HorizontalLayout(refreshButton, exportButton, approveAllButton);
+        toolbar.setWidthFull();
+        toolbar.setAlignItems(FlexComponent.Alignment.CENTER);
+        toolbar.getStyle()
+            .set("padding", "16px 20px")
+            .set("border-bottom", "1px solid #e8edf5")
+            .set("background", "linear-gradient(to right, #fafbff, #f8fafc)");
+
+        // Warning Banner
+        Span warningIcon = new Span("⚠");
+        warningIcon.getStyle().set("margin-right", "8px");
+        Span warningText = new Span("Warnung: Fuer einige Artikel ist kein Mindestbestand eingetragen.");
+        minStockWarning.add(warningIcon, warningText);
+        minStockWarning.getStyle()
+            .set("display", "flex")
+            .set("align-items", "center")
+            .set("padding", "10px 20px")
+            .set("background", "#fef3c7")
+            .set("color", "#92400e")
+            .set("font-weight", "600")
+            .set("font-size", "0.85rem")
+            .set("border-bottom", "1px solid #fde68a");
+        minStockWarning.setVisible(false);
+
+        // Grid-Spalten
+        grid.addColumn(RestockItem::getArticleNumber).setHeader("Artikelnummer").setAutoWidth(true).setSortable(true);
+        grid.addColumn(RestockItem::getName).setHeader("Name").setFlexGrow(1).setSortable(true);
+        grid.addColumn(RestockItem::getReservePallets).setHeader("Reserve Pal.").setAutoWidth(true);
+
         grid.addComponentColumn(item -> {
+            String val = item.getMinStockDisplay();
+            Span s = new Span(val);
+            if (item.getMinStock() == null) {
+                s.getStyle().set("color", "#dc2626").set("font-weight", "600");
+            }
+            return s;
+        }).setHeader("Mindestbestand (in Pal.)").setAutoWidth(true);
 
+        grid.addComponentColumn(item -> {
+            String val = item.getOrderAmountDisplay();
+            if ("-".equals(val)) return new Span("-");
+            Span s = new Span(val + " Pal.");
+            int amount = item.getOrderAmount() != null ? item.getOrderAmount() : 0;
+            if (amount > 0) {
+                s.getStyle()
+                    .set("padding", "2px 10px")
+                    .set("border-radius", "999px")
+                    .set("font-weight", "600")
+                    .set("font-size", "0.8rem")
+                    .set("background", "#fef3c7")
+                    .set("color", "#92400e");
+            }
+            return s;
+        }).setHeader("Nachbestellmenge").setAutoWidth(true);
+
+        grid.addComponentColumn(item -> {
             Button approveButton = new Button("Bestellung freigeben");
-
+            approveButton.addThemeVariants(ButtonVariant.LUMO_SMALL, ButtonVariant.LUMO_PRIMARY);
             boolean validAmount = item.getOrderAmount() != null && item.getOrderAmount() > 0;
             boolean hasOpenOrder = restockOrderService.hasOpenOrderForArticle(item.getArticle());
-
             approveButton.setEnabled(validAmount && !hasOpenOrder);
-
             approveButton.addClickListener(click -> {
                 try {
                     restockOrderService.approveOrder(item);
-                    Notification.show("Bestellung für " + item.getName() + " freigegeben.");
-                    updateGrid(); // Wichtig!
+                    Notification.show("Bestellung fuer " + item.getName() + " freigegeben.");
+                    updateGrid();
                 } catch (Exception ex) {
                     Notification.show(ex.getMessage(), 5000, Notification.Position.MIDDLE);
                 }
             });
-
             return approveButton;
+        }).setHeader("Bestellung").setAutoWidth(true);
 
-        }).setHeader("Bestellung");
+        grid.setPartNameGenerator(item -> item.getMinStock() == null ? "missing-minstock-row" : "");
+        grid.addThemeVariants(GridVariant.LUMO_ROW_STRIPES, GridVariant.LUMO_NO_BORDER, GridVariant.LUMO_WRAP_CELL_CONTENT);
+        grid.setSizeFull();
 
-        //Artikel hervorheben, wenn kein Mindestbestand eingetragen ist
-        grid.setPartNameGenerator(item -> {
-            if (item.getMinStock() == null) {
-                return "missing-minstock-row";
-            }
-            return "";
-        });
+        // Empty message
+        emptyMessage.getStyle()
+            .set("color", "#64748b")
+            .set("font-style", "italic")
+            .set("padding", "24px 20px");
+        emptyMessage.setVisible(false);
 
-        // grid.setClassNameGenerator(item -> {
-       //     if (restockOrderService.hasOpenOrderForArticle(item.getArticle())) {
-       //         return "restock-order-open";
-        //    }
-       //    return null;
-       // });
+        VerticalLayout content = new VerticalLayout(toolbar, minStockWarning, emptyMessage, grid);
+        content.setSizeFull();
+        content.setPadding(false);
+        content.setSpacing(false);
+        content.setFlexGrow(1, grid);
 
+        Div card = new Div(content);
+        card.addClassName("content-card");
+        card.setSizeFull();
+        add(card);
 
-        grid.setHeight("300px");
-
-        //Message, wenn Liste leer ist
-        emptyMessage.getStyle().set("color", "gray");
-        emptyMessage.getStyle().set("font-style", "italic");
-        emptyMessage.setVisible(false); // Start: unsichtbar
-
-        //Warning Message, wenn kein Wert für Mindestbestand gesetzt ist
-        minStockWarning.getStyle().set("color", "var(--lumo-error-color)");
-        minStockWarning.getStyle().set("font-weight", "600");
-        minStockWarning.setVisible(false);
-
-
-        // Komponenten ins Layout
-        layout.add(refreshButton, exportButton, approveAllButton, emptyMessage, grid, minStockWarning);
-        add(layout);
-
-        // Initial Daten laden
         updateGrid();
         updateCsvDownload(exportButton);
     }
@@ -133,63 +168,42 @@ public class RestockView extends Div {
     private void updateGrid() {
         List<RestockItem> items = restockService.getArticlesToRestock();
         grid.setItems(items);
-
         boolean missingMin = items.stream().anyMatch(i -> i.getMinStock() == null);
-
         minStockWarning.setVisible(missingMin);
-
-        if (items.isEmpty()) {
-            grid.setVisible(false);
-            emptyMessage.setVisible(true);
-        } else {
-            grid.setVisible(true);
-            emptyMessage.setVisible(false);
-        }
+        boolean isEmpty = items.isEmpty();
+        grid.setVisible(!isEmpty);
+        emptyMessage.setVisible(isEmpty);
     }
 
     private void updateCsvDownload(Anchor exportButton) {
         String csv = buildCsv();
-
-        // CSV in Base64 kodieren → funktioniert in JEDER Vaadin-Version ohne StreamResource
         String base64 = Base64.getEncoder().encodeToString(csv.getBytes(StandardCharsets.UTF_8));
-
-        // Data-URL als Download
         exportButton.setHref("data:text/csv;base64," + base64);
     }
 
-    // CSV Export
     private String buildCsv() {
         List<RestockItem> items = restockService.getArticlesToRestock();
         StringBuilder sb = new StringBuilder("Artikelnummer;Name;Reserve Paletten;Mindestbestand (in Pal.);Nachbestellmenge (in Pal.)\n");
-
         for (RestockItem a : items) {
             sb.append(a.getArticleNumber()).append(";")
                     .append(a.getName()).append(";")
                     .append(a.getReservePallets()).append(";")
                     .append(a.getMinStockDisplay()).append(";")
                     .append(a.getOrderAmountDisplay()).append(";")
-
-                    // Warnhinweis-Spalte
-                    .append(a.getMinStock() == null
-                            ? "Kein Mindestbestand eingetragen"
-                            : "")
+                    .append(a.getMinStock() == null ? "Kein Mindestbestand eingetragen" : "")
                     .append("\n");
         }
-
         return sb.toString();
     }
 
     private void approveAllOrders() {
         List<RestockItem> items = restockService.getArticlesToRestock();
-
         for (RestockItem item : items) {
             boolean validAmount = item.getOrderAmount() != null && item.getOrderAmount() > 0;
             boolean hasOpenOrder = restockOrderService.hasOpenOrderForArticle(item.getArticle());
-
             if (validAmount && !hasOpenOrder) {
                 restockOrderService.approveOrder(item);
             }
         }
     }
-
 }

@@ -9,8 +9,11 @@ import com.example.application.services.StorageLocationService;
 import com.example.application.views.MainLayout;
 import com.example.application.views.components.StorageLocationPickerDialog;
 import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.grid.Grid;
+import com.vaadin.flow.component.grid.GridVariant;
 import com.vaadin.flow.component.html.Div;
+import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.notification.NotificationVariant;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
@@ -45,35 +48,43 @@ public class NewArticlesView extends Div {
 
         setSizeFull();
 
-        VerticalLayout layout = new VerticalLayout();
-        layout.setPadding(false);
-        layout.setSpacing(true);
-        layout.setSizeFull();
+        // Toolbar
+        Button refreshButton = new Button("Aktualisieren", e -> refresh());
+        HorizontalLayout toolbar = new HorizontalLayout(refreshButton);
+        toolbar.setWidthFull();
+        toolbar.setAlignItems(FlexComponent.Alignment.CENTER);
+        toolbar.getStyle()
+            .set("padding", "16px 20px")
+            .set("border-bottom", "1px solid #e8edf5")
+            .set("background", "linear-gradient(to right, #fafbff, #f8fafc)");
 
         configureGrid();
 
-        layout.add(grid);
-        add(layout);
+        VerticalLayout content = new VerticalLayout(toolbar, grid);
+        content.setSizeFull();
+        content.setPadding(false);
+        content.setSpacing(false);
+        content.setFlexGrow(1, grid);
+
+        Div card = new Div(content);
+        card.addClassName("content-card");
+        card.setSizeFull();
+        add(card);
 
         refresh();
     }
 
     private void configureGrid() {
-        // Spalte: Artikelnummer
         grid.addColumn(NewArticleCandidate::getArticleNumber)
                 .setHeader("Artikelnummer")
                 .setAutoWidth(true)
                 .setFlexGrow(0);
 
-        // Spalte: Artikelname
         grid.addColumn(NewArticleCandidate::getName)
                 .setHeader("Name")
-                .setAutoWidth(true)
-                .setFlexGrow(0);
+                .setFlexGrow(1);
 
-        // Spalte: Anlage
         grid.addComponentColumn(candidate -> {
-
             TextField locationField = new TextField();
             locationField.setPlaceholder("Storage Location");
             locationField.setWidth("140px");
@@ -81,19 +92,19 @@ public class NewArticlesView extends Div {
 
             final StorageLocation[] selectedLocationHolder = new StorageLocation[1];
 
-            Button chooseLocation = new Button("Location wählen", e -> {
-                StorageLocationPickerDialog dlg =
-                        new StorageLocationPickerDialog(
-                                storageLocationService,
-                                "Location für " + candidate.getName(),
-                                selected -> {
-                                    if (selected != null) {
-                                        selectedLocationHolder[0] = selected;
-                                        locationField.setValue(selected.getGeneralId());
-                                    }
-                                });
+            Button chooseLocation = new Button("Location waehlen", e -> {
+                StorageLocationPickerDialog dlg = new StorageLocationPickerDialog(
+                        storageLocationService,
+                        "Location fuer " + candidate.getName(),
+                        selected -> {
+                            if (selected != null) {
+                                selectedLocationHolder[0] = selected;
+                                locationField.setValue(selected.getGeneralId());
+                            }
+                        });
                 dlg.open();
             });
+            chooseLocation.addThemeVariants(ButtonVariant.LUMO_SMALL);
 
             IntegerField piecesPerPalletField = new IntegerField();
             piecesPerPalletField.setPlaceholder("Stk/Palette");
@@ -103,31 +114,21 @@ public class NewArticlesView extends Div {
             IntegerField minStockField = new IntegerField();
             minStockField.setPlaceholder("Mindestbestand (in Pal.)");
             minStockField.setMin(0);
-            minStockField.setWidth("130px");
+            minStockField.setWidth("180px");
 
             Button createBtn = new Button("Artikel anlegen", click -> {
                 try {
-                    // Validierung: Lagerplatz muss gewählt sein
                     if (locationField.getValue() == null || locationField.getValue().isBlank()) {
-                        Notification n = Notification.show(
-                                "Bitte Storage Location wählen",
-                                3000,
-                                Notification.Position.MIDDLE);
+                        Notification n = Notification.show("Bitte Storage Location waehlen", 3000, Notification.Position.MIDDLE);
                         n.addThemeVariants(NotificationVariant.LUMO_ERROR);
                         return;
                     }
-
-                    // Validierung: Stückzahl pro Palette muss > 0 sein
                     if (piecesPerPalletField.getValue() == null || piecesPerPalletField.getValue() <= 0) {
-                        Notification n = Notification.show(
-                                "Bitte gültige Stückzahl/Palette eingeben",
-                                3000,
-                                Notification.Position.MIDDLE);
+                        Notification n = Notification.show("Bitte gueltige Stueckzahl/Palette eingeben", 3000, Notification.Position.MIDDLE);
                         n.addThemeVariants(NotificationVariant.LUMO_ERROR);
                         return;
                     }
 
-                    // Artikel in der Datenbank anlegen
                     ArticleInfo created = articleSyncService.createArticleInfoForCandidate(
                             candidate.getArticleId(),
                             locationField.getValue(),
@@ -135,59 +136,39 @@ public class NewArticlesView extends Div {
                             minStockField.getValue()
                     );
 
-                    // Lagerplatz auf USED setzen
                     if (selectedLocationHolder[0] != null) {
                         selectedLocationHolder[0].setStorageStatus("Used");
                         storageLocationService.save(selectedLocationHolder[0]);
                     }
 
-                    Notification n = Notification.show(
-                            "Artikel " + created.getArticleNumber() + " angelegt",
-                            3000,
-                            Notification.Position.MIDDLE
-                    );
+                    Notification n = Notification.show("Artikel " + created.getArticleNumber() + " angelegt", 3000, Notification.Position.MIDDLE);
                     n.addThemeVariants(NotificationVariant.LUMO_SUCCESS);
 
-                    // Grid neu laden
                     refresh();
 
-                    // Badge in dieser UI direkt aktualisieren (gleiche UI, kein ui.access() nötig)
                     MainLayout mainLayout = findMainLayout();
                     if (mainLayout != null) {
                         mainLayout.refreshArticleBadge();
                     }
 
-                    // Alle anderen offenen UIs asynchron benachrichtigen
                     badgeNotifier.notifyNow();
 
                 } catch (Exception ex) {
-                    Notification n = Notification.show(
-                            ex.getMessage(),
-                            5000,
-                            Notification.Position.MIDDLE);
+                    Notification n = Notification.show(ex.getMessage(), 5000, Notification.Position.MIDDLE);
                     n.addThemeVariants(NotificationVariant.LUMO_ERROR);
                 }
             });
+            createBtn.addThemeVariants(ButtonVariant.LUMO_SMALL, ButtonVariant.LUMO_PRIMARY);
 
-            HorizontalLayout rowLayout = new HorizontalLayout(
-                    locationField,
-                    chooseLocation,
-                    piecesPerPalletField,
-                    minStockField,
-                    createBtn
-            );
+            HorizontalLayout rowLayout = new HorizontalLayout(locationField, chooseLocation, piecesPerPalletField, minStockField, createBtn);
             rowLayout.setAlignItems(FlexComponent.Alignment.BASELINE);
             return rowLayout;
+        }).setHeader("Anlage").setFlexGrow(2);
 
-        }).setHeader("Anlage");
-
-        grid.setHeight("500px");
-        grid.setWidthFull();
+        grid.addThemeVariants(GridVariant.LUMO_ROW_STRIPES, GridVariant.LUMO_NO_BORDER, GridVariant.LUMO_WRAP_CELL_CONTENT);
+        grid.setSizeFull();
     }
 
-    /**
-     * Traversiert den Komponentenbaum nach oben, um das MainLayout zu finden.
-     */
     private MainLayout findMainLayout() {
         com.vaadin.flow.component.Component current = this;
         while (current.getParent().isPresent()) {
@@ -199,9 +180,6 @@ public class NewArticlesView extends Div {
         return null;
     }
 
-    /**
-     * Lädt die Liste der neuen Artikelkandidaten neu und zeigt sie im Grid an.
-     */
     private void refresh() {
         List<NewArticleCandidate> items = articleSyncService.findNewArticlesFromContingents();
         grid.setItems(items);

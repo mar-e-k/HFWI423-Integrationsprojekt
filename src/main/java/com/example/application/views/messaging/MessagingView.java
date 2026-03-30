@@ -6,9 +6,12 @@ import com.example.application.amqp.einkaufEvents.EinkaufEventPublisher;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.grid.Grid;
+import com.vaadin.flow.component.grid.GridVariant;
 import com.vaadin.flow.component.html.Div;
+import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.notification.NotificationVariant;
+import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
@@ -28,7 +31,6 @@ public class MessagingView extends Div {
 
     private final MessagingEventService messagingEventService;
     private final EinkaufEventPublisher einkaufEventPublisher;
-
     private final Grid<MessagingEvent> grid = new Grid<>(MessagingEvent.class, false);
 
     public MessagingView(MessagingEventService messagingEventService, EinkaufEventPublisher einkaufEventPublisher) {
@@ -37,62 +39,68 @@ public class MessagingView extends Div {
 
         setSizeFull();
 
-        // Toolbar oben mit Button zum Publish NewDeal
-        TextField articleIdField = new TextField("Article ID");
-        articleIdField.setPlaceholder("z.B. 123");
+        // Toolbar
+        TextField articleIdField = new TextField();
+        articleIdField.setPlaceholder("Article ID (z.B. 123)");
+        articleIdField.setWidth("200px");
+
         Button publishButton = new Button("Publish NewDeal", e -> publishNewDeal(articleIdField.getValue()));
         publishButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
 
-        HorizontalLayout toolbar = new HorizontalLayout(articleIdField, publishButton);
+        Button refreshButton = new Button("Aktualisieren", e -> updateGrid());
+
+        HorizontalLayout toolbar = new HorizontalLayout(articleIdField, publishButton, refreshButton);
         toolbar.setWidthFull();
+        toolbar.setAlignItems(FlexComponent.Alignment.CENTER);
+        toolbar.getStyle()
+            .set("padding", "16px 20px")
+            .set("border-bottom", "1px solid #e8edf5")
+            .set("background", "linear-gradient(to right, #fafbff, #f8fafc)");
 
-        // Grid für empfangene Events
-        configureGrid();
+        // Grid
+        grid.addComponentColumn(item -> {
+            String type = item.getEventType() != null ? item.getEventType() : "-";
+            Span badge = new Span(type);
+            badge.getStyle()
+                .set("padding", "2px 10px")
+                .set("border-radius", "999px")
+                .set("font-size", "0.75rem")
+                .set("font-weight", "600")
+                .set("background", "#ede9fe")
+                .set("color", "#6d28d9");
+            return badge;
+        }).setHeader("Event Typ").setAutoWidth(true).setSortable(true);
 
-        // Layout
-        VerticalLayout layout = new VerticalLayout(toolbar, grid);
-        layout.setSizeFull();
-        layout.setFlexGrow(1, grid);
+        grid.addColumn(MessagingEvent::getArticleId).setHeader("Article ID").setAutoWidth(true).setSortable(true);
+        grid.addColumn(MessagingEvent::getAmount).setHeader("Amount").setAutoWidth(true);
+        grid.addColumn(MessagingEvent::getDetails).setHeader("Details").setFlexGrow(1);
+        grid.addColumn(MessagingEvent::getReceivedAt).setHeader("Empfangen am").setAutoWidth(true).setSortable(true);
 
-        add(layout);
+        grid.addThemeVariants(GridVariant.LUMO_ROW_STRIPES, GridVariant.LUMO_NO_BORDER, GridVariant.LUMO_WRAP_CELL_CONTENT);
+        grid.setSizeFull();
 
-        // Lade Daten
+        VerticalLayout content = new VerticalLayout(toolbar, grid);
+        content.setSizeFull();
+        content.setPadding(false);
+        content.setSpacing(false);
+        content.setFlexGrow(1, grid);
+
+        Div card = new Div(content);
+        card.addClassName("content-card");
+        card.setSizeFull();
+        add(card);
+
         updateGrid();
-    }
-
-    private void configureGrid() {
-        grid.addColumn(MessagingEvent::getEventType)
-                .setHeader("Event Typ")
-                .setAutoWidth(true)
-                .setSortable(true);
-
-        grid.addColumn(MessagingEvent::getArticleId)
-                .setHeader("Article ID")
-                .setAutoWidth(true)
-                .setSortable(true);
-
-        grid.addColumn(MessagingEvent::getAmount)
-                .setHeader("Amount")
-                .setAutoWidth(true);
-
-        grid.addColumn(MessagingEvent::getDetails)
-                .setHeader("Details")
-                .setAutoWidth(true);
-
-        grid.addColumn(MessagingEvent::getReceivedAt)
-                .setHeader("Empfangen am")
-                .setAutoWidth(true)
-                .setSortable(true);
     }
 
     private void publishNewDeal(String articleIdStr) {
         try {
             long articleId = Long.parseLong(articleIdStr);
             einkaufEventPublisher.publishNewDeal(articleId);
-            Notification.show("NewDeal Event erfolgreich versendet für Article ID: " + articleId, 3000, Notification.Position.BOTTOM_START)
+            Notification.show("NewDeal Event erfolgreich versendet fuer Article ID: " + articleId, 3000, Notification.Position.BOTTOM_START)
                     .addThemeVariants(NotificationVariant.LUMO_SUCCESS);
         } catch (NumberFormatException e) {
-            Notification.show("Ungültige Article ID: " + articleIdStr, 3000, Notification.Position.BOTTOM_START)
+            Notification.show("Ungueltige Article ID: " + articleIdStr, 3000, Notification.Position.BOTTOM_START)
                     .addThemeVariants(NotificationVariant.LUMO_ERROR);
         } catch (Exception e) {
             Notification.show("Fehler beim Versenden: " + e.getMessage(), 3000, Notification.Position.BOTTOM_START)

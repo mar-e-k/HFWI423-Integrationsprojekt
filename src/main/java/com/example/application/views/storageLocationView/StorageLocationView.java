@@ -10,6 +10,7 @@ import com.vaadin.flow.component.dependency.Uses;
 import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.grid.Grid;
+import com.vaadin.flow.component.grid.GridVariant;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.icon.Icon;
@@ -32,7 +33,7 @@ import java.util.Objects;
 
 @PageTitle("Storage Location")
 @Route("storage-location")
-@Menu(order = 2, icon = LineAwesomeIconUrl.STORE_SOLID) // erscheint unter „Logistic“
+@Menu(order = 2, icon = LineAwesomeIconUrl.STORE_SOLID)
 @Uses(Icon.class)
 public class StorageLocationView extends Div {
 
@@ -48,71 +49,69 @@ public class StorageLocationView extends Div {
         addClassName("storage-location-view");
 
         // Grid-Spalten
-
-        grid.addColumn(this::buildGeneralId)
-                .setHeader("General ID")
-                .setAutoWidth(true)
-                .setSortable(false);
-        grid.addColumn(StorageLocation::getStorageZone).setHeader("Zone").setSortable(true).setAutoWidth(true);
-        grid.addColumn(StorageLocation::getShelfID).setHeader("Shelf-ID").setSortable(true).setAutoWidth(true);
-        grid.addColumn(StorageLocation::getCompartmentID).setHeader("Compartment-ID").setSortable(true).setAutoWidth(true);
+        grid.addComponentColumn(item -> {
+            Span id = new Span(buildGeneralId(item));
+            id.getStyle()
+                .set("font-family", "monospace")
+                .set("font-weight", "600")
+                .set("font-size", "0.85rem")
+                .set("color", "#1e293b")
+                .set("background", "#f1f5f9")
+                .set("padding", "2px 8px")
+                .set("border-radius", "6px");
+            return id;
+        }).setHeader("General ID").setAutoWidth(true).setSortable(false);
 
         grid.addComponentColumn(item -> {
-            Span status = new Span(item.getStorageStatus());
+            Span zone = new Span(item.getStorageZone() != null ? item.getStorageZone() : "-");
+            zone.getStyle()
+                .set("padding", "2px 10px")
+                .set("border-radius", "999px")
+                .set("font-size", "0.8rem")
+                .set("font-weight", "600")
+                .set("background", "#ede9fe")
+                .set("color", "#6d28d9");
+            return zone;
+        }).setHeader("Zone").setAutoWidth(true).setSortable(true);
 
-            status.getStyle().set("padding", "0.1rem 0.4rem");
-            status.getStyle().set("border-radius", "0.25rem");
-            status.getStyle().set("font-size", "var(--lumo-font-size-s)");
-            status.getStyle().set("font-weight", "600");
+        grid.addColumn(StorageLocation::getShelfID).setHeader("Shelf").setSortable(true).setAutoWidth(true);
+        grid.addColumn(StorageLocation::getCompartmentID).setHeader("Compartment").setSortable(true).setAutoWidth(true);
 
-            if ("Available".equalsIgnoreCase(item.getStorageStatus())) {
-                status.getStyle().set("background-color", "#2ecc71");
-                status.getStyle().set("color", "white");
-            } else if ("Used".equalsIgnoreCase(item.getStorageStatus())) {
-                status.getStyle().set("background-color", "#e74c3c");
-                status.getStyle().set("color", "white");
+        grid.addComponentColumn(item -> {
+            boolean available = "Available".equalsIgnoreCase(item.getStorageStatus());
+            Span status = new Span(available ? "Available" : "Used");
+            status.getStyle()
+                .set("padding", "2px 10px")
+                .set("border-radius", "999px")
+                .set("font-size", "0.8rem")
+                .set("font-weight", "600");
+            if (available) {
+                status.getStyle().set("background", "#dcfce7").set("color", "#16a34a");
+            } else {
+                status.getStyle().set("background", "#fee2e2").set("color", "#dc2626");
             }
-
             return status;
         }).setHeader("Status").setAutoWidth(true);
 
         grid.addComponentColumn(storageLocation -> {
-            Button editButton = new Button(VaadinIcon.EDIT.create(), click -> {
-                openEditDialog(storageLocation);
-            });
+            Button editButton = new Button(VaadinIcon.EDIT.create(), click -> openEditDialog(storageLocation));
+            editButton.addThemeVariants(ButtonVariant.LUMO_SMALL, ButtonVariant.LUMO_TERTIARY);
             editButton.getElement().setProperty("title", "Edit");
-            editButton.addThemeVariants(ButtonVariant.LUMO_TERTIARY_INLINE);
-            editButton.getStyle().set("background-color", "gold");
-            editButton.getStyle().set("color", "black");
             return editButton;
-        }).setHeader("Edit").setAutoWidth(true);
+        }).setHeader("").setAutoWidth(true);
 
         grid.addComponentColumn(storageLocation -> {
             Button deleteButton = new Button(VaadinIcon.TRASH.create());
-            deleteButton.addThemeVariants(
-                    ButtonVariant.LUMO_ERROR,
-                    ButtonVariant.LUMO_TERTIARY_INLINE
-            );
-
-            // Basis-Tooltip
+            deleteButton.addThemeVariants(ButtonVariant.LUMO_SMALL, ButtonVariant.LUMO_ERROR, ButtonVariant.LUMO_TERTIARY);
             deleteButton.getElement().setProperty("title", "Delete");
 
-            // Wenn Lagerplatz "Used" ist -> Button ausgrauen & deaktivieren
             if ("Used".equalsIgnoreCase(storageLocation.getStorageStatus())) {
                 deleteButton.setEnabled(false);
-                deleteButton.getElement().setProperty("title",
-                        "This storage location is assigned and cannot be deleted");
-
-                // Optisch etwas „disabled“ machen
-                deleteButton.getStyle().set("opacity", "0.5");
-                deleteButton.getStyle().set("cursor", "not-allowed");
+                deleteButton.getElement().setProperty("title", "This storage location is assigned and cannot be deleted");
             } else {
-                // Nur für löschbare Locations den Click-Listener registrieren
                 deleteButton.addClickListener(click -> {
-                    // Sicherheitsabfrage wie bisher
                     Dialog confirm = new Dialog();
                     confirm.setHeaderTitle("Delete Storage Location");
-
                     confirm.add("Really delete this storage location?");
 
                     Button cancel = new Button("Cancel", e -> confirm.close());
@@ -126,41 +125,51 @@ public class StorageLocationView extends Div {
                             Notification.show(ex.getMessage(), 4000, Notification.Position.BOTTOM_CENTER);
                         }
                     });
-
                     confirmDelete.addThemeVariants(ButtonVariant.LUMO_ERROR);
-
                     confirm.getFooter().add(new HorizontalLayout(cancel, confirmDelete));
                     confirm.open();
                 });
             }
-
             return deleteButton;
-        }).setHeader("Delete").setAutoWidth(true).setFlexGrow(0);
+        }).setHeader("").setAutoWidth(true).setFlexGrow(0);
+
+        grid.addThemeVariants(
+                GridVariant.LUMO_ROW_STRIPES,
+                GridVariant.LUMO_NO_BORDER,
+                GridVariant.LUMO_WRAP_CELL_CONTENT
+        );
         grid.setSizeFull();
         refreshGrid();
 
-        // Add-Button
-        Button addBtn = new Button("Add", e -> openAddDialog());
-        // Sync Button
+        // Toolbar
+        Button addBtn = new Button("+ Lagerplatz hinzufügen", e -> openAddDialog());
+        addBtn.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
+
         Button syncBtn = new Button("Aktualisieren", e -> {
-            int changed = service.syncStatusesWithArticles();  // Methode im StorageLocationService
-            Notification.show(
-                    changed + " storage location(s) aktualisiert",
-                    4000,
-                    Notification.Position.BOTTOM_END
-            );
+            int changed = service.syncStatusesWithArticles();
+            Notification.show(changed + " storage location(s) aktualisiert", 4000, Notification.Position.BOTTOM_END);
             refreshGrid();
         });
 
-        syncBtn.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
-
-        // Layout
         HorizontalLayout toolbar = new HorizontalLayout(addBtn, syncBtn);
         toolbar.setWidthFull();
-        toolbar.setJustifyContentMode(FlexComponent.JustifyContentMode.START);
+        toolbar.setAlignItems(FlexComponent.Alignment.CENTER);
+        toolbar.getStyle()
+            .set("padding", "16px 20px")
+            .set("border-bottom", "1px solid #e8edf5")
+            .set("background", "linear-gradient(to right, #fafbff, #f8fafc)");
 
-        add(new VerticalLayout(toolbar));
-        add(grid);
+        VerticalLayout content = new VerticalLayout(toolbar, grid);
+        content.setSizeFull();
+        content.setPadding(false);
+        content.setSpacing(false);
+        content.setFlexGrow(1, grid);
+
+        Div card = new Div(content);
+        card.addClassName("content-card");
+        card.setSizeFull();
+
+        add(card);
     }
 
     private void refreshGrid() {
@@ -232,7 +241,6 @@ public class StorageLocationView extends Div {
                 )
                 .bind(StorageLocation::getCompartmentID, StorageLocation::setCompartmentID);
 
-        // Status: nur lesend, aber Wert im Bean behalten
         binder.forField(status)
                 .bind(StorageLocation::getStorageStatus, (loc, v) -> {
                     if (loc.getStorageStatus() == null) {
@@ -285,9 +293,7 @@ public class StorageLocationView extends Div {
         binder.bind(zone, StorageLocation::getStorageZone, StorageLocation::setStorageZone);
         binder.bind(shelfId, StorageLocation::getShelfID, StorageLocation::setShelfID);
         binder.bind(compartmentId, StorageLocation::getCompartmentID, StorageLocation::setCompartmentID);
-        binder.bind(status, StorageLocation::getStorageStatus, (loc, v) -> {
-            // noop – read-only im UI, aber binder braucht einen Setter
-        });
+        binder.bind(status, StorageLocation::getStorageStatus, (loc, v) -> {});
 
         binder.readBean(existing);
 
@@ -295,18 +301,14 @@ public class StorageLocationView extends Div {
         dialog.add(formLayout);
 
         Button save = new Button("Save", e -> {
-            // General-ID vor der Änderung merken
             String oldGeneralId = existing.getGeneralId();
 
             if (binder.writeBeanIfValid(existing)) {
                 try {
-                    // Speichern der geänderten StorageLocation
                     service.saveWithDuplicateCheck(existing);
 
-                    // Neue General-ID nach der Änderung
                     String newGeneralId = existing.getGeneralId();
 
-                    // Wenn sich die General-ID geändert hat → alle Artikel updaten
                     if (!Objects.equals(oldGeneralId, newGeneralId)) {
                         int updated = articleInfoService
                                 .updateStorageLocationForAll(oldGeneralId, newGeneralId);
@@ -352,7 +354,6 @@ public class StorageLocationView extends Div {
         if (s == null) return "";
 
         String zone = s.getStorageZone();
-        // "Zone 3" -> "3"
         String zoneNumber = "";
         if (zone != null) {
             zoneNumber = zone.replace("Zone", "").trim();
