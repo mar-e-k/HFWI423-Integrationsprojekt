@@ -84,7 +84,7 @@ vaadin-app-layout::part(drawer) {
   border-radius: 10px;
   margin: 0;
   min-height: 42px;
-  transition: background-color 0.15s ease;
+  transition: background-color 0.2s ease-out, box-shadow 0.2s ease-out, transform 0.2s ease-out;
   position: relative;
 }
 
@@ -98,11 +98,13 @@ vaadin-app-layout::part(drawer) {
   font-size: 0.875rem;
   font-weight: 500;
   color: rgba(255, 255, 255, 0.65);
-  transition: color 0.15s ease;
+  transition: color 0.2s ease-out;
 }
 
 .app-nav-item:hover {
-  background-color: rgba(255, 255, 255, 0.15);
+  background-color: rgba(255, 255, 255, 0.1);
+  box-shadow: inset 2px 0 0 rgba(99, 102, 241, 0.5);
+  transform: translateX(3px);
 }
 
 .app-nav-item:hover::part(link) {
@@ -127,8 +129,14 @@ vaadin-app-layout::part(drawer) {
   width: 17px;
   height: 17px;
   flex-shrink: 0;
+  color: rgba(255, 255, 255, 0.5);
+  transition: color 0.2s ease-out, transform 0.2s ease-out;
+}
+
+.app-nav-item:hover vaadin-icon,
+.app-nav-item:hover svg {
   color: rgba(255, 255, 255, 0.9);
-  transition: color 0.15s ease;
+  transform: scale(1.15);
 }
 
 .app-nav-item::part(content):hover vaadin-icon,
