@@ -7,7 +7,7 @@ import jakarta.transaction.Transactional;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
-import java.beans.Transient;
+
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -46,7 +46,6 @@ public class SonderkommissionSchedueler {
             // 4. Alle Messages dem Auftrag zuordnen
             for (MessageLogistic msg : artikel) {
                 msg.setKommission(k);
-                msg.setQuantity(msg.getQuantity());
                 msg.setProcessed(true);
                 msgRepo.save(msg);
             }

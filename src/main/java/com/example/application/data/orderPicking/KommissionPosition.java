@@ -36,6 +36,6 @@ public class KommissionPosition extends AbstractEntity {
     public void setAmount(Integer amount) {this.amount = amount;}
 
     public String getStorageLocation() {return storageLocation;}
-    public void setStorageLocation(String lagerplatz) {this.storageLocation = storageLocation;}
+    public void setStorageLocation(String lagerplatz) {this.storageLocation = lagerplatz;}
 
 }

@@ -1,4 +1,4 @@
-package com.example.application.data.orderPicking;
+﻿package com.example.application.data.orderPicking;
 
 import jakarta.transaction.Transactional;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -30,6 +30,7 @@ public interface MessageLogisticRepository extends JpaRepository<MessageLogistic
     List<String> findDistinctStoresWithUnprocessed();
 
 
+    @Transactional
     @Modifying
     @Query("update MessageLogistic m set m.processed = true where m.storeId = :storeId and m.processed = false")
     void markStoreMessagesProcessed(@Param("storeId") String storeId);

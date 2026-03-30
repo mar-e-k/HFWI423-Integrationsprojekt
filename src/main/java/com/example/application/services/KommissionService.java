@@ -4,7 +4,6 @@ import com.example.application.data.articleInfo.ArticleInfo;
 import com.example.application.data.articleInfo.ArticleInfoRepository;
 import com.example.application.data.orderPicking.*;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -60,7 +59,6 @@ public class KommissionService {
     }
 
 
-    @Query("select max(k.orderPickingNumber) from Kommission k")
     public int generateNextOrderPickingNumber() {
         Integer last = komRepo.findMaxOrderNumber();
         return (last == null ? 1 : last + 1);

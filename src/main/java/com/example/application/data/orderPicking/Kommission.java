@@ -27,8 +27,6 @@ public class Kommission extends AbstractEntity {
     @Column(name = "store_id", nullable = false)
     private String store_id;
 
-    @Column(name = "version", nullable = true)
-    private Integer version;
 
 
     public Integer getOrderPickingNumber() {return orderPickingNumber;}
