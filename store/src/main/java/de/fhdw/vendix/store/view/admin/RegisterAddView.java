@@ -6,6 +6,7 @@ import com.vaadin.flow.component.applayout.AppLayout;
 import com.vaadin.flow.component.applayout.DrawerToggle;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.combobox.ComboBox;
+import com.vaadin.flow.component.dependency.StyleSheet;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.html.H1;
 import com.vaadin.flow.component.html.H2;
@@ -17,6 +18,7 @@ import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.*;
+import com.vaadin.flow.theme.aura.Aura;
 import com.vaadin.flow.theme.lumo.Lumo;
 import de.fhdw.vendix.commons.core.persistence.entity.AccountRoleEnum;
 import de.fhdw.vendix.store.persistence.entity.Register;
@@ -39,6 +41,7 @@ import java.util.stream.Collectors;
 @Route("register")
 @PageTitle("Register View")
 @RolesAllowed(AccountRoleEnum.ROLE_ADMIN)
+@StyleSheet(Aura.STYLESHEET)
 public class RegisterAddView extends AppLayout implements BeforeEnterObserver {
 
     private final RegisterService registerService;

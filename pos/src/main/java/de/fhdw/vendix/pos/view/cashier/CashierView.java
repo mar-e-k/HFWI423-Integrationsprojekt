@@ -4,6 +4,7 @@ import com.vaadin.flow.component.Key;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.dependency.CssImport;
+import com.vaadin.flow.component.dependency.StyleSheet;
 import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.grid.ColumnTextAlign;
 import com.vaadin.flow.component.grid.Grid;
@@ -22,6 +23,7 @@ import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.data.converter.StringToBigDecimalConverter;
 import com.vaadin.flow.data.value.ValueChangeMode;
 import com.vaadin.flow.router.*;
+import com.vaadin.flow.theme.aura.Aura;
 import de.fhdw.vendix.commons.core.api.dto.ArticleDTO;
 import de.fhdw.vendix.commons.core.api.dto.DepositStatus;
 import de.fhdw.vendix.commons.core.api.dto.ReceiptDTO;
@@ -43,6 +45,7 @@ import java.util.Optional;
 @PageTitle("Cashier View")
 @CssImport("./styles/styles.css")
 @RolesAllowed({AccountRoleEnum.ROLE_CASHIER})
+@StyleSheet(Aura.STYLESHEET)
 public class CashierView extends AbstractView implements BeforeEnterObserver {
 
     private static final BigDecimal MIN_PRICE = new BigDecimal("0.01");

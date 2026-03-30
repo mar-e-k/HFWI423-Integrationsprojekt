@@ -6,6 +6,7 @@ import com.vaadin.flow.component.applayout.AppLayout;
 import com.vaadin.flow.component.applayout.DrawerToggle;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.confirmdialog.ConfirmDialog;
+import com.vaadin.flow.component.dependency.StyleSheet;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.ColumnTextAlign;
@@ -22,6 +23,7 @@ import com.vaadin.flow.component.select.Select;
 import com.vaadin.flow.component.textfield.PasswordField;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.router.*;
+import com.vaadin.flow.theme.aura.Aura;
 import com.vaadin.flow.theme.lumo.Lumo;
 import de.fhdw.vendix.commons.core.persistence.entity.AccountRoleEnum;
 import de.fhdw.vendix.store.persistence.entity.Account;
@@ -43,6 +45,7 @@ import java.util.stream.Collectors;
 @Route("/roles")
 @PageTitle("Roles View")
 @RolesAllowed(AccountRoleEnum.ROLE_ADMIN)
+@StyleSheet(Aura.STYLESHEET)
 public class RoleView extends AppLayout implements BeforeEnterObserver {
 
     private final AccountService accountService;

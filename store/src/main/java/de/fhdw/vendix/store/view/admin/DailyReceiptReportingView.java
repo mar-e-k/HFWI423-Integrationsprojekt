@@ -8,6 +8,7 @@ import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.checkbox.Checkbox;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.datepicker.DatePicker;
+import com.vaadin.flow.component.dependency.StyleSheet;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.html.Anchor;
 import com.vaadin.flow.component.html.H1;
@@ -24,6 +25,7 @@ import com.vaadin.flow.router.Route;
 import com.vaadin.flow.router.RouterLink;
 import com.vaadin.flow.server.streams.DownloadHandler;
 import com.vaadin.flow.server.streams.DownloadResponse;
+import com.vaadin.flow.theme.aura.Aura;
 import com.vaadin.flow.theme.lumo.Lumo;
 import de.fhdw.vendix.commons.core.persistence.entity.AccountRoleEnum;
 import de.fhdw.vendix.store.persistence.entity.Account;
@@ -52,6 +54,7 @@ import java.util.stream.Collectors;
 @Route("receipt-reporting")
 @PageTitle("Daily Receipt Reporting")
 @RolesAllowed(AccountRoleEnum.ROLE_ADMIN)
+@StyleSheet(Aura.STYLESHEET)
 public class DailyReceiptReportingView extends AppLayout implements BeforeEnterObserver {
 
     private final ReceiptService receiptService;

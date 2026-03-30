@@ -2,6 +2,7 @@ package de.fhdw.vendix.pos.view.cashier;
 
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.dependency.StyleSheet;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.html.Anchor;
 import com.vaadin.flow.component.html.Span;
@@ -27,6 +28,7 @@ import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.textfield.TextField;
 
+import com.vaadin.flow.theme.aura.Aura;
 import de.fhdw.vendix.commons.core.api.dto.AccountDTO;
 import de.fhdw.vendix.commons.core.api.dto.ReceiptDTO;
 import de.fhdw.vendix.commons.core.persistence.entity.AccountRoleEnum;
@@ -49,6 +51,7 @@ import java.util.Optional;
 @Route("/payment")
 @PageTitle("Bezahlung")
 @RolesAllowed(AccountRoleEnum.ROLE_CASHIER)
+@StyleSheet(Aura.STYLESHEET)
 public class PaymentView extends AbstractView implements BeforeEnterObserver {
 
     private static final Logger log = LoggerFactory.getLogger(PaymentView.class);

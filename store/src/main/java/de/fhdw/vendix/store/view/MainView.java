@@ -2,8 +2,10 @@ package de.fhdw.vendix.store.view;
 
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.UI;
+import com.vaadin.flow.component.applayout.AppLayout;
 import com.vaadin.flow.component.applayout.DrawerToggle;
 import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.dependency.StyleSheet;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.html.Anchor;
 import com.vaadin.flow.component.html.H1;
@@ -14,8 +16,8 @@ import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
-import com.vaadin.flow.router.Route;
-import com.vaadin.flow.router.RouterLink;
+import com.vaadin.flow.router.*;
+import com.vaadin.flow.theme.aura.Aura;
 import com.vaadin.flow.theme.lumo.Lumo;
 import de.fhdw.vendix.commons.core.persistence.entity.AccountRoleEnum;
 import de.fhdw.vendix.commons.ui.utlity.DateTimeFormat;
@@ -24,25 +26,34 @@ import de.fhdw.vendix.store.utility.RegisterClient;
 import de.fhdw.vendix.commons.ui.view.AbstractAdminView;
 import de.fhdw.vendix.store.view.admin.*;
 import jakarta.annotation.security.RolesAllowed;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
 
+import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 
 @Route("")
 @RolesAllowed({AccountRoleEnum.ROLE_ADMIN})
-public class MainView extends AbstractAdminView {
+@StyleSheet(Aura.STYLESHEET)
+public class MainView extends AppLayout implements BeforeEnterObserver {
 
     private final H2 title = new H2();
 
     private final List<RegisterClient> kassensystemInstances;
+    private final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm:ss");
 
     public MainView(RegisterRegistryService registerRegistryService) {
         super();
         this.kassensystemInstances = new ArrayList<>(registerRegistryService.findAllRegistries());
 
         createHeader();
+        addToDrawer(createSidebar());
+        setContent(createContent());
     }
 
     private void createHeader() {
@@ -85,6 +96,8 @@ public class MainView extends AbstractAdminView {
         header.setWidthFull();
         header.setJustifyContentMode(FlexComponent.JustifyContentMode.BETWEEN);
         header.setAlignItems(FlexComponent.Alignment.CENTER);
+
+        addToNavbar(header);
 
         UI.getCurrent().getPage().executeJs("""
             const label = document.getElementById('live-clock-label');
@@ -171,11 +184,11 @@ public class MainView extends AbstractAdminView {
                 .setHeader("Status")
                 .setAutoWidth(true);
 
-        grid.addColumn(ks -> DateTimeFormat.UI_DATE_TIME.format(ks.getRegisteredAt().atZone(ZoneId.systemDefault())))
+        grid.addColumn(ks -> formatter.format(ks.getRegisteredAt().atZone(ZoneId.systemDefault())))
                 .setHeader("Registered At")
                 .setAutoWidth(true);
 
-        grid.addColumn(ks -> DateTimeFormat.UI_DATE_TIME.format(ks.getLastSeen().atZone(ZoneId.systemDefault())))
+        grid.addColumn(ks -> formatter.format(ks.getLastSeen().atZone(ZoneId.systemDefault())))
                 .setHeader("Last Seen")
                 .setAutoWidth(true);
 
@@ -189,16 +202,47 @@ public class MainView extends AbstractAdminView {
     private Component createOnlineBadge(RegisterClient registerClient) {
         Span badge = new Span(registerClient.isOnline() ? "Online" : "Offline");
         badge.getElement().getThemeList().add("badge");
-        badge.getElement().getThemeList().add(registerClient.isOnline() ? "success" : "error");
+        badge.getElement().getThemeList()
+                .add(registerClient.isOnline() ? "success" : "error");
         return badge;
     }
 
     private Component createInstanceLink(RegisterClient registerClient) {
         String name = String.format("Kasse %d", kassensystemInstances.indexOf(registerClient) + 1);
         String url = "http://" + registerClient.getSystemClientDTO().getHost() + ":" + registerClient.getSystemClientDTO().getPort() + "/cashier";
-        url += "?name=" + URLEncoder.encode(name, StandardCharsets.UTF_8);
+        try {
+            url += "?name=" + URLEncoder.encode(name, StandardCharsets.UTF_8.name());
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+        }
         Anchor link = new Anchor(url, "Open");
         link.setTarget("_blank");
         return link;
+    }
+
+    @Override
+    public void beforeEnter(BeforeEnterEvent beforeEnterEvent) {
+        Class<?> targetView = beforeEnterEvent.getNavigationTarget();
+
+        RolesAllowed rolesAllowed = targetView.getAnnotation(RolesAllowed.class);
+        if (rolesAllowed == null) {
+            return;
+        }
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+
+        boolean authorized = auth.getAuthorities().stream()
+                .map(GrantedAuthority::getAuthority)
+                .anyMatch(authRole -> {
+                    for (String requiredRole : rolesAllowed.value()) {
+                        if (authRole.equals(requiredRole)) {
+                            return true;
+                        }
+                    }
+                    return false;
+                });
+
+        if (!authorized) {
+            beforeEnterEvent.rerouteTo("login");
+        }
     }
 }

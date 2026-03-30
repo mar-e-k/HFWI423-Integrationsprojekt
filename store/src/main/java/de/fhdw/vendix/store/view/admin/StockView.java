@@ -5,6 +5,7 @@ import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.applayout.AppLayout;
 import com.vaadin.flow.component.applayout.DrawerToggle;
 import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.dependency.StyleSheet;
 import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.html.H1;
@@ -24,6 +25,7 @@ import com.vaadin.flow.router.BeforeEnterObserver;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.router.RouterLink;
+import com.vaadin.flow.theme.aura.Aura;
 import com.vaadin.flow.theme.lumo.Lumo;
 import de.fhdw.vendix.commons.core.persistence.entity.AccountRoleEnum;
 import de.fhdw.vendix.store.persistence.entity.StoreLinkStock;
@@ -42,6 +44,7 @@ import java.util.stream.Collectors;
 @Route("/admin-stock")
 @PageTitle("Bestandsübersicht")
 @RolesAllowed(AccountRoleEnum.ROLE_ADMIN)
+@StyleSheet(Aura.STYLESHEET)
 public class StockView extends AppLayout implements BeforeEnterObserver {
 
     private final StoreLinkStockService storeLinkStockService;
