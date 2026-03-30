@@ -11,8 +11,9 @@ public class RestockItem {
             // Kein Mindestbestand gesetzt → keine Nachbestellmenge berechenbar
             this.orderAmount = null;
         } else {
-            // Formel: (minStock * 2) - totalStock (inkl. Reservepaletten)
-            this.orderAmount = (min * 2) - article.getTotalStock();
+            // Formel: (minStock * 2) - reservePallets → Ergebnis in Paletten
+            int currentPallets = article.getReservePallets() != null ? article.getReservePallets() : 0;
+            this.orderAmount = (min * 2) - currentPallets;
         }
     }
     public ArticleInfo getArticle() {
