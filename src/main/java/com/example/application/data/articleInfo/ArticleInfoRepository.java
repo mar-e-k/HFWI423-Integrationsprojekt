@@ -38,7 +38,11 @@ public interface ArticleInfoRepository
     @Query("select a.storageLocation from ArticleInfo a where a.articleNumber = :articleNumber")
     String findStorageLocationByArticleNumber(@Param("articleNumber") String articleNumber);
 
+    @Query("select a.piecesPerPallet from ArticleInfo a where a.articleNumber = :articleNumber")
+    int findPiecesPerPalletLevelForArticle(@Param("articleNumber") String articleNumber);
 
+    @Query("select a.reservePallets from ArticleInfo a where a.articleNumber = :articleNumber")
+    int findReservedPaletts(@Param("articleNumber") String articleNumber);
 
     @Query("select a.stockLevel from ArticleInfo a where a.articleNumber = :articleNumber")
     int findStockLevelForArticle(@Param("articleNumber") String articleNumber);

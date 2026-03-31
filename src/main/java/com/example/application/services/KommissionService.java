@@ -37,6 +37,10 @@ public class KommissionService {
         return articleRepo.findStorageLocationByArticleNumber(articleNumber);
     }
 
+    public int getFullStockLevelForArticle(String articleNumber) {
+        return articleRepo.findStockLevelForArticle(articleNumber) + articleRepo.findPiecesPerPalletLevelForArticle(articleNumber) * articleRepo.findReservedPaletts(articleNumber);
+    }
+
     public int getStockLevelForArticle(String articleNumber) {
         return articleRepo.findStockLevelForArticle(articleNumber);
     }

@@ -25,7 +25,7 @@ public class WeeklyKommissionScheduler {
 
     // Jeden Montag um 12:00
     @Transactional
-    @Scheduled(cron = "0 0 12 * * MON")
+    @Scheduled(cron = "1 * * * * *")
     public void createWeeklyKommissionen() {
 
         //Alle Stores, die unverarbeitete Messages haben

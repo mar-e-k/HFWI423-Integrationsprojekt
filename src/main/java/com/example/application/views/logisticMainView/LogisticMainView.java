@@ -263,6 +263,12 @@ public class LogisticMainView extends Div {
                 .setFlexGrow(1)
                 .setSortable(true);
 
+        grid.addColumn(item -> item.getArticleId() != null ? String.valueOf(item.getArticleId()) : "")
+                .setHeader("Artikel ID")
+                .setKey("articleId")
+                .setAutoWidth(true)
+                .setSortable(true);
+
         grid.addComponentColumn(item -> {
             Span s = new Span(String.valueOf(item.getTotalStock()));
             s.getStyle().set("font-weight", "700").set("color", "#1e293b").set("font-size", "0.9rem");
