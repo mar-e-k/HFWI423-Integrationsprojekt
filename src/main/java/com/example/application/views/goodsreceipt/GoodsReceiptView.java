@@ -164,7 +164,10 @@ public class GoodsReceiptView extends Div {
         Dialog dialog = new Dialog();
         dialog.setHeaderTitle("Wareneingang aus Bestellung anlegen");
 
-        TextField supplier = new TextField("Lieferant");
+        ComboBox<String> supplier = new ComboBox<>("Lieferant");
+        supplier.setItems(service.findDistinctSupplierNames());
+        supplier.setAllowCustomValue(true);
+        supplier.addCustomValueSetListener(e -> supplier.setValue(e.getDetail()));
         supplier.setRequired(true);
 
         TextField deliveryNote = new TextField("Lieferscheinnummer");
