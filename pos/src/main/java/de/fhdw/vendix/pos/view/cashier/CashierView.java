@@ -73,6 +73,7 @@ public class CashierView extends AbstractView implements BeforeEnterObserver {
         this.articleService = articleService;
         this.cartItemsManager = cartItemsManager;
         this.receiptProxyService = receiptProxyService;
+        add(createTopBarButtons());
         initView();
     }
 
