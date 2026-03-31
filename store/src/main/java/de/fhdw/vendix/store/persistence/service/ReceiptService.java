@@ -1,16 +1,8 @@
 package de.fhdw.vendix.store.persistence.service;
 
 import de.fhdw.vendix.commons.core.api.dto.DepositStatus;
-import de.fhdw.vendix.store.persistence.entity.Account;
-import de.fhdw.vendix.store.persistence.entity.Receipt;
-import de.fhdw.vendix.store.persistence.entity.ReceiptArticle;
-import de.fhdw.vendix.store.persistence.entity.RedeemedDepositReceipt;
-import de.fhdw.vendix.store.persistence.entity.Register;
-import de.fhdw.vendix.store.persistence.repository.AccountRepository;
-import de.fhdw.vendix.store.persistence.repository.ReceiptLinkArticleRepository;
-import de.fhdw.vendix.store.persistence.repository.ReceiptRepository;
-import de.fhdw.vendix.store.persistence.repository.RedeemedDepositReceiptRepository;
-import de.fhdw.vendix.store.persistence.repository.RegisterRepository;
+import de.fhdw.vendix.store.persistence.entity.*;
+import de.fhdw.vendix.store.persistence.repository.*;
 import de.fhdw.vendix.store.persistence.repository.imported.ArticleRepository;
 import jakarta.persistence.EntityNotFoundException;
 import org.apache.pdfbox.pdmodel.PDDocument;
@@ -44,8 +36,9 @@ public class ReceiptService extends AbstractCrudService<Receipt, Long> {
     private final ReceiptRepository receiptRepository;
 
     private final DateTimeFormatter fmt = DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm:ss");
+    private final StoreLinkStockService storeLinkStockService;
 
-    public ReceiptService(ReceiptRepository receiptRepository, ReceiptLinkArticleRepository receiptLinkArticleRepository, RegisterRepository registerRepository, AccountRepository accountRepository, ArticleRepository articleRepository, RedeemedDepositReceiptRepository redeemedDepositReceiptRepository) {
+    public ReceiptService(ReceiptRepository receiptRepository, ReceiptLinkArticleRepository receiptLinkArticleRepository, RegisterRepository registerRepository, AccountRepository accountRepository, ArticleRepository articleRepository, RedeemedDepositReceiptRepository redeemedDepositReceiptRepository, StoreLinkStockService storeLinkStockService) {
         super(receiptRepository);
         this.receiptLinkArticleRepository = receiptLinkArticleRepository;
         this.registerRepository = registerRepository;
@@ -53,6 +46,7 @@ public class ReceiptService extends AbstractCrudService<Receipt, Long> {
         this.articleRepository = articleRepository;
         this.redeemedDepositReceiptRepository = redeemedDepositReceiptRepository;
         this.receiptRepository = receiptRepository;
+        this.storeLinkStockService = storeLinkStockService;
     }
 
     public List<ReceiptArticle> getReceiptLinkArticles(Receipt receipt) {
@@ -122,7 +116,15 @@ public class ReceiptService extends AbstractCrudService<Receipt, Long> {
                     article.getDepositStatus())));
         }
 
-        receipt.setReceiptArticles(savedArticles);
+        for (ReceiptArticle article : articles) {
+            StoreLinkStock stock = storeLinkStockService.findByStoreAndArticle(receipt.getStore(), article.getArticle())
+                    .orElseThrow(EntityNotFoundException::new);
+            stock.setAmount(Math.max(stock.getAmount() - article.getAmount(), 0));
+            storeLinkStockService.update(stock);
+        }
+
+        receipt.getReceiptArticles().clear();
+        receipt.getReceiptArticles().addAll(savedArticles);
         return receipt;
     }
 
