@@ -10,6 +10,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
+import org.springframework.boot.CommandLineRunner;
 import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -19,7 +20,7 @@ import java.util.UUID;
 
 @Order(1)
 @Component
-    public class FilialConnectorInitializer implements ApplicationRunner {
+    public class FilialConnectorInitializer implements CommandLineRunner {
 
     private static final Logger log = LoggerFactory.getLogger(FilialConnectorInitializer.class);
 
@@ -45,7 +46,7 @@ import java.util.UUID;
     private static final int MAX_RETRIES = 10;
 
     @Override
-    public void run(ApplicationArguments args) {
+    public void run(String... args) throws Exception {
         log.atInfo().log("spring.kassensystem.connect-to-filial-on-startup is: {}", connectToFilialOnStartup);
 
         if (!connectToFilialOnStartup) {

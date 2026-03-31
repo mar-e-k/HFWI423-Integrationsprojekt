@@ -12,9 +12,11 @@ import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.stereotype.Component;
 
 import java.util.Set;
 
+@Component
 public class JwtAuthenticationFilter extends AbstractJwtAuthenticationFilter {
 
     private final JwtService jwtService;

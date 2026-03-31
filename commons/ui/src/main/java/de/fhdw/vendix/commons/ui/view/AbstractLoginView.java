@@ -1,6 +1,5 @@
 package de.fhdw.vendix.commons.ui.view;
 
-import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.dependency.StyleSheet;
 import com.vaadin.flow.component.login.LoginForm;
 import com.vaadin.flow.component.notification.Notification;
@@ -20,12 +19,6 @@ public abstract class AbstractLoginView extends VerticalLayout implements Before
         setSizeFull();
         setAlignItems(Alignment.CENTER);
         setJustifyContentMode(JustifyContentMode.CENTER);
-
-        Button button = new Button("Debug Exception");
-        button.addClickListener(event -> {
-            throw new IllegalArgumentException("Debug Exception");
-        });
-        add(button);
 
         LoginForm loginForm = new LoginForm();
         loginForm.setAction("login");

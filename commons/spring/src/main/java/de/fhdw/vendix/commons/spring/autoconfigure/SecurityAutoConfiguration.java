@@ -57,7 +57,7 @@ public class SecurityAutoConfiguration {
 //                            .invalidateHttpSession(true)
 //                            .clearAuthentication(true)
                             )
-//                    .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
+                    .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
                     .build();
         }
     }

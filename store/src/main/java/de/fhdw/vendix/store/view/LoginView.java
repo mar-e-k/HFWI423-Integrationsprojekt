@@ -12,5 +12,8 @@ import de.fhdw.vendix.commons.ui.view.AbstractLoginView;
 @StyleSheet(Aura.STYLESHEET)
 @AnonymousAllowed
 public class LoginView extends AbstractLoginView {
-    public LoginView() {}
+
+    public LoginView() {
+
+    }
 }
