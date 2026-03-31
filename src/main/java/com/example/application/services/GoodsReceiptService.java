@@ -73,6 +73,11 @@ public class GoodsReceiptService {
     }
 
     @Transactional(readOnly = true)
+    public List<String> findDistinctSupplierNames() {
+        return receiptRepo.findDistinctSupplierNames();
+    }
+
+    @Transactional(readOnly = true)
     public GoodsReceipt getById(Long id) {
         return receiptRepo.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Wareneingang " + id + " nicht gefunden"));

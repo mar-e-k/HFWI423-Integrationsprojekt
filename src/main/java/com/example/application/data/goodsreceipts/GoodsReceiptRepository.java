@@ -1,8 +1,13 @@
 package com.example.application.data.goodsreceipts;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import java.util.List;
 import java.util.Optional;
 
 public interface GoodsReceiptRepository extends JpaRepository<GoodsReceipt, Long> {
     Optional<GoodsReceipt> findByReceiptNumber(String receiptNumber);
+
+    @Query("SELECT DISTINCT g.supplierName FROM GoodsReceipt g WHERE g.supplierName IS NOT NULL ORDER BY g.supplierName")
+    List<String> findDistinctSupplierNames();
 }
