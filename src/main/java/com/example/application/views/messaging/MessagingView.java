@@ -3,6 +3,7 @@ package com.example.application.views.messaging;
 import com.example.application.data.messagingEvent.MessagingEvent;
 import com.example.application.services.MessagingEventService;
 import com.example.application.amqp.einkaufEvents.EinkaufEventPublisher;
+import com.example.application.amqp.storeEvents.LogisticEventPublisher;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.grid.Grid;
@@ -31,11 +32,13 @@ public class MessagingView extends Div {
 
     private final MessagingEventService messagingEventService;
     private final EinkaufEventPublisher einkaufEventPublisher;
+    private final LogisticEventPublisher logisticEventPublisher;
     private final Grid<MessagingEvent> grid = new Grid<>(MessagingEvent.class, false);
 
-    public MessagingView(MessagingEventService messagingEventService, EinkaufEventPublisher einkaufEventPublisher) {
+    public MessagingView(MessagingEventService messagingEventService, EinkaufEventPublisher einkaufEventPublisher, LogisticEventPublisher logisticEventPublisher) {
         this.messagingEventService = messagingEventService;
         this.einkaufEventPublisher = einkaufEventPublisher;
+        this.logisticEventPublisher = logisticEventPublisher;
 
         setSizeFull();
 
@@ -47,9 +50,12 @@ public class MessagingView extends Div {
         Button publishButton = new Button("Publish NewDeal", e -> publishNewDeal(articleIdField.getValue()));
         publishButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
 
+        Button testMessageButton = new Button("Test Message", e -> sendTestMessage());
+        testMessageButton.addThemeVariants(ButtonVariant.LUMO_CONTRAST);
+
         Button refreshButton = new Button("Aktualisieren", e -> updateGrid());
 
-        HorizontalLayout toolbar = new HorizontalLayout(articleIdField, publishButton, refreshButton);
+        HorizontalLayout toolbar = new HorizontalLayout(articleIdField, publishButton, testMessageButton, refreshButton);
         toolbar.setWidthFull();
         toolbar.setAlignItems(FlexComponent.Alignment.CENTER);
         toolbar.getStyle()
@@ -106,6 +112,10 @@ public class MessagingView extends Div {
             Notification.show("Fehler beim Versenden: " + e.getMessage(), 3000, Notification.Position.BOTTOM_START)
                     .addThemeVariants(NotificationVariant.LUMO_ERROR);
         }
+    }
+
+    private void sendTestMessage() {
+        logisticEventPublisher.publishArticleDelivery(1L, 1L, 10L);
     }
 
     private void updateGrid() {

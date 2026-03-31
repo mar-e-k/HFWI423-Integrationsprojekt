@@ -45,15 +45,4 @@ private final EventPublisher publisher;
         settings.addLink("shortcut icon", "icons/icon.png");
     }
 
-    @EventListener
-    public void message(ApplicationStartedEvent applicationStartedEvent){
-        try {
-            EventEnvelope eventenvelope = EventEnvelopeBuilder.defaults().withContentType(ArticleSentEvent.class).build();
-            publisher.publishMessage(eventenvelope);
-        } catch (Exception e) {
-            // RabbitMQ Exchange nicht vorhanden oder nicht erreichbar - nicht kritisch
-            // Logistik-System kann auch ohne RabbitMQ funktionieren
-            System.err.println("Warning: Could not publish StoreClosedEvent to RabbitMQ: " + e.getMessage());
-        }
-    }
 }
