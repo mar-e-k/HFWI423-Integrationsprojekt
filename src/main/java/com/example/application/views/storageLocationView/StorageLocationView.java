@@ -31,7 +31,7 @@ import org.vaadin.lineawesome.LineAwesomeIconUrl;
 import java.util.List;
 import java.util.Objects;
 
-@PageTitle("Storage Location")
+@PageTitle("Lagerplatzverwaltung")
 @Route("storage-location")
 @Menu(order = 2, icon = LineAwesomeIconUrl.STORE_SOLID)
 @Uses(Icon.class)
