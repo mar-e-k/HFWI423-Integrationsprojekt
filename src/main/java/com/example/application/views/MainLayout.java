@@ -18,6 +18,7 @@ import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.Scroller;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.sidenav.SideNav;
 import com.vaadin.flow.component.sidenav.SideNavItem;
 import com.vaadin.flow.router.AfterNavigationEvent;
@@ -134,7 +135,7 @@ public class MainLayout extends AppLayout implements AfterNavigationObserver {
     private void addDrawerContent() {
         Header drawerHeader = createDrawerHeader();
 
-        Scroller navigationScroller = new Scroller(createNavigation());
+        Scroller navigationScroller = new Scroller(createNavigationLayout());
         navigationScroller.setSizeFull();
         navigationScroller.addClassName("app-drawer-scroller");
 
@@ -163,16 +164,35 @@ public class MainLayout extends AppLayout implements AfterNavigationObserver {
         return header;
     }
 
-    private SideNav createNavigation() {
-        SideNav nav = new SideNav();
-        nav.addClassName("app-sidenav");
+    private Component createNavigationLayout() {
+        SideNav operativNav = new SideNav();
+        operativNav.addClassName("app-sidenav");
+
+        SideNav archivNav = new SideNav();
+        archivNav.addClassName("app-sidenav");
 
         List<MenuEntry> menuEntries = MenuConfiguration.getMenuEntries();
         for (MenuEntry entry : menuEntries) {
-            nav.addItem(createNavItem(entry));
+            if ("Stock Changes".equals(entry.title())) {
+                archivNav.addItem(createNavItem(entry));
+            } else {
+                operativNav.addItem(createNavItem(entry));
+            }
         }
 
-        return nav;
+        VerticalLayout navLayout = new VerticalLayout(
+                createNavSectionLabel("Operativ"), operativNav,
+                createNavSectionLabel("Archiv"), archivNav
+        );
+        navLayout.setPadding(false);
+        navLayout.setSpacing(false);
+        return navLayout;
+    }
+
+    private Span createNavSectionLabel(String text) {
+        Span label = new Span(text);
+        label.addClassName("app-nav-section-label");
+        return label;
     }
 
     private SideNavItem createNavItem(MenuEntry entry) {

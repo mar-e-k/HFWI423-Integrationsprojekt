@@ -73,6 +73,17 @@ vaadin-app-layout::part(drawer) {
 }
 
 /* ── Navigation ──────────────────────────────────────────── */
+.app-nav-section-label {
+  color: white;
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  padding: 0.75rem 1rem 0.25rem;
+  opacity: 0.8;
+  display: block;
+}
+
 .app-sidenav {
   padding: 0.5rem;
   display: flex;
