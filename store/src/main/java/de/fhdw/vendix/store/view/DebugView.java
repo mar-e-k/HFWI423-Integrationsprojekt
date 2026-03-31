@@ -10,6 +10,7 @@ import com.vaadin.flow.theme.aura.Aura;
 import de.fhdw.vendix.commons.core.persistence.entity.AccountRoleEnum;
 import io.github.plaguv.amqp.api.envelope.EventEnvelope;
 import io.github.plaguv.amqp.api.envelope.EventEnvelopeBuilder;
+import io.github.plaguv.amqp.api.event.logistic.ArticleSentEvent;
 import io.github.plaguv.amqp.api.event.pos.ArticleOrderEvent;
 import io.github.plaguv.amqp.api.event.pos.ArticleUrgentOrderEvent;
 import io.github.plaguv.amqp.core.publisher.EventPublisher;
@@ -32,6 +33,7 @@ public class DebugView extends VerticalLayout {
         add(new HorizontalLayout(storeIdField, articleIdField, articleQuantityField));
         configureArticleOrderButton();
         configureUrgentArticleOrderButton();
+        configureArticleSentButton();
     }
 
     private void configureDebugButton() {
@@ -71,5 +73,22 @@ public class DebugView extends VerticalLayout {
                     .build();
             eventPublisher.publishMessage(envelope);
         });
+        add(button);
+    }
+
+    private void configureArticleSentButton() {
+        Button button = new Button("Logistic Article Sent Order");
+        button.addClickListener(event -> {
+            ArticleSentEvent articleSentEvent = new ArticleSentEvent(
+                    storeIdField.getValue().longValue(),
+                    articleIdField.getValue().longValue(),
+                    articleQuantityField.getValue().longValue()
+            );
+            EventEnvelope envelope = EventEnvelopeBuilder.defaults()
+                    .withContent(articleSentEvent)
+                    .build();
+            eventPublisher.publishMessage(envelope);
+        });
+        add(button);
     }
 }
