@@ -115,7 +115,7 @@ public class MessagingView extends Div {
     }
 
     private void sendTestMessage() {
-        logisticEventPublisher.publishArticleDelivery(1L, 1L, 10L);
+        logisticEventPublisher.publishArticleDelivery(1L, 10L, 5L);
     }
 
     private void updateGrid() {
