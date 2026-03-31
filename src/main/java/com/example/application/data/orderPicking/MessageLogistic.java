@@ -11,6 +11,9 @@ public class MessageLogistic extends AbstractEntity {
     @Column(name = "article_number", nullable = false)
     private String articleNumber;
 
+    @Column(name = "article_id")
+    private Long articleId;
+
     // Lagerbestand des Artikels
     @Column(name = "store_id")
     private String storeId;
@@ -65,6 +68,14 @@ public class MessageLogistic extends AbstractEntity {
     }
 
     public void setKommission(Kommission kommission) {this.kommission = kommission;}
+
+    public Long getArticleId() {
+        return articleId;
+    }
+
+    public void setArticleId(Long articleId) {
+        this.articleId = articleId;
+    }
 
     public String getComment() {return  comment;}
 

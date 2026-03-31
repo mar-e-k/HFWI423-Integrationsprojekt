@@ -3,6 +3,7 @@ package com.example.application.services;
 import com.example.application.data.articleInfo.ArticleInfo;
 import com.example.application.data.articleInfo.ArticleInfoRepository;
 import com.example.application.data.storageLocation.StorageLocation;
+import com.vaadin.flow.component.html.Article;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
@@ -147,8 +148,14 @@ public class ArticleInfoService {
         }
 
         while (article.getStockLevel() - change < 0) {
-            change = Math.abs(article.getStockLevel() - change);
-            updateStockLevelWithPalletLogic(article.getArticleId(),0);
+            int reservePallets = article.getReservePallets() != null ? article.getReservePallets() : 0;
+            int piecesPerPallet = article.getPiecesPerPallet() != null ? article.getPiecesPerPallet() : 0;
+            if (reservePallets <= 0 || piecesPerPallet <= 0) {
+                return false;
+            }
+            ArticleInfo articleInfo = updateStockLevelWithPalletLogic(article.getArticleId(), 0);
+            article = articleInfo;
+            change = Math.abs(articleInfo.getStockLevel() - change);
         }
 
         if (article.getStockLevel() - change >= 0) {
@@ -189,8 +196,11 @@ public class ArticleInfoService {
      */
     @Transactional
     public ArticleInfo updateStockLevelWithPalletLogic(Long articleId, int newStockLevel) {
-        ArticleInfo article = articleInfoRepository.findById(articleId)
-                .orElseThrow(() -> new IllegalArgumentException("Article not found: " + articleId));
+        ArticleInfo article = articleInfoRepository.findByArticleId(articleId);
+
+        if (article == null) {
+            throw new IllegalArgumentException("Artikel existiert NICHT in article_info!");
+        }
 
         // neuen Bestand setzen (aus dem Dialog kommt typischerweise ein absoluter Wert)
         article.setStockLevel(newStockLevel);

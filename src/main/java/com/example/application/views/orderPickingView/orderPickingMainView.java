@@ -155,7 +155,7 @@ public class orderPickingMainView extends VerticalLayout {
                 dialog.setWidth("900px");
 
                 List<MessageLogistic> artikel =
-                        msgRepo.findByStoreIdAndQuantityGreaterThan(k.getStoreId(), 0);
+                        msgRepo.findByKommissionId(k.getId());
 
                 Map<String, MessageLogistic> latestPerArticle = artikel.stream()
                         .collect(Collectors.toMap(
@@ -291,14 +291,12 @@ public class orderPickingMainView extends VerticalLayout {
     private void publishDeliveryToStore(Kommission k, List<MessageLogistic> artikel) {
         for (MessageLogistic msg : artikel) {
             try {
-                ArticleInfo article = articleInfoRepository.findByArticleNumber(msg.getArticleNumber());
-
-                if (article == null || article.getArticleId() == null) {
+                if (msg.getArticleId() == null) {
                     continue;
                 }
 
                 long storeId = Long.parseLong(k.getStoreId());
-                long articleId = article.getArticleId();
+                long articleId = msg.getArticleId();
                 long quantity = msg.getQuantity();
 
                 logisticEventPublisher.publishArticleDelivery(storeId, articleId, quantity);

@@ -100,6 +100,7 @@ public class LogisticOrderListener {
         MessageLogistic msg = new MessageLogistic();
         msg.setStoreId(storeIdStr);
         msg.setArticleNumber(article.getArticleNumber());
+        msg.setArticleId(articleId);
         msg.setQuantity(quantity);
         msg.setProcessed(false);
 
