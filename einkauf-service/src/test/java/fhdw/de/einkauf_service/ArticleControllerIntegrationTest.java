@@ -74,9 +74,12 @@ public class ArticleControllerIntegrationTest {
                 "widthCm": 10.0,
                 "depthCm": 10.0,
                 "hasDeposit": false,
-                "mainSupplierId": %d
+                "isAvailable": true,
+                "mainSupplierId": %d,
+                "supplierIds": [%d],
+                "categoryIds": []
             }
-            """.formatted(testSupplierId);
+            """.formatted(testSupplierId, testSupplierId);
 
         mockMvc.perform(post("/api/v1/articles")
                 .contentType(MediaType.APPLICATION_JSON)
@@ -107,19 +110,28 @@ public class ArticleControllerIntegrationTest {
                 "widthCm": 5.0,
                 "depthCm": 5.0,
                 "hasDeposit": false,
-                "mainSupplierId": %d
+                "isAvailable": true,
+                "mainSupplierId": %d,
+                "supplierIds": [%d],
+                "categoryIds": []
             }
-            """.formatted(testSupplierId);
+            """.formatted(testSupplierId, testSupplierId);
 
-        var result = mockMvc.perform(post("/api/v1/articles")
+        var createdResult = mockMvc.perform(post("/api/v1/articles")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(articleJson))
                 .andExpect(status().isCreated())
-                .andReturn();
+                .andReturn()
+                .getResponse()
+                .getContentAsString();
 
-        // Extrahiere ID aus Response (vereinfacht)
-        mockMvc.perform(get("/api/v1/articles/1")) // Annahme ID 1
-                .andExpect(status().isOk());
+        // Extrahiere ID aus Response mit JsonPath
+        Number createdIdNum = com.jayway.jsonpath.JsonPath.read(createdResult, "$.id");
+        Long createdId = createdIdNum.longValue();
+
+        mockMvc.perform(get("/api/v1/articles/" + createdId))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.name").value("Test Article for Get"));
     }
 
     @Test
@@ -138,14 +150,23 @@ public class ArticleControllerIntegrationTest {
                 "widthCm": 15.0,
                 "depthCm": 15.0,
                 "hasDeposit": false,
-                "mainSupplierId": %d
+                "isAvailable": true,
+                "mainSupplierId": %d,
+                "supplierIds": [%d],
+                "categoryIds": []
             }
-            """.formatted(testSupplierId);
+            """.formatted(testSupplierId, testSupplierId);
 
-        mockMvc.perform(post("/api/v1/articles")
+        var createdResult = mockMvc.perform(post("/api/v1/articles")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(createJson))
-                .andExpect(status().isCreated());
+                .andExpect(status().isCreated())
+                .andReturn()
+                .getResponse()
+                .getContentAsString();
+
+        Number articleIdNum = com.jayway.jsonpath.JsonPath.read(createdResult, "$.id");
+        Long articleId = articleIdNum.longValue();
 
         // Update
         String updateJson = """
@@ -161,11 +182,14 @@ public class ArticleControllerIntegrationTest {
                 "widthCm": 20.0,
                 "depthCm": 20.0,
                 "hasDeposit": false,
-                "mainSupplierId": %d
+                "isAvailable": true,
+                "mainSupplierId": %d,
+                "supplierIds": [%d],
+                "categoryIds": []
             }
-            """.formatted(testSupplierId);
+            """.formatted(testSupplierId, testSupplierId);
 
-        mockMvc.perform(put("/api/v1/articles/1") // Annahme ID 1
+        mockMvc.perform(put("/api/v1/articles/" + articleId)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(updateJson))
                 .andExpect(status().isOk())
@@ -188,17 +212,26 @@ public class ArticleControllerIntegrationTest {
                 "widthCm": 25.0,
                 "depthCm": 25.0,
                 "hasDeposit": false,
-                "mainSupplierId": %d
+                "isAvailable": true,
+                "mainSupplierId": %d,
+                "supplierIds": [%d],
+                "categoryIds": []
             }
-            """.formatted(testSupplierId);
+            """.formatted(testSupplierId, testSupplierId);
 
-        mockMvc.perform(post("/api/v1/articles")
+        var createdResult = mockMvc.perform(post("/api/v1/articles")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(articleJson))
-                .andExpect(status().isCreated());
+                .andExpect(status().isCreated())
+                .andReturn()
+                .getResponse()
+                .getContentAsString();
+
+        Number articleIdNum = com.jayway.jsonpath.JsonPath.read(createdResult, "$.id");
+        Long articleId = articleIdNum.longValue();
 
         // Lösche
-        mockMvc.perform(delete("/api/v1/articles/1")) // Annahme ID 1
+        mockMvc.perform(delete("/api/v1/articles/" + articleId))
                 .andExpect(status().isNoContent());
     }
 }

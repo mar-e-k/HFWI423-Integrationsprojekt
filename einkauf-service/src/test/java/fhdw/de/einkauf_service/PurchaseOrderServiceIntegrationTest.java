@@ -40,6 +40,8 @@ public class PurchaseOrderServiceIntegrationTest {
     @Autowired
     private fhdw.de.einkauf_service.config.ShoppingCartSession cartSession;
 
+    private Long testArticleId;
+
     @BeforeEach
     public void setUp() {
         // Erstelle Testdaten: PaymentTerm, Supplier und Article
@@ -73,7 +75,11 @@ public class PurchaseOrderServiceIntegrationTest {
         article.setStockLevel(100);
         article.setTaxRatePercent(19.0);
         article.setHasDeposit(false);
-        articleRepository.save(article);
+        article = articleRepository.save(article);
+        testArticleId = article.getId();
+
+        // Leere Warenkorb
+        cartSession.clearCart();
     }
 
     @Test
@@ -87,7 +93,7 @@ public class PurchaseOrderServiceIntegrationTest {
     @Test
     public void testCreateAndSendOrdersFromCart() {
         // Setze Warenkorb mit Test-Artikel
-        cartSession.addItem(1L, 5); // Annahme: Article mit ID 1 existiert
+        cartSession.addItem(testArticleId, 5);
 
         // Erstelle Bestellung aus Warenkorb
         var responses = purchaseOrderService.createAndSendOrdersFromCart();
@@ -101,7 +107,7 @@ public class PurchaseOrderServiceIntegrationTest {
     @Test
     public void testGetOrderDetails() {
         // Erstelle eine Test-Bestellung zuerst
-        cartSession.addItem(1L, 2);
+        cartSession.addItem(testArticleId, 2);
         var createdOrders = purchaseOrderService.createAndSendOrdersFromCart();
         assertFalse(createdOrders.isEmpty());
 
@@ -114,7 +120,7 @@ public class PurchaseOrderServiceIntegrationTest {
     @Test
     public void testReorder() {
         // Erstelle ursprüngliche Bestellung
-        cartSession.addItem(1L, 3);
+        cartSession.addItem(testArticleId, 3);
         var originalOrders = purchaseOrderService.createAndSendOrdersFromCart();
         Long originalOrderId = originalOrders.get(0).id();
 

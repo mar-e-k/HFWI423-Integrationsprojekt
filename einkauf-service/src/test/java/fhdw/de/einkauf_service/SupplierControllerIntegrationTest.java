@@ -89,13 +89,19 @@ public class SupplierControllerIntegrationTest {
             }
             """.formatted(testPaymentTermId);
 
-        mockMvc.perform(post("/api/v1/suppliers")
+        var createdResult = mockMvc.perform(post("/api/v1/suppliers")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(supplierJson))
-                .andExpect(status().isCreated());
+                .andExpect(status().isCreated())
+                .andReturn()
+                .getResponse()
+                .getContentAsString();
 
         // Hole Supplier by ID
-        mockMvc.perform(get("/api/v1/suppliers/1")) // Annahme ID 1
+        Number supplierIdNum = com.jayway.jsonpath.JsonPath.read(createdResult, "$.id");
+        Long supplierId = supplierIdNum.longValue();
+
+        mockMvc.perform(get("/api/v1/suppliers/" + supplierId))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.name").value("Supplier for Get"));
     }
@@ -117,10 +123,16 @@ public class SupplierControllerIntegrationTest {
             }
             """.formatted(testPaymentTermId);
 
-        mockMvc.perform(post("/api/v1/suppliers")
+        var createdResult = mockMvc.perform(post("/api/v1/suppliers")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(createJson))
-                .andExpect(status().isCreated());
+                .andExpect(status().isCreated())
+                .andReturn()
+                .getResponse()
+                .getContentAsString();
+
+        Number supplierIdNum = com.jayway.jsonpath.JsonPath.read(createdResult, "$.id");
+        Long supplierId = supplierIdNum.longValue();
 
         // Update
         String updateJson = """
@@ -137,7 +149,7 @@ public class SupplierControllerIntegrationTest {
             }
             """.formatted(testPaymentTermId);
 
-        mockMvc.perform(put("/api/v1/suppliers/1") // Annahme ID 1
+        mockMvc.perform(put("/api/v1/suppliers/" + supplierId)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(updateJson))
                 .andExpect(status().isOk())
@@ -161,13 +173,19 @@ public class SupplierControllerIntegrationTest {
             }
             """.formatted(testPaymentTermId);
 
-        mockMvc.perform(post("/api/v1/suppliers")
+        var createdResult = mockMvc.perform(post("/api/v1/suppliers")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(supplierJson))
-                .andExpect(status().isCreated());
+                .andExpect(status().isCreated())
+                .andReturn()
+                .getResponse()
+                .getContentAsString();
+
+        Number supplierIdNum = com.jayway.jsonpath.JsonPath.read(createdResult, "$.id");
+        Long supplierId = supplierIdNum.longValue();
 
         // Lösche
-        mockMvc.perform(delete("/api/v1/suppliers/1")) // Annahme ID 1
+        mockMvc.perform(delete("/api/v1/suppliers/" + supplierId))
                 .andExpect(status().isNoContent());
     }
 }
