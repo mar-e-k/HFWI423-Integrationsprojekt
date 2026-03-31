@@ -1,6 +1,5 @@
 package de.fhdw.vendix.pos.view;
 
-import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.dependency.StyleSheet;
 import com.vaadin.flow.router.BeforeEnterEvent;
 import com.vaadin.flow.router.BeforeEnterObserver;
@@ -17,12 +16,15 @@ import jakarta.annotation.security.RolesAllowed;
 public class MainView extends AbstractView implements BeforeEnterObserver {
 
     public MainView() {
-        UI.getCurrent().navigate(CashierView.class);
+        // Konstruktor leer lassen — Navigation passiert in beforeEnter
     }
 
     @Override
     public void beforeEnter(BeforeEnterEvent beforeEnterEvent) {
         super.beforeEnter(beforeEnterEvent);
-        beforeEnterEvent.rerouteTo(CashierView.class);
+        // Nur weiterleiten wenn Auth-Check der super-Methode durchgekommen ist
+        if (beforeEnterEvent.getNavigationTarget() == MainView.class) {
+            beforeEnterEvent.rerouteTo(CashierView.class);
+        }
     }
 }

@@ -36,6 +36,7 @@ import de.fhdw.vendix.commons.ui.view.AbstractView;
 import jakarta.annotation.security.RolesAllowed;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.bcrypt.BCrypt;
+import de.fhdw.vendix.commons.security.auth.AuthContextHolder;
 
 import java.math.BigDecimal;
 import java.util.Collections;
@@ -806,11 +807,14 @@ public class CashierView extends AbstractView implements BeforeEnterObserver {
         dialog.open();
         receiptCodeField.focus();
     }
-
-
+    
     @Override
     public void beforeEnter(BeforeEnterEvent beforeEnterEvent) {
         super.beforeEnter(beforeEnterEvent);
+        // Nicht weitermachen wenn kein Auth-Context vorhanden (super hat Redirect gesetzt)
+        if (AuthContextHolder.current().isEmpty()) {
+            return;
+        }
         if (!cartItemsManager.getCart().isEmpty()) {
             cartItemsManager.updateGrid(cartGrid, totalLabel);
         }

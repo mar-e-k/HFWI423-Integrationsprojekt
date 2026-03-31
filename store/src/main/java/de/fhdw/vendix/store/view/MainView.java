@@ -44,12 +44,12 @@ public class MainView extends AppLayout implements BeforeEnterObserver {
 
     private final H2 title = new H2();
 
-    private final List<RegisterClient> kassensystemInstances;
+    private final RegisterRegistryService registerRegistryService;
     private final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm:ss");
 
     public MainView(RegisterRegistryService registerRegistryService) {
         super();
-        this.kassensystemInstances = new ArrayList<>(registerRegistryService.findAllRegistries());
+        this.registerRegistryService = registerRegistryService;
 
         createHeader();
         addToDrawer(createSidebar());
@@ -86,7 +86,12 @@ public class MainView extends AppLayout implements BeforeEnterObserver {
 
         Button logoutButton = new Button("Logout", e -> UI.getCurrent().getPage().setLocation("/logout"));
 
-        HorizontalLayout rightSection = new HorizontalLayout(liveClockLabel, themeToggleButton, logoutButton);
+        Button refreshButton = new Button(new Icon(VaadinIcon.REFRESH), e -> {
+            setContent(createContent()); // Grid-Daten frisch laden
+        });
+        refreshButton.setTooltipText("Kassenübersicht aktualisieren");
+
+        HorizontalLayout rightSection = new HorizontalLayout(liveClockLabel, refreshButton, themeToggleButton, logoutButton);
         rightSection.setAlignItems(FlexComponent.Alignment.CENTER);
         rightSection.setJustifyContentMode(FlexComponent.JustifyContentMode.END);
         rightSection.setSpacing(true);
@@ -99,17 +104,17 @@ public class MainView extends AppLayout implements BeforeEnterObserver {
         addToNavbar(header);
 
         UI.getCurrent().getPage().executeJs("""
-            const label = document.getElementById('live-clock-label');
-            if (label) {
-                setInterval(() => {
-                    const now = new Date();
-                    label.textContent = now.toLocaleString('de-DE', {
-                        year: 'numeric', month: '2-digit', day: '2-digit',
-                        hour: '2-digit', minute: '2-digit', second: '2-digit'
-                    });
-                }, 1000);
-            }
-        """);
+                    const label = document.getElementById('live-clock-label');
+                    if (label) {
+                        setInterval(() => {
+                            const now = new Date();
+                            label.textContent = now.toLocaleString('de-DE', {
+                                year: 'numeric', month: '2-digit', day: '2-digit',
+                                hour: '2-digit', minute: '2-digit', second: '2-digit'
+                            });
+                        }, 1000);
+                    }
+                """);
     }
 
     private Component createSidebar() {
@@ -119,12 +124,12 @@ public class MainView extends AppLayout implements BeforeEnterObserver {
         sidebar.setAlignItems(FlexComponent.Alignment.STRETCH);
 
         sidebar.add(
-                createSidebarLink("Home",    VaadinIcon.HOME,    MainView.class),
-                createSidebarLink("Admin",   VaadinIcon.USER,    AdminView.class),
-                createSidebarLink("Accounts", VaadinIcon.GROUP,  RoleView.class),
-                createSidebarLink("Kassen",  VaadinIcon.CASH,    RegisterAddView.class),
+                createSidebarLink("Home", VaadinIcon.HOME, MainView.class),
+                createSidebarLink("Admin", VaadinIcon.USER, AdminView.class),
+                createSidebarLink("Accounts", VaadinIcon.GROUP, RoleView.class),
+                createSidebarLink("Kassen", VaadinIcon.CASH, RegisterAddView.class),
                 createSidebarLink("Bestand", VaadinIcon.PACKAGE, StockView.class),
-                createSidebarLink("Belege",  VaadinIcon.RECORDS, DailyReceiptReportingView.class)
+                createSidebarLink("Belege", VaadinIcon.RECORDS, DailyReceiptReportingView.class)
         );
         return sidebar;
     }
@@ -138,7 +143,8 @@ public class MainView extends AppLayout implements BeforeEnterObserver {
         title.setText("Connected Kassensystem Instances");
 
         Grid<RegisterClient> grid = createGrid();
-        grid.setItems(kassensystemInstances);
+        List<RegisterClient> instances = registerRegistryService.findAllRegistries();
+        grid.setItems(instances);
 
         content.add(title, grid);
         return content;
@@ -207,7 +213,8 @@ public class MainView extends AppLayout implements BeforeEnterObserver {
     }
 
     private Component createInstanceLink(RegisterClient registerClient) {
-        String name = String.format("Kasse %d", kassensystemInstances.indexOf(registerClient) + 1);
+        List<RegisterClient> instances = registerRegistryService.findAllRegistries();
+        String name = String.format("Kasse %d", instances.indexOf(registerClient) + 1);
         String url = "http://" + registerClient.getSystemClientDTO().getHost() + ":" + registerClient.getSystemClientDTO().getPort() + "/cashier";
         try {
             url += "?name=" + URLEncoder.encode(name, StandardCharsets.UTF_8.name());
