@@ -19,6 +19,7 @@ import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.Scroller;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.Component;
+import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.sidenav.SideNav;
 import com.vaadin.flow.component.sidenav.SideNavItem;
 import com.vaadin.flow.router.AfterNavigationEvent;
@@ -180,18 +181,46 @@ public class MainLayout extends AppLayout implements AfterNavigationObserver {
             }
         }
 
+        Div operativWrapper = new Div(operativNav);
+        operativWrapper.addClassName("app-sidenav-wrapper");
+
+        Div archivWrapper = new Div(archivNav);
+        archivWrapper.addClassName("app-sidenav-wrapper");
+        archivWrapper.addClassName("nav-collapsed");
+
         VerticalLayout navLayout = new VerticalLayout(
-                createNavSectionLabel("Operativ"), operativNav,
-                createNavSectionLabel("Archiv"), archivNav
+                createNavSectionLabel("Operativ", operativWrapper, true),
+                operativWrapper,
+                createNavSectionLabel("Archiv", archivWrapper, false),
+                archivWrapper
         );
         navLayout.setPadding(false);
         navLayout.setSpacing(false);
         return navLayout;
     }
 
-    private Span createNavSectionLabel(String text) {
-        Span label = new Span(text);
+    private Span createNavSectionLabel(String text, Div wrapper, boolean initiallyOpen) {
+        Span chevron = new Span();
+        chevron.addClassName("app-nav-section-chevron");
+        if (!initiallyOpen) {
+            chevron.addClassName("collapsed");
+        }
+
+        Span label = new Span(new Span(text), chevron);
         label.addClassName("app-nav-section-label");
+        label.getStyle().set("cursor", "pointer");
+
+        label.addClickListener(e -> {
+            boolean isCollapsed = wrapper.hasClassName("nav-collapsed");
+            if (isCollapsed) {
+                wrapper.removeClassName("nav-collapsed");
+                chevron.removeClassName("collapsed");
+            } else {
+                wrapper.addClassName("nav-collapsed");
+                chevron.addClassName("collapsed");
+            }
+        });
+
         return label;
     }
 
