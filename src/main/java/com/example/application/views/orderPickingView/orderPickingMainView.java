@@ -119,19 +119,19 @@ public class orderPickingMainView extends VerticalLayout {
                     List<MessageLogistic> artikel = msgRepo.findByKommissionId(k.getId());
 
                     for (MessageLogistic msg : artikel) {
-                        boolean success = articleInfoService.updateStock(msg.getArticleNumber(), (int) msg.getQuantity());
+                        int stock = service.getStockLevelForArticle(msg.getArticleNumber());
+                        int realisierbar = Math.min((int) msg.getQuantity(), stock);
 
-                        if (!success) {
-                            Notification notif = new Notification();
-                            notif.addThemeVariants(NotificationVariant.LUMO_ERROR);
-                            notif.setPosition(Notification.Position.MIDDLE);
-                            notif.setDuration(5000);
-                            notif.add(new Span("Kommissionierung nicht möglich! Bestand im Lager für mind. einen Artikel zu gering!"));
-                            notif.open();
-                            cb.setValue(false);
-                            continue;
+                        if (realisierbar != (int) msg.getQuantity()) {
+                            msg.setQuantity(realisierbar);
+                            msgRepo.save(msg);
+                        }
+
+                        if (realisierbar > 0) {
+                            articleInfoService.updateStock(msg.getArticleNumber(), realisierbar);
                         }
                     }
+
                     k.setFinished(true);
                     service.save(k);
 
@@ -206,23 +206,37 @@ public class orderPickingMainView extends VerticalLayout {
 
                 posGrid.addComponentColumn(msg -> {
                     int max = service.getStockLevelForArticle(msg.getArticleNumber());
-                    List<Integer> values = java.util.stream.IntStream.rangeClosed(0, max).boxed().toList();
+                    int requestedQty = (int) msg.getQuantity();
+                    // Realisierbare Menge: maximal was im Lager ist, nicht mehr als angefordert
+                    int realisierbar = Math.min(requestedQty, max);
+
+                    List<Integer> values = java.util.stream.IntStream.rangeClosed(0, realisierbar).boxed().toList();
 
                     ComboBox<Integer> comboQty = new ComboBox<>();
                     comboQty.setItems(values);
-                    int originalQty = (int) msg.getQuantity();
-                    comboQty.setValue(originalQty);
+                    comboQty.setValue(realisierbar);
                     comboQty.setWidth("120px");
+                    comboQty.setEnabled(realisierbar > 0);
 
                     ComboBox<String> cbNote = new ComboBox<>();
                     cbNote.setItems("Artikel nicht vorhanden", "Artikelbestand zu gering");
                     cbNote.setPlaceholder("Anmerkung...");
                     cbNote.setWidth("200px");
                     cbNote.setRequired(false);
-                    cbNote.setEnabled(false);
 
-                    if (msg.getComment() != null) {
-                        cbNote.setValue(msg.getComment());
+                    // Menge und Anmerkung sofort in DB schreiben wenn Lager nicht ausreicht
+                    if (realisierbar < requestedQty) {
+                        msg.setQuantity(realisierbar);
+                        cbNote.setEnabled(true);
+                        String note = realisierbar == 0 ? "Artikel nicht vorhanden" : "Artikelbestand zu gering";
+                        cbNote.setValue(note);
+                        msg.setComment(note);
+                        msgRepo.save(msg);
+                    } else {
+                        cbNote.setEnabled(false);
+                        if (msg.getComment() != null) {
+                            cbNote.setValue(msg.getComment());
+                        }
                     }
 
                     comboQty.addValueChangeListener(ev -> {
@@ -234,7 +248,7 @@ public class orderPickingMainView extends VerticalLayout {
 
                         Notification.show("Menge geändert auf: " + selected, 3000, Notification.Position.MIDDLE);
 
-                        if (!selected.equals(originalQty)) {
+                        if (selected < requestedQty) {
                             cbNote.setEnabled(true);
                             cbNote.setRequired(true);
                         } else {
