@@ -4,7 +4,6 @@ import com.vaadin.flow.component.dependency.StyleSheet;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.server.auth.AnonymousAllowed;
-import com.vaadin.flow.spring.security.AuthenticationContext;
 import com.vaadin.flow.theme.aura.Aura;
 import de.fhdw.vendix.commons.ui.vaadin.view.AbstractLoginView;
 
@@ -14,7 +13,7 @@ import de.fhdw.vendix.commons.ui.vaadin.view.AbstractLoginView;
 @AnonymousAllowed
 public class LoginView extends AbstractLoginView {
 
-    public LoginView(AuthenticationContext context) {
-        super(context);
+    public LoginView() {
+        super();
     }
 }

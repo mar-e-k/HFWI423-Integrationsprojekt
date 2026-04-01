@@ -8,13 +8,13 @@ import de.fhdw.vendix.commons.security.spring.listener.ApplicationEventListener;
 import de.fhdw.vendix.commons.security.spring.listener.AuthenticationEventListener;
 import de.fhdw.vendix.security.api.context.AppContext;
 import de.fhdw.vendix.security.api.AuthenticationLifecycleHandler;
-import de.fhdw.vendix.security.api.context.AuthContext;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.data.domain.AuditorAware;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -41,8 +41,8 @@ public class SecurityAutoConfiguration {
     public AuditorAware<String> auditorAware() {
         return () -> {
             Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-            if (authentication != null && authentication.getPrincipal() instanceof AuthContext authContext) {
-                return Optional.of(authContext.accountUsername());
+            if (authentication != null && authentication.getPrincipal() instanceof UserDetails userDetails) {
+                return Optional.of(userDetails.getUsername());
             }
             return Optional.of("unknown");
         };

@@ -5,7 +5,6 @@ import com.vaadin.flow.component.login.LoginForm;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.BeforeEnterEvent;
 import com.vaadin.flow.router.BeforeEnterObserver;
-import com.vaadin.flow.spring.security.AuthenticationContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.core.Authentication;
@@ -15,15 +14,11 @@ public abstract class AbstractLoginView extends VerticalLayout implements Before
 
     private static final Logger log = LoggerFactory.getLogger(AbstractLoginView.class);
 
-    private final AuthenticationContext context;
-
     private final LoginForm loginForm;
 
-    protected AbstractLoginView(AuthenticationContext context) {
-        this.context = context;
+    protected AbstractLoginView() {
         this.loginForm = new LoginForm();
         configureLoginForm();
-        configureCreateLogoutButton();
     }
 
     private void configureLoginForm() {
@@ -33,14 +28,6 @@ public abstract class AbstractLoginView extends VerticalLayout implements Before
         super.setJustifyContentMode(JustifyContentMode.CENTER);
         super.setSizeFull();
         super.add(loginForm);
-    }
-
-    private void configureCreateLogoutButton() {
-        Button logout = new Button("Logout");
-        logout.addClickListener(e -> {
-            context.logout();
-        });
-        add(logout);
     }
 
     @Override

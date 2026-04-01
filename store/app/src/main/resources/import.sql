@@ -1,7 +1,7 @@
 /* Passwords are just the username in BCrypt Format*/
-INSERT INTO account (uuid, username, password) VALUES (gen_random_uuid(), 'cashier', '$2a$12$39X.1hMFW.T9NYvItJR3oeE9GZ1u094iljB3GYUk7PhGG8VlKGlJO');
-INSERT INTO account (uuid, username, password) VALUES (gen_random_uuid(), 'admin', '$2a$12$ThwydvKWJohRuDSr/lbMUOkc63Xuge9glE4UlzZ4lwJgwhbP1zKdS');
-INSERT INTO account (uuid, username, password) VALUES (gen_random_uuid(), 'system', '$2a$12$Qtif0DjRHEW/zR2RjC54CeF4B2S8PQVTLkAPxRzn8fygNWdXIYTOq');
+INSERT INTO account (uuid, username, password, first_name, last_name) VALUES (gen_random_uuid(), 'cashier', '$2a$12$39X.1hMFW.T9NYvItJR3oeE9GZ1u094iljB3GYUk7PhGG8VlKGlJO', 'system', 'cashier');
+INSERT INTO account (uuid, username, password, first_name, last_name) VALUES (gen_random_uuid(), 'admin', '$2a$12$ThwydvKWJohRuDSr/lbMUOkc63Xuge9glE4UlzZ4lwJgwhbP1zKdS', 'system', 'admin');
+INSERT INTO account (uuid, username, password, first_name, last_name) VALUES (gen_random_uuid(), 'system', '$2a$12$Qtif0DjRHEW/zR2RjC54CeF4B2S8PQVTLkAPxRzn8fygNWdXIYTOq', 'system', 'system');
 
 INSERT INTO account_role (role) VALUES ('CASHIER');
 INSERT INTO account_role (role) VALUES ('ADMIN');

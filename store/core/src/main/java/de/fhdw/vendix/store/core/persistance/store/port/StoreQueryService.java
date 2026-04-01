@@ -1,12 +1,15 @@
 package de.fhdw.vendix.store.core.persistance.store.port;
 
+import de.fhdw.vendix.commons.api.domain.register.RegisterDTO;
 import de.fhdw.vendix.commons.api.domain.store.StoreDTO;
-import de.fhdw.vendix.commons.api.structure.service.QueryService;
+import de.fhdw.vendix.commons.api.structure.service.CrudQueryService;
 
 import java.util.Set;
 
-interface StoreQueryService extends QueryService {
+interface StoreQueryService extends CrudQueryService<StoreDTO, Long> {
     Set<StoreDTO> getAllActiveStores();
 
     Set<StoreDTO> getAllInactiveActiveStores();
+
+    Set<RegisterDTO> getAllRegisters(long storeId);
 }

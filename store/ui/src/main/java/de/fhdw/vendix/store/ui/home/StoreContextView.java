@@ -1,6 +1,5 @@
-package de.fhdw.vendix.store.ui;
+package de.fhdw.vendix.store.ui.home;
 
-import com.vaadin.flow.component.ClickEvent;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
@@ -11,8 +10,6 @@ import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.FlexLayout;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
-import com.vaadin.flow.router.BeforeEnterEvent;
-import com.vaadin.flow.router.BeforeEnterObserver;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.theme.aura.Aura;
 import de.fhdw.vendix.commons.api.domain.account_role.AccountRole;
@@ -23,22 +20,20 @@ import de.fhdw.vendix.security.api.context.AppContext;
 import de.fhdw.vendix.security.api.context.StoreContext;
 import de.fhdw.vendix.store.core.persistance.lock.port.LockService;
 import de.fhdw.vendix.store.core.persistance.store.port.StoreService;
+import de.fhdw.vendix.store.ui.StoreAppLayout;
 import jakarta.annotation.security.RolesAllowed;
-import org.hibernate.query.common.TemporalUnit;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.context.ApplicationContext;
 
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-import java.util.concurrent.TimeUnit;
 
 @RolesAllowed(AccountRole.ROLE_ADMIN)
-@Route("context")
+@Route(value = "context", layout = StoreAppLayout.class)
 @StyleSheet(Aura.STYLESHEET)
-public class StoreContextView extends VerticalLayout implements BeforeEnterObserver {
+public class StoreContextView extends VerticalLayout {
 
     private static final Logger log = LoggerFactory.getLogger(StoreContextView.class);
 
@@ -151,7 +146,7 @@ public class StoreContextView extends VerticalLayout implements BeforeEnterObser
         } else {
             Button activate = new Button("Activate");
 
-            activate.addClickListener(e -> handleStoreClickEvent(store));
+            activate.addClickListener(_ -> handleStoreClickEvent(store));
 
             activate.getStyle()
                     .set("background-color", "#2e7d32")
@@ -182,13 +177,5 @@ public class StoreContextView extends VerticalLayout implements BeforeEnterObser
         lockService.create(lock);
 
         UI.getCurrent().navigate(RootView.class);
-    }
-
-    @Override
-    public void beforeEnter(BeforeEnterEvent event) {
-        if (storeContext.getStore() != null) {
-            log.atWarn().log("Store context is already set and cannot be set again. Reset the application if required");
-            event.rerouteTo(RootView.class);
-        }
     }
 }

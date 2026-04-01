@@ -1,9 +1,10 @@
 package de.fhdw.vendix.store.core.persistance.receipt_voucher.port;
 
-import de.fhdw.vendix.commons.api.structure.service.CommandService;
+import de.fhdw.vendix.commons.api.domain.receipt_voucher.ReceiptVoucherDTO;
+import de.fhdw.vendix.commons.api.structure.service.CrudCommandService;
 
 import java.util.UUID;
 
-interface ReceiptVoucherCommandService extends CommandService {
+interface ReceiptVoucherCommandService extends CrudCommandService<ReceiptVoucherDTO, Long> {
     void redeemCode(UUID code);
 }

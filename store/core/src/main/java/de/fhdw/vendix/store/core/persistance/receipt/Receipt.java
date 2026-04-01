@@ -10,6 +10,7 @@ import de.fhdw.vendix.store.core.persistance.store.Store;
 import jakarta.persistence.*;
 import org.jspecify.annotations.Nullable;
 
+import java.math.BigDecimal;
 import java.util.*;
 
 @Entity
@@ -67,5 +68,11 @@ public class Receipt extends AbstractSpringDataAuditingEntity<Long> {
 
     public Set<ReceiptVoucher> getReceiptVouchers() {
         return Collections.unmodifiableSet(receiptVouchers);
+    }
+
+    // TODO
+    // Should include discounts and taxing
+    public BigDecimal getTotalPrice() {
+        return BigDecimal.ZERO;
     }
 }

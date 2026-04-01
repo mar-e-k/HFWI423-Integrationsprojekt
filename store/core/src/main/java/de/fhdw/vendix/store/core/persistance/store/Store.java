@@ -88,4 +88,8 @@ public class Store extends AbstractSpringDataAuditingEntity<Long> {
     public Set<StoreStock> getStocks() {
         return Collections.unmodifiableSet(stocks);
     }
+
+    public long getRegisterCount() {
+        return registers.size();
+    }
 }

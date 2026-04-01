@@ -65,9 +65,7 @@ public final class JwtAuthenticationFilter extends OncePerRequestFilter {
         AccountDTO account;
 
         if (accountRoles.size() == 1 && accountRoles.contains(AccountRole.SYSTEM)) {
-            account = new AccountDTO(
-                    null,
-                    payload.auth().subject(),
+            return new UsernamePasswordAuthenticationToken(
                     "system",
                     "system"
             );
