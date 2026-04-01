@@ -37,9 +37,9 @@ public class Receipt extends AbstractEntity {
     @NotNull
     @ColumnDefault("false")
     @Column(name = "is_deposit_only", nullable = false)
-    private boolean isDepositOnly = false;
+    private Boolean isDepositOnly = false;
 
-    @Column(name = "deposit_redemption_code", length = 5)
+    @Column(unique = true)
     private String depositRedemptionCode;
 
     public Receipt() {
@@ -50,7 +50,7 @@ public class Receipt extends AbstractEntity {
         super(id);
     }
 
-    public Receipt(Store store, Register register, Account account, BigDecimal totalAmount, List<ReceiptArticle> receiptArticles, boolean isDepositOnly, String depositRedemptionCode) {
+    public Receipt(Store store, Register register, Account account, BigDecimal totalAmount, List<ReceiptArticle> receiptArticles, Boolean isDepositOnly, String depositRedemptionCode) {
         this.store = store;
         this.register = register;
         this.account = account;
@@ -60,7 +60,7 @@ public class Receipt extends AbstractEntity {
         this.depositRedemptionCode = depositRedemptionCode;
     }
 
-    public Receipt(Long id, Store store, Register register, Account account, BigDecimal totalAmount, List<ReceiptArticle> receiptArticles, boolean isDepositOnly, String depositRedemptionCode) {
+    public Receipt(Long id, Store store, Register register, Account account, BigDecimal totalAmount, List<ReceiptArticle> receiptArticles, Boolean isDepositOnly, String depositRedemptionCode) {
         super(id);
         this.store = store;
         this.register = register;
@@ -111,11 +111,11 @@ public class Receipt extends AbstractEntity {
         this.receiptArticles = receiptArticle;
     }
 
-    public boolean isDepositOnly() {
+    public Boolean isDepositOnly() {
         return isDepositOnly;
     }
 
-    public void setDepositOnly(boolean depositOnly) {
+    public void setDepositOnly(Boolean depositOnly) {
         isDepositOnly = depositOnly;
     }
 

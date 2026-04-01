@@ -4,6 +4,10 @@ import de.fhdw.vendix.store.persistence.entity.Receipt;
 import de.fhdw.vendix.store.persistence.entity.ReceiptArticle;
 import de.fhdw.vendix.store.persistence.service.ReceiptService;
 import de.fhdw.vendix.store.utility.StoreClient;
+import io.github.plaguv.amqp.api.envelope.EventEnvelopeBuilder;
+import io.github.plaguv.amqp.api.event.pos.ArticleOrderEvent;
+import io.github.plaguv.amqp.api.event.pos.ArticleUrgentOrderEvent;
+import io.github.plaguv.amqp.core.publisher.EventPublisher;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -19,12 +23,16 @@ import java.util.stream.Collectors;
 public class DailyReceiptReportingSchedule {
 
     private static final Logger log = LoggerFactory.getLogger(DailyReceiptReportingSchedule.class);
+
     private final ReceiptService receiptService;
     private final StoreClient storeClient;
 
-    public DailyReceiptReportingSchedule(ReceiptService receiptService, StoreClient storeClient) {
+    private final EventPublisher eventPublisher;
+
+    public DailyReceiptReportingSchedule(ReceiptService receiptService, StoreClient storeClient, EventPublisher eventPublisher) {
         this.receiptService = receiptService;
         this.storeClient = storeClient;
+        this.eventPublisher = eventPublisher;
     }
 
     @Scheduled(cron = "0 0 22 * * *", zone = "Europe/Berlin")
@@ -47,13 +55,29 @@ public class DailyReceiptReportingSchedule {
                         Collectors.summingLong(ReceiptArticle::getAmount)));
 
         Long storeId = storeClient.getStore().getId();
-//                 TODO: rewrite with new publisher
-//        articleAmountMap.forEach((articleId, totalAmount) ->
-//                commandSender.fire(
-//                        DomainQueue.LOGISTIC_STORE_RESTOCK,
-//                        DomainCommand.STORE_RESTOCK,
-//                        new LogisticMessageDTO(storeId, articleId, totalAmount, false)));
-//        );
+
+        articleAmountMap.forEach((articleId, totalAmount) -> {
+                    if (totalAmount < 10) {
+                        eventPublisher.publishMessage(
+                                EventEnvelopeBuilder.defaults()
+                                        .withContent(new ArticleOrderEvent(
+                                                storeId,
+                                                articleId,
+                                                totalAmount
+                                        ))
+                                        .build());
+                    } else {
+                        eventPublisher.publishMessage(
+                                EventEnvelopeBuilder.defaults()
+                                        .withContent(new ArticleUrgentOrderEvent(
+                                                storeId,
+                                                articleId,
+                                                totalAmount
+                                        ))
+                                        .build());
+                    }
+                }
+        );
         log.atInfo().log("Successfully sent daily receipt report");
     }
 }

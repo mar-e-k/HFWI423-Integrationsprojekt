@@ -1,12 +1,12 @@
 package de.fhdw.vendix.commons.spring.autoconfigure;
 
 import de.fhdw.vendix.commons.security.auth.AuthWhitelist;
-import de.fhdw.vendix.commons.security.jwt.AbstractJwtAuthenticationFilter;
 import de.fhdw.vendix.commons.security.jwt.JwtAuthenticationFilter;
 import de.fhdw.vendix.commons.spring.properties.SecurityPropertiesConfiguration;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
+import org.springframework.boot.jackson.autoconfigure.JsonMapperBuilderCustomizer;
 import org.springframework.context.annotation.Bean;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.ProviderManager;
@@ -19,6 +19,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import tools.jackson.databind.DeserializationFeature;
 
 @AutoConfiguration(after = JwtAutoConfiguration.class)
 @EnableConfigurationProperties(SecurityPropertiesConfiguration.class)
@@ -30,6 +31,11 @@ public class SecurityAutoConfiguration {
         DaoAuthenticationProvider provider = new DaoAuthenticationProvider(userDetailsService);
         provider.setPasswordEncoder(passwordEncoder);
         return new ProviderManager(provider);
+    }
+
+    @Bean
+    public JsonMapperBuilderCustomizer jacksonCustomizer() {
+        return builder -> builder.configure(DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES, false);
     }
 
     @Bean
@@ -57,7 +63,7 @@ public class SecurityAutoConfiguration {
 //                            .invalidateHttpSession(true)
 //                            .clearAuthentication(true)
                             )
-//                    .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
+                    .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
                     .build();
         }
     }

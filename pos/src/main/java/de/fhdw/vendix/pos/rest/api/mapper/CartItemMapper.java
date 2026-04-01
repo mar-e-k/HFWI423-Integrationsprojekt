@@ -38,6 +38,7 @@ public class CartItemMapper implements GenericMapper<CartItem, ReceiptLinkArticl
         dto.setOverridePrice(cartItem.getOverriddenPrice());
         dto.setOverrideReason(cartItem.getOverriddenPrice() != null ? OverrideReasonEnum.MANUAL_OVERRIDE : null);
         dto.setDiscountedByPercent(cartItem.getDiscountPercent());
+        dto.setDiscountedQuantity(cartItem.getDiscountedQuantity());
         dto.setDepositStatus(cartItem.getDepositStatus());
         return dto;
     }

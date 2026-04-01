@@ -10,14 +10,14 @@ public class ReceiptDTO extends AbstractDTO<Long> {
     private Long accountId;
     private BigDecimal totalAmount;
     private List<ReceiptLinkArticleDTO> receiptArticles;
-    private boolean isDepositOnly;
+    private Boolean isDepositOnly = false;
     private String depositRedemptionCode;
 
     public ReceiptDTO() {
         super();
     }
 
-    public ReceiptDTO(Long id, Long storeId, Long registerId, Long accountId, BigDecimal totalAmount, List<ReceiptLinkArticleDTO> receiptArticles, boolean isDepositOnly, String depositRedemptionCode) {
+    public ReceiptDTO(Long id, Long storeId, Long registerId, Long accountId, BigDecimal totalAmount, List<ReceiptLinkArticleDTO> receiptArticles, Boolean isDepositOnly, String depositRedemptionCode) {
         super(id);
         this.storeId = storeId;
         this.registerId = registerId;
@@ -68,11 +68,11 @@ public class ReceiptDTO extends AbstractDTO<Long> {
         this.receiptArticles = receiptArticles;
     }
 
-    public boolean isDepositOnly() {
+    public Boolean isDepositOnly() {
         return isDepositOnly;
     }
 
-    public void setDepositOnly(boolean depositOnly) {
+    public void setDepositOnly(Boolean depositOnly) {
         isDepositOnly = depositOnly;
     }
 

@@ -1,13 +1,12 @@
-package de.fhdw.vendix.pos;
+package de.fhdw.vendix.store;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
 @SpringBootTest
-class ApplicationTest {
+class StoreApplicationTest {
 
     @Test
-    void contextLoads() {
-    }
+    void contextLoads() {}
 
 }

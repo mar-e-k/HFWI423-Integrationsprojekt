@@ -45,7 +45,7 @@ public class LogisticReceiveStockListener {
                         storeClient.getStore().getId(),
                         articleSentEvent.storeId()
                 );
-                return;
+                throw new MessageRejectedException("Message cannot be processed, as the stores do not match up");
             }
 
             Article article = articleService.findById(articleSentEvent.articleId())

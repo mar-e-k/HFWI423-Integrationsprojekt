@@ -46,6 +46,7 @@ import java.io.IOException;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.List;
 import java.util.Optional;
 
 @Route("/payment")
@@ -148,7 +149,23 @@ public class PaymentView extends AbstractView implements BeforeEnterObserver {
                     .addThemeVariants(NotificationVariant.LUMO_ERROR);
             return;
         }
-        // Wenn der Warenkorb nur Leergut enthält, überspringe den Zahlungsdialog
+
+        // Lagerbestand-Check: Artikel mit zu hoher Menge prüfen
+        List<CartItem> überschritteneArtikel = cartItemsManager.getCart().stream()
+                .filter(item -> item.getDepositStatus() != de.fhdw.vendix.commons.core.api.dto.DepositStatus.EMPTY)
+                .filter(item -> item.getArticle().getStockLevel() != null
+                        && item.getQuantity() > item.getArticle().getStockLevel())
+                .toList();
+
+        if (!überschritteneArtikel.isEmpty()) {
+            String namen = überschritteneArtikel.stream()
+                    .map(i -> i.getArticle().getName() + " (Bestand: " + i.getArticle().getStockLevel() + ")")
+                    .collect(java.util.stream.Collectors.joining(", "));
+            Notification.show("Lagerbestand überschritten: " + namen, 5000, Notification.Position.MIDDLE)
+                    .addThemeVariants(NotificationVariant.LUMO_ERROR);
+            return;
+        }
+
         if (cartItemsManager.isDepositOnly()) {
             finishPayment();
         } else {
