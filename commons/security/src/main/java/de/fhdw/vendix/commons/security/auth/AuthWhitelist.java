@@ -19,6 +19,8 @@ public final class AuthWhitelist {
             "/connect/**",
             "/UIDL/**",
             "/HEARTBEAT/**",
+            "/api/auth/token",
+            "/actuator/**",
     };
 
     private AuthWhitelist() {}
