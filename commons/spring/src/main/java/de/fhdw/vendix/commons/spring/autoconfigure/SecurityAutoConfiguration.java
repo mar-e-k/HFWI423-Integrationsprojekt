@@ -52,7 +52,7 @@ public class SecurityAutoConfiguration {
                     .headers(headers -> headers.frameOptions(HeadersConfigurer.FrameOptionsConfig::disable))
                     .authorizeHttpRequests(auth -> auth
                             .requestMatchers(AuthWhitelist.WHITELIST).permitAll()
-                            .requestMatchers("/api/**").authenticated()
+                            .requestMatchers("/api/auth/token").permitAll()
                             .anyRequest().authenticated())
                     .formLogin(form -> form
                             .loginPage("/login")
