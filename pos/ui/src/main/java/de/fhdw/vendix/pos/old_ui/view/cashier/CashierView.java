@@ -154,7 +154,7 @@ import java.util.Optional;
 //                // Null im Modell -> "" im Textfeld
 //                .withNullRepresentation("")
 //                .withConverter(new StringToBigDecimalConverter("Bitte eine gültige Zahl eingeben"))
-//                .withValidator(price -> {
+//                .withValidator(amount -> {
 //                    if (editor.getItem() == null) return true;
 //
 //                    // Für Pfandrückgaben sind negative Preise erlaubt
@@ -162,11 +162,11 @@ import java.util.Optional;
 //                        return true;
 //                    }
 //
-//                    if (price == null) {
+//                    if (amount == null) {
 //                        return false;
 //                    }
 //
-//                    return price.compareTo(MIN_PRICE) >= 0;
+//                    return amount.compareTo(MIN_PRICE) >= 0;
 //                }, "Preis muss mindestens 0,01 € betragen.")
 //                .bind(CartItem::getOverriddenPrice, CartItem::setOverriddenPrice);
 //
@@ -210,7 +210,7 @@ import java.util.Optional;
 //                .setHeader("Stückpreis")
 //                .setAutoWidth(true)
 //                .setEditorComponent(priceEditor)
-//                .setKey("price");
+//                .setKey("amount");
 //
 //        // Editor für Menge
 //        quantityEditor = new IntegerField();
@@ -277,7 +277,7 @@ import java.util.Optional;
 //
 //            if (!editor.isOpen()) {
 //                String columnKey = event.getColumn().getKey();
-//                if ("price".equals(columnKey)) {
+//                if ("amount".equals(columnKey)) {
 //                    // Preisänderung für Leergut sperren
 //                    if (item.getDepositStatus() == DepositStatus.EMPTY) {
 //                        Notification.show("Der Preis für Pfandrückgaben kann nicht geändert werden.", 3000, Notification.Position.MIDDLE)
@@ -376,10 +376,10 @@ import java.util.Optional;
 //
 //            Optional<ArticleDTO> article = articleService.findByGTIN(input);
 //            if (article.isPresent()) {
-//                Double price = article.get().getSellingPrice();
+//                Double amount = article.get().getSellingPrice();
 //
 //                // Nur negative Preise blocken – null ist erlaubt (Kassierer kann später setzen)
-//                if (price != null && price < 0) {
+//                if (amount != null && amount < 0) {
 //                    errorLabel.setText("Artikel hat einen ungültigen (negativen) Verkaufspreis");
 //                    descriptionOutputField.clear();
 //                    descriptionOutputField.setVisible(false);
@@ -649,7 +649,7 @@ import java.util.Optional;
 //        addArticleToCart(article, DepositStatus.NONE, BigDecimal.valueOf(article.getSellingPrice()));
 //    }
 //
-//    private void addArticleToCart(ArticleDTO article, DepositStatus depositStatus, BigDecimal price) {
+//    private void addArticleToCart(ArticleDTO article, DepositStatus depositStatus, BigDecimal amount) {
 //        List<CartItem> items = cartItemsManager.getCart();
 //        String articleNumber = article.getArticleNumber();
 //
@@ -661,7 +661,7 @@ import java.util.Optional;
 //        if (existing != null) {
 //            existing.setQuantity(existing.getQuantity() + 1);
 //        } else {
-//            items.add(new CartItem(article, items.size() + 1, 1, price, depositStatus));
+//            items.add(new CartItem(article, items.size() + 1, 1, amount, depositStatus));
 //        }
 //
 //        cartItemsManager.updateGrid(cartGrid, totalLabel);
@@ -712,15 +712,15 @@ import java.util.Optional;
 //            try {
 //                // Komma oder Punkt erlauben
 //                String normalized = value.replace(",", ".").trim();
-//                BigDecimal price = new BigDecimal(normalized);
+//                BigDecimal amount = new BigDecimal(normalized);
 //
-//                if (price.compareTo(MIN_PRICE) < 0) {
+//                if (amount.compareTo(MIN_PRICE) < 0) {
 //                    Notification.show("Preis muss mindestens 0,01 € betragen.", 3000, Notification.Position.MIDDLE)
 //                            .addThemeVariants(NotificationVariant.LUMO_ERROR);
 //                    return;
 //                }
 //
-//                addArticleToCart(article, DepositStatus.NONE, price);
+//                addArticleToCart(article, DepositStatus.NONE, amount);
 //                dialog.close();
 //            } catch (NumberFormatException ex) {
 //                Notification.show("Bitte einen gültigen Preis eingeben.", 3000, Notification.Position.MIDDLE)

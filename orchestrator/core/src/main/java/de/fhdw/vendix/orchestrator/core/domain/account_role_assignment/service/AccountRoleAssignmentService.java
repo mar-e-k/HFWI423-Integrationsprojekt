@@ -1,0 +1,3 @@
+package de.fhdw.vendix.orchestrator.core.domain.account_role_assignment.service;
+
+public interface AccountRoleAssignmentService extends AccountRoleAssignmentQueryService, AccountRoleAssignmentCommandService {}

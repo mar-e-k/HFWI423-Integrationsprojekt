@@ -1,15 +1,15 @@
 package de.fhdw.vendix.commons.api.domain.lock;
 
+import de.fhdw.vendix.commons.api.embeddable.EntityTargetDTO;
 import de.fhdw.vendix.commons.api.structure.dto.DomainDTO;
 import org.jspecify.annotations.Nullable;
 
 import java.time.Instant;
 import java.util.UUID;
 
-public record LockDTO (
+public record LockDTO(
         @Nullable Long id,
-        TargetType targetType,
-        long targetId,
+        EntityTargetDTO target,
         UUID instanceUUID,
         Instant acquiredAt,
         Instant expiresAt
@@ -18,11 +18,8 @@ public record LockDTO (
         if (id != null && id < 0) {
             throw new IllegalArgumentException("LockDTO parameter 'id' cannot be negative");
         }
-        if (targetType == null) {
-            throw new IllegalArgumentException("LockDTO parameter 'targetType' cannot be null");
-        }
-        if (targetId < 0) {
-            throw new IllegalArgumentException("LockDTO parameter 'targetId' cannot be negative");
+        if (target == null) {
+            throw new IllegalArgumentException("LockDTO parameter 'target' cannot be null");
         }
         if (instanceUUID == null) {
             throw new IllegalArgumentException("LockDTO parameter 'instanceUUID' cannot be null");

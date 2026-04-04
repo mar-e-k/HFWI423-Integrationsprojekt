@@ -16,7 +16,9 @@
 
     <modules>
         <module>core</module>
+        <module>security</module>
         <module>data</module>
+        <module>web</module>
         <module>starter</module>
     </modules>
 </project>

@@ -5,7 +5,7 @@ import org.jspecify.annotations.Nullable;
 
 public record AccountRoleDTO(
         @Nullable Long id,
-        AccountRole role
+        Role role
 ) implements DomainDTO<Long> {
     public AccountRoleDTO {
         if (id != null && id < 0) {

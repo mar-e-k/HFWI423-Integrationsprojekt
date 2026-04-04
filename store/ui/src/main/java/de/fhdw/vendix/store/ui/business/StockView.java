@@ -4,40 +4,36 @@ package de.fhdw.vendix.store.ui.business;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.Route;
-import de.fhdw.vendix.commons.api.domain.account_role.AccountRole;
-import de.fhdw.vendix.store.core.persistance.store_stock.StoreStock;
+import de.fhdw.vendix.commons.api.domain.account_role.Role;
+import de.fhdw.vendix.commons.api.domain.store_stock.StoreStockDTO;
 import de.fhdw.vendix.store.ui.StoreAppLayout;
 import jakarta.annotation.security.RolesAllowed;
 
 @Route(value = "stock", layout = StoreAppLayout.class)
-@RolesAllowed(AccountRole.ROLE_ADMIN)
+@RolesAllowed(Role.ROLE_ADMIN)
 public class StockView extends VerticalLayout {
 
     public StockView() {
         add(initGrid());
     }
 
-    private Grid<StoreStock> initGrid() {
-        Grid<StoreStock> storeStockGrid = new Grid<>(StoreStock.class, false);
+    private Grid<StoreStockDTO> initGrid() {
+        Grid<StoreStockDTO> storeStockGrid = new Grid<>(StoreStockDTO.class, false);
         storeStockGrid.setHeightFull();
         storeStockGrid.setWidthFull();
-        storeStockGrid.addColumn(StoreStock::getId)
+        storeStockGrid.addColumn(StoreStockDTO::id)
                 .setHeader("ID")
                 .setAutoWidth(true)
                 .setSortable(true);
-        storeStockGrid.addColumn(StoreStock::getArticle)
+        storeStockGrid.addColumn(StoreStockDTO::article)
                 .setHeader("Article")
                 .setAutoWidth(true)
                 .setSortable(true);
-        storeStockGrid.addColumn(StoreStock::isActive)
-                .setHeader("Active")
-                .setAutoWidth(true)
-                .setSortable(true);
-        storeStockGrid.addColumn(StoreStock::getCurrentAmount)
+        storeStockGrid.addColumn(StoreStockDTO::currentAmount)
                 .setHeader("Current Amount")
                 .setAutoWidth(true)
                 .setSortable(true);
-        storeStockGrid.addColumn(StoreStock::getPreferenceAmount)
+        storeStockGrid.addColumn(StoreStockDTO::preferenceAmount)
                 .setHeader("Preference Amount")
                 .setAutoWidth(true)
                 .setSortable(true);

@@ -28,22 +28,6 @@
                 <artifactId>commons-core</artifactId>
                 <version>${commons.version}</version>
             </dependency>
-            <!-- commons-security -->
-            <dependency>
-                <groupId>de.fhdw.vendix</groupId>
-                <artifactId>commons-security-api</artifactId>
-                <version>${commons.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>de.fhdw.vendix</groupId>
-                <artifactId>commons-security-core</artifactId>
-                <version>${commons.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>de.fhdw.vendix</groupId>
-                <artifactId>commons-security-spring</artifactId>
-                <version>${commons.version}</version>
-            </dependency>
             <!-- commons-spring -->
             <dependency>
                 <groupId>de.fhdw.vendix</groupId>
@@ -52,7 +36,17 @@
             </dependency>
             <dependency>
                 <groupId>de.fhdw.vendix</groupId>
+                <artifactId>commons-spring-security</artifactId>
+                <version>${commons.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>de.fhdw.vendix</groupId>
                 <artifactId>commons-spring-data</artifactId>
+                <version>${commons.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>de.fhdw.vendix</groupId>
+                <artifactId>commons-spring-web</artifactId>
                 <version>${commons.version}</version>
             </dependency>
             <dependency>

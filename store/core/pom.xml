@@ -22,27 +22,17 @@
 
         <dependency>
             <groupId>de.fhdw.vendix</groupId>
-            <artifactId>commons-spring-core</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>de.fhdw.vendix</groupId>
             <artifactId>commons-spring-data</artifactId>
         </dependency>
 
         <dependency>
             <groupId>de.fhdw.vendix</groupId>
-            <artifactId>commons-security-api</artifactId>
+            <artifactId>commons-spring-security</artifactId>
         </dependency>
 
         <dependency>
-            <groupId>io.github.plaguv</groupId>
-            <artifactId>plaguv-amqp-spring-boot-starter</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-validation</artifactId>
+            <groupId>de.fhdw.vendix</groupId>
+            <artifactId>commons-spring-web</artifactId>
         </dependency>
     </dependencies>
 

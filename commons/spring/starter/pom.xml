@@ -27,12 +27,12 @@
 
         <dependency>
             <groupId>de.fhdw.vendix</groupId>
-            <artifactId>commons-security-spring</artifactId>
-        </dependency>
+            <artifactId>commons-spring-core</artifactId>
 
+        </dependency>
         <dependency>
             <groupId>de.fhdw.vendix</groupId>
-            <artifactId>commons-spring-core</artifactId>
+            <artifactId>commons-spring-security</artifactId>
         </dependency>
 
         <dependency>
@@ -42,12 +42,27 @@
 
         <dependency>
             <groupId>de.fhdw.vendix</groupId>
+            <artifactId>commons-spring-web</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>de.fhdw.vendix</groupId>
             <artifactId>commons-ui-vaadin</artifactId>
         </dependency>
 
         <dependency>
-            <groupId>io.github.wimdeblauwe</groupId>
-            <artifactId>error-handling-spring-boot-starter</artifactId>
+            <groupId>com.vaadin</groupId>
+            <artifactId>vaadin-dev</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-actuator</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>io.micrometer</groupId>
+            <artifactId>micrometer-registry-prometheus</artifactId>
         </dependency>
     </dependencies>
 

@@ -1,0 +1,233 @@
+openapi: 3.0.0
+
+info:
+  title: Orchestrator
+  description: d
+  version: 1.0.0
+
+tags:
+  - name: Connection
+    description: Operations related to Connections
+  - name: Lock
+    description: Operations related to Locks
+  - name: Account
+    description: Operations related to Accounts
+
+servers:
+  - url: http://localhost:8080
+    description: Local development server
+
+security:
+  - bearerAuth: [ ]
+
+paths:
+  # ----------
+  # Connection
+  # ----------
+  /api/connection/:
+    get:
+      operationId: getConnections
+      description: d
+      tags:
+        - Connection
+      parameters:
+        - in: query
+          name: targetId
+          required: false
+          description: d
+          schema:
+            type: integer
+            format: int64
+        - in: query
+          name: targetType
+          required: false
+          description: d
+          schema:
+            $ref: "#/components/schemas/TargetType"
+        - in: query
+          name: instanceUUID
+          required: false
+          description: d
+          schema:
+            type: string
+            format: uuid
+        - in: query
+          name: instanceHost
+          required: false
+          description: d
+          schema:
+            type: string
+        - in: query
+          name: instanceServer
+          required: false
+          description: d
+          schema:
+            type: string
+        - in: query
+          name: instancePort
+          required: false
+          description: d
+          schema:
+            type: integer
+            minimum: 0
+      responses:
+        200:
+          description: d
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/ConnectionDTO"
+    post:
+      operationId: postConnection
+      description: d
+      tags:
+        - Connection
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ConnectionDTO"
+      responses:
+        201:
+          description: d
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ConnectionDTO"
+        409:
+          description: d
+
+  # ----------
+  # Lock
+  # ----------
+  /api/lock/:
+    get:
+      operationId: getLocks
+      description: d
+      tags:
+        - Lock
+      parameters:
+        - in: query
+          name: targetId
+          required: false
+          description: d
+          schema:
+            type: integer
+            format: int64
+        - in: query
+          name: targetType
+          required: false
+          description: d
+          schema:
+            $ref: "#/components/schemas/TargetType"
+        - in: query
+          name: instanceUUID
+          required: false
+          description: d
+          schema:
+            type: string
+            format: uuid
+      responses:
+        200:
+          description: d
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/LockDTO"
+    post:
+      operationId: postLock
+      description: d
+      tags:
+        - Lock
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/LockDTO"
+      responses:
+        201:
+          description: d
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/LockDTO"
+        409:
+          description: d
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  schemas:
+    ConnectionDTO:
+      type: object
+      description: d
+      properties:
+        target:
+          $ref: "#/components/schemas/EntityTargetDTO"
+        instance:
+          $ref: "#/components/schemas/InstanceDetailsDTO"
+        acquiredAt:
+          type: string
+          format: date-time
+        heartbeatAt:
+          type: string
+          format: date-time
+
+    LockDTO:
+      type: object
+      description: d
+      properties:
+        target:
+          $ref: "#/components/schemas/EntityTargetDTO"
+        instanceUUID:
+          type: string
+          format: uuid
+        acquiredAt:
+          type: string
+          format: date-time
+        expiresAt:
+          type: string
+          format: date-time
+
+    EntityTargetDTO:
+      type: object
+      description: d
+      properties:
+        id:
+          type: integer
+          format: int64
+        type:
+          $ref: "#/components/schemas/TargetType"
+
+    TargetType:
+      type: string
+      description: d
+      enum:
+        - STORE
+        - REGISTER
+        - ACCOUNT
+
+    InstanceDetailsDTO:
+      type: object
+      description: d
+      properties:
+        uuid:
+          type: string
+          format: uuid
+        host:
+          type: string
+        server:
+          type: string
+        port:
+          type: integer
+          format: int64

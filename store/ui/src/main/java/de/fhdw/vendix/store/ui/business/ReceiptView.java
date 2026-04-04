@@ -5,16 +5,16 @@ import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.Route;
-import de.fhdw.vendix.commons.api.domain.account_role.AccountRole;
+import de.fhdw.vendix.commons.api.domain.account_role.Role;
 import de.fhdw.vendix.commons.core.printer.api.ReceiptPrinter;
 import de.fhdw.vendix.commons.core.printer.api.ReceiptType;
-import de.fhdw.vendix.store.core.persistance.receipt.Receipt;
-import de.fhdw.vendix.store.core.persistance.receipt.ReceiptMapper;
+import de.fhdw.vendix.store.core.domain.receipt.Receipt;
+import de.fhdw.vendix.store.core.domain.receipt.ReceiptMapper;
 import de.fhdw.vendix.store.ui.StoreAppLayout;
 import jakarta.annotation.security.RolesAllowed;
 
 @Route(value = "receipt", layout = StoreAppLayout.class)
-@RolesAllowed(AccountRole.ROLE_ADMIN)
+@RolesAllowed(Role.ROLE_ADMIN)
 public class ReceiptView extends VerticalLayout {
 
     private final ReceiptMapper receiptMapper;
@@ -40,7 +40,7 @@ public class ReceiptView extends VerticalLayout {
                 .setHeader("Register")
                 .setAutoWidth(true)
                 .setSortable(true);
-        receiptGrid.addColumn(Receipt::getCashier)
+        receiptGrid.addColumn(Receipt::getCashierId)
                 .setHeader("Cashier")
                 .setAutoWidth(true)
                 .setSortable(true);

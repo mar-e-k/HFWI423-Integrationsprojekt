@@ -1,0 +1,210 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>de.fhdw.vendix</groupId>
+        <artifactId>commons-spring-parent</artifactId>
+        <version>1.0.0</version>
+    </parent>
+
+    <artifactId>commons-spring-web</artifactId>
+    <packaging>jar</packaging>
+
+    <name>commons-spring-web</name>
+    <description>commons-spring-web</description>
+
+    <dependencies>
+        <dependency>
+            <groupId>de.fhdw.vendix</groupId>
+            <artifactId>commons-api</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-web</artifactId>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+            </plugin>
+            <plugin>
+                <groupId>org.openapitools</groupId>
+                <artifactId>openapi-generator-maven-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>store-client</id>
+                        <goals>
+                            <goal>generate</goal>
+                        </goals>
+                        <configuration>
+                            <inputSpec>${maven.multiModuleProjectDirectory}/commons/api/src/main/resources/openapi/store.yaml</inputSpec>
+                            <output>${project.build.directory}/generated-sources/openapi</output>
+
+                            <ignoreFileOverride>${maven.multiModuleProjectDirectory}/commons/api/src/main/resources/openapi/.openapi-generator-ignore</ignoreFileOverride>
+                            <generatorName>spring</generatorName>
+
+                            <apiNameSuffix>ProxyService</apiNameSuffix>
+                            <apiPackage>${project.groupId}.commons.spring.web.client.store.api</apiPackage>
+                            <modelPackage>${project.groupId}.commons.spring.web.client.store.model</modelPackage>
+
+                            <configOptions>
+                                <library>spring-http-interface</library>
+                                <openApiNullable>false</openApiNullable>
+                                <useSpringBoot4>true</useSpringBoot4>
+                                <useJakartaEe>true</useJakartaEe>
+                                <useTags>true</useTags>
+                            </configOptions>
+                        </configuration>
+                    </execution>
+
+                    <execution>
+                        <id>store-server</id>
+                        <goals>
+                            <goal>generate</goal>
+                        </goals>
+                        <configuration>
+                            <inputSpec>${maven.multiModuleProjectDirectory}/commons/api/src/main/resources/openapi/store.yaml</inputSpec>
+                            <output>${project.build.directory}/generated-sources/openapi</output>
+
+                            <ignoreFileOverride>${maven.multiModuleProjectDirectory}/commons/api/src/main/resources/openapi/.openapi-generator-ignore</ignoreFileOverride>
+                            <generatorName>spring</generatorName>
+
+                            <apiPackage>${project.groupId}.commons.spring.web.server.store.api</apiPackage>
+                            <modelPackage>${project.groupId}.commons.spring.web.server.store.model</modelPackage>
+
+                            <configOptions>
+                                <library>spring-boot</library>
+                                <interfaceOnly>true</interfaceOnly>
+                                <openApiNullable>false</openApiNullable>
+                                <useSpringBoot4>true</useSpringBoot4>
+                                <useJackson3>true</useJackson3>
+                                <useJakartaEe>true</useJakartaEe>
+                                <useTags>true</useTags>
+                            </configOptions>
+                        </configuration>
+                    </execution>
+
+                    <execution>
+                        <id>orchestrator-client</id>
+                        <goals>
+                            <goal>generate</goal>
+                        </goals>
+                        <configuration>
+                            <inputSpec>${maven.multiModuleProjectDirectory}/commons/api/src/main/resources/openapi/orchestrator.yaml</inputSpec>
+                            <output>${project.build.directory}/generated-sources/openapi</output>
+
+                            <ignoreFileOverride>${maven.multiModuleProjectDirectory}/commons/api/src/main/resources/openapi/.openapi-generator-ignore</ignoreFileOverride>
+                            <generatorName>spring</generatorName>
+
+                            <apiNameSuffix>ProxyService</apiNameSuffix>
+                            <apiPackage>${project.groupId}.commons.spring.web.client.orchestrator.api</apiPackage>
+                            <modelPackage>${project.groupId}.commons.spring.web.client.orchestrator.model</modelPackage>
+
+                            <configOptions>
+                                <library>spring-http-interface</library>
+                                <openApiNullable>false</openApiNullable>
+                                <useSpringBoot4>true</useSpringBoot4>
+                                <useJakartaEe>true</useJakartaEe>
+                                <useTags>true</useTags>
+                            </configOptions>
+
+                            <importMappings>
+                                <importMapping>ConnectionDTO=de.fhdw.vendix.commons.api.domain.connection.ConnectionDTO</importMapping>
+                                <importMapping>LockDTO=de.fhdw.vendix.commons.api.domain.lock.LockDTO</importMapping>
+                                <importMapping>EntityTargetDTO=de.fhdw.vendix.commons.api.embeddable.EntityTargetDTO</importMapping>
+                                <importMapping>TargetType=de.fhdw.vendix.commons.api.embeddable.TargetType</importMapping>
+                                <importMapping>InstanceDetailsDTO=de.fhdw.vendix.commons.api.embeddable.InstanceDetailsDTO</importMapping>
+                            </importMappings>
+                        </configuration>
+                    </execution>
+
+                    <execution>
+                        <id>orchestrator-server</id>
+                        <goals>
+                            <goal>generate</goal>
+                        </goals>
+                        <configuration>
+                            <inputSpec>${maven.multiModuleProjectDirectory}/commons/api/src/main/resources/openapi/orchestrator.yaml</inputSpec>
+                            <output>${project.build.directory}/generated-sources/openapi</output>
+
+                            <ignoreFileOverride>${maven.multiModuleProjectDirectory}/commons/api/src/main/resources/openapi/.openapi-generator-ignore</ignoreFileOverride>
+                            <generatorName>spring</generatorName>
+
+                            <apiPackage>${project.groupId}.commons.spring.web.server.orchestrator.api</apiPackage>
+                            <modelPackage>${project.groupId}.commons.spring.web.server.orchestrator.model</modelPackage>
+
+                            <configOptions>
+                                <library>spring-boot</library>
+                                <interfaceOnly>true</interfaceOnly>
+                                <openApiNullable>false</openApiNullable>
+                                <useSpringBoot4>true</useSpringBoot4>
+                                <useJackson3>true</useJackson3>
+                                <useJakartaEe>true</useJakartaEe>
+                                <useTags>true</useTags>
+                            </configOptions>
+
+                            <importMappings>
+                                <importMapping>ConnectionDTO=de.fhdw.vendix.commons.api.domain.connection.ConnectionDTO</importMapping>
+                                <importMapping>LockDTO=de.fhdw.vendix.commons.api.domain.lock.LockDTO</importMapping>
+                                <importMapping>EntityTargetDTO=de.fhdw.vendix.commons.api.embeddable.EntityTargetDTO</importMapping>
+                                <importMapping>TargetType=de.fhdw.vendix.commons.api.embeddable.TargetType</importMapping>
+                                <importMapping>InstanceDetailsDTO=de.fhdw.vendix.commons.api.embeddable.InstanceDetailsDTO</importMapping>
+                            </importMappings>
+                        </configuration>
+                    </execution>
+
+                    <execution>
+                        <id>prometheus-server</id>
+                        <goals>
+                            <goal>generate</goal>
+                        </goals>
+                        <configuration>
+                            <inputSpec>${maven.multiModuleProjectDirectory}/commons/api/src/main/resources/openapi/prometheus.yaml</inputSpec>
+                            <output>${project.build.directory}/generated-sources/openapi</output>
+
+                            <ignoreFileOverride>${maven.multiModuleProjectDirectory}/commons/api/src/main/resources/openapi/.openapi-generator-ignore</ignoreFileOverride>
+                            <generatorName>spring</generatorName>
+
+                            <apiPackage>${project.groupId}.commons.spring.web.server.prometheus.api</apiPackage>
+                            <modelPackage>${project.groupId}.commons.spring.web.server.prometheus.model</modelPackage>
+
+                            <configOptions>
+                                <library>spring-boot</library>
+                                <interfaceOnly>true</interfaceOnly>
+                                <openApiNullable>false</openApiNullable>
+                                <useSpringBoot4>true</useSpringBoot4>
+                                <useJackson3>true</useJackson3>
+                                <useJakartaEe>true</useJakartaEe>
+                                <useTags>true</useTags>
+                            </configOptions>
+                        </configuration>
+                    </execution>
+
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>build-helper-maven-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>add-openapi-sources</id>
+                        <phase>generate-sources</phase>
+                        <goals>
+                            <goal>add-source</goal>
+                        </goals>
+                        <configuration>
+                            <sources>
+                                <source>${project.build.directory}/generated-sources/openapi/src/main/java</source>
+                            </sources>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+</project>

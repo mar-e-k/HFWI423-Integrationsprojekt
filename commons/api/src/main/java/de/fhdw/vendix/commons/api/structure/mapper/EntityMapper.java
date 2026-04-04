@@ -2,7 +2,7 @@ package de.fhdw.vendix.commons.api.structure.mapper;
 
 import java.util.List;
 
-public interface EntityMapper<ENT, DTO> extends Mapper {
+public interface EntityMapper<ENT, DTO extends de.fhdw.vendix.commons.api.structure.dto.DTO> extends Mapper {
 
     DTO toDTO(ENT entity);
 

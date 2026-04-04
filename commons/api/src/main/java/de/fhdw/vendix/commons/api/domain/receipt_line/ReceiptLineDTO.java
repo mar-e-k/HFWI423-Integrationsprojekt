@@ -2,6 +2,8 @@ package de.fhdw.vendix.commons.api.domain.receipt_line;
 
 import de.fhdw.vendix.commons.api.domain.article.ArticleDTO;
 import de.fhdw.vendix.commons.api.domain.receipt.ReceiptDTO;
+import de.fhdw.vendix.commons.api.embeddable.DiscountOverrideDTO;
+import de.fhdw.vendix.commons.api.embeddable.PriceOverrideDTO;
 import de.fhdw.vendix.commons.api.structure.dto.DomainDTO;
 import org.jspecify.annotations.Nullable;
 

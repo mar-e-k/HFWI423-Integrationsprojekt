@@ -23,12 +23,12 @@
             </dependency>
             <dependency>
                 <groupId>de.fhdw.vendix</groupId>
-                <artifactId>store-app</artifactId>
+                <artifactId>store-core</artifactId>
                 <version>${store.version}</version>
             </dependency>
             <dependency>
                 <groupId>de.fhdw.vendix</groupId>
-                <artifactId>store-core</artifactId>
+                <artifactId>store-web</artifactId>
                 <version>${store.version}</version>
             </dependency>
             <dependency>
@@ -38,7 +38,7 @@
             </dependency>
             <dependency>
                 <groupId>de.fhdw.vendix</groupId>
-                <artifactId>store-web</artifactId>
+                <artifactId>store-app</artifactId>
                 <version>${store.version}</version>
             </dependency>
         </dependencies>

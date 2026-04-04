@@ -3,13 +3,13 @@ package de.fhdw.vendix.store.ui.business;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.Route;
-import de.fhdw.vendix.commons.api.domain.account_role.AccountRole;
-import de.fhdw.vendix.store.core.persistance.store.Store;
+import de.fhdw.vendix.commons.api.domain.account_role.Role;
+import de.fhdw.vendix.store.core.domain.store.Store;
 import de.fhdw.vendix.store.ui.StoreAppLayout;
 import jakarta.annotation.security.RolesAllowed;
 
 @Route(value = "store", layout = StoreAppLayout.class)
-@RolesAllowed(AccountRole.ROLE_ADMIN)
+@RolesAllowed(Role.ROLE_ADMIN)
 public class StoreView extends VerticalLayout {
 
     public StoreView() {

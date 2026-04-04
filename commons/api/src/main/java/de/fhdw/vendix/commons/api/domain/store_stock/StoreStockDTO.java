@@ -2,6 +2,7 @@ package de.fhdw.vendix.commons.api.domain.store_stock;
 
 import de.fhdw.vendix.commons.api.domain.article.ArticleDTO;
 import de.fhdw.vendix.commons.api.domain.store.StoreDTO;
+import de.fhdw.vendix.commons.api.embeddable.PreferenceAmountDTO;
 import de.fhdw.vendix.commons.api.structure.dto.DomainDTO;
 import org.jspecify.annotations.Nullable;
 
@@ -10,8 +11,7 @@ public record StoreStockDTO(
         StoreDTO store,
         ArticleDTO article,
         PreferenceAmountDTO preferenceAmount,
-        long currentAmount,
-        boolean isActive
+        Long currentAmount
 ) implements DomainDTO<Long> {
     public StoreStockDTO {
         if (id != null && id < 0) {

@@ -12,14 +12,14 @@ import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.theme.aura.Aura;
-import de.fhdw.vendix.commons.api.domain.account_role.AccountRole;
+import de.fhdw.vendix.commons.api.domain.account_role.Role;
 import de.fhdw.vendix.commons.api.domain.lock.LockDTO;
-import de.fhdw.vendix.commons.api.domain.lock.TargetType;
+import de.fhdw.vendix.commons.api.embeddable.EntityTargetDTO;
+import de.fhdw.vendix.commons.api.embeddable.TargetType;
 import de.fhdw.vendix.commons.api.domain.store.StoreDTO;
-import de.fhdw.vendix.security.api.context.AppContext;
-import de.fhdw.vendix.security.api.context.StoreContext;
-import de.fhdw.vendix.store.core.persistance.lock.port.LockService;
-import de.fhdw.vendix.store.core.persistance.store.port.StoreService;
+import de.fhdw.vendix.commons.spring.security.context.app.AppContext;
+import de.fhdw.vendix.commons.spring.security.context.store.StoreContext;
+import de.fhdw.vendix.store.core.domain.store.service.StoreService;
 import de.fhdw.vendix.store.ui.StoreAppLayout;
 import jakarta.annotation.security.RolesAllowed;
 import org.slf4j.Logger;
@@ -30,7 +30,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
-@RolesAllowed(AccountRole.ROLE_ADMIN)
+@RolesAllowed(Role.ROLE_ADMIN)
 @Route(value = "context", layout = StoreAppLayout.class)
 @StyleSheet(Aura.STYLESHEET)
 public class StoreContextView extends VerticalLayout {
@@ -40,17 +40,15 @@ public class StoreContextView extends VerticalLayout {
     private final StoreService storeService;
     private final StoreContext storeContext;
     private final AppContext appContext;
-    private final LockService lockService;
 
     private final FlexLayout storeLayout = new FlexLayout();
     private final List<StoreDTO> inactiveStores = new ArrayList<>();
     private final List<StoreDTO> activeStores = new ArrayList<>();
 
-    public StoreContextView(StoreService storeService, StoreContext storeContext, AppContext appContext, LockService lockService) {
+    public StoreContextView(StoreService storeService, StoreContext storeContext, AppContext appContext) {
         this.storeService = storeService;
         this.storeContext = storeContext;
         this.appContext = appContext;
-        this.lockService = lockService;
 
         setSizeFull();
         setPadding(true);
@@ -166,15 +164,17 @@ public class StoreContextView extends VerticalLayout {
 
         storeContext.setStore(store);
 
+        EntityTargetDTO entityTargetDTO = new EntityTargetDTO(
+                Objects.requireNonNull(store.id(), "Store id cannot be null when setting context"),
+                TargetType.STORE
+        );
         LockDTO lock = new LockDTO(
                 null,
-                TargetType.STORE,
-                Objects.requireNonNull(store.id(), "Store id cannot be null when setting context"),
+                entityTargetDTO,
                 appContext.getInstanceUUID(),
                 Instant.now(),
-                Instant.now().plusSeconds(60 * 60 * 24)
+                Instant.now().plusSeconds(60 * 60) // 1h. Should be a setting. TODO
         );
-        lockService.create(lock);
 
         UI.getCurrent().navigate(RootView.class);
     }

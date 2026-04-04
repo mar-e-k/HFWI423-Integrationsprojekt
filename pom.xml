@@ -25,6 +25,7 @@
         <module>commons</module>
         <module>pos</module>
         <module>store</module>
+        <module>orchestrator</module>
     </modules>
 
     <properties>

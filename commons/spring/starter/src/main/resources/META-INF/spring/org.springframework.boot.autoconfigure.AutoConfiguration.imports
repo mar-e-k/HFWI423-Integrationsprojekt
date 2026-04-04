@@ -1,6 +1,10 @@
+de.fhdw.vendix.commons.spring.starter.autoconfigure.security.JwtAutoConfiguration
+de.fhdw.vendix.commons.spring.starter.autoconfigure.security.SecurityAutoConfiguration
+de.fhdw.vendix.commons.spring.starter.autoconfigure.security.SecurityContextAutoConfiguration
+de.fhdw.vendix.commons.spring.starter.autoconfigure.security.SecurityWebAutoconfiguration
+
+de.fhdw.vendix.commons.spring.starter.autoconfigure.web.OrchestratorClientAutoConfiguration
+de.fhdw.vendix.commons.spring.starter.autoconfigure.web.StoreClientAutoConfiguration
+
 de.fhdw.vendix.commons.spring.starter.autoconfigure.CommonsAutoConfiguration
-de.fhdw.vendix.commons.spring.starter.autoconfigure.JwtAutoConfiguration
-de.fhdw.vendix.commons.spring.starter.autoconfigure.SecurityAutoConfiguration
-de.fhdw.vendix.commons.spring.starter.autoconfigure.SecurityContextAutoConfiguration
-de.fhdw.vendix.commons.spring.starter.autoconfigure.SecurityWebAutoconfiguration
 de.fhdw.vendix.commons.spring.starter.autoconfigure.VaadinAutoConfiguration
