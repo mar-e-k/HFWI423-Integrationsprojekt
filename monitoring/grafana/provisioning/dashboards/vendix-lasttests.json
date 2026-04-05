@@ -15,7 +15,7 @@
       }
     ]
   },
-  "editable": true,
+  "editable": false,
   "fiscalYearStartMonth": 0,
   "graphTooltip": 0,
   "links": [],
@@ -25,6 +25,7 @@
         "type": "prometheus",
         "uid": "vendix-prometheus"
       },
+      "description": "Durchschnittliche Antwortzeit des POST /api/receipt Endpunkts in Millisekunden. Zeigt wie schnell das System unter Last reagiert. Steigender Wert signalisiert Kapazitätsengpässe.",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -137,6 +138,7 @@
         "type": "prometheus",
         "uid": "vendix-prometheus"
       },
+      "description": "Anzahl der verarbeiteten Requests pro Sekunde auf POST /api/receipt. Zeigt den tatsächlichen Durchsatz des Systems. Bricht der Wert trotz steigender Last ein, ist die Systemkapazität erschöpft.",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -251,6 +253,7 @@
         "type": "prometheus",
         "uid": "vendix-prometheus"
       },
+      "description": "Anzahl aktiver JVM-Threads während des Tests. Steigt proportional zur Last und gibt Aufschluss über die parallele Verarbeitungskapazität des Systems.",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -362,6 +365,7 @@
         "type": "prometheus",
         "uid": "vendix-prometheus"
       },
+      "description": "Prozentualer Anteil der Requests die mit einem HTTP 5xx Fehler beantwortet wurden. Ein Wert von 0% zeigt, dass das System auch unter hoher Last stabil und fehlerfrei arbeitet.",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -461,7 +465,7 @@
             "uid": "vendix-prometheus"
           },
           "editorMode": "code",
-          "expr": "(\n  sum(increase(http_server_requests_seconds_count{uri=\"/api/receipt\", error=\"IOException\"}[5m]))\n  /\n  clamp_min(sum(increase(http_server_requests_seconds_count{uri=\"/api/receipt\"}[5m])), 1)\n) * 100",
+          "expr": "  (\n      (\n          sum(increase(http_server_requests_seconds_count{outcome=\"SERVER_ERROR\",uri=\"/api/receipt\"}[5m]))\n        or\n          vector(0)\n      )\n    /\n      clamp_min(sum(increase(http_server_requests_seconds_count{uri=\"/api/receipt\"}[5m])), 1)\n  )\n*\n  100",
           "legendFormat": "Receipt Errors",
           "range": true,
           "refId": "A"
@@ -475,6 +479,7 @@
         "type": "prometheus",
         "uid": "vendix-prometheus"
       },
+      "description": "95% aller Requests werden innerhalb dieses Zeitwerts beantwortet. Aussagekräftiger als der Durchschnitt, da Ausreißer und Spitzenlatenzen unter Last sichtbar werden.",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -597,6 +602,6 @@
   "timezone": "browser",
   "title": "Filialen-/Kassensystem Test-Dashboard",
   "uid": "adf44rg",
-  "version": 1,
+  "version": 2,
   "weekStart": ""
 }
