@@ -119,7 +119,7 @@ public class orderPickingMainView extends VerticalLayout {
                     List<MessageLogistic> artikel = msgRepo.findByKommissionId(k.getId());
 
                     for (MessageLogistic msg : artikel) {
-                        int stock = service.getStockLevelForArticle(msg.getArticleNumber());
+                        int stock = service.getFullStockLevelForArticle(msg.getArticleNumber());
                         int realisierbar = Math.min((int) msg.getQuantity(), stock);
 
                         if (realisierbar != (int) msg.getQuantity()) {

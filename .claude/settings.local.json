@@ -6,7 +6,12 @@
       "Bash(powershell -Command \"\n\\\\$file = 'C:\\\\Users\\\\admin\\\\Downloads\\\\logistik\\\\logistik\\\\src\\\\main\\\\java\\\\com\\\\example\\\\application\\\\data\\\\orderPicking\\\\MessageLogisticRepository.java'\n\\\\$content = Get-Content \\\\$file -Raw -Encoding UTF8\n\\\\$old = '    @Modifying\\\\r\\\\n    @Query\\(\\\\\"update MessageLogistic m set m.processed = true where m.storeId = :storeId and m.processed = false\\\\\"\\)\\\\r\\\\n    void markStoreMessagesProcessed'\n\\\\$new = '    @Transactional\\\\r\\\\n    @Modifying\\\\r\\\\n    @Query\\(\\\\\"update MessageLogistic m set m.processed = true where m.storeId = :storeId and m.processed = false\\\\\"\\)\\\\r\\\\n    void markStoreMessagesProcessed'\nif \\(\\\\$content -match [regex]::Escape\\('    @Modifying'\\)\\) {\n    \\\\$result = \\\\$content -replace [regex]::Escape\\(\\\\$old\\), \\\\$new\n    Set-Content \\\\$file \\\\$result -Encoding UTF8 -NoNewline\n    Write-Host 'Fixed'\n} else {\n    Write-Host 'Pattern not found'\n}\n\")",
       "Bash(find C:UsersadminDownloadslogistiklogistik -type f \\\\\\(-name *MessageView* -o -name *message-view* -o -name *messageView* \\\\\\))",
       "Bash(find C:UsersadminDownloadslogistiklogistiksrcmainjava -type f -name *Config* -o -name *Scheduler*)",
-      "Bash(xargs grep:*)"
+      "Bash(xargs grep:*)",
+      "Bash(grep -r -i \"rechnungsnummer\\\\|rechnungs\\\\|rechnung\\\\|abrechnung\\\\|billing\\\\|invoice\\\\|faktur\" /c/Users/admin/Downloads/logistik/logistik/src --include=*.java --include=*.tsx --include=*.ts)",
+      "Bash(find /c/Users/admin/Downloads/logistik/logistik -type f \\\\\\(-name *invoice* -o -name *rechnung* -o -name *billing* -o -name *abrechnung* -o -name *faktur* \\\\\\))",
+      "Bash(xargs -I {} basename {})",
+      "Bash(grep -r \"preis\\\\|price\\\\|kosten\\\\|cost\\\\|eur\\\\|euro\\\\|betrag\\\\|rechnungs\\\\|abrechnung\\\\|fakturaendDate\" /c/Users/admin/Downloads/logistik/logistik/src --include=*.java --include=*.tsx --include=*.ts -i)",
+      "Bash(git log:*)"
     ]
   }
 }
