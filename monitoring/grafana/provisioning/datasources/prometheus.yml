@@ -1,0 +1,14 @@
+# grafana/provisioning/datasources/prometheus.yml
+#
+# Feste UID "vendix-prometheus" — muss exakt mit dem Dashboard-JSON übereinstimmen.
+
+apiVersion: 1
+
+datasources:
+  - name: Prometheus
+    type: prometheus
+    uid: vendix-prometheus
+    access: proxy
+    url: http://prometheus:9090
+    isDefault: true
+    editable: false

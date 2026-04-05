@@ -1,0 +1,23 @@
+# grafana/provisioning/dashboards/dashboard.yml
+#
+# Grafana lädt alle JSON-Dateien aus dem angegebenen Pfad
+# beim Start automatisch als Dashboards.
+#
+# So exportierst du dein bestehendes Dashboard als JSON:
+#   1. Grafana öffnen → dein Dashboard aufrufen
+#   2. Oben rechts: Share-Icon → "Export" → "Save to file"
+#   3. Die heruntergeladene .json-Datei umbenennen in:
+#      grafana/provisioning/dashboards/vendix-lasttests.json
+#   4. docker compose up -d  (oder restart grafana)
+#
+# Das Dashboard ist dann bei allen Teammitgliedern automatisch verfügbar.
+
+apiVersion: 1
+
+providers:
+  - name: vendix-dashboards
+    type: file
+    disableDeletion: false
+    updateIntervalSeconds: 30
+    options:
+      path: /etc/grafana/provisioning/dashboards

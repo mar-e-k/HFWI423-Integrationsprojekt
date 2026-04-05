@@ -118,7 +118,8 @@ public class AdminView extends AppLayout implements BeforeEnterObserver {
                 createSidebarLink("Accounts", VaadinIcon.GROUP,  RoleView.class),
                 createSidebarLink("Kassen",  VaadinIcon.CASH,    RegisterAddView.class),
                 createSidebarLink("Bestand", VaadinIcon.PACKAGE, StockView.class),
-                createSidebarLink("Belege",  VaadinIcon.RECORDS, DailyReceiptReportingView.class)
+                createSidebarLink("Belege",  VaadinIcon.RECORDS, DailyReceiptReportingView.class),
+                createSidebarLink("Lasttests", VaadinIcon.CHART_LINE, PerformanceTestView.class)
         );
         return sidebar;
     }

@@ -1,0 +1,20 @@
+global:
+  scrape_interval: 5s
+  evaluation_interval: 5s
+
+scrape_configs:
+
+  # JMeter Prometheus Listener (Port 9270)
+  # JMeter muss mit dem Backend Listener "Prometheus Listener" konfiguriert sein
+  - job_name: 'jmeter'
+    static_configs:
+      - targets: ['host.docker.internal:9270']
+    metrics_path: /metrics
+    scrape_interval: 3s
+
+  # Vendix Store Spring Boot Actuator (Port 8080)
+  - job_name: 'vendix-store'
+    static_configs:
+      - targets: ['host.docker.internal:8080']
+    metrics_path: /actuator/prometheus
+    scrape_interval: 5s

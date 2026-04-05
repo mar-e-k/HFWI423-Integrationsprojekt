@@ -1,0 +1,60 @@
+# ============================================================
+# Vendix – Lasttests Infrastruktur
+#
+# Startet:  Prometheus  → http://localhost:9090
+#           Grafana     → http://localhost:3000  (admin / admin)
+#
+# Voraussetzungen (lokal installiert, NICHT per Docker):
+#   - Apache JMeter 5.6.3  →  https://jmeter.apache.org/download_jmeter.cgi
+#   - Spring Boot App (vendix-store) läuft auf Port 8080
+#
+# Starten:  docker compose up -d
+# Stoppen:  docker compose down
+# ============================================================
+
+services:
+
+  # ----------------------------------------------------------
+  # Prometheus
+  # ----------------------------------------------------------
+  prometheus:
+    image: prom/prometheus:v2.51.2
+    container_name: vendix-prometheus
+    restart: unless-stopped
+    ports:
+      - "9090:9090"
+    volumes:
+      # prometheus.yml liegt im selben Ordner wie diese docker-compose.yml
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml:ro
+    extra_hosts:
+      # Damit Prometheus den Host (Spring App + JMeter) erreichen kann:
+      # Auf Mac/Windows: host.docker.internal → automatisch verfügbar
+      # Auf Linux:       host-gateway         → braucht Docker >= 20.10
+      - "host.docker.internal:host-gateway"
+
+  # ----------------------------------------------------------
+  # Grafana
+  # ----------------------------------------------------------
+  grafana:
+    image: grafana/grafana:10.4.2
+    container_name: vendix-grafana
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    environment:
+      # Dashboard-Einbettung per IFrame erlauben (für PerformanceTestView)
+      - GF_SECURITY_ALLOW_EMBEDDING=true
+      # Optional: Anonymen Lesezugriff aktivieren (kein Login im IFrame nötig)
+      - GF_AUTH_ANONYMOUS_ENABLED=true
+      - GF_AUTH_ANONYMOUS_ORG_ROLE=Viewer
+      # Standard-Login bleibt admin / admin (beim ersten Start ändern!)
+      - GF_SECURITY_ADMIN_USER=admin
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+    volumes:
+      # Grafana-Daten (Dashboards, Einstellungen) persistent speichern
+      - grafana-data:/var/lib/grafana
+      # Automatisches Provisioning der Datenquelle und des Dashboards
+      - ./grafana/provisioning:/etc/grafana/provisioning:ro
+
+volumes:
+  grafana-data:
