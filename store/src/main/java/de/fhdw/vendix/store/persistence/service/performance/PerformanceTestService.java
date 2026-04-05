@@ -22,7 +22,7 @@ import java.time.format.DateTimeFormatter;
 
 /**
  * Startet JMeter-Tests per CLI (kein GUI nötig).
- * <p>
+ * s
  * Strategie: Die Master-JMX enthält alle 5 Thread Groups.
  * Vor jedem Start wird eine temporäre JMX erzeugt, in der
  * nur die gewählte Thread Group aktiviert ist – die anderen
@@ -91,15 +91,30 @@ public class PerformanceTestService {
         File jmeterLog = new File(props.getResultsDir() + File.separator +
                 "jmeter_" + type.name().toLowerCase() + "_" + timestamp + ".log");
 
-        ProcessBuilder pb = new ProcessBuilder(
-                props.getJmeterBin(),
-                "-n",                        // Non-GUI-Modus
-                "-t", tempJmx.toString(),    // Testplan
-                "-l", resultFile,            // Ergebnis-CSV
-                "-e",                        // HTML-Report erzeugen
+        // Auf Windows muss jmeter.bat über cmd.exe /c aufgerufen werden,
+        // da .bat-Dateien kein direktes Win32-Executable sind.
+        boolean isWindows = System.getProperty("os.name").toLowerCase().contains("win");
+        String jmeterBin  = props.getJmeterBin();
+        if (isWindows && !jmeterBin.toLowerCase().endsWith(".bat")) {
+            jmeterBin = jmeterBin + ".bat";
+        }
+
+        java.util.List<String> command = new java.util.ArrayList<>();
+        if (isWindows) {
+            command.add("cmd.exe");
+            command.add("/c");
+        }
+        command.addAll(java.util.Arrays.asList(
+                jmeterBin,
+                "-n",
+                "-t", tempJmx.toString(),
+                "-l", resultFile,
+                "-e",
                 "-o", props.getResultsDir() + File.separator + "report_" +
-                type.name().toLowerCase() + "_" + timestamp
-        );
+                        type.name().toLowerCase() + "_" + timestamp
+        ));
+
+        ProcessBuilder pb = new ProcessBuilder(command);
         pb.redirectErrorStream(true);
         pb.redirectOutput(jmeterLog);        // stdout+stderr → Datei, kein hängender Puffer
 
@@ -134,12 +149,33 @@ public class PerformanceTestService {
         watcher.start();
     }
 
-    /** Bricht den laufenden Test ab (SIGTERM). */
+    /**
+     * Bricht den laufenden Test ab.
+     * Beendet den gesamten Prozessbaum (Shell-Wrapper + JMeter Java-Prozess),
+     * da destroy() alleine nur den Shell-Wrapper tötet und JMeter als
+     * Waisenprozess weiterläuft (→ Port-Erschöpfung auf dem Mac).
+     */
     public synchronized void stopTest() {
-        if (currentProcess != null && currentProcess.isAlive()) {
-            currentProcess.destroy();
-            log.info("JMeter-Test '{}' wurde abgebrochen.", runningTest);
+        if (currentProcess == null || !currentProcess.isAlive()) {
+            return;
         }
+        log.info("Breche JMeter-Test '{}' ab...", runningTest);
+
+        // 1. Gesamten Prozessbaum beenden (JMeter-Java-Prozess + Shell-Wrapper)
+        currentProcess.descendants().forEach(ProcessHandle::destroyForcibly);
+        currentProcess.destroyForcibly();
+
+        // 2. Maximal 10 Sekunden auf sauberes Beenden warten
+        try {
+            boolean terminated = currentProcess.waitFor(10, java.util.concurrent.TimeUnit.SECONDS);
+            if (!terminated) {
+                log.warn("JMeter-Prozess hat sich nach 10s nicht beendet.");
+            }
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        }
+
+        log.info("JMeter-Test '{}' wurde abgebrochen.", runningTest);
     }
 
     public synchronized boolean isRunning() {
