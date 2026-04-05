@@ -22,7 +22,7 @@ import java.time.format.DateTimeFormatter;
 
 /**
  * Startet JMeter-Tests per CLI (kein GUI nötig).
- *
+ * <p>
  * Strategie: Die Master-JMX enthält alle 5 Thread Groups.
  * Vor jedem Start wird eine temporäre JMX erzeugt, in der
  * nur die gewählte Thread Group aktiviert ist – die anderen

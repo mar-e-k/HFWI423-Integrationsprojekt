@@ -3,7 +3,10 @@
     "list": [
       {
         "builtIn": 1,
-        "datasource": { "type": "grafana", "uid": "-- Grafana --" },
+        "datasource": {
+          "type": "grafana",
+          "uid": "-- Grafana --"
+        },
         "enable": true,
         "hide": true,
         "iconColor": "rgba(0, 211, 255, 1)",
@@ -18,111 +21,582 @@
   "links": [],
   "panels": [
     {
-      "datasource": { "type": "prometheus", "uid": "vendix-prometheus" },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "vendix-prometheus"
+      },
       "fieldConfig": {
         "defaults": {
-          "color": { "mode": "palette-classic" },
-          "custom": { "axisBorderShow": false, "axisCenteredZero": false, "axisColorMode": "text", "axisLabel": "", "axisPlacement": "auto", "barAlignment": 0, "barWidthFactor": 0.6, "drawStyle": "line", "fillOpacity": 10, "gradientMode": "none", "hideFrom": { "legend": false, "tooltip": false, "viz": false }, "insertNulls": false, "lineInterpolation": "linear", "lineWidth": 2, "pointSize": 5, "scaleDistribution": { "type": "linear" }, "showPoints": "never", "showValues": false, "spanNulls": false, "stacking": { "group": "A", "mode": "none" }, "thresholdsStyle": { "mode": "off" } },
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "drawStyle": "line",
+            "fillOpacity": 10,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "insertNulls": false,
+            "lineInterpolation": "linear",
+            "lineWidth": 2,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "never",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
           "mappings": [],
-          "thresholds": { "mode": "absolute", "steps": [ { "color": "green", "value": 0 }, { "color": "red", "value": 80 } ] },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          },
           "unit": "ms"
         },
-        "overrides": [ { "matcher": { "id": "byName", "options": "Receipt" }, "properties": [ { "id": "color", "value": { "fixedColor": "orange", "mode": "fixed" } } ] } ]
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Receipt"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "orange",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          }
+        ]
       },
-      "gridPos": { "h": 8, "w": 9, "x": 0, "y": 0 },
+      "gridPos": {
+        "h": 8,
+        "w": 9,
+        "x": 0,
+        "y": 0
+      },
       "id": 1,
-      "options": { "legend": { "calcs": [], "displayMode": "list", "placement": "bottom", "showLegend": true }, "tooltip": { "hideZeros": false, "mode": "single", "sort": "none" } },
-      "targets": [ { "datasource": { "type": "prometheus", "uid": "vendix-prometheus" }, "editorMode": "code", "expr": "(\n  sum(rate(http_server_requests_seconds_sum{uri=\"/api/receipt\"}[1m]))\n  /\n  clamp_min(sum(rate(http_server_requests_seconds_count{uri=\"/api/receipt\"}[1m])), 0.000001)\n) * 1000", "legendFormat": "Receipt", "range": true, "refId": "A" } ],
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "hideZeros": false,
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "vendix-prometheus"
+          },
+          "editorMode": "code",
+          "expr": "(\n  sum(rate(http_server_requests_seconds_sum{uri=\"/api/receipt\"}[1m]))\n  /\n  clamp_min(sum(rate(http_server_requests_seconds_count{uri=\"/api/receipt\"}[1m])), 0.000001)\n) * 1000",
+          "legendFormat": "Receipt",
+          "range": true,
+          "refId": "A"
+        }
+      ],
       "title": "Response Time (avg ms)",
       "type": "timeseries"
     },
     {
-      "datasource": { "type": "prometheus", "uid": "vendix-prometheus" },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "vendix-prometheus"
+      },
       "fieldConfig": {
         "defaults": {
-          "color": { "mode": "palette-classic" },
-          "custom": { "axisBorderShow": false, "axisCenteredZero": false, "axisColorMode": "text", "axisLabel": "", "axisPlacement": "auto", "barAlignment": 0, "barWidthFactor": 0.6, "drawStyle": "line", "fillOpacity": 15, "gradientMode": "none", "hideFrom": { "legend": false, "tooltip": false, "viz": false }, "insertNulls": false, "lineInterpolation": "linear", "lineWidth": 2, "pointSize": 5, "scaleDistribution": { "type": "linear" }, "showPoints": "never", "showValues": false, "spanNulls": false, "stacking": { "group": "A", "mode": "none" }, "thresholdsStyle": { "mode": "off" } },
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "drawStyle": "line",
+            "fillOpacity": 15,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "insertNulls": false,
+            "lineInterpolation": "linear",
+            "lineWidth": 2,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "never",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
           "mappings": [],
-          "thresholds": { "mode": "absolute", "steps": [ { "color": "green", "value": 0 }, { "color": "red", "value": 80 } ] },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          },
           "unit": "reqps"
         },
-        "overrides": [ { "matcher": { "id": "byName", "options": "Receipt" }, "properties": [ { "id": "color", "value": { "fixedColor": "blue", "mode": "fixed" } } ] } ]
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Receipt"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "blue",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          }
+        ]
       },
-      "gridPos": { "h": 8, "w": 9, "x": 9, "y": 0 },
+      "gridPos": {
+        "h": 8,
+        "w": 9,
+        "x": 9,
+        "y": 0
+      },
       "id": 2,
-      "options": { "legend": { "calcs": [], "displayMode": "list", "placement": "bottom", "showLegend": true }, "tooltip": { "hideZeros": false, "mode": "single", "sort": "none" } },
-      "targets": [ { "datasource": { "type": "prometheus", "uid": "vendix-prometheus" }, "editorMode": "code", "exemplar": false, "expr": "sum(rate(http_server_requests_seconds_count{uri=\"/api/receipt\"}[1m]))", "instant": false, "legendFormat": "Receipt", "range": true, "refId": "A" } ],
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "hideZeros": false,
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "vendix-prometheus"
+          },
+          "editorMode": "code",
+          "exemplar": false,
+          "expr": "sum(rate(http_server_requests_seconds_count{uri=\"/api/receipt\"}[1m]))",
+          "instant": false,
+          "legendFormat": "Receipt",
+          "range": true,
+          "refId": "A"
+        }
+      ],
       "title": "Throughput (req/s)",
       "type": "timeseries"
     },
     {
-      "datasource": { "type": "prometheus", "uid": "vendix-prometheus" },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "vendix-prometheus"
+      },
       "fieldConfig": {
         "defaults": {
-          "color": { "mode": "palette-classic" },
-          "custom": { "axisBorderShow": false, "axisCenteredZero": false, "axisColorMode": "text", "axisLabel": "", "axisPlacement": "auto", "barAlignment": 0, "barWidthFactor": 0.6, "drawStyle": "line", "fillOpacity": 0, "gradientMode": "none", "hideFrom": { "legend": false, "tooltip": false, "viz": false }, "insertNulls": false, "lineInterpolation": "linear", "lineWidth": 2, "pointSize": 5, "scaleDistribution": { "type": "linear" }, "showPoints": "auto", "showValues": false, "spanNulls": false, "stacking": { "group": "A", "mode": "none" }, "thresholdsStyle": { "mode": "off" } },
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "drawStyle": "line",
+            "fillOpacity": 0,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "insertNulls": false,
+            "lineInterpolation": "linear",
+            "lineWidth": 2,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "auto",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
           "mappings": [],
-          "thresholds": { "mode": "absolute", "steps": [ { "color": "green", "value": 0 }, { "color": "red", "value": 80 } ] }
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          }
         },
-        "overrides": [ { "matcher": { "id": "byName", "options": "JVM Threads" }, "properties": [ { "id": "color", "value": { "fixedColor": "green", "mode": "fixed" } } ] } ]
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "JVM Threads"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "green",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          }
+        ]
       },
-      "gridPos": { "h": 8, "w": 9, "x": 0, "y": 8 },
+      "gridPos": {
+        "h": 8,
+        "w": 9,
+        "x": 0,
+        "y": 8
+      },
       "id": 3,
-      "options": { "legend": { "calcs": [], "displayMode": "list", "placement": "bottom", "showLegend": true }, "tooltip": { "hideZeros": false, "mode": "single", "sort": "none" } },
-      "targets": [ { "datasource": { "type": "prometheus", "uid": "vendix-prometheus" }, "editorMode": "code", "expr": "sum(jvm_threads_live_threads)", "legendFormat": "JVM Threads", "range": true, "refId": "A" } ],
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "hideZeros": false,
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "vendix-prometheus"
+          },
+          "editorMode": "code",
+          "expr": "sum(jvm_threads_live_threads)",
+          "legendFormat": "JVM Threads",
+          "range": true,
+          "refId": "A"
+        }
+      ],
       "title": "Concurrency (active threads)",
       "type": "timeseries"
     },
     {
-      "datasource": { "type": "prometheus", "uid": "vendix-prometheus" },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "vendix-prometheus"
+      },
       "fieldConfig": {
         "defaults": {
-          "color": { "mode": "palette-classic" },
-          "custom": { "axisBorderShow": false, "axisCenteredZero": false, "axisColorMode": "text", "axisLabel": "", "axisPlacement": "auto", "barAlignment": 0, "barWidthFactor": 0.6, "drawStyle": "line", "fillOpacity": 15, "gradientMode": "none", "hideFrom": { "legend": false, "tooltip": false, "viz": false }, "insertNulls": false, "lineInterpolation": "linear", "lineWidth": 2, "pointSize": 5, "scaleDistribution": { "type": "linear" }, "showPoints": "auto", "showValues": false, "spanNulls": false, "stacking": { "group": "A", "mode": "none" }, "thresholdsStyle": { "mode": "off" } },
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "drawStyle": "line",
+            "fillOpacity": 15,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "insertNulls": false,
+            "lineInterpolation": "linear",
+            "lineWidth": 2,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "auto",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
           "mappings": [],
           "min": 0,
-          "thresholds": { "mode": "absolute", "steps": [ { "color": "green", "value": 0 }, { "color": "#EAB839", "value": "" } ] },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "#EAB839",
+                "value": ""
+              }
+            ]
+          },
           "unit": "percent"
         },
-        "overrides": [ { "matcher": { "id": "byName", "options": "Receipt Errors" }, "properties": [ { "id": "color", "value": { "fixedColor": "red", "mode": "fixed" } } ] } ]
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Receipt Errors"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "red",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          }
+        ]
       },
-      "gridPos": { "h": 8, "w": 9, "x": 9, "y": 8 },
+      "gridPos": {
+        "h": 8,
+        "w": 9,
+        "x": 9,
+        "y": 8
+      },
       "id": 5,
-      "options": { "legend": { "calcs": [], "displayMode": "list", "placement": "bottom", "showLegend": true }, "tooltip": { "hideZeros": false, "mode": "single", "sort": "none" } },
-      "targets": [ { "datasource": { "type": "prometheus", "uid": "vendix-prometheus" }, "editorMode": "code", "expr": "(\n  sum(increase(http_server_requests_seconds_count{uri=\"/api/receipt\", error=\"IOException\"}[5m]))\n  /\n  clamp_min(sum(increase(http_server_requests_seconds_count{uri=\"/api/receipt\"}[5m])), 1)\n) * 100", "legendFormat": "Receipt Errors", "range": true, "refId": "A" } ],
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "hideZeros": false,
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "vendix-prometheus"
+          },
+          "editorMode": "code",
+          "expr": "(\n  sum(increase(http_server_requests_seconds_count{uri=\"/api/receipt\", error=\"IOException\"}[5m]))\n  /\n  clamp_min(sum(increase(http_server_requests_seconds_count{uri=\"/api/receipt\"}[5m])), 1)\n) * 100",
+          "legendFormat": "Receipt Errors",
+          "range": true,
+          "refId": "A"
+        }
+      ],
       "title": "Server Error Rate (%)",
       "type": "timeseries"
     },
     {
-      "datasource": { "type": "prometheus", "uid": "vendix-prometheus" },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "vendix-prometheus"
+      },
       "fieldConfig": {
         "defaults": {
-          "color": { "mode": "palette-classic" },
-          "custom": { "axisBorderShow": false, "axisCenteredZero": false, "axisColorMode": "text", "axisLabel": "", "axisPlacement": "auto", "barAlignment": 0, "barWidthFactor": 0.6, "drawStyle": "line", "fillOpacity": 10, "gradientMode": "none", "hideFrom": { "legend": false, "tooltip": false, "viz": false }, "insertNulls": false, "lineInterpolation": "linear", "lineWidth": 2, "pointSize": 5, "scaleDistribution": { "type": "linear" }, "showPoints": "auto", "showValues": false, "spanNulls": false, "stacking": { "group": "A", "mode": "none" }, "thresholdsStyle": { "mode": "off" } },
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "drawStyle": "line",
+            "fillOpacity": 10,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "insertNulls": false,
+            "lineInterpolation": "linear",
+            "lineWidth": 2,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "auto",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
           "mappings": [],
-          "thresholds": { "mode": "absolute", "steps": [ { "color": "green", "value": 0 }, { "color": "red", "value": 80 } ] },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          },
           "unit": "ms"
         },
-        "overrides": [ { "matcher": { "id": "byName", "options": "Receipt p95" }, "properties": [ { "id": "color", "value": { "fixedColor": "yellow", "mode": "fixed" } } ] } ]
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Receipt p95"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "yellow",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          }
+        ]
       },
-      "gridPos": { "h": 9, "w": 18, "x": 0, "y": 16 },
+      "gridPos": {
+        "h": 9,
+        "w": 18,
+        "x": 0,
+        "y": 16
+      },
       "id": 4,
-      "options": { "legend": { "calcs": [], "displayMode": "list", "placement": "bottom", "showLegend": true }, "tooltip": { "hideZeros": false, "mode": "single", "sort": "none" } },
-      "targets": [ { "datasource": { "type": "prometheus", "uid": "vendix-prometheus" }, "editorMode": "code", "expr": "histogram_quantile(\n  0.95,\n  sum by (le) (\n    rate(http_server_requests_seconds_bucket{uri=\"/api/receipt\"}[1m])\n  )\n) * 1000", "legendFormat": "Receipt p95", "range": true, "refId": "A" } ],
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "hideZeros": false,
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "vendix-prometheus"
+          },
+          "editorMode": "code",
+          "expr": "histogram_quantile(\n  0.95,\n  sum by (le) (\n    rate(http_server_requests_seconds_bucket{uri=\"/api/receipt\"}[1m])\n  )\n) * 1000",
+          "legendFormat": "Receipt p95",
+          "range": true,
+          "refId": "A"
+        }
+      ],
       "title": "95th Percentile (ms)",
       "type": "timeseries"
     }
   ],
-  "preload": false,
   "refresh": "5s",
-  "schemaVersion": 42,
+  "schemaVersion": 39,
   "tags": [],
-  "templating": { "list": [] },
-  "time": { "from": "now-3h", "to": "now" },
+  "templating": {
+    "list": []
+  },
+  "time": {
+    "from": "now-30m",
+    "to": "now"
+  },
   "timepicker": {},
   "timezone": "browser",
   "title": "Filialen-/Kassensystem Test-Dashboard",
   "uid": "adf44rg",
-  "version": 44,
+  "version": 1,
   "weekStart": ""
 }
