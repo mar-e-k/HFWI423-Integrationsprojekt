@@ -32,12 +32,12 @@ class ConnectionController implements ConnectionApi {
             @Nullable Integer instancePort
     ) {
         List<ConnectionDTO> filteredConnections = connectionService.findAll().stream()
-                .filter(c -> Objects.equals(c.target().id(), targetId))
-                .filter(c -> Objects.equals(c.target().type(), targetType))
-                .filter(c -> Objects.equals(c.instance().uuid(), instanceUUID))
-                .filter(c -> Objects.equals(c.instance().host(), instanceHost))
-                .filter(c -> Objects.equals(c.instance().server(), instanceServer))
-                .filter(c -> Objects.equals(c.instance().port(), instancePort))
+                .filter(c -> targetId == null || Objects.equals(c.target().id(), targetId))
+                .filter(c -> targetType == null || Objects.equals(c.target().type(), targetType))
+                .filter(c -> instanceUUID == null || Objects.equals(c.instance().uuid(), instanceUUID))
+                .filter(c -> instanceHost == null || Objects.equals(c.instance().host(), instanceHost))
+                .filter(c -> instanceServer == null || Objects.equals(c.instance().server(), instanceServer))
+                .filter(c -> instancePort == null || Objects.equals(c.instance().port(), instancePort))
                 .toList();
         return ResponseEntity
                 .status(HttpStatus.OK)

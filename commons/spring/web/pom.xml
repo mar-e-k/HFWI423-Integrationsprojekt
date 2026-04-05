@@ -119,6 +119,9 @@
                                 <importMapping>EntityTargetDTO=de.fhdw.vendix.commons.api.embeddable.EntityTargetDTO</importMapping>
                                 <importMapping>TargetType=de.fhdw.vendix.commons.api.embeddable.TargetType</importMapping>
                                 <importMapping>InstanceDetailsDTO=de.fhdw.vendix.commons.api.embeddable.InstanceDetailsDTO</importMapping>
+                                <importMapping>AccountDTO=de.fhdw.vendix.commons.api.domain.account.AccountDTO</importMapping>
+                                <importMapping>AccountRoleDTO=de.fhdw.vendix.commons.api.domain.account_role.AccountRoleDTO</importMapping>
+                                <importMapping>Role=de.fhdw.vendix.commons.api.domain.account_role.Role</importMapping>
                             </importMappings>
                         </configuration>
                     </execution>
@@ -154,6 +157,9 @@
                                 <importMapping>EntityTargetDTO=de.fhdw.vendix.commons.api.embeddable.EntityTargetDTO</importMapping>
                                 <importMapping>TargetType=de.fhdw.vendix.commons.api.embeddable.TargetType</importMapping>
                                 <importMapping>InstanceDetailsDTO=de.fhdw.vendix.commons.api.embeddable.InstanceDetailsDTO</importMapping>
+                                <importMapping>AccountDTO=de.fhdw.vendix.commons.api.domain.account.AccountDTO</importMapping>
+                                <importMapping>AccountRoleDTO=de.fhdw.vendix.commons.api.domain.account_role.AccountRoleDTO</importMapping>
+                                <importMapping>Role=de.fhdw.vendix.commons.api.domain.account_role.Role</importMapping>
                             </importMappings>
                         </configuration>
                     </execution>
@@ -184,7 +190,6 @@
                             </configOptions>
                         </configuration>
                     </execution>
-
                 </executions>
             </plugin>
             <plugin>

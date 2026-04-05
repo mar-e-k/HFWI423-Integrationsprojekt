@@ -3,6 +3,7 @@ package de.fhdw.vendix.commons.spring.security.jwt;
 import com.nimbusds.jose.*;
 import com.nimbusds.jose.crypto.MACSigner;
 import com.nimbusds.jose.crypto.MACVerifier;
+import com.nimbusds.jose.proc.BadJOSEException;
 import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.SignedJWT;
 import com.nimbusds.jwt.proc.ExpiredJWTException;
@@ -10,19 +11,18 @@ import de.fhdw.vendix.commons.api.domain.account_role.Role;
 import de.fhdw.vendix.commons.spring.security.context.app.AppContext;
 import de.fhdw.vendix.commons.spring.security.context.register.RegisterContext;
 import de.fhdw.vendix.commons.spring.security.context.store.StoreContext;
-import de.fhdw.vendix.commons.spring.security.jwt.payload.claims.AuthClaims;
-import de.fhdw.vendix.commons.spring.security.jwt.payload.claims.ContextClaims;
-import de.fhdw.vendix.commons.spring.security.jwt.payload.claims.JwtClaims;
-import de.fhdw.vendix.commons.spring.security.jwt.payload.JwtPayload;
+import de.fhdw.vendix.commons.spring.security.user_details.DefaultUser;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.core.context.SecurityContextHolder;
 
 import java.nio.charset.StandardCharsets;
 import java.text.ParseException;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.Date;
+import java.util.List;
 import java.util.Set;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 public final class DefaultJwtService implements JwtService {
 
@@ -55,14 +55,27 @@ public final class DefaultJwtService implements JwtService {
             Long storeId = storeContext.getStore() == null ? null : storeContext.getStore().id();
             Long registerId = registerContext.getRegister() == null ? null : registerContext.getRegister().id();
 
+            String subject;
+            Set<Role> roles;
+
+            if (SecurityContextHolder.getContext().getAuthentication() != null && SecurityContextHolder.getContext().getAuthentication().getPrincipal() instanceof DefaultUser defaultUser) {
+                subject = defaultUser.ctx().account().uuid().toString();
+                roles = defaultUser.ctx().roles();
+            } else {
+                subject = appContext.getInstanceUUID().toString();
+                roles = Set.of(Role.SYSTEM);
+            }
+
             JWTClaimsSet claimsSet = new JWTClaimsSet.Builder()
                     .jwtID(UUID.randomUUID().toString())
+                    .issuer(appContext.getApplicationName())
+                    .audience(List.of("orchestrator", "pos", "store"))
                     .issueTime(now)
                     .expirationTime(exp)
-                    .subject(appContext.getInstanceUUID().toString()) // This should be authContext
-                    .claim(JwtClaims.ROLES.claim(), Set.of(Role.values())) // TODO
-                    .claim(JwtClaims.STORE.claim(), storeId)
-                    .claim(JwtClaims.REGISTER.claim(), registerId)
+                    .subject(subject)
+                    .claim(JwtContextClaims.ROLES.claim(), roles)
+                    .claim(JwtContextClaims.STORE.claim(), storeId)
+                    .claim(JwtContextClaims.REGISTER.claim(), registerId)
                     .build();
 
             JWSHeader header = new JWSHeader(JWSAlgorithm.HS256);
@@ -77,39 +90,21 @@ public final class DefaultJwtService implements JwtService {
     }
 
     @Override
-    public JwtPayload parseToken(String token) {
+    public JWTClaimsSet parseToken(String token) {
         try {
             SignedJWT signedJWT = SignedJWT.parse(token);
             JWSVerifier verifier = new MACVerifier(secret);
 
             if (!signedJWT.verify(verifier)) {
-                throw new IllegalStateException("Invalid JWT signature");
+                throw new BadCredentialsException("Invalid JWT signature");
             }
 
-            JWTClaimsSet claims = signedJWT.getJWTClaimsSet();
-
-            // Expiration validation
-            Date expirationTime = claims.getExpirationTime();
-            if (expirationTime == null || expirationTime.before(Date.from(Instant.now()))) {
-                throw new ExpiredJWTException("JWT is expired");
-            }
-
-            UUID uuid = UUID.fromString(claims.getSubject());
-            Set<Role> roles = claims.getStringListClaim(JwtClaims.ROLES.claim()).stream()
-                    .map(Role::valueOf)
-                    .collect(Collectors.toUnmodifiableSet());
-
-            AuthClaims authClaims = new AuthClaims(uuid, roles);
-            ContextClaims contextClaims = new ContextClaims();
-
-            return new JwtPayload(authClaims, contextClaims);
+            return signedJWT.getJWTClaimsSet();
 
         } catch (ParseException e) {
-            throw new IllegalStateException("Invalid JWT format", e);
+            throw new BadCredentialsException("Invalid JWT format", e);
         } catch (JOSEException e) {
-            throw new IllegalStateException("JWT verification failed", e);
-        } catch (Exception e) {
-            throw new IllegalStateException("Failed to parse JWT", e);
+            throw new BadCredentialsException("JWT verification failed", e);
         }
     }
 }

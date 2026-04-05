@@ -1,8 +1,8 @@
 package de.fhdw.vendix.commons.spring.security.jwt;
 
-import de.fhdw.vendix.commons.spring.security.jwt.payload.JwtPayload;
+import com.nimbusds.jwt.JWTClaimsSet;
 
 public interface JwtService {
     String generateToken();
-    JwtPayload parseToken(String token);
+    JWTClaimsSet parseToken(String token);
 }

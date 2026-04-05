@@ -6,17 +6,19 @@ import org.springframework.core.env.Environment;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+import java.util.Objects;
 import java.util.UUID;
 
 public final class DefaultAppContext implements AppContext {
 
+    private final String applicationName;
     private final UUID instanceUUID;
     private final String hostname;
     private final String serverName;
-
     private volatile int serverPort;
 
     public DefaultAppContext(Environment environment) {
+        this.applicationName = Objects.requireNonNull(environment.getProperty("spring.application.name"), "Property 'spring.application.name' is not set");
         this.instanceUUID = UUID.randomUUID();
         this.hostname = resolveHostname();
         this.serverName = resolveServerName(environment);
@@ -46,12 +48,17 @@ public final class DefaultAppContext implements AppContext {
     }
 
     @Override
+    public String getApplicationName() {
+        return applicationName;
+    }
+
+    @Override
     public UUID getInstanceUUID() {
         return instanceUUID;
     }
 
     @Override
-    public String getHostName() {
+    public String getHostname() {
         return hostname;
     }
 

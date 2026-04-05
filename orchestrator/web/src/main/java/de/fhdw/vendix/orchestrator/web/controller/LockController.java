@@ -29,9 +29,9 @@ class LockController implements LockApi {
             @Nullable UUID instanceUUID
     ) {
         List<LockDTO> filtered = lockService.findAll().stream()
-                .filter(l -> Objects.equals(l.target().id(), targetId))
-                .filter(l -> Objects.equals(l.target().type(), targetType))
-                .filter(l -> Objects.equals(l.instanceUUID(), instanceUUID))
+                .filter(l -> !Objects.equals(l.target().id(), targetId))
+                .filter(l -> !Objects.equals(l.target().type(), targetType))
+                .filter(l -> !Objects.equals(l.instanceUUID(), instanceUUID))
                 .toList();
         return ResponseEntity
                 .status(HttpStatus.OK)

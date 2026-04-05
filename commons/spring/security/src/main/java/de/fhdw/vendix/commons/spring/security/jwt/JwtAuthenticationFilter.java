@@ -1,39 +1,42 @@
 package de.fhdw.vendix.commons.spring.security.jwt;
 
+import com.nimbusds.jwt.JWTClaimsSet;
 import de.fhdw.vendix.commons.api.domain.account.AccountDTO;
 import de.fhdw.vendix.commons.api.domain.account_role.Role;
 import de.fhdw.vendix.commons.spring.security.authentication.AuthenticationService;
-import de.fhdw.vendix.commons.spring.security.jwt.payload.JwtPayload;
 import jakarta.annotation.Nonnull;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.http.HttpHeaders;
-import org.springframework.security.authentication.AuthenticationCredentialsNotFoundException;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
-import java.util.Map;
-import java.util.Set;
-import java.util.UUID;
+import java.text.ParseException;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Collectors;
 
 public final class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private final JwtService jwtService;
+    private final JwtValidator jwtValidator;
     private final AuthenticationService authenticationPort;
 
     private final Map<UUID, AccountDTO> cachedAccounts = new ConcurrentHashMap<>();
 
-    public JwtAuthenticationFilter(JwtService jwtService, AuthenticationService authenticationPort) {
+    public JwtAuthenticationFilter(JwtService jwtService, JwtValidator jwtValidator, AuthenticationService authenticationPort) {
         this.jwtService = jwtService;
+        this.jwtValidator = jwtValidator;
         this.authenticationPort = authenticationPort;
     }
 
@@ -57,31 +60,45 @@ public final class JwtAuthenticationFilter extends OncePerRequestFilter {
         filterChain.doFilter(request, response);
     }
 
-    // TODO: this is here temporarily. Will be refactored to be a separate component that the filter will call with a JwtPayload or similar
-    private Authentication resolveAuthentication(String token) throws AuthenticationException {
-        JwtPayload payload = jwtService.parseToken(token);
-        Set<Role> roles = payload.auth().roles();
+    private Authentication resolveAuthentication(String token) {
+        JWTClaimsSet claims = jwtService.parseToken(token);
 
-        if (roles.isEmpty()) {
-            throw new AuthenticationCredentialsNotFoundException("Invalid token. Token has no roles defined");
+        jwtValidator.validate(claims);
+
+        UUID subject = UUID.fromString(claims.getSubject());
+        Set<Role> roles;
+
+        try {
+            roles = claims.getStringListClaim(JwtContextClaims.ROLES.claim()).stream()
+                    .map(Role::valueOf)
+                    .collect(Collectors.toSet());
+        } catch (ParseException e) {
+            throw new BadCredentialsException("Invalid roles format", e);
         }
+
+        Set<GrantedAuthority> authorities =
+                roles.stream()
+                        .map(role -> new SimpleGrantedAuthority("ROLE_" + role.name()))
+                        .collect(Collectors.toUnmodifiableSet());
 
         if (roles.contains(Role.SYSTEM)) {
             return new UsernamePasswordAuthenticationToken(
-                    "system",
-                    "system"
-            );
-        } else {
-            AccountDTO account = cachedAccounts.computeIfAbsent(
-                    payload.auth().subject(),
-                    uuid -> authenticationPort.findByUUID(uuid)
-                            .orElseThrow(() -> new BadCredentialsException("Invalid token. Account with specified UUID does not exist"))
-            );
-
-            return new UsernamePasswordAuthenticationToken(
-                    account.username(),
-                    account.password()
+                    subject,
+                    null,
+                    authorities
             );
         }
+
+        AccountDTO account = cachedAccounts.computeIfAbsent(
+                subject,
+                uuid -> authenticationPort.findByUUID(uuid)
+                        .orElseThrow(() -> new BadCredentialsException("Account not found"))
+        );
+
+        return new UsernamePasswordAuthenticationToken(
+                account.username(),
+                null,
+                authorities
+        );
     }
 }
