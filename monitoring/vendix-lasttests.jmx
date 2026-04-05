@@ -4,6 +4,16 @@
     <TestPlan guiclass="TestPlanGui" testclass="TestPlan" testname="Vendix – Kassensystem Lasttests">
       <elementProp name="TestPlan.user_defined_variables" elementType="Arguments" guiclass="ArgumentsPanel" testclass="Arguments" testname="User Defined Variables">
         <collectionProp name="Arguments.arguments">
+          <!--
+            ╔══════════════════════════════════════════════════════════════╗
+            ║  TESTDATEN – bei Bedarf anpassen                             ║
+            ║  BASE_URL     : Adresse der Spring Boot App                  ║
+            ║  ADMIN_USER   : JMeter-Account (nie im Browser verwenden!)   ║
+            ║  CASHIER_USER : Kassierer-Account für Kaufabschluss          ║
+            ║  TEST_GTIN    : GTIN des Testartikels (muss existieren)      ║
+            ║  TEST_ARTICLE_ID : ID des Testartikels (muss existieren)     ║
+            ╚══════════════════════════════════════════════════════════════╝
+          -->
           <elementProp name="BASE_URL" elementType="Argument">
             <stringProp name="Argument.name">BASE_URL</stringProp>
             <stringProp name="Argument.value">http://localhost:8080</stringProp>
@@ -175,10 +185,20 @@ log.info(&quot;=== setUp OK. register_id=&quot; + vars.get(&quot;register_id&quo
           <hashTree/>
         </hashTree>
       </hashTree>
-      <ThreadGroup guiclass="ThreadGroupGui" testclass="ThreadGroup" testname="1. Lasttest (10 User, 3 min)" enabled="false">
-        <intProp name="ThreadGroup.num_threads">10</intProp>
+      <!--
+        ┌─────────────────────────────────────────────────────────────┐
+        │  1. LASTTEST – Normalbetrieb unter stabiler Last            │
+        │  Ziel: Systemverhalten bei erwarteter Nutzerzahl prüfen     │
+        │                                                             │
+        │  num_threads  = 30     ← Anzahl gleichzeitiger User         │
+        │  ramp_time    = 60     ← Sekunden bis alle User aktiv sind  │
+        │  duration     = 300    ← Testdauer in Sekunden (5 min)      │
+        └─────────────────────────────────────────────────────────────┘
+      -->
+      <ThreadGroup guiclass="ThreadGroupGui" testclass="ThreadGroup" testname="1. Lasttest (30 User, 5 min)" enabled="false">
+        <intProp name="ThreadGroup.num_threads">30</intProp>
         <intProp name="ThreadGroup.ramp_time">60</intProp>
-        <longProp name="ThreadGroup.duration">180</longProp>
+        <longProp name="ThreadGroup.duration">300</longProp>
         <longProp name="ThreadGroup.delay">0</longProp>
         <boolProp name="ThreadGroup.same_user_on_next_iteration">true</boolProp>
         <boolProp name="ThreadGroup.scheduler">true</boolProp>
@@ -253,10 +273,20 @@ log.info(&quot;=== setUp OK. register_id=&quot; + vars.get(&quot;register_id&quo
         </ConstantTimer>
         <hashTree/>
       </hashTree>
-      <ThreadGroup guiclass="ThreadGroupGui" testclass="ThreadGroup" testname="2. Stresstest (10 bis 500 User)" enabled="false">
-        <intProp name="ThreadGroup.num_threads">500</intProp>
-        <intProp name="ThreadGroup.ramp_time">600</intProp>
-        <longProp name="ThreadGroup.duration">720</longProp>
+      <!--
+        ┌─────────────────────────────────────────────────────────────┐
+        │  2. STRESSTEST – Belastungsgrenze finden                    │
+        │  Ziel: Ab wievielen Usern bricht das System ein?            │
+        │                                                             │
+        │  num_threads  = 150    ← Max. Anzahl User                   │
+        │  ramp_time    = 300    ← 10 min Hochlauf (stetig steigend)  │
+        │  duration     = 600    ← Testdauer in Sekunden (10 min)     │
+        └─────────────────────────────────────────────────────────────┘
+      -->
+      <ThreadGroup guiclass="ThreadGroupGui" testclass="ThreadGroup" testname="2. Stresstest (10 bis 150 User)" enabled="false">
+        <intProp name="ThreadGroup.num_threads">150</intProp>
+        <intProp name="ThreadGroup.ramp_time">300</intProp>
+        <longProp name="ThreadGroup.duration">600</longProp>
         <longProp name="ThreadGroup.delay">0</longProp>
         <boolProp name="ThreadGroup.same_user_on_next_iteration">true</boolProp>
         <boolProp name="ThreadGroup.scheduler">true</boolProp>
@@ -305,10 +335,21 @@ log.info(&quot;=== setUp OK. register_id=&quot; + vars.get(&quot;register_id&quo
         </HTTPSamplerProxy>
         <hashTree/>
       </hashTree>
-      <ThreadGroup guiclass="ThreadGroupGui" testclass="ThreadGroup" testname="3. Spike-Test (5 auf 300 User)" enabled="false">
-        <intProp name="ThreadGroup.num_threads">300</intProp>
+      <!--
+        ┌─────────────────────────────────────────────────────────────┐
+        │  3. SPIKE-TEST – Reaktion auf plötzliche Lastspitze         │
+        │  Ziel: Erholt sich das System nach einem abrupten Ansturm?  │
+        │                                                             │
+        │  num_threads  = 100    ← Anzahl User beim Spike             │
+        │  ramp_time    = 5      ← Sekunden bis alle User aktiv sind  │
+        │                          (bewusst sehr kurz = harter Spike) │
+        │  duration     = 90    ← Testdauer in Sekunden (1,5 min)     │
+        └─────────────────────────────────────────────────────────────┘
+      -->
+      <ThreadGroup guiclass="ThreadGroupGui" testclass="ThreadGroup" testname="3. Spike-Test (5 auf 100 User)" enabled="false">
+        <intProp name="ThreadGroup.num_threads">100</intProp>
         <intProp name="ThreadGroup.ramp_time">5</intProp>
-        <longProp name="ThreadGroup.duration">120</longProp>
+        <longProp name="ThreadGroup.duration">90</longProp>
         <longProp name="ThreadGroup.delay">0</longProp>
         <boolProp name="ThreadGroup.same_user_on_next_iteration">true</boolProp>
         <boolProp name="ThreadGroup.scheduler">true</boolProp>
@@ -348,10 +389,22 @@ log.info(&quot;=== setUp OK. register_id=&quot; + vars.get(&quot;register_id&quo
         </HTTPSamplerProxy>
         <hashTree/>
       </hashTree>
-      <ThreadGroup guiclass="ThreadGroupGui" testclass="ThreadGroup" testname="4. Soak-Test (20 User, 60 min)" enabled="false">
-        <intProp name="ThreadGroup.num_threads">20</intProp>
-        <intProp name="ThreadGroup.ramp_time">30</intProp>
-        <longProp name="ThreadGroup.duration">3600</longProp>
+      <!--
+        ┌─────────────────────────────────────────────────────────────┐
+        │  4. SOAK-TEST – Langzeitstabilität prüfen                   │
+        │  Ziel: Memory Leaks, DB-Verbindungsabbrüche nach langer     │
+        │        Laufzeit aufdecken                                   │
+        │                                                             │
+        │  num_threads  = 30     ← Moderate Userzahl (kein Stress)    │
+        │  ramp_time    = 60     ← Sekunden bis alle User aktiv sind  │
+        │  duration     = 1800   ← Testdauer in Sekunden (30 min)     │
+        │                          Für längere Tests: 7200 = 2h usw.  │
+        └─────────────────────────────────────────────────────────────┘
+      -->
+      <ThreadGroup guiclass="ThreadGroupGui" testclass="ThreadGroup" testname="4. Soak-Test (30 User, 30 min)" enabled="false">
+        <intProp name="ThreadGroup.num_threads">30</intProp>
+        <intProp name="ThreadGroup.ramp_time">60</intProp>
+        <longProp name="ThreadGroup.duration">1800</longProp>
         <longProp name="ThreadGroup.delay">0</longProp>
         <boolProp name="ThreadGroup.same_user_on_next_iteration">true</boolProp>
         <boolProp name="ThreadGroup.scheduler">true</boolProp>
@@ -413,10 +466,21 @@ log.info(&quot;=== setUp OK. register_id=&quot; + vars.get(&quot;register_id&quo
         </ConstantTimer>
         <hashTree/>
       </hashTree>
-      <ThreadGroup guiclass="ThreadGroupGui" testclass="ThreadGroup" testname="5. Capacity-Test (stufenweise bis 200 User)">
-        <intProp name="ThreadGroup.num_threads">200</intProp>
-        <intProp name="ThreadGroup.ramp_time">600</intProp>
-        <longProp name="ThreadGroup.duration">720</longProp>
+      <!--
+        ┌─────────────────────────────────────────────────────────────┐
+        │  5. CAPACITY-TEST – maximale Kapazität ermitteln            │
+        │  Ziel: Wie viele User kann das System dauerhaft bedienen?   │
+        │        (langsamer Anstieg = realistischer als Stresstest)   │
+        │                                                             │
+        │  num_threads  = 100    ← Max. Anzahl User                   │
+        │  ramp_time    = 480    ← 10 min Hochlauf (stufenweise)      │
+        │  duration     = 600    ← Testdauer in Sekunden (10 min)     │
+        └─────────────────────────────────────────────────────────────┘
+      -->
+      <ThreadGroup guiclass="ThreadGroupGui" testclass="ThreadGroup" testname="5. Capacity-Test (stufenweise bis 100 User)">
+        <intProp name="ThreadGroup.num_threads">100</intProp>
+        <intProp name="ThreadGroup.ramp_time">480</intProp>
+        <longProp name="ThreadGroup.duration">600</longProp>
         <longProp name="ThreadGroup.delay">0</longProp>
         <boolProp name="ThreadGroup.same_user_on_next_iteration">true</boolProp>
         <boolProp name="ThreadGroup.scheduler">true</boolProp>

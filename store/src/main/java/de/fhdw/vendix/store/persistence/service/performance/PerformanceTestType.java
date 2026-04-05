@@ -19,14 +19,14 @@ public enum PerformanceTestType {
         return jmxPrefix;
     }
 
-    /** Lesbarer Label für die UI */
+    /** Lesbarer Label für die UI (erscheint auf den Vaadin-Buttons) */
     public String getLabel() {
         return switch (this) {
-            case LASTTEST      -> "Lasttest (10 User, 3 min)";
-            case STRESSTEST    -> "Stresstest (10 → 500 User)";
-            case SPIKE_TEST    -> "Spike-Test (5 → 300 User)";
-            case SOAK_TEST     -> "Soak-Test (20 User, 60 min)";
-            case CAPACITY_TEST -> "Capacity-Test (stufenweise bis 200 User)";
+            case LASTTEST      -> "Lasttest (30 User, 5 min)";
+            case STRESSTEST    -> "Stresstest (10 → 150 User)";
+            case SPIKE_TEST    -> "Spike-Test (5 → 100 User)";
+            case SOAK_TEST     -> "Soak-Test (30 User, 30 min)";
+            case CAPACITY_TEST -> "Capacity-Test (stufenweise bis 100 User)";
         };
     }
 }
