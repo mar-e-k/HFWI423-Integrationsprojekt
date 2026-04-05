@@ -1,126 +1,80 @@
 # Vendix – Lasttest-Infrastruktur Setup
 
-## Übersicht
-
-```
-docker-compose.yml              ← Prometheus + Grafana starten
-prometheus.yml                  ← Prometheus-Konfiguration
-grafana/
-  provisioning/
-    datasources/prometheus.yml  ← Prometheus-Datenquelle (automatisch)
-    dashboards/dashboard.yml    ← Dashboard-Loader (automatisch)
-    dashboards/*.json           ← Dein exportiertes Dashboard (→ Schritt 4)
-```
-
----
-
 ## Schritt 1 – JMeter lokal installieren
 
-1. Apache JMeter 5.6.3 herunterladen:
-   https://jmeter.apache.org/download_jmeter.cgi → "apache-jmeter-5.6.3.zip"
-2. Entpacken, z.B. nach `/opt/apache-jmeter-5.6.3` (Mac/Linux) oder `C:\jmeter` (Windows)
-3. Den Pfad zur Executable notieren:
-   - Mac/Linux: `/opt/apache-jmeter-5.6.3/bin/jmeter`
-   - Windows:   `C:\jmeter\bin\jmeter.bat`
+Apache JMeter 5.6.3 herunterladen: https://jmeter.apache.org/download_jmeter.cgi
+
+Entpacken und den Pfad zur Executable notieren:
+- Mac/Linux: `/opt/apache-jmeter-5.6.3/bin/jmeter`
+- Windows: `C:\jmeter\bin\jmeter.bat`
+
+```bash
+# Mac: Pfad schnell finden
+which jmeter
+# oder: find /Users -name "jmeter" -type f 2>/dev/null
+```
 
 ---
 
-## Schritt 2 – application-dev.properties ausfüllen
+## Schritt 2 – application-test.properties: 2 Zeilen eintragen
+
+Nur diese zwei Werte sind individuell — alles andere funktioniert mit den Standardwerten:
 
 ```properties
-vendix.performance.jmeter-bin=/opt/apache-jmeter-5.6.3/bin/jmeter
-
-# Pfad zur JMX-Datei im Projekt (relativ oder absolut)
-vendix.performance.master-jmx=/Users/DEIN_NAME/dev/vendix/vendix-lasttests.jmx
-
-# Ergebnis-Verzeichnis (wird automatisch angelegt)
-vendix.performance.results-dir=/tmp/jmeter-results
-
-# Grafana Dashboard-UID herausfinden (→ Schritt 5)
-vendix.performance.grafana-url=http://localhost:3000/d/<DASHBOARD_UID>
-vendix.performance.prometheus-url=http://localhost:9090
-vendix.performance.dashboard-embed-url=http://localhost:3000/d/<DASHBOARD_UID>?kiosk=true&refresh=5s
+vendix.performance.jmeter-bin=/Users/DEIN_NAME/Desktop/apache-jmeter-5.6.3/bin/jmeter
+vendix.performance.master-jmx=/Users/DEIN_NAME/IdeaProjects/HFWI423-Integrationsprojekt/monitoring/vendix-lasttests.jmx
 ```
 
-**JMeter-Pfad auf dem Mac schnell finden:**
-```bash
-which jmeter
-# oder, falls über Homebrew:  brew install jmeter
-# dann ist es unter:          /usr/local/bin/jmeter  oder  /opt/homebrew/bin/jmeter
-```
-
-**JMX-Pfad:** Das ist einfach der Pfad zur `vendix-lasttests.jmx` in deinem Projekt.
-In IntelliJ: Rechtsklick auf die Datei → "Copy Path/Reference..." → "Absolute Path".
+**JMX-Pfad in IntelliJ finden:** Rechtsklick auf `monitoring/vendix-lasttests.jmx` → Copy Path → Absolute Path
 
 ---
 
-## Schritt 3 – Docker Compose starten
+## Schritt 3 – JMeter-Test-Account wurde bereits angelegt
+
+Im Store-UI wurde ein JMeter-Admin-Account angelegt:
+- **Username:** `JMeter` / **Passwort:** `1234`
+
+Diesen Account **nie im Browser verwenden** — nur JMeter darf sich damit einloggen und validieren, ob der in der DB existiert.
+
+---
+
+## Schritt 4 – Docker Compose starten
 
 ```bash
-# Im Verzeichnis dieser docker-compose.yml:
+cd monitoring/
 docker compose up -d
-
-# Läuft alles?
-docker compose ps
-
-# Logs ansehen:
-docker compose logs -f
 ```
 
 - Prometheus: http://localhost:9090
-- Grafana:    http://localhost:3000  (Login: admin / admin)
+- Grafana:    http://localhost:3000  (admin / admin)
+
+Das Dashboard lädt automatisch.
 
 ---
 
-## Schritt 4 – Dashboard exportieren und ins Repo legen
+## Schritt 5 – Spring Boot starten und loslegen
 
-Damit alle Teammitglieder automatisch dasselbe Dashboard bekommen:
-
-1. Grafana öffnen → dein Vendix-Dashboard aufrufen
-2. Oben rechts: **Share** → **Export** → **Save to file**
-3. Die JSON-Datei umbenennen in `vendix-lasttests.json`
-4. In diesen Ordner legen:
-   ```
-   grafana/provisioning/dashboards/vendix-lasttests.json
-   ```
-5. `docker compose restart grafana`
-
-Jetzt laden alle, die `docker compose up -d` starten, automatisch dein Dashboard.
+Über IntelliJ starten, dann: `http://localhost:8080` → Login → Sidebar → **Lasttests**
 
 ---
 
-## Schritt 5 – Grafana Dashboard-UID herausfinden
+## Testparameter anpassen (User-Anzahl / Dauer)
 
-1. Grafana öffnen → dein Dashboard aufrufen
-2. In der URL steht die UID:
-   ```
-   http://localhost:3000/d/abc123xyz/vendix-lasttests
-                               ^^^^^^^^^^^
-                               Das ist deine DASHBOARD_UID
-   ```
-3. Diese UID in `application-dev.properties` eintragen (→ Schritt 2)
+`monitoring/vendix-lasttests.jmx` als Text öffnen, pro ThreadGroup:
 
----
-
-## Schritt 6 – Spring Boot App starten
-
-Ganz normal über IntelliJ oder:
-```bash
-./mvnw spring-boot:run -pl store -Dspring-boot.run.profiles=dev
+```xml
+<stringProp name="ThreadGroup.num_threads">10</stringProp>   ← User-Anzahl
+<stringProp name="ThreadGroup.ramp_time">60</stringProp>     ← Ramp-up in Sekunden
+<stringProp name="ThreadGroup.duration">180</stringProp>     ← Testdauer in Sekunden
 ```
-
-Dann im Browser: http://localhost:8080 → Login → Sidebar → **Lasttests**
 
 ---
 
 ## Hinweis für Linux-Nutzer
 
-In `prometheus.yml` ist `host.docker.internal` verwendet.
-Auf Linux muss in `docker-compose.yml` unter `prometheus:` folgendes ergänzt werden:
+In `docker-compose.yml` unter `prometheus:` ergänzen:
 
 ```yaml
 extra_hosts:
   - "host.docker.internal:host-gateway"
 ```
-
-(Auf Mac und Windows mit Docker Desktop funktioniert es ohne diese Zeile.)

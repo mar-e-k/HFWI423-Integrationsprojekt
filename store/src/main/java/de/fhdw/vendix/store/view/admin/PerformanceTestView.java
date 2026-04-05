@@ -286,20 +286,46 @@ public class PerformanceTestView extends AppLayout implements BeforeEnterObserve
     private Component buildLinksSection() {
         H2 heading = new H2("Monitoring");
 
+        // Grafana-Link
         Anchor grafanaLink = new Anchor(props.getGrafanaUrl(), "Grafana öffnen →");
         grafanaLink.setTarget("_blank");
         grafanaLink.getStyle().set("margin-right", "var(--lumo-space-l)");
 
-        Anchor prometheusLink = new Anchor(props.getPrometheusUrl(), "Prometheus öffnen →");
-        prometheusLink.setTarget("_blank");
-        prometheusLink.getStyle().set("margin-right", "var(--lumo-space-l)");
+        // Prometheus Targets öffnen
+        Anchor prometheusTargetsLink = new Anchor(
+                props.getPrometheusUrl() + "/targets", "Prometheus Targets →");
+        prometheusTargetsLink.setTarget("_blank");
+        prometheusTargetsLink.getStyle().set("margin-right", "var(--lumo-space-l)");
 
-        Anchor resultsLink = new Anchor(
-                "file://" + props.getResultsDir(), "Ergebnis-Verzeichnis");
-        resultsLink.setTarget("_blank");
+        // Ergebnis-Ordner im Finder/Explorer oeffnen
+        Button openFolderBtn = new Button("Ergebnis-Dateien öffnen", new Icon(VaadinIcon.FOLDER_OPEN));
+        openFolderBtn.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
+        openFolderBtn.setTooltipText(props.getResultsDir());
+        openFolderBtn.addClickListener(e -> {
+            try {
+                String os  = System.getProperty("os.name").toLowerCase();
+                String cmd = os.contains("mac") ? "open" : os.contains("win") ? "explorer" : "xdg-open";
+                new ProcessBuilder(cmd, props.getResultsDir())
+                        .redirectErrorStream(true)
+                        .start();
+                showNotification("Ordner geöffnet: " + props.getResultsDir(),
+                        NotificationVariant.LUMO_SUCCESS);
+            } catch (Exception ex) {
+                showNotification("Fehler: " + ex.getMessage(), NotificationVariant.LUMO_ERROR);
+            }
+        });
 
-        HorizontalLayout links = new HorizontalLayout(grafanaLink, prometheusLink, resultsLink);
+        // Letzten HTML-Report öffnen (öffnet das Verzeichnis via OS-Befehl server-seitig,
+        // da Server und Browser auf derselben Maschine laufen)
+        Button openReportBtn = new Button("Letzten Report öffnen", new Icon(VaadinIcon.CHART));
+        openReportBtn.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
+        openReportBtn.setTooltipText("Öffnet den zuletzt generierten HTML-Report im Browser");
+        openReportBtn.addClickListener(e -> openLatestReport());
+
+        HorizontalLayout links = new HorizontalLayout(
+                grafanaLink, prometheusTargetsLink, openFolderBtn, openReportBtn);
         links.setAlignItems(FlexComponent.Alignment.CENTER);
+        links.getStyle().set("flex-wrap", "wrap");
 
         VerticalLayout section = new VerticalLayout(heading, links);
         section.setPadding(false);
@@ -311,16 +337,45 @@ public class PerformanceTestView extends AppLayout implements BeforeEnterObserve
         return section;
     }
 
+    /** Sucht das neueste report_*-Verzeichnis und öffnet dessen index.html im Browser. */
+    private void openLatestReport() {
+        try {
+            java.io.File resultsDir = new java.io.File(props.getResultsDir());
+            if (!resultsDir.exists()) {
+                showNotification("Noch keine Reports vorhanden.", NotificationVariant.LUMO_CONTRAST);
+                return;
+            }
+            java.io.File[] reports = resultsDir.listFiles(
+                    f -> f.isDirectory() && f.getName().startsWith("report_"));
+            if (reports == null || reports.length == 0) {
+                showNotification("Noch keine Reports vorhanden.", NotificationVariant.LUMO_CONTRAST);
+                return;
+            }
+            // Neuestes Report-Verzeichnis nach Änderungsdatum sortieren
+            java.util.Arrays.sort(reports, java.util.Comparator.comparingLong(java.io.File::lastModified));
+            java.io.File latest = reports[reports.length - 1];
+            java.io.File index  = new java.io.File(latest, "index.html");
+            if (!index.exists()) {
+                showNotification("index.html nicht gefunden in: " + latest.getName(),
+                        NotificationVariant.LUMO_ERROR);
+                return;
+            }
+            // OS-Befehl: open (Mac) / xdg-open (Linux) / start (Windows)
+            String os = System.getProperty("os.name").toLowerCase();
+            String cmd = os.contains("mac") ? "open" : os.contains("win") ? "explorer" : "xdg-open";
+            new ProcessBuilder(cmd, index.getAbsolutePath())
+                    .redirectErrorStream(true)
+                    .start();
+            showNotification("Report geöffnet: " + latest.getName(), NotificationVariant.LUMO_SUCCESS);
+        } catch (Exception ex) {
+            showNotification("Fehler: " + ex.getMessage(), NotificationVariant.LUMO_ERROR);
+        }
+    }
+
     // --- Grafana IFrame ---
 
     private Component buildDashboardSection() {
         H2 heading = new H2("Grafana Dashboard");
-
-        Paragraph hint = new Paragraph(
-                "Hinweis: Damit das Dashboard eingebettet werden kann, muss in Grafana " +
-                        "GF_SECURITY_ALLOW_EMBEDDING=true gesetzt sein (siehe Docker-Compose / Env-Variable).");
-        hint.getStyle().set("font-size", "var(--lumo-font-size-s)")
-                .set("color",     "var(--lumo-secondary-text-color)");
 
         IFrame frame = new IFrame(props.getDashboardEmbedUrl());
         frame.setWidthFull();
@@ -329,7 +384,7 @@ public class PerformanceTestView extends AppLayout implements BeforeEnterObserve
                 .set("border",        "none")
                 .set("border-radius", "var(--lumo-border-radius-l)");
 
-        VerticalLayout section = new VerticalLayout(heading, hint, frame);
+        VerticalLayout section = new VerticalLayout(heading, frame);
         section.setPadding(false);
         section.setSpacing(false);
         section.getStyle()

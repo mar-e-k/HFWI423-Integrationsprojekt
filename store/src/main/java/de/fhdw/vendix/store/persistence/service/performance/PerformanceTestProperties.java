@@ -5,38 +5,37 @@ import org.springframework.stereotype.Component;
 
 /**
  * Konfiguration für den Performance-Test-Service.
- * Werte werden aus application.properties unter dem Präfix "vendix.performance" gelesen.
  *
- * Beispiel in application-dev.properties:
+ * Jeder Entwickler muss nur diese 2 Properties in seiner application-test.properties setzen:
  *
- *   vendix.performance.jmeter-bin=/opt/apache-jmeter/bin/jmeter
- *   vendix.performance.master-jmx=/path/to/vendix-lasttests.jmx
- *   vendix.performance.results-dir=/tmp/jmeter-results
- *   vendix.performance.grafana-url=http://localhost:3000/d/<DASHBOARD_ID>
- *   vendix.performance.prometheus-url=http://localhost:9090
- *   vendix.performance.dashboard-embed-url=http://localhost:3000/d/<DASHBOARD_ID>?kiosk&refresh=5s
+ *   vendix.performance.jmeter-bin=/Users/DEIN_NAME/Desktop/apache-jmeter-5.6.3/bin/jmeter
+ *   vendix.performance.master-jmx=/Users/DEIN_NAME/IdeaProjects/HFWI423-Integrationsprojekt/monitoring/vendix-lasttests.jmx
+ *
+ * Alle anderen Werte (Grafana, Prometheus, results-dir) funktionieren mit den
+ * eingetragenen Standardwerten ohne weitere Konfiguration.
  */
 @Component
 @ConfigurationProperties(prefix = "vendix.performance")
 public class PerformanceTestProperties {
 
-    /** Pfad zur JMeter-Executable, z.B. /opt/jmeter/bin/jmeter */
+    /** Pfad zur JMeter-Executable — MUSS individuell gesetzt werden */
     private String jmeterBin = "jmeter";
 
-    /** Pfad zur Master-JMX-Datei, die alle 5 Thread Groups enthält */
+    /** Pfad zur Master-JMX-Datei — MUSS individuell gesetzt werden */
     private String masterJmx;
 
-    /** Verzeichnis, in das JMeter die CSV-Ergebnisse schreibt */
+    /** Ergebnis-Verzeichnis — Standard funktioniert auf Mac/Linux ohne Anpassung */
     private String resultsDir = System.getProperty("java.io.tmpdir") + "/jmeter-results";
 
-    /** URL des Grafana-Dashboards (als Link) */
-    private String grafanaUrl = "http://localhost:3000";
+    /** Grafana-Dashboard-Link — Standard passt wenn Docker Compose läuft */
+    private String grafanaUrl = "http://localhost:3000/d/adf44rg";
 
-    /** URL von Prometheus */
+    /** Prometheus-Link — Standard passt wenn Docker Compose läuft */
     private String prometheusUrl = "http://localhost:9090";
 
-    /** URL für das eingebettete Grafana-Dashboard (kiosk-Modus) */
-    private String dashboardEmbedUrl = "http://localhost:3000";
+    /** Grafana IFrame URL — Standard passt, zeigt letzte 30 Minuten */
+    private String dashboardEmbedUrl =
+            "http://localhost:3000/d/adf44rg?kiosk=true&refresh=5s&from=now-30m&to=now";
 
     // --- Getters & Setters ---
 
