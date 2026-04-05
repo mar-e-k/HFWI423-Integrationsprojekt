@@ -11,7 +11,21 @@
       "Bash(find /c/Users/admin/Downloads/logistik/logistik -type f \\\\\\(-name *invoice* -o -name *rechnung* -o -name *billing* -o -name *abrechnung* -o -name *faktur* \\\\\\))",
       "Bash(xargs -I {} basename {})",
       "Bash(grep -r \"preis\\\\|price\\\\|kosten\\\\|cost\\\\|eur\\\\|euro\\\\|betrag\\\\|rechnungs\\\\|abrechnung\\\\|fakturaendDate\" /c/Users/admin/Downloads/logistik/logistik/src --include=*.java --include=*.tsx --include=*.ts -i)",
-      "Bash(git log:*)"
+      "Bash(git log:*)",
+      "Bash(mvn test:*)",
+      "Bash(./mvnw test:*)",
+      "Bash(java -version)",
+      "Bash(where java:*)",
+      "Read(//c/Program Files/Java/**)",
+      "Read(//c/Program Files/**)",
+      "Read(//c/Program Files/Microsoft/**)",
+      "Bash(./mvnw surefire:test -Dtest=\"ArticleInfoServiceTest,GoodsReceiptServiceTest,RestockOrderServiceTest\")",
+      "Bash(./mvnw surefire:test -Dtest=\"ArticleInfoServiceTest,GoodsReceiptServiceTest,RestockOrderServiceTest\" -Dsurefire.failIfNoSpecifiedTests=false)",
+      "Read(//c/Users/admin/AppData/Local/Programs/**)",
+      "Bash(find 'C:/Program Files' -name java.exe -path */bin/*)",
+      "Bash(\"C:/Program Files/JetBrains/IntelliJ IDEA 2025.2.4/jbr/bin/java.exe\" -version 2>&1)",
+      "Bash(JAVA_HOME=\"C:/Program Files/JetBrains/IntelliJ IDEA 2025.2.4/jbr\" ./mvnw test -Dtest=\"ArticleInfoServiceTest,GoodsReceiptServiceTest,RestockOrderServiceTest\" -Dsurefire.failIfNoSpecifiedTests=false)",
+      "Bash(JAVA_HOME=\"C:/Program Files/JetBrains/IntelliJ IDEA 2025.2.4/jbr\" ./mvnw test -Dtest=\"RestockOrderServiceTest#approveOrder_throwsException_whenContingentInsufficient\")"
     ]
   }
 }
