@@ -7,16 +7,22 @@
           <!--
             ╔══════════════════════════════════════════════════════════════╗
             ║  TESTDATEN – bei Bedarf anpassen                             ║
-            ║  BASE_URL     : Adresse der Spring Boot App                  ║
+            ║  BASE_HOST    : Host der Spring Boot App (z.B. localhost)    ║
+            ║  BASE_PORT    : Port der Spring Boot App (z.B. 8080)         ║
             ║  ADMIN_USER   : JMeter-Account (nie im Browser verwenden!)   ║
             ║  CASHIER_USER : Kassierer-Account für Kaufabschluss          ║
             ║  TEST_GTIN    : GTIN des Testartikels (muss existieren)      ║
             ║  TEST_ARTICLE_ID : ID des Testartikels (muss existieren)     ║
             ╚══════════════════════════════════════════════════════════════╝
           -->
-          <elementProp name="BASE_URL" elementType="Argument">
-            <stringProp name="Argument.name">BASE_URL</stringProp>
-            <stringProp name="Argument.value">http://localhost:8080</stringProp>
+          <elementProp name="BASE_HOST" elementType="Argument">
+            <stringProp name="Argument.name">BASE_HOST</stringProp>
+            <stringProp name="Argument.value">localhost</stringProp>
+            <stringProp name="Argument.metadata">=</stringProp>
+          </elementProp>
+          <elementProp name="BASE_PORT" elementType="Argument">
+            <stringProp name="Argument.name">BASE_PORT</stringProp>
+            <stringProp name="Argument.value">8080</stringProp>
             <stringProp name="Argument.metadata">=</stringProp>
           </elementProp>
           <elementProp name="ADMIN_USER" elementType="Argument">
@@ -54,8 +60,8 @@
     </TestPlan>
     <hashTree>
       <ConfigTestElement guiclass="HttpDefaultsGui" testclass="ConfigTestElement" testname="HTTP Request Defaults">
-        <stringProp name="HTTPSampler.domain">localhost</stringProp>
-        <stringProp name="HTTPSampler.port">8080</stringProp>
+        <stringProp name="HTTPSampler.domain">${BASE_HOST}</stringProp>
+        <stringProp name="HTTPSampler.port">${BASE_PORT}</stringProp>
         <stringProp name="HTTPSampler.protocol">http</stringProp>
         <stringProp name="HTTPSampler.contentEncoding">UTF-8</stringProp>
         <elementProp name="HTTPsampler.Arguments" elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" testname="User Defined Variables">
@@ -231,8 +237,8 @@ log.info(&quot;=== setUp OK. register_id=&quot; + vars.get(&quot;register_id&quo
           </elementProp>
         </HTTPSamplerProxy>
         <hashTree>
-          <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="HTTP 200" enabled="true">
-            <collectionProp name="Asserion.test_strings">
+                    <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="HTTP 200" enabled="true">
+            <collectionProp name="Assertion.test_strings">
               <stringProp name="49586">200</stringProp>
             </collectionProp>
             <stringProp name="Assertion.test_field">Assertion.response_code</stringProp>
@@ -241,7 +247,34 @@ log.info(&quot;=== setUp OK. register_id=&quot; + vars.get(&quot;register_id&quo
             <stringProp name="Assertion.custom_message"></stringProp>
           </ResponseAssertion>
           <hashTree/>
-        </hashTree>
+          <RegexExtractor guiclass="RegexExtractorGui" testclass="RegexExtractor" testname="Extrahiere article_id" enabled="true">
+            <stringProp name="RegexExtractor.useHeaders">false</stringProp>
+            <stringProp name="RegexExtractor.refname">article_id</stringProp>
+            <stringProp name="RegexExtractor.regex">&quot;id&quot;\s*:\s*(\d+)</stringProp>
+            <stringProp name="RegexExtractor.template">$1$</stringProp>
+            <stringProp name="RegexExtractor.default">${TEST_ARTICLE_ID}</stringProp>
+            <stringProp name="RegexExtractor.match_no">1</stringProp>
+          </RegexExtractor>
+          <hashTree/>
+          <RegexExtractor guiclass="RegexExtractorGui" testclass="RegexExtractor" testname="Extrahiere article_price" enabled="true">
+            <stringProp name="RegexExtractor.useHeaders">false</stringProp>
+            <stringProp name="RegexExtractor.refname">article_price</stringProp>
+            <stringProp name="RegexExtractor.regex">&quot;sellingPrice&quot;\s*:\s*([\d.]+)</stringProp>
+            <stringProp name="RegexExtractor.template">$1$</stringProp>
+            <stringProp name="RegexExtractor.default">1.99</stringProp>
+            <stringProp name="RegexExtractor.match_no">1</stringProp>
+          </RegexExtractor>
+          <hashTree/>
+          <RegexExtractor guiclass="RegexExtractorGui" testclass="RegexExtractor" testname="Extrahiere article_tax_rate" enabled="true">
+            <stringProp name="RegexExtractor.useHeaders">false</stringProp>
+            <stringProp name="RegexExtractor.refname">article_tax_rate</stringProp>
+            <stringProp name="RegexExtractor.regex">&quot;taxRatePercent&quot;\s*:\s*([\d.]+)</stringProp>
+            <stringProp name="RegexExtractor.template">$1$</stringProp>
+            <stringProp name="RegexExtractor.default">19.0</stringProp>
+            <stringProp name="RegexExtractor.match_no">1</stringProp>
+          </RegexExtractor>
+          <hashTree/>
+          </hashTree>
         <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="POST /api/receipt (Kaufabschluss)" enabled="true">
           <stringProp name="HTTPSampler.path">/api/receipt</stringProp>
           <stringProp name="HTTPSampler.method">POST</stringProp>
@@ -250,7 +283,7 @@ log.info(&quot;=== setUp OK. register_id=&quot; + vars.get(&quot;register_id&quo
             <collectionProp name="Arguments.arguments">
               <elementProp name="" elementType="HTTPArgument">
                 <boolProp name="HTTPArgument.always_encode">false</boolProp>
-                <stringProp name="Argument.value">[{&quot;articleId&quot;:${TEST_ARTICLE_ID},&quot;price&quot;:1.99,&quot;amount&quot;:1,&quot;taxRate&quot;:19.0,&quot;overridePrice&quot;:null,&quot;overrideReason&quot;:null,&quot;discountedByPercent&quot;:null,&quot;depositStatus&quot;:&quot;NONE&quot;,&quot;discountedQuantity&quot;:null}]</stringProp>
+                <stringProp name="Argument.value">[{&quot;articleId&quot;:${article_id},&quot;price&quot;:${article_price},&quot;amount&quot;:1,&quot;taxRate&quot;:${article_tax_rate},&quot;overridePrice&quot;:null,&quot;overrideReason&quot;:null,&quot;discountedByPercent&quot;:null,&quot;depositStatus&quot;:&quot;NONE&quot;,&quot;discountedQuantity&quot;:null}]</stringProp>
                 <stringProp name="Argument.metadata">=</stringProp>
               </elementProp>
             </collectionProp>
@@ -258,7 +291,7 @@ log.info(&quot;=== setUp OK. register_id=&quot; + vars.get(&quot;register_id&quo
         </HTTPSamplerProxy>
         <hashTree>
           <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="HTTP 201" enabled="true">
-            <collectionProp name="Asserion.test_strings">
+            <collectionProp name="Assertion.test_strings">
               <stringProp name="49587">201</stringProp>
             </collectionProp>
             <stringProp name="Assertion.test_field">Assertion.response_code</stringProp>
@@ -318,7 +351,45 @@ log.info(&quot;=== setUp OK. register_id=&quot; + vars.get(&quot;register_id&quo
             <collectionProp name="Arguments.arguments"/>
           </elementProp>
         </HTTPSamplerProxy>
-        <hashTree/>
+        <hashTree>
+                    <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="HTTP 200" enabled="true">
+            <collectionProp name="Assertion.test_strings">
+              <stringProp name="49586">200</stringProp>
+            </collectionProp>
+            <stringProp name="Assertion.test_field">Assertion.response_code</stringProp>
+            <boolProp name="Assertion.assume_success">false</boolProp>
+            <intProp name="Assertion.test_type">8</intProp>
+            <stringProp name="Assertion.custom_message"></stringProp>
+          </ResponseAssertion>
+          <hashTree/>
+          <RegexExtractor guiclass="RegexExtractorGui" testclass="RegexExtractor" testname="Extrahiere article_id" enabled="true">
+            <stringProp name="RegexExtractor.useHeaders">false</stringProp>
+            <stringProp name="RegexExtractor.refname">article_id</stringProp>
+            <stringProp name="RegexExtractor.regex">&quot;id&quot;\s*:\s*(\d+)</stringProp>
+            <stringProp name="RegexExtractor.template">$1$</stringProp>
+            <stringProp name="RegexExtractor.default">${TEST_ARTICLE_ID}</stringProp>
+            <stringProp name="RegexExtractor.match_no">1</stringProp>
+          </RegexExtractor>
+          <hashTree/>
+          <RegexExtractor guiclass="RegexExtractorGui" testclass="RegexExtractor" testname="Extrahiere article_price" enabled="true">
+            <stringProp name="RegexExtractor.useHeaders">false</stringProp>
+            <stringProp name="RegexExtractor.refname">article_price</stringProp>
+            <stringProp name="RegexExtractor.regex">&quot;sellingPrice&quot;\s*:\s*([\d.]+)</stringProp>
+            <stringProp name="RegexExtractor.template">$1$</stringProp>
+            <stringProp name="RegexExtractor.default">1.99</stringProp>
+            <stringProp name="RegexExtractor.match_no">1</stringProp>
+          </RegexExtractor>
+          <hashTree/>
+          <RegexExtractor guiclass="RegexExtractorGui" testclass="RegexExtractor" testname="Extrahiere article_tax_rate" enabled="true">
+            <stringProp name="RegexExtractor.useHeaders">false</stringProp>
+            <stringProp name="RegexExtractor.refname">article_tax_rate</stringProp>
+            <stringProp name="RegexExtractor.regex">&quot;taxRatePercent&quot;\s*:\s*([\d.]+)</stringProp>
+            <stringProp name="RegexExtractor.template">$1$</stringProp>
+            <stringProp name="RegexExtractor.default">19.0</stringProp>
+            <stringProp name="RegexExtractor.match_no">1</stringProp>
+          </RegexExtractor>
+          <hashTree/>
+          </hashTree>
         <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="POST /api/receipt (Kaufabschluss)" enabled="true">
           <stringProp name="HTTPSampler.path">/api/receipt</stringProp>
           <stringProp name="HTTPSampler.method">POST</stringProp>
@@ -327,13 +398,24 @@ log.info(&quot;=== setUp OK. register_id=&quot; + vars.get(&quot;register_id&quo
             <collectionProp name="Arguments.arguments">
               <elementProp name="" elementType="HTTPArgument">
                 <boolProp name="HTTPArgument.always_encode">false</boolProp>
-                <stringProp name="Argument.value">[{&quot;articleId&quot;:${TEST_ARTICLE_ID},&quot;price&quot;:1.99,&quot;amount&quot;:1,&quot;taxRate&quot;:19.0,&quot;overridePrice&quot;:null,&quot;overrideReason&quot;:null,&quot;discountedByPercent&quot;:null,&quot;depositStatus&quot;:&quot;NONE&quot;,&quot;discountedQuantity&quot;:null}]</stringProp>
+                <stringProp name="Argument.value">[{&quot;articleId&quot;:${article_id},&quot;price&quot;:${article_price},&quot;amount&quot;:1,&quot;taxRate&quot;:${article_tax_rate},&quot;overridePrice&quot;:null,&quot;overrideReason&quot;:null,&quot;discountedByPercent&quot;:null,&quot;depositStatus&quot;:&quot;NONE&quot;,&quot;discountedQuantity&quot;:null}]</stringProp>
                 <stringProp name="Argument.metadata">=</stringProp>
               </elementProp>
             </collectionProp>
           </elementProp>
         </HTTPSamplerProxy>
-        <hashTree/>
+        <hashTree>
+          <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="HTTP 201" enabled="true">
+            <collectionProp name="Assertion.test_strings">
+              <stringProp name="49587">201</stringProp>
+            </collectionProp>
+            <stringProp name="Assertion.test_field">Assertion.response_code</stringProp>
+            <boolProp name="Assertion.assume_success">false</boolProp>
+            <intProp name="Assertion.test_type">8</intProp>
+            <stringProp name="Assertion.custom_message"></stringProp>
+          </ResponseAssertion>
+          <hashTree/>
+        </hashTree>
       </hashTree>
       <!--
         ┌─────────────────────────────────────────────────────────────┐
@@ -373,7 +455,54 @@ log.info(&quot;=== setUp OK. register_id=&quot; + vars.get(&quot;register_id&quo
           </collectionProp>
         </HeaderManager>
         <hashTree/>
-        <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="POST /api/receipt (Kaufabschluss)" enabled="true">
+          <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="GET /api/article/gtin/{gtin}" enabled="true">
+                  <stringProp name="HTTPSampler.path">/api/article/gtin/${TEST_GTIN}</stringProp>
+                  <stringProp name="HTTPSampler.method">GET</stringProp>
+                  <boolProp name="HTTPSampler.postBodyRaw">false</boolProp>
+                  <elementProp name="HTTPsampler.Arguments" elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" testname="User Defined Variables">
+                    <collectionProp name="Arguments.arguments"/>
+                  </elementProp>
+                </HTTPSamplerProxy>
+                <hashTree>
+                  <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="HTTP 200" enabled="true">
+                    <collectionProp name="Assertion.test_strings">
+                      <stringProp name="49586">200</stringProp>
+                    </collectionProp>
+                    <stringProp name="Assertion.test_field">Assertion.response_code</stringProp>
+                    <boolProp name="Assertion.assume_success">false</boolProp>
+                    <intProp name="Assertion.test_type">8</intProp>
+                    <stringProp name="Assertion.custom_message"></stringProp>
+                  </ResponseAssertion>
+                  <hashTree/>
+                  <RegexExtractor guiclass="RegexExtractorGui" testclass="RegexExtractor" testname="Extrahiere article_id" enabled="true">
+                    <stringProp name="RegexExtractor.useHeaders">false</stringProp>
+                    <stringProp name="RegexExtractor.refname">article_id</stringProp>
+                    <stringProp name="RegexExtractor.regex">&quot;id&quot;\s*:\s*(\d+)</stringProp>
+                    <stringProp name="RegexExtractor.template">$1$</stringProp>
+                    <stringProp name="RegexExtractor.default">${TEST_ARTICLE_ID}</stringProp>
+                    <stringProp name="RegexExtractor.match_no">1</stringProp>
+                  </RegexExtractor>
+                  <hashTree/>
+                  <RegexExtractor guiclass="RegexExtractorGui" testclass="RegexExtractor" testname="Extrahiere article_price" enabled="true">
+                    <stringProp name="RegexExtractor.useHeaders">false</stringProp>
+                    <stringProp name="RegexExtractor.refname">article_price</stringProp>
+                    <stringProp name="RegexExtractor.regex">&quot;sellingPrice&quot;\s*:\s*([\d.]+)</stringProp>
+                    <stringProp name="RegexExtractor.template">$1$</stringProp>
+                    <stringProp name="RegexExtractor.default">1.99</stringProp>
+                    <stringProp name="RegexExtractor.match_no">1</stringProp>
+                  </RegexExtractor>
+                  <hashTree/>
+                  <RegexExtractor guiclass="RegexExtractorGui" testclass="RegexExtractor" testname="Extrahiere article_tax_rate" enabled="true">
+                    <stringProp name="RegexExtractor.useHeaders">false</stringProp>
+                    <stringProp name="RegexExtractor.refname">article_tax_rate</stringProp>
+                    <stringProp name="RegexExtractor.regex">&quot;taxRatePercent&quot;\s*:\s*([\d.]+)</stringProp>
+                    <stringProp name="RegexExtractor.template">$1$</stringProp>
+                    <stringProp name="RegexExtractor.default">19.0</stringProp>
+                    <stringProp name="RegexExtractor.match_no">1</stringProp>
+                  </RegexExtractor>
+                  <hashTree/>
+                  </hashTree>
+           <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="POST /api/receipt (Kaufabschluss)" enabled="true">
           <stringProp name="HTTPSampler.path">/api/receipt</stringProp>
           <stringProp name="HTTPSampler.method">POST</stringProp>
           <boolProp name="HTTPSampler.postBodyRaw">true</boolProp>
@@ -381,13 +510,24 @@ log.info(&quot;=== setUp OK. register_id=&quot; + vars.get(&quot;register_id&quo
             <collectionProp name="Arguments.arguments">
               <elementProp name="" elementType="HTTPArgument">
                 <boolProp name="HTTPArgument.always_encode">false</boolProp>
-                <stringProp name="Argument.value">[{&quot;articleId&quot;:${TEST_ARTICLE_ID},&quot;price&quot;:1.99,&quot;amount&quot;:1,&quot;taxRate&quot;:19.0,&quot;overridePrice&quot;:null,&quot;overrideReason&quot;:null,&quot;discountedByPercent&quot;:null,&quot;depositStatus&quot;:&quot;NONE&quot;,&quot;discountedQuantity&quot;:null}]</stringProp>
+                <stringProp name="Argument.value">[{&quot;articleId&quot;:${article_id},&quot;price&quot;:${article_price},&quot;amount&quot;:1,&quot;taxRate&quot;:${article_tax_rate},&quot;overridePrice&quot;:null,&quot;overrideReason&quot;:null,&quot;discountedByPercent&quot;:null,&quot;depositStatus&quot;:&quot;NONE&quot;,&quot;discountedQuantity&quot;:null}]</stringProp>
                 <stringProp name="Argument.metadata">=</stringProp>
               </elementProp>
             </collectionProp>
           </elementProp>
         </HTTPSamplerProxy>
-        <hashTree/>
+        <hashTree>
+          <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="HTTP 201" enabled="true">
+            <collectionProp name="Assertion.test_strings">
+              <stringProp name="49587">201</stringProp>
+            </collectionProp>
+            <stringProp name="Assertion.test_field">Assertion.response_code</stringProp>
+            <boolProp name="Assertion.assume_success">false</boolProp>
+            <intProp name="Assertion.test_type">8</intProp>
+            <stringProp name="Assertion.custom_message"></stringProp>
+          </ResponseAssertion>
+          <hashTree/>
+        </hashTree>
       </hashTree>
       <!--
         ┌─────────────────────────────────────────────────────────────┐
@@ -436,7 +576,45 @@ log.info(&quot;=== setUp OK. register_id=&quot; + vars.get(&quot;register_id&quo
             <collectionProp name="Arguments.arguments"/>
           </elementProp>
         </HTTPSamplerProxy>
-        <hashTree/>
+        <hashTree>
+                    <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="HTTP 200" enabled="true">
+            <collectionProp name="Assertion.test_strings">
+              <stringProp name="49586">200</stringProp>
+            </collectionProp>
+            <stringProp name="Assertion.test_field">Assertion.response_code</stringProp>
+            <boolProp name="Assertion.assume_success">false</boolProp>
+            <intProp name="Assertion.test_type">8</intProp>
+            <stringProp name="Assertion.custom_message"></stringProp>
+          </ResponseAssertion>
+          <hashTree/>
+          <RegexExtractor guiclass="RegexExtractorGui" testclass="RegexExtractor" testname="Extrahiere article_id" enabled="true">
+            <stringProp name="RegexExtractor.useHeaders">false</stringProp>
+            <stringProp name="RegexExtractor.refname">article_id</stringProp>
+            <stringProp name="RegexExtractor.regex">&quot;id&quot;\s*:\s*(\d+)</stringProp>
+            <stringProp name="RegexExtractor.template">$1$</stringProp>
+            <stringProp name="RegexExtractor.default">${TEST_ARTICLE_ID}</stringProp>
+            <stringProp name="RegexExtractor.match_no">1</stringProp>
+          </RegexExtractor>
+          <hashTree/>
+          <RegexExtractor guiclass="RegexExtractorGui" testclass="RegexExtractor" testname="Extrahiere article_price" enabled="true">
+            <stringProp name="RegexExtractor.useHeaders">false</stringProp>
+            <stringProp name="RegexExtractor.refname">article_price</stringProp>
+            <stringProp name="RegexExtractor.regex">&quot;sellingPrice&quot;\s*:\s*([\d.]+)</stringProp>
+            <stringProp name="RegexExtractor.template">$1$</stringProp>
+            <stringProp name="RegexExtractor.default">1.99</stringProp>
+            <stringProp name="RegexExtractor.match_no">1</stringProp>
+          </RegexExtractor>
+          <hashTree/>
+          <RegexExtractor guiclass="RegexExtractorGui" testclass="RegexExtractor" testname="Extrahiere article_tax_rate" enabled="true">
+            <stringProp name="RegexExtractor.useHeaders">false</stringProp>
+            <stringProp name="RegexExtractor.refname">article_tax_rate</stringProp>
+            <stringProp name="RegexExtractor.regex">&quot;taxRatePercent&quot;\s*:\s*([\d.]+)</stringProp>
+            <stringProp name="RegexExtractor.template">$1$</stringProp>
+            <stringProp name="RegexExtractor.default">19.0</stringProp>
+            <stringProp name="RegexExtractor.match_no">1</stringProp>
+          </RegexExtractor>
+          <hashTree/>
+          </hashTree>
         <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="POST /api/receipt (Kaufabschluss)" enabled="true">
           <stringProp name="HTTPSampler.path">/api/receipt</stringProp>
           <stringProp name="HTTPSampler.method">POST</stringProp>
@@ -445,13 +623,24 @@ log.info(&quot;=== setUp OK. register_id=&quot; + vars.get(&quot;register_id&quo
             <collectionProp name="Arguments.arguments">
               <elementProp name="" elementType="HTTPArgument">
                 <boolProp name="HTTPArgument.always_encode">false</boolProp>
-                <stringProp name="Argument.value">[{&quot;articleId&quot;:${TEST_ARTICLE_ID},&quot;price&quot;:1.99,&quot;amount&quot;:1,&quot;taxRate&quot;:19.0,&quot;overridePrice&quot;:null,&quot;overrideReason&quot;:null,&quot;discountedByPercent&quot;:null,&quot;depositStatus&quot;:&quot;NONE&quot;,&quot;discountedQuantity&quot;:null}]</stringProp>
+                <stringProp name="Argument.value">[{&quot;articleId&quot;:${article_id},&quot;price&quot;:${article_price},&quot;amount&quot;:1,&quot;taxRate&quot;:${article_tax_rate},&quot;overridePrice&quot;:null,&quot;overrideReason&quot;:null,&quot;discountedByPercent&quot;:null,&quot;depositStatus&quot;:&quot;NONE&quot;,&quot;discountedQuantity&quot;:null}]</stringProp>
                 <stringProp name="Argument.metadata">=</stringProp>
               </elementProp>
             </collectionProp>
           </elementProp>
         </HTTPSamplerProxy>
-        <hashTree/>
+        <hashTree>
+          <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="HTTP 201" enabled="true">
+            <collectionProp name="Assertion.test_strings">
+              <stringProp name="49587">201</stringProp>
+            </collectionProp>
+            <stringProp name="Assertion.test_field">Assertion.response_code</stringProp>
+            <boolProp name="Assertion.assume_success">false</boolProp>
+            <intProp name="Assertion.test_type">8</intProp>
+            <stringProp name="Assertion.custom_message"></stringProp>
+          </ResponseAssertion>
+          <hashTree/>
+        </hashTree>
         <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="GET /actuator/health" enabled="true">
           <stringProp name="HTTPSampler.path">/actuator/health</stringProp>
           <stringProp name="HTTPSampler.method">GET</stringProp>
@@ -512,7 +701,45 @@ log.info(&quot;=== setUp OK. register_id=&quot; + vars.get(&quot;register_id&quo
             <collectionProp name="Arguments.arguments"/>
           </elementProp>
         </HTTPSamplerProxy>
-        <hashTree/>
+        <hashTree>
+                    <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="HTTP 200" enabled="true">
+            <collectionProp name="Assertion.test_strings">
+              <stringProp name="49586">200</stringProp>
+            </collectionProp>
+            <stringProp name="Assertion.test_field">Assertion.response_code</stringProp>
+            <boolProp name="Assertion.assume_success">false</boolProp>
+            <intProp name="Assertion.test_type">8</intProp>
+            <stringProp name="Assertion.custom_message"></stringProp>
+          </ResponseAssertion>
+          <hashTree/>
+          <RegexExtractor guiclass="RegexExtractorGui" testclass="RegexExtractor" testname="Extrahiere article_id" enabled="true">
+            <stringProp name="RegexExtractor.useHeaders">false</stringProp>
+            <stringProp name="RegexExtractor.refname">article_id</stringProp>
+            <stringProp name="RegexExtractor.regex">&quot;id&quot;\s*:\s*(\d+)</stringProp>
+            <stringProp name="RegexExtractor.template">$1$</stringProp>
+            <stringProp name="RegexExtractor.default">${TEST_ARTICLE_ID}</stringProp>
+            <stringProp name="RegexExtractor.match_no">1</stringProp>
+          </RegexExtractor>
+          <hashTree/>
+          <RegexExtractor guiclass="RegexExtractorGui" testclass="RegexExtractor" testname="Extrahiere article_price" enabled="true">
+            <stringProp name="RegexExtractor.useHeaders">false</stringProp>
+            <stringProp name="RegexExtractor.refname">article_price</stringProp>
+            <stringProp name="RegexExtractor.regex">&quot;sellingPrice&quot;\s*:\s*([\d.]+)</stringProp>
+            <stringProp name="RegexExtractor.template">$1$</stringProp>
+            <stringProp name="RegexExtractor.default">1.99</stringProp>
+            <stringProp name="RegexExtractor.match_no">1</stringProp>
+          </RegexExtractor>
+          <hashTree/>
+          <RegexExtractor guiclass="RegexExtractorGui" testclass="RegexExtractor" testname="Extrahiere article_tax_rate" enabled="true">
+            <stringProp name="RegexExtractor.useHeaders">false</stringProp>
+            <stringProp name="RegexExtractor.refname">article_tax_rate</stringProp>
+            <stringProp name="RegexExtractor.regex">&quot;taxRatePercent&quot;\s*:\s*([\d.]+)</stringProp>
+            <stringProp name="RegexExtractor.template">$1$</stringProp>
+            <stringProp name="RegexExtractor.default">19.0</stringProp>
+            <stringProp name="RegexExtractor.match_no">1</stringProp>
+          </RegexExtractor>
+          <hashTree/>
+          </hashTree>
         <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="POST /api/receipt (Kaufabschluss)" enabled="true">
           <stringProp name="HTTPSampler.path">/api/receipt</stringProp>
           <stringProp name="HTTPSampler.method">POST</stringProp>
@@ -521,13 +748,24 @@ log.info(&quot;=== setUp OK. register_id=&quot; + vars.get(&quot;register_id&quo
             <collectionProp name="Arguments.arguments">
               <elementProp name="" elementType="HTTPArgument">
                 <boolProp name="HTTPArgument.always_encode">false</boolProp>
-                <stringProp name="Argument.value">[{&quot;articleId&quot;:${TEST_ARTICLE_ID},&quot;price&quot;:1.99,&quot;amount&quot;:1,&quot;taxRate&quot;:19.0,&quot;overridePrice&quot;:null,&quot;overrideReason&quot;:null,&quot;discountedByPercent&quot;:null,&quot;depositStatus&quot;:&quot;NONE&quot;,&quot;discountedQuantity&quot;:null}]</stringProp>
+                <stringProp name="Argument.value">[{&quot;articleId&quot;:${article_id},&quot;price&quot;:${article_price},&quot;amount&quot;:1,&quot;taxRate&quot;:${article_tax_rate},&quot;overridePrice&quot;:null,&quot;overrideReason&quot;:null,&quot;discountedByPercent&quot;:null,&quot;depositStatus&quot;:&quot;NONE&quot;,&quot;discountedQuantity&quot;:null}]</stringProp>
                 <stringProp name="Argument.metadata">=</stringProp>
               </elementProp>
             </collectionProp>
           </elementProp>
         </HTTPSamplerProxy>
-        <hashTree/>
+        <hashTree>
+          <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="HTTP 201" enabled="true">
+            <collectionProp name="Assertion.test_strings">
+              <stringProp name="49587">201</stringProp>
+            </collectionProp>
+            <stringProp name="Assertion.test_field">Assertion.response_code</stringProp>
+            <boolProp name="Assertion.assume_success">false</boolProp>
+            <intProp name="Assertion.test_type">8</intProp>
+            <stringProp name="Assertion.custom_message"></stringProp>
+          </ResponseAssertion>
+          <hashTree/>
+        </hashTree>
       </hashTree>
       <BackendListener guiclass="BackendListenerGui" testclass="BackendListener" testname="Prometheus Backend Listener">
         <elementProp name="arguments" elementType="Arguments" guiclass="ArgumentsPanel" testclass="Arguments">
@@ -648,7 +886,7 @@ log.info(&quot;=== setUp OK. register_id=&quot; + vars.get(&quot;register_id&quo
             <connectTime>true</connectTime>
           </value>
         </objProp>
-        <stringProp name="filename">/Users/rohidb/Desktop/jmeter-results.csv </stringProp>
+        <stringProp name="filename">/Users/rohidb/Desktop/jmeter-results.csv</stringProp>
       </ResultCollector>
       <hashTree/>
     </hashTree>
