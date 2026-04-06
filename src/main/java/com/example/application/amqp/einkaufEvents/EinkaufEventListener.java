@@ -134,8 +134,7 @@ public class EinkaufEventListener {
 			return;
 		}
 
-		String articleNumber = articleInfo.getArticleNumber();
-		long deletedCount = messageLogisticRepository.deleteByArticleNumber(articleNumber);
+		long deletedCount = messageLogisticRepository.deleteByArticleId(articleId);
 		logger.info("{} offene Filial-Bedarfe gelöscht für ArticleID {}", deletedCount, articleId);
 	}
 

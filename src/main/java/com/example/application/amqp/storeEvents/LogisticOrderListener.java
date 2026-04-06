@@ -47,6 +47,7 @@ public class LogisticOrderListener {
     @AmqpEventListener
     @Transactional
     public void onLogisticArticleOrder(ArticleOrderEvent order) {
+    	System.out.println("hier print 1 wurde aufgerufen ");
         if (order == null) {
             throw new MessageRejectedException("ArticleOrderEvent war null");
         }
@@ -72,9 +73,8 @@ public class LogisticOrderListener {
         // Ganz normal in die DB schreiben (wie bei normaler Bestellung)
         saveAsMessageLogistic(order.storeId(), order.articleId(), order.quantity());
 
-        // TODO 1.2: Sonderkommissionierungs-Service aufrufen sobald fertig
+        //Sonderkommissionierungs-Service aufrufen sobald fertig
         kommissionService.createSonderKommission(String.valueOf(order.storeId()));
-        logger.info("⚠️ Sonderkommissionierung für StoreID {} noch nicht implementiert", order.storeId());
     }
 
     /**
