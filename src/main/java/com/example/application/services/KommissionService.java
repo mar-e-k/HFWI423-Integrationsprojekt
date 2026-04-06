@@ -8,24 +8,43 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 
-
 @Service
 public class KommissionService {
 
     @Autowired
     private KommissionRepository komRepo;
+
     @Autowired
     private KommissionPositionRepository posRepo;
+
     @Autowired
     private ArticleInfoService artikelService;
+
     @Autowired
     private MessageLogisticRepository msgRepo;
+
     @Autowired
     private ArticleInfoRepository articleRepo;
 
+    // Zentrale Auflösung: zuerst über articleId, dann Fallback über articleNumber
+    private ArticleInfo resolveArticle(Long articleId, String articleNumber) {
+        if (articleId != null) {
+            ArticleInfo article = articleRepo.findByArticleId(articleId);
+            if (article != null) {
+                return article;
+            }
+        }
 
-    public String getArticleNameByNumber(String number) {
-        ArticleInfo article = articleRepo.findByArticleNumber(number);
+        if (articleNumber != null && !articleNumber.isBlank()) {
+            return articleRepo.findByArticleNumber(articleNumber);
+        }
+
+        return null;
+    }
+
+    // Artikelnamen bevorzugt über articleId holen, sonst über articleNumber
+    public String getArticleName(Long articleId, String articleNumber) {
+        ArticleInfo article = resolveArticle(articleId, articleNumber);
 
         if (article == null) {
             return "Unbekannter Artikel";
@@ -33,18 +52,43 @@ public class KommissionService {
 
         return article.getName();
     }
-    public String getStorageLocationForArticle(String articleNumber) {
-        return articleRepo.findStorageLocationByArticleNumber(articleNumber);
+
+    // Lagerplatz bevorzugt über articleId holen, sonst über articleNumber
+    public String getStorageLocationForArticle(Long articleId, String articleNumber) {
+        ArticleInfo article = resolveArticle(articleId, articleNumber);
+
+        if (article == null) {
+            return "Not found";
+        }
+
+        return article.getStorageLocation();
     }
 
-    public int getFullStockLevelForArticle(String articleNumber) {
-        return articleRepo.findStockLevelForArticle(articleNumber) + articleRepo.findPiecesPerPalletLevelForArticle(articleNumber) * articleRepo.findReservedPaletts(articleNumber);
+    // Gesamtbestand aus offenem Bestand + Reservepaletten berechnen
+    public int getFullStockLevelForArticle(Long articleId, String articleNumber) {
+        ArticleInfo article = resolveArticle(articleId, articleNumber);
+
+        if (article == null) {
+            return 0;
+        }
+
+        int stockLevel = article.getStockLevel() != null ? article.getStockLevel() : 0;
+        int piecesPerPallet = article.getPiecesPerPallet() != null ? article.getPiecesPerPallet() : 0;
+        int reservePallets = article.getReservePallets() != null ? article.getReservePallets() : 0;
+
+        return stockLevel + piecesPerPallet * reservePallets;
     }
 
-    public int getStockLevelForArticle(String articleNumber) {
-        return articleRepo.findStockLevelForArticle(articleNumber);
-    }
+    // Nur offenen Fachbestand holen
+    public int getStockLevelForArticle(Long articleId, String articleNumber) {
+        ArticleInfo article = resolveArticle(articleId, articleNumber);
 
+        if (article == null) {
+            return 0;
+        }
+
+        return article.getStockLevel() != null ? article.getStockLevel() : 0;
+    }
 
     public List<Kommission> getOffeneKommissionen() {
         return komRepo.findByFinishedFalseOrderByDateAsc();
@@ -58,14 +102,13 @@ public class KommissionService {
         return komRepo.save(k);
     }
 
-    public boolean articleExists(String articleNumber) {
-        return articleRepo.findByArticleNumber(articleNumber) != null;
+    // Prüft bevorzugt über articleId, sonst über articleNumber
+    public boolean articleExists(Long articleId, String articleNumber) {
+        return resolveArticle(articleId, articleNumber) != null;
     }
-
 
     public int generateNextOrderPickingNumber() {
         Integer last = komRepo.findMaxOrderNumber();
         return (last == null ? 1 : last + 1);
     }
-
 }

@@ -57,17 +57,17 @@ public class orderPickingMainView extends VerticalLayout {
         setPadding(false);
         setSpacing(false);
 
-        // Toolbar
+        // Einfache Toolbar zum Neuladen der Kommissionen
         Button refreshButton = new Button("Aktualisieren", e -> refreshGridItems());
         HorizontalLayout toolbar = new HorizontalLayout(refreshButton);
         toolbar.setWidthFull();
         toolbar.setAlignItems(FlexComponent.Alignment.CENTER);
         toolbar.getStyle()
-            .set("padding", "16px 20px")
-            .set("border-bottom", "1px solid #e8edf5")
-            .set("background", "linear-gradient(to right, #fafbff, #f8fafc)");
+                .set("padding", "16px 20px")
+                .set("border-bottom", "1px solid #e8edf5")
+                .set("background", "linear-gradient(to right, #fafbff, #f8fafc)");
 
-        // Grid columns
+        // Spalte: Order-Picking-Nummer
         grid.addComponentColumn(k -> {
             Span span = new Span(String.valueOf(k.getOrderPickingNumber()));
             if (Boolean.TRUE.equals(k.getFinished())) {
@@ -76,6 +76,7 @@ public class orderPickingMainView extends VerticalLayout {
             return span;
         }).setHeader("Order Picking Nr.").setAutoWidth(true);
 
+        // Spalte: Erstellungsdatum
         grid.addComponentColumn(k -> {
             String text = k.getDate() != null ? k.getDate().toString() : "";
             Span span = new Span(text);
@@ -85,6 +86,7 @@ public class orderPickingMainView extends VerticalLayout {
             return span;
         }).setHeader("Created").setAutoWidth(true);
 
+        // Spalte: Store
         grid.addComponentColumn(k -> {
             String store = k.getStoreId() != null ? k.getStoreId() : "";
             Span span = new Span(store);
@@ -94,14 +96,15 @@ public class orderPickingMainView extends VerticalLayout {
             return span;
         }).setHeader("Store").setAutoWidth(true);
 
+        // Spalte: Status-Badge
         grid.addComponentColumn(k -> {
             boolean finished = Boolean.TRUE.equals(k.getFinished());
             Span badge = new Span(finished ? "Abgeschlossen" : "Offen");
             badge.getStyle()
-                .set("padding", "2px 10px")
-                .set("border-radius", "999px")
-                .set("font-size", "0.75rem")
-                .set("font-weight", "600");
+                    .set("padding", "2px 10px")
+                    .set("border-radius", "999px")
+                    .set("font-size", "0.75rem")
+                    .set("font-weight", "600");
             if (finished) {
                 badge.getStyle().set("background", "#dcfce7").set("color", "#16a34a");
             } else {
@@ -110,6 +113,7 @@ public class orderPickingMainView extends VerticalLayout {
             return badge;
         }).setHeader("Status").setAutoWidth(true);
 
+        // Spalte: Kommission abschließen
         grid.addComponentColumn(k -> {
             Checkbox cb = new Checkbox(k.getFinished());
             cb.setEnabled(!k.getFinished());
@@ -119,7 +123,13 @@ public class orderPickingMainView extends VerticalLayout {
                     List<MessageLogistic> artikel = msgRepo.findByKommissionId(k.getId());
 
                     for (MessageLogistic msg : artikel) {
-                        int stock = service.getFullStockLevelForArticle(msg.getArticleNumber());
+                        ArticleInfo article = resolveArticle(msg);
+                        if (article == null) {
+                            continue;
+                        }
+
+                        // Bestand immer zuerst über articleId auflösen, alte Datensätze notfalls über articleNumber
+                        int stock = getFullStockLevel(msg);
                         int realisierbar = Math.min((int) msg.getQuantity(), stock);
 
                         if (realisierbar != (int) msg.getQuantity()) {
@@ -128,7 +138,9 @@ public class orderPickingMainView extends VerticalLayout {
                         }
 
                         if (realisierbar > 0) {
-                            articleInfoService.updateStock(msg.getArticleNumber(), realisierbar);
+                            // updateStock arbeitet im Service noch mit articleNumber,
+                            // deshalb holen wir den Artikel zuerst sauber aufgelöst
+                            articleInfoService.updateStock(article.getArticleNumber(), realisierbar);
                         }
                     }
 
@@ -144,6 +156,7 @@ public class orderPickingMainView extends VerticalLayout {
             return cb;
         }).setHeader("Finished").setAutoWidth(true);
 
+        // Spalte: Detailansicht öffnen
         grid.addComponentColumn(k -> {
             Button open = new Button("Open Details");
             open.addThemeVariants(ButtonVariant.LUMO_SMALL, ButtonVariant.LUMO_PRIMARY);
@@ -154,43 +167,52 @@ public class orderPickingMainView extends VerticalLayout {
                 dialog.setHeaderTitle("Order Picking " + k.getOrderPickingNumber());
                 dialog.setWidth("900px");
 
-                List<MessageLogistic> artikel =
-                        msgRepo.findByKommissionId(k.getId());
+                List<MessageLogistic> artikel = msgRepo.findByKommissionId(k.getId());
 
+                // Doppelte Einträge pro Artikel zusammenfassen:
+                // zuerst articleId verwenden, sonst auf articleNumber zurückfallen
                 Map<String, MessageLogistic> latestPerArticle = artikel.stream()
                         .collect(Collectors.toMap(
-                                MessageLogistic::getArticleNumber,
+                                this::buildArticleKey,
                                 m -> m,
                                 (oldVal, newVal) -> newVal
                         ));
 
                 List<MessageLogistic> artikelGefiltert = new ArrayList<>(latestPerArticle.values());
 
+                // Nur Artikel anzeigen, die sich noch in article_info auflösen lassen
                 artikelGefiltert = artikelGefiltert.stream()
-                        .filter(a -> service.articleExists(a.getArticleNumber()))
+                        .filter(this::articleExists)
                         .collect(Collectors.toList());
 
                 Grid<MessageLogistic> posGrid = new Grid<>(MessageLogistic.class, false);
                 posGrid.setWidthFull();
                 posGrid.setHeight("400px");
 
-                posGrid.addColumn(MessageLogistic::getArticleNumber)
-                        .setHeader("Article-Nr.").setAutoWidth(true);
+                posGrid.addColumn(msg -> {
+                    ArticleInfo article = resolveArticle(msg);
+                    return article != null ? article.getArticleId() : "Not found";
+                }).setHeader("Article-ID").setAutoWidth(true);
+
+                posGrid.addColumn(msg -> {
+                    ArticleInfo article = resolveArticle(msg);
+                    return article != null ? article.getArticleNumber() : "Not found";
+                }).setHeader("Article-Nr.").setAutoWidth(true);
 
                 posGrid.addColumn(pos -> {
                     try {
-                        return service.getArticleNameByNumber(pos.getArticleNumber());
+                        return getArticleName(pos);
                     } catch (EntityNotFoundException ee) {
                         return "Not found";
                     }
                 }).setHeader("Article-Name").setFlexGrow(1);
 
-                posGrid.addColumn(m -> m.getQuantity())
+                posGrid.addColumn(MessageLogistic::getQuantity)
                         .setHeader("Quantity").setAutoWidth(true);
 
                 posGrid.addColumn(pos -> {
                     try {
-                        return service.getStorageLocationForArticle((pos.getArticleNumber()));
+                        return getStorageLocation(pos);
                     } catch (EntityNotFoundException ee) {
                         return "Not found";
                     }
@@ -198,16 +220,17 @@ public class orderPickingMainView extends VerticalLayout {
 
                 posGrid.addColumn(pos -> {
                     try {
-                        return service.getStockLevelForArticle((pos.getArticleNumber()));
+                        return getOpenStockLevel(pos);
                     } catch (EntityNotFoundException ee) {
                         return "Not found";
                     }
                 }).setHeader("Stock-Level").setFlexGrow(1);
 
                 posGrid.addComponentColumn(msg -> {
-                    int max = service.getStockLevelForArticle(msg.getArticleNumber());
+                    int max = getOpenStockLevel(msg);
                     int requestedQty = (int) msg.getQuantity();
-                    // Realisierbare Menge: maximal was im Lager ist, nicht mehr als angefordert
+
+                    // Es darf nur maximal das ausgewählt werden, was wirklich im offenen Bestand liegt
                     int realisierbar = Math.min(requestedQty, max);
 
                     List<Integer> values = java.util.stream.IntStream.rangeClosed(0, realisierbar).boxed().toList();
@@ -224,7 +247,7 @@ public class orderPickingMainView extends VerticalLayout {
                     cbNote.setWidth("200px");
                     cbNote.setRequired(false);
 
-                    // Menge und Anmerkung sofort in DB schreiben wenn Lager nicht ausreicht
+                    // Wenn weniger geliefert werden kann, Menge und Hinweis direkt speichern
                     if (realisierbar < requestedQty) {
                         msg.setQuantity(realisierbar);
                         cbNote.setEnabled(true);
@@ -302,15 +325,17 @@ public class orderPickingMainView extends VerticalLayout {
         setFlexGrow(1, card);
     }
 
+    // Sendet nach dem Abschließen die Rückmeldung an die Filiale
     private void publishDeliveryToStore(Kommission k, List<MessageLogistic> artikel) {
         for (MessageLogistic msg : artikel) {
             try {
-                if (msg.getArticleId() == null) {
+                ArticleInfo article = resolveArticle(msg);
+                if (article == null || article.getArticleId() == null) {
                     continue;
                 }
 
                 long storeId = Long.parseLong(k.getStoreId());
-                long articleId = msg.getArticleId();
+                long articleId = article.getArticleId();
                 long quantity = msg.getQuantity();
 
                 logisticEventPublisher.publishArticleDelivery(storeId, articleId, quantity);
@@ -332,5 +357,77 @@ public class orderPickingMainView extends VerticalLayout {
         List<Kommission> items = service.getAlleKommissionen();
         items.sort(Comparator.comparing(Kommission::getFinished));
         grid.setItems(items);
+    }
+
+    // Baut einen stabilen Schlüssel pro Artikel: zuerst ID, sonst Number
+    private String buildArticleKey(MessageLogistic msg) {
+        if (msg.getArticleId() != null) {
+            return "ID_" + msg.getArticleId();
+        }
+        if (msg.getArticleNumber() != null) {
+            return "NR_" + msg.getArticleNumber();
+        }
+        return UUID.randomUUID().toString();
+    }
+
+    // Zentrale Auflösung eines Artikels: zuerst articleId, dann articleNumber
+    private ArticleInfo resolveArticle(MessageLogistic msg) {
+        if (msg == null) {
+            return null;
+        }
+
+        if (msg.getArticleId() != null) {
+            ArticleInfo byId = articleInfoRepository.findByArticleId(msg.getArticleId());
+            if (byId != null) {
+                return byId;
+            }
+        }
+
+        if (msg.getArticleNumber() != null && !msg.getArticleNumber().isBlank()) {
+            return articleInfoRepository.findByArticleNumber(msg.getArticleNumber());
+        }
+
+        return null;
+    }
+
+    // Prüft, ob sich der Artikel noch sauber auflösen lässt
+    private boolean articleExists(MessageLogistic msg) {
+        return resolveArticle(msg) != null;
+    }
+
+    // Holt den Artikelnamen bevorzugt über articleId
+    private String getArticleName(MessageLogistic msg) {
+        ArticleInfo article = resolveArticle(msg);
+        if (article == null) {
+            throw new EntityNotFoundException("Artikel nicht gefunden");
+        }
+        return article.getName();
+    }
+
+    // Holt den Lagerplatz bevorzugt über articleId
+    private String getStorageLocation(MessageLogistic msg) {
+        ArticleInfo article = resolveArticle(msg);
+        if (article == null) {
+            throw new EntityNotFoundException("Artikel nicht gefunden");
+        }
+        return article.getStorageLocation();
+    }
+
+    // Holt nur den offenen Fachbestand bevorzugt über articleId
+    private int getOpenStockLevel(MessageLogistic msg) {
+        ArticleInfo article = resolveArticle(msg);
+        if (article == null) {
+            throw new EntityNotFoundException("Artikel nicht gefunden");
+        }
+        return article.getStockLevel() != null ? article.getStockLevel() : 0;
+    }
+
+    // Holt den gesamten verfügbaren Bestand inklusive Reservepaletten
+    private int getFullStockLevel(MessageLogistic msg) {
+        ArticleInfo article = resolveArticle(msg);
+        if (article == null) {
+            throw new EntityNotFoundException("Artikel nicht gefunden");
+        }
+        return article.getTotalStock() != null ? article.getTotalStock() : 0;
     }
 }
