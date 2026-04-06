@@ -1,92 +1,163 @@
-# HFWI423-Integrationsprojekt: Filialen- und Kassensystem
+# HFWI423 – Integrationsprojekt: Vendix Kassensystem
 
-Dieses Projekt implementiert ein verteiltes System, bestehend aus einem zentralen **Filialensystem** und mehreren dezentralen **Kassensystemen**. Die Kommunikation erfolgt über REST-Schnittstellen.
+Dieses Projekt implementiert ein verteiltes Kassensystem, bestehend aus einem zentralen **Filialensystem (Store)** und mehreren dezentralen **Kassensystemen (POS)**. Entwickelt im Rahmen des Integrationsprojekts HFWI423 an der FHDW Hannover.
 
-## 1. Projektarchitektur
+---
 
-Das System ist in drei Maven-Module unterteilt:
+## Systemarchitektur
 
--   **`commons`**: Eine Bibliothek, die von beiden anderen Modulen genutzt wird. Sie enthält gemeinsame Code-Bestandteile wie Datenübertragungsobjekte (DTOs), Entitätsklassen und Basis-UI-Komponenten.
--   **`filialensystem`**: Die zentrale Verwaltungsanwendung. Sie dient als "Single Source of Truth" für Artikeldaten und verwaltet die angeschlossenen Kassensysteme.
--   **`kassensystem`**: Die Anwendung für den Point of Sale. Mehrere Instanzen dieses Systems können gestartet werden. Jede Instanz registriert sich beim Filialensystem, um Artikeldaten abzurufen und Verkäufe abzuwickeln.
+```
+┌─────────────────────────────────────────────────────────────────┐
+│                        commons (4 Module)                       │
+│  core · security · spring · ui                                  │
+│  Gemeinsame DTOs, Entitäten, JWT-Auth, Basis-UI-Komponenten     │
+└───────────────────┬─────────────────────┬───────────────────────┘
+                    │                     │
+        ┌───────────▼──────────┐ ┌────────▼──────────────┐
+        │   store (Port 8080)  │ │   pos  (Port dynamisch)│
+        │   Filialensystem     │ │   Kassensystem         │
+        │                      │ │                        │
+        │ • Artikelverwaltung  │ │ • Warenkorb            │
+        │ • Kassenverwaltung   │ │ • Kaufabschluss        │
+        │ • Benutzerverwaltung │ │ • Zahlungsabwicklung   │
+        │ • Lasttests          │ │ • Registrierung beim   │
+        │ • Tagesberichte      │ │   Filialensystem       │
+        └──────────┬───────────┘ └────────────────────────┘
+                   │  REST + JWT
+        ┌──────────▼───────────┐
+        │  PostgreSQL (Neon)   │
+        │  RabbitMQ (Cloud)    │
+        └──────────────────────┘
 
-## 2. Build und Start der Anwendungen
+        ┌──────────────────────────────────┐
+        │  monitoring/                     │
+        │  Prometheus · Grafana · JMeter   │
+        │  (Docker Compose)                │
+        └──────────────────────────────────┘
+```
 
-### 2.1. Projekt bauen (Kompilieren)
+---
 
-Bevor Sie die Anwendungen zum ersten Mal starten, muss das gesamte Projekt mit Maven gebaut werden. Dieser Befehl kompiliert alle drei Module und stellt sicher, dass die Abhängigkeiten korrekt aufgelöst werden.
+## Maven-Module
 
-Öffnen Sie ein Terminal im Projekt-Hauptverzeichnis und führen Sie aus:
+| Modul | Beschreibung |
+|---|---|
+| `commons/core` | DTOs, Entitätsklassen, Basis-Services |
+| `commons/security` | JWT-Authentifizierung (Generierung + Validierung) |
+| `commons/spring` | Spring-Konfiguration, gemeinsame Beans |
+| `commons/ui` | Wiederverwendbare Vaadin-UI-Komponenten |
+| `store` | Filialensystem – zentrale Verwaltungsanwendung (Port 8080) |
+| `pos` | Kassensystem – Point-of-Sale-Anwendung (Port dynamisch) |
 
-```sh
+---
+
+## Voraussetzungen
+
+- **Java 21** (JDK)
+- **Maven 3.9+**
+- **Docker Desktop** (für Prometheus + Grafana)
+- **Apache JMeter 5.6.3** (nur für Lasttests)
+
+---
+
+## Projekt bauen
+
+```bash
 mvn clean install
 ```
 
-### 2.2. Anwendungen starten
+---
 
-Für einen funktionsfähigen Betrieb müssen sowohl das Filialensystem als auch mindestens ein Kassensystem gestartet werden.
+## Anwendungen starten
 
-#### 1. Filialensystem starten
+### 1. Filialensystem starten (store)
 
-Das Filialensystem ist die zentrale Verwaltungsinstanz und läuft standardmäßig auf Port `8080`.
+In IntelliJ: `store/src/main/java/de/fhdw/vendix/store/StoreApplication.java` → grüner Play-Button
 
-1.  Öffnen Sie die Datei `filialensystem/src/main/java/de/fhdw/fillialensystem/Application.java`.
-2.  Klicken Sie auf den grünen "Play"-Button neben der `main`-Methode, um die Anwendung zu starten.
-3.  Die Anwendung ist unter `http://localhost:8080` erreichbar.
+Oder per Terminal:
+```bash
+./mvnw spring-boot:run -pl store
+```
 
-**Standard-Login:**
--   **Benutzername:** `A`
--   **Passwort:** `1234`
-
-#### 2. Kassensystem starten
-
-Das Kassensystem ist die Point-of-Sale-Anwendung. Es kann mehrfach gestartet werden und läuft standardmäßig auf Port `8081`.
-
-1.  Öffnen Sie die Datei `kassensystem/src/main/java/de/fhdw/kassensystem/Application.java`.
-2.  Klicken Sie auf den grünen "Play"-Button neben der `main`-Methode.
-3.  Die Anwendung ist unter `http://localhost:8081` erreichbar.
+Erreichbar unter: `http://localhost:8080`
 
 **Standard-Login:**
--   **Benutzername:** `C`
--   **Passwort:** `1234`
+- Benutzername: `A` / Passwort: `1234`
+- Admin (für Lasttests): `JMeter` / Passwort: `1234`
 
-Nach dem Start registriert sich das Kassensystem automatisch beim Filialensystem.
+---
 
-## 3. Funktionsübersicht
+### 2. Kassensystem starten (pos)
 
-### Filialensystem (`:8080`)
+In IntelliJ: `pos/src/main/java/de/fhdw/vendix/pos/PosApplication.java` → grüner Play-Button
 
--   **Dashboard (`MainView`):**
-    -   Zeigt eine Übersicht aller verbundenen Kassensystem-Instanzen.
-    -   Stellt den Online-Status, Host, Port und den Zeitpunkt der letzten Kommunikation dar.
-    -   Bietet einen direkten Link, um die `CashierView` der jeweiligen Kasseninstanz in einem neuen Tab zu öffnen. Der Name der Kasse (z.B. "Kasse 1") wird dabei als URL-Parameter übergeben.
--   **Artikelverwaltung (`AdminView`):**
-    -   Anzeige aller im System erfassten Artikel in einer Tabelle.
-    -   Suchfunktion zum Filtern der Artikelliste.
-    -   Möglichkeit, neue Artikel zu erstellen und bestehende zu bearbeiten.
+Das Kassensystem registriert sich automatisch beim Filialensystem und bekommt einen dynamischen Port zugewiesen.
 
-### Kassensystem (`:8081`)
+**Standard-Login:**
+- Benutzername: `C` / Passwort: `1234`
 
--   **Kassenansicht (`CashierView`):**
-    -   Nimmt den übergebenen Kassennamen aus der URL entgegen und zeigt ihn im Titel an (z.B. "CashierView der Kasse 1"). Der Name bleibt auch nach einem Logout und erneutem Login erhalten.
-    -   **Artikelsuche:** Artikel können über ihre Artikelnummer gesucht und dem Warenkorb hinzugefügt werden.
-    -   **Warenkorb-Management:**
-        -   Artikel ohne vordefinierten Preis erfordern eine Preiseingabe durch den Kassierer.
-        -   Mengen und Preise können direkt im Warenkorb bearbeitet werden. Eine Preisänderung erfordert eine Passwort-Freigabe (`Initial: 1234`).
-        -   Artikel können vollständig oder in Teilmengen aus dem Warenkorb entfernt werden.
-        -   Rabatte können pro Position (prozentual, für eine bestimmte Menge) hinzugefügt werden.
-    -   **Kaufabschluss:** Führt zur Bezahlansicht (`PaymentView`).
+---
 
-## 4. Live-Reload für die Entwicklung aktivieren
+## Funktionsübersicht
 
-Live-Reload ermöglicht es, Änderungen am Code sofort im Browser zu sehen, ohne die Anwendung manuell neu starten zu müssen. Damit dies funktioniert, sind die folgenden IDE-Einstellungen (IntelliJ IDEA) erforderlich:
+### Filialensystem (`store`, Port 8080)
 
-1.  **Automatisches Bauen aktivieren:**
-    -   Gehen Sie zu `Settings/Preferences > Build, Execution, Deployment > Compiler`.
-    -   Aktivieren Sie die Option **`Build project automatically`**.
+| View | Funktion |
+|---|---|
+| `MainView` | Dashboard: verbundene Kassen, Online-Status, Links |
+| `AdminView` | Artikelverwaltung: Erstellen, Bearbeiten, Suchen |
+| `StockView` | Lagerbestandsverwaltung |
+| `RoleView` | Benutzerverwaltung und Rollenzuweisung |
+| `RegisterAddView` | Kassenverwaltung |
+| `DailyReceiptReportingView` | Tagesberichte und Umsatzauswertung |
+| `PerformanceTestView` | Lasttest-Steuerung mit Grafana-Dashboard |
 
-2.  **Automatisches Bauen während der Ausführung erlauben:**
-    -   Gehen Sie zu `Settings/Preferences > Advanced Settings`.
-    -   Suchen Sie die Option **`Allow auto-make to start even if developed application is currently running`** und aktivieren Sie sie.
+### Kassensystem (`pos`, Port dynamisch)
 
-Nachdem diese Einstellungen vorgenommen wurden, funktioniert der Live-Reload beim Start über die jeweilige `Application.java`.
+| View | Funktion |
+|---|---|
+| `CashierView` | Artikelsuche, Warenkorb, Rabatte, Preisfreigabe |
+| `PaymentView` | Kaufabschluss und Zahlungsabwicklung |
+
+---
+
+## Monitoring & Lasttests
+
+Prometheus und Grafana laufen per Docker Compose. JMeter wird lokal installiert und über die Vaadin-UI gesteuert.
+
+```bash
+cd monitoring/
+docker compose up -d
+```
+
+- Prometheus: `http://localhost:9090`
+- Grafana: `http://localhost:3000` (admin / admin)
+
+**Setup-Anleitung:** `monitoring/SETUP.md`
+
+---
+
+## Live-Reload (Entwicklung)
+
+Damit Änderungen am Code sofort ohne Neustart sichtbar werden:
+
+1. IntelliJ → `Settings` → `Build, Execution, Deployment` → `Compiler`
+   → **`Build project automatically`** aktivieren
+
+2. IntelliJ → `Settings` → `Advanced Settings`
+   → **`Allow auto-make to start even if developed application is currently running`** aktivieren
+
+---
+
+## Technologie-Stack
+
+| Bereich | Technologie |
+|---|---|
+| Backend | Spring Boot 3, Spring Security, Spring Data JPA |
+| Frontend | Vaadin Flow |
+| Datenbank | PostgreSQL (Neon Cloud) |
+| Messaging | RabbitMQ (CloudAMQP) |
+| Authentifizierung | JWT (nimbus-jose-jwt) |
+| Monitoring | Prometheus, Grafana, Micrometer |
+| Lasttests | Apache JMeter 5.6.3 |
+| Infrastruktur | Docker Compose |

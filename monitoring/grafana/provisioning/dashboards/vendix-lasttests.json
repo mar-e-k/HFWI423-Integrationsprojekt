@@ -99,7 +99,7 @@
       },
       "gridPos": {
         "h": 8,
-        "w": 9,
+        "w": 12,
         "x": 0,
         "y": 0
       },
@@ -212,8 +212,8 @@
       },
       "gridPos": {
         "h": 8,
-        "w": 9,
-        "x": 9,
+        "w": 12,
+        "x": 12,
         "y": 0
       },
       "id": 2,
@@ -326,7 +326,7 @@
       },
       "gridPos": {
         "h": 8,
-        "w": 9,
+        "w": 12,
         "x": 0,
         "y": 8
       },
@@ -358,6 +358,119 @@
         }
       ],
       "title": "Concurrency (active threads)",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "vendix-prometheus"
+      },
+      "description": "95% aller Requests werden innerhalb dieses Zeitwerts beantwortet. Aussagekräftiger als der Durchschnitt, da Ausreißer und Spitzenlatenzen unter Last sichtbar werden.",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "drawStyle": "line",
+            "fillOpacity": 10,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "insertNulls": false,
+            "lineInterpolation": "linear",
+            "lineWidth": 2,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "auto",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          },
+          "unit": "ms"
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Receipt p95"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "yellow",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 8
+      },
+      "id": 4,
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "hideZeros": false,
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "vendix-prometheus"
+          },
+          "editorMode": "code",
+          "expr": "histogram_quantile(\n  0.95,\n  sum by (le) (\n    rate(http_server_requests_seconds_bucket{uri=\"/api/receipt\"}[1m])\n  )\n) * 1000",
+          "legendFormat": "Receipt p95",
+          "range": true,
+          "refId": "A"
+        }
+      ],
+      "title": "95th Percentile (ms)",
       "type": "timeseries"
     },
     {
@@ -440,9 +553,9 @@
       },
       "gridPos": {
         "h": 8,
-        "w": 9,
-        "x": 9,
-        "y": 8
+        "w": 24,
+        "x": 0,
+        "y": 16
       },
       "id": 5,
       "options": {
@@ -473,119 +586,6 @@
       ],
       "title": "Server Error Rate (%)",
       "type": "timeseries"
-    },
-    {
-      "datasource": {
-        "type": "prometheus",
-        "uid": "vendix-prometheus"
-      },
-      "description": "95% aller Requests werden innerhalb dieses Zeitwerts beantwortet. Aussagekräftiger als der Durchschnitt, da Ausreißer und Spitzenlatenzen unter Last sichtbar werden.",
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "palette-classic"
-          },
-          "custom": {
-            "axisBorderShow": false,
-            "axisCenteredZero": false,
-            "axisColorMode": "text",
-            "axisLabel": "",
-            "axisPlacement": "auto",
-            "barAlignment": 0,
-            "drawStyle": "line",
-            "fillOpacity": 10,
-            "gradientMode": "none",
-            "hideFrom": {
-              "legend": false,
-              "tooltip": false,
-              "viz": false
-            },
-            "insertNulls": false,
-            "lineInterpolation": "linear",
-            "lineWidth": 2,
-            "pointSize": 5,
-            "scaleDistribution": {
-              "type": "linear"
-            },
-            "showPoints": "auto",
-            "spanNulls": false,
-            "stacking": {
-              "group": "A",
-              "mode": "none"
-            },
-            "thresholdsStyle": {
-              "mode": "off"
-            }
-          },
-          "mappings": [],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green",
-                "value": null
-              },
-              {
-                "color": "red",
-                "value": 80
-              }
-            ]
-          },
-          "unit": "ms"
-        },
-        "overrides": [
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "Receipt p95"
-            },
-            "properties": [
-              {
-                "id": "color",
-                "value": {
-                  "fixedColor": "yellow",
-                  "mode": "fixed"
-                }
-              }
-            ]
-          }
-        ]
-      },
-      "gridPos": {
-        "h": 9,
-        "w": 18,
-        "x": 0,
-        "y": 16
-      },
-      "id": 4,
-      "options": {
-        "legend": {
-          "calcs": [],
-          "displayMode": "list",
-          "placement": "bottom",
-          "showLegend": true
-        },
-        "tooltip": {
-          "hideZeros": false,
-          "mode": "single",
-          "sort": "none"
-        }
-      },
-      "targets": [
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "vendix-prometheus"
-          },
-          "editorMode": "code",
-          "expr": "histogram_quantile(\n  0.95,\n  sum by (le) (\n    rate(http_server_requests_seconds_bucket{uri=\"/api/receipt\"}[1m])\n  )\n) * 1000",
-          "legendFormat": "Receipt p95",
-          "range": true,
-          "refId": "A"
-        }
-      ],
-      "title": "95th Percentile (ms)",
-      "type": "timeseries"
     }
   ],
   "refresh": "5s",
@@ -602,6 +602,6 @@
   "timezone": "browser",
   "title": "Filialen-/Kassensystem Test-Dashboard",
   "uid": "adf44rg",
-  "version": 2,
+  "version": 4,
   "weekStart": ""
 }
