@@ -5,7 +5,6 @@ import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.applayout.AppLayout;
 import com.vaadin.flow.component.applayout.DrawerToggle;
 import com.vaadin.flow.component.button.Button;
-import com.vaadin.flow.component.dependency.StyleSheet;
 import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.html.H1;
@@ -25,8 +24,6 @@ import com.vaadin.flow.router.BeforeEnterObserver;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.router.RouterLink;
-import com.vaadin.flow.theme.aura.Aura;
-import com.vaadin.flow.theme.lumo.Lumo;
 import de.fhdw.vendix.commons.core.persistence.entity.AccountRoleEnum;
 import de.fhdw.vendix.store.persistence.entity.StoreLinkStock;
 import de.fhdw.vendix.store.persistence.service.StoreLinkStockService;
@@ -44,7 +41,6 @@ import java.util.stream.Collectors;
 @Route("/admin-stock")
 @PageTitle("Bestandsübersicht")
 @RolesAllowed(AccountRoleEnum.ROLE_ADMIN)
-@StyleSheet(Aura.STYLESHEET)
 public class StockView extends AppLayout implements BeforeEnterObserver {
 
     private final StoreLinkStockService storeLinkStockService;
@@ -62,43 +58,52 @@ public class StockView extends AppLayout implements BeforeEnterObserver {
 
     private void createHeader() {
         H1 viewTitle = new H1(getPageTitle());
+        viewTitle.getStyle().set("margin", "0");
+        viewTitle.getStyle().set("color", "var(--vaadin-primary-color, var(--lumo-primary-color))");
+        viewTitle.getStyle().set("font-size", "1.5rem");
+
         HorizontalLayout leftSection = new HorizontalLayout(new DrawerToggle(), viewTitle);
         leftSection.setDefaultVerticalComponentAlignment(FlexComponent.Alignment.CENTER);
+        leftSection.setSpacing(true);
 
         Span liveClockLabel = new Span();
         liveClockLabel.setId("live-clock-label");
-        liveClockLabel.getStyle().set("font-size", "var(--lumo-font-size-l)");
-        liveClockLabel.getStyle().set("font-weight", "bold");
+        liveClockLabel.getStyle().set("font-size", "var(--lumo-font-size-m)");
+        liveClockLabel.getStyle().set("font-weight", "500");
+        liveClockLabel.getStyle().set("color", "var(--vaadin-secondary-text-color, var(--lumo-secondary-text-color))");
 
-        Button themeToggleButton = new Button(new Icon(VaadinIcon.ADJUST), click -> {
-            UI ui = UI.getCurrent(); // UI-Referenz sichern BEVOR async-Aufruf
-            ui.getPage().executeJs("return document.documentElement.getAttribute('theme');")
-                    .then(String.class, currentClientTheme -> {
-                        var themeList = ui.getElement().getThemeList();
-                        boolean isClientDark = "dark".equals(currentClientTheme);
-
-                        if (isClientDark) {
-                            themeList.remove(Lumo.DARK);
-                            ui.getPage().executeJs("localStorage.setItem('theme', 'light'); document.documentElement.removeAttribute('theme');");
-                        } else {
-                            themeList.add(Lumo.DARK);
-                            ui.getPage().executeJs("localStorage.setItem('theme', 'dark'); document.documentElement.setAttribute('theme', 'dark');");
-                        }
-                    });
+        Button themeToggleButton = new Button(new Icon(VaadinIcon.MOON), click -> {
+            UI ui = UI.getCurrent();
+            ui.getPage().executeJs("""
+                const html = document.documentElement;
+                const current = getComputedStyle(html).colorScheme;
+                const isDark = current.includes('dark');
+                html.style.colorScheme = isDark ? 'light' : 'dark';
+                return !isDark;
+            """).then(Boolean.class, isDarkNow -> {
+                ((Button) click.getSource()).setIcon(new Icon(isDarkNow ? VaadinIcon.SUN_O : VaadinIcon.MOON));
+            });
         });
-        themeToggleButton.setTooltipText("Toggle dark mode");
 
-        Button logoutButton = new Button("Logout", e -> UI.getCurrent().getPage().setLocation("/logout"));
+        themeToggleButton.setTooltipText("Dark Mode umschalten");
+        themeToggleButton.getStyle().set("border-radius", "var(--lumo-border-radius-m)");
+
+        Button logoutButton = new Button("Logout", new Icon(VaadinIcon.SIGN_OUT), e -> UI.getCurrent().getPage().setLocation("/logout"));
+        logoutButton.getStyle().set("border-radius", "var(--lumo-border-radius-m)");
 
         HorizontalLayout rightSection = new HorizontalLayout(liveClockLabel, themeToggleButton, logoutButton);
         rightSection.setAlignItems(FlexComponent.Alignment.CENTER);
         rightSection.setJustifyContentMode(FlexComponent.JustifyContentMode.END);
         rightSection.setSpacing(true);
+        rightSection.setPadding(true);
 
         HorizontalLayout header = new HorizontalLayout(leftSection, rightSection);
         header.setWidthFull();
         header.setJustifyContentMode(FlexComponent.JustifyContentMode.BETWEEN);
         header.setAlignItems(FlexComponent.Alignment.CENTER);
+        header.getStyle().set("background", "var(--vaadin-header-background, var(--lumo-base-color))");
+        header.getStyle().set("border-bottom", "1px solid var(--vaadin-border-color, var(--lumo-divider-color))");
+        header.getStyle().set("padding", "0 var(--lumo-space-m)");
 
         addToNavbar(header);
 
@@ -118,13 +123,14 @@ public class StockView extends AppLayout implements BeforeEnterObserver {
 
     private Component createSidebar() {
         VerticalLayout sidebar = new VerticalLayout();
-        sidebar.setPadding(false);
-        sidebar.setSpacing(false);
+        sidebar.setPadding(true);
+        sidebar.setSpacing(true);
         sidebar.setAlignItems(FlexComponent.Alignment.STRETCH);
+        sidebar.getStyle().set("background", "var(--vaadin-header-background, var(--lumo-base-color))");
 
         sidebar.add(
                 createSidebarLink("Home",    VaadinIcon.HOME,    MainView.class),
-                createSidebarLink("Admin",   VaadinIcon.USER,    AdminView.class),
+                createSidebarLink("Benutzer",   VaadinIcon.USER,    AdminView.class),
                 createSidebarLink("Accounts", VaadinIcon.GROUP,  RoleView.class),
                 createSidebarLink("Kassen",  VaadinIcon.CASH,    RegisterAddView.class),
                 createSidebarLink("Bestand", VaadinIcon.PACKAGE, StockView.class),
@@ -135,21 +141,38 @@ public class StockView extends AppLayout implements BeforeEnterObserver {
     }
 
     private RouterLink createSidebarLink(String text, VaadinIcon icon, Class<? extends Component> navigationTarget) {
-        com.vaadin.flow.component.icon.Icon i = new com.vaadin.flow.component.icon.Icon(icon);
+        Icon i = new Icon(icon);
+        i.getStyle().set("width", "24px");
+        i.getStyle().set("height", "24px");
+
         Span textSpan = new Span(text);
         textSpan.getStyle().set("margin-left", "var(--lumo-space-m)");
+        textSpan.getStyle().set("font-weight", "500");
+        textSpan.getStyle().set("font-size", "var(--lumo-font-size-m)");
 
         RouterLink link = new RouterLink(navigationTarget);
         link.add(i, textSpan);
         link.getStyle().set("display", "flex");
         link.getStyle().set("align-items", "center");
-        link.getStyle().set("padding", "var(--lumo-space-s)");
+        link.getStyle().set("padding", "var(--lumo-space-m)");
         link.getStyle().set("border-radius", "var(--lumo-border-radius-m)");
-        link.getStyle().set("transition", "background-color 0.2s");
+        link.getStyle().set("transition", "all 0.3s ease");
         link.getStyle().set("text-decoration", "none");
-        link.getStyle().set("color", "var(--lumo-body-text-color)");
+        link.getStyle().set("color", "var(--vaadin-text-color, var(--lumo-body-text-color))");
+        link.getStyle().set("cursor", "pointer");
+
+        // Hover-Effekt
+        link.getElement().addEventListener("mouseenter", e -> {
+            link.getStyle().set("background-color", "var(--lumo-primary-color-10pct)");
+            link.getStyle().set("box-shadow", "0 2px 6px rgba(0, 0, 0, 0.1)");
+        });
+        link.getElement().addEventListener("mouseleave", e -> {
+            link.getStyle().set("background-color", "transparent");
+            link.getStyle().set("box-shadow", "none");
+        });
 
         return link;
+
     }
 
     @PostConstruct

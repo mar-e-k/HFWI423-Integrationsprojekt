@@ -13,7 +13,7 @@ Dieses Projekt implementiert ein verteiltes Kassensystem, bestehend aus einem ze
 │  Gemeinsame DTOs, Entitäten, JWT-Auth, Basis-UI-Komponenten     │
 └───────────────────┬─────────────────────┬───────────────────────┘
                     │                     │
-        ┌───────────▼──────────┐ ┌────────▼──────────────┐
+        ┌───────────▼──────────┐ ┌────────▼───────────────┐
         │   store (Port 8080)  │ │   pos  (Port dynamisch)│
         │   Filialensystem     │ │   Kassensystem         │
         │                      │ │                        │

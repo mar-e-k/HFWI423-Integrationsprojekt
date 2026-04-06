@@ -16,8 +16,6 @@ import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.*;
-import com.vaadin.flow.theme.aura.Aura;
-import com.vaadin.flow.theme.lumo.Lumo;
 import de.fhdw.vendix.commons.core.persistence.entity.AccountRoleEnum;
 import de.fhdw.vendix.store.persistence.service.performance.PerformanceTestProperties;
 import de.fhdw.vendix.store.persistence.service.performance.PerformanceTestService;
@@ -37,7 +35,6 @@ import java.util.stream.Collectors;
 @Route("/admin/performance")
 @PageTitle("Lasttests")
 @RolesAllowed(AccountRoleEnum.ROLE_ADMIN)
-@StyleSheet(Aura.STYLESHEET)
 public class PerformanceTestView extends AppLayout implements BeforeEnterObserver {
 
     private final PerformanceTestService    testService;
@@ -55,53 +52,54 @@ public class PerformanceTestView extends AppLayout implements BeforeEnterObserve
         addToDrawer(createSidebar());
     }
 
-    // -------------------------------------------------------------------------
-    // Header (identisches Pattern wie AdminView)
-    // -------------------------------------------------------------------------
-
     private void createHeader() {
         H1 viewTitle = new H1("Lasttests");
+        viewTitle.getStyle().set("margin", "0");
+        viewTitle.getStyle().set("color", "var(--vaadin-primary-color, var(--lumo-primary-color))");
+        viewTitle.getStyle().set("font-size", "1.5rem");
+
         HorizontalLayout leftSection = new HorizontalLayout(new DrawerToggle(), viewTitle);
         leftSection.setDefaultVerticalComponentAlignment(FlexComponent.Alignment.CENTER);
+        leftSection.setSpacing(true);
 
         Span liveClockLabel = new Span();
         liveClockLabel.setId("live-clock-label-perf");
-        liveClockLabel.getStyle().set("font-size", "var(--lumo-font-size-l)");
-        liveClockLabel.getStyle().set("font-weight", "bold");
+        liveClockLabel.getStyle().set("font-size", "var(--lumo-font-size-m)");
+        liveClockLabel.getStyle().set("font-weight", "500");
+        liveClockLabel.getStyle().set("color", "var(--vaadin-secondary-text-color, var(--lumo-secondary-text-color))");
 
-        Button themeToggleButton = new Button(new Icon(VaadinIcon.ADJUST), click -> {
+        Button themeToggleButton = new Button(new Icon(VaadinIcon.MOON), click -> {
             UI ui = UI.getCurrent();
-            ui.getPage().executeJs("return document.documentElement.getAttribute('theme');")
-                    .then(String.class, currentClientTheme -> {
-                        var themeList = ui.getElement().getThemeList();
-                        if ("dark".equals(currentClientTheme)) {
-                            themeList.remove(Lumo.DARK);
-                            ui.getPage().executeJs(
-                                    "localStorage.setItem('theme','light');" +
-                                            "document.documentElement.removeAttribute('theme');");
-                        } else {
-                            themeList.add(Lumo.DARK);
-                            ui.getPage().executeJs(
-                                    "localStorage.setItem('theme','dark');" +
-                                            "document.documentElement.setAttribute('theme','dark');");
-                        }
-                    });
+            ui.getPage().executeJs("""
+                const html = document.documentElement;
+                const current = getComputedStyle(html).colorScheme;
+                const isDark = current.includes('dark');
+                html.style.colorScheme = isDark ? 'light' : 'dark';
+                return !isDark;
+            """).then(Boolean.class, isDarkNow -> {
+                ((Button) click.getSource()).setIcon(new Icon(isDarkNow ? VaadinIcon.SUN_O : VaadinIcon.MOON));
+            });
         });
-        themeToggleButton.setTooltipText("Toggle dark mode");
+        themeToggleButton.setTooltipText("Dark Mode umschalten");
+        themeToggleButton.getStyle().set("border-radius", "var(--lumo-border-radius-m)");
 
-        Button logoutButton = new Button("Logout",
-                e -> UI.getCurrent().getPage().setLocation("/logout"));
+        Button logoutButton = new Button("Logout", new Icon(VaadinIcon.SIGN_OUT), e -> UI.getCurrent().getPage().setLocation("/logout"));
+        logoutButton.getStyle().set("border-radius", "var(--lumo-border-radius-m)");
 
-        HorizontalLayout rightSection = new HorizontalLayout(
-                liveClockLabel, themeToggleButton, logoutButton);
+        HorizontalLayout rightSection = new HorizontalLayout(liveClockLabel, themeToggleButton, logoutButton);
         rightSection.setAlignItems(FlexComponent.Alignment.CENTER);
         rightSection.setJustifyContentMode(FlexComponent.JustifyContentMode.END);
         rightSection.setSpacing(true);
+        rightSection.setPadding(true);
 
         HorizontalLayout header = new HorizontalLayout(leftSection, rightSection);
         header.setWidthFull();
         header.setJustifyContentMode(FlexComponent.JustifyContentMode.BETWEEN);
         header.setAlignItems(FlexComponent.Alignment.CENTER);
+        header.getStyle().set("background", "var(--vaadin-header-background, var(--lumo-base-color))");
+        header.getStyle().set("border-bottom", "1px solid var(--vaadin-border-color, var(--lumo-divider-color))");
+        header.getStyle().set("padding", "0 var(--lumo-space-m)");
+
         addToNavbar(header);
 
         UI.getCurrent().getPage().executeJs("""
@@ -110,27 +108,24 @@ public class PerformanceTestView extends AppLayout implements BeforeEnterObserve
                 setInterval(() => {
                     const now = new Date();
                     label.textContent = now.toLocaleString('de-DE', {
-                        year:'numeric', month:'2-digit', day:'2-digit',
-                        hour:'2-digit', minute:'2-digit', second:'2-digit'
+                        year: 'numeric', month: '2-digit', day: '2-digit',
+                        hour: '2-digit', minute: '2-digit', second: '2-digit'
                     });
                 }, 1000);
             }
         """);
     }
 
-    // -------------------------------------------------------------------------
-    // Sidebar (gleiche Links wie alle anderen Views + neuer "Lasttests"-Eintrag)
-    // -------------------------------------------------------------------------
-
     private Component createSidebar() {
         VerticalLayout sidebar = new VerticalLayout();
-        sidebar.setPadding(false);
-        sidebar.setSpacing(false);
+        sidebar.setPadding(true);
+        sidebar.setSpacing(true);
         sidebar.setAlignItems(FlexComponent.Alignment.STRETCH);
+        sidebar.getStyle().set("background", "var(--vaadin-header-background, var(--lumo-base-color))");
 
         sidebar.add(
                 createSidebarLink("Home",       VaadinIcon.HOME,      MainView.class),
-                createSidebarLink("Admin",      VaadinIcon.USER,      AdminView.class),
+                createSidebarLink("Benutzer",      VaadinIcon.USER,      AdminView.class),
                 createSidebarLink("Accounts",   VaadinIcon.GROUP,     RoleView.class),
                 createSidebarLink("Kassen",     VaadinIcon.CASH,      RegisterAddView.class),
                 createSidebarLink("Bestand",    VaadinIcon.PACKAGE,   StockView.class),
@@ -143,25 +138,39 @@ public class PerformanceTestView extends AppLayout implements BeforeEnterObserve
     private RouterLink createSidebarLink(String text, VaadinIcon icon,
                                          Class<? extends Component> target) {
         Icon i = new Icon(icon);
+        i.getStyle().set("width", "24px");
+        i.getStyle().set("height", "24px");
+
         Span textSpan = new Span(text);
         textSpan.getStyle().set("margin-left", "var(--lumo-space-m)");
+        textSpan.getStyle().set("font-weight", "500");
+        textSpan.getStyle().set("font-size", "var(--lumo-font-size-m)");
 
         RouterLink link = new RouterLink(target);
         link.add(i, textSpan);
         link.getStyle()
                 .set("display",          "flex")
                 .set("align-items",      "center")
-                .set("padding",          "var(--lumo-space-s)")
+                .set("padding",          "var(--lumo-space-m)")
                 .set("border-radius",    "var(--lumo-border-radius-m)")
-                .set("transition",       "background-color 0.2s")
+                .set("transition",       "all 0.3s ease")
                 .set("text-decoration",  "none")
-                .set("color",            "var(--lumo-body-text-color)");
-        return link;
-    }
+                .set("color",            "var(--vaadin-text-color, var(--lumo-body-text-color))")
+                .set("cursor",           "pointer");
 
-    // -------------------------------------------------------------------------
-    // Content
-    // -------------------------------------------------------------------------
+        // Hover-Effekt
+        link.getElement().addEventListener("mouseenter", e -> {
+            link.getStyle().set("background-color", "var(--lumo-primary-color-10pct)");
+            link.getStyle().set("box-shadow", "0 2px 6px rgba(0, 0, 0, 0.1)");
+        });
+        link.getElement().addEventListener("mouseleave", e -> {
+            link.getStyle().set("background-color", "transparent");
+            link.getStyle().set("box-shadow", "none");
+        });
+
+        return link;
+
+    }
 
     @PostConstruct
     public void initUI() {
@@ -179,8 +188,6 @@ public class PerformanceTestView extends AppLayout implements BeforeEnterObserve
 
         setContent(content);
     }
-
-    // --- Status-Bereich ---
 
     private Component buildStatusSection() {
         H2 heading = new H2("Status");
@@ -207,7 +214,7 @@ public class PerformanceTestView extends AppLayout implements BeforeEnterObserve
         section.setPadding(false);
         section.setSpacing(false);
         section.getStyle()
-                .set("border",        "1px solid var(--lumo-contrast-10pct)")
+                .set("border",        "1px solid var(--vaadin-border-color, var(--lumo-contrast-10pct))")
                 .set("border-radius", "var(--lumo-border-radius-l)")
                 .set("padding",       "var(--lumo-space-m)");
         return section;
@@ -226,8 +233,6 @@ public class PerformanceTestView extends AppLayout implements BeforeEnterObserve
         badge.getElement().getThemeList().add("badge");
         badge.getElement().getThemeList().add(testService.isRunning() ? "contrast" : "success");
     }
-
-    // --- Test-Buttons ---
 
     private Component buildTestButtonSection() {
         H2 heading = new H2("Tests starten");
@@ -259,7 +264,6 @@ public class PerformanceTestView extends AppLayout implements BeforeEnterObserve
             buttons.add(btn);
         }
 
-        // Stop-Button
         Button stopBtn = new Button("Test abbrechen", new Icon(VaadinIcon.STOP));
         stopBtn.addThemeVariants(ButtonVariant.LUMO_ERROR);
         stopBtn.setTooltipText("Bricht den laufenden Test ab");
@@ -275,29 +279,24 @@ public class PerformanceTestView extends AppLayout implements BeforeEnterObserve
         section.setPadding(false);
         section.setSpacing(false);
         section.getStyle()
-                .set("border",        "1px solid var(--lumo-contrast-10pct)")
+                .set("border",        "1px solid var(--vaadin-border-color, var(--lumo-contrast-10pct))")
                 .set("border-radius", "var(--lumo-border-radius-l)")
                 .set("padding",       "var(--lumo-space-m)");
         return section;
     }
 
-    // --- Monitoring-Links ---
-
     private Component buildLinksSection() {
         H2 heading = new H2("Monitoring");
 
-        // Grafana-Link
         Anchor grafanaLink = new Anchor(props.getGrafanaUrl(), "Grafana öffnen →");
         grafanaLink.setTarget("_blank");
         grafanaLink.getStyle().set("margin-right", "var(--lumo-space-l)");
 
-        // Prometheus Targets öffnen
         Anchor prometheusTargetsLink = new Anchor(
                 props.getPrometheusUrl() + "/targets", "Prometheus Targets →");
         prometheusTargetsLink.setTarget("_blank");
         prometheusTargetsLink.getStyle().set("margin-right", "var(--lumo-space-l)");
 
-        // Ergebnis-Ordner im Finder/Explorer oeffnen
         Button openFolderBtn = new Button("Ergebnis-Dateien öffnen", new Icon(VaadinIcon.FOLDER_OPEN));
         openFolderBtn.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
         openFolderBtn.setTooltipText(props.getResultsDir());
@@ -306,7 +305,6 @@ public class PerformanceTestView extends AppLayout implements BeforeEnterObserve
                 String os  = System.getProperty("os.name").toLowerCase();
                 ProcessBuilder folderPb;
                 if (os.contains("win")) {
-                    // Windows: explorer öffnet Ordner direkt
                     folderPb = new ProcessBuilder("explorer", props.getResultsDir().replace("/", "\\"));
                 } else {
                     String cmd = os.contains("mac") ? "open" : "xdg-open";
@@ -320,8 +318,6 @@ public class PerformanceTestView extends AppLayout implements BeforeEnterObserve
             }
         });
 
-        // Letzten HTML-Report öffnen (öffnet das Verzeichnis via OS-Befehl server-seitig,
-        // da Server und Browser auf derselben Maschine laufen)
         Button openReportBtn = new Button("Letzten Report öffnen", new Icon(VaadinIcon.CHART));
         openReportBtn.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
         openReportBtn.setTooltipText("Öffnet den zuletzt generierten HTML-Report im Browser");
@@ -336,13 +332,12 @@ public class PerformanceTestView extends AppLayout implements BeforeEnterObserve
         section.setPadding(false);
         section.setSpacing(false);
         section.getStyle()
-                .set("border",        "1px solid var(--lumo-contrast-10pct)")
+                .set("border",        "1px solid var(--vaadin-border-color, var(--lumo-contrast-10pct))")
                 .set("border-radius", "var(--lumo-border-radius-l)")
                 .set("padding",       "var(--lumo-space-m)");
         return section;
     }
 
-    /** Sucht das neueste report_*-Verzeichnis und öffnet dessen index.html im Browser. */
     private void openLatestReport() {
         try {
             java.io.File resultsDir = new java.io.File(props.getResultsDir());
@@ -356,7 +351,6 @@ public class PerformanceTestView extends AppLayout implements BeforeEnterObserve
                 showNotification("Noch keine Reports vorhanden.", NotificationVariant.LUMO_CONTRAST);
                 return;
             }
-            // Neuestes Report-Verzeichnis nach Änderungsdatum sortieren
             java.util.Arrays.sort(reports, java.util.Comparator.comparingLong(java.io.File::lastModified));
             java.io.File latest = reports[reports.length - 1];
             java.io.File index  = new java.io.File(latest, "index.html");
@@ -365,12 +359,9 @@ public class PerformanceTestView extends AppLayout implements BeforeEnterObserve
                         NotificationVariant.LUMO_ERROR);
                 return;
             }
-            // OS-Befehl: open (Mac) / xdg-open (Linux) / cmd /c start (Windows)
             String os = System.getProperty("os.name").toLowerCase();
             ProcessBuilder reportPb;
             if (os.contains("win")) {
-                // Windows: explorer kann keine HTML-Dateien direkt öffnen
-                // cmd /c start öffnet sie im Standard-Browser
                 reportPb = new ProcessBuilder("cmd", "/c", "start", "", index.getAbsolutePath());
             } else {
                 String cmd = os.contains("mac") ? "open" : "xdg-open";
@@ -382,8 +373,6 @@ public class PerformanceTestView extends AppLayout implements BeforeEnterObserve
             showNotification("Fehler: " + ex.getMessage(), NotificationVariant.LUMO_ERROR);
         }
     }
-
-    // --- Grafana IFrame ---
 
     private Component buildDashboardSection() {
         H2 heading = new H2("Grafana Dashboard");
@@ -399,13 +388,11 @@ public class PerformanceTestView extends AppLayout implements BeforeEnterObserve
         section.setPadding(false);
         section.setSpacing(false);
         section.getStyle()
-                .set("border",        "1px solid var(--lumo-contrast-10pct)")
+                .set("border",        "1px solid var(--vaadin-border-color, var(--lumo-contrast-10pct))")
                 .set("border-radius", "var(--lumo-border-radius-l)")
                 .set("padding",       "var(--lumo-space-m)");
         return section;
     }
-
-    // --- Hilfsmethode ---
 
     private void showNotification(String message, NotificationVariant variant) {
         Notification notification = Notification.show(message, 4000,
@@ -413,9 +400,10 @@ public class PerformanceTestView extends AppLayout implements BeforeEnterObserve
         notification.addThemeVariants(variant);
     }
 
-    // -------------------------------------------------------------------------
-    // Security-Check (identisch mit AdminView)
-    // -------------------------------------------------------------------------
+    private String getPageTitle() {
+        PageTitle titleAnnotation = this.getClass().getAnnotation(PageTitle.class);
+        return titleAnnotation != null ? titleAnnotation.value() : "Lasttests";
+    }
 
     @Override
     public void beforeEnter(BeforeEnterEvent event) {
