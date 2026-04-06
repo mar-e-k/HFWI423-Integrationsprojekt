@@ -96,6 +96,9 @@ public class LogisticOrderListener {
         // Alte verarbeitete Einträge dieses Stores bereinigen
         msgRepo.deleteProcessedByStore(storeIdStr);
 
+        // Bestehenden unverarbeiteten Eintrag für denselben Artikel+Store ersetzen (kein Duplikat)
+        msgRepo.deleteUnprocessedByStoreAndArticleId(storeIdStr, articleId);
+
         // Neuen Eintrag speichern
         MessageLogistic msg = new MessageLogistic();
         msg.setStoreId(storeIdStr);

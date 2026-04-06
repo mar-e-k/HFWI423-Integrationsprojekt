@@ -41,6 +41,11 @@ public interface MessageLogisticRepository extends JpaRepository<MessageLogistic
     @Query("DELETE FROM MessageLogistic m WHERE m.storeId = :storeId AND m.processed = true")
     void deleteProcessedByStore(String storeId);
 
+    @Transactional
+    @Modifying
+    @Query("DELETE FROM MessageLogistic m WHERE m.storeId = :storeId AND m.articleId = :articleId AND m.processed = false")
+    void deleteUnprocessedByStoreAndArticleId(@Param("storeId") String storeId, @Param("articleId") Long articleId);
+
  
 
 }
