@@ -147,23 +147,8 @@ public class ArticleInfoService {
             return false;
         }
 
-        while (article.getStockLevel() - change < 0) {
-            int reservePallets = article.getReservePallets() != null ? article.getReservePallets() : 0;
-            int piecesPerPallet = article.getPiecesPerPallet() != null ? article.getPiecesPerPallet() : 0;
-            if (reservePallets <= 0 || piecesPerPallet <= 0) {
-                return false;
-            }
-            ArticleInfo articleInfo = updateStockLevelWithPalletLogic(article.getArticleId(), 0);
-            article = articleInfo;
-            change = Math.abs(articleInfo.getStockLevel() - change);
-        }
-
-        if (article.getStockLevel() - change >= 0) {
-            article.setStockLevel(article.getStockLevel() - change);
-            articleInfoRepository.save(article);
-            System.out.println("erfolgreich geupdated");
-
-        }
+        applyStockChange(article, -change, ChangeType.ISSUE, "Kommissionierung", "system");
+        System.out.println("erfolgreich geupdated");
         return true;
     }
 
