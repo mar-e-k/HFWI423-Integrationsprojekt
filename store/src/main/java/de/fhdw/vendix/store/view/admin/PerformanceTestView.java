@@ -304,10 +304,15 @@ public class PerformanceTestView extends AppLayout implements BeforeEnterObserve
         openFolderBtn.addClickListener(e -> {
             try {
                 String os  = System.getProperty("os.name").toLowerCase();
-                String cmd = os.contains("mac") ? "open" : os.contains("win") ? "explorer" : "xdg-open";
-                new ProcessBuilder(cmd, props.getResultsDir())
-                        .redirectErrorStream(true)
-                        .start();
+                ProcessBuilder folderPb;
+                if (os.contains("win")) {
+                    // Windows: explorer öffnet Ordner direkt
+                    folderPb = new ProcessBuilder("explorer", props.getResultsDir().replace("/", "\\"));
+                } else {
+                    String cmd = os.contains("mac") ? "open" : "xdg-open";
+                    folderPb = new ProcessBuilder(cmd, props.getResultsDir());
+                }
+                folderPb.redirectErrorStream(true).start();
                 showNotification("Ordner geöffnet: " + props.getResultsDir(),
                         NotificationVariant.LUMO_SUCCESS);
             } catch (Exception ex) {
@@ -360,12 +365,18 @@ public class PerformanceTestView extends AppLayout implements BeforeEnterObserve
                         NotificationVariant.LUMO_ERROR);
                 return;
             }
-            // OS-Befehl: open (Mac) / xdg-open (Linux) / start (Windows)
+            // OS-Befehl: open (Mac) / xdg-open (Linux) / cmd /c start (Windows)
             String os = System.getProperty("os.name").toLowerCase();
-            String cmd = os.contains("mac") ? "open" : os.contains("win") ? "explorer" : "xdg-open";
-            new ProcessBuilder(cmd, index.getAbsolutePath())
-                    .redirectErrorStream(true)
-                    .start();
+            ProcessBuilder reportPb;
+            if (os.contains("win")) {
+                // Windows: explorer kann keine HTML-Dateien direkt öffnen
+                // cmd /c start öffnet sie im Standard-Browser
+                reportPb = new ProcessBuilder("cmd", "/c", "start", "", index.getAbsolutePath());
+            } else {
+                String cmd = os.contains("mac") ? "open" : "xdg-open";
+                reportPb = new ProcessBuilder(cmd, index.getAbsolutePath());
+            }
+            reportPb.redirectErrorStream(true).start();
             showNotification("Report geöffnet: " + latest.getName(), NotificationVariant.LUMO_SUCCESS);
         } catch (Exception ex) {
             showNotification("Fehler: " + ex.getMessage(), NotificationVariant.LUMO_ERROR);

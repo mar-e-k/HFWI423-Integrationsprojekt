@@ -24,8 +24,18 @@ public class PerformanceTestProperties {
     /** Pfad zur Master-JMX-Datei — MUSS individuell gesetzt werden */
     private String masterJmx;
 
-    /** Ergebnis-Verzeichnis — Standard funktioniert auf Mac/Linux ohne Anpassung */
-    private String resultsDir = System.getProperty("java.io.tmpdir") + "/jmeter-results";
+    /** Ergebnis-Verzeichnis — Standard funktioniert auf Mac/Linux/Windows ohne Anpassung */
+    private String resultsDir = buildDefaultResultsDir();
+
+    private static String buildDefaultResultsDir() {
+        String tmpDir = System.getProperty("java.io.tmpdir");
+        // java.io.tmpdir gibt auf Windows den Pfad mit abschließendem \ zurück
+        // → ohne diesen Check entsteht ein doppelter Separator: C:\Temp\\jmeter-results
+        if (tmpDir.endsWith(java.io.File.separator) || tmpDir.endsWith("/")) {
+            tmpDir = tmpDir.substring(0, tmpDir.length() - 1);
+        }
+        return tmpDir + java.io.File.separator + "jmeter-results";
+    }
 
     /** Grafana-Dashboard-Link — Standard passt wenn Docker Compose läuft */
     private String grafanaUrl = "http://localhost:3000/d/adf44rg";

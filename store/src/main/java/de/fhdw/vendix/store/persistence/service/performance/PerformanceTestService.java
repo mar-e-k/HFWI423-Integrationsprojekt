@@ -22,7 +22,7 @@ import java.time.format.DateTimeFormatter;
 
 /**
  * Startet JMeter-Tests per CLI (kein GUI nötig).
- * s
+ *
  * Strategie: Die Master-JMX enthält alle 5 Thread Groups.
  * Vor jedem Start wird eine temporäre JMX erzeugt, in der
  * nur die gewählte Thread Group aktiviert ist – die anderen
@@ -103,9 +103,14 @@ public class PerformanceTestService {
         if (isWindows) {
             command.add("cmd.exe");
             command.add("/c");
+            // Pfad in Anführungszeichen wrappen: Leerzeichen und Sonderzeichen wie &
+            // (z.B. "OneDrive - bib & FHDW") werden von cmd.exe sonst als
+            // Befehlstrennzeichen interpretiert → Exit-Code 1
+            command.add("\"" + jmeterBin + "\"");
+        } else {
+            command.add(jmeterBin);
         }
         command.addAll(java.util.Arrays.asList(
-                jmeterBin,
                 "-n",
                 "-t", tempJmx.toString(),
                 "-l", resultFile,
