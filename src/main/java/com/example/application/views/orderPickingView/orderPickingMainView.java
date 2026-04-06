@@ -8,6 +8,7 @@ import com.example.application.data.orderPicking.MessageLogistic;
 import com.example.application.data.orderPicking.MessageLogisticRepository;
 import com.example.application.services.ArticleInfoService;
 import com.example.application.services.KommissionService;
+import com.example.application.services.WeeklyKommissionScheduler;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.checkbox.Checkbox;
@@ -41,25 +42,37 @@ public class orderPickingMainView extends VerticalLayout {
     private final ArticleInfoService articleInfoService;
     private final ArticleInfoRepository articleInfoRepository;
     private final LogisticEventPublisher logisticEventPublisher;
+    private final WeeklyKommissionScheduler weeklyScheduler;
     private final Grid<Kommission> grid = new Grid<>(Kommission.class, false);
 
     public orderPickingMainView(KommissionService service,
                                 MessageLogisticRepository msgRepo,
                                 ArticleInfoService articleInfoService,
                                 ArticleInfoRepository articleInfoRepository,
-                                LogisticEventPublisher logisticEventPublisher) {
+                                LogisticEventPublisher logisticEventPublisher,
+                                WeeklyKommissionScheduler weeklyScheduler) {
         this.service = service;
         this.msgRepo = msgRepo;
         this.articleInfoService = articleInfoService;
         this.articleInfoRepository = articleInfoRepository;
         this.logisticEventPublisher = logisticEventPublisher;
+        this.weeklyScheduler = weeklyScheduler;
         setSizeFull();
         setPadding(false);
         setSpacing(false);
 
         // Einfache Toolbar zum Neuladen der Kommissionen
         Button refreshButton = new Button("Aktualisieren", e -> refreshGridItems());
-        HorizontalLayout toolbar = new HorizontalLayout(refreshButton);
+
+        Button triggerButton = new Button("Kommissionierung auslösen", e -> {
+            weeklyScheduler.createWeeklyKommissionen();
+            refreshGridItems();
+            Notification.show("Kommissionierung manuell ausgelöst", 3000, Notification.Position.MIDDLE)
+                    .addThemeVariants(NotificationVariant.LUMO_SUCCESS);
+        });
+        triggerButton.addThemeVariants(ButtonVariant.LUMO_CONTRAST);
+
+        HorizontalLayout toolbar = new HorizontalLayout(refreshButton, triggerButton);
         toolbar.setWidthFull();
         toolbar.setAlignItems(FlexComponent.Alignment.CENTER);
         toolbar.getStyle()

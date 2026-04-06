@@ -29,7 +29,7 @@ public class WeeklyKommissionScheduler {
     }
 
     @Transactional
-    @Scheduled(cron = "1 * * * * *")
+    @Scheduled(cron = "0 0 10 * * MON")
     public void createWeeklyKommissionen() {
 
         // Alle Filialen holen, die noch unverarbeitete Bestellungen haben
