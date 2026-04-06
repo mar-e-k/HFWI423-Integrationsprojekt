@@ -220,14 +220,14 @@ public class orderPickingMainView extends VerticalLayout {
 
                 posGrid.addColumn(pos -> {
                     try {
-                        return getOpenStockLevel(pos);
+                        return getFullStockLevel(pos);
                     } catch (EntityNotFoundException ee) {
                         return "Not found";
                     }
                 }).setHeader("Stock-Level").setFlexGrow(1);
 
                 posGrid.addComponentColumn(msg -> {
-                    int max = getOpenStockLevel(msg);
+                    int max = getFullStockLevel(msg);
                     int requestedQty = (int) msg.getQuantity();
 
                     // Es darf nur maximal das ausgewählt werden, was wirklich im offenen Bestand liegt
