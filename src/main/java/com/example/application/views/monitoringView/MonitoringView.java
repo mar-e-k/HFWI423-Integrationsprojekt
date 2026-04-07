@@ -10,16 +10,22 @@ import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.H3;
+import com.vaadin.flow.component.html.IFrame;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.notification.NotificationVariant;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+import com.vaadin.flow.component.tabs.Tab;
+import com.vaadin.flow.component.tabs.TabSheet;
 import com.vaadin.flow.router.Menu;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
+import io.micrometer.core.instrument.Counter;
+import io.micrometer.core.instrument.Gauge;
 import io.micrometer.core.instrument.MeterRegistry;
+import io.micrometer.core.instrument.Timer;
 import org.springframework.beans.factory.annotation.Value;
 import org.vaadin.lineawesome.LineAwesomeIconUrl;
 
@@ -85,6 +91,12 @@ public class MonitoringView extends Div {
     private volatile String     activeTestName = "";
     private ExecutorService     testExecutor;
 
+    // ── Grafana-Metriken (Micrometer) ─────────────────────────────────────────
+    private final AtomicLong activeUsersGauge = new AtomicLong(0);
+    private Counter ltAllCounter;
+    private Counter ltErrCounter;
+    private Timer   ltTimer;
+
     // ── System-Metrikkarten ──────────────────────────────────────────────────
     private final MetricCard heapCard    = new MetricCard("Heap Memory",   "MB",    "#6366f1");
     private final MetricCard threadsCard = new MetricCard("Live Threads",  "",      "#8b5cf6");
@@ -124,6 +136,24 @@ public class MonitoringView extends Div {
         this.storageLocationService = storageLocationService;
         this.serverPort           = serverPort;
 
+        // Live-Status-Gauges (spiegeln aktuelle AtomicLong-Werte)
+        Gauge.builder("loadtest.active.users", activeUsersGauge, AtomicLong::get)
+                .description("Aktive simulierte User im Lasttest").register(meterRegistry);
+        Gauge.builder("loadtest.running", testRunning, b -> b.get() ? 1.0 : 0.0)
+                .description("1 wenn ein Lasttest gerade läuft").register(meterRegistry);
+        Gauge.builder("loadtest.requests.live", totalRequests, AtomicLong::get)
+                .description("Gesamtanfragen im laufenden Test").register(meterRegistry);
+        Gauge.builder("loadtest.errors.live", errorCount, AtomicLong::get)
+                .description("Fehler im laufenden Test").register(meterRegistry);
+
+        // Kumulativer Counter + Timer (laufen über alle Tests durch → ideal für Raten in Grafana)
+        ltAllCounter = Counter.builder("loadtest.requests")
+                .tag("outcome", "all").description("Alle Lasttest-Requests").register(meterRegistry);
+        ltErrCounter = Counter.builder("loadtest.requests")
+                .tag("outcome", "error").description("Fehlgeschlagene Lasttest-Requests").register(meterRegistry);
+        ltTimer = Timer.builder("loadtest.response")
+                .description("Antwortzeiten der Lasttest-Requests").register(meterRegistry);
+
         setSizeFull();
         addClassName("view-page");
         buildLayout();
@@ -134,6 +164,7 @@ public class MonitoringView extends Div {
     // ══════════════════════════════════════════════════════════════════════════
 
     private void buildLayout() {
+        // ── Tab 1: Live-Metriken ──────────────────────────────────────────────
         Div jvmSection  = section("JVM & System",   heapCard, threadsCard, cpuCard);
         Div httpSection = section("HTTP Traffic",   httpCard, errorCard, avgRespCard);
         Div bizSection  = section("Business",       articlesCard, kommCard, storageCard);
@@ -145,17 +176,54 @@ public class MonitoringView extends Div {
 
         Div loadTestSection = buildLoadTestSection();
 
-        VerticalLayout content = new VerticalLayout(
+        VerticalLayout metricsContent = new VerticalLayout(
                 lastUpdated, jvmSection, httpSection, bizSection, loadTestSection);
-        content.setPadding(false);
-        content.setSpacing(false);
-        content.setWidthFull();
+        metricsContent.setPadding(false);
+        metricsContent.setSpacing(false);
+        metricsContent.setWidthFull();
 
-        Div card = new Div(content);
+        // ── Tab 2: Grafana iFrame ─────────────────────────────────────────────
+        Div grafanaTab = buildGrafanaTab();
+
+        // ── TabSheet ──────────────────────────────────────────────────────────
+        TabSheet tabs = new TabSheet();
+        tabs.setSizeFull();
+        tabs.add("Live-Metriken", metricsContent);
+        tabs.add("Grafana Dashboard", grafanaTab);
+
+        Div card = new Div(tabs);
         card.addClassName("content-card");
         card.getStyle().set("padding", "24px");
         card.setSizeFull();
         add(card);
+    }
+
+    private Div buildGrafanaTab() {
+        // Hinweis-Banner falls Grafana nicht läuft
+        Span hint = new Span(
+                "Grafana muss unter http://localhost:3000 erreichbar sein " +
+                "(docker-compose up in /monitoring). " +
+                "Beim ersten Start kann es 10–20 Sekunden dauern, bis das Dashboard erscheint.");
+        hint.getStyle()
+                .set("display", "block")
+                .set("font-size", "0.8rem")
+                .set("color", "#64748b")
+                .set("padding", "6px 0 12px 0");
+
+        IFrame frame = new IFrame(
+                "http://localhost:3000/d/logistik-loadtest-v1" +
+                "?orgId=1&kiosk=tv&theme=light&refresh=10s");
+        frame.setWidth("100%");
+        frame.setHeight("900px");
+        frame.getElement().setAttribute("frameborder", "0");
+        frame.getElement().setAttribute("allowfullscreen", "true");
+        frame.getStyle()
+                .set("border-radius", "12px")
+                .set("border", "1px solid #e8edf5");
+
+        Div wrapper = new Div(hint, frame);
+        wrapper.setWidthFull();
+        return wrapper;
     }
 
     private Div section(String title, MetricCard... cards) {
@@ -374,6 +442,7 @@ public class MonitoringView extends Div {
      * Schleife für `durationMs` Millisekunden.
      */
     private void runConcurrentLoad(int users, long durationMs) {
+        activeUsersGauge.set(users);
         ExecutorService pool = Executors.newFixedThreadPool(users);
         long deadline = System.currentTimeMillis() + durationMs;
 
@@ -396,6 +465,7 @@ public class MonitoringView extends Div {
             Thread.currentThread().interrupt();
         }
         pool.shutdownNow();
+        activeUsersGauge.set(0);
     }
 
     private void sendRequest(String path) {
@@ -411,14 +481,19 @@ public class MonitoringView extends Div {
             long ms = System.currentTimeMillis() - start;
             totalRequests.incrementAndGet();
             totalRespMs.addAndGet(ms);
+            ltAllCounter.increment();
+            ltTimer.record(ms, TimeUnit.MILLISECONDS);
             if (resp.statusCode() < 400) {
                 successCount.incrementAndGet();
             } else {
                 errorCount.incrementAndGet();
+                ltErrCounter.increment();
             }
         } catch (Exception e) {
             totalRequests.incrementAndGet();
             errorCount.incrementAndGet();
+            ltAllCounter.increment();
+            ltErrCounter.increment();
         }
     }
 
