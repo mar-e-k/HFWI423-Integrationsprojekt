@@ -1,0 +1,17 @@
+global:
+  scrape_interval:     15s   # Metriken alle 15 Sekunden abholen
+  evaluation_interval: 15s
+
+scrape_configs:
+
+  - job_name: "logistik-spring-boot"
+    metrics_path: "/actuator/prometheus"
+    static_configs:
+      - targets:
+          # host.docker.internal zeigt vom Container auf den Windows-Host
+          - "host.docker.internal:8081"
+    # Labels die in Grafana als Filter nutzbar sind
+    relabel_configs:
+      - source_labels: [__address__]
+        target_label: instance
+        replacement: "logistik-app"

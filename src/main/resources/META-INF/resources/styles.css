@@ -288,6 +288,18 @@ vaadin-integer-field[focused]::part(input-field) {
 }
 
 /* ══════════════════════════════════════════════════════════
+   MONITORING VIEW – Metric Cards
+══════════════════════════════════════════════════════════ */
+.metric-section-title {
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: #6366f1;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    margin: 20px 0 10px 0;
+}
+
+/* ══════════════════════════════════════════════════════════
    MOBILE FILTER
 ══════════════════════════════════════════════════════════ */
 .mobile-filters {
