@@ -10,7 +10,7 @@ public record ReceiptDTO (
         StoreDTO store,
         RegisterDTO register,
         Long cashierId
-) implements DomainDTO<Long> {
+) implements DomainDTO {
     public ReceiptDTO {
         if (id != null && id < 0) {
             throw new IllegalArgumentException("ReceiptDTO parameter 'id' must be at least 0");
@@ -24,10 +24,5 @@ public record ReceiptDTO (
         if (cashierId == null || cashierId < 0) {
             throw new IllegalArgumentException("ReceiptDTO parameter 'cashier' must not be null or negative");
         }
-    }
-
-    @Override
-    public @Nullable Long getIdentifiable() {
-        return id;
     }
 }

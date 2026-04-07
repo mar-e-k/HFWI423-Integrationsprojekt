@@ -17,7 +17,12 @@
     <dependencies>
         <dependency>
             <groupId>de.fhdw.vendix</groupId>
-            <artifactId>commons-ui-vaadin</artifactId>
+            <artifactId>commons-core</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>de.fhdw.vendix</groupId>
+            <artifactId>commons-spring-vaadin</artifactId>
         </dependency>
 
         <dependency>

@@ -1,23 +1,17 @@
 package de.fhdw.vendix.orchestrator.core.domain.connection;
 
+import de.fhdw.vendix.orchestrator.core.embeddable.entity_target.EntityTarget;
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Modifying;
-import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.query.Param;
 
+import java.util.Optional;
 import java.util.UUID;
 
 public interface ConnectionRepository extends JpaRepository<Connection, Long> {
+    Optional<Connection> findByTarget(EntityTarget target);
 
-    @Modifying
-    @Query(
-            """                
-            DELETE
-            FROM Connection c
-            WHERE c.heartbeatAt < :cutOff
-            """
-    )
-    void deleteAllExpiredConnections(@Param("cutoff") Integer cutoff);
+    Optional<Connection> findByInstance_Uuid(UUID instanceUuid);
 
-    void deleteAllByInstance_Uuid(UUID instanceUuid);
+    void deleteByTarget(EntityTarget target);
+
+    void deleteByInstance_Uuid(UUID instanceUuid);
 }

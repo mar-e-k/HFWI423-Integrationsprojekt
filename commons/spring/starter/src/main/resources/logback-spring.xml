@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration scan="true">
+
+    <!-- =======================
+         Spring Boot Defaults
+         ======================= -->
+    <include resource="org/springframework/boot/logging/logback/defaults.xml"/>
+    <include resource="org/springframework/boot/logging/logback/console-appender.xml"/>
+    <include resource="org/springframework/boot/logging/logback/file-appender.xml"/>
+
+    <appender name="LOKI" class="com.github.loki4j.logback.Loki4jAppender">
+        <lokiUrl>${LOKI_URL:http://localhost:3100/loki/api/v1/push}</lokiUrl>
+        <batchSize>100</batchSize>
+        <batchWaitTimeMs>500</batchWaitTimeMs>
+        <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
+            <pattern>%d{yyyy-MM-dd'T'HH:mm:ss.SSSXXX} [%thread] %-5level %logger{36} - %msg%n</pattern>
+            <charset>UTF-8</charset>
+        </encoder>
+
+        <labels>
+            <label>
+                <key>app</key>
+                <value>${spring.application.name:app}</value>
+            </label>
+            <label>
+                <key>instance</key>
+                <value>${INSTANCE_UUID:${random.value}}</value>
+            </label>
+            <label>
+                <key>environment</key>
+                <value>${ENVIRONMENT:local}</value>
+            </label>
+            <label>
+                <key>hostname</key>
+                <value>${HOSTNAME:${env:HOSTNAME}}</value>
+            </label>
+        </labels>
+    </appender>
+
+    <!-- =======================
+         Root Logger
+         ======================= -->
+    <root level="INFO">
+        <appender-ref ref="CONSOLE"/>
+        <appender-ref ref="FILE"/>
+        <appender-ref ref="LOKI"/>
+    </root>
+
+</configuration>

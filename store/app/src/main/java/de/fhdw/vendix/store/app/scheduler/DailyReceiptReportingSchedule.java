@@ -1,12 +1,12 @@
 package de.fhdw.vendix.store.app.scheduler;
 
-import de.fhdw.vendix.commons.api.domain.article.ArticleDTO;
-import de.fhdw.vendix.commons.api.domain.receipt.ReceiptDTO;
 import de.fhdw.vendix.commons.spring.security.context.store.StoreContext;
-import de.fhdw.vendix.store.core.domain.receipt.service.ReceiptService;
-import de.fhdw.vendix.commons.api.domain.receipt_line.ReceiptLineDTO;
-import de.fhdw.vendix.commons.api.domain.store_stock.StoreStockDTO;
-import de.fhdw.vendix.store.core.domain.store_stock.service.StoreStockService;
+import de.fhdw.vendix.store.core.domain.article.Article;
+import de.fhdw.vendix.store.core.domain.receipt.Receipt;
+import de.fhdw.vendix.store.core.domain.receipt.ReceiptService;
+import de.fhdw.vendix.store.core.domain.receipt_line.ReceiptLine;
+import de.fhdw.vendix.store.core.domain.store_stock.StoreStock;
+import de.fhdw.vendix.store.core.domain.store_stock.StoreStockService;
 import io.github.plaguv.amqp.api.envelope.EventEnvelope;
 import io.github.plaguv.amqp.api.envelope.EventEnvelopeBuilder;
 import io.github.plaguv.amqp.api.event.pos.ArticleOrderEvent;
@@ -27,20 +27,19 @@ public class DailyReceiptReportingSchedule {
 
     private final EventPublisher eventPublisher;
     private final StoreContext storeContext;
-
-    private final ReceiptService receiptQueryPort;
-    private final StoreStockService storeStockQueryPort;
+    private final ReceiptService receiptService;
+    private final StoreStockService storeStockService;
 
     public DailyReceiptReportingSchedule(
             EventPublisher eventPublisher,
             StoreContext storeContext,
-            ReceiptService receiptPort,
-            StoreStockService storeStockPort
+            ReceiptService receiptService,
+            StoreStockService storeStockService
     ) {
         this.eventPublisher = eventPublisher;
         this.storeContext = storeContext;
-        this.receiptQueryPort = receiptPort;
-        this.storeStockQueryPort = storeStockPort;
+        this.receiptService = receiptService;
+        this.storeStockService = storeStockService;
     }
 
 
@@ -49,42 +48,42 @@ public class DailyReceiptReportingSchedule {
         log.atInfo().log("[SCHEDULED] Sending daily receipt report...");
 
         if (storeContext.getStore() == null || storeContext.getStore().id() == null) {
-            throw new IllegalStateException("Cannot sent daily report, as store context isn't set properly");
+            throw new IllegalStateException("Cannot sent daily report, as store authContext isn't set properly");
         }
 
         Long storeId;
 
         storeId = storeContext.getStore().id();
 
-        Set<ReceiptDTO> receipts = receiptQueryPort.findAllByStoreIdAndCreatedAtToday(storeId);
-        Set<ArticleDTO> articles = new HashSet<>();
+        Set<Receipt> receipts = receiptService.findAllByStoreIdAndCreatedAtToday(storeId);
+        Set<Article> articles = new HashSet<>();
 
         // Get all articles of the day and record their count.
         // This can probably also be a GROUP-BY in SQL, but native SQL is to generally be avoided
-        for (ReceiptDTO receipt : receipts) {
-            receiptQueryPort.findAllReceiptLinesByReceiptId(Objects.requireNonNull(receipt.id())).stream()
-                    .map(ReceiptLineDTO::article)
+        for (Receipt receipt : receipts) {
+            receiptService.findAllReceiptLinesByReceiptId(Objects.requireNonNull(receipt.getId())).stream()
+                    .map(ReceiptLine::getArticle)
                     .forEach(articles::add);
         }
 
         // Check the current amount against the stores needed amount and order accordingly
-        for (ArticleDTO article : articles) {
-            StoreStockDTO stock = storeStockQueryPort.findByStoreIDAndArticleID(storeId, Objects.requireNonNull(article.id()))
+        for (Article article : articles) {
+            StoreStock stock = storeStockService.findByStoreIDAndArticleID(storeId, Objects.requireNonNull(article.getId()))
                     .orElseThrow(EntityNotFoundException::new);
 
-            long currentAmount = stock.currentAmount();
-            long deltaAmount = Math.max(0, stock.preferenceAmount().max() - currentAmount);
+            long currentAmount = stock.getCurrentAmount();
+            long deltaAmount = Math.max(0, stock.getPreferenceAmount().getMax() - currentAmount);
 
-            if (currentAmount < stock.preferenceAmount().min()) {
-                sendUrgentArticleOrder(storeId, article.id(), deltaAmount);
-            } else if (currentAmount > stock.preferenceAmount().avg()) {
+            if (currentAmount < stock.getPreferenceAmount().getMin()) {
+                sendUrgentArticleOrder(storeId, article.getId(), deltaAmount);
+            } else if (currentAmount > stock.getPreferenceAmount().getAvg()) {
                 log.atInfo().log("Order ignored for article '{}' as current stock '{}' is higher than specified avg '{}'",
                         article,
                         currentAmount,
-                        stock.preferenceAmount().avg()
+                        stock.getPreferenceAmount().getAvg()
                         );
             } else {
-                sendNormalArticleOrder(storeId, article.id(), deltaAmount);
+                sendNormalArticleOrder(storeId, article.getId(), deltaAmount);
             }
         }
 

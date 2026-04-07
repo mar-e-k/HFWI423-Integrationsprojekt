@@ -27,11 +27,6 @@
 
         <dependency>
             <groupId>de.fhdw.vendix</groupId>
-            <artifactId>commons-spring-core</artifactId>
-
-        </dependency>
-        <dependency>
-            <groupId>de.fhdw.vendix</groupId>
             <artifactId>commons-spring-security</artifactId>
         </dependency>
 
@@ -47,17 +42,17 @@
 
         <dependency>
             <groupId>de.fhdw.vendix</groupId>
-            <artifactId>commons-ui-vaadin</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>com.vaadin</groupId>
-            <artifactId>vaadin-dev</artifactId>
+            <artifactId>commons-spring-vaadin</artifactId>
         </dependency>
 
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-actuator</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>com.github.loki4j</groupId>
+            <artifactId>loki-logback-appender</artifactId>
         </dependency>
 
         <dependency>

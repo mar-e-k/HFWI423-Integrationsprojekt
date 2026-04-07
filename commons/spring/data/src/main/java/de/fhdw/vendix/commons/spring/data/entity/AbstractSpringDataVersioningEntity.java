@@ -14,4 +14,8 @@ public abstract class AbstractSpringDataVersioningEntity<ID> extends AbstractSpr
     protected AbstractSpringDataVersioningEntity(ID id) {
         super(id);
     }
+
+    public Long getVersion() {
+        return version;
+    }
 }

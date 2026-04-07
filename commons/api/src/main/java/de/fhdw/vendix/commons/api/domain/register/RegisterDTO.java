@@ -7,7 +7,7 @@ import org.jspecify.annotations.Nullable;
 public record RegisterDTO(
         @Nullable Long id,
         StoreDTO store
-) implements DomainDTO<Long> {
+) implements DomainDTO {
     public RegisterDTO {
         if (id != null && id < 0) {
             throw new IllegalArgumentException("RegisterLineDTO parameter 'id' cannot be negative");
@@ -15,10 +15,5 @@ public record RegisterDTO(
         if (store == null) {
             throw new IllegalArgumentException("RegisterLineDTO parameter 'store' cannot be null");
         }
-    }
-
-    @Override
-    public @Nullable Long getIdentifiable() {
-        return id;
     }
 }

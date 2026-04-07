@@ -2,12 +2,12 @@ package de.fhdw.vendix.store.core.domain.article;
 
 import de.fhdw.vendix.commons.api.domain.article.ArticleDTO;
 import de.fhdw.vendix.commons.api.structure.mapper.EntityMapper;
-import de.fhdw.vendix.commons.spring.core.mapper.config.SpringMapperConfig;
+import de.fhdw.vendix.commons.spring.data.mapper.SpringMapperConfig;
 import org.mapstruct.InheritInverseConfiguration;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
-import java.util.List;
+import java.util.Set;
 
 @Mapper(config = SpringMapperConfig.class)
 public interface ArticleMapper extends EntityMapper<Article, ArticleDTO> {
@@ -25,8 +25,8 @@ public interface ArticleMapper extends EntityMapper<Article, ArticleDTO> {
     Article toEntity(ArticleDTO articleDTO);
 
     @Override
-    List<ArticleDTO> toDTOs(Iterable<Article> entities);
+    Set<ArticleDTO> toDTOs(Iterable<Article> entities);
 
     @Override
-    List<Article> toEntities(Iterable<ArticleDTO> articleDTOS);
+    Set<Article> toEntities(Iterable<ArticleDTO> articleDTOS);
 }

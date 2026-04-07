@@ -18,8 +18,8 @@ interface AccountRepository extends JpaRepository<Account, Long> {
             """
             SELECT a.role
             FROM AccountRoleAssignment a
-            WHERE a.account.id = :accountId
+            WHERE a.account.uuid = :accountUUID
             """
     )
-    Set<AccountRole> findAllRoles(@Param("accountId") long accountId);
+    Set<AccountRole> findAllRoles(@Param("accountUUID") UUID uuid);
 }

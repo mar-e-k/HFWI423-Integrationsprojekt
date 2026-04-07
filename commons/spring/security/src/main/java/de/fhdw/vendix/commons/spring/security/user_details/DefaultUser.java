@@ -11,21 +11,31 @@ import java.util.Collection;
 import java.util.stream.Collectors;
 
 public record DefaultUser(
-        AuthContext ctx,
+        AuthContext authContext,
         boolean isAccountNonExpired,
         boolean isAccountNonLocked,
         boolean isCredentialsNonExpired,
         boolean isEnabled
 ) implements UserDetails {
     public DefaultUser {
-        if (ctx == null) {
-            throw new IllegalArgumentException("DefaultUser parameter 'ctx' cannot be null");
+        if (authContext == null) {
+            throw new IllegalArgumentException("DefaultUser parameter 'authContext' cannot be null");
         }
+    }
+
+    public DefaultUser(AuthContext authContext) {
+        this(
+                authContext,
+                true,
+                true,
+                true,
+                true
+        );
     }
 
     @Override
     public @NonNull Collection<? extends GrantedAuthority> getAuthorities() {
-        return ctx.roles().stream()
+        return authContext.roles().stream()
                 .map(Enum::name)
                 .map(role -> "ROLE_" + role)
                 .map(SimpleGrantedAuthority::new)
@@ -34,12 +44,12 @@ public record DefaultUser(
 
     @Override
     public @Nullable String getPassword() {
-        return ctx.account().password();
+        return authContext.account().password();
     }
 
     @Override
     public @NonNull String getUsername() {
-        return ctx.account().username();
+        return authContext.account().username();
     }
 
     @Override

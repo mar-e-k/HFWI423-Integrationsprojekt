@@ -15,7 +15,7 @@ public record AccountDTO(
         String lastName,
         @Nullable String phone,
         @Nullable String email
-) implements DomainDTO<Long> {
+) implements DomainDTO {
     public AccountDTO {
         if (id != null && id < 0) {
             throw new IllegalArgumentException("AccountDTO parameter 'id' cannot be negative");
@@ -35,10 +35,5 @@ public record AccountDTO(
         if (lastName == null) {
             throw new IllegalArgumentException("AccountDTO parameter 'lastName' cannot be null");
         }
-    }
-
-    @Override
-    public @Nullable Long getIdentifiable() {
-        return id;
     }
 }

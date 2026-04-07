@@ -1,7 +1,7 @@
 package de.fhdw.vendix.store.core.domain.article;
 
-import de.fhdw.vendix.commons.api.structure.entity.Identifiable;
 import de.fhdw.vendix.commons.api.structure.mapper.Default;
+import de.fhdw.vendix.commons.spring.data.entity.AbstractSpringDataEntity;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
@@ -15,12 +15,7 @@ import org.jspecify.annotations.Nullable;
 @Entity
 @Table
 @Immutable
-public class Article implements Identifiable<Long> {
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id", nullable = false)
-    private Long id;
+public class Article extends AbstractSpringDataEntity<Long> {
 
     @Size(max = 18)
     @NotNull
@@ -124,7 +119,7 @@ public class Article implements Identifiable<Long> {
             Boolean isAvailable,
             boolean hasDeposit
     ) {
-        this.id = id;
+        super(id);
         this.articleNumber = articleNumber;
         this.description = description;
         this.manufacturer = manufacturer;
@@ -137,10 +132,6 @@ public class Article implements Identifiable<Long> {
         this.unit = unit;
         this.isAvailable = isAvailable;
         this.hasDeposit = hasDeposit;
-    }
-
-    public Long getId() {
-        return id;
     }
 
     public String getArticleNumber() {
@@ -190,10 +181,4 @@ public class Article implements Identifiable<Long> {
     public boolean isHasDeposit() {
         return hasDeposit;
     }
-
-    @Override
-    public @Nullable Long getIdentifiable() {
-        return id;
-    }
-
 }

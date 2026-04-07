@@ -20,7 +20,7 @@ public record ArticleDTO(
         long stock,
         boolean isAvailable,
         boolean isDeposit
-) implements DomainDTO<Long> {
+) implements DomainDTO {
     public ArticleDTO {
         if (id != null && id < 0) {
             throw new IllegalArgumentException("ArticleDTO parameter 'id' cannot be negative");
@@ -67,10 +67,5 @@ public record ArticleDTO(
         if (stock < 0) {
             throw new IllegalArgumentException("ArticleDTO parameter 'stock' cannot be negative");
         }
-    }
-
-    @Override
-    public @Nullable Long getIdentifiable() {
-        return id;
     }
 }

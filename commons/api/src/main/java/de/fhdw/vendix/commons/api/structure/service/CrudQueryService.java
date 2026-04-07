@@ -1,11 +1,9 @@
 package de.fhdw.vendix.commons.api.structure.service;
 
-import de.fhdw.vendix.commons.api.structure.entity.Identifiable;
-
-import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
-public interface CrudQueryService<T extends Identifiable<ID>, ID> extends QueryService {
+public interface CrudQueryService<T, ID> extends QueryService {
 
     boolean exists(T entity);
 
@@ -15,15 +13,19 @@ public interface CrudQueryService<T extends Identifiable<ID>, ID> extends QueryS
 
     boolean existsAllById(Iterable<ID> ids);
 
+    boolean existsAllByIdNotIn(Iterable<ID> ids);
+
     Optional<T> find(T entity);
 
     Optional<T> findById(ID id);
 
-    List<T> findAll();
+    Set<T> findAll();
 
-    List<T> findAll(Iterable<T> entities);
+    Set<T> findAll(Iterable<T> entities);
 
-    List<T> findAllById(Iterable<ID> ids);
+    Set<T> findAllById(Iterable<ID> ids);
+
+    Set<T> findAllByIdNotIn(Iterable<ID> ids);
 
     long count();
 }

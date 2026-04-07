@@ -2,10 +2,10 @@ package de.fhdw.vendix.orchestrator.core.embeddable.instance_details;
 
 import de.fhdw.vendix.commons.api.embeddable.InstanceDetailsDTO;
 import de.fhdw.vendix.commons.api.structure.mapper.EntityMapper;
-import de.fhdw.vendix.commons.spring.core.mapper.config.SpringMapperConfig;
+import de.fhdw.vendix.commons.spring.data.mapper.SpringMapperConfig;
 import org.mapstruct.Mapper;
 
-import java.util.List;
+import java.util.Set;
 
 @Mapper(config = SpringMapperConfig.class)
 public interface InstanceDetailsMapper extends EntityMapper<InstanceDetails, InstanceDetailsDTO> {
@@ -17,8 +17,8 @@ public interface InstanceDetailsMapper extends EntityMapper<InstanceDetails, Ins
     InstanceDetails toEntity(InstanceDetailsDTO dto);
 
     @Override
-    List<InstanceDetailsDTO> toDTOs(Iterable<InstanceDetails> entities);
+    Set<InstanceDetailsDTO> toDTOs(Iterable<InstanceDetails> entities);
 
     @Override
-    List<InstanceDetails> toEntities(Iterable<InstanceDetailsDTO> instanceDetailsDTOS);
+    Set<InstanceDetails> toEntities(Iterable<InstanceDetailsDTO> instanceDetailsDTOS);
 }

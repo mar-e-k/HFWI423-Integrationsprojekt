@@ -21,8 +21,8 @@
         </dependency>
 
         <dependency>
-            <groupId>de.fhdw.vendix</groupId>
-            <artifactId>commons-spring-core</artifactId>
+            <groupId>org.mapstruct</groupId>
+            <artifactId>mapstruct</artifactId>
         </dependency>
 
         <dependency>

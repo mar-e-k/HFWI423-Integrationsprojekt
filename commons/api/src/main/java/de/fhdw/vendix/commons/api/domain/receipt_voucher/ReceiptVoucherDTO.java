@@ -13,7 +13,7 @@ public record ReceiptVoucherDTO(
         UUID code,
         @Nullable Instant expiresAt,
         @Nullable Instant redeemedAt
-) implements DomainDTO<Long> {
+) implements DomainDTO {
     public ReceiptVoucherDTO {
         if (id != null && id < 0) {
             throw new IllegalArgumentException("ReceiptVoucherDTO parameter 'id' cannot be negative");
@@ -24,10 +24,5 @@ public record ReceiptVoucherDTO(
         if (code == null) {
             throw new IllegalArgumentException("ReceiptVoucherDTO parameter 'code' cannot be null");
         }
-    }
-
-    @Override
-    public @Nullable Long getIdentifiable() {
-        return id;
     }
 }

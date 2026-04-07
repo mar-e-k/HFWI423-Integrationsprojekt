@@ -36,7 +36,7 @@ public class OrchestratorClientAutoConfiguration {
 
     @Bean
     @ConditionalOnMissingBean
-    public LockProxyService LockProxyService(HttpServiceProxyFactory orchestratorClientFactory) {
+    public LockProxyService lockProxyService(HttpServiceProxyFactory orchestratorClientFactory) {
         return orchestratorClientFactory.createClient(LockProxyService.class);
     }
 

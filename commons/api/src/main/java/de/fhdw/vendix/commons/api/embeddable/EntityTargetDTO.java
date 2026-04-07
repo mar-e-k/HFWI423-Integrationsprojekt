@@ -3,12 +3,12 @@ package de.fhdw.vendix.commons.api.embeddable;
 import de.fhdw.vendix.commons.api.structure.dto.EmbeddableDTO;
 
 public record EntityTargetDTO(
-        long id,
+        Long id,
         TargetType type
 ) implements EmbeddableDTO {
     public EntityTargetDTO {
-        if (id < 0) {
-            throw new IllegalArgumentException("EntityTargetDTO parameter 'id' cannot be negative");
+        if (id == null || id < 0) {
+            throw new IllegalArgumentException("EntityTargetDTO parameter 'id' cannot be null or negative");
         }
         if (type == null) {
             throw new IllegalArgumentException("EmbeddableDTO parameter 'type' cannot be null");

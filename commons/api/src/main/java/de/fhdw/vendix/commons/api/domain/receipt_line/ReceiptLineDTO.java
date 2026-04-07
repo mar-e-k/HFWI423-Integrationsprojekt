@@ -14,7 +14,7 @@ public record ReceiptLineDTO(
         long amount,
         @Nullable PriceOverrideDTO priceOverride,
         @Nullable DiscountOverrideDTO discountOverride
-) implements DomainDTO<Long> {
+) implements DomainDTO {
     public ReceiptLineDTO {
         if (id != null && id < 0) {
             throw new IllegalArgumentException("ReceiptLineDTO parameter 'id' cannot be negative");
@@ -28,10 +28,5 @@ public record ReceiptLineDTO(
         if (amount < 1) {
             throw new IllegalArgumentException("ReceiptLineDTO parameter 'amount' must be greater than or equal to 1");
         }
-    }
-
-    @Override
-    public @Nullable Long getIdentifiable() {
-        return id;
     }
 }

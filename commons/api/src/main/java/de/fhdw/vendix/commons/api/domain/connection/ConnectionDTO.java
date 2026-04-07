@@ -13,10 +13,10 @@ public record ConnectionDTO(
         InstanceDetailsDTO instance,
         Instant acquiredAt,
         Instant heartbeatAt
-) implements DomainDTO<Long> {
+) implements DomainDTO {
     public ConnectionDTO {
         if (id != null && id < 0) {
-            throw new IllegalArgumentException("ConnectionDTO parameter 'id' cannot be negative");
+            throw new IllegalArgumentException("ConnectionDTO parameter 'id' cannot be null or negative");
         }
         if (target == null) {
             throw new IllegalArgumentException("ConnectionDTO parameter 'target' cannot be null");
@@ -33,10 +33,5 @@ public record ConnectionDTO(
         if (heartbeatAt.isBefore(acquiredAt)) {
             throw new IllegalArgumentException("ConnectionDTO parameter 'heartbeatAt' cannot be before parameter 'acquiredAt'");
         }
-    }
-
-    @Override
-    public @Nullable Long getIdentifiable() {
-        return id;
     }
 }

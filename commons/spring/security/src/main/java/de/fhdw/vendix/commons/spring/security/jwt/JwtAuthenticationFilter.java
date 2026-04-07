@@ -3,7 +3,7 @@ package de.fhdw.vendix.commons.spring.security.jwt;
 import com.nimbusds.jwt.JWTClaimsSet;
 import de.fhdw.vendix.commons.api.domain.account.AccountDTO;
 import de.fhdw.vendix.commons.api.domain.account_role.Role;
-import de.fhdw.vendix.commons.spring.security.authentication.AuthenticationService;
+import de.fhdw.vendix.commons.spring.web.client.orchestrator.api.AccountProxyService;
 import jakarta.annotation.Nonnull;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -30,14 +30,14 @@ public final class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private final JwtService jwtService;
     private final JwtValidator jwtValidator;
-    private final AuthenticationService authenticationPort;
+    private final AccountProxyService accountProxyService;
 
     private final Map<UUID, AccountDTO> cachedAccounts = new ConcurrentHashMap<>();
 
-    public JwtAuthenticationFilter(JwtService jwtService, JwtValidator jwtValidator, AuthenticationService authenticationPort) {
+    public JwtAuthenticationFilter(JwtService jwtService, JwtValidator jwtValidator, AccountProxyService accountProxyService) {
         this.jwtService = jwtService;
         this.jwtValidator = jwtValidator;
-        this.authenticationPort = authenticationPort;
+        this.accountProxyService = accountProxyService;
     }
 
     @Override
@@ -83,7 +83,7 @@ public final class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         if (roles.contains(Role.SYSTEM)) {
             return new UsernamePasswordAuthenticationToken(
-                    subject,
+                    "system-" + subject,
                     null,
                     authorities
             );
@@ -91,12 +91,12 @@ public final class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         AccountDTO account = cachedAccounts.computeIfAbsent(
                 subject,
-                uuid -> authenticationPort.findByUUID(uuid)
+                uuid -> Optional.ofNullable(accountProxyService.getAccountByUUID(uuid).getBody())
                         .orElseThrow(() -> new BadCredentialsException("Account not found"))
         );
 
         return new UsernamePasswordAuthenticationToken(
-                account.username(),
+                account.username() + "-" + subject,
                 null,
                 authorities
         );

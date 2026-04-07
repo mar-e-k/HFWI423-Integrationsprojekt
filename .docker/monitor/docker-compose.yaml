@@ -1,25 +1,43 @@
 services:
+
   grafana:
     image: grafana/grafana:main
     ports:
       - "3000:3000"
+    volumes:
+      - grafana-storage:/var/lib/grafana
+      - ./grafana/provisioning:/etc/grafana/provisioning
+    depends_on:
+      - loki
+      - prometheus
     networks:
       - monitor-net
 
   loki:
-    image: grafana/loki
-    networks:
-      - monitor-net
-
-  promtail:
-    image: grafana/promtail
+    image: grafana/loki:latest
+    command: -config.file=/etc/loki/loki.yaml
+    volumes:
+      - ./loki.yaml:/etc/loki/loki.yaml
+    ports:
+      - "3100:3100"
     networks:
       - monitor-net
 
   prometheus:
     image: prom/prometheus:main
+    command:
+      - --config.file=/etc/prometheus/prometheus.yaml
+    volumes:
+      - ./prometheus.yaml:/etc/prometheus/prometheus.yaml
+    ports:
+      - "9090:9090"
     networks:
       - monitor-net
+    extra_hosts:
+      - "host:host-gateway"
+
+volumes:
+  grafana-storage:
 
 networks:
   monitor-net:

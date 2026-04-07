@@ -14,6 +14,23 @@
     <name>orchestrator-ui</name>
     <description>orchestrator-ui</description>
 
+    <dependencies>
+        <dependency>
+            <groupId>de.fhdw.vendix</groupId>
+            <artifactId>commons-spring-vaadin</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>de.fhdw.vendix</groupId>
+            <artifactId>orchestrator-core</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>io.github.plaguv</groupId>
+            <artifactId>plaguv-amqp-spring-boot-starter</artifactId>
+        </dependency>
+    </dependencies>
+
     <build>
         <plugins>
             <plugin>

@@ -1,0 +1,47 @@
+package de.fhdw.vendix.pos.ui;
+
+import com.vaadin.flow.component.Component;
+import com.vaadin.flow.component.icon.VaadinIcon;
+import com.vaadin.flow.component.sidenav.SideNav;
+import com.vaadin.flow.component.sidenav.SideNavItem;
+import com.vaadin.flow.router.Layout;
+import com.vaadin.flow.spring.annotation.VaadinSessionScope;
+import com.vaadin.flow.spring.security.AuthenticationContext;
+import de.fhdw.vendix.commons.api.domain.account_role.Role;
+import de.fhdw.vendix.commons.spring.vaadin.view.AbstractApplicationLayout;
+import de.fhdw.vendix.pos.ui.home.ConnectionsView;
+import de.fhdw.vendix.pos.ui.home.DebugView;
+import de.fhdw.vendix.pos.ui.home.PosContextView;
+import de.fhdw.vendix.pos.ui.home.RootView;
+import jakarta.annotation.security.RolesAllowed;
+
+@RolesAllowed({Role.ROLE_CASHIER})
+@Layout
+@VaadinSessionScope
+public class PosAppLayout extends AbstractApplicationLayout {
+
+    public PosAppLayout(AuthenticationContext authenticationContext) {
+        super(authenticationContext);
+    }
+
+    @Override
+    protected Component[] draweritems() {
+        SideNav applicationHeader = new SideNav("Application");
+        applicationHeader.addItem(
+                new SideNavItem("Home", RootView.class, VaadinIcon.HOME.create()),
+                new SideNavItem("Connection", ConnectionsView.class, VaadinIcon.CONNECT.create()),
+                new SideNavItem("Context", PosContextView.class, VaadinIcon.FLASH.create()),
+                new SideNavItem("Debug", DebugView.class, VaadinIcon.COGS.create())
+        );
+
+
+        return new Component[]{
+                applicationHeader
+        };
+    }
+
+    @Override
+    protected String applicationTitle() {
+        return "POS";
+    }
+}

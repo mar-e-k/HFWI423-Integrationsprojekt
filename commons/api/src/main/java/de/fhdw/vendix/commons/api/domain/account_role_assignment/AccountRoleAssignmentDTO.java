@@ -9,7 +9,7 @@ public record AccountRoleAssignmentDTO(
     @Nullable Long id,
     AccountDTO account,
     AccountRoleDTO role
-) implements DomainDTO<Long> {
+) implements DomainDTO {
     public AccountRoleAssignmentDTO {
         if (id != null && id < 0) {
             throw new IllegalArgumentException("AccountRoleAssignmentDTO parameter 'id' cannot be negative");
@@ -20,10 +20,5 @@ public record AccountRoleAssignmentDTO(
         if (role == null) {
             throw new IllegalArgumentException("AccountRoleAssignmentDTO parameter 'role' cannot be null");
         }
-    }
-
-    @Override
-    public @Nullable Long getIdentifiable() {
-        return id;
     }
 }

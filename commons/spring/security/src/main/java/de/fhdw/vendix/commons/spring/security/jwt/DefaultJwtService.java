@@ -3,10 +3,8 @@ package de.fhdw.vendix.commons.spring.security.jwt;
 import com.nimbusds.jose.*;
 import com.nimbusds.jose.crypto.MACSigner;
 import com.nimbusds.jose.crypto.MACVerifier;
-import com.nimbusds.jose.proc.BadJOSEException;
 import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.SignedJWT;
-import com.nimbusds.jwt.proc.ExpiredJWTException;
 import de.fhdw.vendix.commons.api.domain.account_role.Role;
 import de.fhdw.vendix.commons.spring.security.context.app.AppContext;
 import de.fhdw.vendix.commons.spring.security.context.register.RegisterContext;
@@ -18,7 +16,6 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import java.nio.charset.StandardCharsets;
 import java.text.ParseException;
 import java.time.Duration;
-import java.time.Instant;
 import java.util.Date;
 import java.util.List;
 import java.util.Set;
@@ -46,6 +43,7 @@ public final class DefaultJwtService implements JwtService {
         this.expiration = jwtProperties.expiration();
     }
 
+    // TODO: Cache this to make it less expensive
     @Override
     public String generateToken() {
         try {
@@ -59,8 +57,8 @@ public final class DefaultJwtService implements JwtService {
             Set<Role> roles;
 
             if (SecurityContextHolder.getContext().getAuthentication() != null && SecurityContextHolder.getContext().getAuthentication().getPrincipal() instanceof DefaultUser defaultUser) {
-                subject = defaultUser.ctx().account().uuid().toString();
-                roles = defaultUser.ctx().roles();
+                subject = defaultUser.authContext().account().uuid().toString();
+                roles = defaultUser.authContext().roles();
             } else {
                 subject = appContext.getInstanceUUID().toString();
                 roles = Set.of(Role.SYSTEM);

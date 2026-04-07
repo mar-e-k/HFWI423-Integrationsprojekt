@@ -1,6 +1,5 @@
 package de.fhdw.vendix.commons.api.domain.receipt;
 
-import de.fhdw.vendix.commons.api.domain.account.AccountDTO;
 import de.fhdw.vendix.commons.api.domain.receipt_line.ReceiptLineDTO;
 import de.fhdw.vendix.commons.api.domain.receipt_voucher.ReceiptVoucherDTO;
 import de.fhdw.vendix.commons.api.domain.register.RegisterDTO;
@@ -12,7 +11,7 @@ import java.util.List;
 public record ReceiptRequestDTO(
         StoreDTO store,
         RegisterDTO register,
-        AccountDTO account,
+        Long accountId,
         List<ReceiptLineDTO> lines,
         List<ReceiptVoucherDTO> vouchers
 ) implements RequestDTO {
@@ -23,8 +22,8 @@ public record ReceiptRequestDTO(
         if (register == null) {
             throw new IllegalArgumentException("ReceiptRequestDTO parameter 'register' must not be null");
         }
-        if (account == null) {
-            throw new IllegalArgumentException("ReceiptRequestDTO parameter 'cashier' must not be null");
+        if (accountId == null || accountId < 0) {
+            throw new IllegalArgumentException("ReceiptRequestDTO parameter 'cashier' cannot be null or negative");
         }
         if (lines == null) {
             throw new IllegalArgumentException("ReceiptRequestDTO parameter 'lines' cannot be null");

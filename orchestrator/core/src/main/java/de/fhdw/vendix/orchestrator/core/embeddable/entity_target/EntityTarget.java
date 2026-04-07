@@ -14,7 +14,7 @@ public class EntityTarget {
 
     @Column(nullable = false, updatable = false, name = "target_id")
     @Min(0)
-    private long id;
+    private Long id;
 
     @Column(nullable = false, updatable = false, name = "target_type")
     @Enumerated(EnumType.STRING)
@@ -24,12 +24,12 @@ public class EntityTarget {
     public EntityTarget() {}
 
     @Default
-    public EntityTarget(long id, TargetType type) {
+    public EntityTarget(Long id, TargetType type) {
         this.id = id;
         this.type = type;
     }
 
-    public long getId() {
+    public Long getId() {
         return id;
     }
 

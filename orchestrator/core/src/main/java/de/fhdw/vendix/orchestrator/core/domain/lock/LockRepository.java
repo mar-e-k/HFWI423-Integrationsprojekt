@@ -11,8 +11,6 @@ import java.util.UUID;
 
 interface LockRepository extends JpaRepository<Lock, Long> {
 
-    boolean existsByTarget(EntityTarget target);
-
     Optional<Lock> findByTarget(EntityTarget target);
 
     Set<Lock> findAllByInstanceUUID(UUID instanceUUID);
@@ -27,7 +25,7 @@ interface LockRepository extends JpaRepository<Lock, Long> {
     )
     void deleteAllExpiredLocks();
 
-    void deleteAllByInstanceUUID(UUID instanceUUID);
+    void deleteByTarget(EntityTarget target);
 
-    void deleteAllByTarget(EntityTarget target);
+    void deleteAllByInstanceUUID(UUID instanceUUID);
 }

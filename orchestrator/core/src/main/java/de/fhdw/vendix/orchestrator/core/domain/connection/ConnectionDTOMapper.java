@@ -1,0 +1,26 @@
+package de.fhdw.vendix.orchestrator.core.domain.connection;
+
+import de.fhdw.vendix.commons.api.domain.connection.ConnectionDTO;
+import de.fhdw.vendix.commons.api.domain.connection.ConnectionRequestDTO;
+import de.fhdw.vendix.commons.api.domain.connection.ConnectionResponseDTO;
+import de.fhdw.vendix.commons.api.structure.mapper.DTOMapper;
+import de.fhdw.vendix.commons.spring.data.mapper.SpringMapperConfig;
+import org.mapstruct.Mapper;
+
+import java.util.Set;
+
+@Mapper(config = SpringMapperConfig.class)
+public interface ConnectionDTOMapper extends DTOMapper<ConnectionDTO, ConnectionRequestDTO, ConnectionResponseDTO> {
+
+    @Override
+    ConnectionDTO toDomainDTO(ConnectionRequestDTO requestDTO);
+
+    @Override
+    ConnectionResponseDTO toResponseDTO(ConnectionDTO domainDTO);
+
+    @Override
+    Set<ConnectionDTO> toDomainDTOs(Iterable<ConnectionRequestDTO> requestDTOs);
+
+    @Override
+    Set<ConnectionResponseDTO> toResponseDTOs(Iterable<ConnectionDTO> domainDTOs);
+}

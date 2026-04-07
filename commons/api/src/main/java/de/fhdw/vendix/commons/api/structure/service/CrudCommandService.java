@@ -1,17 +1,15 @@
 package de.fhdw.vendix.commons.api.structure.service;
 
-import de.fhdw.vendix.commons.api.structure.entity.Identifiable;
+import java.util.Set;
 
-import java.util.List;
-
-public interface CrudCommandService<T extends Identifiable<ID>, ID> extends CommandService {
+public interface CrudCommandService<T, ID> extends CommandService {
     T create(T entity);
 
-    List<T> createAll(Iterable<T> entities);
+    Set<T> createAll(Iterable<T> entities);
 
     T update(T entity);
 
-    List<T> updateAll(Iterable<T> entities);
+    Set<T> updateAll(Iterable<T> entities);
 
     void delete(T entity);
 

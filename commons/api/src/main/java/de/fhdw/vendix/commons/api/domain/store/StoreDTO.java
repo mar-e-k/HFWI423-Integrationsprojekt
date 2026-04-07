@@ -10,7 +10,7 @@ public record StoreDTO(
         String city,
         String street,
         String streetNumber // this might need more validation with a regex
-) implements DomainDTO<Long> {
+) implements DomainDTO {
     public StoreDTO {
         if (id != null && id < 0) {
             throw new IllegalArgumentException("StoreDTO parameter 'id' cannot be negative");
@@ -27,10 +27,5 @@ public record StoreDTO(
         if (streetNumber == null || streetNumber.isBlank()) {
             throw new IllegalArgumentException("StoreDTO parameter 'streetNumber' must not be null or blank and contain a number");
         }
-    }
-
-    @Override
-    public @Nullable Long getIdentifiable() {
-        return id;
     }
 }

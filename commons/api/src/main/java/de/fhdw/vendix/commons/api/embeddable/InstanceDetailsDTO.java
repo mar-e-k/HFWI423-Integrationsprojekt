@@ -8,7 +8,7 @@ public record InstanceDetailsDTO(
         UUID uuid,
         String host,
         String server,
-        int port
+        Integer port
 ) implements EmbeddableDTO {
     public InstanceDetailsDTO {
         if (uuid == null) {
@@ -20,15 +20,8 @@ public record InstanceDetailsDTO(
         if (server == null || server.isBlank()) {
             throw new IllegalArgumentException("InstanceDetailsDTO parameter 'server' cannot be null or blank");
         }
-        if (port < 0) {
-            throw new IllegalArgumentException("InstanceDetailsDTO parameter 'port' cannot be negative");
+        if (port == null || port < 0) {
+            throw new IllegalArgumentException("InstanceDetailsDTO parameter 'port' cannot be null or negative");
         }
-    }
-
-    public String generateInstanceURL() {
-        return "http://%s:%d/".formatted(
-                server,
-                port
-        );
     }
 }

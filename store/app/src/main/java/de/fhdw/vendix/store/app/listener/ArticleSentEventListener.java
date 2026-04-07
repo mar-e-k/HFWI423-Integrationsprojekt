@@ -1,7 +1,7 @@
 package de.fhdw.vendix.store.app.listener;
 
 import de.fhdw.vendix.commons.spring.security.context.store.StoreContext;
-import de.fhdw.vendix.store.core.domain.store_stock.service.StoreStockService;
+import de.fhdw.vendix.store.core.domain.store_stock.StoreStockService;
 import io.github.plaguv.amqp.api.event.logistic.ArticleSentEvent;
 import io.github.plaguv.amqp.core.listener.AmqpEventListener;
 import io.github.plaguv.amqp.core.listener.MessageRejectedException;

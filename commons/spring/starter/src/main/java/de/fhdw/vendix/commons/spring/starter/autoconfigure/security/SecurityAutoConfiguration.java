@@ -1,13 +1,8 @@
 package de.fhdw.vendix.commons.spring.starter.autoconfigure.security;
 
-import de.fhdw.vendix.commons.spring.security.authentication.AuthenticationService;
-import de.fhdw.vendix.commons.spring.security.authorization.AuthorizationService;
-import de.fhdw.vendix.commons.spring.security.context.app.AppContext;
-import de.fhdw.vendix.commons.spring.security.listener.ApplicationEventListener;
-import de.fhdw.vendix.commons.spring.security.listener.AuthenticationEventListener;
-import de.fhdw.vendix.commons.spring.security.listener.AuthenticationLifecycleHandler;
-import de.fhdw.vendix.commons.spring.security.listener.DefaultAuthenticationLifecycleHandler;
 import de.fhdw.vendix.commons.spring.security.user_details.DefaultUserDetailsService;
+import de.fhdw.vendix.commons.spring.web.client.orchestrator.api.AccountProxyService;
+import de.fhdw.vendix.commons.spring.web.client.orchestrator.api.LockProxyService;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.annotation.Bean;
@@ -20,6 +15,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.util.Optional;
+import java.util.UUID;
 
 @AutoConfiguration(after = SecurityContextAutoConfiguration.class)
 public class SecurityAutoConfiguration {
@@ -32,8 +28,8 @@ public class SecurityAutoConfiguration {
 
     @Bean
     @ConditionalOnMissingBean
-    public UserDetailsService userDetailsService(AuthenticationService authenticationPort, AuthorizationService authorizationPort) {
-        return new DefaultUserDetailsService(authenticationPort, authorizationPort);
+    public UserDetailsService userDetailsService(AccountProxyService accountProxyService, LockProxyService lockProxyService) {
+        return new DefaultUserDetailsService(accountProxyService, lockProxyService);
     }
 
     @Bean
@@ -41,28 +37,16 @@ public class SecurityAutoConfiguration {
     public AuditorAware<String> auditorAware() {
         return () -> {
             Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-            if (authentication != null && authentication.getPrincipal() instanceof UserDetails userDetails) {
-                return Optional.of(userDetails.getUsername());
+            if (authentication != null) {
+                Object principal = authentication.getPrincipal();
+                if (principal instanceof String username) {  // your JWT filter sets account.username()
+                    return Optional.of(username);
+                }
+                if (principal instanceof UUID systemId) {     // for SYSTEM role
+                    return Optional.of(systemId.toString());
+                }
             }
             return Optional.of("unknown");
         };
-    }
-
-    @Bean
-    @ConditionalOnMissingBean
-    public AuthenticationLifecycleHandler authenticationLifecycleHandler(AppContext appContext, AuthorizationService authorizationPort) {
-        return new DefaultAuthenticationLifecycleHandler(appContext, authorizationPort);
-    }
-
-    @Bean
-    @ConditionalOnMissingBean
-    public AuthenticationEventListener authenticationEventListener(AuthenticationLifecycleHandler authenticationLifecycleHandler) {
-        return new AuthenticationEventListener(authenticationLifecycleHandler);
-    }
-
-    @Bean
-    @ConditionalOnMissingBean
-    public ApplicationEventListener applicationEventListener(AppContext appContext, AuthenticationLifecycleHandler authenticationLifecycleHandler) {
-        return new ApplicationEventListener(appContext, authenticationLifecycleHandler);
     }
 }

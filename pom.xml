@@ -41,6 +41,7 @@
         <nimbus.version>10.7</nimbus.version>
         <mapstruct.version>1.6.3</mapstruct.version>
         <error-handling.version>5.1.0</error-handling.version>
+        <loki-logback.version>2.0.3</loki-logback.version>
         <!-- Plugin Versions -->
         <error-prone.version>2.47.0</error-prone.version>
         <error-prone-support.version>0.28.0</error-prone-support.version>
@@ -93,6 +94,12 @@
                 <groupId>io.github.wimdeblauwe</groupId>
                 <artifactId>error-handling-spring-boot-starter</artifactId>
                 <version>${error-handling.version}</version>
+            </dependency>
+            <!-- Source: https://mvnrepository.com/artifact/com.github.loki4j/loki-logback-appender -->
+            <dependency>
+                <groupId>com.github.loki4j</groupId>
+                <artifactId>loki-logback-appender</artifactId>
+                <version>${loki-logback.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>

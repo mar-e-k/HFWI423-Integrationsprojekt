@@ -31,11 +31,6 @@
             <!-- commons-spring -->
             <dependency>
                 <groupId>de.fhdw.vendix</groupId>
-                <artifactId>commons-spring-core</artifactId>
-                <version>${commons.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>de.fhdw.vendix</groupId>
                 <artifactId>commons-spring-security</artifactId>
                 <version>${commons.version}</version>
             </dependency>
@@ -47,6 +42,11 @@
             <dependency>
                 <groupId>de.fhdw.vendix</groupId>
                 <artifactId>commons-spring-web</artifactId>
+                <version>${commons.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>de.fhdw.vendix</groupId>
+                <artifactId>commons-spring-vaadin</artifactId>
                 <version>${commons.version}</version>
             </dependency>
             <dependency>

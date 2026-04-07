@@ -2,13 +2,13 @@ package de.fhdw.vendix.store.core.domain.store_stock;
 
 import de.fhdw.vendix.commons.api.domain.store_stock.StoreStockDTO;
 import de.fhdw.vendix.commons.api.structure.mapper.EntityMapper;
-import de.fhdw.vendix.commons.spring.core.mapper.config.SpringMapperConfig;
+import de.fhdw.vendix.commons.spring.data.mapper.SpringMapperConfig;
 import de.fhdw.vendix.store.core.domain.article.ArticleMapper;
 import de.fhdw.vendix.store.core.domain.store.StoreMapper;
 import de.fhdw.vendix.store.core.embeddable.preference_amount.PreferenceAmountMapper;
 import org.mapstruct.Mapper;
 
-import java.util.List;
+import java.util.Set;
 
 @Mapper(
         config = SpringMapperConfig.class,
@@ -27,8 +27,8 @@ public interface StoreStockMapper extends EntityMapper<StoreStock, StoreStockDTO
     StoreStock toEntity(StoreStockDTO storeStockDTO);
 
     @Override
-    List<StoreStockDTO> toDTOs(Iterable<StoreStock> entities);
+    Set<StoreStockDTO> toDTOs(Iterable<StoreStock> entities);
 
     @Override
-    List<StoreStock> toEntities(Iterable<StoreStockDTO> storeStockDTOS);
+    Set<StoreStock> toEntities(Iterable<StoreStockDTO> storeStockDTOS);
 }

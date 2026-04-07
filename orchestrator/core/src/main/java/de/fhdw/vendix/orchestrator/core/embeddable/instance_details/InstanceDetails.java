@@ -25,14 +25,14 @@ public class InstanceDetails {
 
     @Column(nullable = false, updatable = false, name = "instance_port")
     @Min(0)
-    private int port;
+    private Integer port;
 
     public InstanceDetails() {
         super();
     }
 
     @Default
-    public InstanceDetails(UUID uuid, String host, String server, int port) {
+    public InstanceDetails(UUID uuid, String host, String server, Integer port) {
         this.uuid = uuid;
         this.host = host;
         this.server = server;
@@ -51,7 +51,7 @@ public class InstanceDetails {
         return server;
     }
 
-    public int getPort() {
+    public Integer getPort() {
         return port;
     }
 

@@ -80,14 +80,3 @@ components:
             app: store
             instance: store-1
             environment: local
-
-        metadata:
-          type: object
-          description: |
-            Internal metadata not used by Prometheus.
-            Safe to ignore by Prometheus consumers.
-          additionalProperties: true
-          properties:
-            serviceType:
-              type: string
-              enum: [store, register]

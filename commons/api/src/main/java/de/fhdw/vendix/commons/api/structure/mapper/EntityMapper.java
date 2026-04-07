@@ -1,14 +1,16 @@
 package de.fhdw.vendix.commons.api.structure.mapper;
 
-import java.util.List;
+import de.fhdw.vendix.commons.api.structure.dto.DTO;
 
-public interface EntityMapper<ENT, DTO extends de.fhdw.vendix.commons.api.structure.dto.DTO> extends Mapper {
+import java.util.Set;
 
-    DTO toDTO(ENT entity);
+public interface EntityMapper<E, D extends DTO> extends Mapper {
 
-    ENT toEntity(DTO dto);
+    D toDTO(E entity);
 
-    List<DTO> toDTOs(Iterable<ENT> entities);
+    E toEntity(D dto);
 
-    List<ENT> toEntities(Iterable<DTO> dtos);
+    Set<D> toDTOs(Iterable<E> entities);
+
+    Set<E> toEntities(Iterable<D> dtos);
 }
