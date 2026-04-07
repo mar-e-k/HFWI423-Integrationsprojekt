@@ -44,6 +44,7 @@ public class RestockView extends Div {
         this.restockOrderService = restockOrderService;
 
         setSizeFull();
+        addClassName("view-page");
 
         // Toolbar
         Button refreshButton = new Button("Aktualisieren", event -> {
@@ -69,25 +70,13 @@ public class RestockView extends Div {
         HorizontalLayout toolbar = new HorizontalLayout(refreshButton, exportButton, approveAllButton);
         toolbar.setWidthFull();
         toolbar.setAlignItems(FlexComponent.Alignment.CENTER);
-        toolbar.getStyle()
-            .set("padding", "16px 20px")
-            .set("border-bottom", "1px solid #e8edf5")
-            .set("background", "linear-gradient(to right, #fafbff, #f8fafc)");
+        toolbar.addClassName("view-toolbar");
 
         // Warning Banner
         Span warningIcon = new Span("⚠");
-        warningIcon.getStyle().set("margin-right", "8px");
-        Span warningText = new Span("Warnung: Fuer einige Artikel ist kein Mindestbestand eingetragen.");
+        Span warningText = new Span("Warnung: Für einige Artikel ist kein Mindestbestand eingetragen.");
         minStockWarning.add(warningIcon, warningText);
-        minStockWarning.getStyle()
-            .set("display", "flex")
-            .set("align-items", "center")
-            .set("padding", "10px 20px")
-            .set("background", "#fef3c7")
-            .set("color", "#92400e")
-            .set("font-weight", "600")
-            .set("font-size", "0.85rem")
-            .set("border-bottom", "1px solid #fde68a");
+        minStockWarning.addClassName("warning-banner");
         minStockWarning.setVisible(false);
 
         // Grid-Spalten
@@ -141,13 +130,11 @@ public class RestockView extends Div {
 
         grid.setPartNameGenerator(item -> item.getMinStock() == null ? "missing-minstock-row" : "");
         grid.addThemeVariants(GridVariant.LUMO_ROW_STRIPES, GridVariant.LUMO_NO_BORDER, GridVariant.LUMO_WRAP_CELL_CONTENT);
+        grid.addClassName("app-grid");
         grid.setSizeFull();
 
         // Empty message
-        emptyMessage.getStyle()
-            .set("color", "#64748b")
-            .set("font-style", "italic")
-            .set("padding", "24px 20px");
+        emptyMessage.addClassName("empty-state-msg");
         emptyMessage.setVisible(false);
 
         VerticalLayout content = new VerticalLayout(toolbar, minStockWarning, emptyMessage, grid);

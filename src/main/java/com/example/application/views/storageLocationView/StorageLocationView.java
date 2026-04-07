@@ -46,7 +46,7 @@ public class StorageLocationView extends Div {
         this.articleInfoService = articleInfoService;
 
         setSizeFull();
-        addClassName("storage-location-view");
+        addClassName("view-page");
 
         // Grid-Spalten
         grid.addComponentColumn(item -> {
@@ -138,6 +138,7 @@ public class StorageLocationView extends Div {
                 GridVariant.LUMO_NO_BORDER,
                 GridVariant.LUMO_WRAP_CELL_CONTENT
         );
+        grid.addClassName("app-grid");
         grid.setSizeFull();
         refreshGrid();
 
@@ -154,10 +155,7 @@ public class StorageLocationView extends Div {
         HorizontalLayout toolbar = new HorizontalLayout(addBtn, syncBtn);
         toolbar.setWidthFull();
         toolbar.setAlignItems(FlexComponent.Alignment.CENTER);
-        toolbar.getStyle()
-            .set("padding", "16px 20px")
-            .set("border-bottom", "1px solid #e8edf5")
-            .set("background", "linear-gradient(to right, #fafbff, #f8fafc)");
+        toolbar.addClassName("view-toolbar");
 
         VerticalLayout content = new VerticalLayout(toolbar, grid);
         content.setSizeFull();

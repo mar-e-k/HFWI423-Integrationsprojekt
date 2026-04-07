@@ -57,6 +57,7 @@ public class GoodsReceiptView extends Div {
         this.service = service;
         this.articleInfoRepository = articleInfoRepository;
         setSizeFull();
+        addClassName("view-page");
 
         // Toolbar
         Button add = new Button("Neuer Wareneingang", e -> openCreateDialog());
@@ -65,10 +66,7 @@ public class GoodsReceiptView extends Div {
         HorizontalLayout toolbar = new HorizontalLayout(add);
         toolbar.setWidthFull();
         toolbar.setAlignItems(FlexComponent.Alignment.CENTER);
-        toolbar.getStyle()
-            .set("padding", "16px 20px")
-            .set("border-bottom", "1px solid #e8edf5")
-            .set("background", "linear-gradient(to right, #fafbff, #f8fafc)");
+        toolbar.addClassName("view-toolbar");
 
         // Grid columns
         grid.addColumn(GoodsReceipt::getReceiptNumber)
@@ -127,6 +125,7 @@ public class GoodsReceiptView extends Div {
         }).setHeader("Aktionen").setAutoWidth(true);
 
         grid.addThemeVariants(GridVariant.LUMO_ROW_STRIPES, GridVariant.LUMO_NO_BORDER, GridVariant.LUMO_WRAP_CELL_CONTENT);
+        grid.addClassName("app-grid");
         grid.setSizeFull();
 
         VerticalLayout content = new VerticalLayout(toolbar, grid);

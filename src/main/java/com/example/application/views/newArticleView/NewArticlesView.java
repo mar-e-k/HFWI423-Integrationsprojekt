@@ -47,16 +47,14 @@ public class NewArticlesView extends Div {
         this.badgeNotifier = badgeNotifier;
 
         setSizeFull();
+        addClassName("view-page");
 
         // Toolbar
         Button refreshButton = new Button("Aktualisieren", e -> refresh());
         HorizontalLayout toolbar = new HorizontalLayout(refreshButton);
         toolbar.setWidthFull();
         toolbar.setAlignItems(FlexComponent.Alignment.CENTER);
-        toolbar.getStyle()
-            .set("padding", "16px 20px")
-            .set("border-bottom", "1px solid #e8edf5")
-            .set("background", "linear-gradient(to right, #fafbff, #f8fafc)");
+        toolbar.addClassName("view-toolbar");
 
         configureGrid();
 
@@ -166,6 +164,7 @@ public class NewArticlesView extends Div {
         }).setHeader("Anlage").setFlexGrow(2);
 
         grid.addThemeVariants(GridVariant.LUMO_ROW_STRIPES, GridVariant.LUMO_NO_BORDER, GridVariant.LUMO_WRAP_CELL_CONTENT);
+        grid.addClassName("app-grid");
         grid.setSizeFull();
     }
 

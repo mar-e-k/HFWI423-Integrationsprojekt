@@ -153,6 +153,80 @@ vaadin-grid::part(missing-minstock-row):hover {
 }
 
 /* ══════════════════════════════════════════════════════════
+   VIEW PAGE WRAPPER (alle Views)
+══════════════════════════════════════════════════════════ */
+.view-page {
+    background: linear-gradient(160deg, #f0f4ff 0%, #f1f5f9 50%, #f8fafc 100%);
+    padding: 20px;
+    box-sizing: border-box;
+    min-height: 100%;
+}
+
+/* ══════════════════════════════════════════════════════════
+   VIEW TOOLBAR
+══════════════════════════════════════════════════════════ */
+.view-toolbar {
+    padding: 16px 20px;
+    border-bottom: 1px solid #e8edf5;
+    background: linear-gradient(to right, #fafbff, #f8fafc);
+    box-sizing: border-box;
+    flex-shrink: 0;
+}
+
+/* ══════════════════════════════════════════════════════════
+   WARNING BANNER
+══════════════════════════════════════════════════════════ */
+.warning-banner {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 20px;
+    background: linear-gradient(to right, #fef9ec, #fef3c7);
+    color: #92400e;
+    font-weight: 600;
+    font-size: 0.85rem;
+    border-bottom: 1px solid #fde68a;
+    border-left: 3px solid #f59e0b;
+}
+
+/* ══════════════════════════════════════════════════════════
+   EMPTY STATE MESSAGE
+══════════════════════════════════════════════════════════ */
+.empty-state-msg {
+    color: #94a3b8;
+    font-style: italic;
+    padding: 40px 20px;
+    text-align: center;
+    font-size: 0.95rem;
+}
+
+/* ══════════════════════════════════════════════════════════
+   APP GRID – einheitliches Grid-Design für alle Views
+══════════════════════════════════════════════════════════ */
+.app-grid::part(header-cell) {
+    background: linear-gradient(to right, #f8faff, #f4f6fb);
+    font-weight: 700;
+    font-size: 0.75rem;
+    color: #6366f1;
+    text-transform: uppercase;
+    letter-spacing: 0.07em;
+    border-bottom: 2px solid #e0e4f0;
+}
+
+.app-grid::part(cell) {
+    padding-top: 13px;
+    padding-bottom: 13px;
+    font-size: 0.9rem;
+    color: #1e293b;
+    border-bottom: 1px solid #f3f4f8;
+    transition: background 0.1s ease;
+}
+
+.app-grid::part(even-row) > ::part(cell) {
+    background: #fafbff;
+}
+
+/* ══════════════════════════════════════════════════════════
    MOBILE FILTER
 ══════════════════════════════════════════════════════════ */
 .mobile-filters {

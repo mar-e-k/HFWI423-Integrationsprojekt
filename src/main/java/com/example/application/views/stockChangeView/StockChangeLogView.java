@@ -33,6 +33,7 @@ public class StockChangeLogView extends Div {
     public StockChangeLogView(StockChangeLogService service) {
         this.service = service;
         setSizeFull();
+        addClassName("view-page");
 
         add(buildCard());
     }
@@ -46,10 +47,7 @@ public class StockChangeLogView extends Div {
         HorizontalLayout toolbar = new HorizontalLayout(numberFilter);
         toolbar.setWidthFull();
         toolbar.setAlignItems(FlexComponent.Alignment.CENTER);
-        toolbar.getStyle()
-            .set("padding", "16px 20px")
-            .set("border-bottom", "1px solid #e8edf5")
-            .set("background", "linear-gradient(to right, #fafbff, #f8fafc)");
+        toolbar.addClassName("view-toolbar");
 
         // Grid
         grid.addColumn(StockChangeLog::getChangedAt).setHeader("Datum").setAutoWidth(true).setSortable(true);
@@ -90,6 +88,7 @@ public class StockChangeLogView extends Div {
         grid.addColumn(StockChangeLog::getChangedBy).setHeader("User").setAutoWidth(true);
 
         grid.addThemeVariants(GridVariant.LUMO_ROW_STRIPES, GridVariant.LUMO_WRAP_CELL_CONTENT, GridVariant.LUMO_NO_BORDER);
+        grid.addClassName("app-grid");
         grid.setSizeFull();
 
         var items = service.findAll(Sort.by(Sort.Direction.DESC, "changedAt"));

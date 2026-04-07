@@ -244,7 +244,7 @@ vaadin-app-layout::part(drawer) {
   left: 0;
   right: 0;
   height: 2px;
-  background: linear-gradient(90deg, #8b5cf6, #8b5cf6, #8b5cf6);
+  background: linear-gradient(90deg, #6366f1 0%, #8b5cf6 60%, #a78bfa 100%);
   pointer-events: none;
 }
 

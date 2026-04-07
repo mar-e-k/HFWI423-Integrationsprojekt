@@ -41,6 +41,7 @@ public class MessagingView extends Div {
         this.logisticEventPublisher = logisticEventPublisher;
 
         setSizeFull();
+        addClassName("view-page");
 
         // Toolbar
         TextField articleIdField = new TextField();
@@ -58,10 +59,7 @@ public class MessagingView extends Div {
         HorizontalLayout toolbar = new HorizontalLayout(articleIdField, publishButton, testMessageButton, refreshButton);
         toolbar.setWidthFull();
         toolbar.setAlignItems(FlexComponent.Alignment.CENTER);
-        toolbar.getStyle()
-            .set("padding", "16px 20px")
-            .set("border-bottom", "1px solid #e8edf5")
-            .set("background", "linear-gradient(to right, #fafbff, #f8fafc)");
+        toolbar.addClassName("view-toolbar");
 
         // Grid
         grid.addComponentColumn(item -> {
@@ -83,6 +81,7 @@ public class MessagingView extends Div {
         grid.addColumn(MessagingEvent::getReceivedAt).setHeader("Empfangen am").setAutoWidth(true).setSortable(true);
 
         grid.addThemeVariants(GridVariant.LUMO_ROW_STRIPES, GridVariant.LUMO_NO_BORDER, GridVariant.LUMO_WRAP_CELL_CONTENT);
+        grid.addClassName("app-grid");
         grid.setSizeFull();
 
         VerticalLayout content = new VerticalLayout(toolbar, grid);
