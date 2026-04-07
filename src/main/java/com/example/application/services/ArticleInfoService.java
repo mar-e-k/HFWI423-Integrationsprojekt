@@ -43,6 +43,9 @@ public class ArticleInfoService {
     }
 
     public Page<ArticleInfo> list(Pageable pageable, Specification<ArticleInfo> filter) {
+        if (filter == null) {
+            return articleInfoRepository.findAll(pageable);
+        }
         return articleInfoRepository.findAll(filter, pageable);
     }
 
@@ -51,6 +54,9 @@ public class ArticleInfoService {
     }
 
     public long count(Specification<ArticleInfo> filter) {
+        if (filter == null) {
+            return articleInfoRepository.count();
+        }
         return articleInfoRepository.count(filter);
     }
 
