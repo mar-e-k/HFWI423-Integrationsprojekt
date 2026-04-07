@@ -36,26 +36,32 @@ public class ArticleSyncService {
 
     @Transactional(readOnly = true)
     public List<NewArticleCandidate> findNewArticlesFromContingents() {
+        // Query 1: alle Contingents
         List<Contingent> contingents = contingentRepository.findAll();
 
         // pro articleId nur einmal
-        Map<Long, Contingent> byArticleId = contingents.stream()
-                .collect(Collectors.toMap(
-                        Contingent::getArticleId,
-                        Function.identity(),
-                        (a, b) -> a // Duplikate ignorieren
-                ));
+        Set<Long> uniqueArticleIds = contingents.stream()
+                .map(Contingent::getArticleId)
+                .collect(Collectors.toSet());
+
+        // Query 2: alle ExternalArticles auf einmal (statt N einzelner findById-Calls)
+        Map<Long, ExternalArticle> externalById = externalArticleRepository.findAllById(uniqueArticleIds)
+                .stream()
+                .collect(Collectors.toMap(ExternalArticle::getId, Function.identity()));
+
+        // Query 3: alle bereits angelegten ArticleNumbers auf einmal
+        Set<String> existingArticleNumbers = articleInfoRepository.findAllArticleNumbers();
 
         List<NewArticleCandidate> result = new ArrayList<>();
 
-        for (Long articleId : byArticleId.keySet()) {
-            ExternalArticle ext = externalArticleRepository.findById(articleId).orElse(null);
+        for (Long articleId : uniqueArticleIds) {
+            ExternalArticle ext = externalById.get(articleId);
             if (ext == null) {
                 continue;
             }
 
             // wenn es schon ArticleInfo dazu gibt -> nicht mehr "neu"
-            if (articleInfoRepository.findByArticleNumber(ext.getArticleNumber()) != null) {
+            if (existingArticleNumbers.contains(ext.getArticleNumber())) {
                 continue;
             }
 

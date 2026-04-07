@@ -8,6 +8,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import java.util.List;
+import java.util.Set;
 
 @Repository
 public interface ArticleInfoRepository
@@ -32,6 +33,9 @@ public interface ArticleInfoRepository
     boolean existsByStorageLocation(String storageLocation);
 
     ArticleInfo findByArticleNumber(String articleNumber);
+
+    @Query("select a.articleNumber from ArticleInfo a")
+    Set<String> findAllArticleNumbers();
 
     ArticleInfo findByArticleId(Long articleId);
 
