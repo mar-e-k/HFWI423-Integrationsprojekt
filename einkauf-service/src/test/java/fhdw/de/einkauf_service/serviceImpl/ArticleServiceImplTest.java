@@ -6,6 +6,7 @@ import fhdw.de.einkauf_service.dto.ArticleResponseDTO;
 import fhdw.de.einkauf_service.entity.Article;
 import fhdw.de.einkauf_service.entity.Category;
 import fhdw.de.einkauf_service.entity.Supplier;
+import fhdw.de.einkauf_service.metrics.MetricsRegistry;
 import fhdw.de.einkauf_service.repository.ArticleCategoryRepository;
 import fhdw.de.einkauf_service.repository.ArticleRepository;
 import fhdw.de.einkauf_service.repository.SupplierRepository;
@@ -39,12 +40,15 @@ class ArticleServiceImplTest {
     @Mock
     private SupplierView supplierView;
 
+    @Mock
+    private MetricsRegistry metrics;
+
     // Manual instantiation — ArticleServiceImpl extends CrudRepositoryService which calls super(repo)
     private ArticleServiceImpl service;
 
     @BeforeEach
     void setUp() {
-        service = new ArticleServiceImpl(articleRepository, supplierRepository, categoryRepository, supplierView);
+        service = new ArticleServiceImpl(articleRepository, supplierRepository, categoryRepository, supplierView, metrics);
     }
 
     // --- Helpers ---

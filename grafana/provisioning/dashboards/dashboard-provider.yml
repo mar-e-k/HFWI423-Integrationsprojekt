@@ -1,0 +1,13 @@
+apiVersion: 1
+
+providers:
+  - name: 'Einkauf Dashboards'
+    orgId: 1
+    folder: 'Einkauf Service'
+    type: file
+    disableDeletion: false
+    updateIntervalSeconds: 10
+    allowUiUpdates: true
+    options:
+      path: /etc/grafana/provisioning/dashboards/json
+

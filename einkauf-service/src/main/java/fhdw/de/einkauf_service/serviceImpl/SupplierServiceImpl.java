@@ -4,6 +4,7 @@ import fhdw.de.einkauf_service.dto.*;
 import fhdw.de.einkauf_service.entity.ContactPerson;
 import fhdw.de.einkauf_service.entity.PaymentTerm;
 import fhdw.de.einkauf_service.entity.Supplier;
+import fhdw.de.einkauf_service.metrics.MetricsRegistry;
 import fhdw.de.einkauf_service.repository.ContactPersonRepository;
 import fhdw.de.einkauf_service.repository.PaymentTermRepository;
 import fhdw.de.einkauf_service.repository.SupplierRepository;
@@ -25,17 +26,16 @@ public class SupplierServiceImpl implements SupplierService {
     private final SupplierRepository supplierRepository;
     private final PaymentTermRepository paymentTermRepository;
     private final ContactPersonRepository contactPersonRepository;
+    private final MetricsRegistry metrics;
 
     public SupplierServiceImpl(SupplierRepository supplierRepository,
-                               PaymentTermRepository paymentTermRepository, ContactPersonRepository contactPersonRepository) {
+                               PaymentTermRepository paymentTermRepository, ContactPersonRepository contactPersonRepository, MetricsRegistry metrics) {
         this.supplierRepository = supplierRepository;
         this.paymentTermRepository = paymentTermRepository;
         this.contactPersonRepository = contactPersonRepository;
+        this.metrics = metrics;
     }
 
-    // ==================================================================================
-    // 1. CREATE Supplier inkl. ContactPersons
-    // ==================================================================================
     @Transactional
     @Override
     @CacheEvict(value = "supplierSearch", allEntries = true)
@@ -52,6 +52,10 @@ public class SupplierServiceImpl implements SupplierService {
         }
 
         Supplier savedSupplier = supplierRepository.save(newSupplier);
+
+        // 📊 TRACKING: Lieferant hinzugefügt
+        metrics.suppliersAdded.increment();
+
         return toResponseDTO(savedSupplier);
     }
 
@@ -78,9 +82,6 @@ public class SupplierServiceImpl implements SupplierService {
                 .collect(Collectors.toList());
     }
 
-    // ==================================================================================
-    // 4. UPDATE Supplier inkl. ContactPersons
-    // ==================================================================================
     @Transactional
     @Override
     @CacheEvict(value = "supplierSearch", allEntries = true)
@@ -118,6 +119,10 @@ public class SupplierServiceImpl implements SupplierService {
         }
 
         Supplier savedSupplier = supplierRepository.save(existingSupplier);
+
+        // 📊 TRACKING: Lieferant aktualisiert
+        metrics.suppliersUpdated.increment();
+
         return toResponseDTO(savedSupplier);
     }
 

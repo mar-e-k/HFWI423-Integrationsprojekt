@@ -2,6 +2,7 @@ package fhdw.de.einkauf_service.serviceImpl;
 
 import fhdw.de.einkauf_service.config.ShoppingCartSession;
 import fhdw.de.einkauf_service.entity.Article;
+import fhdw.de.einkauf_service.metrics.MetricsRegistry;
 import fhdw.de.einkauf_service.repository.ArticleRepository;
 import fhdw.de.einkauf_service.service.ShoppingCartService;
 import jakarta.persistence.EntityNotFoundException;
@@ -14,33 +15,35 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
 
     private final ShoppingCartSession cartSession;
     private final ArticleRepository articleRepository;
+    private final MetricsRegistry metrics;
 
-    public ShoppingCartServiceImpl(ShoppingCartSession cartSession, ArticleRepository articleRepository) {
+    public ShoppingCartServiceImpl(ShoppingCartSession cartSession, ArticleRepository articleRepository, MetricsRegistry metrics) {
         this.cartSession = cartSession;
         this.articleRepository = articleRepository;
+        this.metrics = metrics;
     }
 
-    // Methode für Akzeptanzkriterium 3: Prüft unseren eigenen Lagerbestand
     @Override
     public void validateAndAddToCart(Long articleId, int quantity) {
-
-        // Hole den Artikel aus der Datenbank (inkl. unseres aktuellen Bestands)
         Article article = articleRepository.findById(articleId)
                 .orElseThrow(() -> new EntityNotFoundException("Artikel nicht gefunden."));
 
-        // Hier prüfen wir nur, ob die Menge > 0 ist.
         if (quantity <= 0) {
             throw new IllegalArgumentException("Die Bestellmenge muss positiv sein.");
         }
 
-        // Fügt den Artikel zur Session (Warenkorb) hinzu oder aktualisiert die Menge
         cartSession.addItem(articleId, quantity);
+
+        // 📊 TRACKING: Artikel zum Warenkorb hinzugefügt
+        metrics.cartItemsAdded.increment();
     }
 
-    // Menge anpassen/Artikel entfernen
     @Override
     public void removeItem(Long articleId) {
         cartSession.removeItem(articleId);
+
+        // 📊 TRACKING: Artikel aus Warenkorb entfernt
+        metrics.cartItemsRemoved.increment();
     }
 
     // Übersicht abrufen

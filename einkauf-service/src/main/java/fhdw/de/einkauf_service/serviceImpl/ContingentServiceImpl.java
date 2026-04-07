@@ -6,6 +6,7 @@ import fhdw.de.einkauf_service.entity.Article;
 import fhdw.de.einkauf_service.entity.Contingent;
 import fhdw.de.einkauf_service.entity.OrderItem;
 import fhdw.de.einkauf_service.entity.Supplier;
+import fhdw.de.einkauf_service.metrics.MetricsRegistry;
 import fhdw.de.einkauf_service.repository.ArticleRepository;
 import fhdw.de.einkauf_service.repository.ContingentRepository;
 import fhdw.de.einkauf_service.repository.OrderItemRepository;
@@ -28,13 +29,15 @@ public class ContingentServiceImpl implements ContingentService {
     private final SupplierRepository supplierRepository;
     private final OrderItemRepository orderItemRepository;
     private final EinkaufEventPublisher eventPublisher;
+    private final MetricsRegistry metrics;
 
-    public ContingentServiceImpl(ContingentRepository contingentRepository, ArticleRepository articleRepository, SupplierRepository supplierRepository, OrderItemRepository orderItemRepository, EinkaufEventPublisher eventPublisher) {
+    public ContingentServiceImpl(ContingentRepository contingentRepository, ArticleRepository articleRepository, SupplierRepository supplierRepository, OrderItemRepository orderItemRepository, EinkaufEventPublisher eventPublisher, MetricsRegistry metrics) {
         this.contingentRepository = contingentRepository;
         this.articleRepository = articleRepository;
         this.supplierRepository = supplierRepository;
         this.orderItemRepository = orderItemRepository;
         this.eventPublisher = eventPublisher;
+        this.metrics = metrics;
     }
 
     @Transactional
@@ -45,6 +48,9 @@ public class ContingentServiceImpl implements ContingentService {
 
         contingentRepository.delete(contingent);
         eventPublisher.publishDeleteQuota(contingent.getArticleId());
+
+        // 📊 TRACKING: Kontingent freigegeben
+        metrics.contingentFreed.increment();
     }
 
     // --- Mapper-Methode ---

@@ -7,6 +7,7 @@ import fhdw.de.einkauf_service.entity.ShelfLevel;
 import fhdw.de.einkauf_service.entity.Article;
 import fhdw.de.einkauf_service.exception.OverlapException;
 import fhdw.de.einkauf_service.exception.OutOfBoundsException;
+import fhdw.de.einkauf_service.metrics.MetricsRegistry;
 import fhdw.de.einkauf_service.repository.ShelfPlacementRepository;
 import fhdw.de.einkauf_service.repository.ShelfLevelRepository;
 import jakarta.persistence.EntityManager;
@@ -28,19 +29,22 @@ public class ShelfPlacementServiceImpl implements ShelfPlacementService {
     private final ShelfPlacementRepository placementRepository;
     private final ShelfLevelRepository shelfLevelRepository;
     private final EntityManager entityManager;
+    private final MetricsRegistry metrics;
 
     public ShelfPlacementServiceImpl(ShelfPlacementRepository placementRepository,
                                     ShelfLevelRepository shelfLevelRepository,
-                                    EntityManager entityManager) {
+                                    EntityManager entityManager,
+                                    MetricsRegistry metrics) {
         this.placementRepository = placementRepository;
         this.shelfLevelRepository = shelfLevelRepository;
         this.entityManager = entityManager;
+        this.metrics = metrics;
     }
 
     @Transactional
     @Override
     public ShelfPlacementResponseDTO createPlacement(ShelfPlacementRequestDTO request) {
-        // Load shelf level and article
+        // ...existing code...
         ShelfLevel shelfLevel = shelfLevelRepository.findById(request.getShelfLevelId())
                 .orElseThrow(() -> new NoSuchElementException(
                         "ShelfLevel with ID " + request.getShelfLevelId() + " not found."));
@@ -66,6 +70,10 @@ public class ShelfPlacementServiceImpl implements ShelfPlacementService {
         placement.setHeightCm(request.getHeightCm());
 
         ShelfPlacement savedPlacement = placementRepository.save(placement);
+
+        // 📊 TRACKING: Regalplatzierung erstellt
+        metrics.shelfPlacementsCreated.increment();
+
         return toResponseDTO(savedPlacement);
     }
 
@@ -136,6 +144,9 @@ public class ShelfPlacementServiceImpl implements ShelfPlacementService {
             throw new NoSuchElementException("Placement with ID " + id + " not found.");
         }
         placementRepository.deleteById(id);
+
+        // 📊 TRACKING: Regalplatzierung entfernt
+        metrics.shelfPlacementsRemoved.increment();
     }
 
     @Transactional(readOnly = true)

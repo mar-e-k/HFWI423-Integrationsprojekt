@@ -7,9 +7,11 @@ import fhdw.de.einkauf_service.dto.OrderItemRequestDTO;
 import fhdw.de.einkauf_service.dto.OrderItemResponseDTO;
 import fhdw.de.einkauf_service.dto.OrderResponseDTO;
 import fhdw.de.einkauf_service.entity.*;
+import fhdw.de.einkauf_service.metrics.MetricsRegistry;
 import fhdw.de.einkauf_service.query.OrderSpecifications;
 import fhdw.de.einkauf_service.repository.*;
 import fhdw.de.einkauf_service.service.PurchaseOrderService;
+import io.micrometer.core.instrument.Timer;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.data.jpa.domain.Specification;
@@ -33,8 +35,9 @@ public class PurchaseOrderServiceImpl implements PurchaseOrderService {
     private final ContingentRepository contingentRepository;
     private final SupplierRepository supplierRepository;
     private final EinkaufEventPublisher einkaufEventPublisher;
+    private final MetricsRegistry metrics;
 
-    public PurchaseOrderServiceImpl(OrderRepository orderRepository, OrderItemRepository orderItemRepository, ArticleRepository articleRepository, EntityManager entityManager, ShoppingCartSession cartSession, ContingentRepository contingentRepository, SupplierRepository supplierRepository, EinkaufEventPublisher einkaufEventPublisher) {
+    public PurchaseOrderServiceImpl(OrderRepository orderRepository, OrderItemRepository orderItemRepository, ArticleRepository articleRepository, EntityManager entityManager, ShoppingCartSession cartSession, ContingentRepository contingentRepository, SupplierRepository supplierRepository, EinkaufEventPublisher einkaufEventPublisher, MetricsRegistry metrics) {
         this.orderRepository = orderRepository;
         this.orderItemRepository = orderItemRepository;
         this.articleRepository = articleRepository;
@@ -43,6 +46,7 @@ public class PurchaseOrderServiceImpl implements PurchaseOrderService {
         this.contingentRepository = contingentRepository;
         this.supplierRepository = supplierRepository;
         this.einkaufEventPublisher = einkaufEventPublisher;
+        this.metrics = metrics;
     }
 
     private String getNextOrderNumber() {
@@ -112,6 +116,9 @@ public class PurchaseOrderServiceImpl implements PurchaseOrderService {
                 .map(entry -> placeSingleOrder(entry.getKey(), entry.getValue()))
                 .toList();
 
+        // 📊 TRACKING: Bestellungen erstellt
+        metrics.ordersCreated.increment(responses.size());
+
         // Warenkorb leeren
         cartSession.clearCart();
 
@@ -123,45 +130,57 @@ public class PurchaseOrderServiceImpl implements PurchaseOrderService {
      * Führt die Logik zum Speichern einer einzelnen Bestellung durch.
      */
     private OrderResponseDTO placeSingleOrder(Supplier supplier, List<OrderItemRequestDTO> items) {
+        Timer.Sample sample = Timer.start();
+        try {
+            Order order = new Order();
+            order.setSupplier(supplier);
+            order.setOrderNumber(getNextOrderNumber());
 
-        Order order = new Order();
-        order.setSupplier(supplier);
-        order.setOrderNumber(getNextOrderNumber());
+            LocalDate expectedDeliveryDate = LocalDate.now().plusDays(7);
+            order.setExpectedDeliveryDate(expectedDeliveryDate);
 
-        LocalDate expectedDeliveryDate = LocalDate.now().plusDays(7);
-        order.setExpectedDeliveryDate(expectedDeliveryDate);
+            Order savedOrder = orderRepository.save(order);
+            Double totalAmount = 0.00;
 
-        Order savedOrder = orderRepository.save(order);
-        Double totalAmount = 0.00;
+            for (OrderItemRequestDTO itemDto : items) {
+                Article article = articleRepository.findById(itemDto.articleId()).orElseThrow();
 
-        for (OrderItemRequestDTO itemDto : items) {
-            Article article = articleRepository.findById(itemDto.articleId()).orElseThrow();
+                Double itemTotal = article.getPurchasePrice() * itemDto.quantity();
 
-            Double itemTotal = article.getPurchasePrice() * itemDto.quantity();
+                OrderItem item = new OrderItem();
+                item.setOrder(savedOrder);
+                item.setArticle(article);
+                item.setQuantity(itemDto.quantity());
+                item.setPurchasePrice(article.getPurchasePrice());
 
-            OrderItem item = new OrderItem();
-            item.setOrder(savedOrder);
-            item.setArticle(article);
-            item.setQuantity(itemDto.quantity());
-            item.setPurchasePrice(article.getPurchasePrice());
+                orderItemRepository.save(item);
+                totalAmount = totalAmount + itemTotal;
 
-            orderItemRepository.save(item);
-            totalAmount = totalAmount + itemTotal;
+                Contingent contingent = new Contingent();
+                contingent.setOrderId(savedOrder.getId());
+                contingent.setSupplierId(supplier.getId());
+                contingent.setArticleId(itemDto.articleId());
+                contingent.setAvailableQuantity(itemDto.quantity());
 
-            Contingent contingent = new Contingent();
-            contingent.setOrderId(savedOrder.getId());
-            contingent.setSupplierId(supplier.getId());
-            contingent.setArticleId(itemDto.articleId());
-            contingent.setAvailableQuantity(itemDto.quantity());
+                contingentRepository.save(contingent);
 
-            contingentRepository.save(contingent);
+                einkaufEventPublisher.publishNewQuota(itemDto.articleId(), itemDto.quantity());
+            }
 
-            einkaufEventPublisher.publishNewQuota(itemDto.articleId(), itemDto.quantity());
+            savedOrder.setTotalAmount(totalAmount);
+            orderRepository.save(savedOrder);
+
+            // 📊 TRACKING: Bestellung erfolgreich erstellt
+            metrics.ordersCompleted.increment();
+
+            return mapOrderToResponseDTO(savedOrder);
+        } catch (Exception e) {
+            // 📊 TRACKING: Bestellung fehlgeschlagen
+            metrics.ordersFailed.increment();
+            throw e;
+        } finally {
+            sample.stop(metrics.orderProcessingTime);
         }
-
-        savedOrder.setTotalAmount(totalAmount);
-        orderRepository.save(savedOrder);
-        return mapOrderToResponseDTO(savedOrder);
     }
 
 

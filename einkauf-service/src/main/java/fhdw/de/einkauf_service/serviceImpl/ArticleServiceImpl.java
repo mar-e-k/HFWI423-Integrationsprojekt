@@ -13,12 +13,14 @@ import fhdw.de.einkauf_service.entity.Article;
 import fhdw.de.einkauf_service.entity.Category;
 import fhdw.de.einkauf_service.entity.ContactPerson;
 import fhdw.de.einkauf_service.entity.Supplier;
+import fhdw.de.einkauf_service.metrics.MetricsRegistry;
 import fhdw.de.einkauf_service.query.ArticleSpecifications;
 import fhdw.de.einkauf_service.repository.ArticleCategoryRepository;
 import fhdw.de.einkauf_service.repository.ArticleRepository;
 import fhdw.de.einkauf_service.repository.SupplierRepository;
 import fhdw.de.einkauf_service.service.ArticleService;
 import fhdw.de.einkauf_service.view.SupplierView;
+import io.micrometer.core.instrument.Timer;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
@@ -36,67 +38,76 @@ public class ArticleServiceImpl extends CrudRepositoryService<Article, Long, Art
     private final SupplierRepository supplierRepository;
     private final ArticleRepository articleRepository;
     private final ArticleCategoryRepository categoryRepository;
+    private final MetricsRegistry metrics;
 
-    public ArticleServiceImpl(ArticleRepository articleRepository, SupplierRepository supplierRepository, ArticleCategoryRepository categoryRepository, SupplierView suppliers) {
+    public ArticleServiceImpl(ArticleRepository articleRepository, SupplierRepository supplierRepository, ArticleCategoryRepository categoryRepository, SupplierView suppliers, MetricsRegistry metrics) {
         super(articleRepository);
         this.articleRepository = articleRepository;
         this.supplierRepository = supplierRepository;
         this.categoryRepository = categoryRepository;
+        this.metrics = metrics;
     }
 
-    // ==================================================================================
-    // 1. CREATE (POST)
-    // ==================================================================================
     @Override
     @Transactional
     @CacheEvict(value = "articleSearch", allEntries = true)
     public ArticleResponseDTO createNewArticle(ArticleRequestDTO newArticleRequestDTO) {
+        Timer.Sample sample = Timer.start();
+        try {
+            // --- 1. Supplier IDs aus DTO auslesen ---
+            Set<Long> supplierIds = newArticleRequestDTO.getSupplierIds() == null
+                    ? Collections.emptySet()
+                    : newArticleRequestDTO.getSupplierIds();
 
-        // --- 1. Supplier IDs aus DTO auslesen ---
-        Set<Long> supplierIds = newArticleRequestDTO.getSupplierIds() == null
-                ? Collections.emptySet()
-                : newArticleRequestDTO.getSupplierIds();
+            // --- 2. Supplier Entities aus DB laden ---
+            List<Supplier> suppliersFromDb = supplierRepository.findAllById(supplierIds);
+            Set<Supplier> suppliers = new HashSet<>(suppliersFromDb);
 
-        // --- 2. Supplier Entities aus DB laden ---
-        List<Supplier> suppliersFromDb = supplierRepository.findAllById(supplierIds);
-        Set<Supplier> suppliers = new HashSet<>(suppliersFromDb);
+            // Prüfen ob alle IDs existieren
+            if (suppliers.size() != supplierIds.size()) {
+                Set<Long> foundIds = suppliers.stream()
+                        .map(Supplier::getId)
+                        .collect(Collectors.toSet());
+                Set<Long> missingIds = new HashSet<>(supplierIds);
+                missingIds.removeAll(foundIds);
+                throw new EntityNotFoundException("Die folgenden Supplier IDs wurden nicht gefunden: " + missingIds);
+            }
 
-        // Prüfen ob alle IDs existieren
-        if (suppliers.size() != supplierIds.size()) {
-            Set<Long> foundIds = suppliers.stream()
-                    .map(Supplier::getId)
-                    .collect(Collectors.toSet());
-            Set<Long> missingIds = new HashSet<>(supplierIds);
-            missingIds.removeAll(foundIds);
-            throw new EntityNotFoundException("Die folgenden Supplier IDs wurden nicht gefunden: " + missingIds);
+            // --- 3. DTO -> Entity mappen ---
+            Article newArticle = mapRequestToEntity(newArticleRequestDTO);
+
+            // --- 4. Hauptlieferant prüfen und setzen ---
+            Supplier mainSupplier = supplierRepository.findById(newArticleRequestDTO.getMainSupplierId())
+                    .orElseThrow(() -> new EntityNotFoundException(
+                            "Hauptlieferant mit ID " + newArticleRequestDTO.getMainSupplierId() + " nicht gefunden."
+                    ));
+
+            if (!suppliers.contains(mainSupplier)) {
+                throw new IllegalArgumentException("Hauptlieferant muss einer der zugeordneten Supplier sein.");
+            }
+
+            newArticle.setMainSupplier(mainSupplier);
+
+            // --- 5. Supplier setzen (managed Entities) ---
+            newArticle.setSuppliers(suppliers);
+
+            // --- 6. Prüfen ob Artikelnummer bereits existiert ---
+            if (articleRepository.findByArticleNumber(newArticle.getArticleNumber()).isPresent()) {
+                throw new IllegalArgumentException("Article number (GTIN) already exists. Duplicates are not allowed.");
+            }
+
+            // --- 7. Speichern + Rückgabe ---
+            Article savedArticle = articleRepository.save(newArticle);
+
+            // 📊 TRACKING: Artikel hinzugefügt
+            metrics.articlesAdded.increment();
+
+            return mapEntityToResponse(savedArticle);
+        } catch (Exception e) {
+            throw e;
+        } finally {
+            sample.stop(metrics.orderProcessingTime);
         }
-
-        // --- 3. DTO -> Entity mappen ---
-        Article newArticle = mapRequestToEntity(newArticleRequestDTO);
-
-        // --- 4. Hauptlieferant prüfen und setzen ---
-        Supplier mainSupplier = supplierRepository.findById(newArticleRequestDTO.getMainSupplierId())
-                .orElseThrow(() -> new EntityNotFoundException(
-                        "Hauptlieferant mit ID " + newArticleRequestDTO.getMainSupplierId() + " nicht gefunden."
-                ));
-
-        if (!suppliers.contains(mainSupplier)) {
-            throw new IllegalArgumentException("Hauptlieferant muss einer der zugeordneten Supplier sein.");
-        }
-
-        newArticle.setMainSupplier(mainSupplier);
-
-        // --- 5. Supplier setzen (managed Entities) ---
-        newArticle.setSuppliers(suppliers);
-
-        // --- 6. Prüfen ob Artikelnummer bereits existiert ---
-        if (articleRepository.findByArticleNumber(newArticle.getArticleNumber()).isPresent()) {
-            throw new IllegalArgumentException("Article number (GTIN) already exists. Duplicates are not allowed.");
-        }
-
-        // --- 7. Speichern + Rückgabe ---
-        Article savedArticle = articleRepository.save(newArticle);
-        return mapEntityToResponse(savedArticle);
     }
 
 
@@ -129,70 +140,77 @@ public class ArticleServiceImpl extends CrudRepositoryService<Article, Long, Art
                 .collect(Collectors.toList());
     }
 
-    // ==================================================================================
-    // 4. UPDATE (PUT)
-    // ==================================================================================
     @Override
     @Transactional
     @CacheEvict(value = "articleSearch", allEntries = true)
     public ArticleResponseDTO updateArticle(Long id, ArticleRequestDTO updatedArticleRequestDTO) {
+        Timer.Sample sample = Timer.start();
+        try {
+            // --- 1. Artikel aus DB holen ---
+            Article existingArticle = articleRepository.findById(id)
+                    .orElseThrow(() ->
+                            new NoSuchElementException("Article with ID " + id + " not found.")
+                    );
 
-        // --- 1. Artikel aus DB holen ---
-        Article existingArticle = articleRepository.findById(id)
-                .orElseThrow(() ->
-                        new NoSuchElementException("Article with ID " + id + " not found.")
-                );
+            // --- 2. Supplier IDs aus DTO laden ---
+            Set<Long> supplierIds = updatedArticleRequestDTO.getSupplierIds() == null
+                    ? Collections.emptySet()
+                    : updatedArticleRequestDTO.getSupplierIds();
 
-        // --- 2. Supplier IDs aus DTO laden ---
-        Set<Long> supplierIds = updatedArticleRequestDTO.getSupplierIds() == null
-                ? Collections.emptySet()
-                : updatedArticleRequestDTO.getSupplierIds();
+            List<Supplier> suppliersFromDb = supplierRepository.findAllById(supplierIds);
+            Set<Supplier> suppliers = new HashSet<>(suppliersFromDb);
 
-        List<Supplier> suppliersFromDb = supplierRepository.findAllById(supplierIds);
-        Set<Supplier> suppliers = new HashSet<>(suppliersFromDb);
+            if (suppliers.size() != supplierIds.size()) {
+                Set<Long> foundIds = suppliers.stream().map(Supplier::getId).collect(Collectors.toSet());
+                Set<Long> missingIds = new HashSet<>(supplierIds);
+                missingIds.removeAll(foundIds);
+                throw new EntityNotFoundException("Die folgenden Supplier IDs wurden nicht gefunden: " + missingIds);
+            }
 
-        if (suppliers.size() != supplierIds.size()) {
-            Set<Long> foundIds = suppliers.stream().map(Supplier::getId).collect(Collectors.toSet());
-            Set<Long> missingIds = new HashSet<>(supplierIds);
-            missingIds.removeAll(foundIds);
-            throw new EntityNotFoundException("Die folgenden Supplier IDs wurden nicht gefunden: " + missingIds);
+            // --- 3. Hauptlieferant prüfen und setzen ---
+            Supplier mainSupplier = supplierRepository.findById(updatedArticleRequestDTO.getMainSupplierId())
+                    .orElseThrow(() -> new EntityNotFoundException(
+                            "Hauptlieferant mit ID " + updatedArticleRequestDTO.getMainSupplierId() + " nicht gefunden."
+                    ));
+
+            if (!suppliers.contains(mainSupplier)) {
+                throw new IllegalArgumentException("Hauptlieferant muss einer der zugeordneten Supplier sein.");
+            }
+
+            existingArticle.setMainSupplier(mainSupplier);
+
+            // --- 4. Felder aus DTO übertragen ---
+            existingArticle.setName(updatedArticleRequestDTO.getName());
+            existingArticle.setPurchasePrice(updatedArticleRequestDTO.getPurchasePrice());
+            existingArticle.setTaxRatePercent(updatedArticleRequestDTO.getTaxRatePercent());
+            existingArticle.setSellingPrice(updatedArticleRequestDTO.getSellingPrice());
+            existingArticle.setManufacturer(updatedArticleRequestDTO.getManufacturer());
+            existingArticle.setStockLevel(updatedArticleRequestDTO.getStockLevel());
+            existingArticle.setDescription(updatedArticleRequestDTO.getDescription());
+            existingArticle.setAvailable(updatedArticleRequestDTO.getAvailable());
+            existingArticle.setHasDeposit(updatedArticleRequestDTO.getHasDeposit());
+            existingArticle.setCategories(mapCategoryIdsToEntities(updatedArticleRequestDTO.getCategoryIds()));
+            existingArticle.setProductImage(updatedArticleRequestDTO.getProductImage());
+            existingArticle.setExpirationDate(updatedArticleRequestDTO.getExpirationDate());
+            existingArticle.setWidthCm(updatedArticleRequestDTO.getWidthCm());
+            existingArticle.setHeightCm(updatedArticleRequestDTO.getHeightCm());
+            existingArticle.setDepthCm(updatedArticleRequestDTO.getDepthCm());
+
+            // --- 5. Supplier-Relation aktualisieren ---
+            existingArticle.setSuppliers(suppliers);
+
+            // --- 6. Speichern & zurückgeben ---
+            Article savedArticle = articleRepository.save(existingArticle);
+
+            // 📊 TRACKING: Artikel aktualisiert
+            metrics.articlesUpdated.increment();
+
+            return mapEntityToResponse(savedArticle);
+        } catch (Exception e) {
+            throw e;
+        } finally {
+            sample.stop(metrics.orderProcessingTime);
         }
-
-        // --- 3. Hauptlieferant prüfen und setzen ---
-        Supplier mainSupplier = supplierRepository.findById(updatedArticleRequestDTO.getMainSupplierId())
-                .orElseThrow(() -> new EntityNotFoundException(
-                        "Hauptlieferant mit ID " + updatedArticleRequestDTO.getMainSupplierId() + " nicht gefunden."
-                ));
-
-        if (!suppliers.contains(mainSupplier)) {
-            throw new IllegalArgumentException("Hauptlieferant muss einer der zugeordneten Supplier sein.");
-        }
-
-        existingArticle.setMainSupplier(mainSupplier);
-
-        // --- 4. Felder aus DTO übertragen ---
-        existingArticle.setName(updatedArticleRequestDTO.getName());
-        existingArticle.setPurchasePrice(updatedArticleRequestDTO.getPurchasePrice());
-        existingArticle.setTaxRatePercent(updatedArticleRequestDTO.getTaxRatePercent());
-        existingArticle.setSellingPrice(updatedArticleRequestDTO.getSellingPrice());
-        existingArticle.setManufacturer(updatedArticleRequestDTO.getManufacturer());
-        existingArticle.setStockLevel(updatedArticleRequestDTO.getStockLevel());
-        existingArticle.setDescription(updatedArticleRequestDTO.getDescription());
-        existingArticle.setAvailable(updatedArticleRequestDTO.getAvailable());
-        existingArticle.setHasDeposit(updatedArticleRequestDTO.getHasDeposit());
-        existingArticle.setCategories(mapCategoryIdsToEntities(updatedArticleRequestDTO.getCategoryIds()));
-        existingArticle.setProductImage(updatedArticleRequestDTO.getProductImage());
-        existingArticle.setExpirationDate(updatedArticleRequestDTO.getExpirationDate());
-        existingArticle.setWidthCm(updatedArticleRequestDTO.getWidthCm());
-        existingArticle.setHeightCm(updatedArticleRequestDTO.getHeightCm());
-        existingArticle.setDepthCm(updatedArticleRequestDTO.getDepthCm());
-
-        // --- 5. Supplier-Relation aktualisieren ---
-        existingArticle.setSuppliers(suppliers);
-
-        // --- 6. Speichern & zurückgeben ---
-        Article savedArticle = articleRepository.save(existingArticle);
-        return mapEntityToResponse(savedArticle);
     }
 
     // ==================================================================================
@@ -206,6 +224,9 @@ public class ArticleServiceImpl extends CrudRepositoryService<Article, Long, Art
             throw new NoSuchElementException("Article with ID " + id + " not found.");
         }
         articleRepository.deleteById(id);
+        
+        // 📊 TRACKING: Artikel gelöscht
+        metrics.articlesDeleted.increment();
     }
 
     // ==================================================================================
