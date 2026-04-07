@@ -30,7 +30,12 @@
       "Bash(ls /c/tools/apache-jmeter-5.6.3/lib/ApacheJMeter*.jar)",
       "Bash(cmd.exe /c \"C:\\\\tools\\\\apache-jmeter-5.6.3\\\\bin\\\\jmeter.bat\" --version)",
       "Bash(cmd.exe /c \"C:\\\\tools\\\\apache-jmeter-5.6.3\\\\bin\\\\jmeter.bat -v\")",
-      "Bash(cmd.exe /c \"C:\\\\tools\\\\apache-jmeter-5.6.3\\\\bin\\\\jmeter.bat\" -v 2>&1)"
+      "Bash(cmd.exe /c \"C:\\\\tools\\\\apache-jmeter-5.6.3\\\\bin\\\\jmeter.bat\" -v 2>&1)",
+      "Bash(cmd.exe /c \"C:\\\\tools\\\\apache-jmeter-5.6.3\\\\bin\\\\jmeter.bat\" -n -t \"C:\\\\Users\\\\admin\\\\Downloads\\\\logistik\\\\logistik\\\\monitoring\\\\jmeter\\\\logistik-parametrisiert.jmx\" -l \"C:\\\\Users\\\\admin\\\\Downloads\\\\logistik\\\\logistik\\\\monitoring\\\\jmeter\\\\results\\\\lasttest-result.csv\" -Jthreads=2 -Jrampup=1 -Jduration=5 -Jhost=localhost -Jport=8081 2>&1)",
+      "Bash(cmd.exe /c \"C:\\\\tools\\\\apache-jmeter-5.6.3\\\\bin\\\\jmeter.bat -n -t C:\\\\Users\\\\admin\\\\Downloads\\\\logistik\\\\logistik\\\\monitoring\\\\jmeter\\\\logistik-parametrisiert.jmx -l C:\\\\Users\\\\admin\\\\Downloads\\\\logistik\\\\logistik\\\\monitoring\\\\jmeter\\\\results\\\\test.csv -Jthreads=2 -Jrampup=1 -Jduration=5 -Jhost=localhost -Jport=8081\" 2>&1)",
+      "Bash(cmd.exe /c \"cd C:\\\\tools\\\\apache-jmeter-5.6.3\\\\bin && jmeter.bat -n -t C:\\\\Users\\\\admin\\\\Downloads\\\\logistik\\\\logistik\\\\monitoring\\\\jmeter\\\\logistik-parametrisiert.jmx -l C:\\\\Users\\\\admin\\\\Downloads\\\\logistik\\\\logistik\\\\monitoring\\\\jmeter\\\\results\\\\test2.csv -Jthreads=2 -Jrampup=1 -Jduration=5 -Jhost=localhost -Jport=8081\" 2>&1)",
+      "Bash(ls \"/c/tools/apache-jmeter-5.6.3/bin/\"*.log)",
+      "Bash(java:*)"
     ]
   }
 }

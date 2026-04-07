@@ -253,13 +253,12 @@ public class MonitoringView extends Div {
     private void launchJMeter(String name, int threads, int rampup, int duration) {
         if (testRunning.getAndSet(true)) return;
 
-        // JMeter-Binary ermitteln
-        boolean isWindows = System.getProperty("os.name", "").toLowerCase().contains("win");
-        String  binary    = jmeterHome + "/bin/" + (isWindows ? "jmeter.bat" : "jmeter");
+        // ApacheJMeter.jar ermitteln (funktioniert auf allen Plattformen ohne bat-Probleme)
+        String jmeterJar = jmeterHome + "/bin/ApacheJMeter.jar";
 
-        if (jmeterHome.isBlank() || !Path.of(binary).toFile().exists()) {
+        if (jmeterHome.isBlank() || !Path.of(jmeterJar).toFile().exists()) {
             showError("JMeter nicht gefunden. Bitte jmeter.home in application.properties setzen.\n" +
-                      "Aktuell: \"" + jmeterHome + "\"");
+                      "Erwartet: \"" + jmeterJar + "\"");
             testRunning.set(false);
             return;
         }
@@ -294,14 +293,12 @@ public class MonitoringView extends Div {
         stopButton.setEnabled(true);
         updateStatusBadge(true);
 
-        // JMeter-Kommando zusammenbauen
-        List<String> cmd = new ArrayList<>();
-        if (isWindows) { cmd.add("cmd.exe"); cmd.add("/c"); }
-        cmd.addAll(List.of(
-                binary,
-                "-n",                                          // Non-GUI
-                "-t", jmxFile.toString(),                     // Test-Plan
-                "-l", resultFile.toString(),                  // Ergebnis-CSV
+        // JMeter-Kommando: direkt via java -jar (funktioniert auf Windows ohne bat-Probleme)
+        List<String> cmd = new ArrayList<>(List.of(
+                "java", "-jar", jmeterJar,
+                "-n",                          // Non-GUI Modus
+                "-t", jmxFile.toString(),      // Test-Plan
+                "-l", resultFile.toString(),   // Ergebnis-CSV
                 "-Jthreads="  + threads,
                 "-Jrampup="   + rampup,
                 "-Jduration=" + duration,
@@ -309,18 +306,42 @@ public class MonitoringView extends Div {
                 "-Jport="     + serverPort
         ));
 
+        // Start-Notification mit Kommando
+        String cmdPreview = String.join(" ", cmd);
+        Notification.show("JMeter wird gestartet…  " + cmdPreview, 4000,
+                Notification.Position.BOTTOM_END);
+
         // JMeter im Hintergrund starten
         Executors.newVirtualThreadPerTaskExecutor().submit(() -> {
+            StringBuilder jmeterOutput = new StringBuilder();
             try {
                 jmeterProcess = new ProcessBuilder(cmd)
                         .redirectErrorStream(true)
                         .start();
-                jmeterProcess.waitFor();
+
+                // Output lesen (verhindert Prozess-Deadlock + ermöglicht Fehlerdiagnose)
+                try (var reader = new java.io.BufferedReader(
+                        new java.io.InputStreamReader(jmeterProcess.getInputStream()))) {
+                    String line;
+                    while ((line = reader.readLine()) != null) {
+                        jmeterOutput.append(line).append("\n");
+                    }
+                }
+
+                int exitCode = jmeterProcess.waitFor();
+                if (exitCode != 0) {
+                    String out = jmeterOutput.toString();
+                    UI ui = getUI().orElse(null);
+                    if (ui != null) ui.access(() ->
+                            showError("JMeter Exit-Code " + exitCode + ":\n" +
+                                      out.substring(Math.max(0, out.length() - 500))));
+                }
             } catch (Exception ex) {
                 UI ui = getUI().orElse(null);
-                if (ui != null) ui.access(() -> showError("JMeter-Fehler: " + ex.getMessage()));
+                if (ui != null) ui.access(() ->
+                        showError("JMeter-Fehler: " + ex.getMessage() + "\nOutput:\n" +
+                                  jmeterOutput.substring(Math.max(0, jmeterOutput.length() - 300))));
             } finally {
-                // Abschließendes CSV-Lesen bevor Status zurückgesetzt wird
                 pollCsvResults();
                 testRunning.set(false);
                 activeUsersGauge.set(0);

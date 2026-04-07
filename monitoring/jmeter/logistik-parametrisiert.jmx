@@ -15,8 +15,8 @@
       <!--  -Jthreads=10  -Jrampup=5  -Jduration=60  -Jhost=localhost         -->
       <!--  -Jport=8081                                                         -->
       <ThreadGroup guiclass="ThreadGroupGui" testclass="ThreadGroup" testname="Lasttest">
-        <intProp name="ThreadGroup.num_threads">${__P(threads,10)}</intProp>
-        <intProp name="ThreadGroup.ramp_time">${__P(rampup,5)}</intProp>
+        <stringProp name="ThreadGroup.num_threads">${__P(threads,10)}</stringProp>
+        <stringProp name="ThreadGroup.ramp_time">${__P(rampup,5)}</stringProp>
         <boolProp name="ThreadGroup.scheduler">true</boolProp>
         <stringProp name="ThreadGroup.duration">${__P(duration,60)}</stringProp>
         <stringProp name="ThreadGroup.delay">0</stringProp>
