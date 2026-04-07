@@ -53,8 +53,8 @@ class StoreServiceImpl extends AbstractEntityCrudAdapter<Store, Long> implements
 
     @Override
     @Transactional(readOnly = true)
-    public Set<Register> findAllRegisters(long storeId) {
-        if (storeId < 0) {
+    public Set<Register> findAllRegisters(Long storeId) {
+        if (storeId == null || storeId < 0) {
             return Set.of();
         }
         return storeRepository.findAllRegisters(storeId);

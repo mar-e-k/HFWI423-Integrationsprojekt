@@ -10,5 +10,5 @@ public interface StoreService extends CrudService<Store, Long> {
 
     Set<Store> findAllInactiveActiveStores();
 
-    Set<Register> findAllRegisters(long storeId);
+    Set<Register> findAllRegisters(Long storeId);
 }

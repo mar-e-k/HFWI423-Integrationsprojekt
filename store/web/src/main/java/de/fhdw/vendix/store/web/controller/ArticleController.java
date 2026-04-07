@@ -1,15 +1,17 @@
 package de.fhdw.vendix.store.web.controller;
 
+import de.fhdw.vendix.commons.api.domain.article.ArticleDTO;
 import de.fhdw.vendix.commons.spring.web.server.store.api.ArticleApi;
-import de.fhdw.vendix.commons.spring.web.server.store.model.ArticleDTO;
 import de.fhdw.vendix.store.core.domain.article.ArticleMapper;
 import de.fhdw.vendix.store.core.domain.article.ArticleService;
 import org.jspecify.annotations.Nullable;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @RestController
 class ArticleController implements ArticleApi {
@@ -23,7 +25,25 @@ class ArticleController implements ArticleApi {
     }
 
     @Override
-    public ResponseEntity<List<ArticleDTO>> getArticles(@Nullable Long id) {
-        return ArticleApi.super.getArticles(id);
+    public ResponseEntity<Set<ArticleDTO>> getArticles(
+            @Nullable Long id
+    ) {
+        Set<ArticleDTO> filtered = articleService.findAll().stream()
+                .filter(a -> id == null || Objects.equals(a.getId(), id))
+                .map(articleMapper::toDTO)
+                .collect(Collectors.toUnmodifiableSet());
+        return ResponseEntity.ok(filtered);
+    }
+
+    @Override
+    public ResponseEntity<ArticleDTO> getArticleById(Long id) {
+        Optional<ArticleDTO> articleDTO = articleService.findById(id).map(articleMapper::toDTO);
+        return ResponseEntity.of(articleDTO);
+    }
+
+    @Override
+    public ResponseEntity<ArticleDTO> getArticleByGtin(Long gtin) {
+        Optional<ArticleDTO> articleDTO = articleService.findByGtin(String.valueOf(gtin)).map(articleMapper::toDTO);
+        return ResponseEntity.of(articleDTO);
     }
 }

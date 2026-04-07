@@ -50,7 +50,7 @@ public class OrchestratorAppLayout extends AbstractApplicationLayout {
 
         SideNav externalHeader = new SideNav("External");
         externalHeader.addItem(
-                new SideNavItem("Grafana", "http://localhost:3030", VaadinIcon.CHART.create()),
+                new SideNavItem("Grafana", "http://localhost:3000", VaadinIcon.CHART.create()),
                 new SideNavItem("Neon", "https://console.neon.tech/app/projects/bitter-feather-66001186", VaadinIcon.DATABASE.create()),
                 new SideNavItem("CloudAMQP", "https://api.cloudamqp.com/console/649e89f9-9795-4012-9e9b-fbf61637e747", VaadinIcon.CLOUD.create()),
                 new SideNavItem("Swagger", "http://localhost:8080/swagger", VaadinIcon.CODE.create())

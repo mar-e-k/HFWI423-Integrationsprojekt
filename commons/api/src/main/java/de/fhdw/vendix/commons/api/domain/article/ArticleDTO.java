@@ -8,7 +8,7 @@ import java.util.List;
 
 public record ArticleDTO(
         @Nullable Long id,
-        long gtin,
+        Long gtin,
         String name,
         String description,
         String manufacturer,
@@ -17,16 +17,16 @@ public record ArticleDTO(
         BigDecimal purchasePrice,
         BigDecimal sellingPrice,
         BigDecimal taxRate,
-        long stock,
-        boolean isAvailable,
-        boolean isDeposit
+        Long stock,
+        Boolean isAvailable,
+        Boolean isDeposit
 ) implements DomainDTO {
     public ArticleDTO {
         if (id != null && id < 0) {
             throw new IllegalArgumentException("ArticleDTO parameter 'id' cannot be negative");
         }
-        if (gtin < 0) {
-            throw new IllegalArgumentException("ArticleDTO parameter 'gtin' cannot be negative");
+        if (gtin == null || gtin < 0) {
+            throw new IllegalArgumentException("ArticleDTO parameter 'gtin' cannot be null or negative");
         }
         if (List.of(8, 12, 13, 14).contains(String.valueOf(gtin).length())) {
             throw new IllegalArgumentException("ArticleDTO parameter 'gtin' must be 8, 12, 13, 14 lengths long");
@@ -64,8 +64,14 @@ public record ArticleDTO(
         if (taxRate.compareTo(BigDecimal.valueOf(0)) < 1 || taxRate.compareTo(BigDecimal.valueOf(100)) > 0) {
             throw new IllegalArgumentException("ArticleDTO parameter 'taxRate' must be between 0 and 100");
         }
-        if (stock < 0) {
-            throw new IllegalArgumentException("ArticleDTO parameter 'stock' cannot be negative");
+        if (stock == null || stock < 0) {
+            throw new IllegalArgumentException("ArticleDTO parameter 'stock' cannot be null or negative");
+        }
+        if (isAvailable == null) {
+            throw new IllegalArgumentException("ArticleDTO parameter 'isAvailable' cannot be negative");
+        }
+        if (isDeposit == null) {
+            throw new IllegalArgumentException("ArticleDTO parameter 'isDeposit' cannot be negative");
         }
     }
 }
