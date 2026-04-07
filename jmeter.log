@@ -1,0 +1,337 @@
+2026-04-07 18:29:10,697 INFO o.a.j.u.JMeterUtils: Setting Locale to en_EN
+2026-04-07 18:29:10,718 INFO o.a.j.JMeter: Loading user properties from: C:\tools\apache-jmeter-5.6.3\bin\user.properties
+2026-04-07 18:29:10,718 INFO o.a.j.JMeter: Loading system properties from: C:\tools\apache-jmeter-5.6.3\bin\system.properties
+2026-04-07 18:29:10,718 INFO o.a.j.JMeter: Setting JMeter property: threads=100
+2026-04-07 18:29:10,718 INFO o.a.j.JMeter: Setting JMeter property: rampup=2
+2026-04-07 18:29:10,718 INFO o.a.j.JMeter: Setting JMeter property: duration=40
+2026-04-07 18:29:10,718 INFO o.a.j.JMeter: Setting JMeter property: host=localhost
+2026-04-07 18:29:10,718 INFO o.a.j.JMeter: Setting JMeter property: port=8081
+2026-04-07 18:29:10,728 INFO o.a.j.JMeter: Copyright (c) 1998-2024 The Apache Software Foundation
+2026-04-07 18:29:10,728 INFO o.a.j.JMeter: Version 5.6.3
+2026-04-07 18:29:10,728 INFO o.a.j.JMeter: java.version=17.0.10
+2026-04-07 18:29:10,728 INFO o.a.j.JMeter: java.vm.name=Java HotSpot(TM) 64-Bit Server VM
+2026-04-07 18:29:10,728 INFO o.a.j.JMeter: os.name=Windows 11
+2026-04-07 18:29:10,728 INFO o.a.j.JMeter: os.arch=amd64
+2026-04-07 18:29:10,728 INFO o.a.j.JMeter: os.version=10.0
+2026-04-07 18:29:10,728 INFO o.a.j.JMeter: file.encoding=Cp1252
+2026-04-07 18:29:10,728 INFO o.a.j.JMeter: java.awt.headless=true
+2026-04-07 18:29:10,728 INFO o.a.j.JMeter: Max memory     =1073741824
+2026-04-07 18:29:10,728 INFO o.a.j.JMeter: Available Processors =12
+2026-04-07 18:29:10,728 INFO o.a.j.JMeter: Default Locale=English (EN)
+2026-04-07 18:29:10,728 INFO o.a.j.JMeter: JMeter  Locale=English (EN)
+2026-04-07 18:29:10,728 INFO o.a.j.JMeter: JMeterHome=C:\tools\apache-jmeter-5.6.3
+2026-04-07 18:29:10,728 INFO o.a.j.JMeter: user.dir  =C:\Users\admin\Downloads\logistik\logistik
+2026-04-07 18:29:10,739 INFO o.a.j.JMeter: PWD       =C:\Users\admin\Downloads\logistik\logistik
+2026-04-07 18:29:10,744 INFO o.a.j.JMeter: IP: 172.17.161.104 Name: NB23-767 FullName: NB23-767.ha.bib.de
+2026-04-07 18:29:10,749 INFO o.a.j.s.FileServer: Default base='C:\Users\admin\Downloads\logistik\logistik'
+2026-04-07 18:29:10,749 INFO o.a.j.s.FileServer: Set new base='C:\Users\admin\Downloads\logistik\logistik\monitoring\jmeter'
+2026-04-07 18:29:10,973 INFO o.a.j.s.SaveService: Testplan (JMX) version: 2.2. Testlog (JTL) version: 2.2
+2026-04-07 18:29:10,999 INFO o.a.j.s.SaveService: Using SaveService properties version 5.0
+2026-04-07 18:29:11,012 INFO o.a.j.s.SaveService: Using SaveService properties file encoding UTF-8
+2026-04-07 18:29:11,020 INFO o.a.j.s.SaveService: Loading file: C:\Users\admin\Downloads\logistik\logistik\monitoring\jmeter\logistik-parametrisiert.jmx
+2026-04-07 18:29:11,064 ERROR o.a.j.JMeter: Error in NonGUIDriver
+java.lang.IllegalArgumentException: Problem loading XML from:'C:\Users\admin\Downloads\logistik\logistik\monitoring\jmeter\logistik-parametrisiert.jmx'. 
+Cause:
+NumberFormatException: For input string: "${__P(threads,10)}"
+
+ Detail:com.thoughtworks.xstream.converters.ConversionException: 
+---- Debugging information ----
+cause-exception     : com.thoughtworks.xstream.converters.ConversionException
+cause-message       : 
+first-jmeter-class  : org.apache.jmeter.save.converters.TestElementConverter.unmarshal(TestElementConverter.java:109)
+class               : org.apache.jmeter.save.ScriptWrapper
+required-type       : org.apache.jmeter.save.ScriptWrapper
+converter-type      : org.apache.jmeter.save.ScriptWrapperConverter
+path                : /jmeterTestPlan/hashTree/hashTree/ThreadGroup/intProp
+line number         : 18
+version             : 5.6.3
+-------------------------------
+	at org.apache.jmeter.save.SaveService.readTree(SaveService.java:456) ~[ApacheJMeter_core.jar:5.6.3]
+	at org.apache.jmeter.save.SaveService.loadTree(SaveService.java:429) ~[ApacheJMeter_core.jar:5.6.3]
+	at org.apache.jmeter.JMeter.runNonGui(JMeter.java:954) [ApacheJMeter_core.jar:5.6.3]
+	at org.apache.jmeter.JMeter.startNonGui(JMeter.java:940) [ApacheJMeter_core.jar:5.6.3]
+	at org.apache.jmeter.JMeter.start(JMeter.java:508) [ApacheJMeter_core.jar:5.6.3]
+	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke0(Native Method) ~[?:?]
+	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:77) ~[?:?]
+	at java.base/jdk.internal.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43) ~[?:?]
+	at java.base/java.lang.reflect.Method.invoke(Method.java:568) ~[?:?]
+	at org.apache.jmeter.NewDriver.main(NewDriver.java:259) [ApacheJMeter.jar:5.6.3]
+Caused by: com.thoughtworks.xstream.converters.ConversionException: 
+---- Debugging information ----
+cause-exception     : com.thoughtworks.xstream.converters.ConversionException
+cause-message       : 
+first-jmeter-class  : org.apache.jmeter.save.converters.TestElementConverter.unmarshal(TestElementConverter.java:109)
+class               : org.apache.jmeter.save.ScriptWrapper
+required-type       : org.apache.jmeter.save.ScriptWrapper
+converter-type      : org.apache.jmeter.save.ScriptWrapperConverter
+path                : /jmeterTestPlan/hashTree/hashTree/ThreadGroup/intProp
+line number         : 18
+version             : 5.6.3
+-------------------------------
+	at org.apache.jmeter.save.ScriptWrapperConverter.createConversionException(ScriptWrapperConverter.java:101) ~[ApacheJMeter_core.jar:5.6.3]
+	at org.apache.jmeter.save.ScriptWrapperConverter.unmarshal(ScriptWrapperConverter.java:95) ~[ApacheJMeter_core.jar:5.6.3]
+	at com.thoughtworks.xstream.core.TreeUnmarshaller.convert(TreeUnmarshaller.java:74) ~[xstream-1.4.20.jar:1.4.20]
+	at com.thoughtworks.xstream.core.AbstractReferenceUnmarshaller.convert(AbstractReferenceUnmarshaller.java:72) ~[xstream-1.4.20.jar:1.4.20]
+	at com.thoughtworks.xstream.core.TreeUnmarshaller.convertAnother(TreeUnmarshaller.java:68) ~[xstream-1.4.20.jar:1.4.20]
+	at com.thoughtworks.xstream.core.TreeUnmarshaller.convertAnother(TreeUnmarshaller.java:52) ~[xstream-1.4.20.jar:1.4.20]
+	at com.thoughtworks.xstream.core.TreeUnmarshaller.start(TreeUnmarshaller.java:136) ~[xstream-1.4.20.jar:1.4.20]
+	at com.thoughtworks.xstream.core.AbstractTreeMarshallingStrategy.unmarshal(AbstractTreeMarshallingStrategy.java:32) ~[xstream-1.4.20.jar:1.4.20]
+	at com.thoughtworks.xstream.XStream.unmarshal(XStream.java:1464) ~[xstream-1.4.20.jar:1.4.20]
+	at com.thoughtworks.xstream.XStream.unmarshal(XStream.java:1441) ~[xstream-1.4.20.jar:1.4.20]
+	at com.thoughtworks.xstream.XStream.fromXML(XStream.java:1321) ~[xstream-1.4.20.jar:1.4.20]
+	at org.apache.jmeter.save.SaveService.readTree(SaveService.java:446) ~[ApacheJMeter_core.jar:5.6.3]
+	... 9 more
+Caused by: com.thoughtworks.xstream.converters.ConversionException: 
+---- Debugging information ----
+cause-exception     : java.lang.NumberFormatException
+cause-message       : For input string: "${__P(threads,10)}"
+class               : org.apache.jmeter.testelement.property.IntegerProperty
+required-type       : org.apache.jmeter.testelement.property.IntegerProperty
+converter-type      : org.apache.jmeter.save.converters.IntegerPropertyConverter
+path                : /jmeterTestPlan/hashTree/hashTree/ThreadGroup/intProp
+line number         : 18
+class[1]            : org.apache.jmeter.threads.ThreadGroup
+required-type[1]    : org.apache.jmeter.threads.ThreadGroup
+converter-type[1]   : org.apache.jmeter.save.converters.TestElementConverter
+class[2]            : org.apache.jorphan.collections.ListedHashTree
+required-type[2]    : org.apache.jorphan.collections.ListedHashTree
+converter-type[2]   : org.apache.jmeter.save.converters.HashTreeConverter
+-------------------------------
+	at com.thoughtworks.xstream.core.TreeUnmarshaller.convert(TreeUnmarshaller.java:81) ~[xstream-1.4.20.jar:1.4.20]
+	at com.thoughtworks.xstream.core.AbstractReferenceUnmarshaller.convert(AbstractReferenceUnmarshaller.java:72) ~[xstream-1.4.20.jar:1.4.20]
+	at com.thoughtworks.xstream.core.TreeUnmarshaller.convertAnother(TreeUnmarshaller.java:68) ~[xstream-1.4.20.jar:1.4.20]
+	at com.thoughtworks.xstream.core.TreeUnmarshaller.convertAnother(TreeUnmarshaller.java:52) ~[xstream-1.4.20.jar:1.4.20]
+	at com.thoughtworks.xstream.converters.collections.AbstractCollectionConverter.readBareItem(AbstractCollectionConverter.java:132) ~[xstream-1.4.20.jar:1.4.20]
+	at org.apache.jmeter.save.converters.TestElementConverter.unmarshal(TestElementConverter.java:109) ~[ApacheJMeter_core.jar:5.6.3]
+	at com.thoughtworks.xstream.core.TreeUnmarshaller.convert(TreeUnmarshaller.java:74) ~[xstream-1.4.20.jar:1.4.20]
+	at com.thoughtworks.xstream.core.AbstractReferenceUnmarshaller.convert(AbstractReferenceUnmarshaller.java:72) ~[xstream-1.4.20.jar:1.4.20]
+	at com.thoughtworks.xstream.core.TreeUnmarshaller.convertAnother(TreeUnmarshaller.java:68) ~[xstream-1.4.20.jar:1.4.20]
+	at com.thoughtworks.xstream.core.TreeUnmarshaller.convertAnother(TreeUnmarshaller.java:52) ~[xstream-1.4.20.jar:1.4.20]
+	at com.thoughtworks.xstream.converters.collections.AbstractCollectionConverter.readBareItem(AbstractCollectionConverter.java:132) ~[xstream-1.4.20.jar:1.4.20]
+	at org.apache.jmeter.save.converters.HashTreeConverter.unmarshal(HashTreeConverter.java:66) ~[ApacheJMeter_core.jar:5.6.3]
+	at com.thoughtworks.xstream.core.TreeUnmarshaller.convert(TreeUnmarshaller.java:74) ~[xstream-1.4.20.jar:1.4.20]
+	at com.thoughtworks.xstream.core.AbstractReferenceUnmarshaller.convert(AbstractReferenceUnmarshaller.java:72) ~[xstream-1.4.20.jar:1.4.20]
+	at com.thoughtworks.xstream.core.TreeUnmarshaller.convertAnother(TreeUnmarshaller.java:68) ~[xstream-1.4.20.jar:1.4.20]
+	at com.thoughtworks.xstream.core.TreeUnmarshaller.convertAnother(TreeUnmarshaller.java:52) ~[xstream-1.4.20.jar:1.4.20]
+	at com.thoughtworks.xstream.converters.collections.AbstractCollectionConverter.readBareItem(AbstractCollectionConverter.java:132) ~[xstream-1.4.20.jar:1.4.20]
+	at org.apache.jmeter.save.converters.HashTreeConverter.unmarshal(HashTreeConverter.java:66) ~[ApacheJMeter_core.jar:5.6.3]
+	at com.thoughtworks.xstream.core.TreeUnmarshaller.convert(TreeUnmarshaller.java:74) ~[xstream-1.4.20.jar:1.4.20]
+	at com.thoughtworks.xstream.core.AbstractReferenceUnmarshaller.convert(AbstractReferenceUnmarshaller.java:72) ~[xstream-1.4.20.jar:1.4.20]
+	at com.thoughtworks.xstream.core.TreeUnmarshaller.convertAnother(TreeUnmarshaller.java:68) ~[xstream-1.4.20.jar:1.4.20]
+	at com.thoughtworks.xstream.core.TreeUnmarshaller.convertAnother(TreeUnmarshaller.java:52) ~[xstream-1.4.20.jar:1.4.20]
+	at org.apache.jmeter.save.ScriptWrapperConverter.unmarshal(ScriptWrapperConverter.java:93) ~[ApacheJMeter_core.jar:5.6.3]
+	at com.thoughtworks.xstream.core.TreeUnmarshaller.convert(TreeUnmarshaller.java:74) ~[xstream-1.4.20.jar:1.4.20]
+	at com.thoughtworks.xstream.core.AbstractReferenceUnmarshaller.convert(AbstractReferenceUnmarshaller.java:72) ~[xstream-1.4.20.jar:1.4.20]
+	at com.thoughtworks.xstream.core.TreeUnmarshaller.convertAnother(TreeUnmarshaller.java:68) ~[xstream-1.4.20.jar:1.4.20]
+	at com.thoughtworks.xstream.core.TreeUnmarshaller.convertAnother(TreeUnmarshaller.java:52) ~[xstream-1.4.20.jar:1.4.20]
+	at com.thoughtworks.xstream.core.TreeUnmarshaller.start(TreeUnmarshaller.java:136) ~[xstream-1.4.20.jar:1.4.20]
+	at com.thoughtworks.xstream.core.AbstractTreeMarshallingStrategy.unmarshal(AbstractTreeMarshallingStrategy.java:32) ~[xstream-1.4.20.jar:1.4.20]
+	at com.thoughtworks.xstream.XStream.unmarshal(XStream.java:1464) ~[xstream-1.4.20.jar:1.4.20]
+	at com.thoughtworks.xstream.XStream.unmarshal(XStream.java:1441) ~[xstream-1.4.20.jar:1.4.20]
+	at com.thoughtworks.xstream.XStream.fromXML(XStream.java:1321) ~[xstream-1.4.20.jar:1.4.20]
+	at org.apache.jmeter.save.SaveService.readTree(SaveService.java:446) ~[ApacheJMeter_core.jar:5.6.3]
+	... 9 more
+Caused by: java.lang.NumberFormatException: For input string: "${__P(threads,10)}"
+	at java.base/java.lang.NumberFormatException.forInputString(NumberFormatException.java:67) ~[?:?]
+	at java.base/java.lang.Integer.parseInt(Integer.java:654) ~[?:?]
+	at java.base/java.lang.Integer.parseInt(Integer.java:786) ~[?:?]
+	at org.apache.jmeter.save.converters.IntegerPropertyConverter.unmarshal(IntegerPropertyConverter.java:61) ~[ApacheJMeter_core.jar:5.6.3]
+	at com.thoughtworks.xstream.core.TreeUnmarshaller.convert(TreeUnmarshaller.java:74) ~[xstream-1.4.20.jar:1.4.20]
+	at com.thoughtworks.xstream.core.AbstractReferenceUnmarshaller.convert(AbstractReferenceUnmarshaller.java:72) ~[xstream-1.4.20.jar:1.4.20]
+	at com.thoughtworks.xstream.core.TreeUnmarshaller.convertAnother(TreeUnmarshaller.java:68) ~[xstream-1.4.20.jar:1.4.20]
+	at com.thoughtworks.xstream.core.TreeUnmarshaller.convertAnother(TreeUnmarshaller.java:52) ~[xstream-1.4.20.jar:1.4.20]
+	at com.thoughtworks.xstream.converters.collections.AbstractCollectionConverter.readBareItem(AbstractCollectionConverter.java:132) ~[xstream-1.4.20.jar:1.4.20]
+	at org.apache.jmeter.save.converters.TestElementConverter.unmarshal(TestElementConverter.java:109) ~[ApacheJMeter_core.jar:5.6.3]
+	at com.thoughtworks.xstream.core.TreeUnmarshaller.convert(TreeUnmarshaller.java:74) ~[xstream-1.4.20.jar:1.4.20]
+	at com.thoughtworks.xstream.core.AbstractReferenceUnmarshaller.convert(AbstractReferenceUnmarshaller.java:72) ~[xstream-1.4.20.jar:1.4.20]
+	at com.thoughtworks.xstream.core.TreeUnmarshaller.convertAnother(TreeUnmarshaller.java:68) ~[xstream-1.4.20.jar:1.4.20]
+	at com.thoughtworks.xstream.core.TreeUnmarshaller.convertAnother(TreeUnmarshaller.java:52) ~[xstream-1.4.20.jar:1.4.20]
+	at com.thoughtworks.xstream.converters.collections.AbstractCollectionConverter.readBareItem(AbstractCollectionConverter.java:132) ~[xstream-1.4.20.jar:1.4.20]
+	at org.apache.jmeter.save.converters.HashTreeConverter.unmarshal(HashTreeConverter.java:66) ~[ApacheJMeter_core.jar:5.6.3]
+	at com.thoughtworks.xstream.core.TreeUnmarshaller.convert(TreeUnmarshaller.java:74) ~[xstream-1.4.20.jar:1.4.20]
+	at com.thoughtworks.xstream.core.AbstractReferenceUnmarshaller.convert(AbstractReferenceUnmarshaller.java:72) ~[xstream-1.4.20.jar:1.4.20]
+	at com.thoughtworks.xstream.core.TreeUnmarshaller.convertAnother(TreeUnmarshaller.java:68) ~[xstream-1.4.20.jar:1.4.20]
+	at com.thoughtworks.xstream.core.TreeUnmarshaller.convertAnother(TreeUnmarshaller.java:52) ~[xstream-1.4.20.jar:1.4.20]
+	at com.thoughtworks.xstream.converters.collections.AbstractCollectionConverter.readBareItem(AbstractCollectionConverter.java:132) ~[xstream-1.4.20.jar:1.4.20]
+	at org.apache.jmeter.save.converters.HashTreeConverter.unmarshal(HashTreeConverter.java:66) ~[ApacheJMeter_core.jar:5.6.3]
+	at com.thoughtworks.xstream.core.TreeUnmarshaller.convert(TreeUnmarshaller.java:74) ~[xstream-1.4.20.jar:1.4.20]
+	at com.thoughtworks.xstream.core.AbstractReferenceUnmarshaller.convert(AbstractReferenceUnmarshaller.java:72) ~[xstream-1.4.20.jar:1.4.20]
+	at com.thoughtworks.xstream.core.TreeUnmarshaller.convertAnother(TreeUnmarshaller.java:68) ~[xstream-1.4.20.jar:1.4.20]
+	at com.thoughtworks.xstream.core.TreeUnmarshaller.convertAnother(TreeUnmarshaller.java:52) ~[xstream-1.4.20.jar:1.4.20]
+	at org.apache.jmeter.save.ScriptWrapperConverter.unmarshal(ScriptWrapperConverter.java:93) ~[ApacheJMeter_core.jar:5.6.3]
+	at com.thoughtworks.xstream.core.TreeUnmarshaller.convert(TreeUnmarshaller.java:74) ~[xstream-1.4.20.jar:1.4.20]
+	at com.thoughtworks.xstream.core.AbstractReferenceUnmarshaller.convert(AbstractReferenceUnmarshaller.java:72) ~[xstream-1.4.20.jar:1.4.20]
+	at com.thoughtworks.xstream.core.TreeUnmarshaller.convertAnother(TreeUnmarshaller.java:68) ~[xstream-1.4.20.jar:1.4.20]
+	at com.thoughtworks.xstream.core.TreeUnmarshaller.convertAnother(TreeUnmarshaller.java:52) ~[xstream-1.4.20.jar:1.4.20]
+	at com.thoughtworks.xstream.core.TreeUnmarshaller.start(TreeUnmarshaller.java:136) ~[xstream-1.4.20.jar:1.4.20]
+	at com.thoughtworks.xstream.core.AbstractTreeMarshallingStrategy.unmarshal(AbstractTreeMarshallingStrategy.java:32) ~[xstream-1.4.20.jar:1.4.20]
+	at com.thoughtworks.xstream.XStream.unmarshal(XStream.java:1464) ~[xstream-1.4.20.jar:1.4.20]
+	at com.thoughtworks.xstream.XStream.unmarshal(XStream.java:1441) ~[xstream-1.4.20.jar:1.4.20]
+	at com.thoughtworks.xstream.XStream.fromXML(XStream.java:1321) ~[xstream-1.4.20.jar:1.4.20]
+	at org.apache.jmeter.save.SaveService.readTree(SaveService.java:446) ~[ApacheJMeter_core.jar:5.6.3]
+	... 9 more
+2026-04-07 18:29:11,078 ERROR o.a.j.JMeter: An error occurred: 
+org.apache.jmeter.report.config.ConfigurationException: Error in NonGUIDriver Problem loading XML from:'C:\Users\admin\Downloads\logistik\logistik\monitoring\jmeter\logistik-parametrisiert.jmx'. 
+Cause:
+NumberFormatException: For input string: "${__P(threads,10)}"
+
+ Detail:com.thoughtworks.xstream.converters.ConversionException: 
+---- Debugging information ----
+cause-exception     : com.thoughtworks.xstream.converters.ConversionException
+cause-message       : 
+first-jmeter-class  : org.apache.jmeter.save.converters.TestElementConverter.unmarshal(TestElementConverter.java:109)
+class               : org.apache.jmeter.save.ScriptWrapper
+required-type       : org.apache.jmeter.save.ScriptWrapper
+converter-type      : org.apache.jmeter.save.ScriptWrapperConverter
+path                : /jmeterTestPlan/hashTree/hashTree/ThreadGroup/intProp
+line number         : 18
+version             : 5.6.3
+-------------------------------
+	at org.apache.jmeter.JMeter.runNonGui(JMeter.java:1049) ~[ApacheJMeter_core.jar:5.6.3]
+	at org.apache.jmeter.JMeter.startNonGui(JMeter.java:940) ~[ApacheJMeter_core.jar:5.6.3]
+	at org.apache.jmeter.JMeter.start(JMeter.java:508) [ApacheJMeter_core.jar:5.6.3]
+	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke0(Native Method) ~[?:?]
+	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:77) ~[?:?]
+	at java.base/jdk.internal.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43) ~[?:?]
+	at java.base/java.lang.reflect.Method.invoke(Method.java:568) ~[?:?]
+	at org.apache.jmeter.NewDriver.main(NewDriver.java:259) [ApacheJMeter.jar:5.6.3]
+Caused by: java.lang.IllegalArgumentException: Problem loading XML from:'C:\Users\admin\Downloads\logistik\logistik\monitoring\jmeter\logistik-parametrisiert.jmx'. 
+Cause:
+NumberFormatException: For input string: "${__P(threads,10)}"
+
+ Detail:com.thoughtworks.xstream.converters.ConversionException: 
+---- Debugging information ----
+cause-exception     : com.thoughtworks.xstream.converters.ConversionException
+cause-message       : 
+first-jmeter-class  : org.apache.jmeter.save.converters.TestElementConverter.unmarshal(TestElementConverter.java:109)
+class               : org.apache.jmeter.save.ScriptWrapper
+required-type       : org.apache.jmeter.save.ScriptWrapper
+converter-type      : org.apache.jmeter.save.ScriptWrapperConverter
+path                : /jmeterTestPlan/hashTree/hashTree/ThreadGroup/intProp
+line number         : 18
+version             : 5.6.3
+-------------------------------
+	at org.apache.jmeter.save.SaveService.readTree(SaveService.java:456) ~[ApacheJMeter_core.jar:5.6.3]
+	at org.apache.jmeter.save.SaveService.loadTree(SaveService.java:429) ~[ApacheJMeter_core.jar:5.6.3]
+	at org.apache.jmeter.JMeter.runNonGui(JMeter.java:954) ~[ApacheJMeter_core.jar:5.6.3]
+	... 7 more
+Caused by: com.thoughtworks.xstream.converters.ConversionException: 
+---- Debugging information ----
+cause-exception     : com.thoughtworks.xstream.converters.ConversionException
+cause-message       : 
+first-jmeter-class  : org.apache.jmeter.save.converters.TestElementConverter.unmarshal(TestElementConverter.java:109)
+class               : org.apache.jmeter.save.ScriptWrapper
+required-type       : org.apache.jmeter.save.ScriptWrapper
+converter-type      : org.apache.jmeter.save.ScriptWrapperConverter
+path                : /jmeterTestPlan/hashTree/hashTree/ThreadGroup/intProp
+line number         : 18
+version             : 5.6.3
+-------------------------------
+	at org.apache.jmeter.save.ScriptWrapperConverter.createConversionException(ScriptWrapperConverter.java:101) ~[ApacheJMeter_core.jar:5.6.3]
+	at org.apache.jmeter.save.ScriptWrapperConverter.unmarshal(ScriptWrapperConverter.java:95) ~[ApacheJMeter_core.jar:5.6.3]
+	at com.thoughtworks.xstream.core.TreeUnmarshaller.convert(TreeUnmarshaller.java:74) ~[xstream-1.4.20.jar:1.4.20]
+	at com.thoughtworks.xstream.core.AbstractReferenceUnmarshaller.convert(AbstractReferenceUnmarshaller.java:72) ~[xstream-1.4.20.jar:1.4.20]
+	at com.thoughtworks.xstream.core.TreeUnmarshaller.convertAnother(TreeUnmarshaller.java:68) ~[xstream-1.4.20.jar:1.4.20]
+	at com.thoughtworks.xstream.core.TreeUnmarshaller.convertAnother(TreeUnmarshaller.java:52) ~[xstream-1.4.20.jar:1.4.20]
+	at com.thoughtworks.xstream.core.TreeUnmarshaller.start(TreeUnmarshaller.java:136) ~[xstream-1.4.20.jar:1.4.20]
+	at com.thoughtworks.xstream.core.AbstractTreeMarshallingStrategy.unmarshal(AbstractTreeMarshallingStrategy.java:32) ~[xstream-1.4.20.jar:1.4.20]
+	at com.thoughtworks.xstream.XStream.unmarshal(XStream.java:1464) ~[xstream-1.4.20.jar:1.4.20]
+	at com.thoughtworks.xstream.XStream.unmarshal(XStream.java:1441) ~[xstream-1.4.20.jar:1.4.20]
+	at com.thoughtworks.xstream.XStream.fromXML(XStream.java:1321) ~[xstream-1.4.20.jar:1.4.20]
+	at org.apache.jmeter.save.SaveService.readTree(SaveService.java:446) ~[ApacheJMeter_core.jar:5.6.3]
+	at org.apache.jmeter.save.SaveService.loadTree(SaveService.java:429) ~[ApacheJMeter_core.jar:5.6.3]
+	at org.apache.jmeter.JMeter.runNonGui(JMeter.java:954) ~[ApacheJMeter_core.jar:5.6.3]
+	... 7 more
+Caused by: com.thoughtworks.xstream.converters.ConversionException: 
+---- Debugging information ----
+cause-exception     : java.lang.NumberFormatException
+cause-message       : For input string: "${__P(threads,10)}"
+class               : org.apache.jmeter.testelement.property.IntegerProperty
+required-type       : org.apache.jmeter.testelement.property.IntegerProperty
+converter-type      : org.apache.jmeter.save.converters.IntegerPropertyConverter
+path                : /jmeterTestPlan/hashTree/hashTree/ThreadGroup/intProp
+line number         : 18
+class[1]            : org.apache.jmeter.threads.ThreadGroup
+required-type[1]    : org.apache.jmeter.threads.ThreadGroup
+converter-type[1]   : org.apache.jmeter.save.converters.TestElementConverter
+class[2]            : org.apache.jorphan.collections.ListedHashTree
+required-type[2]    : org.apache.jorphan.collections.ListedHashTree
+converter-type[2]   : org.apache.jmeter.save.converters.HashTreeConverter
+-------------------------------
+	at com.thoughtworks.xstream.core.TreeUnmarshaller.convert(TreeUnmarshaller.java:81) ~[xstream-1.4.20.jar:1.4.20]
+	at com.thoughtworks.xstream.core.AbstractReferenceUnmarshaller.convert(AbstractReferenceUnmarshaller.java:72) ~[xstream-1.4.20.jar:1.4.20]
+	at com.thoughtworks.xstream.core.TreeUnmarshaller.convertAnother(TreeUnmarshaller.java:68) ~[xstream-1.4.20.jar:1.4.20]
+	at com.thoughtworks.xstream.core.TreeUnmarshaller.convertAnother(TreeUnmarshaller.java:52) ~[xstream-1.4.20.jar:1.4.20]
+	at com.thoughtworks.xstream.converters.collections.AbstractCollectionConverter.readBareItem(AbstractCollectionConverter.java:132) ~[xstream-1.4.20.jar:1.4.20]
+	at org.apache.jmeter.save.converters.TestElementConverter.unmarshal(TestElementConverter.java:109) ~[ApacheJMeter_core.jar:5.6.3]
+	at com.thoughtworks.xstream.core.TreeUnmarshaller.convert(TreeUnmarshaller.java:74) ~[xstream-1.4.20.jar:1.4.20]
+	at com.thoughtworks.xstream.core.AbstractReferenceUnmarshaller.convert(AbstractReferenceUnmarshaller.java:72) ~[xstream-1.4.20.jar:1.4.20]
+	at com.thoughtworks.xstream.core.TreeUnmarshaller.convertAnother(TreeUnmarshaller.java:68) ~[xstream-1.4.20.jar:1.4.20]
+	at com.thoughtworks.xstream.core.TreeUnmarshaller.convertAnother(TreeUnmarshaller.java:52) ~[xstream-1.4.20.jar:1.4.20]
+	at com.thoughtworks.xstream.converters.collections.AbstractCollectionConverter.readBareItem(AbstractCollectionConverter.java:132) ~[xstream-1.4.20.jar:1.4.20]
+	at org.apache.jmeter.save.converters.HashTreeConverter.unmarshal(HashTreeConverter.java:66) ~[ApacheJMeter_core.jar:5.6.3]
+	at com.thoughtworks.xstream.core.TreeUnmarshaller.convert(TreeUnmarshaller.java:74) ~[xstream-1.4.20.jar:1.4.20]
+	at com.thoughtworks.xstream.core.AbstractReferenceUnmarshaller.convert(AbstractReferenceUnmarshaller.java:72) ~[xstream-1.4.20.jar:1.4.20]
+	at com.thoughtworks.xstream.core.TreeUnmarshaller.convertAnother(TreeUnmarshaller.java:68) ~[xstream-1.4.20.jar:1.4.20]
+	at com.thoughtworks.xstream.core.TreeUnmarshaller.convertAnother(TreeUnmarshaller.java:52) ~[xstream-1.4.20.jar:1.4.20]
+	at com.thoughtworks.xstream.converters.collections.AbstractCollectionConverter.readBareItem(AbstractCollectionConverter.java:132) ~[xstream-1.4.20.jar:1.4.20]
+	at org.apache.jmeter.save.converters.HashTreeConverter.unmarshal(HashTreeConverter.java:66) ~[ApacheJMeter_core.jar:5.6.3]
+	at com.thoughtworks.xstream.core.TreeUnmarshaller.convert(TreeUnmarshaller.java:74) ~[xstream-1.4.20.jar:1.4.20]
+	at com.thoughtworks.xstream.core.AbstractReferenceUnmarshaller.convert(AbstractReferenceUnmarshaller.java:72) ~[xstream-1.4.20.jar:1.4.20]
+	at com.thoughtworks.xstream.core.TreeUnmarshaller.convertAnother(TreeUnmarshaller.java:68) ~[xstream-1.4.20.jar:1.4.20]
+	at com.thoughtworks.xstream.core.TreeUnmarshaller.convertAnother(TreeUnmarshaller.java:52) ~[xstream-1.4.20.jar:1.4.20]
+	at org.apache.jmeter.save.ScriptWrapperConverter.unmarshal(ScriptWrapperConverter.java:93) ~[ApacheJMeter_core.jar:5.6.3]
+	at com.thoughtworks.xstream.core.TreeUnmarshaller.convert(TreeUnmarshaller.java:74) ~[xstream-1.4.20.jar:1.4.20]
+	at com.thoughtworks.xstream.core.AbstractReferenceUnmarshaller.convert(AbstractReferenceUnmarshaller.java:72) ~[xstream-1.4.20.jar:1.4.20]
+	at com.thoughtworks.xstream.core.TreeUnmarshaller.convertAnother(TreeUnmarshaller.java:68) ~[xstream-1.4.20.jar:1.4.20]
+	at com.thoughtworks.xstream.core.TreeUnmarshaller.convertAnother(TreeUnmarshaller.java:52) ~[xstream-1.4.20.jar:1.4.20]
+	at com.thoughtworks.xstream.core.TreeUnmarshaller.start(TreeUnmarshaller.java:136) ~[xstream-1.4.20.jar:1.4.20]
+	at com.thoughtworks.xstream.core.AbstractTreeMarshallingStrategy.unmarshal(AbstractTreeMarshallingStrategy.java:32) ~[xstream-1.4.20.jar:1.4.20]
+	at com.thoughtworks.xstream.XStream.unmarshal(XStream.java:1464) ~[xstream-1.4.20.jar:1.4.20]
+	at com.thoughtworks.xstream.XStream.unmarshal(XStream.java:1441) ~[xstream-1.4.20.jar:1.4.20]
+	at com.thoughtworks.xstream.XStream.fromXML(XStream.java:1321) ~[xstream-1.4.20.jar:1.4.20]
+	at org.apache.jmeter.save.SaveService.readTree(SaveService.java:446) ~[ApacheJMeter_core.jar:5.6.3]
+	at org.apache.jmeter.save.SaveService.loadTree(SaveService.java:429) ~[ApacheJMeter_core.jar:5.6.3]
+	at org.apache.jmeter.JMeter.runNonGui(JMeter.java:954) ~[ApacheJMeter_core.jar:5.6.3]
+	... 7 more
+Caused by: java.lang.NumberFormatException: For input string: "${__P(threads,10)}"
+	at java.base/java.lang.NumberFormatException.forInputString(NumberFormatException.java:67) ~[?:?]
+	at java.base/java.lang.Integer.parseInt(Integer.java:654) ~[?:?]
+	at java.base/java.lang.Integer.parseInt(Integer.java:786) ~[?:?]
+	at org.apache.jmeter.save.converters.IntegerPropertyConverter.unmarshal(IntegerPropertyConverter.java:61) ~[ApacheJMeter_core.jar:5.6.3]
+	at com.thoughtworks.xstream.core.TreeUnmarshaller.convert(TreeUnmarshaller.java:74) ~[xstream-1.4.20.jar:1.4.20]
+	at com.thoughtworks.xstream.core.AbstractReferenceUnmarshaller.convert(AbstractReferenceUnmarshaller.java:72) ~[xstream-1.4.20.jar:1.4.20]
+	at com.thoughtworks.xstream.core.TreeUnmarshaller.convertAnother(TreeUnmarshaller.java:68) ~[xstream-1.4.20.jar:1.4.20]
+	at com.thoughtworks.xstream.core.TreeUnmarshaller.convertAnother(TreeUnmarshaller.java:52) ~[xstream-1.4.20.jar:1.4.20]
+	at com.thoughtworks.xstream.converters.collections.AbstractCollectionConverter.readBareItem(AbstractCollectionConverter.java:132) ~[xstream-1.4.20.jar:1.4.20]
+	at org.apache.jmeter.save.converters.TestElementConverter.unmarshal(TestElementConverter.java:109) ~[ApacheJMeter_core.jar:5.6.3]
+	at com.thoughtworks.xstream.core.TreeUnmarshaller.convert(TreeUnmarshaller.java:74) ~[xstream-1.4.20.jar:1.4.20]
+	at com.thoughtworks.xstream.core.AbstractReferenceUnmarshaller.convert(AbstractReferenceUnmarshaller.java:72) ~[xstream-1.4.20.jar:1.4.20]
+	at com.thoughtworks.xstream.core.TreeUnmarshaller.convertAnother(TreeUnmarshaller.java:68) ~[xstream-1.4.20.jar:1.4.20]
+	at com.thoughtworks.xstream.core.TreeUnmarshaller.convertAnother(TreeUnmarshaller.java:52) ~[xstream-1.4.20.jar:1.4.20]
+	at com.thoughtworks.xstream.converters.collections.AbstractCollectionConverter.readBareItem(AbstractCollectionConverter.java:132) ~[xstream-1.4.20.jar:1.4.20]
+	at org.apache.jmeter.save.converters.HashTreeConverter.unmarshal(HashTreeConverter.java:66) ~[ApacheJMeter_core.jar:5.6.3]
+	at com.thoughtworks.xstream.core.TreeUnmarshaller.convert(TreeUnmarshaller.java:74) ~[xstream-1.4.20.jar:1.4.20]
+	at com.thoughtworks.xstream.core.AbstractReferenceUnmarshaller.convert(AbstractReferenceUnmarshaller.java:72) ~[xstream-1.4.20.jar:1.4.20]
+	at com.thoughtworks.xstream.core.TreeUnmarshaller.convertAnother(TreeUnmarshaller.java:68) ~[xstream-1.4.20.jar:1.4.20]
+	at com.thoughtworks.xstream.core.TreeUnmarshaller.convertAnother(TreeUnmarshaller.java:52) ~[xstream-1.4.20.jar:1.4.20]
+	at com.thoughtworks.xstream.converters.collections.AbstractCollectionConverter.readBareItem(AbstractCollectionConverter.java:132) ~[xstream-1.4.20.jar:1.4.20]
+	at org.apache.jmeter.save.converters.HashTreeConverter.unmarshal(HashTreeConverter.java:66) ~[ApacheJMeter_core.jar:5.6.3]
+	at com.thoughtworks.xstream.core.TreeUnmarshaller.convert(TreeUnmarshaller.java:74) ~[xstream-1.4.20.jar:1.4.20]
+	at com.thoughtworks.xstream.core.AbstractReferenceUnmarshaller.convert(AbstractReferenceUnmarshaller.java:72) ~[xstream-1.4.20.jar:1.4.20]
+	at com.thoughtworks.xstream.core.TreeUnmarshaller.convertAnother(TreeUnmarshaller.java:68) ~[xstream-1.4.20.jar:1.4.20]
+	at com.thoughtworks.xstream.core.TreeUnmarshaller.convertAnother(TreeUnmarshaller.java:52) ~[xstream-1.4.20.jar:1.4.20]
+	at org.apache.jmeter.save.ScriptWrapperConverter.unmarshal(ScriptWrapperConverter.java:93) ~[ApacheJMeter_core.jar:5.6.3]
+	at com.thoughtworks.xstream.core.TreeUnmarshaller.convert(TreeUnmarshaller.java:74) ~[xstream-1.4.20.jar:1.4.20]
+	at com.thoughtworks.xstream.core.AbstractReferenceUnmarshaller.convert(AbstractReferenceUnmarshaller.java:72) ~[xstream-1.4.20.jar:1.4.20]
+	at com.thoughtworks.xstream.core.TreeUnmarshaller.convertAnother(TreeUnmarshaller.java:68) ~[xstream-1.4.20.jar:1.4.20]
+	at com.thoughtworks.xstream.core.TreeUnmarshaller.convertAnother(TreeUnmarshaller.java:52) ~[xstream-1.4.20.jar:1.4.20]
+	at com.thoughtworks.xstream.core.TreeUnmarshaller.start(TreeUnmarshaller.java:136) ~[xstream-1.4.20.jar:1.4.20]
+	at com.thoughtworks.xstream.core.AbstractTreeMarshallingStrategy.unmarshal(AbstractTreeMarshallingStrategy.java:32) ~[xstream-1.4.20.jar:1.4.20]
+	at com.thoughtworks.xstream.XStream.unmarshal(XStream.java:1464) ~[xstream-1.4.20.jar:1.4.20]
+	at com.thoughtworks.xstream.XStream.unmarshal(XStream.java:1441) ~[xstream-1.4.20.jar:1.4.20]
+	at com.thoughtworks.xstream.XStream.fromXML(XStream.java:1321) ~[xstream-1.4.20.jar:1.4.20]
+	at org.apache.jmeter.save.SaveService.readTree(SaveService.java:446) ~[ApacheJMeter_core.jar:5.6.3]
+	at org.apache.jmeter.save.SaveService.loadTree(SaveService.java:429) ~[ApacheJMeter_core.jar:5.6.3]
+	at org.apache.jmeter.JMeter.runNonGui(JMeter.java:954) ~[ApacheJMeter_core.jar:5.6.3]
+	... 7 more

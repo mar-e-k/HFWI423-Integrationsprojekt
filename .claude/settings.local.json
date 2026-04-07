@@ -26,7 +26,11 @@
       "Bash(\"C:/Program Files/JetBrains/IntelliJ IDEA 2025.2.4/jbr/bin/java.exe\" -version 2>&1)",
       "Bash(JAVA_HOME=\"C:/Program Files/JetBrains/IntelliJ IDEA 2025.2.4/jbr\" ./mvnw test -Dtest=\"ArticleInfoServiceTest,GoodsReceiptServiceTest,RestockOrderServiceTest\" -Dsurefire.failIfNoSpecifiedTests=false)",
       "Bash(JAVA_HOME=\"C:/Program Files/JetBrains/IntelliJ IDEA 2025.2.4/jbr\" ./mvnw test -Dtest=\"RestockOrderServiceTest#approveOrder_throwsException_whenContingentInsufficient\")",
-      "Bash(wc:*)"
+      "Bash(wc:*)",
+      "Bash(ls /c/tools/apache-jmeter-5.6.3/lib/ApacheJMeter*.jar)",
+      "Bash(cmd.exe /c \"C:\\\\tools\\\\apache-jmeter-5.6.3\\\\bin\\\\jmeter.bat\" --version)",
+      "Bash(cmd.exe /c \"C:\\\\tools\\\\apache-jmeter-5.6.3\\\\bin\\\\jmeter.bat -v\")",
+      "Bash(cmd.exe /c \"C:\\\\tools\\\\apache-jmeter-5.6.3\\\\bin\\\\jmeter.bat\" -v 2>&1)"
     ]
   }
 }

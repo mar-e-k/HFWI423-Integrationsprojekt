@@ -24,12 +24,13 @@ import io.micrometer.core.instrument.Timer;
 import org.springframework.beans.factory.annotation.Value;
 import org.vaadin.lineawesome.LineAwesomeIconUrl;
 
-import java.net.URI;
-import java.net.http.HttpClient;
-import java.net.http.HttpRequest;
-import java.net.http.HttpResponse;
+import java.io.IOException;
+import java.io.RandomAccessFile;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.time.Duration;
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -40,22 +41,11 @@ import java.util.concurrent.atomic.AtomicLong;
 @Menu(order = 99, icon = LineAwesomeIconUrl.CHART_BAR_SOLID)
 public class MonitoringView extends Div {
 
-    // ── Infrastruktur ─────────────────────────────────────────────────────────
-    private final int serverPort;
+    // ── Konfiguration ─────────────────────────────────────────────────────────
+    private final String jmeterHome;
+    private final int    serverPort;
 
-    private final HttpClient httpClient = HttpClient.newBuilder()
-            .connectTimeout(Duration.ofSeconds(5))
-            .executor(Executors.newVirtualThreadPerTaskExecutor())
-            .build();
-
-    private static final List<String> ENDPOINTS = List.of(
-            "/api/load/articles?page=0&size=20",
-            "/api/load/storage-locations",
-            "/api/load/goods-receipts",
-            "/api/load/kommissionen"
-    );
-
-    // ── Scheduler für Live-Update der Ergebniskarten ──────────────────────────
+    // ── Scheduler für Live-Update ─────────────────────────────────────────────
     private final ScheduledExecutorService scheduler =
             Executors.newSingleThreadScheduledExecutor(r -> {
                 Thread t = new Thread(r, "monitoring-refresh");
@@ -63,6 +53,11 @@ public class MonitoringView extends Div {
                 return t;
             });
     private ScheduledFuture<?> refreshTask;
+
+    // ── JMeter-Prozess ────────────────────────────────────────────────────────
+    private volatile Process  jmeterProcess;
+    private volatile Path     resultFile;
+    private volatile long     csvReadOffset = 0;
 
     // ── Lasttest-State ────────────────────────────────────────────────────────
     private final AtomicBoolean testRunning   = new AtomicBoolean(false);
@@ -72,17 +67,16 @@ public class MonitoringView extends Div {
     private final AtomicLong    totalRespMs   = new AtomicLong(0);
     private volatile Instant    testStartTime;
     private volatile String     activeTestName = "";
-    private ExecutorService     testExecutor;
 
     // ── Grafana-Metriken (Micrometer) ─────────────────────────────────────────
     private final AtomicLong activeUsersGauge = new AtomicLong(0);
-    private Counter ltAllCounter;
-    private Counter ltErrCounter;
-    private Timer   ltTimer;
+    private final Counter    ltAllCounter;
+    private final Counter    ltErrCounter;
+    private final Timer      ltTimer;
 
     // ── Lasttest-UI ──────────────────────────────────────────────────────────
     private Button stopButton;
-    private final List<Button> testButtons = new java.util.ArrayList<>();
+    private final List<Button> testButtons = new ArrayList<>();
 
     private final MetricCard ltRequestsCard = new MetricCard("Requests",      "total", "#6366f1");
     private final MetricCard ltRpsCard      = new MetricCard("Throughput",    "req/s", "#10b981");
@@ -95,8 +89,10 @@ public class MonitoringView extends Div {
     // ─────────────────────────────────────────────────────────────────────────
 
     public MonitoringView(MeterRegistry meterRegistry,
-                          @Value("${server.port:8081}") int serverPort) {
-        this.serverPort = serverPort;
+                          @Value("${server.port:8081}") int serverPort,
+                          @Value("${jmeter.home:}") String jmeterHome) {
+        this.serverPort  = serverPort;
+        this.jmeterHome  = jmeterHome;
 
         Gauge.builder("loadtest.active.users", activeUsersGauge, AtomicLong::get)
                 .description("Aktive simulierte User im Lasttest").register(meterRegistry);
@@ -140,26 +136,30 @@ public class MonitoringView extends Div {
 
     private Div buildLoadTestTab() {
         Span desc = new Span(
-                "Tests laufen gegen die REST-Endpunkte (/api/load/...) der eigenen App. " +
-                "Ergebnisse werden live hier und in Grafana angezeigt.");
+                "Lasttests werden über JMeter ausgeführt (logistik-parametrisiert.jmx). " +
+                "Ergebnisse werden live aus der JMeter-CSV gelesen und in Grafana sichtbar.");
         desc.getStyle()
                 .set("font-size", "0.82rem").set("color", "#64748b")
                 .set("display", "block").set("margin-bottom", "20px");
 
         // ── Buttons ───────────────────────────────────────────────────────────
-        Button soakBtn     = testButton("Soak Test",     "10 User · 2 Min",    "#6366f1",
-                "Dauerlast – prüft Stabilität & Memory-Leaks über Zeit");
-        Button spikeBtn    = testButton("Spike Test",    "1 → 100 → 1 User",   "#ef4444",
-                "Plötzlicher Traffic-Spike – wie reagiert das System?");
-        Button capacityBtn = testButton("Capacity Test", "5 → 50 User stufenw.","#f59e0b",
-                "Kapazitätsgrenze finden – Last wird schrittweise erhöht");
-        Button stressBtn   = testButton("Stress Test",   "Bis zum Limit",       "#dc2626",
-                "Extremlast – System bis zur Fehlergrenze treiben");
+        Button soakBtn     = testButton("Soak Test",
+                "10 User · 2 Min",       "#6366f1",
+                "10 Threads, 10s Ramp, 120s Dauerlast – Stabilität & Memory-Leaks");
+        Button spikeBtn    = testButton("Spike Test",
+                "100 User · 2s Ramp",    "#ef4444",
+                "100 Threads, 2s Ramp, 40s – plötzlicher Traffic-Spike");
+        Button capacityBtn = testButton("Capacity Test",
+                "50 User · 45s Ramp",    "#f59e0b",
+                "50 Threads, 45s Ramp, 90s – schrittweise Kapazitätsermittlung");
+        Button stressBtn   = testButton("Stress Test",
+                "150 User · 5s Ramp",    "#dc2626",
+                "150 Threads, 5s Ramp, 60s – Extremlast bis zur Fehlergrenze");
 
-        soakBtn    .addClickListener(e -> startSoakTest());
-        spikeBtn   .addClickListener(e -> startSpikeTest());
-        capacityBtn.addClickListener(e -> startCapacityTest());
-        stressBtn  .addClickListener(e -> startStressTest());
+        soakBtn    .addClickListener(e -> launchJMeter("Soak Test",     10,  10, 120));
+        spikeBtn   .addClickListener(e -> launchJMeter("Spike Test",   100,   2,  40));
+        capacityBtn.addClickListener(e -> launchJMeter("Capacity Test", 50,  45,  90));
+        stressBtn  .addClickListener(e -> launchJMeter("Stress Test",  150,   5,  60));
         testButtons.addAll(List.of(soakBtn, spikeBtn, capacityBtn, stressBtn));
 
         stopButton = new Button("■  Stoppen");
@@ -192,10 +192,8 @@ public class MonitoringView extends Div {
         Div resultBox = new Div(testStatusBadge, resultCards);
         resultBox.setWidthFull();
         resultBox.getStyle()
-                .set("background", "#fafbff")
-                .set("border", "1px solid #e8edf5")
-                .set("border-radius", "12px")
-                .set("padding", "16px 20px")
+                .set("background", "#fafbff").set("border", "1px solid #e8edf5")
+                .set("border-radius", "12px").set("padding", "16px 20px")
                 .set("margin-top", "16px");
 
         VerticalLayout tab = new VerticalLayout(desc, buttonRow, resultBox);
@@ -203,9 +201,7 @@ public class MonitoringView extends Div {
         tab.setSpacing(false);
         tab.setWidthFull();
 
-        Div wrapper = new Div(tab);
-        wrapper.setWidthFull();
-        return wrapper;
+        return new Div(tab);
     }
 
     // ── Tab 2: Grafana iFrame ─────────────────────────────────────────────────
@@ -227,15 +223,12 @@ public class MonitoringView extends Div {
         frame.getElement().setAttribute("frameborder", "0");
         frame.getElement().setAttribute("allowfullscreen", "true");
         frame.getStyle()
-                .set("border-radius", "12px")
-                .set("border", "1px solid #e8edf5");
+                .set("border-radius", "12px").set("border", "1px solid #e8edf5");
 
         Div wrapper = new Div(hint, frame);
         wrapper.setWidthFull();
         return wrapper;
     }
-
-    // ── Hilfs-Methode: Test-Button ────────────────────────────────────────────
 
     private Button testButton(String label, String sub, String color, String tooltip) {
         Button btn = new Button(label + " · " + sub);
@@ -249,66 +242,92 @@ public class MonitoringView extends Div {
     }
 
     // ══════════════════════════════════════════════════════════════════════════
-    //  Test-Implementierungen
+    //  JMeter-Steuerung
     // ══════════════════════════════════════════════════════════════════════════
 
-    private void startSoakTest() {
-        startTest("Soak Test", () -> runConcurrentLoad(10, 120_000));
-    }
-
-    private void startSpikeTest() {
-        startTest("Spike Test", () -> {
-            runConcurrentLoad(1,   5_000);
-            if (!testRunning.get()) return;
-            runConcurrentLoad(100, 30_000);
-            if (!testRunning.get()) return;
-            runConcurrentLoad(1,   5_000);
-        });
-    }
-
-    private void startCapacityTest() {
-        startTest("Capacity Test", () -> {
-            for (int users = 5; users <= 50 && testRunning.get(); users += 5) {
-                runConcurrentLoad(users, 15_000);
-            }
-        });
-    }
-
-    private void startStressTest() {
-        startTest("Stress Test", () -> {
-            for (int users = 10; users <= 150 && testRunning.get(); users += 20) {
-                runConcurrentLoad(users, 10_000);
-                long total = totalRequests.get();
-                if (total > 0 && (double) errorCount.get() / total > 0.20) break;
-            }
-        });
-    }
-
-    // ══════════════════════════════════════════════════════════════════════════
-    //  Test-Steuerung
-    // ══════════════════════════════════════════════════════════════════════════
-
-    private void startTest(String name, Runnable testLogic) {
+    /**
+     * Startet JMeter als Subprocess mit den übergebenen Parametern.
+     * Ergebnisse werden in eine temporäre CSV geschrieben, die alle 2 s
+     * gepolt und in die Live-Karten + Micrometer-Metriken übernommen wird.
+     */
+    private void launchJMeter(String name, int threads, int rampup, int duration) {
         if (testRunning.getAndSet(true)) return;
+
+        // JMeter-Binary ermitteln
+        boolean isWindows = System.getProperty("os.name", "").toLowerCase().contains("win");
+        String  binary    = jmeterHome + "/bin/" + (isWindows ? "jmeter.bat" : "jmeter");
+
+        if (jmeterHome.isBlank() || !Path.of(binary).toFile().exists()) {
+            showError("JMeter nicht gefunden. Bitte jmeter.home in application.properties setzen.\n" +
+                      "Aktuell: \"" + jmeterHome + "\"");
+            testRunning.set(false);
+            return;
+        }
+
+        // JMX-Pfad
+        Path jmxFile = Path.of("monitoring/jmeter/logistik-parametrisiert.jmx").toAbsolutePath();
+        if (!jmxFile.toFile().exists()) {
+            showError("JMX-Datei nicht gefunden: " + jmxFile);
+            testRunning.set(false);
+            return;
+        }
+
+        // Ergebnis-CSV vorbereiten
+        try {
+            Path resultsDir = Path.of("monitoring/jmeter/results");
+            Files.createDirectories(resultsDir);
+            resultFile    = resultsDir.resolve("lasttest-result.csv").toAbsolutePath();
+            Files.deleteIfExists(resultFile);   // alten Lauf löschen
+            csvReadOffset = 0;
+        } catch (IOException ex) {
+            showError("Konnte Ergebnisordner nicht anlegen: " + ex.getMessage());
+            testRunning.set(false);
+            return;
+        }
 
         resetStats();
         activeTestName = name;
         testStartTime  = Instant.now();
+        activeUsersGauge.set(threads);
 
         setTestButtonsEnabled(false);
         stopButton.setEnabled(true);
         updateStatusBadge(true);
 
-        testExecutor = Executors.newVirtualThreadPerTaskExecutor();
-        testExecutor.submit(() -> {
+        // JMeter-Kommando zusammenbauen
+        List<String> cmd = new ArrayList<>();
+        if (isWindows) { cmd.add("cmd.exe"); cmd.add("/c"); }
+        cmd.addAll(List.of(
+                binary,
+                "-n",                                          // Non-GUI
+                "-t", jmxFile.toString(),                     // Test-Plan
+                "-l", resultFile.toString(),                  // Ergebnis-CSV
+                "-Jthreads="  + threads,
+                "-Jrampup="   + rampup,
+                "-Jduration=" + duration,
+                "-Jhost=localhost",
+                "-Jport="     + serverPort
+        ));
+
+        // JMeter im Hintergrund starten
+        Executors.newVirtualThreadPerTaskExecutor().submit(() -> {
             try {
-                testLogic.run();
+                jmeterProcess = new ProcessBuilder(cmd)
+                        .redirectErrorStream(true)
+                        .start();
+                jmeterProcess.waitFor();
+            } catch (Exception ex) {
+                UI ui = getUI().orElse(null);
+                if (ui != null) ui.access(() -> showError("JMeter-Fehler: " + ex.getMessage()));
             } finally {
+                // Abschließendes CSV-Lesen bevor Status zurückgesetzt wird
+                pollCsvResults();
                 testRunning.set(false);
-                testExecutor.shutdown();
+                activeUsersGauge.set(0);
                 UI ui = getUI().orElse(null);
                 if (ui != null) {
                     ui.access(() -> {
+                        updateLiveResults();
                         setTestButtonsEnabled(true);
                         stopButton.setEnabled(false);
                         updateStatusBadge(false);
@@ -323,61 +342,49 @@ public class MonitoringView extends Div {
 
     private void stopTest() {
         testRunning.set(false);
-        if (testExecutor != null) testExecutor.shutdownNow();
+        if (jmeterProcess != null) jmeterProcess.destroyForcibly();
     }
 
-    private void runConcurrentLoad(int users, long durationMs) {
-        activeUsersGauge.set(users);
-        ExecutorService pool = Executors.newFixedThreadPool(users);
-        long deadline = System.currentTimeMillis() + durationMs;
+    // ══════════════════════════════════════════════════════════════════════════
+    //  CSV-Polling  –  liest neue Zeilen aus der JMeter-Ergebnis-CSV
+    // ══════════════════════════════════════════════════════════════════════════
 
-        for (int i = 0; i < users; i++) {
-            final int threadIndex = i;
-            pool.submit(() -> {
-                int idx = threadIndex % ENDPOINTS.size();
-                while (testRunning.get() && System.currentTimeMillis() < deadline) {
-                    sendRequest(ENDPOINTS.get(idx % ENDPOINTS.size()));
-                    idx++;
-                }
-            });
-        }
+    /**
+     * JMeter-CSV Format (mit fieldNames=true Header):
+     * timeStamp,elapsed,label,responseCode,responseMessage,threadName,
+     * dataType,success,failureMessage,bytes,sentBytes,grpThreads,allThreads,...
+     *
+     * Relevante Spalten (0-basiert):
+     *   1 = elapsed (ms)
+     *   7 = success (true/false)
+     */
+    private void pollCsvResults() {
+        if (resultFile == null || !resultFile.toFile().exists()) return;
+        try (RandomAccessFile raf = new RandomAccessFile(resultFile.toFile(), "r")) {
+            raf.seek(csvReadOffset);
+            String line;
+            while ((line = raf.readLine()) != null) {
+                if (line.startsWith("timeStamp") || line.isBlank()) continue;
+                String[] cols = line.split(",", -1);
+                if (cols.length < 8) continue;
+                try {
+                    long    elapsed = Long.parseLong(cols[1].trim());
+                    boolean success = "true".equalsIgnoreCase(cols[7].trim());
 
-        pool.shutdown();
-        try {
-            pool.awaitTermination(durationMs + 5_000, TimeUnit.MILLISECONDS);
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
-        }
-        pool.shutdownNow();
-        activeUsersGauge.set(0);
-    }
-
-    private void sendRequest(String path) {
-        String url = "http://localhost:" + serverPort + path;
-        long start = System.currentTimeMillis();
-        try {
-            HttpRequest req = HttpRequest.newBuilder()
-                    .uri(URI.create(url))
-                    .timeout(Duration.ofSeconds(10))
-                    .GET().build();
-            HttpResponse<Void> resp = httpClient.send(req, HttpResponse.BodyHandlers.discarding());
-            long ms = System.currentTimeMillis() - start;
-            totalRequests.incrementAndGet();
-            totalRespMs.addAndGet(ms);
-            ltAllCounter.increment();
-            ltTimer.record(ms, TimeUnit.MILLISECONDS);
-            if (resp.statusCode() < 400) {
-                successCount.incrementAndGet();
-            } else {
-                errorCount.incrementAndGet();
-                ltErrCounter.increment();
+                    totalRequests.incrementAndGet();
+                    totalRespMs.addAndGet(elapsed);
+                    ltAllCounter.increment();
+                    ltTimer.record(elapsed, TimeUnit.MILLISECONDS);
+                    if (success) {
+                        successCount.incrementAndGet();
+                    } else {
+                        errorCount.incrementAndGet();
+                        ltErrCounter.increment();
+                    }
+                } catch (NumberFormatException ignored) { /* Header oder leere Zeile */ }
             }
-        } catch (Exception e) {
-            totalRequests.incrementAndGet();
-            errorCount.incrementAndGet();
-            ltAllCounter.increment();
-            ltErrCounter.increment();
-        }
+            csvReadOffset = raf.getFilePointer();
+        } catch (IOException ignored) { /* Datei noch nicht vorhanden oder gesperrt */ }
     }
 
     // ══════════════════════════════════════════════════════════════════════════
@@ -386,7 +393,7 @@ public class MonitoringView extends Div {
 
     private void updateStatusBadge(boolean running) {
         if (running) {
-            testStatusBadge.setText("▶  " + activeTestName + " läuft...");
+            testStatusBadge.setText("▶  " + activeTestName + " läuft (JMeter)...");
             testStatusBadge.getStyle().set("background", "#dcfce7").set("color", "#16a34a");
         } else {
             testStatusBadge.setText("✓  " + activeTestName + " abgeschlossen");
@@ -402,20 +409,20 @@ public class MonitoringView extends Div {
         long errors  = errorCount.get();
         long respSum = totalRespMs.get();
 
-        long   elapsedSec = testStartTime != null
+        long   elapsed = testStartTime != null
                 ? Duration.between(testStartTime, Instant.now()).toSeconds() : 0;
-        double rps     = elapsedSec > 0 ? (double) total / elapsedSec : 0;
+        double rps     = elapsed > 0 ? (double) total / elapsed : 0;
         double avgMs   = total > 0 ? (double) respSum / total : 0;
         double succPct = total > 0 ? (double) success / total * 100 : 100;
 
-        ltRequestsCard.setValue(String.valueOf(total),              -1);
-        ltRpsCard     .setValue(String.format("%.1f", rps),         -1);
-        ltAvgCard     .setValue(String.format("%.0f", avgMs),       -1);
+        ltRequestsCard.setValue(String.valueOf(total),             -1);
+        ltRpsCard     .setValue(String.format("%.1f", rps),        -1);
+        ltAvgCard     .setValue(String.format("%.0f", avgMs),      -1);
         ltErrorCard   .setValue(String.valueOf(errors),
                 total > 0 ? (double) errors / total : 0);
         ltSuccessCard .setValue(String.format("%.1f", succPct),
                 succPct / 100);
-        ltElapsedCard .setValue(String.valueOf(elapsedSec),          -1);
+        ltElapsedCard .setValue(String.valueOf(elapsed),            -1);
     }
 
     private void setTestButtonsEnabled(boolean enabled) {
@@ -427,6 +434,11 @@ public class MonitoringView extends Div {
         errorCount.set(0);    totalRespMs.set(0);
     }
 
+    private void showError(String msg) {
+        Notification n = Notification.show(msg, 6000, Notification.Position.MIDDLE);
+        n.addThemeVariants(NotificationVariant.LUMO_ERROR);
+    }
+
     // ══════════════════════════════════════════════════════════════════════════
     //  Attach / Detach
     // ══════════════════════════════════════════════════════════════════════════
@@ -434,9 +446,10 @@ public class MonitoringView extends Div {
     @Override
     protected void onAttach(AttachEvent event) {
         UI ui = event.getUI();
-        refreshTask = scheduler.scheduleAtFixedRate(
-                () -> ui.access(this::updateLiveResults),
-                2, 2, TimeUnit.SECONDS);
+        refreshTask = scheduler.scheduleAtFixedRate(() -> ui.access(() -> {
+            pollCsvResults();      // neue JMeter-CSV-Zeilen einlesen
+            updateLiveResults();   // UI-Karten aktualisieren
+        }), 2, 2, TimeUnit.SECONDS);
     }
 
     @Override
