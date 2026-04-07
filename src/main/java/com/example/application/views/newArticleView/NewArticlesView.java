@@ -84,8 +84,8 @@ public class NewArticlesView extends Div {
 
         grid.addComponentColumn(candidate -> {
             TextField locationField = new TextField();
-            locationField.setPlaceholder("Storage Location");
-            locationField.setWidth("140px");
+            locationField.setPlaceholder("Lagerplatz");
+            locationField.setWidth("100px");
             locationField.setReadOnly(true);
 
             final StorageLocation[] selectedLocationHolder = new StorageLocation[1];
@@ -105,14 +105,14 @@ public class NewArticlesView extends Div {
             chooseLocation.addThemeVariants(ButtonVariant.LUMO_SMALL);
 
             IntegerField piecesPerPalletField = new IntegerField();
-            piecesPerPalletField.setPlaceholder("Stk/Palette");
+            piecesPerPalletField.setPlaceholder("Stk/Pal.");
             piecesPerPalletField.setMin(1);
-            piecesPerPalletField.setWidth("120px");
+            piecesPerPalletField.setWidth("90px");
 
             IntegerField minStockField = new IntegerField();
-            minStockField.setPlaceholder("Mindestbestand (in Pal.)");
+            minStockField.setPlaceholder("Mindestbest. (Pal.)");
             minStockField.setMin(0);
-            minStockField.setWidth("180px");
+            minStockField.setWidth("130px");
 
             Button createBtn = new Button("Artikel anlegen", click -> {
                 try {
