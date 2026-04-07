@@ -1,15 +1,16 @@
 package de.fhdw.vendix.orchestrator.web.controller;
 
+import de.fhdw.vendix.commons.api.embeddable.TargetType;
 import de.fhdw.vendix.commons.spring.security.context.app.AppContext;
 import de.fhdw.vendix.commons.spring.web.server.prometheus.api.PrometheusApi;
 import de.fhdw.vendix.commons.spring.web.server.prometheus.model.TargetGroup;
+import de.fhdw.vendix.orchestrator.core.domain.connection.Connection;
 import de.fhdw.vendix.orchestrator.core.domain.connection.ConnectionService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @RestController
 class PrometheusController implements PrometheusApi {
@@ -24,16 +25,39 @@ class PrometheusController implements PrometheusApi {
 
     @Override
     public ResponseEntity<List<TargetGroup>> getPrometheusTargets() {
-        TargetGroup orchestratorGroup = new TargetGroup();
-        orchestratorGroup.setTargets(List.of("host:8080"));
-        orchestratorGroup.setLabels(Map.of(
-                "__app__", appContext.getApplicationName(),
+        List<TargetGroup> targetGroups = new ArrayList<>();
+        TargetGroup orchestratorTarget = new TargetGroup();
+        orchestratorTarget.setTargets(List.of("host:8080"));
+        orchestratorTarget.setLabels(Map.of(
                 "__instance__", appContext.getInstanceUUID().toString(),
-                "__machine__", appContext.getHostname(),
-                "__environment__", "local"
+                "__target-type__", TargetType.ORCHESTRATOR.name(),
+                "__target-id__", "0"
         ));
+
+        targetGroups.add(orchestratorTarget);
+
+        Set<Connection> connections = connectionService.findAll();
+        List<TargetGroup> storeAndRegisterGroups = connections.stream()
+                .filter(c ->
+                        c.getTarget().getType() == TargetType.STORE || c.getTarget().getType() == TargetType.REGISTER
+                )
+                .map(this::createPrometheusTarget)
+                .toList();
+
+        targetGroups.addAll(storeAndRegisterGroups);
         return ResponseEntity
                 .status(HttpStatus.OK)
-                .body(List.of(orchestratorGroup));
+                .body(targetGroups);
+    }
+
+    private TargetGroup createPrometheusTarget(Connection connection) {
+        TargetGroup targetGroup = new TargetGroup();
+        targetGroup.setTargets(List.of("host:" + connection.getInstance().getPort()));
+        targetGroup.setLabels(Map.of(
+                "__instance__", connection.getInstance().getUuid().toString(),
+                "__targetType__", connection.getTarget().getType().name(),
+                "__targetId__", connection.getTarget().getId().toString()
+        ));
+        return targetGroup;
     }
 }

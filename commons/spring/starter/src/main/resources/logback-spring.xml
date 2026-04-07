@@ -1,9 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <configuration scan="true">
-
-    <!-- =======================
-         Spring Boot Defaults
-         ======================= -->
     <include resource="org/springframework/boot/logging/logback/defaults.xml"/>
     <include resource="org/springframework/boot/logging/logback/console-appender.xml"/>
     <include resource="org/springframework/boot/logging/logback/file-appender.xml"/>
@@ -22,28 +18,12 @@
                 <key>app</key>
                 <value>${spring.application.name:app}</value>
             </label>
-            <label>
-                <key>instance</key>
-                <value>${INSTANCE_UUID:${random.value}}</value>
-            </label>
-            <label>
-                <key>environment</key>
-                <value>${ENVIRONMENT:local}</value>
-            </label>
-            <label>
-                <key>hostname</key>
-                <value>${HOSTNAME:${env:HOSTNAME}}</value>
-            </label>
         </labels>
     </appender>
 
-    <!-- =======================
-         Root Logger
-         ======================= -->
     <root level="INFO">
         <appender-ref ref="CONSOLE"/>
         <appender-ref ref="FILE"/>
         <appender-ref ref="LOKI"/>
     </root>
-
 </configuration>

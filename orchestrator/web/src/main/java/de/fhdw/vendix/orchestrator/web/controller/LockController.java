@@ -65,7 +65,9 @@ class LockController implements LockApi {
 
     @Override
     public ResponseEntity<Void> deleteLockByTarget(TargetType target, Long id) {
-        return LockApi.super.deleteLockByTarget(target, id);
+        EntityTarget entityTarget = new EntityTarget(id, target);
+        lockService.deleteByTarget(entityTarget);
+        return ResponseEntity.noContent().build();
     }
 
     @Override
