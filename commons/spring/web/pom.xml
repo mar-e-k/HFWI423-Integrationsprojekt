@@ -63,8 +63,6 @@
                             <importMappings>
                                 <importMapping>ArticleDTO=de.fhdw.vendix.commons.api.domain.article.ArticleDTO</importMapping>
                                 <importMapping>ReceiptDTO=de.fhdw.vendix.commons.api.domain.receipt.ReceiptDTO</importMapping>
-                                <importMapping>StoreDTO=de.fhdw.vendix.commons.api.domain.store.StoreDTO</importMapping>
-                                <importMapping>RegisterDTO=de.fhdw.vendix.commons.api.domain.register.RegisterDTO</importMapping>
                             </importMappings>
                         </configuration>
                     </execution>
@@ -97,8 +95,6 @@
                             <importMappings>
                                 <importMapping>ArticleDTO=de.fhdw.vendix.commons.api.domain.article.ArticleDTO</importMapping>
                                 <importMapping>ReceiptDTO=de.fhdw.vendix.commons.api.domain.receipt.ReceiptDTO</importMapping>
-                                <importMapping>StoreDTO=de.fhdw.vendix.commons.api.domain.store.StoreDTO</importMapping>
-                                <importMapping>RegisterDTO=de.fhdw.vendix.commons.api.domain.register.RegisterDTO</importMapping>
                             </importMappings>
                         </configuration>
                     </execution>
@@ -136,6 +132,8 @@
                                 <importMapping>AccountDTO=de.fhdw.vendix.commons.api.domain.account.AccountDTO</importMapping>
                                 <importMapping>AccountRoleDTO=de.fhdw.vendix.commons.api.domain.account_role.AccountRoleDTO</importMapping>
                                 <importMapping>Role=de.fhdw.vendix.commons.api.domain.account_role.Role</importMapping>
+                                <importMapping>StoreDTO=de.fhdw.vendix.commons.api.domain.store.StoreDTO</importMapping>
+                                <importMapping>RegisterDTO=de.fhdw.vendix.commons.api.domain.register.RegisterDTO</importMapping>
                             </importMappings>
                         </configuration>
                     </execution>
@@ -174,6 +172,8 @@
                                 <importMapping>AccountDTO=de.fhdw.vendix.commons.api.domain.account.AccountDTO</importMapping>
                                 <importMapping>AccountRoleDTO=de.fhdw.vendix.commons.api.domain.account_role.AccountRoleDTO</importMapping>
                                 <importMapping>Role=de.fhdw.vendix.commons.api.domain.account_role.Role</importMapping>
+                                <importMapping>StoreDTO=de.fhdw.vendix.commons.api.domain.store.StoreDTO</importMapping>
+                                <importMapping>RegisterDTO=de.fhdw.vendix.commons.api.domain.register.RegisterDTO</importMapping>
                             </importMappings>
                         </configuration>
                     </execution>

@@ -6,5 +6,5 @@ import java.util.Optional;
 
 interface StoreStockRepository extends JpaRepository<StoreStock, Long> {
 
-    Optional<StoreStock> findByStore_IdAndArticle_Id(Long storeId, Long articleId);
+    Optional<StoreStock> findByStoreIdAndArticleId(Long storeId, Long articleId);
 }

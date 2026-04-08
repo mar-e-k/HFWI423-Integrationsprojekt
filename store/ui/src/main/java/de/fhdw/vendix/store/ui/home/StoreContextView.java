@@ -15,9 +15,7 @@ import com.vaadin.flow.theme.aura.Aura;
 import de.fhdw.vendix.commons.api.domain.account_role.Role;
 import de.fhdw.vendix.commons.api.domain.store.StoreDTO;
 import de.fhdw.vendix.commons.spring.security.context.store.StoreContext;
-import de.fhdw.vendix.store.core.domain.store.Store;
-import de.fhdw.vendix.store.core.domain.store.StoreMapper;
-import de.fhdw.vendix.store.core.domain.store.StoreService;
+import de.fhdw.vendix.commons.spring.web.client.orchestrator.api.StoreProxyService;
 import de.fhdw.vendix.store.ui.StoreAppLayout;
 import jakarta.annotation.security.RolesAllowed;
 import org.slf4j.Logger;
@@ -33,18 +31,16 @@ public class StoreContextView extends VerticalLayout {
 
     private static final Logger log = LoggerFactory.getLogger(StoreContextView.class);
 
-    private final StoreService storeService;
+    private final StoreProxyService storeProxyService;
     private final StoreContext storeContext;
-    private final StoreMapper storeMapper;
 
     private final FlexLayout storeLayout = new FlexLayout();
-    private final List<Store> inactiveStores = new ArrayList<>();
-    private final List<Store> activeStores = new ArrayList<>();
+    private final List<StoreDTO> inactiveStores = new ArrayList<>();
+    private final List<StoreDTO> activeStores = new ArrayList<>();
 
-    public StoreContextView(StoreService storeService, StoreContext storeContext, StoreMapper storeMapper) {
-        this.storeService = storeService;
+    public StoreContextView(StoreProxyService storeProxyService, StoreContext storeContext) {
+        this.storeProxyService = storeProxyService;
         this.storeContext = storeContext;
-        this.storeMapper = storeMapper;
 
         setSizeFull();
         setPadding(true);
@@ -73,8 +69,8 @@ public class StoreContextView extends VerticalLayout {
     }
 
     private void loadInactiveStores() {
-        log.atInfo().log("Inactive stores: {}", storeService.findAllInactiveActiveStores().toString());
-        inactiveStores.addAll(storeService.findAllInactiveActiveStores());
+//        log.atInfo().log("Inactive stores: {}", storeProxyService.find().toString());
+//        inactiveStores.addAll(storeService.findAllInactiveActiveStores());
         inactiveStores.forEach(store -> {
             Component storeCard = createStoreCard(store, false);
             storeLayout.add(storeCard);
@@ -82,15 +78,15 @@ public class StoreContextView extends VerticalLayout {
     }
 
     private void loadActiveStores() {
-        log.atInfo().log("Active stores: {}", storeService.findAllActiveStores().toString());
-        activeStores.addAll(storeService.findAllActiveStores());
+//        log.atInfo().log("Active stores: {}", storeService.findAllActiveStores().toString());
+//        activeStores.addAll(storeService.findAllActiveStores());
         activeStores.forEach(store -> {
             Component storeCard = createStoreCard(store, true);
             storeLayout.add(storeCard);
         });
     }
 
-    private Component createStoreCard(Store store, boolean isActive) {
+    private Component createStoreCard(StoreDTO store, boolean isActive) {
         Div card = new Div();
 
         card.setWidth("220px");
@@ -116,8 +112,8 @@ public class StoreContextView extends VerticalLayout {
         content.setPadding(false);
         content.setSpacing(false);
 
-        Span title = new Span(store.getCity() + ", " + store.getStreet() + " " + store.getStreetNumber());
-        Span country = new Span(store.getCountry());
+        Span title = new Span(store.city() + ", " + store.street() + " " + store.streetNumber());
+        Span country = new Span(store.country());
 
         content.add(title, country);
 
@@ -155,12 +151,8 @@ public class StoreContextView extends VerticalLayout {
         return card;
     }
 
-    private void handleStoreClickEvent(Store store) {
-        log.atInfo().log("Setting Store Context: {}", store);
-
-        StoreDTO dto = storeMapper.toDTO(store);
-        storeContext.setStore(dto);
-
+    private void handleStoreClickEvent(StoreDTO store) {
+        storeContext.setStore(store);
         UI.getCurrent().navigate(RootView.class);
     }
 }

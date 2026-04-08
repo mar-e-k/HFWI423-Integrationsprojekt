@@ -4,7 +4,6 @@ import de.fhdw.vendix.commons.spring.security.jwt.JwtService;
 import de.fhdw.vendix.commons.spring.web.client.StoreClientHolder;
 import de.fhdw.vendix.commons.spring.web.client.store.api.ArticleProxyService;
 import de.fhdw.vendix.commons.spring.web.client.store.api.ReceiptProxyService;
-import de.fhdw.vendix.commons.spring.web.client.store.api.StoreProxyService;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -46,11 +45,5 @@ public class StoreClientAutoConfiguration {
     @ConditionalOnMissingBean
     public ReceiptProxyService receiptProxyService(HttpServiceProxyFactory storeClientFactory) {
         return storeClientFactory.createClient(ReceiptProxyService.class);
-    }
-
-    @Bean
-    @ConditionalOnMissingBean
-    public StoreProxyService storeProxyService(HttpServiceProxyFactory storeClientFactory) {
-        return storeClientFactory.createClient(StoreProxyService.class);
     }
 }

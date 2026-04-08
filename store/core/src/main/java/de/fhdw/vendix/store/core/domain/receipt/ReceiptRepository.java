@@ -19,7 +19,7 @@ interface ReceiptRepository extends JpaRepository<Receipt, Long> {
                     """
                     SELECT r
                     FROM Receipt r
-                    WHERE r.store.id = :storeId
+                    WHERE r.storeId = :storeId
                       AND r.createdAt >= CURRENT_DATE
                     """
     )

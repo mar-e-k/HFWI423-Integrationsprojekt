@@ -29,9 +29,11 @@ class PrometheusController implements PrometheusApi {
         TargetGroup orchestratorTarget = new TargetGroup();
         orchestratorTarget.setTargets(List.of("host:8080"));
         orchestratorTarget.setLabels(Map.of(
+                "__app__", "vendix",
+                "__service_name__", TargetType.ORCHESTRATOR.name().toLowerCase(),
                 "__instance__", appContext.getInstanceUUID().toString(),
-                "__target-type__", TargetType.ORCHESTRATOR.name(),
-                "__target-id__", "0"
+                "__target_type__", TargetType.ORCHESTRATOR.name().toLowerCase(),
+                "__target_id__", "N/A"
         ));
 
         targetGroups.add(orchestratorTarget);
@@ -54,9 +56,11 @@ class PrometheusController implements PrometheusApi {
         TargetGroup targetGroup = new TargetGroup();
         targetGroup.setTargets(List.of("host:" + connection.getInstance().getPort()));
         targetGroup.setLabels(Map.of(
+                "__app__", "vendix",
+                "__service_name__", connection.getTarget().getType().name().toLowerCase(),
                 "__instance__", connection.getInstance().getUuid().toString(),
-                "__targetType__", connection.getTarget().getType().name(),
-                "__targetId__", connection.getTarget().getId().toString()
+                "__target_type__", connection.getTarget().getType().name().toLowerCase(),
+                "__target_id__", connection.getTarget().getId().toString()
         ));
         return targetGroup;
     }

@@ -1,6 +1,6 @@
-package de.fhdw.vendix.store.core.domain.store;
+package de.fhdw.vendix.orchestrator.core.domain.store;
 
-import de.fhdw.vendix.store.core.domain.register.Register;
+import de.fhdw.vendix.orchestrator.core.domain.register.Register;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;

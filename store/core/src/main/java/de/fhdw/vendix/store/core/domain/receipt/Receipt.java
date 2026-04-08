@@ -4,8 +4,6 @@ import de.fhdw.vendix.commons.api.structure.mapper.Default;
 import de.fhdw.vendix.commons.spring.data.entity.AbstractSpringDataAuditingEntity;
 import de.fhdw.vendix.store.core.domain.receipt_line.ReceiptLine;
 import de.fhdw.vendix.store.core.domain.receipt_voucher.ReceiptVoucher;
-import de.fhdw.vendix.store.core.domain.register.Register;
-import de.fhdw.vendix.store.core.domain.store.Store;
 import jakarta.persistence.*;
 import org.jspecify.annotations.Nullable;
 
@@ -15,13 +13,9 @@ import java.util.*;
 @Entity
 public class Receipt extends AbstractSpringDataAuditingEntity<Long> {
 
-    @ManyToOne(optional = false)
-    @JoinColumn(nullable = false)
-    private Store store;
+    private Long storeId;
 
-    @ManyToOne(optional = false)
-    @JoinColumn(nullable = false)
-    private Register register;
+    private Long registerId;
 
     @Column(nullable = false)
     private Long cashierId;
@@ -34,26 +28,26 @@ public class Receipt extends AbstractSpringDataAuditingEntity<Long> {
 
     protected Receipt() {}
 
-    protected Receipt(Store store, Register register, Long cashierId) {
-        this.store = store;
-        this.register = register;
+    public Receipt(Long storeId, Long registerId, Long cashierId) {
+        this.storeId = storeId;
+        this.registerId = registerId;
         this.cashierId = cashierId;
     }
 
     @Default
-    protected Receipt(@Nullable Long id, Store store, Register register, Long cashierId) {
+    protected Receipt(@Nullable Long id, Long storeId, Long registerId, Long cashierId) {
         super(id);
-        this.store = store;
-        this.register = register;
+        this.storeId = storeId;
+        this.registerId = registerId;
         this.cashierId = cashierId;
     }
 
-    public Store getStore() {
-        return store;
+    public Long getStoreId() {
+        return storeId;
     }
 
-    public Register getRegister() {
-        return register;
+    public Long getRegisterId() {
+        return registerId;
     }
 
     public Long getCashierId() {

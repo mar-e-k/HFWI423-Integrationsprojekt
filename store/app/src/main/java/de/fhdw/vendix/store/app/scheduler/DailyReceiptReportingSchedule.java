@@ -68,7 +68,7 @@ public class DailyReceiptReportingSchedule {
 
         // Check the current amount against the stores needed amount and order accordingly
         for (Article article : articles) {
-            StoreStock stock = storeStockService.findByStoreIDAndArticleID(storeId, Objects.requireNonNull(article.getId()))
+            StoreStock stock = storeStockService.findByStoreIdAndArticleId(storeId, Objects.requireNonNull(article.getId()))
                     .orElseThrow(EntityNotFoundException::new);
 
             long currentAmount = stock.getCurrentAmount();

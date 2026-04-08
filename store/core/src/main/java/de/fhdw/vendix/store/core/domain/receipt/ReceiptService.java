@@ -6,13 +6,13 @@ import de.fhdw.vendix.store.core.domain.receipt_line.ReceiptLine;
 import java.util.Set;
 
 public interface ReceiptService extends CrudService<Receipt, Long> {
-    Set<Receipt> findAllByStoreId(Long storeID);
+    Set<Receipt> findAllByStoreId(Long storeId);
 
-    Set<Receipt> findAllByRegisterId(Long registerID);
+    Set<Receipt> findAllByRegisterId(Long registerId);
 
-    Set<Receipt> findAllByCashierId(Long cashierID);
+    Set<Receipt> findAllByCashierId(Long cashierId);
 
-    Set<Receipt> findAllByStoreIdAndCreatedAtToday(Long storeID);
+    Set<Receipt> findAllByStoreIdAndCreatedAtToday(Long storeId);
 
     Set<ReceiptLine> findAllReceiptLinesByReceiptId(Long id);
 }

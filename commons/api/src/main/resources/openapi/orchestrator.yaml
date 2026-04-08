@@ -12,6 +12,8 @@ tags:
     description: Operations related to Locks
   - name: Account
     description: Operations related to Accounts
+  - name: Store
+    description: Operations related to Stores
 
 servers:
   - url: http://localhost:8080
@@ -490,6 +492,100 @@ paths:
                 items:
                   $ref: "#/components/schemas/AccountRoleDTO"
 
+  /api/store/:
+    get:
+      operationId: getStores
+      description: d
+      tags:
+        - Store
+      parameters:
+        - in: query
+          name: id
+          required: false
+          description: d
+          schema:
+            type: integer
+            format: int64
+        - in: query
+          name: country
+          required: false
+          description: d
+          schema:
+            type: string
+        - in: query
+          name: city
+          required: false
+          description: d
+          schema:
+            type: string
+        - in: query
+          name: street
+          required: false
+          description: d
+          schema:
+            type: string
+      responses:
+        200:
+          description: d
+          content:
+            application/json:
+              schema:
+                type: array
+                uniqueItems: true
+                items:
+                  $ref: "#/components/schemas/StoreDTO"
+
+  /api/store/id/{id}:
+    get:
+      operationId: getStoreById
+      description: d
+      tags:
+        - Store
+      parameters:
+        - in: path
+          name: id
+          required: true
+          description: d
+          schema:
+            type: integer
+            format: int64
+      responses:
+        200:
+          description: d
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/StoreDTO"
+        404:
+          description: d
+
+  /api/store/id/{id}/registers/:
+    get:
+      operationId: getRegistersByStore
+      description: d
+      tags:
+        - Store
+      parameters:
+        - in: path
+          name: id
+          required: true
+          description: d
+          schema:
+            type: integer
+            format: int64
+      responses:
+        200:
+          description: d
+          content:
+            application/json:
+              schema:
+                type: array
+                uniqueItems: true
+                items:
+                  $ref: "#/components/schemas/RegisterDTO"
+        404:
+          description: d
+
 components:
   securitySchemes:
     bearerAuth:
@@ -610,3 +706,29 @@ components:
         - CASHIER
         - ADMIN
         - SYSTEM
+
+    StoreDTO:
+      type: object
+      description: d
+      properties:
+        id:
+          type: integer
+          format: int64
+        country:
+          type: string
+        city:
+          type: string
+        street:
+          type: string
+        streetNumber:
+          type: string
+
+    RegisterDTO:
+      type: object
+      description: d
+      properties:
+        id:
+          type: integer
+          format: int64
+        store:
+          $ref: "#/components/schemas/StoreDTO"

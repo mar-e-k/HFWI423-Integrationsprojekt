@@ -19,18 +19,18 @@ class StoreStockServiceImpl extends AbstractEntityCrudAdapter<StoreStock, Long> 
 
     @Override
     @Transactional
-    public void restockArticle(Long storeID, Long articleID, Long articleQuantity) {
-        if (storeID == null || storeID < 0) {
+    public void restockArticle(Long storeId, Long articleId, Long articleQuantity) {
+        if (storeId == null || storeId < 0) {
             throw new IllegalArgumentException("Parameter 'storeID' cannot be null or negative");
         }
-        if (articleID == null || articleID < 0) {
+        if (articleId == null || articleId < 0) {
             throw new IllegalArgumentException("Parameter 'articleID' cannot be null or negative");
         }
         if (articleQuantity == null || articleQuantity < 0) {
             throw new IllegalArgumentException("Parameter 'articleQuantity' cannot be null or negative");
         }
 
-        StoreStock storeStock = storeStockRepository.findByStore_IdAndArticle_Id(storeID, articleID)
+        StoreStock storeStock = storeStockRepository.findByStoreIdAndArticleId(storeId, articleId)
                 .orElseThrow(EntityNotFoundException::new);
         storeStock.restockArticle(articleQuantity);
 
@@ -39,7 +39,7 @@ class StoreStockServiceImpl extends AbstractEntityCrudAdapter<StoreStock, Long> 
 
     @Override
     @Transactional(readOnly = true)
-    public Optional<StoreStock> findByStoreIDAndArticleID(Long storeId, Long articleId) {
+    public Optional<StoreStock> findByStoreIdAndArticleId(Long storeId, Long articleId) {
         if (storeId == null || storeId < 0) {
             return Optional.empty();
         }
@@ -47,6 +47,6 @@ class StoreStockServiceImpl extends AbstractEntityCrudAdapter<StoreStock, Long> 
             return Optional.empty();
         }
 
-        return storeStockRepository.findByStore_IdAndArticle_Id(storeId, articleId);
+        return storeStockRepository.findByStoreIdAndArticleId(storeId, articleId);
     }
 }

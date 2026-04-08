@@ -1,11 +1,11 @@
-package de.fhdw.vendix.store.web.controller;
+package de.fhdw.vendix.orchestrator.web.controller;
 
 import de.fhdw.vendix.commons.api.domain.register.RegisterDTO;
 import de.fhdw.vendix.commons.api.domain.store.StoreDTO;
-import de.fhdw.vendix.commons.spring.web.server.store.api.StoreApi;
-import de.fhdw.vendix.store.core.domain.register.RegisterMapper;
-import de.fhdw.vendix.store.core.domain.store.StoreMapper;
-import de.fhdw.vendix.store.core.domain.store.StoreService;
+import de.fhdw.vendix.commons.spring.web.server.orchestrator.api.StoreApi;
+import de.fhdw.vendix.orchestrator.core.domain.register.RegisterMapper;
+import de.fhdw.vendix.orchestrator.core.domain.store.StoreMapper;
+import de.fhdw.vendix.orchestrator.core.domain.store.StoreService;
 import org.jspecify.annotations.Nullable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RestController;

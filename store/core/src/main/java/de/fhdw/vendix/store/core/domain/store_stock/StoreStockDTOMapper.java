@@ -6,7 +6,6 @@ import de.fhdw.vendix.commons.api.domain.store_stock.StoreStockResponseDTO;
 import de.fhdw.vendix.commons.api.structure.mapper.DTOMapper;
 import de.fhdw.vendix.commons.spring.data.mapper.SpringMapperConfig;
 import de.fhdw.vendix.store.core.domain.article.ArticleDTOMapper;
-import de.fhdw.vendix.store.core.domain.store.StoreDTOMapper;
 import org.mapstruct.Mapper;
 
 import java.util.Set;
@@ -14,7 +13,6 @@ import java.util.Set;
 @Mapper(
         config = SpringMapperConfig.class,
         uses = {
-                StoreDTOMapper.class,
                 ArticleDTOMapper.class
         }
 )

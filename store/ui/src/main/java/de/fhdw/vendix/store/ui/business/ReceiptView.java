@@ -32,11 +32,11 @@ public class ReceiptView extends VerticalLayout {
                 .setHeader("ID")
                 .setAutoWidth(true)
                 .setSortable(true);
-        receiptGrid.addColumn(Receipt::getStore)
+        receiptGrid.addColumn(Receipt::getStoreId)
                 .setHeader("Store")
                 .setAutoWidth(true)
                 .setSortable(true);
-        receiptGrid.addColumn(Receipt::getRegister)
+        receiptGrid.addColumn(Receipt::getRegisterId)
                 .setHeader("Register")
                 .setAutoWidth(true)
                 .setSortable(true);

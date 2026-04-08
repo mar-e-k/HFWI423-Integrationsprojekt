@@ -3,18 +3,15 @@ package de.fhdw.vendix.store.core.domain.store_stock;
 import de.fhdw.vendix.commons.api.structure.mapper.Default;
 import de.fhdw.vendix.commons.spring.data.entity.AbstractSpringDataAuditingEntity;
 import de.fhdw.vendix.store.core.domain.article.Article;
-import de.fhdw.vendix.store.core.domain.store.Store;
 import de.fhdw.vendix.store.core.embeddable.preference_amount.PreferenceAmount;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Min;
 import org.jspecify.annotations.Nullable;
 
 @Entity
-@Table(uniqueConstraints = @UniqueConstraint(columnNames = {"store_id", "article_id"}))
 public class StoreStock extends AbstractSpringDataAuditingEntity<Long> {
 
-    @ManyToOne(optional = false)
-    private Store store;
+    private Long storeId;
 
     @ManyToOne(optional = false)
     private Article article;
@@ -29,12 +26,12 @@ public class StoreStock extends AbstractSpringDataAuditingEntity<Long> {
     protected StoreStock() {}
 
     protected StoreStock(
-            Store store,
+            Long storeId,
             Article article,
             Long currentAmount,
             PreferenceAmount preferenceAmount
     ) {
-        this.store = store;
+        this.storeId = storeId;
         this.article = article;
         this.currentAmount = currentAmount;
         this.preferenceAmount = preferenceAmount;
@@ -43,20 +40,20 @@ public class StoreStock extends AbstractSpringDataAuditingEntity<Long> {
     @Default
     protected StoreStock(
             @Nullable Long id,
-            Store store,
+            Long storeId,
             Article article,
             Long currentAmount,
             PreferenceAmount preferenceAmount
     ) {
         super(id);
-        this.store = store;
+        this.storeId = storeId;
         this.article = article;
         this.currentAmount = currentAmount;
         this.preferenceAmount = preferenceAmount;
     }
 
-    public Store getStore() {
-        return store;
+    public Long getStoreId() {
+        return storeId;
     }
 
     public Article getArticle() {

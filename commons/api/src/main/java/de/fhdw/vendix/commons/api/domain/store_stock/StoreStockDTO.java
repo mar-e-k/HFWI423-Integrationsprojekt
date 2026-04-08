@@ -1,14 +1,13 @@
 package de.fhdw.vendix.commons.api.domain.store_stock;
 
 import de.fhdw.vendix.commons.api.domain.article.ArticleDTO;
-import de.fhdw.vendix.commons.api.domain.store.StoreDTO;
 import de.fhdw.vendix.commons.api.embeddable.PreferenceAmountDTO;
 import de.fhdw.vendix.commons.api.structure.dto.DomainDTO;
 import org.jspecify.annotations.Nullable;
 
 public record StoreStockDTO(
         @Nullable Long id,
-        StoreDTO store,
+        Long storeId,
         ArticleDTO article,
         PreferenceAmountDTO preferenceAmount,
         Long currentAmount
@@ -17,8 +16,8 @@ public record StoreStockDTO(
         if (id != null && id < 0) {
             throw new IllegalArgumentException("StoreStockDTO parameter 'id' cannot be negative");
         }
-        if (store == null) {
-            throw new IllegalArgumentException("StoreStockDTO parameter 'store' cannot be null");
+        if (storeId == null || storeId < 0) {
+            throw new IllegalArgumentException("StoreStockDTO parameter 'storeId' cannot be null or negative");
         }
         if (article == null) {
             throw new IllegalArgumentException("StoreStockDTO parameter 'article' cannot be null");

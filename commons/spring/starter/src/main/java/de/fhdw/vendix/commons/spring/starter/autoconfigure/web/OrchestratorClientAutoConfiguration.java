@@ -4,6 +4,7 @@ import de.fhdw.vendix.commons.spring.security.jwt.JwtService;
 import de.fhdw.vendix.commons.spring.web.client.orchestrator.api.AccountProxyService;
 import de.fhdw.vendix.commons.spring.web.client.orchestrator.api.ConnectionProxyService;
 import de.fhdw.vendix.commons.spring.web.client.orchestrator.api.LockProxyService;
+import de.fhdw.vendix.commons.spring.web.client.orchestrator.api.StoreProxyService;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -50,5 +51,11 @@ public class OrchestratorClientAutoConfiguration {
     @ConditionalOnMissingBean
     public AccountProxyService accountProxyService(HttpServiceProxyFactory orchestratorClientFactory) {
         return orchestratorClientFactory.createClient(AccountProxyService.class);
+    }
+
+    @Bean
+    @ConditionalOnMissingBean
+    public StoreProxyService storeProxyService(HttpServiceProxyFactory storeClientFactory) {
+        return storeClientFactory.createClient(StoreProxyService.class);
     }
 }

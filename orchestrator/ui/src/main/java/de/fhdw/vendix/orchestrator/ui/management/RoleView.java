@@ -1,4 +1,4 @@
-package de.fhdw.vendix.orchestrator.ui.account;
+package de.fhdw.vendix.orchestrator.ui.management;
 
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;

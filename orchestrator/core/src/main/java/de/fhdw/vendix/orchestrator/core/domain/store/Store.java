@@ -1,10 +1,8 @@
-package de.fhdw.vendix.store.core.domain.store;
+package de.fhdw.vendix.orchestrator.core.domain.store;
 
 import de.fhdw.vendix.commons.api.structure.mapper.Default;
 import de.fhdw.vendix.commons.spring.data.entity.AbstractSpringDataAuditingEntity;
-import de.fhdw.vendix.store.core.domain.receipt.Receipt;
-import de.fhdw.vendix.store.core.domain.register.Register;
-import de.fhdw.vendix.store.core.domain.store_stock.StoreStock;
+import de.fhdw.vendix.orchestrator.core.domain.register.Register;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.OneToMany;
@@ -12,7 +10,9 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
 import org.jspecify.annotations.Nullable;
 
-import java.util.*;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Set;
 
 @Entity
 public class Store extends AbstractSpringDataAuditingEntity<Long> {
@@ -36,12 +36,6 @@ public class Store extends AbstractSpringDataAuditingEntity<Long> {
 
     @OneToMany(mappedBy = "store")
     private Set<Register> registers = new HashSet<>();
-
-    @OneToMany(mappedBy = "store")
-    private Set<Receipt> receipts = new HashSet<>();
-
-    @OneToMany(mappedBy = "store")
-    private Set<StoreStock> stocks = new HashSet<>();
 
     protected Store() {}
 
@@ -79,17 +73,5 @@ public class Store extends AbstractSpringDataAuditingEntity<Long> {
 
     public Set<Register> getRegisters() {
         return Collections.unmodifiableSet(registers);
-    }
-
-    public Set<Receipt> getReceipts() {
-        return Collections.unmodifiableSet(receipts);
-    }
-
-    public Set<StoreStock> getStocks() {
-        return Collections.unmodifiableSet(stocks);
-    }
-
-    public long getRegisterCount() {
-        return registers.size();
     }
 }

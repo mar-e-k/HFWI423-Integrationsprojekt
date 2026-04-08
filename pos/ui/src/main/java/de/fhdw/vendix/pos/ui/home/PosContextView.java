@@ -8,7 +8,7 @@ import de.fhdw.vendix.commons.api.domain.account_role.Role;
 import de.fhdw.vendix.commons.api.domain.connection.ConnectionDTO;
 import de.fhdw.vendix.commons.api.embeddable.TargetType;
 import de.fhdw.vendix.commons.spring.web.client.orchestrator.api.ConnectionProxyService;
-import de.fhdw.vendix.commons.spring.web.client.store.api.StoreProxyService;
+import de.fhdw.vendix.commons.spring.web.client.orchestrator.api.StoreProxyService;
 import de.fhdw.vendix.pos.ui.PosAppLayout;
 import jakarta.annotation.security.RolesAllowed;
 import org.slf4j.Logger;

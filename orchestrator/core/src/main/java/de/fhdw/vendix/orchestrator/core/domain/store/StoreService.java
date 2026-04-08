@@ -1,7 +1,7 @@
-package de.fhdw.vendix.store.core.domain.store;
+package de.fhdw.vendix.orchestrator.core.domain.store;
 
 import de.fhdw.vendix.commons.api.structure.service.CrudService;
-import de.fhdw.vendix.store.core.domain.register.Register;
+import de.fhdw.vendix.orchestrator.core.domain.register.Register;
 
 import java.util.Set;
 

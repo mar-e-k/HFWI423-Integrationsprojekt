@@ -9,9 +9,7 @@ import com.vaadin.flow.spring.annotation.VaadinSessionScope;
 import com.vaadin.flow.spring.security.AuthenticationContext;
 import de.fhdw.vendix.commons.api.domain.account_role.Role;
 import de.fhdw.vendix.commons.spring.vaadin.view.AbstractApplicationLayout;
-import de.fhdw.vendix.orchestrator.ui.account.PermissionView;
-import de.fhdw.vendix.orchestrator.ui.account.RoleView;
-import de.fhdw.vendix.orchestrator.ui.account.UserView;
+import de.fhdw.vendix.orchestrator.ui.management.*;
 import de.fhdw.vendix.orchestrator.ui.orchestrator.ConnectionView;
 import de.fhdw.vendix.orchestrator.ui.application.DebugView;
 import de.fhdw.vendix.orchestrator.ui.application.RootView;
@@ -45,8 +43,10 @@ public class OrchestratorAppLayout extends AbstractApplicationLayout {
         managementHeader.addItem(
                 new SideNavItem("Users", UserView.class, VaadinIcon.USERS.create()),
                 new SideNavItem("Roles", RoleView.class, VaadinIcon.USER_CARD.create()),
-                new SideNavItem("Permissions", PermissionView.class, VaadinIcon.KEY.create())
-        );
+                new SideNavItem("Permissions", PermissionView.class, VaadinIcon.KEY.create()),
+                new SideNavItem("Stores", StoreView.class, VaadinIcon.SHOP.create()),
+                new SideNavItem("Registers", RegisterView.class, VaadinIcon.DESKTOP.create())
+                );
 
         SideNav externalHeader = new SideNav("External");
         externalHeader.addItem(

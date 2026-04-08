@@ -1,11 +1,11 @@
-package de.fhdw.vendix.store.core.domain.store;
+package de.fhdw.vendix.orchestrator.core.domain.store;
 
 import de.fhdw.vendix.commons.api.domain.lock.LockDTO;
 import de.fhdw.vendix.commons.api.embeddable.EntityTargetDTO;
 import de.fhdw.vendix.commons.api.embeddable.TargetType;
 import de.fhdw.vendix.commons.spring.data.crud.AbstractEntityCrudAdapter;
 import de.fhdw.vendix.commons.spring.web.client.orchestrator.api.LockProxyService;
-import de.fhdw.vendix.store.core.domain.register.Register;
+import de.fhdw.vendix.orchestrator.core.domain.register.Register;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 

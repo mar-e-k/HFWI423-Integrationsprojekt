@@ -7,4 +7,4 @@ de.fhdw.vendix.commons.spring.starter.autoconfigure.web.OrchestratorClientAutoCo
 de.fhdw.vendix.commons.spring.starter.autoconfigure.web.StoreClientAutoConfiguration
 
 de.fhdw.vendix.commons.spring.starter.autoconfigure.CommonsAutoConfiguration
-de.fhdw.vendix.commons.spring.starter.autoconfigure.VaadinAutoConfiguration
+de.fhdw.vendix.commons.spring.starter.autoconfigure.vaadin.VaadinAutoConfiguration

@@ -1,5 +1,7 @@
 package de.fhdw.vendix.commons.spring.security.context.app;
 
+import de.fhdw.vendix.commons.api.embeddable.TargetType;
+import org.slf4j.MDC;
 import org.springframework.boot.web.server.context.WebServerInitializedEvent;
 import org.springframework.context.event.EventListener;
 import org.springframework.core.env.Environment;
@@ -15,7 +17,7 @@ public final class DefaultAppContext implements AppContext {
     private final UUID instanceUUID;
     private final String hostname;
     private final String serverName;
-    private volatile int serverPort;
+    private int serverPort;
 
     public DefaultAppContext(Environment environment) {
         this.applicationName = Objects.requireNonNull(environment.getProperty("spring.application.name"), "Property 'spring.application.name' is not set");
@@ -24,7 +26,7 @@ public final class DefaultAppContext implements AppContext {
         this.serverName = resolveServerName(environment);
     }
 
-    private String resolveHostname()  {
+    private String resolveHostname() {
         try {
             return InetAddress.getLocalHost().getHostName();
         } catch (UnknownHostException e) {
@@ -44,7 +46,15 @@ public final class DefaultAppContext implements AppContext {
 
     @EventListener
     public void onApplicationEvent(WebServerInitializedEvent event) {
-        this.serverPort = event.getWebServer().getPort();
+        serverPort = event.getWebServer().getPort();
+        // At this point, everything should be loaded
+        MDC.put("__service_name__", applicationName);
+        MDC.put("__host__", "%s:%d".formatted(serverName, serverPort));
+        MDC.put("__instance__", instanceUUID.toString());
+        if (applicationName.equalsIgnoreCase("orchestrator")) {
+            MDC.put("__target_type__", TargetType.ORCHESTRATOR.name());
+            MDC.put("__target_id__", "N/A");
+        }
     }
 
     @Override

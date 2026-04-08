@@ -12,7 +12,6 @@ import com.vaadin.flow.spring.security.AuthenticationContext;
 import de.fhdw.vendix.commons.api.domain.account_role.Role;
 import de.fhdw.vendix.commons.spring.vaadin.view.AbstractApplicationLayout;
 import de.fhdw.vendix.commons.spring.security.context.store.StoreContext;
-import de.fhdw.vendix.store.core.domain.store.StoreService;
 import de.fhdw.vendix.store.ui.business.*;
 import de.fhdw.vendix.store.ui.home.ConnectionsView;
 import de.fhdw.vendix.store.ui.home.DebugView;
@@ -28,11 +27,9 @@ import java.util.Objects;
 public class StoreAppLayout extends AbstractApplicationLayout {
 
     private final StoreContext storeContext;
-    private final StoreService storeService;
 
-    public StoreAppLayout(AuthenticationContext authenticationContext, StoreContext storeContext, StoreService storeService) {
+    public StoreAppLayout(AuthenticationContext authenticationContext, StoreContext storeContext) {
         this.storeContext = storeContext;
-        this.storeService = storeService;
         super(authenticationContext);
     }
 
@@ -58,8 +55,6 @@ public class StoreAppLayout extends AbstractApplicationLayout {
         SideNav businessHeader = new SideNav();
         businessHeader.setLabel("Business");
         businessHeader.addItem(
-                new SideNavItem("Stores", StoreView.class, VaadinIcon.SHOP.create()),
-                new SideNavItem("Registers", RegisterView.class, VaadinIcon.DESKTOP.create()),
                 new SideNavItem("Stocks", StockView.class, VaadinIcon.STOCK.create()),
                 new SideNavItem("Receipts", ReceiptView.class, VaadinIcon.NEWSPAPER.create())
         );
@@ -84,7 +79,8 @@ public class StoreAppLayout extends AbstractApplicationLayout {
             activeRegistersBadge.setText("N/A");
             activeRegistersBadge.addThemeVariants(BadgeVariant.ERROR);
         } else {
-            int registersCount = storeService.findAllRegisters(Objects.requireNonNull(storeContext.getStore().id())).size();
+//            int registersCount = storeService.findAllRegisters(Objects.requireNonNull(storeContext.getStore().id())).size();
+            int registersCount = 0; // TODO
             activeRegistersBadge.setText("%d / %d".formatted(0, registersCount));
             activeRegistersBadge.addThemeVariants(BadgeVariant.WARNING);
         }

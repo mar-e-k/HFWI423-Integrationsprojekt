@@ -1,4 +1,4 @@
-package de.fhdw.vendix.commons.spring.starter.autoconfigure;
+package de.fhdw.vendix.commons.spring.starter.autoconfigure.vaadin;
 
 import com.vaadin.flow.server.VaadinServiceInitListener;
 import de.fhdw.vendix.commons.spring.starter.properties.VaadinPropertiesConfiguration;

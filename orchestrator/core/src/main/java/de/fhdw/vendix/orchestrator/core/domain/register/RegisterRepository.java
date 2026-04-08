@@ -1,4 +1,4 @@
-package de.fhdw.vendix.store.core.domain.register;
+package de.fhdw.vendix.orchestrator.core.domain.register;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 
