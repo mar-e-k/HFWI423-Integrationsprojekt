@@ -1,326 +1,319 @@
-2026-04-08 20:25:12,814 INFO o.a.j.u.JMeterUtils: Setting Locale to de_DE
-2026-04-08 20:25:12,827 INFO o.a.j.u.JMeterUtils: Could not find resources for 'de_DE', using 'de'
-2026-04-08 20:25:12,828 INFO o.a.j.JMeter: Loading user properties from: C:\tools\apache-jmeter-5.6.3\bin\user.properties
-2026-04-08 20:25:12,829 INFO o.a.j.JMeter: Loading system properties from: C:\tools\apache-jmeter-5.6.3\bin\system.properties
-2026-04-08 20:25:12,829 INFO o.a.j.JMeter: Setting JMeter property: threads=100
-2026-04-08 20:25:12,829 INFO o.a.j.JMeter: Setting JMeter property: rampup=2
-2026-04-08 20:25:12,829 INFO o.a.j.JMeter: Setting JMeter property: duration=40
-2026-04-08 20:25:12,829 INFO o.a.j.JMeter: Setting JMeter property: host=localhost
-2026-04-08 20:25:12,829 INFO o.a.j.JMeter: Setting JMeter property: port=8081
-2026-04-08 20:25:12,829 INFO o.a.j.JMeter: Setting JMeter property: testname=Spike-Test
-2026-04-08 20:25:12,835 INFO o.a.j.JMeter: Copyright (c) 1998-2024 The Apache Software Foundation
-2026-04-08 20:25:12,836 INFO o.a.j.JMeter: Version 5.6.3
-2026-04-08 20:25:12,836 INFO o.a.j.JMeter: java.version=24
-2026-04-08 20:25:12,836 INFO o.a.j.JMeter: java.vm.name=OpenJDK 64-Bit Server VM
-2026-04-08 20:25:12,836 INFO o.a.j.JMeter: os.name=Windows 11
-2026-04-08 20:25:12,836 INFO o.a.j.JMeter: os.arch=amd64
-2026-04-08 20:25:12,836 INFO o.a.j.JMeter: os.version=10.0
-2026-04-08 20:25:12,836 INFO o.a.j.JMeter: file.encoding=UTF-8
-2026-04-08 20:25:12,836 INFO o.a.j.JMeter: java.awt.headless=true
-2026-04-08 20:25:12,836 INFO o.a.j.JMeter: Max memory     =8547991552
-2026-04-08 20:25:12,836 INFO o.a.j.JMeter: Available Processors =16
-2026-04-08 20:25:12,845 INFO o.a.j.JMeter: Default Locale=Deutsch (Deutschland)
-2026-04-08 20:25:12,845 INFO o.a.j.JMeter: JMeter  Locale=Deutsch (Deutschland)
-2026-04-08 20:25:12,845 INFO o.a.j.JMeter: JMeterHome=C:\tools\apache-jmeter-5.6.3
-2026-04-08 20:25:12,845 INFO o.a.j.JMeter: user.dir  =C:\Users\jason\IdeaProjects\HFWI423-Integrationsprojekt
-2026-04-08 20:25:12,846 INFO o.a.j.JMeter: PWD       =C:\Users\jason\IdeaProjects\HFWI423-Integrationsprojekt
-2026-04-08 20:25:22,288 INFO o.a.j.JMeter: IP: 169.254.123.70 Name: JasonPC FullName: JasonPC
-2026-04-08 20:25:22,309 INFO o.a.j.s.FileServer: Default base='C:\Users\jason\IdeaProjects\HFWI423-Integrationsprojekt'
-2026-04-08 20:25:22,311 INFO o.a.j.s.FileServer: Set new base='C:\Users\jason\IdeaProjects\HFWI423-Integrationsprojekt\monitoring\jmeter'
-2026-04-08 20:25:22,561 INFO o.a.j.s.SaveService: Testplan (JMX) version: 2.2. Testlog (JTL) version: 2.2
-2026-04-08 20:25:22,599 INFO o.a.j.s.SaveService: Using SaveService properties version 5.0
-2026-04-08 20:25:22,602 INFO o.a.j.s.SaveService: Using SaveService properties file encoding UTF-8
-2026-04-08 20:25:22,605 INFO o.a.j.s.SaveService: Loading file: C:\Users\jason\IdeaProjects\HFWI423-Integrationsprojekt\monitoring\jmeter\logistik-parametrisiert.jmx
-2026-04-08 20:25:22,674 INFO o.a.j.p.h.s.HTTPSamplerBase: Parser for text/html is org.apache.jmeter.protocol.http.parser.LagartoBasedHtmlParser
-2026-04-08 20:25:22,674 INFO o.a.j.p.h.s.HTTPSamplerBase: Parser for application/xhtml+xml is org.apache.jmeter.protocol.http.parser.LagartoBasedHtmlParser
-2026-04-08 20:25:22,674 INFO o.a.j.p.h.s.HTTPSamplerBase: Parser for application/xml is org.apache.jmeter.protocol.http.parser.LagartoBasedHtmlParser
-2026-04-08 20:25:22,674 INFO o.a.j.p.h.s.HTTPSamplerBase: Parser for text/xml is org.apache.jmeter.protocol.http.parser.LagartoBasedHtmlParser
-2026-04-08 20:25:22,674 INFO o.a.j.p.h.s.HTTPSamplerBase: Parser for text/vnd.wap.wml is org.apache.jmeter.protocol.http.parser.RegexpHTMLParser
-2026-04-08 20:25:22,674 INFO o.a.j.p.h.s.HTTPSamplerBase: Parser for text/css is org.apache.jmeter.protocol.http.parser.CssParser
-2026-04-08 20:25:22,680 INFO o.a.j.s.SampleResult: Note: Sample TimeStamps are START times
-2026-04-08 20:25:22,680 INFO o.a.j.s.SampleResult: sampleresult.default.encoding is set to UTF-8
-2026-04-08 20:25:22,680 INFO o.a.j.s.SampleResult: sampleresult.useNanoTime=true
-2026-04-08 20:25:22,681 INFO o.a.j.s.SampleResult: sampleresult.nanoThreadSleep=5000
-2026-04-08 20:25:22,693 INFO o.a.j.JMeter: Creating summariser <summary>
-2026-04-08 20:25:22,709 INFO o.a.j.e.StandardJMeterEngine: Running the test!
-2026-04-08 20:25:22,709 INFO o.a.j.s.SampleEvent: List of sample_variables: []
-2026-04-08 20:25:22,709 INFO o.a.j.s.SampleEvent: List of sample_variables: []
-2026-04-08 20:25:22,714 INFO o.a.j.e.u.CompoundVariable: Note: Function class names must contain the string: '.functions.'
-2026-04-08 20:25:22,714 INFO o.a.j.e.u.CompoundVariable: Note: Function class names must not contain the string: '.gui.'
-2026-04-08 20:25:22,790 INFO o.a.j.v.b.BackendListener: InfluxDB Backend Listener: Starting worker with class: class org.apache.jmeter.visualizers.backend.influxdb.InfluxdbBackendListenerClient and queue capacity: 5000
-2026-04-08 20:25:22,790 INFO o.a.j.v.b.BackendListener: InfluxDB Backend Listener: Started  worker with class: class org.apache.jmeter.visualizers.backend.influxdb.InfluxdbBackendListenerClient
-2026-04-08 20:25:23,009 INFO o.a.j.JMeter: Test starten (1775672723009)
-2026-04-08 20:25:23,037 INFO o.a.j.e.StandardJMeterEngine: Starting ThreadGroup: 1 : Lasttest
-2026-04-08 20:25:23,037 INFO o.a.j.e.StandardJMeterEngine: Starting 100 threads for group Lasttest.
-2026-04-08 20:25:23,037 INFO o.a.j.e.StandardJMeterEngine: Thread will continue on error
-2026-04-08 20:25:23,038 INFO o.a.j.t.ThreadGroup: Starting thread group... number=1 threads=100 ramp-up=2 delayedStart=false
-2026-04-08 20:25:23,046 INFO o.a.j.t.JMeterThread: Thread started: Lasttest 1-1
-2026-04-08 20:25:23,063 INFO o.a.j.t.JMeterThread: Thread started: Lasttest 1-2
-2026-04-08 20:25:23,083 INFO o.a.j.t.JMeterThread: Thread started: Lasttest 1-3
-2026-04-08 20:25:23,087 INFO o.a.j.t.ThreadGroup: Started thread group number 1
-2026-04-08 20:25:23,088 INFO o.a.j.e.StandardJMeterEngine: All thread groups have been started
-2026-04-08 20:25:23,102 INFO o.a.j.t.JMeterThread: Thread started: Lasttest 1-4
-2026-04-08 20:25:23,121 INFO o.a.j.t.JMeterThread: Thread started: Lasttest 1-5
-2026-04-08 20:25:23,141 INFO o.a.j.t.JMeterThread: Thread started: Lasttest 1-6
-2026-04-08 20:25:23,161 INFO o.a.j.t.JMeterThread: Thread started: Lasttest 1-7
-2026-04-08 20:25:23,180 INFO o.a.j.t.JMeterThread: Thread started: Lasttest 1-8
-2026-04-08 20:25:23,195 INFO o.a.j.p.h.s.HTTPHCAbstractImpl: Local host = JasonPC
-2026-04-08 20:25:23,199 INFO o.a.j.p.h.s.HTTPHC4Impl: HTTP request retry count = 0
-2026-04-08 20:25:23,200 INFO o.a.j.t.JMeterThread: Thread started: Lasttest 1-9
-2026-04-08 20:25:23,219 INFO o.a.j.t.JMeterThread: Thread started: Lasttest 1-10
-2026-04-08 20:25:23,240 INFO o.a.j.t.JMeterThread: Thread started: Lasttest 1-11
-2026-04-08 20:25:23,259 INFO o.a.j.t.JMeterThread: Thread started: Lasttest 1-12
-2026-04-08 20:25:23,280 INFO o.a.j.t.JMeterThread: Thread started: Lasttest 1-13
-2026-04-08 20:25:23,299 INFO o.a.j.t.JMeterThread: Thread started: Lasttest 1-14
-2026-04-08 20:25:23,320 INFO o.a.j.t.JMeterThread: Thread started: Lasttest 1-15
-2026-04-08 20:25:23,339 INFO o.a.j.t.JMeterThread: Thread started: Lasttest 1-16
-2026-04-08 20:25:23,360 INFO o.a.j.t.JMeterThread: Thread started: Lasttest 1-17
-2026-04-08 20:25:23,379 INFO o.a.j.t.JMeterThread: Thread started: Lasttest 1-18
-2026-04-08 20:25:23,400 INFO o.a.j.t.JMeterThread: Thread started: Lasttest 1-19
-2026-04-08 20:25:23,420 INFO o.a.j.t.JMeterThread: Thread started: Lasttest 1-20
-2026-04-08 20:25:23,440 INFO o.a.j.t.JMeterThread: Thread started: Lasttest 1-21
-2026-04-08 20:25:23,459 INFO o.a.j.t.JMeterThread: Thread started: Lasttest 1-22
-2026-04-08 20:25:23,480 INFO o.a.j.t.JMeterThread: Thread started: Lasttest 1-23
-2026-04-08 20:25:23,500 INFO o.a.j.t.JMeterThread: Thread started: Lasttest 1-24
-2026-04-08 20:25:23,520 INFO o.a.j.t.JMeterThread: Thread started: Lasttest 1-25
-2026-04-08 20:25:23,540 INFO o.a.j.t.JMeterThread: Thread started: Lasttest 1-26
-2026-04-08 20:25:23,559 INFO o.a.j.t.JMeterThread: Thread started: Lasttest 1-27
-2026-04-08 20:25:23,579 INFO o.a.j.t.JMeterThread: Thread started: Lasttest 1-28
-2026-04-08 20:25:23,600 INFO o.a.j.t.JMeterThread: Thread started: Lasttest 1-29
-2026-04-08 20:25:23,620 INFO o.a.j.t.JMeterThread: Thread started: Lasttest 1-30
-2026-04-08 20:25:23,640 INFO o.a.j.t.JMeterThread: Thread started: Lasttest 1-31
-2026-04-08 20:25:23,660 INFO o.a.j.t.JMeterThread: Thread started: Lasttest 1-32
-2026-04-08 20:25:23,679 INFO o.a.j.t.JMeterThread: Thread started: Lasttest 1-33
-2026-04-08 20:25:23,700 INFO o.a.j.t.JMeterThread: Thread started: Lasttest 1-34
-2026-04-08 20:25:23,720 INFO o.a.j.t.JMeterThread: Thread started: Lasttest 1-35
-2026-04-08 20:25:23,739 INFO o.a.j.t.JMeterThread: Thread started: Lasttest 1-36
-2026-04-08 20:25:23,759 INFO o.a.j.t.JMeterThread: Thread started: Lasttest 1-37
-2026-04-08 20:25:23,779 INFO o.a.j.t.JMeterThread: Thread started: Lasttest 1-38
-2026-04-08 20:25:23,799 INFO o.a.j.t.JMeterThread: Thread started: Lasttest 1-39
-2026-04-08 20:25:23,820 INFO o.a.j.t.JMeterThread: Thread started: Lasttest 1-40
-2026-04-08 20:25:23,838 INFO o.a.j.t.JMeterThread: Thread started: Lasttest 1-41
-2026-04-08 20:25:23,859 INFO o.a.j.t.JMeterThread: Thread started: Lasttest 1-42
-2026-04-08 20:25:23,880 INFO o.a.j.t.JMeterThread: Thread started: Lasttest 1-43
-2026-04-08 20:25:23,898 INFO o.a.j.t.JMeterThread: Thread started: Lasttest 1-44
-2026-04-08 20:25:23,920 INFO o.a.j.t.JMeterThread: Thread started: Lasttest 1-45
-2026-04-08 20:25:23,940 INFO o.a.j.t.JMeterThread: Thread started: Lasttest 1-46
-2026-04-08 20:25:23,960 INFO o.a.j.t.JMeterThread: Thread started: Lasttest 1-47
-2026-04-08 20:25:23,980 INFO o.a.j.t.JMeterThread: Thread started: Lasttest 1-48
-2026-04-08 20:25:24,000 INFO o.a.j.t.JMeterThread: Thread started: Lasttest 1-49
-2026-04-08 20:25:24,019 INFO o.a.j.t.JMeterThread: Thread started: Lasttest 1-50
-2026-04-08 20:25:24,039 INFO o.a.j.t.JMeterThread: Thread started: Lasttest 1-51
-2026-04-08 20:25:24,059 INFO o.a.j.t.JMeterThread: Thread started: Lasttest 1-52
-2026-04-08 20:25:24,079 INFO o.a.j.t.JMeterThread: Thread started: Lasttest 1-53
-2026-04-08 20:25:24,098 INFO o.a.j.t.JMeterThread: Thread started: Lasttest 1-54
-2026-04-08 20:25:24,120 INFO o.a.j.t.JMeterThread: Thread started: Lasttest 1-55
-2026-04-08 20:25:24,139 INFO o.a.j.t.JMeterThread: Thread started: Lasttest 1-56
-2026-04-08 20:25:24,160 INFO o.a.j.t.JMeterThread: Thread started: Lasttest 1-57
-2026-04-08 20:25:24,178 INFO o.a.j.t.JMeterThread: Thread started: Lasttest 1-58
-2026-04-08 20:25:24,199 INFO o.a.j.t.JMeterThread: Thread started: Lasttest 1-59
-2026-04-08 20:25:24,220 INFO o.a.j.t.JMeterThread: Thread started: Lasttest 1-60
-2026-04-08 20:25:24,240 INFO o.a.j.t.JMeterThread: Thread started: Lasttest 1-61
-2026-04-08 20:25:24,260 INFO o.a.j.t.JMeterThread: Thread started: Lasttest 1-62
-2026-04-08 20:25:24,280 INFO o.a.j.t.JMeterThread: Thread started: Lasttest 1-63
-2026-04-08 20:25:24,299 INFO o.a.j.t.JMeterThread: Thread started: Lasttest 1-64
-2026-04-08 20:25:24,320 INFO o.a.j.t.JMeterThread: Thread started: Lasttest 1-65
-2026-04-08 20:25:24,338 INFO o.a.j.t.JMeterThread: Thread started: Lasttest 1-66
-2026-04-08 20:25:24,359 INFO o.a.j.t.JMeterThread: Thread started: Lasttest 1-67
-2026-04-08 20:25:24,378 INFO o.a.j.t.JMeterThread: Thread started: Lasttest 1-68
-2026-04-08 20:25:24,400 INFO o.a.j.t.JMeterThread: Thread started: Lasttest 1-69
-2026-04-08 20:25:24,420 INFO o.a.j.t.JMeterThread: Thread started: Lasttest 1-70
-2026-04-08 20:25:24,439 INFO o.a.j.t.JMeterThread: Thread started: Lasttest 1-71
-2026-04-08 20:25:24,459 INFO o.a.j.t.JMeterThread: Thread started: Lasttest 1-72
-2026-04-08 20:25:24,479 INFO o.a.j.t.JMeterThread: Thread started: Lasttest 1-73
-2026-04-08 20:25:24,498 INFO o.a.j.t.JMeterThread: Thread started: Lasttest 1-74
-2026-04-08 20:25:24,520 INFO o.a.j.t.JMeterThread: Thread started: Lasttest 1-75
-2026-04-08 20:25:24,539 INFO o.a.j.t.JMeterThread: Thread started: Lasttest 1-76
-2026-04-08 20:25:24,560 INFO o.a.j.t.JMeterThread: Thread started: Lasttest 1-77
-2026-04-08 20:25:24,580 INFO o.a.j.t.JMeterThread: Thread started: Lasttest 1-78
-2026-04-08 20:25:24,600 INFO o.a.j.t.JMeterThread: Thread started: Lasttest 1-79
-2026-04-08 20:25:24,620 INFO o.a.j.t.JMeterThread: Thread started: Lasttest 1-80
-2026-04-08 20:25:24,639 INFO o.a.j.t.JMeterThread: Thread started: Lasttest 1-81
-2026-04-08 20:25:24,660 INFO o.a.j.t.JMeterThread: Thread started: Lasttest 1-82
-2026-04-08 20:25:24,680 INFO o.a.j.t.JMeterThread: Thread started: Lasttest 1-83
-2026-04-08 20:25:24,700 INFO o.a.j.t.JMeterThread: Thread started: Lasttest 1-84
-2026-04-08 20:25:24,719 INFO o.a.j.t.JMeterThread: Thread started: Lasttest 1-85
-2026-04-08 20:25:24,739 INFO o.a.j.t.JMeterThread: Thread started: Lasttest 1-86
-2026-04-08 20:25:24,760 INFO o.a.j.t.JMeterThread: Thread started: Lasttest 1-87
-2026-04-08 20:25:24,779 INFO o.a.j.t.JMeterThread: Thread started: Lasttest 1-88
-2026-04-08 20:25:24,800 INFO o.a.j.t.JMeterThread: Thread started: Lasttest 1-89
-2026-04-08 20:25:24,819 INFO o.a.j.t.JMeterThread: Thread started: Lasttest 1-90
-2026-04-08 20:25:24,838 INFO o.a.j.t.JMeterThread: Thread started: Lasttest 1-91
-2026-04-08 20:25:24,859 INFO o.a.j.t.JMeterThread: Thread started: Lasttest 1-92
-2026-04-08 20:25:24,880 INFO o.a.j.t.JMeterThread: Thread started: Lasttest 1-93
-2026-04-08 20:25:24,898 INFO o.a.j.t.JMeterThread: Thread started: Lasttest 1-94
-2026-04-08 20:25:24,918 INFO o.a.j.t.JMeterThread: Thread started: Lasttest 1-95
-2026-04-08 20:25:24,940 INFO o.a.j.t.JMeterThread: Thread started: Lasttest 1-96
-2026-04-08 20:25:24,960 INFO o.a.j.t.JMeterThread: Thread started: Lasttest 1-97
-2026-04-08 20:25:24,979 INFO o.a.j.t.JMeterThread: Thread started: Lasttest 1-98
-2026-04-08 20:25:24,998 INFO o.a.j.t.JMeterThread: Thread started: Lasttest 1-99
-2026-04-08 20:25:25,019 INFO o.a.j.t.JMeterThread: Thread started: Lasttest 1-100
-2026-04-08 20:25:30,009 INFO o.a.j.r.Summariser: summary +   1453 in 00:00:07 =  207,6/s Avg:   197 Min:    18 Max:   419 Err:     0 (0,00%) Active: 100 Started: 100 Finished: 0
-2026-04-08 20:26:00,009 INFO o.a.j.r.Summariser: summary +   7078 in 00:00:30 =  235,9/s Avg:   224 Min:    17 Max:   493 Err:     0 (0,00%) Active: 100 Started: 100 Finished: 0
-2026-04-08 20:26:00,009 INFO o.a.j.r.Summariser: summary =   8531 in 00:00:37 =  230,6/s Avg:   219 Min:    17 Max:   493 Err:     0 (0,00%)
-2026-04-08 20:26:02,803 INFO o.a.j.t.JMeterThread: Thread finished: Lasttest 1-50
-2026-04-08 20:26:02,805 INFO o.a.j.t.JMeterThread: Thread finished: Lasttest 1-23
-2026-04-08 20:26:02,827 INFO o.a.j.t.JMeterThread: Thread finished: Lasttest 1-21
-2026-04-08 20:26:02,843 INFO o.a.j.t.JMeterThread: Thread finished: Lasttest 1-33
-2026-04-08 20:26:02,843 INFO o.a.j.t.JMeterThread: Thread finished: Lasttest 1-18
-2026-04-08 20:26:02,863 INFO o.a.j.t.JMeterThread: Thread finished: Lasttest 1-64
-2026-04-08 20:26:02,863 INFO o.a.j.t.JMeterThread: Thread finished: Lasttest 1-29
-2026-04-08 20:26:02,877 INFO o.a.j.t.JMeterThread: Thread finished: Lasttest 1-81
-2026-04-08 20:26:02,888 INFO o.a.j.t.JMeterThread: Thread finished: Lasttest 1-98
-2026-04-08 20:26:02,905 INFO o.a.j.t.JMeterThread: Thread finished: Lasttest 1-37
-2026-04-08 20:26:02,905 INFO o.a.j.t.JMeterThread: Thread finished: Lasttest 1-84
-2026-04-08 20:26:02,918 INFO o.a.j.t.JMeterThread: Thread finished: Lasttest 1-10
-2026-04-08 20:26:02,918 INFO o.a.j.t.JMeterThread: Thread finished: Lasttest 1-36
-2026-04-08 20:26:02,923 INFO o.a.j.t.JMeterThread: Thread finished: Lasttest 1-4
-2026-04-08 20:26:02,928 INFO o.a.j.t.JMeterThread: Thread finished: Lasttest 1-8
-2026-04-08 20:26:02,938 INFO o.a.j.t.JMeterThread: Thread finished: Lasttest 1-44
-2026-04-08 20:26:02,938 INFO o.a.j.t.JMeterThread: Thread finished: Lasttest 1-20
-2026-04-08 20:26:02,938 INFO o.a.j.t.JMeterThread: Thread finished: Lasttest 1-89
-2026-04-08 20:26:02,938 INFO o.a.j.t.JMeterThread: Thread finished: Lasttest 1-25
-2026-04-08 20:26:02,943 INFO o.a.j.t.JMeterThread: Thread finished: Lasttest 1-86
-2026-04-08 20:26:02,966 INFO o.a.j.t.JMeterThread: Thread finished: Lasttest 1-19
-2026-04-08 20:26:02,971 INFO o.a.j.t.JMeterThread: Thread finished: Lasttest 1-60
-2026-04-08 20:26:02,984 INFO o.a.j.t.JMeterThread: Thread finished: Lasttest 1-67
-2026-04-08 20:26:02,984 INFO o.a.j.t.JMeterThread: Thread finished: Lasttest 1-92
-2026-04-08 20:26:02,984 INFO o.a.j.t.JMeterThread: Thread finished: Lasttest 1-30
-2026-04-08 20:26:02,984 INFO o.a.j.t.JMeterThread: Thread finished: Lasttest 1-87
-2026-04-08 20:26:02,999 INFO o.a.j.t.JMeterThread: Thread finished: Lasttest 1-47
-2026-04-08 20:26:02,999 INFO o.a.j.t.JMeterThread: Thread finished: Lasttest 1-41
-2026-04-08 20:26:02,999 INFO o.a.j.t.JMeterThread: Thread finished: Lasttest 1-75
-2026-04-08 20:26:03,004 INFO o.a.j.t.JMeterThread: Thread finished: Lasttest 1-91
-2026-04-08 20:26:03,011 INFO o.a.j.t.JMeterThread: Thread finished: Lasttest 1-14
-2026-04-08 20:26:03,017 INFO o.a.j.t.JMeterThread: Thread finished: Lasttest 1-99
-2026-04-08 20:26:03,022 INFO o.a.j.t.JMeterThread: Thread finished: Lasttest 1-43
-2026-04-08 20:26:03,022 INFO o.a.j.t.JMeterThread: Thread finished: Lasttest 1-56
-2026-04-08 20:26:03,026 INFO o.a.j.t.JMeterThread: Thread finished: Lasttest 1-69
-2026-04-08 20:26:03,026 INFO o.a.j.t.JMeterThread: Thread finished: Lasttest 1-7
-2026-04-08 20:26:03,035 INFO o.a.j.t.JMeterThread: Thread finished: Lasttest 1-82
-2026-04-08 20:26:03,037 INFO o.a.j.t.JMeterThread: Thread finished: Lasttest 1-80
-2026-04-08 20:26:03,044 INFO o.a.j.t.JMeterThread: Thread finished: Lasttest 1-39
-2026-04-08 20:26:03,057 INFO o.a.j.t.JMeterThread: Thread finished: Lasttest 1-96
-2026-04-08 20:26:03,057 INFO o.a.j.t.JMeterThread: Stopping because end time detected by thread: Lasttest 1-13
-2026-04-08 20:26:03,057 INFO o.a.j.t.JMeterThread: Thread finished: Lasttest 1-13
-2026-04-08 20:26:03,059 INFO o.a.j.t.JMeterThread: Stopping because end time detected by thread: Lasttest 1-1
-2026-04-08 20:26:03,060 INFO o.a.j.t.JMeterThread: Thread finished: Lasttest 1-1
-2026-04-08 20:26:03,060 INFO o.a.j.t.JMeterThread: Thread finished: Lasttest 1-46
-2026-04-08 20:26:03,060 INFO o.a.j.t.JMeterThread: Stopping because end time detected by thread: Lasttest 1-22
-2026-04-08 20:26:03,060 INFO o.a.j.t.JMeterThread: Thread finished: Lasttest 1-22
-2026-04-08 20:26:03,060 INFO o.a.j.t.JMeterThread: Thread finished: Lasttest 1-65
-2026-04-08 20:26:03,074 INFO o.a.j.t.JMeterThread: Stopping because end time detected by thread: Lasttest 1-24
-2026-04-08 20:26:03,074 INFO o.a.j.t.JMeterThread: Thread finished: Lasttest 1-24
-2026-04-08 20:26:03,075 INFO o.a.j.t.JMeterThread: Thread finished: Lasttest 1-73
-2026-04-08 20:26:03,085 INFO o.a.j.t.JMeterThread: Stopping because end time detected by thread: Lasttest 1-9
-2026-04-08 20:26:03,085 INFO o.a.j.t.JMeterThread: Thread finished: Lasttest 1-9
-2026-04-08 20:26:03,092 INFO o.a.j.t.JMeterThread: Stopping because end time detected by thread: Lasttest 1-97
-2026-04-08 20:26:03,092 INFO o.a.j.t.JMeterThread: Thread finished: Lasttest 1-97
-2026-04-08 20:26:03,094 INFO o.a.j.t.JMeterThread: Stopping because end time detected by thread: Lasttest 1-26
-2026-04-08 20:26:03,094 INFO o.a.j.t.JMeterThread: Thread finished: Lasttest 1-26
-2026-04-08 20:26:03,102 INFO o.a.j.t.JMeterThread: Stopping because end time detected by thread: Lasttest 1-61
-2026-04-08 20:26:03,102 INFO o.a.j.t.JMeterThread: Thread finished: Lasttest 1-61
-2026-04-08 20:26:03,106 INFO o.a.j.t.JMeterThread: Stopping because end time detected by thread: Lasttest 1-94
-2026-04-08 20:26:03,106 INFO o.a.j.t.JMeterThread: Thread finished: Lasttest 1-94
-2026-04-08 20:26:03,109 INFO o.a.j.t.JMeterThread: Stopping because end time detected by thread: Lasttest 1-77
-2026-04-08 20:26:03,109 INFO o.a.j.t.JMeterThread: Thread finished: Lasttest 1-77
-2026-04-08 20:26:03,112 INFO o.a.j.t.JMeterThread: Stopping because end time detected by thread: Lasttest 1-52
-2026-04-08 20:26:03,112 INFO o.a.j.t.JMeterThread: Thread finished: Lasttest 1-52
-2026-04-08 20:26:03,114 INFO o.a.j.t.JMeterThread: Stopping because end time detected by thread: Lasttest 1-63
-2026-04-08 20:26:03,114 INFO o.a.j.t.JMeterThread: Thread finished: Lasttest 1-63
-2026-04-08 20:26:03,116 INFO o.a.j.t.JMeterThread: Stopping because end time detected by thread: Lasttest 1-72
-2026-04-08 20:26:03,116 INFO o.a.j.t.JMeterThread: Thread finished: Lasttest 1-72
-2026-04-08 20:26:03,124 INFO o.a.j.t.JMeterThread: Stopping because end time detected by thread: Lasttest 1-88
-2026-04-08 20:26:03,124 INFO o.a.j.t.JMeterThread: Thread finished: Lasttest 1-88
-2026-04-08 20:26:03,125 INFO o.a.j.t.JMeterThread: Stopping because end time detected by thread: Lasttest 1-6
-2026-04-08 20:26:03,125 INFO o.a.j.t.JMeterThread: Thread finished: Lasttest 1-6
-2026-04-08 20:26:03,128 INFO o.a.j.t.JMeterThread: Stopping because end time detected by thread: Lasttest 1-31
-2026-04-08 20:26:03,128 INFO o.a.j.t.JMeterThread: Thread finished: Lasttest 1-31
-2026-04-08 20:26:03,132 INFO o.a.j.t.JMeterThread: Stopping because end time detected by thread: Lasttest 1-16
-2026-04-08 20:26:03,132 INFO o.a.j.t.JMeterThread: Thread finished: Lasttest 1-16
-2026-04-08 20:26:03,137 INFO o.a.j.t.JMeterThread: Stopping because end time detected by thread: Lasttest 1-62
-2026-04-08 20:26:03,137 INFO o.a.j.t.JMeterThread: Thread finished: Lasttest 1-62
-2026-04-08 20:26:03,145 INFO o.a.j.t.JMeterThread: Stopping because end time detected by thread: Lasttest 1-53
-2026-04-08 20:26:03,145 INFO o.a.j.t.JMeterThread: Thread finished: Lasttest 1-53
-2026-04-08 20:26:03,148 INFO o.a.j.t.JMeterThread: Stopping because end time detected by thread: Lasttest 1-74
-2026-04-08 20:26:03,148 INFO o.a.j.t.JMeterThread: Thread finished: Lasttest 1-74
-2026-04-08 20:26:03,153 INFO o.a.j.t.JMeterThread: Stopping because end time detected by thread: Lasttest 1-59
-2026-04-08 20:26:03,153 INFO o.a.j.t.JMeterThread: Thread finished: Lasttest 1-59
-2026-04-08 20:26:03,165 INFO o.a.j.t.JMeterThread: Stopping because end time detected by thread: Lasttest 1-3
-2026-04-08 20:26:03,165 INFO o.a.j.t.JMeterThread: Stopping because end time detected by thread: Lasttest 1-42
-2026-04-08 20:26:03,165 INFO o.a.j.t.JMeterThread: Thread finished: Lasttest 1-3
-2026-04-08 20:26:03,165 INFO o.a.j.t.JMeterThread: Thread finished: Lasttest 1-42
-2026-04-08 20:26:03,167 INFO o.a.j.t.JMeterThread: Stopping because end time detected by thread: Lasttest 1-79
-2026-04-08 20:26:03,167 INFO o.a.j.t.JMeterThread: Thread finished: Lasttest 1-79
-2026-04-08 20:26:03,169 INFO o.a.j.t.JMeterThread: Stopping because end time detected by thread: Lasttest 1-12
-2026-04-08 20:26:03,169 INFO o.a.j.t.JMeterThread: Thread finished: Lasttest 1-12
-2026-04-08 20:26:03,174 INFO o.a.j.t.JMeterThread: Stopping because end time detected by thread: Lasttest 1-95
-2026-04-08 20:26:03,174 INFO o.a.j.t.JMeterThread: Thread finished: Lasttest 1-95
-2026-04-08 20:26:03,179 INFO o.a.j.t.JMeterThread: Stopping because end time detected by thread: Lasttest 1-57
-2026-04-08 20:26:03,179 INFO o.a.j.t.JMeterThread: Thread finished: Lasttest 1-57
-2026-04-08 20:26:03,184 INFO o.a.j.t.JMeterThread: Stopping because end time detected by thread: Lasttest 1-55
-2026-04-08 20:26:03,184 INFO o.a.j.t.JMeterThread: Thread finished: Lasttest 1-55
-2026-04-08 20:26:03,187 INFO o.a.j.t.JMeterThread: Stopping because end time detected by thread: Lasttest 1-78
-2026-04-08 20:26:03,187 INFO o.a.j.t.JMeterThread: Thread finished: Lasttest 1-78
-2026-04-08 20:26:03,195 INFO o.a.j.t.JMeterThread: Stopping because end time detected by thread: Lasttest 1-15
-2026-04-08 20:26:03,195 INFO o.a.j.t.JMeterThread: Thread finished: Lasttest 1-15
-2026-04-08 20:26:03,197 INFO o.a.j.t.JMeterThread: Stopping because end time detected by thread: Lasttest 1-38
-2026-04-08 20:26:03,197 INFO o.a.j.t.JMeterThread: Thread finished: Lasttest 1-38
-2026-04-08 20:26:03,204 INFO o.a.j.t.JMeterThread: Stopping because end time detected by thread: Lasttest 1-27
-2026-04-08 20:26:03,204 INFO o.a.j.t.JMeterThread: Thread finished: Lasttest 1-27
-2026-04-08 20:26:03,204 INFO o.a.j.t.JMeterThread: Stopping because end time detected by thread: Lasttest 1-35
-2026-04-08 20:26:03,204 INFO o.a.j.t.JMeterThread: Thread finished: Lasttest 1-35
-2026-04-08 20:26:03,206 INFO o.a.j.t.JMeterThread: Stopping because end time detected by thread: Lasttest 1-49
-2026-04-08 20:26:03,206 INFO o.a.j.t.JMeterThread: Thread finished: Lasttest 1-49
-2026-04-08 20:26:03,217 INFO o.a.j.t.JMeterThread: Stopping because end time detected by thread: Lasttest 1-85
-2026-04-08 20:26:03,217 INFO o.a.j.t.JMeterThread: Thread finished: Lasttest 1-85
-2026-04-08 20:26:03,222 INFO o.a.j.t.JMeterThread: Stopping because end time detected by thread: Lasttest 1-28
-2026-04-08 20:26:03,222 INFO o.a.j.t.JMeterThread: Thread finished: Lasttest 1-28
-2026-04-08 20:26:03,223 INFO o.a.j.t.JMeterThread: Stopping because end time detected by thread: Lasttest 1-58
-2026-04-08 20:26:03,223 INFO o.a.j.t.JMeterThread: Thread finished: Lasttest 1-58
-2026-04-08 20:26:03,223 INFO o.a.j.t.JMeterThread: Stopping because end time detected by thread: Lasttest 1-48
-2026-04-08 20:26:03,223 INFO o.a.j.t.JMeterThread: Thread finished: Lasttest 1-48
-2026-04-08 20:26:03,223 INFO o.a.j.t.JMeterThread: Stopping because end time detected by thread: Lasttest 1-76
-2026-04-08 20:26:03,223 INFO o.a.j.t.JMeterThread: Thread finished: Lasttest 1-76
-2026-04-08 20:26:03,235 INFO o.a.j.t.JMeterThread: Stopping because end time detected by thread: Lasttest 1-5
-2026-04-08 20:26:03,235 INFO o.a.j.t.JMeterThread: Thread finished: Lasttest 1-5
-2026-04-08 20:26:03,236 INFO o.a.j.t.JMeterThread: Stopping because end time detected by thread: Lasttest 1-32
-2026-04-08 20:26:03,236 INFO o.a.j.t.JMeterThread: Thread finished: Lasttest 1-32
-2026-04-08 20:26:03,242 INFO o.a.j.t.JMeterThread: Stopping because end time detected by thread: Lasttest 1-100
-2026-04-08 20:26:03,242 INFO o.a.j.t.JMeterThread: Stopping because end time detected by thread: Lasttest 1-34
-2026-04-08 20:26:03,242 INFO o.a.j.t.JMeterThread: Thread finished: Lasttest 1-100
-2026-04-08 20:26:03,242 INFO o.a.j.t.JMeterThread: Stopping because end time detected by thread: Lasttest 1-45
-2026-04-08 20:26:03,242 INFO o.a.j.t.JMeterThread: Thread finished: Lasttest 1-34
-2026-04-08 20:26:03,242 INFO o.a.j.t.JMeterThread: Thread finished: Lasttest 1-45
-2026-04-08 20:26:03,253 INFO o.a.j.t.JMeterThread: Stopping because end time detected by thread: Lasttest 1-11
-2026-04-08 20:26:03,253 INFO o.a.j.t.JMeterThread: Thread finished: Lasttest 1-11
-2026-04-08 20:26:03,258 INFO o.a.j.t.JMeterThread: Stopping because end time detected by thread: Lasttest 1-68
-2026-04-08 20:26:03,258 INFO o.a.j.t.JMeterThread: Thread finished: Lasttest 1-68
-2026-04-08 20:26:03,262 INFO o.a.j.t.JMeterThread: Stopping because end time detected by thread: Lasttest 1-54
-2026-04-08 20:26:03,262 INFO o.a.j.t.JMeterThread: Thread finished: Lasttest 1-54
-2026-04-08 20:26:03,264 INFO o.a.j.t.JMeterThread: Stopping because end time detected by thread: Lasttest 1-83
-2026-04-08 20:26:03,264 INFO o.a.j.t.JMeterThread: Thread finished: Lasttest 1-83
-2026-04-08 20:26:03,268 INFO o.a.j.t.JMeterThread: Stopping because end time detected by thread: Lasttest 1-66
-2026-04-08 20:26:03,269 INFO o.a.j.t.JMeterThread: Thread finished: Lasttest 1-66
-2026-04-08 20:26:03,274 INFO o.a.j.t.JMeterThread: Stopping because end time detected by thread: Lasttest 1-2
-2026-04-08 20:26:03,274 INFO o.a.j.t.JMeterThread: Thread finished: Lasttest 1-2
-2026-04-08 20:26:03,281 INFO o.a.j.t.JMeterThread: Stopping because end time detected by thread: Lasttest 1-17
-2026-04-08 20:26:03,281 INFO o.a.j.t.JMeterThread: Stopping because end time detected by thread: Lasttest 1-51
-2026-04-08 20:26:03,281 INFO o.a.j.t.JMeterThread: Stopping because end time detected by thread: Lasttest 1-93
-2026-04-08 20:26:03,281 INFO o.a.j.t.JMeterThread: Thread finished: Lasttest 1-51
-2026-04-08 20:26:03,281 INFO o.a.j.t.JMeterThread: Thread finished: Lasttest 1-17
-2026-04-08 20:26:03,281 INFO o.a.j.t.JMeterThread: Thread finished: Lasttest 1-93
-2026-04-08 20:26:03,289 INFO o.a.j.t.JMeterThread: Stopping because end time detected by thread: Lasttest 1-90
-2026-04-08 20:26:03,289 INFO o.a.j.t.JMeterThread: Stopping because end time detected by thread: Lasttest 1-71
-2026-04-08 20:26:03,289 INFO o.a.j.t.JMeterThread: Thread finished: Lasttest 1-90
-2026-04-08 20:26:03,289 INFO o.a.j.t.JMeterThread: Thread finished: Lasttest 1-71
-2026-04-08 20:26:03,295 INFO o.a.j.t.JMeterThread: Stopping because end time detected by thread: Lasttest 1-40
-2026-04-08 20:26:03,295 INFO o.a.j.t.JMeterThread: Thread finished: Lasttest 1-40
-2026-04-08 20:26:03,301 INFO o.a.j.t.JMeterThread: Stopping because end time detected by thread: Lasttest 1-70
-2026-04-08 20:26:03,301 INFO o.a.j.t.JMeterThread: Thread finished: Lasttest 1-70
-2026-04-08 20:26:03,302 INFO o.a.j.e.StandardJMeterEngine: Notifying test listeners of end of test
-2026-04-08 20:26:03,303 INFO o.a.j.v.b.BackendListener: Worker ended
-2026-04-08 20:26:03,304 INFO o.a.j.v.b.i.InfluxdbBackendListenerClient: Sending last metrics to InfluxDB
-2026-04-08 20:26:03,304 INFO o.a.j.v.b.i.HttpMetricsSender: Destroying 
-2026-04-08 20:26:03,312 INFO o.a.j.r.Summariser: summary +    785 in 00:00:03 =  237,7/s Avg:   219 Min:    40 Max:   730 Err:     0 (0,00%) Active: 0 Started: 100 Finished: 100
-2026-04-08 20:26:03,312 INFO o.a.j.r.Summariser: summary =   9316 in 00:00:40 =  231,1/s Avg:   219 Min:    17 Max:   730 Err:     0 (0,00%)
+2026-04-08 21:12:53,520 INFO o.a.j.u.JMeterUtils: Setting Locale to de_DE
+2026-04-08 21:12:53,533 INFO o.a.j.u.JMeterUtils: Could not find resources for 'de_DE', using 'de'
+2026-04-08 21:12:53,534 INFO o.a.j.JMeter: Loading user properties from: C:\tools\apache-jmeter-5.6.3\bin\user.properties
+2026-04-08 21:12:53,534 INFO o.a.j.JMeter: Loading system properties from: C:\tools\apache-jmeter-5.6.3\bin\system.properties
+2026-04-08 21:12:53,535 INFO o.a.j.JMeter: Setting JMeter property: threads=100
+2026-04-08 21:12:53,535 INFO o.a.j.JMeter: Setting JMeter property: rampup=2
+2026-04-08 21:12:53,535 INFO o.a.j.JMeter: Setting JMeter property: duration=40
+2026-04-08 21:12:53,536 INFO o.a.j.JMeter: Setting JMeter property: host=localhost
+2026-04-08 21:12:53,536 INFO o.a.j.JMeter: Setting JMeter property: port=8081
+2026-04-08 21:12:53,536 INFO o.a.j.JMeter: Setting JMeter property: testname=Spike-Test
+2026-04-08 21:12:53,553 INFO o.a.j.JMeter: Copyright (c) 1998-2024 The Apache Software Foundation
+2026-04-08 21:12:53,553 INFO o.a.j.JMeter: Version 5.6.3
+2026-04-08 21:12:53,553 INFO o.a.j.JMeter: java.version=24
+2026-04-08 21:12:53,553 INFO o.a.j.JMeter: java.vm.name=OpenJDK 64-Bit Server VM
+2026-04-08 21:12:53,553 INFO o.a.j.JMeter: os.name=Windows 11
+2026-04-08 21:12:53,553 INFO o.a.j.JMeter: os.arch=amd64
+2026-04-08 21:12:53,553 INFO o.a.j.JMeter: os.version=10.0
+2026-04-08 21:12:53,553 INFO o.a.j.JMeter: file.encoding=UTF-8
+2026-04-08 21:12:53,553 INFO o.a.j.JMeter: java.awt.headless=true
+2026-04-08 21:12:53,553 INFO o.a.j.JMeter: Max memory     =8547991552
+2026-04-08 21:12:53,553 INFO o.a.j.JMeter: Available Processors =16
+2026-04-08 21:12:53,563 INFO o.a.j.JMeter: Default Locale=Deutsch (Deutschland)
+2026-04-08 21:12:53,564 INFO o.a.j.JMeter: JMeter  Locale=Deutsch (Deutschland)
+2026-04-08 21:12:53,564 INFO o.a.j.JMeter: JMeterHome=C:\tools\apache-jmeter-5.6.3
+2026-04-08 21:12:53,564 INFO o.a.j.JMeter: user.dir  =C:\Users\jason\IdeaProjects\HFWI423-Integrationsprojekt
+2026-04-08 21:12:53,564 INFO o.a.j.JMeter: PWD       =C:\Users\jason\IdeaProjects\HFWI423-Integrationsprojekt
+2026-04-08 21:13:03,025 INFO o.a.j.JMeter: IP: 169.254.123.70 Name: JasonPC FullName: JasonPC
+2026-04-08 21:13:03,037 INFO o.a.j.s.FileServer: Default base='C:\Users\jason\IdeaProjects\HFWI423-Integrationsprojekt'
+2026-04-08 21:13:03,038 INFO o.a.j.s.FileServer: Set new base='C:\Users\jason\IdeaProjects\HFWI423-Integrationsprojekt\monitoring\jmeter'
+2026-04-08 21:13:03,307 INFO o.a.j.s.SaveService: Testplan (JMX) version: 2.2. Testlog (JTL) version: 2.2
+2026-04-08 21:13:03,334 INFO o.a.j.s.SaveService: Using SaveService properties version 5.0
+2026-04-08 21:13:03,337 INFO o.a.j.s.SaveService: Using SaveService properties file encoding UTF-8
+2026-04-08 21:13:03,340 INFO o.a.j.s.SaveService: Loading file: C:\Users\jason\IdeaProjects\HFWI423-Integrationsprojekt\monitoring\jmeter\logistik-parametrisiert.jmx
+2026-04-08 21:13:03,389 INFO o.a.j.p.h.s.HTTPSamplerBase: Parser for text/html is org.apache.jmeter.protocol.http.parser.LagartoBasedHtmlParser
+2026-04-08 21:13:03,389 INFO o.a.j.p.h.s.HTTPSamplerBase: Parser for application/xhtml+xml is org.apache.jmeter.protocol.http.parser.LagartoBasedHtmlParser
+2026-04-08 21:13:03,389 INFO o.a.j.p.h.s.HTTPSamplerBase: Parser for application/xml is org.apache.jmeter.protocol.http.parser.LagartoBasedHtmlParser
+2026-04-08 21:13:03,389 INFO o.a.j.p.h.s.HTTPSamplerBase: Parser for text/xml is org.apache.jmeter.protocol.http.parser.LagartoBasedHtmlParser
+2026-04-08 21:13:03,390 INFO o.a.j.p.h.s.HTTPSamplerBase: Parser for text/vnd.wap.wml is org.apache.jmeter.protocol.http.parser.RegexpHTMLParser
+2026-04-08 21:13:03,390 INFO o.a.j.p.h.s.HTTPSamplerBase: Parser for text/css is org.apache.jmeter.protocol.http.parser.CssParser
+2026-04-08 21:13:03,395 INFO o.a.j.s.SampleResult: Note: Sample TimeStamps are START times
+2026-04-08 21:13:03,395 INFO o.a.j.s.SampleResult: sampleresult.default.encoding is set to UTF-8
+2026-04-08 21:13:03,395 INFO o.a.j.s.SampleResult: sampleresult.useNanoTime=true
+2026-04-08 21:13:03,395 INFO o.a.j.s.SampleResult: sampleresult.nanoThreadSleep=5000
+2026-04-08 21:13:03,405 INFO o.a.j.JMeter: Creating summariser <summary>
+2026-04-08 21:13:03,420 INFO o.a.j.e.StandardJMeterEngine: Running the test!
+2026-04-08 21:13:03,421 INFO o.a.j.s.SampleEvent: List of sample_variables: []
+2026-04-08 21:13:03,421 INFO o.a.j.s.SampleEvent: List of sample_variables: []
+2026-04-08 21:13:03,424 INFO o.a.j.e.u.CompoundVariable: Note: Function class names must contain the string: '.functions.'
+2026-04-08 21:13:03,425 INFO o.a.j.e.u.CompoundVariable: Note: Function class names must not contain the string: '.gui.'
+2026-04-08 21:13:03,491 INFO o.a.j.v.b.BackendListener: InfluxDB Backend Listener: Starting worker with class: class org.apache.jmeter.visualizers.backend.influxdb.InfluxdbBackendListenerClient and queue capacity: 5000
+2026-04-08 21:13:03,492 INFO o.a.j.v.b.BackendListener: InfluxDB Backend Listener: Started  worker with class: class org.apache.jmeter.visualizers.backend.influxdb.InfluxdbBackendListenerClient
+2026-04-08 21:13:03,683 INFO o.a.j.JMeter: Test starten (1775675583683)
+2026-04-08 21:13:03,705 INFO o.a.j.e.StandardJMeterEngine: Starting ThreadGroup: 1 : Lasttest
+2026-04-08 21:13:03,705 INFO o.a.j.e.StandardJMeterEngine: Starting 100 threads for group Lasttest.
+2026-04-08 21:13:03,705 INFO o.a.j.e.StandardJMeterEngine: Thread will continue on error
+2026-04-08 21:13:03,705 INFO o.a.j.t.ThreadGroup: Starting thread group... number=1 threads=100 ramp-up=2 delayedStart=false
+2026-04-08 21:13:03,713 INFO o.a.j.t.JMeterThread: Thread started: Lasttest 1-1
+2026-04-08 21:13:03,730 INFO o.a.j.t.JMeterThread: Thread started: Lasttest 1-2
+2026-04-08 21:13:03,748 INFO o.a.j.t.JMeterThread: Thread started: Lasttest 1-3
+2026-04-08 21:13:03,764 INFO o.a.j.t.ThreadGroup: Started thread group number 1
+2026-04-08 21:13:03,764 INFO o.a.j.e.StandardJMeterEngine: All thread groups have been started
+2026-04-08 21:13:03,769 INFO o.a.j.t.JMeterThread: Thread started: Lasttest 1-4
+2026-04-08 21:13:03,788 INFO o.a.j.t.JMeterThread: Thread started: Lasttest 1-5
+2026-04-08 21:13:03,808 INFO o.a.j.t.JMeterThread: Thread started: Lasttest 1-6
+2026-04-08 21:13:03,827 INFO o.a.j.t.JMeterThread: Thread started: Lasttest 1-7
+2026-04-08 21:13:03,849 INFO o.a.j.t.JMeterThread: Thread started: Lasttest 1-8
+2026-04-08 21:13:03,867 INFO o.a.j.t.JMeterThread: Thread started: Lasttest 1-9
+2026-04-08 21:13:03,887 INFO o.a.j.t.JMeterThread: Thread started: Lasttest 1-10
+2026-04-08 21:13:03,901 INFO o.a.j.p.h.s.HTTPHCAbstractImpl: Local host = JasonPC
+2026-04-08 21:13:03,905 INFO o.a.j.p.h.s.HTTPHC4Impl: HTTP request retry count = 0
+2026-04-08 21:13:03,907 INFO o.a.j.t.JMeterThread: Thread started: Lasttest 1-11
+2026-04-08 21:13:03,927 INFO o.a.j.t.JMeterThread: Thread started: Lasttest 1-12
+2026-04-08 21:13:03,946 INFO o.a.j.t.JMeterThread: Thread started: Lasttest 1-13
+2026-04-08 21:13:03,967 INFO o.a.j.t.JMeterThread: Thread started: Lasttest 1-14
+2026-04-08 21:13:03,987 INFO o.a.j.t.JMeterThread: Thread started: Lasttest 1-15
+2026-04-08 21:13:04,008 INFO o.a.j.t.JMeterThread: Thread started: Lasttest 1-16
+2026-04-08 21:13:04,021 INFO o.a.j.r.Summariser: summary +      1 in 00:00:00 =    3,0/s Avg:    95 Min:    95 Max:    95 Err:     0 (0,00%) Active: 16 Started: 16 Finished: 0
+2026-04-08 21:13:04,027 INFO o.a.j.t.JMeterThread: Thread started: Lasttest 1-17
+2026-04-08 21:13:04,046 INFO o.a.j.t.JMeterThread: Thread started: Lasttest 1-18
+2026-04-08 21:13:04,068 INFO o.a.j.t.JMeterThread: Thread started: Lasttest 1-19
+2026-04-08 21:13:04,086 INFO o.a.j.t.JMeterThread: Thread started: Lasttest 1-20
+2026-04-08 21:13:04,107 INFO o.a.j.t.JMeterThread: Thread started: Lasttest 1-21
+2026-04-08 21:13:04,127 INFO o.a.j.t.JMeterThread: Thread started: Lasttest 1-22
+2026-04-08 21:13:04,147 INFO o.a.j.t.JMeterThread: Thread started: Lasttest 1-23
+2026-04-08 21:13:04,166 INFO o.a.j.t.JMeterThread: Thread started: Lasttest 1-24
+2026-04-08 21:13:04,187 INFO o.a.j.t.JMeterThread: Thread started: Lasttest 1-25
+2026-04-08 21:13:04,207 INFO o.a.j.t.JMeterThread: Thread started: Lasttest 1-26
+2026-04-08 21:13:04,226 INFO o.a.j.t.JMeterThread: Thread started: Lasttest 1-27
+2026-04-08 21:13:04,246 INFO o.a.j.t.JMeterThread: Thread started: Lasttest 1-28
+2026-04-08 21:13:04,268 INFO o.a.j.t.JMeterThread: Thread started: Lasttest 1-29
+2026-04-08 21:13:04,289 INFO o.a.j.t.JMeterThread: Thread started: Lasttest 1-30
+2026-04-08 21:13:04,306 INFO o.a.j.t.JMeterThread: Thread started: Lasttest 1-31
+2026-04-08 21:13:04,326 INFO o.a.j.t.JMeterThread: Thread started: Lasttest 1-32
+2026-04-08 21:13:04,346 INFO o.a.j.t.JMeterThread: Thread started: Lasttest 1-33
+2026-04-08 21:13:04,366 INFO o.a.j.t.JMeterThread: Thread started: Lasttest 1-34
+2026-04-08 21:13:04,387 INFO o.a.j.t.JMeterThread: Thread started: Lasttest 1-35
+2026-04-08 21:13:04,407 INFO o.a.j.t.JMeterThread: Thread started: Lasttest 1-36
+2026-04-08 21:13:04,426 INFO o.a.j.t.JMeterThread: Thread started: Lasttest 1-37
+2026-04-08 21:13:04,447 INFO o.a.j.t.JMeterThread: Thread started: Lasttest 1-38
+2026-04-08 21:13:04,466 INFO o.a.j.t.JMeterThread: Thread started: Lasttest 1-39
+2026-04-08 21:13:04,487 INFO o.a.j.t.JMeterThread: Thread started: Lasttest 1-40
+2026-04-08 21:13:04,506 INFO o.a.j.t.JMeterThread: Thread started: Lasttest 1-41
+2026-04-08 21:13:04,527 INFO o.a.j.t.JMeterThread: Thread started: Lasttest 1-42
+2026-04-08 21:13:04,546 INFO o.a.j.t.JMeterThread: Thread started: Lasttest 1-43
+2026-04-08 21:13:04,567 INFO o.a.j.t.JMeterThread: Thread started: Lasttest 1-44
+2026-04-08 21:13:04,587 INFO o.a.j.t.JMeterThread: Thread started: Lasttest 1-45
+2026-04-08 21:13:04,606 INFO o.a.j.t.JMeterThread: Thread started: Lasttest 1-46
+2026-04-08 21:13:04,627 INFO o.a.j.t.JMeterThread: Thread started: Lasttest 1-47
+2026-04-08 21:13:04,646 INFO o.a.j.t.JMeterThread: Thread started: Lasttest 1-48
+2026-04-08 21:13:04,666 INFO o.a.j.t.JMeterThread: Thread started: Lasttest 1-49
+2026-04-08 21:13:04,687 INFO o.a.j.t.JMeterThread: Thread started: Lasttest 1-50
+2026-04-08 21:13:04,708 INFO o.a.j.t.JMeterThread: Thread started: Lasttest 1-51
+2026-04-08 21:13:04,728 INFO o.a.j.t.JMeterThread: Thread started: Lasttest 1-52
+2026-04-08 21:13:04,745 INFO o.a.j.t.JMeterThread: Thread started: Lasttest 1-53
+2026-04-08 21:13:04,766 INFO o.a.j.t.JMeterThread: Thread started: Lasttest 1-54
+2026-04-08 21:13:04,786 INFO o.a.j.t.JMeterThread: Thread started: Lasttest 1-55
+2026-04-08 21:13:04,806 INFO o.a.j.t.JMeterThread: Thread started: Lasttest 1-56
+2026-04-08 21:13:04,827 INFO o.a.j.t.JMeterThread: Thread started: Lasttest 1-57
+2026-04-08 21:13:04,847 INFO o.a.j.t.JMeterThread: Thread started: Lasttest 1-58
+2026-04-08 21:13:04,865 INFO o.a.j.t.JMeterThread: Thread started: Lasttest 1-59
+2026-04-08 21:13:04,887 INFO o.a.j.t.JMeterThread: Thread started: Lasttest 1-60
+2026-04-08 21:13:04,905 INFO o.a.j.t.JMeterThread: Thread started: Lasttest 1-61
+2026-04-08 21:13:04,926 INFO o.a.j.t.JMeterThread: Thread started: Lasttest 1-62
+2026-04-08 21:13:04,946 INFO o.a.j.t.JMeterThread: Thread started: Lasttest 1-63
+2026-04-08 21:13:04,967 INFO o.a.j.t.JMeterThread: Thread started: Lasttest 1-64
+2026-04-08 21:13:04,985 INFO o.a.j.t.JMeterThread: Thread started: Lasttest 1-65
+2026-04-08 21:13:05,007 INFO o.a.j.t.JMeterThread: Thread started: Lasttest 1-66
+2026-04-08 21:13:05,027 INFO o.a.j.t.JMeterThread: Thread started: Lasttest 1-67
+2026-04-08 21:13:05,046 INFO o.a.j.t.JMeterThread: Thread started: Lasttest 1-68
+2026-04-08 21:13:05,066 INFO o.a.j.t.JMeterThread: Thread started: Lasttest 1-69
+2026-04-08 21:13:05,086 INFO o.a.j.t.JMeterThread: Thread started: Lasttest 1-70
+2026-04-08 21:13:05,105 INFO o.a.j.t.JMeterThread: Thread started: Lasttest 1-71
+2026-04-08 21:13:05,126 INFO o.a.j.t.JMeterThread: Thread started: Lasttest 1-72
+2026-04-08 21:13:05,147 INFO o.a.j.t.JMeterThread: Thread started: Lasttest 1-73
+2026-04-08 21:13:05,166 INFO o.a.j.t.JMeterThread: Thread started: Lasttest 1-74
+2026-04-08 21:13:05,186 INFO o.a.j.t.JMeterThread: Thread started: Lasttest 1-75
+2026-04-08 21:13:05,207 INFO o.a.j.t.JMeterThread: Thread started: Lasttest 1-76
+2026-04-08 21:13:05,227 INFO o.a.j.t.JMeterThread: Thread started: Lasttest 1-77
+2026-04-08 21:13:05,246 INFO o.a.j.t.JMeterThread: Thread started: Lasttest 1-78
+2026-04-08 21:13:05,265 INFO o.a.j.t.JMeterThread: Thread started: Lasttest 1-79
+2026-04-08 21:13:05,286 INFO o.a.j.t.JMeterThread: Thread started: Lasttest 1-80
+2026-04-08 21:13:05,306 INFO o.a.j.t.JMeterThread: Thread started: Lasttest 1-81
+2026-04-08 21:13:05,327 INFO o.a.j.t.JMeterThread: Thread started: Lasttest 1-82
+2026-04-08 21:13:05,345 INFO o.a.j.t.JMeterThread: Thread started: Lasttest 1-83
+2026-04-08 21:13:05,366 INFO o.a.j.t.JMeterThread: Thread started: Lasttest 1-84
+2026-04-08 21:13:05,386 INFO o.a.j.t.JMeterThread: Thread started: Lasttest 1-85
+2026-04-08 21:13:05,406 INFO o.a.j.t.JMeterThread: Thread started: Lasttest 1-86
+2026-04-08 21:13:05,426 INFO o.a.j.t.JMeterThread: Thread started: Lasttest 1-87
+2026-04-08 21:13:05,447 INFO o.a.j.t.JMeterThread: Thread started: Lasttest 1-88
+2026-04-08 21:13:05,466 INFO o.a.j.t.JMeterThread: Thread started: Lasttest 1-89
+2026-04-08 21:13:05,486 INFO o.a.j.t.JMeterThread: Thread started: Lasttest 1-90
+2026-04-08 21:13:05,506 INFO o.a.j.t.JMeterThread: Thread started: Lasttest 1-91
+2026-04-08 21:13:05,526 INFO o.a.j.t.JMeterThread: Thread started: Lasttest 1-92
+2026-04-08 21:13:05,546 INFO o.a.j.t.JMeterThread: Thread started: Lasttest 1-93
+2026-04-08 21:13:05,567 INFO o.a.j.t.JMeterThread: Thread started: Lasttest 1-94
+2026-04-08 21:13:05,586 INFO o.a.j.t.JMeterThread: Thread started: Lasttest 1-95
+2026-04-08 21:13:05,608 INFO o.a.j.t.JMeterThread: Thread started: Lasttest 1-96
+2026-04-08 21:13:05,626 INFO o.a.j.t.JMeterThread: Thread started: Lasttest 1-97
+2026-04-08 21:13:05,646 INFO o.a.j.t.JMeterThread: Thread started: Lasttest 1-98
+2026-04-08 21:13:05,665 INFO o.a.j.t.JMeterThread: Thread started: Lasttest 1-99
+2026-04-08 21:13:05,686 INFO o.a.j.t.JMeterThread: Thread started: Lasttest 1-100
+2026-04-08 21:13:30,006 INFO o.a.j.r.Summariser: summary +   5892 in 00:00:26 =  226,7/s Avg:   225 Min:    16 Max:   505 Err:     0 (0,00%) Active: 100 Started: 100 Finished: 0
+2026-04-08 21:13:30,007 INFO o.a.j.r.Summariser: summary =   5893 in 00:00:26 =  223,9/s Avg:   225 Min:    16 Max:   505 Err:     0 (0,00%)
+2026-04-08 21:13:43,440 INFO o.a.j.t.JMeterThread: Thread finished: Lasttest 1-20
+2026-04-08 21:13:43,464 INFO o.a.j.t.JMeterThread: Thread finished: Lasttest 1-85
+2026-04-08 21:13:43,479 INFO o.a.j.t.JMeterThread: Thread finished: Lasttest 1-18
+2026-04-08 21:13:43,479 INFO o.a.j.t.JMeterThread: Thread finished: Lasttest 1-67
+2026-04-08 21:13:43,492 INFO o.a.j.t.JMeterThread: Thread finished: Lasttest 1-66
+2026-04-08 21:13:43,552 INFO o.a.j.t.JMeterThread: Thread finished: Lasttest 1-13
+2026-04-08 21:13:43,553 INFO o.a.j.t.JMeterThread: Thread finished: Lasttest 1-7
+2026-04-08 21:13:43,556 INFO o.a.j.t.JMeterThread: Thread finished: Lasttest 1-6
+2026-04-08 21:13:43,564 INFO o.a.j.t.JMeterThread: Thread finished: Lasttest 1-65
+2026-04-08 21:13:43,564 INFO o.a.j.t.JMeterThread: Thread finished: Lasttest 1-99
+2026-04-08 21:13:43,566 INFO o.a.j.t.JMeterThread: Thread finished: Lasttest 1-17
+2026-04-08 21:13:43,566 INFO o.a.j.t.JMeterThread: Thread finished: Lasttest 1-10
+2026-04-08 21:13:43,567 INFO o.a.j.t.JMeterThread: Thread finished: Lasttest 1-39
+2026-04-08 21:13:43,575 INFO o.a.j.t.JMeterThread: Thread finished: Lasttest 1-41
+2026-04-08 21:13:43,583 INFO o.a.j.t.JMeterThread: Thread finished: Lasttest 1-76
+2026-04-08 21:13:43,598 INFO o.a.j.t.JMeterThread: Thread finished: Lasttest 1-28
+2026-04-08 21:13:43,598 INFO o.a.j.t.JMeterThread: Thread finished: Lasttest 1-52
+2026-04-08 21:13:43,601 INFO o.a.j.t.JMeterThread: Thread finished: Lasttest 1-59
+2026-04-08 21:13:43,609 INFO o.a.j.t.JMeterThread: Thread finished: Lasttest 1-15
+2026-04-08 21:13:43,616 INFO o.a.j.t.JMeterThread: Thread finished: Lasttest 1-83
+2026-04-08 21:13:43,617 INFO o.a.j.t.JMeterThread: Thread finished: Lasttest 1-43
+2026-04-08 21:13:43,619 INFO o.a.j.t.JMeterThread: Thread finished: Lasttest 1-24
+2026-04-08 21:13:43,623 INFO o.a.j.t.JMeterThread: Thread finished: Lasttest 1-37
+2026-04-08 21:13:43,623 INFO o.a.j.t.JMeterThread: Thread finished: Lasttest 1-77
+2026-04-08 21:13:43,630 INFO o.a.j.t.JMeterThread: Thread finished: Lasttest 1-47
+2026-04-08 21:13:43,639 INFO o.a.j.t.JMeterThread: Thread finished: Lasttest 1-95
+2026-04-08 21:13:43,641 INFO o.a.j.t.JMeterThread: Thread finished: Lasttest 1-46
+2026-04-08 21:13:43,644 INFO o.a.j.t.JMeterThread: Thread finished: Lasttest 1-31
+2026-04-08 21:13:43,655 INFO o.a.j.t.JMeterThread: Thread finished: Lasttest 1-72
+2026-04-08 21:13:43,657 INFO o.a.j.t.JMeterThread: Thread finished: Lasttest 1-71
+2026-04-08 21:13:43,657 INFO o.a.j.t.JMeterThread: Thread finished: Lasttest 1-54
+2026-04-08 21:13:43,657 INFO o.a.j.t.JMeterThread: Thread finished: Lasttest 1-33
+2026-04-08 21:13:43,667 INFO o.a.j.t.JMeterThread: Thread finished: Lasttest 1-70
+2026-04-08 21:13:43,673 INFO o.a.j.t.JMeterThread: Thread finished: Lasttest 1-3
+2026-04-08 21:13:43,675 INFO o.a.j.t.JMeterThread: Thread finished: Lasttest 1-73
+2026-04-08 21:13:43,681 INFO o.a.j.t.JMeterThread: Thread finished: Lasttest 1-91
+2026-04-08 21:13:43,684 INFO o.a.j.t.JMeterThread: Thread finished: Lasttest 1-42
+2026-04-08 21:13:43,687 INFO o.a.j.t.JMeterThread: Thread finished: Lasttest 1-97
+2026-04-08 21:13:43,693 INFO o.a.j.t.JMeterThread: Thread finished: Lasttest 1-50
+2026-04-08 21:13:43,693 INFO o.a.j.t.JMeterThread: Thread finished: Lasttest 1-21
+2026-04-08 21:13:43,694 INFO o.a.j.t.JMeterThread: Thread finished: Lasttest 1-94
+2026-04-08 21:13:43,695 INFO o.a.j.t.JMeterThread: Thread finished: Lasttest 1-40
+2026-04-08 21:13:43,696 INFO o.a.j.t.JMeterThread: Thread finished: Lasttest 1-38
+2026-04-08 21:13:43,697 INFO o.a.j.t.JMeterThread: Thread finished: Lasttest 1-74
+2026-04-08 21:13:43,703 INFO o.a.j.t.JMeterThread: Thread finished: Lasttest 1-69
+2026-04-08 21:13:43,715 INFO o.a.j.t.JMeterThread: Stopping because end time detected by thread: Lasttest 1-5
+2026-04-08 21:13:43,715 INFO o.a.j.t.JMeterThread: Thread finished: Lasttest 1-5
+2026-04-08 21:13:43,716 INFO o.a.j.t.JMeterThread: Thread finished: Lasttest 1-93
+2026-04-08 21:13:43,718 INFO o.a.j.t.JMeterThread: Thread finished: Lasttest 1-36
+2026-04-08 21:13:43,719 INFO o.a.j.t.JMeterThread: Thread finished: Lasttest 1-82
+2026-04-08 21:13:43,731 INFO o.a.j.t.JMeterThread: Thread finished: Lasttest 1-75
+2026-04-08 21:13:43,741 INFO o.a.j.t.JMeterThread: Stopping because end time detected by thread: Lasttest 1-34
+2026-04-08 21:13:43,741 INFO o.a.j.t.JMeterThread: Thread finished: Lasttest 1-34
+2026-04-08 21:13:43,744 INFO o.a.j.t.JMeterThread: Thread finished: Lasttest 1-81
+2026-04-08 21:13:43,744 INFO o.a.j.t.JMeterThread: Stopping because end time detected by thread: Lasttest 1-23
+2026-04-08 21:13:43,744 INFO o.a.j.t.JMeterThread: Thread finished: Lasttest 1-23
+2026-04-08 21:13:43,748 INFO o.a.j.t.JMeterThread: Stopping because end time detected by thread: Lasttest 1-12
+2026-04-08 21:13:43,748 INFO o.a.j.t.JMeterThread: Thread finished: Lasttest 1-12
+2026-04-08 21:13:43,764 INFO o.a.j.t.JMeterThread: Stopping because end time detected by thread: Lasttest 1-19
+2026-04-08 21:13:43,764 INFO o.a.j.t.JMeterThread: Stopping because end time detected by thread: Lasttest 1-78
+2026-04-08 21:13:43,764 INFO o.a.j.t.JMeterThread: Stopping because end time detected by thread: Lasttest 1-80
+2026-04-08 21:13:43,764 INFO o.a.j.t.JMeterThread: Thread finished: Lasttest 1-19
+2026-04-08 21:13:43,764 INFO o.a.j.t.JMeterThread: Thread finished: Lasttest 1-78
+2026-04-08 21:13:43,765 INFO o.a.j.t.JMeterThread: Stopping because end time detected by thread: Lasttest 1-89
+2026-04-08 21:13:43,765 INFO o.a.j.t.JMeterThread: Thread finished: Lasttest 1-80
+2026-04-08 21:13:43,765 INFO o.a.j.t.JMeterThread: Thread finished: Lasttest 1-89
+2026-04-08 21:13:43,768 INFO o.a.j.t.JMeterThread: Stopping because end time detected by thread: Lasttest 1-87
+2026-04-08 21:13:43,768 INFO o.a.j.t.JMeterThread: Thread finished: Lasttest 1-87
+2026-04-08 21:13:43,778 INFO o.a.j.t.JMeterThread: Stopping because end time detected by thread: Lasttest 1-53
+2026-04-08 21:13:43,778 INFO o.a.j.t.JMeterThread: Thread finished: Lasttest 1-53
+2026-04-08 21:13:43,782 INFO o.a.j.t.JMeterThread: Stopping because end time detected by thread: Lasttest 1-4
+2026-04-08 21:13:43,782 INFO o.a.j.t.JMeterThread: Thread finished: Lasttest 1-4
+2026-04-08 21:13:43,785 INFO o.a.j.t.JMeterThread: Stopping because end time detected by thread: Lasttest 1-96
+2026-04-08 21:13:43,785 INFO o.a.j.t.JMeterThread: Thread finished: Lasttest 1-96
+2026-04-08 21:13:43,790 INFO o.a.j.t.JMeterThread: Stopping because end time detected by thread: Lasttest 1-11
+2026-04-08 21:13:43,790 INFO o.a.j.t.JMeterThread: Thread finished: Lasttest 1-11
+2026-04-08 21:13:43,804 INFO o.a.j.t.JMeterThread: Stopping because end time detected by thread: Lasttest 1-51
+2026-04-08 21:13:43,804 INFO o.a.j.t.JMeterThread: Stopping because end time detected by thread: Lasttest 1-60
+2026-04-08 21:13:43,804 INFO o.a.j.t.JMeterThread: Stopping because end time detected by thread: Lasttest 1-48
+2026-04-08 21:13:43,804 INFO o.a.j.t.JMeterThread: Thread finished: Lasttest 1-51
+2026-04-08 21:13:43,804 INFO o.a.j.t.JMeterThread: Thread finished: Lasttest 1-48
+2026-04-08 21:13:43,804 INFO o.a.j.t.JMeterThread: Thread finished: Lasttest 1-60
+2026-04-08 21:13:43,807 INFO o.a.j.t.JMeterThread: Stopping because end time detected by thread: Lasttest 1-8
+2026-04-08 21:13:43,807 INFO o.a.j.t.JMeterThread: Thread finished: Lasttest 1-8
+2026-04-08 21:13:43,818 INFO o.a.j.t.JMeterThread: Stopping because end time detected by thread: Lasttest 1-61
+2026-04-08 21:13:43,818 INFO o.a.j.t.JMeterThread: Thread finished: Lasttest 1-61
+2026-04-08 21:13:43,825 INFO o.a.j.t.JMeterThread: Stopping because end time detected by thread: Lasttest 1-100
+2026-04-08 21:13:43,826 INFO o.a.j.t.JMeterThread: Thread finished: Lasttest 1-100
+2026-04-08 21:13:43,826 INFO o.a.j.t.JMeterThread: Stopping because end time detected by thread: Lasttest 1-92
+2026-04-08 21:13:43,827 INFO o.a.j.t.JMeterThread: Thread finished: Lasttest 1-92
+2026-04-08 21:13:43,827 INFO o.a.j.t.JMeterThread: Stopping because end time detected by thread: Lasttest 1-58
+2026-04-08 21:13:43,827 INFO o.a.j.t.JMeterThread: Thread finished: Lasttest 1-58
+2026-04-08 21:13:43,835 INFO o.a.j.t.JMeterThread: Stopping because end time detected by thread: Lasttest 1-84
+2026-04-08 21:13:43,835 INFO o.a.j.t.JMeterThread: Thread finished: Lasttest 1-84
+2026-04-08 21:13:43,837 INFO o.a.j.t.JMeterThread: Stopping because end time detected by thread: Lasttest 1-86
+2026-04-08 21:13:43,837 INFO o.a.j.t.JMeterThread: Thread finished: Lasttest 1-86
+2026-04-08 21:13:43,838 INFO o.a.j.t.JMeterThread: Stopping because end time detected by thread: Lasttest 1-62
+2026-04-08 21:13:43,838 INFO o.a.j.t.JMeterThread: Thread finished: Lasttest 1-62
+2026-04-08 21:13:43,841 INFO o.a.j.t.JMeterThread: Stopping because end time detected by thread: Lasttest 1-26
+2026-04-08 21:13:43,842 INFO o.a.j.t.JMeterThread: Thread finished: Lasttest 1-26
+2026-04-08 21:13:43,845 INFO o.a.j.t.JMeterThread: Stopping because end time detected by thread: Lasttest 1-45
+2026-04-08 21:13:43,845 INFO o.a.j.t.JMeterThread: Stopping because end time detected by thread: Lasttest 1-22
+2026-04-08 21:13:43,845 INFO o.a.j.t.JMeterThread: Thread finished: Lasttest 1-45
+2026-04-08 21:13:43,845 INFO o.a.j.t.JMeterThread: Thread finished: Lasttest 1-22
+2026-04-08 21:13:43,853 INFO o.a.j.t.JMeterThread: Stopping because end time detected by thread: Lasttest 1-98
+2026-04-08 21:13:43,854 INFO o.a.j.t.JMeterThread: Thread finished: Lasttest 1-98
+2026-04-08 21:13:43,857 INFO o.a.j.t.JMeterThread: Stopping because end time detected by thread: Lasttest 1-27
+2026-04-08 21:13:43,857 INFO o.a.j.t.JMeterThread: Thread finished: Lasttest 1-27
+2026-04-08 21:13:43,859 INFO o.a.j.t.JMeterThread: Stopping because end time detected by thread: Lasttest 1-63
+2026-04-08 21:13:43,859 INFO o.a.j.t.JMeterThread: Stopping because end time detected by thread: Lasttest 1-29
+2026-04-08 21:13:43,860 INFO o.a.j.t.JMeterThread: Thread finished: Lasttest 1-63
+2026-04-08 21:13:43,860 INFO o.a.j.t.JMeterThread: Thread finished: Lasttest 1-29
+2026-04-08 21:13:43,862 INFO o.a.j.t.JMeterThread: Stopping because end time detected by thread: Lasttest 1-35
+2026-04-08 21:13:43,862 INFO o.a.j.t.JMeterThread: Stopping because end time detected by thread: Lasttest 1-16
+2026-04-08 21:13:43,862 INFO o.a.j.t.JMeterThread: Thread finished: Lasttest 1-35
+2026-04-08 21:13:43,862 INFO o.a.j.t.JMeterThread: Thread finished: Lasttest 1-16
+2026-04-08 21:13:43,864 INFO o.a.j.t.JMeterThread: Stopping because end time detected by thread: Lasttest 1-44
+2026-04-08 21:13:43,864 INFO o.a.j.t.JMeterThread: Thread finished: Lasttest 1-44
+2026-04-08 21:13:43,878 INFO o.a.j.t.JMeterThread: Stopping because end time detected by thread: Lasttest 1-79
+2026-04-08 21:13:43,878 INFO o.a.j.t.JMeterThread: Thread finished: Lasttest 1-79
+2026-04-08 21:13:43,882 INFO o.a.j.t.JMeterThread: Stopping because end time detected by thread: Lasttest 1-55
+2026-04-08 21:13:43,882 INFO o.a.j.t.JMeterThread: Thread finished: Lasttest 1-55
+2026-04-08 21:13:43,884 INFO o.a.j.t.JMeterThread: Stopping because end time detected by thread: Lasttest 1-25
+2026-04-08 21:13:43,884 INFO o.a.j.t.JMeterThread: Thread finished: Lasttest 1-25
+2026-04-08 21:13:43,906 INFO o.a.j.t.JMeterThread: Stopping because end time detected by thread: Lasttest 1-49
+2026-04-08 21:13:43,906 INFO o.a.j.t.JMeterThread: Stopping because end time detected by thread: Lasttest 1-57
+2026-04-08 21:13:43,906 INFO o.a.j.t.JMeterThread: Stopping because end time detected by thread: Lasttest 1-1
+2026-04-08 21:13:43,906 INFO o.a.j.t.JMeterThread: Stopping because end time detected by thread: Lasttest 1-30
+2026-04-08 21:13:43,906 INFO o.a.j.t.JMeterThread: Thread finished: Lasttest 1-49
+2026-04-08 21:13:43,906 INFO o.a.j.t.JMeterThread: Thread finished: Lasttest 1-30
+2026-04-08 21:13:43,906 INFO o.a.j.t.JMeterThread: Thread finished: Lasttest 1-1
+2026-04-08 21:13:43,906 INFO o.a.j.t.JMeterThread: Thread finished: Lasttest 1-57
+2026-04-08 21:13:43,914 INFO o.a.j.t.JMeterThread: Stopping because end time detected by thread: Lasttest 1-14
+2026-04-08 21:13:43,914 INFO o.a.j.t.JMeterThread: Thread finished: Lasttest 1-14
+2026-04-08 21:13:43,918 INFO o.a.j.t.JMeterThread: Stopping because end time detected by thread: Lasttest 1-2
+2026-04-08 21:13:43,918 INFO o.a.j.t.JMeterThread: Thread finished: Lasttest 1-2
+2026-04-08 21:13:43,919 INFO o.a.j.t.JMeterThread: Stopping because end time detected by thread: Lasttest 1-90
+2026-04-08 21:13:43,919 INFO o.a.j.t.JMeterThread: Thread finished: Lasttest 1-90
+2026-04-08 21:13:43,922 INFO o.a.j.t.JMeterThread: Stopping because end time detected by thread: Lasttest 1-64
+2026-04-08 21:13:43,922 INFO o.a.j.t.JMeterThread: Thread finished: Lasttest 1-64
+2026-04-08 21:13:43,937 INFO o.a.j.t.JMeterThread: Stopping because end time detected by thread: Lasttest 1-9
+2026-04-08 21:13:43,937 INFO o.a.j.t.JMeterThread: Thread finished: Lasttest 1-9
+2026-04-08 21:13:43,937 INFO o.a.j.t.JMeterThread: Stopping because end time detected by thread: Lasttest 1-88
+2026-04-08 21:13:43,937 INFO o.a.j.t.JMeterThread: Thread finished: Lasttest 1-88
+2026-04-08 21:13:43,938 INFO o.a.j.t.JMeterThread: Stopping because end time detected by thread: Lasttest 1-68
+2026-04-08 21:13:43,938 INFO o.a.j.t.JMeterThread: Thread finished: Lasttest 1-68
+2026-04-08 21:13:43,938 INFO o.a.j.t.JMeterThread: Stopping because end time detected by thread: Lasttest 1-56
+2026-04-08 21:13:43,938 INFO o.a.j.t.JMeterThread: Thread finished: Lasttest 1-56
+2026-04-08 21:13:43,952 INFO o.a.j.t.JMeterThread: Stopping because end time detected by thread: Lasttest 1-32
+2026-04-08 21:13:43,952 INFO o.a.j.t.JMeterThread: Thread finished: Lasttest 1-32
+2026-04-08 21:13:43,953 INFO o.a.j.e.StandardJMeterEngine: Notifying test listeners of end of test
+2026-04-08 21:13:43,954 INFO o.a.j.v.b.BackendListener: Worker ended
+2026-04-08 21:13:43,954 INFO o.a.j.v.b.i.InfluxdbBackendListenerClient: Sending last metrics to InfluxDB
+2026-04-08 21:13:43,955 INFO o.a.j.v.b.i.HttpMetricsSender: Destroying 
+2026-04-08 21:13:43,959 INFO o.a.j.r.Summariser: summary +   3244 in 00:00:14 =  232,5/s Avg:   229 Min:    18 Max:   512 Err:     0 (0,00%) Active: 0 Started: 100 Finished: 100
+2026-04-08 21:13:43,960 INFO o.a.j.r.Summariser: summary =   9137 in 00:00:40 =  226,9/s Avg:   227 Min:    16 Max:   512 Err:     0 (0,00%)
