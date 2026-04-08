@@ -79,4 +79,104 @@ public class LoadTestController {
     public Map<String, String> health() {
         return Map.of("status", "UP", "service", "logistik");
     }
+
+    // =========================================================================
+    // TODO: LogisticMainView – fehlende Endpunkte
+    // =========================================================================
+
+    // TODO: GET /api/load/articles/filter?name=&articleNumber=&minStock=&storageLocation=
+    //       Artikel mit Filterparametern laden – entspricht der Suchfunktion in LogisticMainView
+    //       Service: articleInfoService.list(pageable, filter)
+
+    // TODO: POST /api/load/articles/{id}/stock
+    //       Bestand eines Artikels ändern – entspricht StockChangeDialog in LogisticMainView
+    //       Service: articleInfoService.applyStockChange() / updateStock()
+
+    // TODO: PUT /api/load/articles/{id}/storage-location
+    //       Lagerplatz eines Artikels zuweisen – entspricht Klick auf Lagerplatz-Badge
+    //       Service: articleInfoService.updateStorageLocation(), storageLocationService.save()
+
+    // =========================================================================
+    // TODO: StorageLocationView – fehlende Endpunkte
+    // =========================================================================
+
+    // TODO: POST /api/load/storage-locations
+    //       Neuen Lagerplatz anlegen – entspricht "+ Lagerplatz hinzufügen" Button
+    //       Service: storageLocationService.saveWithDuplicateCheck()
+
+    // TODO: PUT /api/load/storage-locations/{id}
+    //       Lagerplatz bearbeiten – entspricht Edit-Dialog in StorageLocationView
+    //       Service: storageLocationService.saveWithDuplicateCheck(), articleInfoService.updateStorageLocationForAll()
+
+    // TODO: DELETE /api/load/storage-locations/{id}
+    //       Lagerplatz löschen – entspricht Trash-Button in StorageLocationView
+    //       Service: storageLocationService.delete()
+
+    // TODO: POST /api/load/storage-locations/sync
+    //       Status mit Artikeln synchronisieren – entspricht "Aktualisieren" Button
+    //       Service: storageLocationService.syncStatusesWithArticles()
+
+    // =========================================================================
+    // TODO: GoodsReceiptView – fehlende Endpunkte
+    // =========================================================================
+
+    // TODO: POST /api/load/goods-receipts
+    //       Wareneingang aus Restock-Orders erstellen – entspricht "Neuer Wareneingang" Dialog
+    //       Service: goodsReceiptService.createFromRestockOrders()
+
+    // TODO: POST /api/load/goods-receipts/{id}/items
+    //       Artikel-Position zum Wareneingang hinzufügen – entspricht "Position hinzufügen"
+    //       Service: goodsReceiptService.addItemToReceipt()
+
+    // TODO: PUT /api/load/goods-receipts/{id}/items/{itemId}
+    //       Position aktualisieren (Ist-Menge, Mängel) – entspricht "Änderungen speichern"
+    //       Service: goodsReceiptService.updateItem()
+
+    // TODO: PUT /api/load/goods-receipts/{id}/items/{itemId}/status
+    //       Position freigeben oder sperren – entspricht "Freigeben" / "Sperren" Button
+    //       Service: goodsReceiptService.setItemStatus(FREIGEGEBEN / GESPERRT)
+
+    // TODO: POST /api/load/goods-receipts/{id}/complete
+    //       Prüfung abschliessen – entspricht "Prüfung abschließen" Button
+    //       Service: goodsReceiptService.completeInspection()
+
+    // TODO: DELETE /api/load/goods-receipts/{id}
+    //       Wareneingang löschen – entspricht "Löschen" Button
+    //       Service: goodsReceiptService.deleteIfAllowed()
+
+    // =========================================================================
+    // TODO: OrderPickingView – fehlende Endpunkte
+    // =========================================================================
+
+    // TODO: POST /api/load/kommissionen/trigger
+    //       Wöchentliche Kommissionierung auslösen – entspricht "Kommissionierung auslösen" Button
+    //       Service: weeklyKommissionScheduler.createWeeklyKommissionen()
+
+    // TODO: PUT /api/load/kommissionen/{id}/finish
+    //       Kommission als erledigt markieren – entspricht "Finished" Checkbox
+    //       Service: kommissionService.save(), articleInfoService.updateStock(), logisticEventPublisher.publishArticleDelivery()
+
+    // TODO: PUT /api/load/kommissionen/{id}/items/{articleId}/quantity
+    //       Realisierte Menge einer Position setzen – entspricht ComboBox in Detaildialog
+    //       Service: messageLogisticRepository.save()
+
+    // =========================================================================
+    // TODO: Noch nicht abgedeckte Views
+    // =========================================================================
+
+    // TODO: GET /api/load/restock
+    //       Artikel unter Mindestbestand laden – entspricht RestockView
+    //       Service: restockService.getArticlesToRestock()
+
+    // TODO: GET /api/load/stock-changes
+    //       Lagerbestand-Änderungshistorie laden – entspricht StockChangeLogView
+    //       Service: stockChangeLogService.findAll()
+
+    // TODO: GET /api/load/new-articles
+    //       Neue Artikel aus Kontingenten laden – entspricht NewArticlesView
+    //       Service: articleSyncService.findNewArticlesFromContingents()
+
+    // TODO: GET /api/load/messaging-events
+    //       Messaging-Events laden – entspricht MessagingView
+    //       Service: messagingEventService.findAll()
 }
