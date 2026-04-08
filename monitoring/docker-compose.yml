@@ -14,6 +14,18 @@ services:
       - "host.docker.internal:host-gateway"
     restart: unless-stopped
 
+  influxdb:
+    image: influxdb:1.8
+    container_name: logistik-influxdb
+    ports:
+      - "8086:8086"
+    environment:
+      - INFLUXDB_DB=jmeter
+      - INFLUXDB_HTTP_AUTH_ENABLED=false
+    volumes:
+      - influxdb-data:/var/lib/influxdb
+    restart: unless-stopped
+
   grafana:
     image: grafana/grafana:11.1.0
     container_name: logistik-grafana
@@ -34,7 +46,9 @@ services:
       - ./grafana/provisioning:/etc/grafana/provisioning:ro
     depends_on:
       - prometheus
+      - influxdb
     restart: unless-stopped
 
 volumes:
   grafana-data:
+  influxdb-data:

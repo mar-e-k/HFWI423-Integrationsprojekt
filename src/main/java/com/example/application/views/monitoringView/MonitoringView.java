@@ -122,8 +122,9 @@ public class MonitoringView extends Div {
     private void buildLayout() {
         TabSheet tabs = new TabSheet();
         tabs.setSizeFull();
-        tabs.add("Lasttests",         buildLoadTestTab());
-        tabs.add("Grafana Dashboard", buildGrafanaTab());
+        tabs.add("Lasttests",              buildLoadTestTab());
+        tabs.add("Grafana Dashboard",      buildGrafanaTab());
+        tabs.add("JMeter Ergebnisse",      buildJMeterGrafanaTab());
 
         Div card = new Div(tabs);
         card.addClassName("content-card");
@@ -230,6 +231,29 @@ public class MonitoringView extends Div {
         return wrapper;
     }
 
+    private Div buildJMeterGrafanaTab() {
+        Span hint = new Span(
+                "Zeigt JMeter-Testergebnisse aus InfluxDB. " +
+                "Starte einen Test im Tab \"Lasttests\", dann hier application & transaction auswählen.");
+        hint.getStyle()
+                .set("display", "block").set("font-size", "0.8rem")
+                .set("color", "#64748b").set("padding", "6px 0 12px 0");
+
+        IFrame frame = new IFrame(
+                "http://localhost:3000/d/cfieztrek7e9se" +
+                "?orgId=1&kiosk=tv&theme=light&refresh=5s");
+        frame.setWidth("100%");
+        frame.setHeight("900px");
+        frame.getElement().setAttribute("frameborder", "0");
+        frame.getElement().setAttribute("allowfullscreen", "true");
+        frame.getStyle()
+                .set("border-radius", "12px").set("border", "1px solid #e8edf5");
+
+        Div wrapper = new Div(hint, frame);
+        wrapper.setWidthFull();
+        return wrapper;
+    }
+
     private Button testButton(String label, String sub, String color, String tooltip) {
         Button btn = new Button(label + " · " + sub);
         btn.getElement().setProperty("title", tooltip);
@@ -299,11 +323,12 @@ public class MonitoringView extends Div {
                 "-n",                          // Non-GUI Modus
                 "-t", jmxFile.toString(),      // Test-Plan
                 "-l", resultFile.toString(),   // Ergebnis-CSV
-                "-Jthreads="  + threads,
-                "-Jrampup="   + rampup,
-                "-Jduration=" + duration,
+                "-Jthreads="   + threads,
+                "-Jrampup="    + rampup,
+                "-Jduration="  + duration,
                 "-Jhost=localhost",
-                "-Jport="     + serverPort
+                "-Jport="      + serverPort,
+                "-Jtestname="  + name.replace(" ", "-")
         ));
 
         // Start-Notification mit Kommando

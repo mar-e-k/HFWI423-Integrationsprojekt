@@ -35,7 +35,17 @@
       "Bash(cmd.exe /c \"C:\\\\tools\\\\apache-jmeter-5.6.3\\\\bin\\\\jmeter.bat -n -t C:\\\\Users\\\\admin\\\\Downloads\\\\logistik\\\\logistik\\\\monitoring\\\\jmeter\\\\logistik-parametrisiert.jmx -l C:\\\\Users\\\\admin\\\\Downloads\\\\logistik\\\\logistik\\\\monitoring\\\\jmeter\\\\results\\\\test.csv -Jthreads=2 -Jrampup=1 -Jduration=5 -Jhost=localhost -Jport=8081\" 2>&1)",
       "Bash(cmd.exe /c \"cd C:\\\\tools\\\\apache-jmeter-5.6.3\\\\bin && jmeter.bat -n -t C:\\\\Users\\\\admin\\\\Downloads\\\\logistik\\\\logistik\\\\monitoring\\\\jmeter\\\\logistik-parametrisiert.jmx -l C:\\\\Users\\\\admin\\\\Downloads\\\\logistik\\\\logistik\\\\monitoring\\\\jmeter\\\\results\\\\test2.csv -Jthreads=2 -Jrampup=1 -Jduration=5 -Jhost=localhost -Jport=8081\" 2>&1)",
       "Bash(ls \"/c/tools/apache-jmeter-5.6.3/bin/\"*.log)",
-      "Bash(java:*)"
+      "Bash(java:*)",
+      "Bash(docker ps:*)",
+      "Bash(docker exec:*)",
+      "Bash(python -c \"import sys,json; ds=json.load\\(sys.stdin\\); [print\\(d[''''name''''], d[''''type''''], d.get\\(''''url'''',''''''''\\)\\) for d in ds]\")",
+      "Bash(python -c \"import sys,json; d=json.load\\(sys.stdin\\); print\\(json.dumps\\(d, indent=2\\)\\)\")",
+      "Bash(python -c \"import sys,json; d=json.load\\(sys.stdin\\); print\\(d.get\\(''''meta'''',{}\\).get\\(''''slug'''',''''''''\\)\\)\")",
+      "Bash(python -c \"import sys,json; ds=json.load\\(sys.stdin\\); [print\\(d[''''uid''''], d[''''title'''']\\) for d in ds]\")",
+      "Bash(python -c \"import sys,json; d=json.load\\(sys.stdin\\); tmpl=d[''''dashboard''''].get\\(''''templating'''',{}\\).get\\(''''list'''',[]\\); print\\(json.dumps\\([t for t in tmpl if t[''''name'''']==''''data_source''''], indent=2\\)\\)\")",
+      "Bash(docker restart:*)",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\" http://localhost:8081/actuator/health)",
+      "Bash(python -c \":*)"
     ]
   }
 }
