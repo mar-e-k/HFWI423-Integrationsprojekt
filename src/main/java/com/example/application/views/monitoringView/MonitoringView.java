@@ -13,6 +13,7 @@ import com.vaadin.flow.component.notification.NotificationVariant;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+import com.vaadin.flow.component.details.Details;
 import com.vaadin.flow.component.tabs.TabSheet;
 import com.vaadin.flow.router.Menu;
 import com.vaadin.flow.router.PageTitle;
@@ -136,73 +137,170 @@ public class MonitoringView extends Div {
     // ── Tab 1: Lasttest-Steuerung ─────────────────────────────────────────────
 
     private Div buildLoadTestTab() {
-        Span desc = new Span(
-                "Lasttests werden über JMeter ausgeführt (logistik-parametrisiert.jmx). " +
-                "Ergebnisse werden live aus der JMeter-CSV gelesen und in Grafana sichtbar.");
-        desc.getStyle()
-                .set("font-size", "0.82rem").set("color", "#64748b")
-                .set("display", "block").set("margin-bottom", "20px");
 
-        // ── Buttons ───────────────────────────────────────────────────────────
-        Button soakBtn     = testButton("Soak Test",
-                "10 User · 2 Min",       "#6366f1",
-                "10 Threads, 10s Ramp, 120s Dauerlast – Stabilität & Memory-Leaks");
-        Button spikeBtn    = testButton("Spike Test",
-                "100 User · 2s Ramp",    "#ef4444",
-                "100 Threads, 2s Ramp, 40s – plötzlicher Traffic-Spike");
-        Button capacityBtn = testButton("Capacity Test",
-                "50 User · 45s Ramp",    "#f59e0b",
-                "50 Threads, 45s Ramp, 90s – schrittweise Kapazitätsermittlung");
-        Button stressBtn   = testButton("Stress Test",
-                "150 User · 5s Ramp",    "#dc2626",
-                "150 Threads, 5s Ramp, 60s – Extremlast bis zur Fehlergrenze");
+        // ── Intro ─────────────────────────────────────────────────────────────
+        Div intro = new Div();
+        intro.getStyle()
+                .set("background", "#f8faff").set("border", "1px solid #e2e8f0")
+                .set("border-radius", "12px").set("padding", "16px 20px")
+                .set("margin-bottom", "24px");
 
-        soakBtn    .addClickListener(e -> launchJMeter("Soak Test",     10,  10, 120));
-        spikeBtn   .addClickListener(e -> launchJMeter("Spike Test",   100,   2,  40));
-        capacityBtn.addClickListener(e -> launchJMeter("Capacity Test", 50,  45,  90));
-        stressBtn  .addClickListener(e -> launchJMeter("Stress Test",  150,   5,  60));
-        testButtons.addAll(List.of(soakBtn, spikeBtn, capacityBtn, stressBtn));
+        Span introTitle = new Span("Lasttests – Übersicht");
+        introTitle.getStyle().set("font-size", "1rem").set("font-weight", "700")
+                .set("color", "#1e293b").set("display", "block").set("margin-bottom", "8px");
 
-        stopButton = new Button("■  Stoppen");
+        Span introText = new Span(
+                "Die Tests werden über Apache JMeter als Subprozess gestartet und senden HTTP-Anfragen " +
+                "gegen die laufende Logistik-Instanz. Messdaten (Latenz, Fehlerrate, Durchsatz) werden " +
+                "via InfluxDB-Backend-Listener erfasst und in Grafana visualisiert (Tab \"JMeter Ergebnisse\"). " +
+                "Es kann jeweils nur ein Test aktiv sein.");
+        introText.getStyle().set("font-size", "0.85rem").set("color", "#475569")
+                .set("line-height", "1.6").set("display", "block");
+
+        intro.add(introTitle, introText);
+
+        // ── Test-Karten ───────────────────────────────────────────────────────
+        Details soakAcc     = buildTestAccordion(
+                "Soak Test", "#6366f1",
+                "Dauerlasttest – Langzeitstabilität",
+                "Speicherlecks, Ressourcenerschöpfung und Degradierung unter konstanter Last über " +
+                "einen längeren Zeitraum identifizieren.",
+                "10 virtuelle Nutzer senden über 120 s kontinuierlich Anfragen bei moderater Last.",
+                new String[]{"Benutzer", "10"}, new String[]{"Anlaufzeit", "10 s"}, new String[]{"Dauer", "120 s"},
+                e -> launchJMeter("Soak Test", 10, 10, 120));
+
+        Details spikeAcc    = buildTestAccordion(
+                "Spike Test", "#ef4444",
+                "Spitzenlasttest – Reaktion auf Lastspitzen",
+                "Verhalten des Systems bei abruptem, massivem Lastanstieg analysieren " +
+                "(Recovery-Zeit, Fehlerrate unter Überlast).",
+                "100 virtuelle Nutzer starten innerhalb von 2 s – maximale Überlast für 40 s.",
+                new String[]{"Benutzer", "100"}, new String[]{"Anlaufzeit", "2 s"}, new String[]{"Dauer", "40 s"},
+                e -> launchJMeter("Spike Test", 100, 2, 40));
+
+        Details capacityAcc = buildTestAccordion(
+                "Capacity Test", "#f59e0b",
+                "Kapazitätstest – Leistungsgrenze ermitteln",
+                "Maximale Nutzerzahl bestimmen, bei der definierte Performance-Schwellenwerte " +
+                "(Latenz, Fehlerrate) noch eingehalten werden.",
+                "50 Nutzer gleichmäßig über 45 s hochgefahren, Dauer 90 s.",
+                new String[]{"Benutzer", "50"}, new String[]{"Anlaufzeit", "45 s"}, new String[]{"Dauer", "90 s"},
+                e -> launchJMeter("Capacity Test", 50, 45, 90));
+
+        Details stressAcc   = buildTestAccordion(
+                "Stress Test", "#dc2626",
+                "Stresstest – Systemgrenzen austesten",
+                "Belastungsgrenze des Systems bewusst überschreiten und Verhalten " +
+                "unter Überlast dokumentieren (Fehlerrate, Timeouts, Absturzverhalten).",
+                "150 Nutzer in 5 s – deutlich jenseits des Normalbetriebs für 60 s.",
+                new String[]{"Benutzer", "150"}, new String[]{"Anlaufzeit", "5 s"}, new String[]{"Dauer", "60 s"},
+                e -> launchJMeter("Stress Test", 150, 5, 60));
+
+        VerticalLayout accordions = new VerticalLayout(soakAcc, spikeAcc, capacityAcc, stressAcc);
+        accordions.setWidthFull();
+        accordions.setPadding(false);
+        accordions.getStyle().set("gap", "8px");
+
+        // ── Stoppen-Button ────────────────────────────────────────────────────
+        stopButton = new Button("■  Laufenden Test stoppen");
         stopButton.addThemeVariants(ButtonVariant.LUMO_ERROR);
         stopButton.setEnabled(false);
-        stopButton.getStyle().set("font-weight", "700").set("min-width", "120px");
+        stopButton.getStyle().set("font-weight", "700");
         stopButton.addClickListener(e -> stopTest());
 
-        HorizontalLayout buttonRow = new HorizontalLayout(
-                soakBtn, spikeBtn, capacityBtn, stressBtn, stopButton);
-        buttonRow.setWidthFull();
-        buttonRow.getStyle()
-                .set("flex-wrap", "wrap").set("gap", "10px").set("align-items", "flex-start");
-
-        // ── Live-Ergebnisse ───────────────────────────────────────────────────
         testStatusBadge = new Span("Kein Test aktiv");
-        testStatusBadge.getStyle()
-                .set("display", "inline-block")
-                .set("padding", "3px 12px").set("border-radius", "999px")
-                .set("font-size", "0.75rem").set("font-weight", "700")
-                .set("background", "#f1f5f9").set("color", "#64748b")
-                .set("margin", "20px 0 10px 0");
 
-        HorizontalLayout resultCards = new HorizontalLayout(
-                ltRequestsCard, ltRpsCard, ltAvgCard,
-                ltErrorCard, ltSuccessCard, ltElapsedCard);
-        resultCards.setWidthFull();
-        resultCards.getStyle().set("flex-wrap", "wrap").set("gap", "12px");
-
-        Div resultBox = new Div(testStatusBadge, resultCards);
-        resultBox.setWidthFull();
-        resultBox.getStyle()
-                .set("background", "#fafbff").set("border", "1px solid #e8edf5")
-                .set("border-radius", "12px").set("padding", "16px 20px")
-                .set("margin-top", "16px");
-
-        VerticalLayout tab = new VerticalLayout(desc, buttonRow, resultBox);
+        VerticalLayout tab = new VerticalLayout(intro, accordions, stopButton);
         tab.setPadding(false);
         tab.setSpacing(false);
+        tab.getStyle().set("gap", "0");
         tab.setWidthFull();
 
         return new Div(tab);
+    }
+
+    private Details buildTestAccordion(String title, String color, String subtitle,
+                                       String whenToUse, String whatHappens,
+                                       String[] param1, String[] param2, String[] param3,
+                                       com.vaadin.flow.component.ComponentEventListener<
+                                               com.vaadin.flow.component.ClickEvent<Button>> clickListener) {
+
+        // ── Summary (immer sichtbar) ──────────────────────────────────────────
+        Span titleSpan = new Span(title);
+        titleSpan.getStyle()
+                .set("font-weight", "700").set("color", color).set("font-size", "0.95rem");
+
+        Span subtitleSpan = new Span(" – " + subtitle);
+        subtitleSpan.getStyle().set("color", "#64748b").set("font-size", "0.82rem");
+
+        HorizontalLayout summaryParams = new HorizontalLayout(
+                paramBadge(param1[0], param1[1], color),
+                paramBadge(param2[0], param2[1], color),
+                paramBadge(param3[0], param3[1], color));
+        summaryParams.setPadding(false);
+        summaryParams.getStyle().set("gap", "6px").set("flex-wrap", "wrap");
+
+        HorizontalLayout summaryRow = new HorizontalLayout(
+                new Div(titleSpan, subtitleSpan), summaryParams);
+        summaryRow.setWidthFull();
+        summaryRow.setAlignItems(FlexComponent.Alignment.CENTER);
+        summaryRow.getStyle().set("justify-content", "space-between").set("flex-wrap", "wrap");
+        summaryRow.setPadding(false);
+
+        // ── Content (aufgeklappt) ─────────────────────────────────────────────
+        Span zielLabel = new Span("Ziel");
+        zielLabel.getStyle()
+                .set("font-size", "0.72rem").set("font-weight", "700").set("color", "#94a3b8")
+                .set("text-transform", "uppercase").set("letter-spacing", "0.06em")
+                .set("display", "block").set("margin-bottom", "3px");
+        Span zielText = new Span(whenToUse);
+        zielText.getStyle()
+                .set("font-size", "0.82rem").set("color", "#475569")
+                .set("line-height", "1.5").set("display", "block").set("margin-bottom", "12px");
+
+        Span konfLabel = new Span("Konfiguration");
+        konfLabel.getStyle()
+                .set("font-size", "0.72rem").set("font-weight", "700").set("color", "#94a3b8")
+                .set("text-transform", "uppercase").set("letter-spacing", "0.06em")
+                .set("display", "block").set("margin-bottom", "3px");
+        Span konfText = new Span(whatHappens);
+        konfText.getStyle()
+                .set("font-size", "0.82rem").set("color", "#475569")
+                .set("line-height", "1.5").set("display", "block").set("margin-bottom", "14px");
+
+        Button startBtn = new Button("▶  " + title + " starten");
+        startBtn.getStyle()
+                .set("background", color).set("color", "white")
+                .set("border-radius", "8px").set("font-weight", "700")
+                .set("box-shadow", "0 2px 8px " + color + "55");
+        startBtn.addClickListener(clickListener);
+        testButtons.add(startBtn);
+
+        Div content = new Div(zielLabel, zielText, konfLabel, konfText, startBtn);
+        content.getStyle().set("padding", "4px 0 4px 0");
+
+        Details details = new Details(summaryRow, content);
+        details.setWidthFull();
+        details.getStyle()
+                .set("border", "1px solid #e2e8f0").set("border-radius", "10px")
+                .set("padding", "12px 16px")
+                .set("background", "white");
+
+        return details;
+    }
+
+    private Div paramBadge(String label, String value, String color) {
+        Span labelSpan = new Span(label + ": ");
+        labelSpan.getStyle().set("color", "#64748b").set("font-size", "0.75rem");
+        Span valueSpan = new Span(value);
+        valueSpan.getStyle().set("font-weight", "700").set("color", color).set("font-size", "0.75rem");
+
+        Div badge = new Div(labelSpan, valueSpan);
+        badge.getStyle()
+                .set("background", "#f8faff").set("border", "1px solid #e2e8f0")
+                .set("border-radius", "6px").set("padding", "3px 10px")
+                .set("display", "inline-flex").set("align-items", "center");
+        return badge;
     }
 
     // ── Tab 2: Grafana iFrame ─────────────────────────────────────────────────
@@ -252,17 +350,6 @@ public class MonitoringView extends Div {
         Div wrapper = new Div(hint, frame);
         wrapper.setWidthFull();
         return wrapper;
-    }
-
-    private Button testButton(String label, String sub, String color, String tooltip) {
-        Button btn = new Button(label + " · " + sub);
-        btn.getElement().setProperty("title", tooltip);
-        btn.getStyle()
-                .set("background", color).set("color", "white")
-                .set("border-radius", "10px").set("font-weight", "600")
-                .set("padding", "10px 16px").set("white-space", "nowrap")
-                .set("box-shadow", "0 2px 8px " + color + "55");
-        return btn;
     }
 
     // ══════════════════════════════════════════════════════════════════════════
