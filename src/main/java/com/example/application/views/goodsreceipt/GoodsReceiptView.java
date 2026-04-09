@@ -148,15 +148,38 @@ public class GoodsReceiptView extends Div {
     }
 
     private void deleteReceipt(GoodsReceipt gr) {
-        try {
-            service.deleteIfAllowed(gr.getId());
-            Notification n = Notification.show("Wareneingang gelöscht", 3000, Position.MIDDLE);
-            n.addThemeVariants(NotificationVariant.LUMO_SUCCESS);
-            refresh();
-        } catch (IllegalStateException ex) {
-            Notification n = Notification.show(ex.getMessage(), 5000, Position.MIDDLE);
-            n.addThemeVariants(NotificationVariant.LUMO_ERROR);
-        }
+        Dialog confirm = new Dialog();
+        confirm.setHeaderTitle("Wareneingang löschen");
+
+        confirm.add(new Span("Soll \"" + gr.getReceiptNumber() + "\" wirklich gelöscht werden?"));
+
+        Button cancel = new Button("Abbrechen", e -> confirm.close());
+
+        Button delete = new Button("Löschen", e -> {
+            confirm.close();
+            try {
+                service.deleteIfAllowed(gr.getId());
+                Notification n = Notification.show("Wareneingang " + gr.getReceiptNumber() + " wurde gelöscht.", 3000, Position.MIDDLE);
+                n.addThemeVariants(NotificationVariant.LUMO_SUCCESS);
+                refresh();
+            } catch (IllegalStateException ex) {
+                Dialog error = new Dialog();
+                error.setHeaderTitle("Löschen nicht möglich");
+                error.add(new Span(
+                        "Der Wareneingang \"" + gr.getReceiptNumber() + "\" hat den Status \""
+                        + gr.getStatus() + "\" und kann daher nicht gelöscht werden. "
+                        + "Nur Wareneingänge im Status \"IN_PRUEFUNG\" dürfen gelöscht werden."
+                ));
+                Button ok = new Button("OK", ev -> error.close());
+                ok.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
+                error.getFooter().add(ok);
+                error.open();
+            }
+        });
+        delete.addThemeVariants(ButtonVariant.LUMO_ERROR, ButtonVariant.LUMO_PRIMARY);
+
+        confirm.getFooter().add(cancel, delete);
+        confirm.open();
     }
 
     private void openCreateDialog() {
