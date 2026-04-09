@@ -55,7 +55,8 @@
       "Bash(curl -s \"http://admin:admin@localhost:3000/api/search?type=dash-db\")",
       "Bash(python -c \"import sys,json; [print\\(d[''''uid''''], d[''''title'''']\\) for d in json.load\\(sys.stdin\\)]\")",
       "Bash(curl -s http://admin:admin@localhost:3000/api/search?type=dash-db)",
-      "Bash(./mvnw -version)"
+      "Bash(./mvnw -version)",
+      "Bash(docker compose:*)"
     ]
   }
 }

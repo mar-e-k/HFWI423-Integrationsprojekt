@@ -98,7 +98,7 @@ public class GoodsReceiptService {
     public void deleteIfAllowed(Long id) {
         GoodsReceipt gr = getById(id);
         if (gr.getStatus() == GoodsReceiptStatus.IN_PRUEFUNG) {
-            // Items werden durch orphanRemoval = true in GoodsReceipt automatisch mitgelöscht
+            itemRepo.deleteByGoodsReceiptId(id);
             receiptRepo.delete(gr);
         } else {
             throw new IllegalStateException(
