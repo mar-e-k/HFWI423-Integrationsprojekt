@@ -1,13 +1,13 @@
 package de.fhdw.vendix.commons.spring.security.jwt;
 
-public enum JwtContextClaims {
+public enum JwtClaims {
     ROLES("roles"),
     STORE("store"),
     REGISTER("register"),;
 
     private final String claim;
 
-    JwtContextClaims(String claim) {
+    JwtClaims(String claim) {
         this.claim = claim;
     }
 

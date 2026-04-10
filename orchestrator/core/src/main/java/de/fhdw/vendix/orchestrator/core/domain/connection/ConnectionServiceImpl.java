@@ -1,5 +1,6 @@
 package de.fhdw.vendix.orchestrator.core.domain.connection;
 
+import de.fhdw.vendix.commons.api.embeddable.TargetType;
 import de.fhdw.vendix.commons.spring.data.crud.AbstractEntityCrudAdapter;
 import de.fhdw.vendix.orchestrator.core.embeddable.entity_target.EntityTarget;
 import org.slf4j.Logger;
@@ -7,6 +8,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -20,6 +22,15 @@ class ConnectionServiceImpl extends AbstractEntityCrudAdapter<Connection, Long> 
     ConnectionServiceImpl(ConnectionRepository connectionRepository) {
         super(connectionRepository);
         this.connectionRepository = connectionRepository;
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<Connection> findAllByType(TargetType type) {
+        if (type == null) {
+            return List.of();
+        }
+        return connectionRepository.findAllByTarget_Type(type);
     }
 
     @Override
@@ -55,11 +66,11 @@ class ConnectionServiceImpl extends AbstractEntityCrudAdapter<Connection, Long> 
     @Override
     @Transactional
     public void deleteByInstanceUUID(UUID instanceUUID) {
-        log.atInfo().log("[DELETE] Deleting connection by instanceUUID: {}", instanceUUID);
+        log.atInfo().log("[DELETE] Deleting connection by instanceUuid: {}", instanceUUID);
         if (instanceUUID == null) {
-            throw new IllegalArgumentException("Parameter 'instanceUUID' cannot be null");
+            throw new IllegalArgumentException("Parameter 'instanceUuid' cannot be null");
         }
         connectionRepository.deleteByInstance_Uuid(instanceUUID);
-        log.atInfo().log("[DELETE] Successfully deleted connection by instanceUUID: {}", instanceUUID);
+        log.atInfo().log("[DELETE] Successfully deleted connection by instanceUuid: {}", instanceUUID);
     }
 }

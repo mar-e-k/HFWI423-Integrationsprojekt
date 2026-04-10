@@ -1,112 +1,99 @@
 openapi: 3.0.0
 
 info:
-  title: Store
-  description: Store
+  title: Store API
+  description: This API provides operations for managing articles and receipts within a store.
   version: 1.0.0
 
 tags:
   - name: Article
-    description: Operations related to Articles
+    description: Operations related to articles.
   - name: Receipt
-    description: Operations related to Receipts
+    description: Operations related to receipts.
+
+servers:
+  - url: http://localhost:XXXX
+    description: Local development server. Port is set dynamically.
 
 security:
   - bearerAuth: [ ]
 
 paths:
-  /api/article/:
-    get:
-      operationId: getArticles
-      description: d
-      tags:
-        - Article
-      parameters:
-        - in: query
-          name: id
-          required: false
-          description: d
-          schema:
-            type: integer
-            format: int64
-      responses:
-        200:
-          description: d
-          content:
-            application/json:
-              schema:
-                type: array
-                uniqueItems: true
-                items:
-                  $ref: "#/components/schemas/ArticleDTO"
-
   /api/article/id/{id}:
     get:
       operationId: getArticleById
-      description: d
+      summary: Get an article by ID
+      description: Retrieves a single article by its unique identifier.
       tags:
         - Article
       parameters:
         - in: path
           name: id
           required: true
-          description: d
+          description: The unique identifier of the article.
           schema:
             type: integer
             format: int64
+            example: 123
       responses:
-        200:
-          description: d
+        '200':
+          description: The requested article.
           content:
             application/json:
               schema:
-                  $ref: "#/components/schemas/ArticleDTO"
-        404:
-          description: d
+                $ref: "#/components/schemas/ArticleDTO"
+        '404':
+          description: An article with the specified ID was not found.
 
   /api/article/gtin/{gtin}:
     get:
       operationId: getArticleByGtin
-      description: d
+      summary: Get an article by GTIN
+      description: Retrieves a single article by its GTIN (Global Trade Item Number).
       tags:
         - Article
       parameters:
         - in: path
           name: gtin
           required: true
-          description: d
+          description: The GTIN of the article.
           schema:
             type: integer
             format: int64
+            example: 4006381333931
       responses:
-        200:
-          description: d
+        '200':
+          description: The requested article.
           content:
             application/json:
               schema:
-                  $ref: "#/components/schemas/ArticleDTO"
-        404:
-          description: d
+                $ref: "#/components/schemas/ArticleDTO"
+        '404':
+          description: An article with the specified GTIN was not found.
 
   /api/receipt/:
     post:
       operationId: postReceipt
-      description: d
+      summary: Create a new receipt
+      description: Creates a new receipt record.
       tags:
         - Receipt
       requestBody:
+        description: The receipt object to be created.
         required: true
         content:
           application/json:
             schema:
               $ref: "#/components/schemas/ReceiptDTO"
       responses:
-        200:
-          description: d
+        '201':
+          description: The receipt was successfully created.
           content:
             application/json:
               schema:
-                  $ref: "#/components/schemas/ReceiptDTO"
+                $ref: "#/components/schemas/ReceiptDTO"
+        '400':
+          description: Invalid request body.
 
 components:
   securitySchemes:
@@ -114,58 +101,95 @@ components:
       type: http
       scheme: bearer
       bearerFormat: JWT
+      description: "Bearer token for authentication. Example: 'Bearer {token}'"
 
   schemas:
     ArticleDTO:
       type: object
-      description: d
+      description: Represents an article in the store.
       properties:
         id:
           type: integer
           format: int64
+          description: The unique identifier for the article.
         gtin:
           type: integer
           format: int64
+          description: The Global Trade Item Number of the article.
         name:
           type: string
+          description: The name of the article.
         description:
           type: string
+          description: A short description of the article.
         manufacturer:
           type: string
+          description: The manufacturer of the article.
         supplier:
           type: string
+          description: The supplier of the article.
         unit:
           type: string
+          description: The unit of measurement for the article (e.g., piece, kg).
         purchasePrice:
           type: number
           format: double
+          description: The price at which the article was purchased.
         sellingPrice:
           type: number
           format: double
+          description: The price at which the article is sold.
         taxRate:
           type: number
           format: double
+          description: The tax rate applicable to the article.
         stock:
           type: integer
           format: int64
+          description: The current stock level of the article.
         isAvailable:
           type: boolean
+          description: Indicates if the article is currently available for sale.
         isDeposit:
           type: boolean
+          description: Indicates if the article has a deposit.
+      example:
+        id: 123
+        gtin: 4006381333931
+        name: "Sample Article"
+        description: "A sample article for demonstration."
+        manufacturer: "Sample Manufacturer"
+        supplier: "Sample Supplier"
+        unit: "piece"
+        purchasePrice: 10.50
+        sellingPrice: 19.99
+        taxRate: 0.19
+        stock: 100
+        isAvailable: true
+        isDeposit: false
 
     ReceiptDTO:
       type: object
-      description: d
+      description: Represents a sales receipt.
       properties:
         id:
           type: integer
           format: int64
+          description: The unique identifier for the receipt.
         storeId:
           type: integer
           format: int64
+          description: The ID of the store where the purchase was made.
         registerId:
           type: integer
           format: int64
+          description: The ID of the cash register that processed the transaction.
         cashierId:
           type: integer
           format: int64
+          description: The ID of the cashier who processed the transaction.
+      example:
+        id: 1
+        storeId: 101
+        registerId: 5
+        cashierId: 789

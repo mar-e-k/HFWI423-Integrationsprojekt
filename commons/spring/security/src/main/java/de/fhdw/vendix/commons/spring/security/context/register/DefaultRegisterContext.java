@@ -24,8 +24,8 @@ public final class DefaultRegisterContext implements RegisterContext {
         if (register == null) {
             throw new IllegalArgumentException("Parameter 'register' cannot be null");
         }
-        if (!appContext.getApplicationName().equalsIgnoreCase("register")) {
-            throw new ContextIllegalSourceException("Register authContext can only be set by a register application");
+        if (!appContext.getApplicationName().equalsIgnoreCase("pos")) {
+            throw new ContextIllegalSourceException("Register authContext can only be set by a pos application");
         }
         if (this.register != null) {
             throw new ContextAlreadySetException("Register Context was already set and cannot be changed");

@@ -7,7 +7,7 @@ import org.mapstruct.InheritInverseConfiguration;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
-import java.util.Set;
+import java.util.List;
 
 @Mapper(config = SpringMapperConfig.class)
 public interface ArticleMapper extends EntityMapper<Article, ArticleDTO> {
@@ -25,8 +25,8 @@ public interface ArticleMapper extends EntityMapper<Article, ArticleDTO> {
     Article toEntity(ArticleDTO articleDTO);
 
     @Override
-    Set<ArticleDTO> toDTOs(Iterable<Article> entities);
+    List<ArticleDTO> toDTOs(Iterable<Article> entities);
 
     @Override
-    Set<Article> toEntities(Iterable<ArticleDTO> articleDTOS);
+    List<Article> toEntities(Iterable<ArticleDTO> articleDTOS);
 }

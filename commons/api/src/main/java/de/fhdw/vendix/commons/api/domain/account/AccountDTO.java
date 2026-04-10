@@ -10,15 +10,15 @@ public record AccountDTO(
         UUID uuid,
         String username,
         String password,
-        String firstName,
+        @Nullable String firstName,
         @Nullable String middleName,
-        String lastName,
+        @Nullable String lastName,
         @Nullable String phone,
         @Nullable String email
 ) implements DomainDTO {
     public AccountDTO {
-        if (id != null && id < 0) {
-            throw new IllegalArgumentException("AccountDTO parameter 'id' cannot be negative");
+        if (id != null && id < 1) {
+            throw new IllegalArgumentException("AccountDTO parameter 'id' cannot be null or less than 1");
         }
         if (uuid == null) {
             throw new IllegalArgumentException("AccountDTO parameter 'uuid' cannot be null");
@@ -28,12 +28,6 @@ public record AccountDTO(
         }
         if (password == null) {
             throw new IllegalArgumentException("AccountDTO parameter 'password' cannot be null");
-        }
-        if (firstName == null) {
-            throw new IllegalArgumentException("AccountDTO parameter 'firstName' cannot be null");
-        }
-        if (lastName == null) {
-            throw new IllegalArgumentException("AccountDTO parameter 'lastName' cannot be null");
         }
     }
 }

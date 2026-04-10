@@ -48,7 +48,6 @@ public final class DefaultAppContext implements AppContext {
     public void onApplicationEvent(WebServerInitializedEvent event) {
         serverPort = event.getWebServer().getPort();
         // At this point, everything should be loaded
-        MDC.put("__service_name__", applicationName);
         MDC.put("__host__", "%s:%d".formatted(serverName, serverPort));
         MDC.put("__instance__", instanceUUID.toString());
         if (applicationName.equalsIgnoreCase("orchestrator")) {

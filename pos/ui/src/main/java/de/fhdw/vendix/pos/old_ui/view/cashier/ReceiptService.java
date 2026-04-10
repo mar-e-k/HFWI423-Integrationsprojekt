@@ -1,15 +1,5 @@
 package de.fhdw.vendix.pos.old_ui.view.cashier;
 
-import org.springframework.stereotype.Service;
-
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.math.BigDecimal;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
-import java.util.List;
-
 //@Service
 //public class ReceiptService {
 //

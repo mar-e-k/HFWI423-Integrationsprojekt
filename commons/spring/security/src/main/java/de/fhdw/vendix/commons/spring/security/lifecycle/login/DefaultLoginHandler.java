@@ -1,11 +1,11 @@
 package de.fhdw.vendix.commons.spring.security.lifecycle.login;
 
-import de.fhdw.vendix.commons.api.domain.lock.LockDTO;
+import de.fhdw.vendix.commons.api.domain.distributed_lock.DistributedLockDTO;
 import de.fhdw.vendix.commons.api.embeddable.EntityTargetDTO;
 import de.fhdw.vendix.commons.api.embeddable.TargetType;
 import de.fhdw.vendix.commons.spring.security.context.app.AppContext;
 import de.fhdw.vendix.commons.spring.security.user_details.DefaultUser;
-import de.fhdw.vendix.commons.spring.web.client.orchestrator.api.LockProxyService;
+import de.fhdw.vendix.commons.spring.web.client.orchestrator.api.DistributedLockProxyService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.event.EventListener;
@@ -20,12 +20,13 @@ public final class DefaultLoginHandler implements LoginHandler {
     private static final Logger log = LoggerFactory.getLogger(DefaultLoginHandler.class);
 
     private final AppContext appContext;
-    private final LockProxyService lockProxyService;
+    private final DistributedLockProxyService distributedLockProxyService;
 
-    public DefaultLoginHandler(AppContext appContext, LockProxyService lockProxyService) {
+    public DefaultLoginHandler(AppContext appContext, DistributedLockProxyService distributedLockProxyService) {
         this.appContext = appContext;
-        this.lockProxyService = lockProxyService;
+        this.distributedLockProxyService = distributedLockProxyService;
     }
+
 
     @EventListener
     @Override
@@ -41,7 +42,7 @@ public final class DefaultLoginHandler implements LoginHandler {
                     TargetType.ACCOUNT
             );
 
-            LockDTO lock = new LockDTO(
+            DistributedLockDTO lock = new DistributedLockDTO(
                     null,
                     entityTargetDTO,
                     appContext.getInstanceUUID(),
@@ -49,7 +50,7 @@ public final class DefaultLoginHandler implements LoginHandler {
                     Instant.now().plus(1, ChronoUnit.HOURS) // TODO Settings
             );
 
-            lockProxyService.postLock(lock);
+            distributedLockProxyService.postDistributedLock(lock);
             log.atInfo().log("Successfully created lock for logged in account");
         } catch (Exception ex) {
             log.atError().log("Failed to create lock for logged in account", ex);

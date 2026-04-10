@@ -4,7 +4,7 @@ import de.fhdw.vendix.commons.api.structure.dto.DomainDTO;
 import de.fhdw.vendix.commons.api.structure.dto.RequestDTO;
 import de.fhdw.vendix.commons.api.structure.dto.ResponseDTO;
 
-import java.util.Set;
+import java.util.List;
 
 public interface DTOMapper<
         DOM extends DomainDTO,
@@ -16,7 +16,7 @@ public interface DTOMapper<
 
     RES toResponseDTO(DOM domainDTO);
 
-    Set<DOM> toDomainDTOs(Iterable<REQ> requestDTOs);
+    List<DOM> toDomainDTOs(Iterable<REQ> requestDTOs);
 
-    Set<RES> toResponseDTOs(Iterable<DOM> domainDTOs);
+    List<RES> toResponseDTOs(Iterable<DOM> domainDTOs);
 }

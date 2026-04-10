@@ -2,6 +2,7 @@ package de.fhdw.vendix.store.app.scheduler;
 
 import de.fhdw.vendix.commons.spring.security.context.store.StoreContext;
 import de.fhdw.vendix.store.core.domain.article.Article;
+import de.fhdw.vendix.store.core.domain.article.ArticleService;
 import de.fhdw.vendix.store.core.domain.receipt.Receipt;
 import de.fhdw.vendix.store.core.domain.receipt.ReceiptService;
 import de.fhdw.vendix.store.core.domain.receipt_line.ReceiptLine;
@@ -18,7 +19,10 @@ import org.slf4j.LoggerFactory;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
-import java.util.*;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Objects;
+import java.util.Set;
 
 @Service
 public class DailyReceiptReportingSchedule {
@@ -29,17 +33,20 @@ public class DailyReceiptReportingSchedule {
     private final StoreContext storeContext;
     private final ReceiptService receiptService;
     private final StoreStockService storeStockService;
+    private final ArticleService articleService;
 
     public DailyReceiptReportingSchedule(
             EventPublisher eventPublisher,
             StoreContext storeContext,
             ReceiptService receiptService,
-            StoreStockService storeStockService
+            StoreStockService storeStockService,
+            ArticleService articleService
     ) {
         this.eventPublisher = eventPublisher;
         this.storeContext = storeContext;
         this.receiptService = receiptService;
         this.storeStockService = storeStockService;
+        this.articleService = articleService;
     }
 
 
@@ -55,18 +62,20 @@ public class DailyReceiptReportingSchedule {
 
         storeId = storeContext.getStore().id();
 
-        Set<Receipt> receipts = receiptService.findAllByStoreIdAndCreatedAtToday(storeId);
+        List<Receipt> receipts = receiptService.findAllByStoreIdAndCreatedAtToday(storeId);
         Set<Article> articles = new HashSet<>();
 
         // Get all articles of the day and record their count.
         // This can probably also be a GROUP-BY in SQL, but native SQL is to generally be avoided
+        // TODO: actually do it. this is literal dogshit right now
         for (Receipt receipt : receipts) {
             receiptService.findAllReceiptLinesByReceiptId(Objects.requireNonNull(receipt.getId())).stream()
-                    .map(ReceiptLine::getArticle)
+                    .map(ReceiptLine::getArticleId)
+                    .map(articleId -> articleService.findById(articleId).orElseThrow(EntityNotFoundException::new))
                     .forEach(articles::add);
         }
 
-        // Check the current amount against the stores needed amount and order accordingly
+        // Check the current articleAmount against the stores needed articleAmount and order accordingly
         for (Article article : articles) {
             StoreStock stock = storeStockService.findByStoreIdAndArticleId(storeId, Objects.requireNonNull(article.getId()))
                     .orElseThrow(EntityNotFoundException::new);

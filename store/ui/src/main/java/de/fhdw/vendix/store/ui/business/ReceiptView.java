@@ -48,10 +48,6 @@ public class ReceiptView extends VerticalLayout {
                 .setHeader("Created")
                 .setAutoWidth(true)
                 .setSortable(true);
-        receiptGrid.addColumn(Receipt::getTotalPrice)
-                .setHeader("Total")
-                .setAutoWidth(true)
-                .setSortable(true);
         receiptGrid.addComponentColumn(this::createPrintReceiptButton)
                 .setHeader("Print")
                 .setAutoWidth(true);

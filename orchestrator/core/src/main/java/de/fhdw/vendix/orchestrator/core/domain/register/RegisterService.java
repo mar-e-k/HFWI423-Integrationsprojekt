@@ -2,4 +2,16 @@ package de.fhdw.vendix.orchestrator.core.domain.register;
 
 import de.fhdw.vendix.commons.api.structure.service.CrudService;
 
-public interface RegisterService extends CrudService<Register, Long> {}
+import java.util.List;
+
+public interface RegisterService extends CrudService<Register, Long> {
+    List<Register> findAllByStoreId(Long storeId);
+
+    List<Register> findAllLockedRegisters();
+
+    List<Register> findAllNonLockedRegisters();
+
+    List<Register> findAllLockedRegistersByStoreId(Long storeId);
+
+    List<Register> findAllNonLockedRegistersByStoreId(Long storeId);
+}

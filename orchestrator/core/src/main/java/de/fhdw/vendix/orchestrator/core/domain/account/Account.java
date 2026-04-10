@@ -2,77 +2,112 @@ package de.fhdw.vendix.orchestrator.core.domain.account;
 
 import de.fhdw.vendix.commons.api.structure.mapper.Default;
 import de.fhdw.vendix.commons.spring.data.entity.AbstractSpringDataAuditingEntity;
-import de.fhdw.vendix.orchestrator.core.domain.account_role_assignment.AccountRoleAssignment;
-import jakarta.persistence.*;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Pattern;
 import org.jspecify.annotations.Nullable;
 
-import java.util.*;
+import java.util.UUID;
 
 @Entity
 public class Account extends AbstractSpringDataAuditingEntity<Long> {
 
     @Column(unique = true, nullable = false, updatable = false)
+    @NotNull(message = "UUID cannot be null")
     private UUID uuid;
 
     @Column(unique = true, nullable = false)
-    @NotBlank(message = "Account field 'accountUsername' cannot be blank")
+    @NotNull(message = "Username cannot be null")
+    @NotBlank(message = "Username cannot be blank")
     private String username;
 
     @Column(nullable = false)
-    @NotBlank(message = "Account field 'accountPassword' cannot be blank")
+    @NotNull(message = "Password cannot be null")
+    @NotBlank(message = "Password cannot be blank")
     private String password;
 
-    @Column(nullable = false)
-    @NotBlank(message = "Account field 'firstName' cannot be blank")
+    @Nullable
+    @Pattern(regexp = "^[\\p{L} '-]+$", message = "First name can only contain letters, spaces, hyphens, and apostrophes")
     private String firstName;
 
     @Nullable
+    @Pattern(regexp = "^[\\p{L} '-]+$", message = "Middle name can only contain letters, spaces, hyphens, and apostrophes")
     private String middleName;
 
-    @Column(nullable = false)
-    @NotBlank(message = "Account field 'lastName' cannot be blank")
+    @Nullable
+    @Pattern(regexp = "^[\\p{L} '-]+$", message = "Last name can only contain letters, spaces, hyphens, and apostrophes")
     private String lastName;
 
+    @Column(unique = true)
     @Nullable
+    @Pattern(regexp = "^\\+?[0-9. ()-]{7,25}$", message = "Phone number must be valid")
     private String phone;
 
+    @Column(unique = true)
+    @Email(message = "Email must be valid")
     @Nullable
-    @Email
     private String email;
-
-    @OneToMany(mappedBy = "account")
-    private Set<AccountRoleAssignment> roles = new HashSet<>();
 
     protected Account() {}
 
-    protected Account(UUID uuid, String firstName, String lastName, String password) {
+    public Account(UUID uuid, String username, String password) {
         this.uuid = uuid;
-        this.firstName = firstName;
-        this.lastName = lastName;
-        this.password = password;
-    }
-
-    protected Account(UUID uuid, String username, String password, String firstName, String lastName) {
-        this.uuid = uuid;
-        this.firstName = firstName;
-        this.lastName = lastName;
         this.username = username;
         this.password = password;
     }
 
-    @Default
-    protected Account(@Nullable Long id, UUID uuid, String username, String password, String firstName, @Nullable String middleName, String lastName, @Nullable String phone, @Nullable String email) {
+    public Account(@Nullable Long id, UUID uuid, String username, String password) {
         super(id);
         this.uuid = uuid;
+        this.username = username;
+        this.password = password;
+    }
+
+    public Account(
+            UUID uuid,
+            String username,
+            String password,
+            @Nullable String firstName,
+            @Nullable String middleName,
+            @Nullable String lastName,
+            @Nullable String phone,
+            @Nullable String email
+    ) {
+        this.uuid = uuid;
+        this.username = username;
+        this.password = password;
         this.firstName = firstName;
         this.middleName = middleName;
         this.lastName = lastName;
         this.phone = phone;
         this.email = email;
+    }
+
+
+    @Default
+    public Account(
+            @Nullable Long id,
+            UUID uuid,
+            String username,
+            String password,
+            @Nullable String firstName,
+            @Nullable String middleName,
+            @Nullable String lastName,
+            @Nullable String phone,
+            @Nullable String email
+    ) {
+        super(id);
+        this.uuid = uuid;
         this.username = username;
         this.password = password;
+        this.firstName = firstName;
+        this.middleName = middleName;
+        this.lastName = lastName;
+        this.phone = phone;
+        this.email = email;
     }
 
     public UUID getUuid() {
@@ -87,7 +122,7 @@ public class Account extends AbstractSpringDataAuditingEntity<Long> {
         return password;
     }
 
-    public String getFirstName() {
+    public @Nullable String getFirstName() {
         return firstName;
     }
 
@@ -95,7 +130,7 @@ public class Account extends AbstractSpringDataAuditingEntity<Long> {
         return middleName;
     }
 
-    public String getLastName() {
+    public @Nullable String getLastName() {
         return lastName;
     }
 
@@ -105,9 +140,5 @@ public class Account extends AbstractSpringDataAuditingEntity<Long> {
 
     public @Nullable String getEmail() {
         return email;
-    }
-
-    public Set<AccountRoleAssignment> getRoles() {
-        return Collections.unmodifiableSet(roles);
     }
 }

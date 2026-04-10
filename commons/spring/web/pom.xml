@@ -22,6 +22,11 @@
 
         <dependency>
             <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-security</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
         </dependency>
     </dependencies>
@@ -125,9 +130,10 @@
 
                             <importMappings>
                                 <importMapping>ConnectionDTO=de.fhdw.vendix.commons.api.domain.connection.ConnectionDTO</importMapping>
-                                <importMapping>LockDTO=de.fhdw.vendix.commons.api.domain.lock.LockDTO</importMapping>
+                                <importMapping>DistributedLockDTO=de.fhdw.vendix.commons.api.domain.distributed_lock.DistributedLockDTO</importMapping>
                                 <importMapping>EntityTargetDTO=de.fhdw.vendix.commons.api.embeddable.EntityTargetDTO</importMapping>
                                 <importMapping>TargetType=de.fhdw.vendix.commons.api.embeddable.TargetType</importMapping>
+                                <importMapping>ConnectionState=de.fhdw.vendix.commons.api.domain.connection.ConnectionState</importMapping>
                                 <importMapping>InstanceDetailsDTO=de.fhdw.vendix.commons.api.embeddable.InstanceDetailsDTO</importMapping>
                                 <importMapping>AccountDTO=de.fhdw.vendix.commons.api.domain.account.AccountDTO</importMapping>
                                 <importMapping>AccountRoleDTO=de.fhdw.vendix.commons.api.domain.account_role.AccountRoleDTO</importMapping>
@@ -165,9 +171,10 @@
 
                             <importMappings>
                                 <importMapping>ConnectionDTO=de.fhdw.vendix.commons.api.domain.connection.ConnectionDTO</importMapping>
-                                <importMapping>LockDTO=de.fhdw.vendix.commons.api.domain.lock.LockDTO</importMapping>
+                                <importMapping>DistributedLockDTO=de.fhdw.vendix.commons.api.domain.distributed_lock.DistributedLockDTO</importMapping>
                                 <importMapping>EntityTargetDTO=de.fhdw.vendix.commons.api.embeddable.EntityTargetDTO</importMapping>
                                 <importMapping>TargetType=de.fhdw.vendix.commons.api.embeddable.TargetType</importMapping>
+                                <importMapping>ConnectionState=de.fhdw.vendix.commons.api.domain.connection.ConnectionState</importMapping>
                                 <importMapping>InstanceDetailsDTO=de.fhdw.vendix.commons.api.embeddable.InstanceDetailsDTO</importMapping>
                                 <importMapping>AccountDTO=de.fhdw.vendix.commons.api.domain.account.AccountDTO</importMapping>
                                 <importMapping>AccountRoleDTO=de.fhdw.vendix.commons.api.domain.account_role.AccountRoleDTO</importMapping>

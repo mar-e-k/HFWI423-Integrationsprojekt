@@ -7,7 +7,7 @@ import de.fhdw.vendix.commons.api.structure.mapper.DTOMapper;
 import de.fhdw.vendix.commons.spring.data.mapper.SpringMapperConfig;
 import org.mapstruct.Mapper;
 
-import java.util.Set;
+import java.util.List;
 
 @Mapper(config = SpringMapperConfig.class)
 public interface AccountRoleAssignmentDTOMapper extends DTOMapper<AccountRoleAssignmentDTO, AccountRoleAssignmentRequestDTO, AccountRoleAssignmentResponseDTO> {
@@ -19,8 +19,8 @@ public interface AccountRoleAssignmentDTOMapper extends DTOMapper<AccountRoleAss
     AccountRoleAssignmentResponseDTO toResponseDTO(AccountRoleAssignmentDTO domainDTO);
 
     @Override
-    Set<AccountRoleAssignmentDTO> toDomainDTOs(Iterable<AccountRoleAssignmentRequestDTO> requestDTOs);
+    List<AccountRoleAssignmentDTO> toDomainDTOs(Iterable<AccountRoleAssignmentRequestDTO> requestDTOs);
 
     @Override
-    Set<AccountRoleAssignmentResponseDTO> toResponseDTOs(Iterable<AccountRoleAssignmentDTO> domainDTOs);
+    List<AccountRoleAssignmentResponseDTO> toResponseDTOs(Iterable<AccountRoleAssignmentDTO> domainDTOs);
 }

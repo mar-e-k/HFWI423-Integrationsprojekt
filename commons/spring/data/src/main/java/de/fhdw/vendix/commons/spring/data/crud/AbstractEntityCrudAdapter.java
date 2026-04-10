@@ -9,6 +9,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.HashSet;
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -45,7 +46,7 @@ public abstract class AbstractEntityCrudAdapter<ENT extends AbstractSpringDataEn
 
     @Override
     @Transactional
-    public Set<ENT> createAll(Iterable<ENT> entities) {
+    public List<ENT> createAll(Iterable<ENT> entities) {
         if (entities == null) {
             throw new IllegalArgumentException("Parameter 'entities' cannot be null");
         }
@@ -56,7 +57,7 @@ public abstract class AbstractEntityCrudAdapter<ENT extends AbstractSpringDataEn
             }
             beforeCreate(entity);
         }
-        Set<ENT> created = repository.saveAll(entities).stream().collect(Collectors.toUnmodifiableSet());
+        List<ENT> created = repository.saveAll(entities);
         created.forEach(this::afterCreate);
 
         return created;
@@ -86,7 +87,7 @@ public abstract class AbstractEntityCrudAdapter<ENT extends AbstractSpringDataEn
 
     @Override
     @Transactional
-    public Set<ENT> updateAll(Iterable<ENT> entities) {
+    public List<ENT> updateAll(Iterable<ENT> entities) {
         if (entities == null) {
             throw new IllegalArgumentException("Parameter 'entities' cannot be null");
         }
@@ -100,7 +101,7 @@ public abstract class AbstractEntityCrudAdapter<ENT extends AbstractSpringDataEn
             }
             beforeUpdate(entity);
         }
-        Set<ENT> updated = repository.saveAll(entities).stream().collect(Collectors.toUnmodifiableSet());
+        List<ENT> updated = repository.saveAll(entities);
         updated.forEach(this::afterUpdate);
 
         return updated;
@@ -136,7 +137,7 @@ public abstract class AbstractEntityCrudAdapter<ENT extends AbstractSpringDataEn
     @Override
     @Transactional
     public void deleteAll() {
-        Set<ENT> deleted = repository.findAll().stream().collect(Collectors.toUnmodifiableSet());
+        List<ENT> deleted = repository.findAll();
 
         deleted.forEach(this::beforeDelete);
         repository.deleteAll();
@@ -150,7 +151,7 @@ public abstract class AbstractEntityCrudAdapter<ENT extends AbstractSpringDataEn
             throw new IllegalArgumentException("Parameter 'entities' cannot be null");
         }
 
-        Set<ENT> deleted = findAll(entities);
+        List<ENT> deleted = findAll(entities);
 
         deleted.forEach(this::beforeDelete);
         repository.deleteAll(entities);
@@ -164,7 +165,7 @@ public abstract class AbstractEntityCrudAdapter<ENT extends AbstractSpringDataEn
             throw new IllegalArgumentException("Parameter 'ids' cannot be null");
         }
 
-        Set<ENT> deleted = findAllById(ids);
+        List<ENT> deleted = findAllById(ids);
 
         deleted.forEach(this::beforeDelete);
         repository.deleteAllById(ids);
@@ -227,7 +228,7 @@ public abstract class AbstractEntityCrudAdapter<ENT extends AbstractSpringDataEn
             throw new IllegalArgumentException("Parameter 'ids' cannot be null");
         }
 
-        Set<ENT> found = repository.findAllById(ids).stream().collect(Collectors.toUnmodifiableSet());
+        List<ENT> found = repository.findAllById(ids);
         return found.size() == StreamSupport.stream(ids.spliterator(), false).count();
     }
 
@@ -272,33 +273,34 @@ public abstract class AbstractEntityCrudAdapter<ENT extends AbstractSpringDataEn
 
     @Override
     @Transactional(readOnly = true)
-    public Set<ENT> findAll() {
-        return repository.findAll().stream().collect(Collectors.toUnmodifiableSet());
+    public List<ENT> findAll() {
+        return repository.findAll();
     }
 
     @Override
     @Transactional(readOnly = true)
-    public Set<ENT> findAll(Iterable<ENT> entities) {
+    public List<ENT> findAll(Iterable<ENT> entities) {
         if (entities == null) {
             throw new IllegalArgumentException("Parameter 'entities' cannot be null");
         }
-
-        Set<ID> ids = extractIds(entities);
+        List<ID> ids = StreamSupport.stream(entities.spliterator(), false)
+                .map(ENT::getId)
+                .toList();
         return findAllById(ids);
     }
 
     @Override
     @Transactional(readOnly = true)
-    public Set<ENT> findAllById(Iterable<ID> ids) {
+    public List<ENT> findAllById(Iterable<ID> ids) {
         if (ids == null) {
             throw new IllegalArgumentException("Parameter 'ids' cannot be null");
         }
-        return repository.findAllById(ids).stream().collect(Collectors.toUnmodifiableSet());
+        return repository.findAllById(ids);
     }
 
     @Override
     @Transactional(readOnly = true)
-    public Set<ENT> findAllByIdNotIn(Iterable<ID> ids) {
+    public List<ENT> findAllByIdNotIn(Iterable<ID> ids) {
         if (ids == null) {
             throw new IllegalArgumentException("Parameter 'ids' cannot be null");
         }
@@ -308,30 +310,12 @@ public abstract class AbstractEntityCrudAdapter<ENT extends AbstractSpringDataEn
 
         return repository.findAll().stream()
                 .filter(entity -> !excludedIds.contains(entity.getId()))
-                .collect(Collectors.toUnmodifiableSet());
+                .toList();
     }
 
     @Override
     @Transactional(readOnly = true)
     public long count() {
         return repository.count();
-    }
-
-    private Set<ID> extractIds(Iterable<ENT> entities) {
-        Set<ID> ids = new HashSet<>();
-        for (ENT entity : entities) {
-            if (entity == null) {
-                throw new IllegalArgumentException("Parameter 'entities' contains a null entity");
-            }
-
-            ID id = entity.getId();
-            if (id == null) {
-                throw new IllegalArgumentException(
-                        "Parameter 'entities' contains an entity with a null id: '%s'".formatted(entity)
-                );
-            }
-            ids.add(id);
-        }
-        return ids;
     }
 }

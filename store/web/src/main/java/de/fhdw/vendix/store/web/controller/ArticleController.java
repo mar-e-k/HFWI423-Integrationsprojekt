@@ -4,14 +4,10 @@ import de.fhdw.vendix.commons.api.domain.article.ArticleDTO;
 import de.fhdw.vendix.commons.spring.web.server.store.api.ArticleApi;
 import de.fhdw.vendix.store.core.domain.article.ArticleMapper;
 import de.fhdw.vendix.store.core.domain.article.ArticleService;
-import org.jspecify.annotations.Nullable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.Objects;
 import java.util.Optional;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 @RestController
 class ArticleController implements ArticleApi {
@@ -22,17 +18,6 @@ class ArticleController implements ArticleApi {
     ArticleController(ArticleService articleService, ArticleMapper articleMapper) {
         this.articleService = articleService;
         this.articleMapper = articleMapper;
-    }
-
-    @Override
-    public ResponseEntity<Set<ArticleDTO>> getArticles(
-            @Nullable Long id
-    ) {
-        Set<ArticleDTO> filtered = articleService.findAll().stream()
-                .filter(a -> id == null || Objects.equals(a.getId(), id))
-                .map(articleMapper::toDTO)
-                .collect(Collectors.toUnmodifiableSet());
-        return ResponseEntity.ok(filtered);
     }
 
     @Override

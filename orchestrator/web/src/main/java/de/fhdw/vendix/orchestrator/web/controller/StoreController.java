@@ -1,48 +1,24 @@
 package de.fhdw.vendix.orchestrator.web.controller;
 
-import de.fhdw.vendix.commons.api.domain.register.RegisterDTO;
 import de.fhdw.vendix.commons.api.domain.store.StoreDTO;
 import de.fhdw.vendix.commons.spring.web.server.orchestrator.api.StoreApi;
-import de.fhdw.vendix.orchestrator.core.domain.register.RegisterMapper;
 import de.fhdw.vendix.orchestrator.core.domain.store.StoreMapper;
 import de.fhdw.vendix.orchestrator.core.domain.store.StoreService;
-import org.jspecify.annotations.Nullable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.Objects;
+import java.util.List;
 import java.util.Optional;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 @RestController
 class StoreController implements StoreApi {
 
     private final StoreService storeService;
     private final StoreMapper storeMapper;
-    private final RegisterMapper registerMapper;
 
-    StoreController(StoreService storeService, StoreMapper storeMapper, RegisterMapper registerMapper) {
+    StoreController(StoreService storeService, StoreMapper storeMapper) {
         this.storeService = storeService;
         this.storeMapper = storeMapper;
-        this.registerMapper = registerMapper;
-    }
-
-    @Override
-    public ResponseEntity<Set<StoreDTO>> getStores(
-            @Nullable Long id,
-            @Nullable String country,
-            @Nullable String city,
-            @Nullable String street
-    ) {
-        Set<StoreDTO> filtered = storeService.findAll().stream()
-                .filter(s -> id == null || Objects.equals(s.getId(), id))
-                .filter(s -> id == null || Objects.equals(s.getCountry(), country))
-                .filter(s -> id == null || Objects.equals(s.getCity(), city))
-                .filter(s -> id == null || Objects.equals(s.getStreet(), street))
-                .map(storeMapper::toDTO)
-                .collect(Collectors.toUnmodifiableSet());
-        return ResponseEntity.ok(filtered);
     }
 
     @Override
@@ -52,10 +28,18 @@ class StoreController implements StoreApi {
     }
 
     @Override
-    public ResponseEntity<Set<RegisterDTO>> getRegistersByStore(Long id) {
-        Set<RegisterDTO> registers = storeService.findAllRegisters(id).stream()
-                .map(registerMapper::toDTO)
-                .collect(Collectors.toUnmodifiableSet());
-        return ResponseEntity.ok(registers);
+    public ResponseEntity<List<StoreDTO>> getLockedStores() {
+        List<StoreDTO> stores = storeService.findAllLockedStores().stream()
+                .map(storeMapper::toDTO)
+                .toList();
+        return ResponseEntity.ok(stores);
+    }
+
+    @Override
+    public ResponseEntity<List<StoreDTO>> getUnlockedStores() {
+        List<StoreDTO> stores = storeService.findAllNonLockedStores().stream()
+                .map(storeMapper::toDTO)
+                .toList();
+        return ResponseEntity.ok(stores);
     }
 }

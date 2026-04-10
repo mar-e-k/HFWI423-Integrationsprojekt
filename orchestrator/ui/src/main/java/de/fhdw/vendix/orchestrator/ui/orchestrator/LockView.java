@@ -4,8 +4,8 @@ import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.Route;
 import de.fhdw.vendix.commons.api.domain.account_role.Role;
-import de.fhdw.vendix.orchestrator.core.domain.lock.Lock;
-import de.fhdw.vendix.orchestrator.core.domain.lock.LockService;
+import de.fhdw.vendix.orchestrator.core.domain.distributed_lock.DistributedLock;
+import de.fhdw.vendix.orchestrator.core.domain.distributed_lock.DistributedLockService;
 import de.fhdw.vendix.orchestrator.ui.OrchestratorAppLayout;
 import jakarta.annotation.security.RolesAllowed;
 
@@ -13,18 +13,18 @@ import jakarta.annotation.security.RolesAllowed;
 @RolesAllowed(Role.ROLE_ADMIN)
 public class LockView extends VerticalLayout {
 
-    private final LockService lockService;
+    private final DistributedLockService distributedLockService;
 
-    public LockView(LockService lockService) {
-        this.lockService = lockService;
+    public LockView(DistributedLockService distributedLockService) {
+        this.distributedLockService = distributedLockService;
         add(initGrid());
     }
 
-    private Grid<Lock> initGrid() {
-        Grid<Lock> lockGrid = new Grid<>(Lock.class, false);
+    private Grid<DistributedLock> initGrid() {
+        Grid<DistributedLock> lockGrid = new Grid<>(DistributedLock.class, false);
         lockGrid.setHeightFull();
         lockGrid.setWidthFull();
-        lockGrid.addColumn(Lock::getId)
+        lockGrid.addColumn(DistributedLock::getId)
                 .setHeader("ID")
                 .setAutoWidth(true)
                 .setSortable(true);
@@ -36,19 +36,19 @@ public class LockView extends VerticalLayout {
                 .setHeader("Target Type")
                 .setAutoWidth(true)
                 .setSortable(true);
-        lockGrid.addColumn(Lock::getInstanceUUID)
+        lockGrid.addColumn(DistributedLock::getInstanceUUID)
                 .setHeader("Target UUID")
                 .setAutoWidth(true)
                 .setSortable(true);
-        lockGrid.addColumn(Lock::getAcquiredAt)
+        lockGrid.addColumn(DistributedLock::getAcquiredAt)
                 .setHeader("Acquired At")
                 .setAutoWidth(true)
                 .setSortable(true);
-        lockGrid.addColumn(Lock::getExpiresAt)
+        lockGrid.addColumn(DistributedLock::getExpiresAt)
                 .setHeader("Expires At")
                 .setAutoWidth(true)
                 .setSortable(true);
-        lockGrid.setItems(lockService.findAll());
+        lockGrid.setItems(distributedLockService.findAll());
         return lockGrid;
     }
 }

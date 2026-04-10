@@ -1,10 +1,9 @@
 package de.fhdw.vendix.commons.spring.starter.autoconfigure.web;
 
 import de.fhdw.vendix.commons.spring.security.jwt.JwtService;
-import de.fhdw.vendix.commons.spring.web.client.orchestrator.api.AccountProxyService;
-import de.fhdw.vendix.commons.spring.web.client.orchestrator.api.ConnectionProxyService;
-import de.fhdw.vendix.commons.spring.web.client.orchestrator.api.LockProxyService;
-import de.fhdw.vendix.commons.spring.web.client.orchestrator.api.StoreProxyService;
+import de.fhdw.vendix.commons.spring.web.client.orchestrator.api.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -18,6 +17,8 @@ import java.util.List;
 @Configuration
 public class OrchestratorClientAutoConfiguration {
 
+    private static final Logger log = LoggerFactory.getLogger(OrchestratorClientAutoConfiguration.class);
+
     @Bean
     @ConditionalOnMissingBean
     public HttpServiceProxyFactory orchestratorClientFactory(JwtService jwtService) {
@@ -28,6 +29,14 @@ public class OrchestratorClientAutoConfiguration {
                     request.getHeaders().setAccept(List.of(MediaType.APPLICATION_JSON));
                     return execution.execute(request, body);
                 })
+                .defaultStatusHandler(
+                        s -> s.is2xxSuccessful() || s.is4xxClientError(),
+                        (request, response) -> {
+                            log.atDebug().log("[{}] from {}.",
+                                    response.getStatusCode(),
+                                    request.getURI()
+                            );
+                        })
                 .build();
 
         return HttpServiceProxyFactory
@@ -37,8 +46,8 @@ public class OrchestratorClientAutoConfiguration {
 
     @Bean
     @ConditionalOnMissingBean
-    public LockProxyService lockProxyService(HttpServiceProxyFactory orchestratorClientFactory) {
-        return orchestratorClientFactory.createClient(LockProxyService.class);
+    public DistributedLockProxyService distributedLockProxyService(HttpServiceProxyFactory orchestratorClientFactory) {
+        return orchestratorClientFactory.createClient(DistributedLockProxyService.class);
     }
 
     @Bean
@@ -57,5 +66,11 @@ public class OrchestratorClientAutoConfiguration {
     @ConditionalOnMissingBean
     public StoreProxyService storeProxyService(HttpServiceProxyFactory storeClientFactory) {
         return storeClientFactory.createClient(StoreProxyService.class);
+    }
+
+    @Bean
+    @ConditionalOnMissingBean
+    public RegisterProxyService registerProxyService(HttpServiceProxyFactory storeClientFactory) {
+        return storeClientFactory.createClient(RegisterProxyService.class);
     }
 }

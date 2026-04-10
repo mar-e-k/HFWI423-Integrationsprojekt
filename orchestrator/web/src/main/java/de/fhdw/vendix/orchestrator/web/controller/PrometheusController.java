@@ -10,7 +10,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
 @RestController
 class PrometheusController implements PrometheusApi {
@@ -38,7 +40,7 @@ class PrometheusController implements PrometheusApi {
 
         targetGroups.add(orchestratorTarget);
 
-        Set<Connection> connections = connectionService.findAll();
+        List<Connection> connections = connectionService.findAll();
         List<TargetGroup> storeAndRegisterGroups = connections.stream()
                 .filter(c ->
                         c.getTarget().getType() == TargetType.STORE || c.getTarget().getType() == TargetType.REGISTER

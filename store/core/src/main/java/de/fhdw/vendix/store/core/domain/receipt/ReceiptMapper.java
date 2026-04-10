@@ -5,7 +5,7 @@ import de.fhdw.vendix.commons.api.structure.mapper.EntityMapper;
 import de.fhdw.vendix.commons.spring.data.mapper.SpringMapperConfig;
 import org.mapstruct.Mapper;
 
-import java.util.Set;
+import java.util.List;
 
 @Mapper(config = SpringMapperConfig.class)
 public interface ReceiptMapper extends EntityMapper<Receipt, ReceiptDTO> {
@@ -17,8 +17,8 @@ public interface ReceiptMapper extends EntityMapper<Receipt, ReceiptDTO> {
     Receipt toEntity(ReceiptDTO receiptDTO);
 
     @Override
-    Set<ReceiptDTO> toDTOs(Iterable<Receipt> entities);
+    List<ReceiptDTO> toDTOs(Iterable<Receipt> entities);
 
     @Override
-    Set<Receipt> toEntities(Iterable<ReceiptDTO> receiptDTOS);
+    List<Receipt> toEntities(Iterable<ReceiptDTO> receiptDTOS);
 }

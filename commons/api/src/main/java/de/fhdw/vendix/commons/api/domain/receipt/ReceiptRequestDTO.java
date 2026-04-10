@@ -1,7 +1,7 @@
 package de.fhdw.vendix.commons.api.domain.receipt;
 
 import de.fhdw.vendix.commons.api.domain.receipt_line.ReceiptLineDTO;
-import de.fhdw.vendix.commons.api.domain.receipt_voucher.ReceiptVoucherDTO;
+import de.fhdw.vendix.commons.api.domain.voucher.VoucherDTO;
 import de.fhdw.vendix.commons.api.domain.register.RegisterDTO;
 import de.fhdw.vendix.commons.api.domain.store.StoreDTO;
 import de.fhdw.vendix.commons.api.structure.dto.RequestDTO;
@@ -13,7 +13,7 @@ public record ReceiptRequestDTO(
         RegisterDTO register,
         Long accountId,
         List<ReceiptLineDTO> lines,
-        List<ReceiptVoucherDTO> vouchers
+        List<VoucherDTO> vouchers
 ) implements RequestDTO {
     public ReceiptRequestDTO {
         if (store == null) {

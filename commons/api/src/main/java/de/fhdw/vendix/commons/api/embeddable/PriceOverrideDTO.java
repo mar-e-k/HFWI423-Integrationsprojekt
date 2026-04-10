@@ -10,10 +10,10 @@ public record PriceOverrideDTO(
 ) implements EmbeddableDTO {
     public PriceOverrideDTO {
         if (amount == null) {
-            throw new IllegalArgumentException("PriceOverrideDTO parameter 'amount' cannot be null");
+            throw new IllegalArgumentException("PriceOverrideDTO parameter 'articleAmount' cannot be null");
         }
         if (amount.compareTo(BigDecimal.ZERO) < 0) {
-            throw new IllegalArgumentException("PriceOverrideDTO parameter 'amount' cannot be negative");
+            throw new IllegalArgumentException("PriceOverrideDTO parameter 'articleAmount' cannot be negative");
         }
         if (reason == null) {
             throw new IllegalArgumentException("PriceOverrideDTO parameter 'reason' cannot be null");

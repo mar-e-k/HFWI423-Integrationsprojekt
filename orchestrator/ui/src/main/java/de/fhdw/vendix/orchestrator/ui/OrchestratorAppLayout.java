@@ -9,10 +9,10 @@ import com.vaadin.flow.spring.annotation.VaadinSessionScope;
 import com.vaadin.flow.spring.security.AuthenticationContext;
 import de.fhdw.vendix.commons.api.domain.account_role.Role;
 import de.fhdw.vendix.commons.spring.vaadin.view.AbstractApplicationLayout;
-import de.fhdw.vendix.orchestrator.ui.management.*;
-import de.fhdw.vendix.orchestrator.ui.orchestrator.ConnectionView;
 import de.fhdw.vendix.orchestrator.ui.application.DebugView;
 import de.fhdw.vendix.orchestrator.ui.application.RootView;
+import de.fhdw.vendix.orchestrator.ui.management.*;
+import de.fhdw.vendix.orchestrator.ui.orchestrator.ConnectionView;
 import de.fhdw.vendix.orchestrator.ui.orchestrator.LockView;
 import jakarta.annotation.security.RolesAllowed;
 

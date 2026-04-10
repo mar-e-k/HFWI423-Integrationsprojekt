@@ -5,7 +5,7 @@ import de.fhdw.vendix.commons.api.structure.mapper.EntityMapper;
 import de.fhdw.vendix.commons.spring.data.mapper.SpringMapperConfig;
 import org.mapstruct.Mapper;
 
-import java.util.Set;
+import java.util.List;
 
 @Mapper(config = SpringMapperConfig.class)
 public interface PreferenceAmountMapper extends EntityMapper<PreferenceAmount, PreferenceAmountDTO> {
@@ -17,8 +17,8 @@ public interface PreferenceAmountMapper extends EntityMapper<PreferenceAmount, P
     PreferenceAmount toEntity(PreferenceAmountDTO preferenceAmountDTO);
 
     @Override
-    Set<PreferenceAmountDTO> toDTOs(Iterable<PreferenceAmount> entities);
+    List<PreferenceAmountDTO> toDTOs(Iterable<PreferenceAmount> entities);
 
     @Override
-    Set<PreferenceAmount> toEntities(Iterable<PreferenceAmountDTO> preferenceAmountDTOS);
+    List<PreferenceAmount> toEntities(Iterable<PreferenceAmountDTO> preferenceAmountDTOS);
 }

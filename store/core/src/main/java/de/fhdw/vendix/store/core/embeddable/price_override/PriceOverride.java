@@ -7,6 +7,7 @@ import jakarta.persistence.Embeddable;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.validation.constraints.DecimalMin;
+import jakarta.validation.constraints.NotNull;
 
 import java.math.BigDecimal;
 
@@ -14,10 +15,12 @@ import java.math.BigDecimal;
 @SuppressWarnings("NullAway")
 public class PriceOverride {
 
-    @DecimalMin(value = "0.00")
+    @NotNull(message = "Price override amount cannot be null")
+    @DecimalMin(value = "0.00", message = "Price override amount must be at least 0.00")
     @Column(name = "price_override_amount")
     private BigDecimal amount;
 
+    @NotNull(message = "Price override reason cannot be null")
     @Enumerated(EnumType.STRING)
     @Column(name = "price_override_reason")
     private OverrideReason reason;

@@ -4,20 +4,24 @@ import de.fhdw.vendix.commons.api.structure.mapper.Default;
 import jakarta.persistence.Column;
 import jakarta.persistence.Embeddable;
 import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotNull;
 
 @Embeddable
 @SuppressWarnings("NullAway")
 public class PreferenceAmount {
 
-    @Min(value = 0)
+    @NotNull(message = "Preference amount min cannot be null")
+    @Min(value = 1, message = "Preference amount min must be at least 1")
     @Column(nullable = false, name = "pref_amount_min")
     private Long min;
 
-    @Min(value = 0)
+    @NotNull(message = "Preference amount avg cannot be null")
+    @Min(value = 1, message = "Preference amount avg must be at least 1")
     @Column(nullable = false, name = "pref_amount_avg")
     private Long avg;
 
-    @Min(value = 0)
+    @NotNull(message = "Preference amount max cannot be null")
+    @Min(value = 1, message = "Preference amount max must be at least 1")
     @Column(nullable = false, name = "pref_amount_max")
     private Long max;
 

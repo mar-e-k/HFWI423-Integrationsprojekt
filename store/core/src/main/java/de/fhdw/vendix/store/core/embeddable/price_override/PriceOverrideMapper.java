@@ -5,7 +5,7 @@ import de.fhdw.vendix.commons.api.structure.mapper.EntityMapper;
 import de.fhdw.vendix.commons.spring.data.mapper.SpringMapperConfig;
 import org.mapstruct.Mapper;
 
-import java.util.Set;
+import java.util.List;
 
 @Mapper(config = SpringMapperConfig.class)
 public interface PriceOverrideMapper extends EntityMapper<PriceOverride, PriceOverrideDTO> {
@@ -17,8 +17,8 @@ public interface PriceOverrideMapper extends EntityMapper<PriceOverride, PriceOv
     PriceOverride toEntity(PriceOverrideDTO priceOverrideDTO);
 
     @Override
-    Set<PriceOverrideDTO> toDTOs(Iterable<PriceOverride> entities);
+    List<PriceOverrideDTO> toDTOs(Iterable<PriceOverride> entities);
 
     @Override
-    Set<PriceOverride> toEntities(Iterable<PriceOverrideDTO> priceOverrideDTOS);
+    List<PriceOverride> toEntities(Iterable<PriceOverrideDTO> priceOverrideDTOS);
 }

@@ -22,7 +22,10 @@ import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
 import java.text.ParseException;
-import java.util.*;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
+import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
@@ -69,7 +72,7 @@ public final class JwtAuthenticationFilter extends OncePerRequestFilter {
         Set<Role> roles;
 
         try {
-            roles = claims.getStringListClaim(JwtContextClaims.ROLES.claim()).stream()
+            roles = claims.getStringListClaim(JwtClaims.ROLES.claim()).stream()
                     .map(Role::valueOf)
                     .collect(Collectors.toSet());
         } catch (ParseException e) {
@@ -91,7 +94,7 @@ public final class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         AccountDTO account = cachedAccounts.computeIfAbsent(
                 subject,
-                uuid -> Optional.ofNullable(accountProxyService.getAccountByUUID(uuid).getBody())
+                uuid -> Optional.ofNullable(accountProxyService.getAccountByUuid(uuid).getBody())
                         .orElseThrow(() -> new BadCredentialsException("Account not found"))
         );
 

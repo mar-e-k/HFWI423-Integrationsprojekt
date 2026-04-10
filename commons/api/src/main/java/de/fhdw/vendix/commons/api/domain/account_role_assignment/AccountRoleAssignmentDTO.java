@@ -1,24 +1,22 @@
 package de.fhdw.vendix.commons.api.domain.account_role_assignment;
 
-import de.fhdw.vendix.commons.api.domain.account.AccountDTO;
-import de.fhdw.vendix.commons.api.domain.account_role.AccountRoleDTO;
 import de.fhdw.vendix.commons.api.structure.dto.DomainDTO;
 import org.jspecify.annotations.Nullable;
 
 public record AccountRoleAssignmentDTO(
     @Nullable Long id,
-    AccountDTO account,
-    AccountRoleDTO role
+    Long accountId,
+    Long roleId
 ) implements DomainDTO {
     public AccountRoleAssignmentDTO {
         if (id != null && id < 0) {
             throw new IllegalArgumentException("AccountRoleAssignmentDTO parameter 'id' cannot be negative");
         }
-        if (account == null) {
-            throw new IllegalArgumentException("AccountRoleAssignmentDTO parameter 'account' cannot be null");
+        if (accountId == null || accountId < 0) {
+            throw new IllegalArgumentException("AccountRoleAssignmentDTO parameter 'accountId' cannot be null");
         }
-        if (role == null) {
-            throw new IllegalArgumentException("AccountRoleAssignmentDTO parameter 'role' cannot be null");
+        if (roleId == null || roleId < 0) {
+            throw new IllegalArgumentException("AccountRoleAssignmentDTO parameter 'roleId' cannot be null");
         }
     }
 }

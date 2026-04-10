@@ -20,12 +20,14 @@ import de.fhdw.vendix.store.ui.StoreAppLayout;
 import jakarta.annotation.security.RolesAllowed;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 
 import java.util.ArrayList;
 import java.util.List;
 
-@RolesAllowed(Role.ROLE_ADMIN)
 @Route(value = "context", layout = StoreAppLayout.class)
+@RolesAllowed(Role.ROLE_ADMIN)
 @StyleSheet(Aura.STYLESHEET)
 public class StoreContextView extends VerticalLayout {
 
@@ -69,8 +71,10 @@ public class StoreContextView extends VerticalLayout {
     }
 
     private void loadInactiveStores() {
-//        log.atInfo().log("Inactive stores: {}", storeProxyService.find().toString());
-//        inactiveStores.addAll(storeService.findAllInactiveActiveStores());
+        ResponseEntity<List<StoreDTO>> stores = storeProxyService.getUnlockedStores();
+        if (stores.getStatusCode() == HttpStatus.OK && stores.getBody() != null) {
+            inactiveStores.addAll(stores.getBody());
+        }
         inactiveStores.forEach(store -> {
             Component storeCard = createStoreCard(store, false);
             storeLayout.add(storeCard);
@@ -78,8 +82,10 @@ public class StoreContextView extends VerticalLayout {
     }
 
     private void loadActiveStores() {
-//        log.atInfo().log("Active stores: {}", storeService.findAllActiveStores().toString());
-//        activeStores.addAll(storeService.findAllActiveStores());
+        ResponseEntity<List<StoreDTO>> stores = storeProxyService.getLockedStores();
+        if (stores.getStatusCode() == HttpStatus.OK && stores.getBody() != null) {
+            activeStores.addAll(stores.getBody());
+        }
         activeStores.forEach(store -> {
             Component storeCard = createStoreCard(store, true);
             storeLayout.add(storeCard);

@@ -6,13 +6,12 @@ import de.fhdw.vendix.commons.spring.web.server.orchestrator.api.AccountApi;
 import de.fhdw.vendix.orchestrator.core.domain.account.AccountMapper;
 import de.fhdw.vendix.orchestrator.core.domain.account.AccountService;
 import de.fhdw.vendix.orchestrator.core.domain.account_role.AccountRoleMapper;
-import org.jspecify.annotations.Nullable;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.*;
-import java.util.stream.Collectors;
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
 
 @RestController
 class AccountController implements AccountApi {
@@ -28,32 +27,15 @@ class AccountController implements AccountApi {
     }
 
     @Override
-    public ResponseEntity<Set<AccountDTO>> getAccounts(
-            @Nullable Long id,
-            @Nullable UUID uuid,
-            @Nullable String username,
-            @Nullable String password,
-            @Nullable String firstName,
-            @Nullable String middleName,
-            @Nullable String lastName,
-            @Nullable String phone,
-            @Nullable String email
-    ) {
-        Set<AccountDTO> filtered = accountService.findAll().stream()
-                .filter(a -> id == null || Objects.equals(a.getId(), id))
-                .filter(a -> uuid == null || Objects.equals(a.getUuid(), uuid))
-                .filter(a -> username == null || Objects.equals(a.getUsername(), username))
-                .filter(a -> password == null || Objects.equals(a.getPassword(), password))
-                .filter(a -> firstName == null || Objects.equals(a.getFirstName(), firstName))
-                .filter(a -> middleName == null || Objects.equals(a.getMiddleName(), middleName))
-                .filter(a -> lastName == null || Objects.equals(a.getLastName(), lastName))
-                .filter(a -> phone == null || Objects.equals(a.getPhone(), phone))
-                .filter(a -> email == null || Objects.equals(a.getEmail(), email))
-                .map(accountMapper::toDTO)
-                .collect(Collectors.toUnmodifiableSet());
-        return ResponseEntity
-                .status(HttpStatus.OK)
-                .body(filtered);
+    public ResponseEntity<AccountDTO> getAccountById(Long id) {
+        Optional<AccountDTO> account = accountService.findById(id).map(accountMapper::toDTO);
+        return ResponseEntity.of(account);
+    }
+
+    @Override
+    public ResponseEntity<AccountDTO> getAccountByUuid(UUID uuid) {
+        Optional<AccountDTO> account = accountService.findByUuid(uuid).map(accountMapper::toDTO);
+        return ResponseEntity.of(account);
     }
 
     @Override
@@ -63,21 +45,10 @@ class AccountController implements AccountApi {
     }
 
     @Override
-    public ResponseEntity<AccountDTO> getAccountByUUID(UUID uuid) {
-        Optional<AccountDTO> account = accountService.findByUuid(uuid).map(accountMapper::toDTO);
-        return ResponseEntity.of(account);
-    }
-
-    @Override
-    public ResponseEntity<Set<AccountRoleDTO>> getAccountRoles(UUID uuid) {
-        Set<AccountRoleDTO> roles = accountService.findByUuid(uuid)
-                .map(a -> accountRoleMapper.toDTOs(
-                        accountService.findAllRoles(a.getUuid())
-                ))
-                .orElseGet(Set::of);
-
-        return ResponseEntity
-                .status(HttpStatus.OK)
-                .body(roles);
+    public ResponseEntity<List<AccountRoleDTO>> getAccountRolesById(Long id) {
+        List<AccountRoleDTO> roles = accountService.findAllRolesById(id).stream()
+                .map(accountRoleMapper::toDTO)
+                .toList();
+        return ResponseEntity.ok(roles);
     }
 }

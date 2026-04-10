@@ -28,11 +28,11 @@ public class PermissionView extends VerticalLayout {
                 .setHeader("ID")
                 .setAutoWidth(true)
                 .setSortable(true);
-        accountRoleAssignmentGrid.addColumn(AccountRoleAssignment::getAccount)
+        accountRoleAssignmentGrid.addColumn(AccountRoleAssignment::getAccountId)
                 .setHeader("Account")
                 .setAutoWidth(true)
                 .setSortable(true);
-        accountRoleAssignmentGrid.addColumn(AccountRoleAssignment::getRole)
+        accountRoleAssignmentGrid.addColumn(AccountRoleAssignment::getRoleId)
                 .setHeader("Role")
                 .setAutoWidth(true)
                 .setSortable(true);

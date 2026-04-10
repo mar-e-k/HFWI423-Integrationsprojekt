@@ -7,7 +7,7 @@ import de.fhdw.vendix.commons.api.structure.mapper.DTOMapper;
 import de.fhdw.vendix.commons.spring.data.mapper.SpringMapperConfig;
 import org.mapstruct.Mapper;
 
-import java.util.Set;
+import java.util.List;
 
 @Mapper(config = SpringMapperConfig.class)
 public interface ConnectionDTOMapper extends DTOMapper<ConnectionDTO, ConnectionRequestDTO, ConnectionResponseDTO> {
@@ -19,8 +19,8 @@ public interface ConnectionDTOMapper extends DTOMapper<ConnectionDTO, Connection
     ConnectionResponseDTO toResponseDTO(ConnectionDTO domainDTO);
 
     @Override
-    Set<ConnectionDTO> toDomainDTOs(Iterable<ConnectionRequestDTO> requestDTOs);
+    List<ConnectionDTO> toDomainDTOs(Iterable<ConnectionRequestDTO> requestDTOs);
 
     @Override
-    Set<ConnectionResponseDTO> toResponseDTOs(Iterable<ConnectionDTO> domainDTOs);
+    List<ConnectionResponseDTO> toResponseDTOs(Iterable<ConnectionDTO> domainDTOs);
 }

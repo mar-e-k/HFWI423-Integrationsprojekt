@@ -1,7 +1,6 @@
 package de.fhdw.vendix.commons.spring.security.jwt;
 
 import com.nimbusds.jwt.JWTClaimsSet;
-import com.nimbusds.jwt.proc.ExpiredJWTException;
 import de.fhdw.vendix.commons.api.domain.account_role.Role;
 import de.fhdw.vendix.commons.spring.security.context.app.AppContext;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -61,7 +60,7 @@ public class DefaultJwtValidator implements JwtValidator {
         List<String> roleStrings;
 
         try {
-            roleStrings = claims.getStringListClaim(JwtContextClaims.ROLES.claim());
+            roleStrings = claims.getStringListClaim(JwtClaims.ROLES.claim());
         } catch (ParseException e) {
             throw new BadCredentialsException("Invalid roles format", e);
         }

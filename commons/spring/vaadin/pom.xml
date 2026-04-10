@@ -16,12 +16,12 @@
     <dependencies>
         <dependency>
             <groupId>de.fhdw.vendix</groupId>
-            <artifactId>commons-api</artifactId>
+            <artifactId>commons-spring-security</artifactId>
         </dependency>
 
         <dependency>
             <groupId>de.fhdw.vendix</groupId>
-            <artifactId>commons-spring-security</artifactId>
+            <artifactId>commons-spring-web</artifactId>
         </dependency>
 
         <dependency>

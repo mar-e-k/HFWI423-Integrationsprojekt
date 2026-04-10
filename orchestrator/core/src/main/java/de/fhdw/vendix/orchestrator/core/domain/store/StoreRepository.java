@@ -1,20 +1,37 @@
 package de.fhdw.vendix.orchestrator.core.domain.store;
 
-import de.fhdw.vendix.orchestrator.core.domain.register.Register;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.query.Param;
 
-import java.util.Set;
+import java.util.List;
 
 interface StoreRepository extends JpaRepository<Store, Long> {
 
     @Query(
             """
-            SELECT r
-            FROM Register r
-            WHERE r.store.id = :storeId
+            SELECT s
+            FROM Store s
+            WHERE EXISTS (
+                SELECT 1
+                FROM DistributedLock l
+                WHERE l.target.id = s.id
+                    AND l.target.type = STORE
+            )
             """
     )
-    Set<Register> findAllRegisters(@Param("storeId") long storeId);
+    List<Store> findAllLockedStores();
+
+    @Query(
+            """
+            SELECT s
+            FROM Store s
+            WHERE NOT EXISTS (
+                SELECT 1
+                FROM DistributedLock l
+                WHERE l.target.id = s.id
+                    AND l.target.type = STORE
+            )
+            """
+    )
+    List<Store> findAllNonLockedStores();
 }

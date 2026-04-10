@@ -2,37 +2,42 @@ package de.fhdw.vendix.store.core.domain.store_stock;
 
 import de.fhdw.vendix.commons.api.structure.mapper.Default;
 import de.fhdw.vendix.commons.spring.data.entity.AbstractSpringDataAuditingEntity;
-import de.fhdw.vendix.store.core.domain.article.Article;
 import de.fhdw.vendix.store.core.embeddable.preference_amount.PreferenceAmount;
-import jakarta.persistence.*;
+import jakarta.persistence.Column;
+import jakarta.persistence.Embedded;
+import jakarta.persistence.Entity;
 import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotNull;
 import org.jspecify.annotations.Nullable;
 
 @Entity
+
 public class StoreStock extends AbstractSpringDataAuditingEntity<Long> {
 
+    @NotNull(message = "Store ID cannot be null")
+    @Min(value = 1, message = "Store ID must be at least 1")
+    @Column(nullable = false)
     private Long storeId;
 
-    @ManyToOne(optional = false)
-    private Article article;
-
+    @NotNull(message = "Article ID cannot be null")
+    @Min(value = 1, message = "Article ID must be at least 1")
     @Column(nullable = false)
-    @Min(value = 0)
+    private Long articleId;
+
+    @NotNull(message = "Current amount cannot be null")
+    @Min(value = 1, message = "Current amount must be at least 1")
+    @Column(nullable = false)
     private Long currentAmount;
 
+    @NotNull(message = "Preference amount cannot be null")
     @Embedded
     private PreferenceAmount preferenceAmount;
 
     protected StoreStock() {}
 
-    protected StoreStock(
-            Long storeId,
-            Article article,
-            Long currentAmount,
-            PreferenceAmount preferenceAmount
-    ) {
+    protected StoreStock(Long storeId, Long articleId, Long currentAmount, PreferenceAmount preferenceAmount) {
         this.storeId = storeId;
-        this.article = article;
+        this.articleId = articleId;
         this.currentAmount = currentAmount;
         this.preferenceAmount = preferenceAmount;
     }
@@ -41,13 +46,13 @@ public class StoreStock extends AbstractSpringDataAuditingEntity<Long> {
     protected StoreStock(
             @Nullable Long id,
             Long storeId,
-            Article article,
+            Long articleId,
             Long currentAmount,
             PreferenceAmount preferenceAmount
     ) {
         super(id);
         this.storeId = storeId;
-        this.article = article;
+        this.articleId = articleId;
         this.currentAmount = currentAmount;
         this.preferenceAmount = preferenceAmount;
     }
@@ -56,11 +61,11 @@ public class StoreStock extends AbstractSpringDataAuditingEntity<Long> {
         return storeId;
     }
 
-    public Article getArticle() {
-        return article;
+    public Long getArticleId() {
+        return articleId;
     }
 
-    public long getCurrentAmount() {
+    public Long getCurrentAmount() {
         return currentAmount;
     }
 
@@ -68,9 +73,9 @@ public class StoreStock extends AbstractSpringDataAuditingEntity<Long> {
         return preferenceAmount;
     }
 
-    public void restockArticle(long amount) {
+    public void restockArticle(Long amount) {
         if (amount < 1) {
-            throw new IllegalArgumentException("Parameter 'amount' must be greater than 0.");
+            throw new IllegalArgumentException("Parameter 'articleAmount' must be greater than 0.");
         }
         this.currentAmount += amount;
     }

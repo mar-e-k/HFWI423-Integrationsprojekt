@@ -8,7 +8,7 @@ import de.fhdw.vendix.commons.spring.data.mapper.SpringMapperConfig;
 import de.fhdw.vendix.store.core.domain.article.ArticleDTOMapper;
 import org.mapstruct.Mapper;
 
-import java.util.Set;
+import java.util.List;
 
 @Mapper(
         config = SpringMapperConfig.class,
@@ -25,8 +25,8 @@ public interface StoreStockDTOMapper extends DTOMapper<StoreStockDTO, StoreStock
     StoreStockResponseDTO toResponseDTO(StoreStockDTO storeStockDTO);
 
     @Override
-    Set<StoreStockDTO> toDomainDTOs(Iterable<StoreStockRequestDTO> requestDTOs);
+    List<StoreStockDTO> toDomainDTOs(Iterable<StoreStockRequestDTO> requestDTOs);
 
     @Override
-    Set<StoreStockResponseDTO> toResponseDTOs(Iterable<StoreStockDTO> domainDTOs);
+    List<StoreStockResponseDTO> toResponseDTOs(Iterable<StoreStockDTO> domainDTOs);
 }

@@ -12,7 +12,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
 import java.time.Instant;
-import java.util.*;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
@@ -47,7 +49,7 @@ class InstanceHealthChecker {
         Set<Connection> successfulPings = ConcurrentHashMap.newKeySet();
         Set<Connection> failedPings = ConcurrentHashMap.newKeySet();
 
-        Set<Connection> connections = connectionService.findAll();
+        List<Connection> connections = connectionService.findAll();
         Set<CompletableFuture<Void>> futures = connections.stream()
                 .map(connection -> CompletableFuture.runAsync(
                         () -> pingSingleApplicationInstance(connection, successfulPings, failedPings),

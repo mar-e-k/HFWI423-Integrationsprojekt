@@ -1,8 +1,5 @@
 package de.fhdw.vendix.pos.old_ui.view.cashier;
 
-import java.math.BigDecimal;
-import java.math.RoundingMode;
-
 //public class CartItem implements GenericEntity<Long> {
 //    private ArticleDTO article;
 //    private int position;

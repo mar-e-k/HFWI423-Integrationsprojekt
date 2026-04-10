@@ -18,7 +18,7 @@ public record PreferenceAmountDTO(
             throw new IllegalArgumentException("PreferenceAmountDTO parameter 'max' cannot be null or negative");
         }
         if (min > avg) {
-            throw new IllegalArgumentException("PreferenceAmountDTO parameter 'min' cannot be greater than the avg amount");
+            throw new IllegalArgumentException("PreferenceAmountDTO parameter 'min' cannot be greater than the avg articleAmount");
         }
         if (min > max) {
             throw new IllegalArgumentException("PreferenceAmountDTO parameter 'min' cannot be greater than max");

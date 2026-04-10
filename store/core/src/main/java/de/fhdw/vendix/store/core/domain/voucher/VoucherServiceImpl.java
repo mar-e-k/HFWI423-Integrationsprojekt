@@ -1,4 +1,4 @@
-package de.fhdw.vendix.store.core.domain.receipt_voucher;
+package de.fhdw.vendix.store.core.domain.voucher;
 
 import de.fhdw.vendix.commons.spring.data.crud.AbstractEntityCrudAdapter;
 import jakarta.persistence.EntityNotFoundException;
@@ -11,24 +11,24 @@ import java.util.Optional;
 import java.util.UUID;
 
 @Service
-class ReceiptVoucherServiceImpl extends AbstractEntityCrudAdapter<ReceiptVoucher, Long> implements ReceiptVoucherService {
+class VoucherServiceImpl extends AbstractEntityCrudAdapter<Voucher, Long> implements VoucherService {
 
-    private static final Logger log = LoggerFactory.getLogger(ReceiptVoucherServiceImpl.class);
+    private static final Logger log = LoggerFactory.getLogger(VoucherServiceImpl.class);
 
-    private final ReceiptVoucherRepository receiptVoucherRepository;
+    private final VoucherRepository voucherRepository;
 
-    ReceiptVoucherServiceImpl(ReceiptVoucherRepository receiptVoucherRepository) {
-        super(receiptVoucherRepository);
-        this.receiptVoucherRepository = receiptVoucherRepository;
+    VoucherServiceImpl(VoucherRepository voucherRepository) {
+        super(voucherRepository);
+        this.voucherRepository = voucherRepository;
     }
 
     @Override
     @Transactional(readOnly = true)
-    public Optional<ReceiptVoucher> findByCode(UUID code) {
+    public Optional<Voucher> findByCode(UUID code) {
         if (code == null) {
             return Optional.empty();
         }
-        return receiptVoucherRepository.findByCode(code);
+        return voucherRepository.findByCode(code);
     }
 
     @Override
@@ -37,9 +37,8 @@ class ReceiptVoucherServiceImpl extends AbstractEntityCrudAdapter<ReceiptVoucher
         if (code == null) {
             throw new IllegalArgumentException("Parameter 'code' cannot be null");
         }
-        ReceiptVoucher receiptVoucher = findByCode(code)
-                .orElseThrow(EntityNotFoundException::new);
-        ReceiptVoucher redeemed = receiptVoucher.redeem();
+        Voucher voucher = findByCode(code).orElseThrow(EntityNotFoundException::new);
+        Voucher redeemed = voucher.redeem();
         log.atInfo().log("Redeeming receipt voucher with code: {}", code);
         super.update(redeemed);
         log.atInfo().log("Successfully redeemed voucher with code: {}", code);

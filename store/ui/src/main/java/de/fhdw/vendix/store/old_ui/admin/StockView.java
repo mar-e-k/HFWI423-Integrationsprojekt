@@ -166,7 +166,7 @@ public class StockView
 //                .setHeader("Mindestbestand")
 //                .setAutoWidth(true);
 //
-//        // Bestand mit Markierung, wenn amount < minBestand
+//        // Bestand mit Markierung, wenn articleAmount < minBestand
 //        grid.addComponentColumn(this::createAmountCell)
 //                .setHeader("Bestand")
 //                .setAutoWidth(true)
@@ -249,15 +249,15 @@ public class StockView
 //
 //    /**
 //     * Markierung:
-//     * amount < minStockLevel ⟶ orange + Tooltip "Niedriger Bestand"
+//     * articleAmount < minStockLevel ⟶ orange + Tooltip "Niedriger Bestand"
 //     */
 //    private Component createAmountCell(StoreStock stock) {
-//        int amount = stock.getAmount();
+//        int articleAmount = stock.getAmount();
 //        int min = Objects.requireNonNullElse(stock.getMinimumStockLevel(), 5);
 //
-//        Span span = new Span(amount + " Stück");
+//        Span span = new Span(articleAmount + " Stück");
 //
-//        if (amount < min) {
+//        if (articleAmount < min) {
 //            span.getStyle().set("background-color", "orange");
 //            span.getStyle().set("color", "black");
 //            span.getStyle().set("padding", "2px 6px");

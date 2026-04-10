@@ -7,7 +7,7 @@ import de.fhdw.vendix.orchestrator.core.embeddable.entity_target.EntityTargetMap
 import de.fhdw.vendix.orchestrator.core.embeddable.instance_details.InstanceDetailsMapper;
 import org.mapstruct.Mapper;
 
-import java.util.Set;
+import java.util.List;
 
 @Mapper(
         config = SpringMapperConfig.class,
@@ -25,8 +25,8 @@ public interface ConnectionMapper extends EntityMapper<Connection, ConnectionDTO
     Connection toEntity(ConnectionDTO connectionDTO);
 
     @Override
-    Set<ConnectionDTO> toDTOs(Iterable<Connection> entities);
+    List<ConnectionDTO> toDTOs(Iterable<Connection> entities);
 
     @Override
-    Set<Connection> toEntities(Iterable<ConnectionDTO> connectionDTOS);
+    List<Connection> toEntities(Iterable<ConnectionDTO> connectionDTOS);
 }

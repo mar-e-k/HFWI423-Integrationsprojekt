@@ -2,32 +2,33 @@ package de.fhdw.vendix.orchestrator.core.domain.register;
 
 import de.fhdw.vendix.commons.api.structure.mapper.Default;
 import de.fhdw.vendix.commons.spring.data.entity.AbstractSpringDataAuditingEntity;
-import de.fhdw.vendix.orchestrator.core.domain.store.Store;
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotNull;
 import org.jspecify.annotations.Nullable;
 
 @Entity
 public class Register extends AbstractSpringDataAuditingEntity<Long> {
 
-    @ManyToOne(optional = false)
-    @JoinColumn(nullable = false)
-    private Store store;
+    @Column(nullable = false)
+    @Min(value = 1, message = "Store ID must be at least 1")
+    @NotNull(message = "Store ID cannot be null")
+    private Long storeId;
 
     protected Register() {}
 
-    protected Register(Store store) {
-        this.store = store;
+    protected Register(Long storeId) {
+        this.storeId = storeId;
     }
 
     @Default
-    protected Register(@Nullable Long id, Store store) {
+    protected Register(@Nullable Long id, Long storeId) {
         super(id);
-        this.store = store;
+        this.storeId = storeId;
     }
 
-    public Store getStore() {
-        return store;
+    public Long getStoreId() {
+        return storeId;
     }
 }

@@ -2,7 +2,9 @@ package de.fhdw.vendix.commons.core.printer.api;
 
 import de.fhdw.vendix.commons.api.domain.receipt.ReceiptDTO;
 import de.fhdw.vendix.commons.core.printer.renderer.ReceiptRenderer;
-import de.fhdw.vendix.commons.core.printer.renderer.receipt.*;
+import de.fhdw.vendix.commons.core.printer.renderer.receipt.DailyReceiptRenderer;
+import de.fhdw.vendix.commons.core.printer.renderer.receipt.StandardReceiptRenderer;
+import de.fhdw.vendix.commons.core.printer.renderer.receipt.VoucherReceiptRenderer;
 
 public final class ReceiptPrinter {
 

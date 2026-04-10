@@ -8,6 +8,7 @@ import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.validation.constraints.DecimalMax;
 import jakarta.validation.constraints.DecimalMin;
+import jakarta.validation.constraints.NotNull;
 
 import java.math.BigDecimal;
 
@@ -15,11 +16,13 @@ import java.math.BigDecimal;
 @SuppressWarnings("NullAway")
 public class DiscountOverride {
 
-    @DecimalMin(value = "0.00")
-    @DecimalMax(value = "100.00")
+    @NotNull(message = "Discount override amount cannot be null")
+    @DecimalMin(value = "0.00", message = "Discount override amount must be at least 0.00")
+    @DecimalMax(value = "100.00", message = "Discount override amount must be at most 100.00")
     @Column(name = "discount_override_amount")
     private BigDecimal amount;
 
+    @NotNull(message = "Discount override reason cannot be null")
     @Enumerated(EnumType.STRING)
     @Column(name = "discount_override_reason")
     private OverrideReason reason;

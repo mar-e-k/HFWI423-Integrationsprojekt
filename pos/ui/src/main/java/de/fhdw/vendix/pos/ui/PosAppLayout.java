@@ -13,6 +13,7 @@ import de.fhdw.vendix.pos.ui.home.ConnectionsView;
 import de.fhdw.vendix.pos.ui.home.DebugView;
 import de.fhdw.vendix.pos.ui.home.PosContextView;
 import de.fhdw.vendix.pos.ui.home.RootView;
+import de.fhdw.vendix.pos.ui.register.RegisterView;
 import jakarta.annotation.security.RolesAllowed;
 
 @RolesAllowed({Role.ROLE_CASHIER})
@@ -34,6 +35,10 @@ public class PosAppLayout extends AbstractApplicationLayout {
                 new SideNavItem("Debug", DebugView.class, VaadinIcon.COGS.create())
         );
 
+        SideNav registerHeader = new SideNav("Register");
+        registerHeader.addItem(
+            new SideNavItem("Register", RegisterView.class, VaadinIcon.MONEY_EXCHANGE.create())
+        );
 
         return new Component[]{
                 applicationHeader

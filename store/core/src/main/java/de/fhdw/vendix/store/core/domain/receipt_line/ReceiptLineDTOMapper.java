@@ -9,7 +9,7 @@ import de.fhdw.vendix.store.core.domain.article.ArticleDTOMapper;
 import de.fhdw.vendix.store.core.domain.receipt.ReceiptDTOMapper;
 import org.mapstruct.Mapper;
 
-import java.util.Set;
+import java.util.List;
 
 @Mapper(
         config = SpringMapperConfig.class,
@@ -27,8 +27,8 @@ public interface ReceiptLineDTOMapper extends DTOMapper<ReceiptLineDTO, ReceiptL
     ReceiptLineResponseDTO toResponseDTO(ReceiptLineDTO receiptLineDTO);
 
     @Override
-    Set<ReceiptLineDTO> toDomainDTOs(Iterable<ReceiptLineRequestDTO> requestDTOs);
+    List<ReceiptLineDTO> toDomainDTOs(Iterable<ReceiptLineRequestDTO> requestDTOs);
 
     @Override
-    Set<ReceiptLineResponseDTO> toResponseDTOs(Iterable<ReceiptLineDTO> domainDTOs);
+    List<ReceiptLineResponseDTO> toResponseDTOs(Iterable<ReceiptLineDTO> domainDTOs);
 }

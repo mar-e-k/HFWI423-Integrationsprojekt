@@ -12,7 +12,9 @@ public record ConnectionDTO(
         EntityTargetDTO target,
         InstanceDetailsDTO instance,
         Instant acquiredAt,
-        Instant heartbeatAt
+        Instant heartbeatAt,
+        Long failedAttempts,
+        ConnectionState connectionState
 ) implements DomainDTO {
     public ConnectionDTO {
         if (id != null && id < 0) {
@@ -32,6 +34,12 @@ public record ConnectionDTO(
         }
         if (heartbeatAt.isBefore(acquiredAt)) {
             throw new IllegalArgumentException("ConnectionDTO parameter 'heartbeatAt' cannot be before parameter 'acquiredAt'");
+        }
+        if (failedAttempts == null || failedAttempts < 0) {
+            throw new IllegalArgumentException("ConnectionDTO parameter 'failedAttempts' cannot be null or less than 0");
+        }
+        if (connectionState == null) {
+            throw new IllegalArgumentException("ConnectionDTO parameter 'connectionState' cannot be null");
         }
     }
 }

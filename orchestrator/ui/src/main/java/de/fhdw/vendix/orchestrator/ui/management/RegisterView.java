@@ -23,7 +23,7 @@ public class RegisterView extends VerticalLayout {
                 .setHeader("ID")
                 .setAutoWidth(true)
                 .setSortable(true);
-        registerGrid.addColumn(Register::getStore)
+        registerGrid.addColumn(Register::getId)
                 .setHeader("Store")
                 .setAutoWidth(true)
                 .setSortable(true);

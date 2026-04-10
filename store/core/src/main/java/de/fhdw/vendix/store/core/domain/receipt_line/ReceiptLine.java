@@ -2,28 +2,32 @@ package de.fhdw.vendix.store.core.domain.receipt_line;
 
 import de.fhdw.vendix.commons.api.structure.mapper.Default;
 import de.fhdw.vendix.commons.spring.data.entity.AbstractSpringDataAuditingEntity;
-import de.fhdw.vendix.store.core.domain.article.Article;
-import de.fhdw.vendix.store.core.domain.receipt.Receipt;
 import de.fhdw.vendix.store.core.embeddable.discount_override.DiscountOverride;
 import de.fhdw.vendix.store.core.embeddable.price_override.PriceOverride;
-import jakarta.persistence.*;
-import jakarta.validation.constraints.*;
+import jakarta.persistence.Column;
+import jakarta.persistence.Embedded;
+import jakarta.persistence.Entity;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotNull;
 import org.jspecify.annotations.Nullable;
 
 @Entity
 public class ReceiptLine extends AbstractSpringDataAuditingEntity<Long> {
 
-    @ManyToOne(optional = false)
-    @JoinColumn(nullable = false)
-    private Receipt receipt;
-
-    @ManyToOne(optional = false)
-    @JoinColumn(nullable = false)
-    private Article article;
-
+    @NotNull(message = "Receipt ID cannot be null")
+    @Min(value = 1, message = "Receipt ID must be at least 1")
     @Column(nullable = false)
-    @Min(1)
-    private Long amount;
+    private Long receiptId;
+
+    @NotNull(message = "Article ID cannot be null")
+    @Min(value = 1, message = "Article ID must be at least 1")
+    @Column(nullable = false)
+    private Long articleId;
+
+    @NotNull(message = "Article amount cannot be null")
+    @Min(value = 1, message = "Article amount must be at least 1")
+    @Column(nullable = false)
+    private Long articleAmount;
 
     @Embedded
     @Nullable
@@ -35,47 +39,47 @@ public class ReceiptLine extends AbstractSpringDataAuditingEntity<Long> {
 
     protected ReceiptLine() {}
 
-    protected ReceiptLine(Receipt receipt, Article article, Long amount) {
-        this.receipt = receipt;
-        this.article = article;
-        this.amount = amount;
+    protected ReceiptLine(Long receiptId, Long articleId, Long articleAmount) {
+        this.receiptId = receiptId;
+        this.articleId = articleId;
+        this.articleAmount = articleAmount;
     }
 
-    protected ReceiptLine(@Nullable Long id, Receipt receipt, Article article, Long amount) {
+    protected ReceiptLine(@Nullable Long id, Long receiptId, Long articleId, Long articleAmount) {
         super(id);
-        this.receipt = receipt;
-        this.article = article;
-        this.amount = amount;
+        this.receiptId = receiptId;
+        this.articleId = articleId;
+        this.articleAmount = articleAmount;
     }
 
-    protected ReceiptLine(Receipt receipt, Article article, Long amount, @Nullable DiscountOverride discountOverride, @Nullable PriceOverride priceOverride) {
-        this.receipt = receipt;
-        this.article = article;
-        this.amount = amount;
+    protected ReceiptLine(Long receiptId, Long articleId, Long articleAmount, @Nullable DiscountOverride discountOverride, @Nullable PriceOverride priceOverride) {
+        this.receiptId = receiptId;
+        this.articleId = articleId;
+        this.articleAmount = articleAmount;
         this.discountOverride = discountOverride;
         this.priceOverride = priceOverride;
     }
 
     @Default
-    protected ReceiptLine(@Nullable Long id, Receipt receipt, Article article, Long amount, @Nullable DiscountOverride discountOverride, @Nullable PriceOverride priceOverride) {
+    protected ReceiptLine(@Nullable Long id, Long receiptId, Long articleId, Long articleAmount, @Nullable DiscountOverride discountOverride, @Nullable PriceOverride priceOverride) {
         super(id);
-        this.receipt = receipt;
-        this.article = article;
-        this.amount = amount;
+        this.receiptId = receiptId;
+        this.articleId = articleId;
+        this.articleAmount = articleAmount;
         this.discountOverride = discountOverride;
         this.priceOverride = priceOverride;
     }
 
-    public Receipt getReceipt() {
-        return receipt;
+    public Long getReceiptId() {
+        return receiptId;
     }
 
-    public Article getArticle() {
-        return article;
+    public Long getArticleId() {
+        return articleId;
     }
 
-    public Long getAmount() {
-        return amount;
+    public Long getArticleAmount() {
+        return articleAmount;
     }
 
     public @Nullable DiscountOverride getDiscountOverride() {

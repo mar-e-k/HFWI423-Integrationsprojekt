@@ -71,9 +71,9 @@ public final class DefaultJwtService implements JwtService {
                     .issueTime(now)
                     .expirationTime(exp)
                     .subject(subject)
-                    .claim(JwtContextClaims.ROLES.claim(), roles)
-                    .claim(JwtContextClaims.STORE.claim(), storeId)
-                    .claim(JwtContextClaims.REGISTER.claim(), registerId)
+                    .claim(JwtClaims.ROLES.claim(), roles)
+                    .claim(JwtClaims.STORE.claim(), storeId)
+                    .claim(JwtClaims.REGISTER.claim(), registerId)
                     .build();
 
             JWSHeader header = new JWSHeader(JWSAlgorithm.HS256);

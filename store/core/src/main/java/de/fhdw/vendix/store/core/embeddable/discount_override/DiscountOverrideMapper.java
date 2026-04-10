@@ -5,7 +5,7 @@ import de.fhdw.vendix.commons.api.structure.mapper.EntityMapper;
 import de.fhdw.vendix.commons.spring.data.mapper.SpringMapperConfig;
 import org.mapstruct.Mapper;
 
-import java.util.Set;
+import java.util.List;
 
 @Mapper(config = SpringMapperConfig.class)
 public interface DiscountOverrideMapper extends EntityMapper<DiscountOverride, DiscountOverrideDTO> {
@@ -17,8 +17,8 @@ public interface DiscountOverrideMapper extends EntityMapper<DiscountOverride, D
     DiscountOverride toEntity(DiscountOverrideDTO discountOverrideDTO);
 
     @Override
-    Set<DiscountOverrideDTO> toDTOs(Iterable<DiscountOverride> entities);
+    List<DiscountOverrideDTO> toDTOs(Iterable<DiscountOverride> entities);
 
     @Override
-    Set<DiscountOverride> toEntities(Iterable<DiscountOverrideDTO> discountOverrideDTOS);
+    List<DiscountOverride> toEntities(Iterable<DiscountOverrideDTO> discountOverrideDTOS);
 }

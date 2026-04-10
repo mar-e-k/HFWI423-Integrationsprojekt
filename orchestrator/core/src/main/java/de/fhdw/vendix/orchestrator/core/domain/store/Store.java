@@ -2,17 +2,11 @@ package de.fhdw.vendix.orchestrator.core.domain.store;
 
 import de.fhdw.vendix.commons.api.structure.mapper.Default;
 import de.fhdw.vendix.commons.spring.data.entity.AbstractSpringDataAuditingEntity;
-import de.fhdw.vendix.orchestrator.core.domain.register.Register;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.OneToMany;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
 import org.jspecify.annotations.Nullable;
-
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Set;
 
 @Entity
 public class Store extends AbstractSpringDataAuditingEntity<Long> {
@@ -33,9 +27,6 @@ public class Store extends AbstractSpringDataAuditingEntity<Long> {
     @NotBlank(message = "Street number must not be blank")
     @Pattern(regexp = "^[0-9]\\d*[A-Z]?$", message = "Street number must include a number in the beginning")
     private String streetNumber;
-
-    @OneToMany(mappedBy = "store")
-    private Set<Register> registers = new HashSet<>();
 
     protected Store() {}
 
@@ -69,9 +60,5 @@ public class Store extends AbstractSpringDataAuditingEntity<Long> {
 
     public String getStreetNumber() {
         return streetNumber;
-    }
-
-    public Set<Register> getRegisters() {
-        return Collections.unmodifiableSet(registers);
     }
 }

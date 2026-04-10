@@ -1,35 +1,5 @@
 package de.fhdw.vendix.pos.old_ui.view.cashier;
 
-import com.vaadin.flow.component.Key;
-import com.vaadin.flow.component.UI;
-import com.vaadin.flow.component.button.Button;
-import com.vaadin.flow.component.dependency.CssImport;
-import com.vaadin.flow.component.dialog.Dialog;
-import com.vaadin.flow.component.grid.ColumnTextAlign;
-import com.vaadin.flow.component.grid.Grid;
-import com.vaadin.flow.component.html.Span;
-import com.vaadin.flow.component.icon.Icon;
-import com.vaadin.flow.component.icon.VaadinIcon;
-import com.vaadin.flow.component.notification.Notification;
-import com.vaadin.flow.component.notification.NotificationVariant;
-import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
-import com.vaadin.flow.component.orderedlayout.VerticalLayout;
-import com.vaadin.flow.component.textfield.IntegerField;
-import com.vaadin.flow.component.textfield.PasswordField;
-import com.vaadin.flow.component.textfield.TextArea;
-import com.vaadin.flow.component.textfield.TextField;
-import com.vaadin.flow.data.binder.Binder;
-import com.vaadin.flow.data.converter.StringToBigDecimalConverter;
-import com.vaadin.flow.data.value.ValueChangeMode;
-import com.vaadin.flow.router.*;
-import jakarta.annotation.security.RolesAllowed;
-import org.springframework.beans.factory.annotation.Value;
-
-import java.math.BigDecimal;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
-
 //@Route("/cashier")
 //@PageTitle("Cashier View")
 //@CssImport("./styles/styles.css")
@@ -154,7 +124,7 @@ import java.util.Optional;
 //                // Null im Modell -> "" im Textfeld
 //                .withNullRepresentation("")
 //                .withConverter(new StringToBigDecimalConverter("Bitte eine gültige Zahl eingeben"))
-//                .withValidator(amount -> {
+//                .withValidator(articleAmount -> {
 //                    if (editor.getItem() == null) return true;
 //
 //                    // Für Pfandrückgaben sind negative Preise erlaubt
@@ -162,11 +132,11 @@ import java.util.Optional;
 //                        return true;
 //                    }
 //
-//                    if (amount == null) {
+//                    if (articleAmount == null) {
 //                        return false;
 //                    }
 //
-//                    return amount.compareTo(MIN_PRICE) >= 0;
+//                    return articleAmount.compareTo(MIN_PRICE) >= 0;
 //                }, "Preis muss mindestens 0,01 € betragen.")
 //                .bind(CartItem::getOverriddenPrice, CartItem::setOverriddenPrice);
 //
@@ -210,7 +180,7 @@ import java.util.Optional;
 //                .setHeader("Stückpreis")
 //                .setAutoWidth(true)
 //                .setEditorComponent(priceEditor)
-//                .setKey("amount");
+//                .setKey("articleAmount");
 //
 //        // Editor für Menge
 //        quantityEditor = new IntegerField();
@@ -277,7 +247,7 @@ import java.util.Optional;
 //
 //            if (!editor.isOpen()) {
 //                String columnKey = event.getColumn().getKey();
-//                if ("amount".equals(columnKey)) {
+//                if ("articleAmount".equals(columnKey)) {
 //                    // Preisänderung für Leergut sperren
 //                    if (item.getDepositStatus() == DepositStatus.EMPTY) {
 //                        Notification.show("Der Preis für Pfandrückgaben kann nicht geändert werden.", 3000, Notification.Position.MIDDLE)
@@ -376,10 +346,10 @@ import java.util.Optional;
 //
 //            Optional<ArticleDTO> article = articleService.findByGTIN(input);
 //            if (article.isPresent()) {
-//                Double amount = article.get().getSellingPrice();
+//                Double articleAmount = article.get().getSellingPrice();
 //
 //                // Nur negative Preise blocken – null ist erlaubt (Kassierer kann später setzen)
-//                if (amount != null && amount < 0) {
+//                if (articleAmount != null && articleAmount < 0) {
 //                    errorLabel.setText("Artikel hat einen ungültigen (negativen) Verkaufspreis");
 //                    descriptionOutputField.clear();
 //                    descriptionOutputField.setVisible(false);
@@ -649,7 +619,7 @@ import java.util.Optional;
 //        addArticleToCart(article, DepositStatus.NONE, BigDecimal.valueOf(article.getSellingPrice()));
 //    }
 //
-//    private void addArticleToCart(ArticleDTO article, DepositStatus depositStatus, BigDecimal amount) {
+//    private void addArticleToCart(ArticleDTO article, DepositStatus depositStatus, BigDecimal articleAmount) {
 //        List<CartItem> items = cartItemsManager.getCart();
 //        String articleNumber = article.getArticleNumber();
 //
@@ -661,7 +631,7 @@ import java.util.Optional;
 //        if (existing != null) {
 //            existing.setQuantity(existing.getQuantity() + 1);
 //        } else {
-//            items.add(new CartItem(article, items.size() + 1, 1, amount, depositStatus));
+//            items.add(new CartItem(article, items.size() + 1, 1, articleAmount, depositStatus));
 //        }
 //
 //        cartItemsManager.updateGrid(cartGrid, totalLabel);
@@ -712,15 +682,15 @@ import java.util.Optional;
 //            try {
 //                // Komma oder Punkt erlauben
 //                String normalized = value.replace(",", ".").trim();
-//                BigDecimal amount = new BigDecimal(normalized);
+//                BigDecimal articleAmount = new BigDecimal(normalized);
 //
-//                if (amount.compareTo(MIN_PRICE) < 0) {
+//                if (articleAmount.compareTo(MIN_PRICE) < 0) {
 //                    Notification.show("Preis muss mindestens 0,01 € betragen.", 3000, Notification.Position.MIDDLE)
 //                            .addThemeVariants(NotificationVariant.LUMO_ERROR);
 //                    return;
 //                }
 //
-//                addArticleToCart(article, DepositStatus.NONE, amount);
+//                addArticleToCart(article, DepositStatus.NONE, articleAmount);
 //                dialog.close();
 //            } catch (NumberFormatException ex) {
 //                Notification.show("Bitte einen gültigen Preis eingeben.", 3000, Notification.Position.MIDDLE)

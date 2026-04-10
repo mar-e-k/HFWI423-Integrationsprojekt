@@ -1,7 +1,8 @@
 package de.fhdw.vendix.commons.spring.security.lifecycle.context;
 
 import de.fhdw.vendix.commons.api.domain.connection.ConnectionDTO;
-import de.fhdw.vendix.commons.api.domain.lock.LockDTO;
+import de.fhdw.vendix.commons.api.domain.connection.ConnectionState;
+import de.fhdw.vendix.commons.api.domain.distributed_lock.DistributedLockDTO;
 import de.fhdw.vendix.commons.api.embeddable.EntityTargetDTO;
 import de.fhdw.vendix.commons.api.embeddable.InstanceDetailsDTO;
 import de.fhdw.vendix.commons.api.embeddable.TargetType;
@@ -9,7 +10,7 @@ import de.fhdw.vendix.commons.spring.security.context.app.AppContext;
 import de.fhdw.vendix.commons.spring.security.context.register.RegisterContextInitializedEvent;
 import de.fhdw.vendix.commons.spring.security.context.store.StoreContextInitializedEvent;
 import de.fhdw.vendix.commons.spring.web.client.orchestrator.api.ConnectionProxyService;
-import de.fhdw.vendix.commons.spring.web.client.orchestrator.api.LockProxyService;
+import de.fhdw.vendix.commons.spring.web.client.orchestrator.api.DistributedLockProxyService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
@@ -25,16 +26,16 @@ public final class DefaultContextInitializationDelegator implements ContextIniti
 
     private final AppContext appContext;
     private final ConnectionProxyService connectionProxyService;
-    private final LockProxyService lockProxyService;
+    private final DistributedLockProxyService distributedLockProxyService;
 
     public DefaultContextInitializationDelegator(
             AppContext appContext,
             ConnectionProxyService connectionProxyService,
-            LockProxyService lockProxyService
+            DistributedLockProxyService distributedLockProxyService
     ) {
         this.appContext = appContext;
         this.connectionProxyService = connectionProxyService;
-        this.lockProxyService = lockProxyService;
+        this.distributedLockProxyService = distributedLockProxyService;
     }
 
     @EventListener
@@ -75,13 +76,15 @@ public final class DefaultContextInitializationDelegator implements ContextIniti
                             appContext.getServerPort()
                     ),
                     now,
-                    now.plus(1, ChronoUnit.SECONDS)
+                    now.plus(1, ChronoUnit.SECONDS),
+                    0L,
+                    ConnectionState.UP
             );
             log.atDebug().log("Registering Application-Connection...");
             connectionProxyService.postConnection(connection);
             log.atDebug().log("Successfully registered Application-Connection");
 
-            LockDTO lock = new LockDTO(
+            DistributedLockDTO lock = new DistributedLockDTO(
                     null,
                     entityTarget,
                     appContext.getInstanceUUID(),
@@ -89,7 +92,7 @@ public final class DefaultContextInitializationDelegator implements ContextIniti
                     now.plus(1, ChronoUnit.HOURS)
             );
             log.atDebug().log("Registering Application-Lock...");
-            lockProxyService.postLock(lock);
+            distributedLockProxyService.postDistributedLock(lock);
             log.atDebug().log("Successfully registered Application-Lock");
 
             log.atInfo().log("Successfully registered connection and lock");

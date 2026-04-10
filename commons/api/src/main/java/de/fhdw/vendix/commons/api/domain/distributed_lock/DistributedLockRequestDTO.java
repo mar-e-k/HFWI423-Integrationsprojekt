@@ -1,4 +1,4 @@
-package de.fhdw.vendix.commons.api.domain.lock;
+package de.fhdw.vendix.commons.api.domain.distributed_lock;
 
 import de.fhdw.vendix.commons.api.embeddable.EntityTargetDTO;
 import de.fhdw.vendix.commons.api.structure.dto.RequestDTO;
@@ -6,18 +6,18 @@ import de.fhdw.vendix.commons.api.structure.dto.RequestDTO;
 import java.time.Instant;
 import java.util.UUID;
 
-public record LockRequestDTO(
+public record DistributedLockRequestDTO(
         EntityTargetDTO entityTarget,
         UUID instanceUUID,
         Instant acquiredAt,
         Instant expiresAt
 ) implements RequestDTO {
-    public LockRequestDTO {
+    public DistributedLockRequestDTO {
         if (entityTarget == null) {
-            throw new IllegalArgumentException("LockRequestDTO parameter 'target' cannot be null");
+            throw new IllegalArgumentException("DistributedLockRequestDTO parameter 'target' cannot be null");
         }
         if (instanceUUID == null) {
-            throw new IllegalArgumentException("LockRequestDTO parameter 'instanceUUID' cannot be null");
+            throw new IllegalArgumentException("DistributedLockRequestDTO parameter 'instanceUuid' cannot be null");
         }
     }
 }

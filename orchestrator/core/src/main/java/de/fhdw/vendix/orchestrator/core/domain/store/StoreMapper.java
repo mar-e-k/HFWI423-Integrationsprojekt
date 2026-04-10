@@ -5,7 +5,7 @@ import de.fhdw.vendix.commons.api.structure.mapper.EntityMapper;
 import de.fhdw.vendix.commons.spring.data.mapper.SpringMapperConfig;
 import org.mapstruct.Mapper;
 
-import java.util.Set;
+import java.util.List;
 
 @Mapper(config = SpringMapperConfig.class)
 public interface StoreMapper extends EntityMapper<Store, StoreDTO> {
@@ -17,8 +17,8 @@ public interface StoreMapper extends EntityMapper<Store, StoreDTO> {
     Store toEntity(StoreDTO storeDTO);
 
     @Override
-    Set<StoreDTO> toDTOs(Iterable<Store> entities);
+    List<StoreDTO> toDTOs(Iterable<Store> entities);
 
     @Override
-    Set<Store> toEntities(Iterable<StoreDTO> storeDTOS);
+    List<Store> toEntities(Iterable<StoreDTO> storeDTOS);
 }

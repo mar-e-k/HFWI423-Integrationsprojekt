@@ -5,7 +5,7 @@ import de.fhdw.vendix.store.core.domain.receipt_line.ReceiptLine;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Set;
+import java.util.List;
 
 @Service
 class ReceiptServiceImpl extends AbstractEntityCrudAdapter<Receipt, Long> implements ReceiptService {
@@ -19,45 +19,45 @@ class ReceiptServiceImpl extends AbstractEntityCrudAdapter<Receipt, Long> implem
 
     @Override
     @Transactional(readOnly = true)
-    public Set<Receipt> findAllByStoreId(Long storeId) {
+    public List<Receipt> findAllByStoreId(Long storeId) {
         if (storeId == null || storeId <= 0) {
-            return Set.of();
+            return List.of();
         }
         return receiptRepository.findAllByStoreId(storeId);
     }
 
     @Override
     @Transactional(readOnly = true)
-    public Set<Receipt> findAllByRegisterId(Long registerId) {
+    public List<Receipt> findAllByRegisterId(Long registerId) {
         if (registerId == null || registerId <= 0) {
-            return Set.of();
+            return List.of();
         }
         return receiptRepository.findAllByRegisterId(registerId);
     }
 
     @Override
     @Transactional(readOnly = true)
-    public Set<Receipt> findAllByCashierId(Long cashierId) {
+    public List<Receipt> findAllByCashierId(Long cashierId) {
         if (cashierId == null || cashierId <= 0) {
-            return Set.of();
+            return List.of();
         }
         return receiptRepository.findAllByCashierId(cashierId);
     }
 
     @Override
     @Transactional(readOnly = true)
-    public Set<Receipt> findAllByStoreIdAndCreatedAtToday(Long storeId) {
+    public List<Receipt> findAllByStoreIdAndCreatedAtToday(Long storeId) {
         if (storeId == null || storeId <= 0) {
-            return Set.of();
+            return List.of();
         }
         return receiptRepository.findAllByStoreIdAndCreatedAtToday(storeId);
     }
 
     @Override
     @Transactional(readOnly = true)
-    public Set<ReceiptLine> findAllReceiptLinesByReceiptId(Long id) {
+    public List<ReceiptLine> findAllReceiptLinesByReceiptId(Long id) {
         if (id == null || id <= 0) {
-            return Set.of();
+            return List.of();
         }
         return receiptRepository.findAllReceiptLinesByReceiptId(id);
     }

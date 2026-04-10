@@ -1,6 +1,9 @@
 package de.fhdw.vendix.commons.api.structure.mapper;
 
-import java.lang.annotation.*;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
 /**
  * Annotation that is consumed by {@code MapStruct} and its automatic method generation.

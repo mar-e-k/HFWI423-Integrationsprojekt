@@ -5,8 +5,8 @@ import de.fhdw.vendix.orchestrator.core.domain.account_role.AccountRole;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 import java.util.UUID;
 
 @Service
@@ -51,10 +51,19 @@ class AccountServiceImpl extends AbstractEntityCrudAdapter<Account, Long> implem
 
     @Override
     @Transactional(readOnly = true)
-    public Set<AccountRole> findAllRoles(UUID uuid) {
-        if (uuid == null) {
-            return Set.of();
+    public List<AccountRole> findAllRolesById(Long id) {
+        if (id == null || id < 1) {
+            return List.of();
         }
-        return accountRepository.findAllRoles(uuid);
+        return accountRepository.findAllRolesByAccountId(id);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<AccountRole> findAllRolesByUuid(UUID uuid) {
+        if (uuid == null) {
+            return List.of();
+        }
+        return accountRepository.findAllRolesByAccountUuid(uuid);
     }
 }

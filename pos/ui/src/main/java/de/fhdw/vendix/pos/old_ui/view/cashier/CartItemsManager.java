@@ -1,13 +1,5 @@
 package de.fhdw.vendix.pos.old_ui.view.cashier;
 
-import com.vaadin.flow.component.grid.Grid;
-import com.vaadin.flow.component.html.Span;
-import org.springframework.stereotype.Component;
-
-import java.math.BigDecimal;
-import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
-
 //@Component
 //public class CartItemsManager {
 //

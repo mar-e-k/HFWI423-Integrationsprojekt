@@ -2,14 +2,13 @@ package de.fhdw.vendix.commons.spring.starter.autoconfigure.security;
 
 import de.fhdw.vendix.commons.spring.security.user_details.DefaultUserDetailsService;
 import de.fhdw.vendix.commons.spring.web.client.orchestrator.api.AccountProxyService;
-import de.fhdw.vendix.commons.spring.web.client.orchestrator.api.LockProxyService;
+import de.fhdw.vendix.commons.spring.web.client.orchestrator.api.DistributedLockProxyService;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.data.domain.AuditorAware;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -28,8 +27,8 @@ public class SecurityAutoConfiguration {
 
     @Bean
     @ConditionalOnMissingBean
-    public UserDetailsService userDetailsService(AccountProxyService accountProxyService, LockProxyService lockProxyService) {
-        return new DefaultUserDetailsService(accountProxyService, lockProxyService);
+    public UserDetailsService userDetailsService(AccountProxyService accountProxyService, DistributedLockProxyService distributedLockProxyService) {
+        return new DefaultUserDetailsService(accountProxyService, distributedLockProxyService);
     }
 
     @Bean

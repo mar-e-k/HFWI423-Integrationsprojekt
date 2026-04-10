@@ -7,7 +7,7 @@ import de.fhdw.vendix.store.core.domain.receipt.ReceiptMapper;
 import de.fhdw.vendix.store.core.domain.receipt.ReceiptService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 class ReceiptController implements ReceiptApi {

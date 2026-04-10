@@ -5,7 +5,7 @@ import de.fhdw.vendix.commons.api.structure.mapper.EntityMapper;
 import de.fhdw.vendix.commons.spring.data.mapper.SpringMapperConfig;
 import org.mapstruct.Mapper;
 
-import java.util.Set;
+import java.util.List;
 
 @Mapper(config = SpringMapperConfig.class)
 public interface AccountRoleMapper extends EntityMapper<AccountRole, AccountRoleDTO> {
@@ -17,8 +17,8 @@ public interface AccountRoleMapper extends EntityMapper<AccountRole, AccountRole
     AccountRole toEntity(AccountRoleDTO accountRoleDTO);
 
     @Override
-    Set<AccountRoleDTO> toDTOs(Iterable<AccountRole> entities);
+    List<AccountRoleDTO> toDTOs(Iterable<AccountRole> entities);
 
     @Override
-    Set<AccountRole> toEntities(Iterable<AccountRoleDTO> accountRoleDTOS);
+    List<AccountRole> toEntities(Iterable<AccountRoleDTO> accountRoleDTOS);
 }
