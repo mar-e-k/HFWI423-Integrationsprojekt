@@ -29,7 +29,7 @@ public class DistributedLock extends AbstractSpringDataAuditingEntity<Long> {
 
     @Column(nullable = false, updatable = false)
     @NotNull(message = "Instance UUID cannot be null")
-    private UUID instanceUUID;
+    private UUID instanceUuid;
 
     @CreatedDate
     @Column(nullable = false, updatable = false)
@@ -43,18 +43,18 @@ public class DistributedLock extends AbstractSpringDataAuditingEntity<Long> {
 
     protected DistributedLock() {}
 
-    protected DistributedLock(EntityTarget target, UUID instanceUUID, Instant acquiredAt, Instant expiresAt) {
+    protected DistributedLock(EntityTarget target, UUID instanceUuid, Instant acquiredAt, Instant expiresAt) {
         this.target = target;
-        this.instanceUUID = instanceUUID;
+        this.instanceUuid = instanceUuid;
         this.acquiredAt = acquiredAt;
         this.expiresAt = expiresAt;
     }
 
     @Default
-    protected DistributedLock(@Nullable Long id, EntityTarget target, UUID instanceUUID, Instant acquiredAt, Instant expiresAt) {
+    protected DistributedLock(@Nullable Long id, EntityTarget target, UUID instanceUuid, Instant acquiredAt, Instant expiresAt) {
         super(id);
         this.target = target;
-        this.instanceUUID = instanceUUID;
+        this.instanceUuid = instanceUuid;
         this.acquiredAt = acquiredAt;
         this.expiresAt = expiresAt;
     }
@@ -63,8 +63,8 @@ public class DistributedLock extends AbstractSpringDataAuditingEntity<Long> {
         return target;
     }
 
-    public UUID getInstanceUUID() {
-        return instanceUUID;
+    public UUID getInstanceUuid() {
+        return instanceUuid;
     }
 
     public Instant getAcquiredAt() {

@@ -16,7 +16,7 @@ interface DistributedLockRepository extends JpaRepository<DistributedLock, Long>
 
     Optional<DistributedLock> findByTarget(EntityTarget target);
 
-    List<DistributedLock> findAllByInstanceUUID(UUID instanceUUID);
+    List<DistributedLock> findAllByInstanceUuid(UUID instanceUuid);
 
     @Modifying
     @Query(
@@ -30,5 +30,5 @@ interface DistributedLockRepository extends JpaRepository<DistributedLock, Long>
 
     void deleteByTarget(EntityTarget target);
 
-    void deleteAllByInstanceUUID(UUID instanceUUID);
+    void deleteAllByInstanceUuid(UUID instanceUuid);
 }

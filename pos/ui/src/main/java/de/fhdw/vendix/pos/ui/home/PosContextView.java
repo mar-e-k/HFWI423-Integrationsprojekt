@@ -45,7 +45,7 @@ public class PosContextView extends VerticalLayout {
     private final FlexLayout storeLayout = new FlexLayout();
     private final List<StoreDTO> inactiveStores = new ArrayList<>();
     private final List<StoreDTO> activeStores = new ArrayList<>();
-    private Dialog registerDialog;
+    private final Dialog registerDialog = new Dialog();
 
     public PosContextView(StoreProxyService storeProxyService, RegisterProxyService registerProxyService, RegisterContext registerContext) {
         this.storeProxyService = storeProxyService;
@@ -166,15 +166,14 @@ public class PosContextView extends VerticalLayout {
     }
 
     private void handleStoreClickEvent(StoreDTO store) {
-        registerDialog = createRegisterDialog(store);
+        createRegisterDialog(store);
         registerDialog.open();
     }
 
-    private Dialog createRegisterDialog(StoreDTO store) {
-        Dialog dialog = new Dialog();
-        dialog.setModality(ModalityMode.STRICT);
-        dialog.setWidth("80%");
-        dialog.setHeight("80%");
+    private void createRegisterDialog(StoreDTO store) {
+        registerDialog.setModality(ModalityMode.STRICT);
+        registerDialog.setWidth("80%");
+        registerDialog.setHeight("80%");
 
         VerticalLayout dialogLayout = new VerticalLayout();
         dialogLayout.setSizeFull();
@@ -205,9 +204,7 @@ public class PosContextView extends VerticalLayout {
         }
 
         dialogLayout.add(registerLayout);
-        dialog.add(dialogLayout);
-
-        return dialog;
+        registerDialog.add(dialogLayout);
     }
 
     private Component createRegisterCard(RegisterDTO register, boolean isActive) {

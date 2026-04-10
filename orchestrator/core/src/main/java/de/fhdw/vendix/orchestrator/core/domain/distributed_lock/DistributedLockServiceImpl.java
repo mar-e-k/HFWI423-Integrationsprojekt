@@ -48,7 +48,7 @@ class DistributedLockServiceImpl extends AbstractEntityCrudAdapter<DistributedLo
         if (instanceUUID == null) {
             return List.of();
         }
-        return distributedLockRepository.findAllByInstanceUUID(instanceUUID);
+        return distributedLockRepository.findAllByInstanceUuid(instanceUUID);
     }
 
     // TODO: might need more proper logging, where you grab each instance beforehand
@@ -68,7 +68,7 @@ class DistributedLockServiceImpl extends AbstractEntityCrudAdapter<DistributedLo
         if (instanceUUID == null) {
             throw new IllegalArgumentException("Parameter 'instanceUuid' cannot be null");
         }
-        distributedLockRepository.deleteAllByInstanceUUID(instanceUUID);
+        distributedLockRepository.deleteAllByInstanceUuid(instanceUUID);
         log.atInfo().log("[DELETE] Successfully deleted all locks by instance");
     }
 

@@ -41,7 +41,7 @@ public class OrchestratorAppLayout extends AbstractApplicationLayout {
 
         SideNav managementHeader = new SideNav("Management");
         managementHeader.addItem(
-                new SideNavItem("Users", UserView.class, VaadinIcon.USERS.create()),
+                new SideNavItem("Accounts", AccountView.class, VaadinIcon.USERS.create()),
                 new SideNavItem("Roles", RoleView.class, VaadinIcon.USER_CARD.create()),
                 new SideNavItem("Permissions", PermissionView.class, VaadinIcon.KEY.create()),
                 new SideNavItem("Stores", StoreView.class, VaadinIcon.SHOP.create()),

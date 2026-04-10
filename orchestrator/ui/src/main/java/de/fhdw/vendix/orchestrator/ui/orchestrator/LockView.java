@@ -36,7 +36,7 @@ public class LockView extends VerticalLayout {
                 .setHeader("Target Type")
                 .setAutoWidth(true)
                 .setSortable(true);
-        lockGrid.addColumn(DistributedLock::getInstanceUUID)
+        lockGrid.addColumn(DistributedLock::getInstanceUuid)
                 .setHeader("Target UUID")
                 .setAutoWidth(true)
                 .setSortable(true);
