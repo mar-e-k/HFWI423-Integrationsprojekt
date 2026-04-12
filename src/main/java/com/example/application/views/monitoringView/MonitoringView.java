@@ -177,8 +177,6 @@ public class MonitoringView extends Div {
                         new EndpointDef("GET",    "/storage-locations",      true),
                         new EndpointDef("POST",   "/storage-locations",      true,
                                 "{\"storageZone\": \"Zone 1\", \"shelfID\": 99, \"compartmentID\": 99}"),
-                        new EndpointDef("PUT",    "/storage-locations/{id}", true,
-                                "{\"storageZone\": \"Zone 1\", \"shelfID\": 99, \"compartmentID\": 98}"),
                         new EndpointDef("DELETE", "/storage-locations/{id}", true),
                         new EndpointDef("POST",   "/storage-locations/sync", true)
                 ));

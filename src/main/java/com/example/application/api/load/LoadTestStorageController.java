@@ -45,27 +45,6 @@ public class LoadTestStorageController {
         }
     }
 
-    /** PUT /api/load/storage-locations/{id} – Lagerplatz bearbeiten */
-    @PutMapping("/{id}")
-    public StorageLocation updateStorageLocation(
-            @PathVariable Long id,
-            @RequestBody StorageLocation update) {
-        StorageLocation existing = storageLocationRepository.findById(id)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
-                        "StorageLocation " + id + " nicht gefunden"));
-        existing.setStorageZone(update.getStorageZone());
-        existing.setShelfID(update.getShelfID());
-        existing.setCompartmentID(update.getCompartmentID());
-        if (update.getStorageStatus() != null) {
-            existing.setStorageStatus(update.getStorageStatus());
-        }
-        try {
-            return storageLocationService.saveWithDuplicateCheck(existing);
-        } catch (IllegalStateException e) {
-            throw new ResponseStatusException(HttpStatus.CONFLICT, e.getMessage());
-        }
-    }
-
     /** DELETE /api/load/storage-locations/{id} – Lagerplatz loeschen */
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)

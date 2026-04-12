@@ -22,14 +22,12 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.IntegerField;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.Binder;
-import com.vaadin.flow.data.binder.ValidationException;
 import com.vaadin.flow.router.Menu;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import org.vaadin.lineawesome.LineAwesomeIconUrl;
 
 import java.util.List;
-import java.util.Objects;
 
 @PageTitle("Lagerplatzverwaltung")
 @Route("storage-location")
@@ -49,6 +47,12 @@ public class StorageLocationView extends Div {
         addClassName("view-page");
 
         // Grid-Spalten
+        grid.addColumn(StorageLocation::getId)
+                .setHeader("ID")
+                .setAutoWidth(true)
+                .setSortable(true)
+                .setFlexGrow(0);
+
         grid.addComponentColumn(item -> {
             Span id = new Span(buildGeneralId(item));
             id.getStyle()
@@ -92,13 +96,6 @@ public class StorageLocationView extends Div {
             }
             return status;
         }).setHeader("Status").setAutoWidth(true);
-
-        grid.addComponentColumn(storageLocation -> {
-            Button editButton = new Button(VaadinIcon.EDIT.create(), click -> openEditDialog(storageLocation));
-            editButton.addThemeVariants(ButtonVariant.LUMO_SMALL, ButtonVariant.LUMO_TERTIARY);
-            editButton.getElement().setProperty("title", "Edit");
-            return editButton;
-        }).setHeader("").setAutoWidth(true);
 
         grid.addComponentColumn(storageLocation -> {
             Button deleteButton = new Button(VaadinIcon.TRASH.create());
@@ -261,84 +258,6 @@ public class StorageLocationView extends Div {
                 }
             } else {
                 Notification.show("Please check the entered values");
-            }
-        });
-
-        Button cancel = new Button("Cancel", e -> dialog.close());
-
-        dialog.getFooter().add(cancel, save);
-        dialog.open();
-    }
-
-    private void openEditDialog(StorageLocation existing) {
-        Dialog dialog = new Dialog();
-        dialog.setHeaderTitle("Edit storage location: " + existing.getGeneralId());
-
-        ComboBox<String> zone = new ComboBox<>("Zone");
-        zone.setItems("Zone 1", "Zone 2", "Zone 3", "Zone 4");
-        zone.setRequired(true);
-
-        IntegerField shelfId = new IntegerField("Shelf-ID");
-        shelfId.setRequiredIndicatorVisible(true);
-
-        IntegerField compartmentId = new IntegerField("Compartment-ID");
-        compartmentId.setRequiredIndicatorVisible(true);
-
-        TextField status = new TextField("Status");
-        status.setReadOnly(true);
-
-        Binder<StorageLocation> binder = new Binder<>(StorageLocation.class);
-        binder.bind(zone, StorageLocation::getStorageZone, StorageLocation::setStorageZone);
-        binder.bind(shelfId, StorageLocation::getShelfID, StorageLocation::setShelfID);
-        binder.bind(compartmentId, StorageLocation::getCompartmentID, StorageLocation::setCompartmentID);
-        binder.bind(status, StorageLocation::getStorageStatus, (loc, v) -> {});
-
-        binder.readBean(existing);
-
-        FormLayout formLayout = new FormLayout(zone, shelfId, compartmentId, status);
-        dialog.add(formLayout);
-
-        Button save = new Button("Save", e -> {
-            String oldGeneralId = existing.getGeneralId();
-
-            if (binder.writeBeanIfValid(existing)) {
-                try {
-                    service.saveWithDuplicateCheck(existing);
-
-                    String newGeneralId = existing.getGeneralId();
-
-                    if (!Objects.equals(oldGeneralId, newGeneralId)) {
-                        int updated = articleInfoService
-                                .updateStorageLocationForAll(oldGeneralId, newGeneralId);
-                        Notification.show(
-                                "Storage location updated (" + updated + " article(s) adjusted)",
-                                4000,
-                                Notification.Position.BOTTOM_CENTER
-                        );
-                    } else {
-                        Notification.show(
-                                "Storage location updated",
-                                4000,
-                                Notification.Position.BOTTOM_CENTER
-                        );
-                    }
-
-                    refreshGrid();
-                    dialog.close();
-
-                } catch (IllegalStateException ex) {
-                    Notification.show(
-                            ex.getMessage(),
-                            4000,
-                            Notification.Position.BOTTOM_CENTER
-                    );
-                }
-            } else {
-                Notification.show(
-                        "Please check the entered values",
-                        4000,
-                        Notification.Position.BOTTOM_CENTER
-                );
             }
         });
 
