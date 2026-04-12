@@ -251,6 +251,12 @@ public class LogisticMainView extends Div {
         grid = new Grid<>(ArticleInfo.class, false);
         grid.addClassName("article-grid");
 
+        grid.addColumn(ArticleInfo::getId)
+                .setHeader("ID")
+                .setAutoWidth(true)
+                .setFlexGrow(0)
+                .setSortable(true);
+
         grid.addColumn(ArticleInfo::getName)
                 .setHeader("Artikelname")
                 .setKey("articleName")
