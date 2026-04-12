@@ -5,6 +5,7 @@ import com.vaadin.flow.component.DetachEvent;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
+import com.vaadin.flow.component.details.Details;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.IFrame;
 import com.vaadin.flow.component.html.Span;
@@ -13,8 +14,9 @@ import com.vaadin.flow.component.notification.NotificationVariant;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
-import com.vaadin.flow.component.details.Details;
 import com.vaadin.flow.component.tabs.TabSheet;
+import com.vaadin.flow.component.textfield.TextArea;
+import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.router.Menu;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
@@ -27,6 +29,10 @@ import org.vaadin.lineawesome.LineAwesomeIconUrl;
 
 import java.io.IOException;
 import java.io.RandomAccessFile;
+import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.Duration;
@@ -46,7 +52,7 @@ public class MonitoringView extends Div {
     private final String jmeterHome;
     private final int    serverPort;
 
-    // ── Scheduler für Live-Update ─────────────────────────────────────────────
+    // ── Scheduler fuer Live-Update ────────────────────────────────────────────
     private final ScheduledExecutorService scheduler =
             Executors.newSingleThreadScheduledExecutor(r -> {
                 Thread t = new Thread(r, "monitoring-refresh");
@@ -56,9 +62,9 @@ public class MonitoringView extends Div {
     private ScheduledFuture<?> refreshTask;
 
     // ── JMeter-Prozess ────────────────────────────────────────────────────────
-    private volatile Process  jmeterProcess;
-    private volatile Path     resultFile;
-    private volatile long     csvReadOffset = 0;
+    private volatile Process jmeterProcess;
+    private volatile Path    resultFile;
+    private volatile long    csvReadOffset = 0;
 
     // ── Lasttest-State ────────────────────────────────────────────────────────
     private final AtomicBoolean testRunning   = new AtomicBoolean(false);
@@ -75,30 +81,39 @@ public class MonitoringView extends Div {
     private final Counter    ltErrCounter;
     private final Timer      ltTimer;
 
-    // ── Lasttest-UI ──────────────────────────────────────────────────────────
+    // ── Test-UI ───────────────────────────────────────────────────────────────
     private Button stopButton;
+    private Span   testStatusBadge;
     private final List<Button> testButtons = new ArrayList<>();
 
+    // ── Live-Metric-Karten ────────────────────────────────────────────────────
     private final MetricCard ltRequestsCard = new MetricCard("Requests",      "total", "#6366f1");
     private final MetricCard ltRpsCard      = new MetricCard("Throughput",    "req/s", "#10b981");
     private final MetricCard ltAvgCard      = new MetricCard("Ø Antwortzeit", "ms",    "#3b82f6");
     private final MetricCard ltErrorCard    = new MetricCard("Fehler",        "total", "#ef4444");
     private final MetricCard ltSuccessCard  = new MetricCard("Erfolgsrate",   "%",     "#10b981");
     private final MetricCard ltElapsedCard  = new MetricCard("Laufzeit",      "s",     "#8b5cf6");
-    private Span testStatusBadge;
+
+    // ── Endpoint-Definition ───────────────────────────────────────────────────
+    /** exampleBody: null = kein Body (GET / Trigger-Actions), sonst JSON-String */
+    record EndpointDef(String method, String path, boolean implemented, String exampleBody) {
+        EndpointDef(String method, String path, boolean implemented) {
+            this(method, path, implemented, null);
+        }
+    }
 
     // ─────────────────────────────────────────────────────────────────────────
 
     public MonitoringView(MeterRegistry meterRegistry,
                           @Value("${server.port:8081}") int serverPort,
                           @Value("${jmeter.home:}") String jmeterHome) {
-        this.serverPort  = serverPort;
-        this.jmeterHome  = jmeterHome;
+        this.serverPort = serverPort;
+        this.jmeterHome = jmeterHome;
 
         Gauge.builder("loadtest.active.users", activeUsersGauge, AtomicLong::get)
                 .description("Aktive simulierte User im Lasttest").register(meterRegistry);
         Gauge.builder("loadtest.running", testRunning, b -> b.get() ? 1.0 : 0.0)
-                .description("1 wenn ein Lasttest gerade läuft").register(meterRegistry);
+                .description("1 wenn ein Lasttest gerade laeuft").register(meterRegistry);
         Gauge.builder("loadtest.requests.live", totalRequests, AtomicLong::get)
                 .description("Gesamtanfragen im laufenden Test").register(meterRegistry);
         Gauge.builder("loadtest.errors.live", errorCount, AtomicLong::get)
@@ -123,9 +138,10 @@ public class MonitoringView extends Div {
     private void buildLayout() {
         TabSheet tabs = new TabSheet();
         tabs.setSizeFull();
-        tabs.add("Lasttests",              buildLoadTestTab());
-        tabs.add("Grafana Dashboard",      buildGrafanaTab());
-        tabs.add("JMeter Ergebnisse",      buildJMeterGrafanaTab());
+        tabs.add("Endpunkte testen",  buildEndpointTab());
+        tabs.add("Lasttests",         buildLoadTestTab());
+        tabs.add("Grafana Dashboard", buildGrafanaTab());
+        tabs.add("JMeter Ergebnisse", buildJMeterGrafanaTab());
 
         Div card = new Div(tabs);
         card.addClassName("content-card");
@@ -134,7 +150,326 @@ public class MonitoringView extends Div {
         add(card);
     }
 
-    // ── Tab 1: Lasttest-Steuerung ─────────────────────────────────────────────
+    // ══════════════════════════════════════════════════════════════════════════
+    //  Tab 1: Endpunkte testen
+    // ══════════════════════════════════════════════════════════════════════════
+
+    private Div buildEndpointTab() {
+        Span intro = new Span(
+                "Einzelne Endpunkte direkt aufrufen und Antwort pruefen. " +
+                "Ausgegraut = noch nicht implementiert (TODO).");
+        intro.getStyle()
+                .set("display", "block").set("font-size", "0.82rem").set("color", "#64748b")
+                .set("padding", "0 0 16px 0");
+
+        Details articlesSection = buildEndpointSection(
+                "Articles", "LogisticMainView", "#6366f1", List.of(
+                        new EndpointDef("GET",  "/articles",                       true),
+                        new EndpointDef("GET",  "/articles/filter",                true),
+                        new EndpointDef("POST", "/articles/{id}/stock",            true,
+                                "{\"delta\": 5, \"reason\": \"Lasttest\"}"),
+                        new EndpointDef("PUT",  "/articles/{id}/storage-location", true,
+                                "{\"storageLocation\": \"Z1.S1.C1\"}")
+                ));
+
+        Details storageSection = buildEndpointSection(
+                "Storage Locations", "StorageLocationView", "#10b981", List.of(
+                        new EndpointDef("GET",    "/storage-locations",      true),
+                        new EndpointDef("POST",   "/storage-locations",      true,
+                                "{\"storageZone\": \"Zone 1\", \"shelfID\": 99, \"compartmentID\": 99}"),
+                        new EndpointDef("PUT",    "/storage-locations/{id}", true,
+                                "{\"storageZone\": \"Zone 1\", \"shelfID\": 99, \"compartmentID\": 98}"),
+                        new EndpointDef("DELETE", "/storage-locations/{id}", true),
+                        new EndpointDef("POST",   "/storage-locations/sync", true)
+                ));
+
+        Details goodsSection = buildEndpointSection(
+                "Goods Receipts", "GoodsReceiptView", "#f59e0b", List.of(
+                        new EndpointDef("GET",    "/goods-receipts",                            true),
+                        new EndpointDef("POST",   "/goods-receipts",                            true,
+                                "{\"supplierName\": \"Testlieferant\", \"deliveryNoteNumber\": \"LN-TEST-001\", \"deliveryDate\": \"2026-04-12\"}"),
+                        new EndpointDef("POST",   "/goods-receipts/{id}/items",                 true,
+                                "{\"articleId\": 1, \"expectedQty\": 5, \"actualQty\": 5, \"defectNotes\": null}"),
+                        new EndpointDef("PUT",    "/goods-receipts/{id}/items/{itemId}",        true,
+                                "{\"actualQty\": 4, \"defectNotes\": \"Lasttest-Maengel\"}"),
+                        new EndpointDef("PUT",    "/goods-receipts/{id}/items/{itemId}/status", true,
+                                "{\"status\": \"FREIGEGEBEN\"}"),
+                        new EndpointDef("POST",   "/goods-receipts/{id}/complete",              true),
+                        new EndpointDef("DELETE", "/goods-receipts/{id}",                       true)
+                ));
+
+        Details kommSection = buildEndpointSection(
+                "Kommissionen", "OrderPickingView", "#8b5cf6", List.of(
+                        new EndpointDef("GET",  "/kommissionen",                                 true),
+                        new EndpointDef("POST", "/kommissionen/trigger",                         true),
+                        new EndpointDef("PUT",  "/kommissionen/{id}/finish",                     true),
+                        new EndpointDef("PUT",  "/kommissionen/{id}/items/{articleId}/quantity", true,
+                                "{\"quantity\": 10}")
+                ));
+
+        Details miscSection = buildEndpointSection(
+                "Sonstige", "Restock / StockChange / NewArticles / Messaging", "#64748b", List.of(
+                        new EndpointDef("GET", "/health",           true),
+                        new EndpointDef("GET", "/restock",          true),
+                        new EndpointDef("GET", "/stock-changes",    true),
+                        new EndpointDef("GET", "/new-articles",     true),
+                        new EndpointDef("GET", "/messaging-events", true)
+                ));
+
+        VerticalLayout layout = new VerticalLayout(
+                intro, articlesSection, storageSection, goodsSection, kommSection, miscSection);
+        layout.setPadding(false);
+        layout.setWidthFull();
+        layout.getStyle().set("gap", "8px");
+
+        return new Div(layout);
+    }
+
+    private Details buildEndpointSection(String title, String viewName,
+                                          String color, List<EndpointDef> endpoints) {
+        Span titleSpan = new Span(title);
+        titleSpan.getStyle()
+                .set("font-weight", "700").set("color", color).set("font-size", "0.95rem");
+        Span viewSpan = new Span(" – " + viewName);
+        viewSpan.getStyle().set("color", "#64748b").set("font-size", "0.82rem");
+        Div header = new Div(titleSpan, viewSpan);
+
+        VerticalLayout rows = new VerticalLayout();
+        rows.setPadding(false);
+        rows.setSpacing(false);
+        rows.getStyle().set("gap", "4px");
+        for (EndpointDef ep : endpoints) {
+            rows.add(buildEndpointRow(ep));
+        }
+
+        Details details = new Details(header, rows);
+        details.setWidthFull();
+        details.getStyle()
+                .set("border", "1px solid #e2e8f0").set("border-radius", "10px")
+                .set("padding", "12px 16px").set("background", "white");
+        return details;
+    }
+
+    private com.vaadin.flow.component.Component buildEndpointRow(EndpointDef ep) {
+        String methodColor = switch (ep.method()) {
+            case "POST"   -> "#3b82f6";
+            case "PUT"    -> "#f59e0b";
+            case "DELETE" -> "#ef4444";
+            default       -> "#10b981"; // GET
+        };
+
+        Span methodBadge = new Span(ep.method());
+        methodBadge.getStyle()
+                .set("background", methodColor + "20").set("color", methodColor)
+                .set("font-size", "0.68rem").set("font-weight", "700")
+                .set("border-radius", "4px").set("padding", "2px 7px")
+                .set("min-width", "54px").set("text-align", "center")
+                .set("font-family", "monospace");
+
+        Span pathSpan = new Span("/api/load" + ep.path());
+        pathSpan.getStyle()
+                .set("font-family", "monospace").set("font-size", "0.82rem")
+                .set("color", "#1e293b").set("flex", "1");
+
+        if (!ep.implemented()) {
+            Span todoBadge = new Span("TODO");
+            todoBadge.getStyle()
+                    .set("background", "#fef3c7").set("color", "#92400e")
+                    .set("font-size", "0.68rem").set("font-weight", "700")
+                    .set("border-radius", "4px").set("padding", "2px 7px");
+            HorizontalLayout row = new HorizontalLayout(methodBadge, pathSpan, todoBadge);
+            row.setAlignItems(FlexComponent.Alignment.CENTER);
+            row.setPadding(false);
+            row.getStyle().set("gap", "10px").set("padding", "3px 0").set("opacity", "0.55");
+            return row;
+        }
+
+        // ── Ergebnis-Anzeige ──────────────────────────────────────────────────
+        Span statusSpan  = new Span();
+        Span timeSpan    = new Span();
+        Span summarySpan = new Span();
+        statusSpan.getStyle().set("font-size", "0.78rem").set("font-weight", "700").set("min-width", "36px");
+        timeSpan.getStyle().set("font-size", "0.78rem").set("color", "#64748b").set("min-width", "55px");
+        summarySpan.getStyle().set("font-size", "0.78rem").set("color", "#94a3b8");
+
+        HorizontalLayout resultArea = new HorizontalLayout(statusSpan, timeSpan, summarySpan);
+        resultArea.setAlignItems(FlexComponent.Alignment.CENTER);
+        resultArea.setPadding(false);
+        resultArea.getStyle().set("gap", "6px");
+        resultArea.setVisible(false);
+
+        // ── GET: einfacher Testen-Button ──────────────────────────────────────
+        if ("GET".equals(ep.method())) {
+            Button testBtn = new Button("Testen");
+            testBtn.getStyle()
+                    .set("font-size", "0.75rem").set("height", "26px")
+                    .set("background", methodColor).set("color", "white")
+                    .set("border-radius", "6px").set("font-weight", "600")
+                    .set("padding", "0 10px");
+            testBtn.addClickListener(e -> {
+                UI ui = UI.getCurrent();
+                resultArea.setVisible(false);
+                sendRequest("GET", ep.path(), null, statusSpan, timeSpan, summarySpan, resultArea, testBtn, ui);
+            });
+            HorizontalLayout row = new HorizontalLayout(methodBadge, pathSpan, testBtn, resultArea);
+            row.setAlignItems(FlexComponent.Alignment.CENTER);
+            row.setPadding(false);
+            row.getStyle().set("gap", "10px").set("padding", "3px 0");
+            return row;
+        }
+
+        // ── POST / PUT / DELETE: erweiterbare Zeile mit Pfad-Inputs + Body ────
+
+        // Pfad-Variable-Inputs parsen (z.B. {id}, {itemId}, {articleId})
+        java.util.regex.Pattern varPattern = java.util.regex.Pattern.compile("\\{([^}]+)\\}");
+        java.util.regex.Matcher matcher    = varPattern.matcher(ep.path());
+        java.util.List<String>  varNames   = new java.util.ArrayList<>();
+        while (matcher.find()) varNames.add(matcher.group(1));
+
+        java.util.List<TextField> varInputs = new java.util.ArrayList<>();
+        HorizontalLayout varRow = new HorizontalLayout();
+        varRow.setPadding(false);
+        varRow.getStyle().set("gap", "8px").set("flex-wrap", "wrap");
+
+        for (String varName : varNames) {
+            TextField input = new TextField(varName);
+            input.setPlaceholder("z.B. 1");
+            input.getStyle().set("width", "90px");
+            input.getElement().setAttribute("theme", "small");
+            varInputs.add(input);
+            varRow.add(input);
+        }
+
+        // Body-Textarea (null = kein Body benoetigt)
+        TextArea bodyArea = null;
+        if (ep.exampleBody() != null) {
+            bodyArea = new TextArea("Request Body (JSON)");
+            bodyArea.setValue(ep.exampleBody());
+            bodyArea.setWidthFull();
+            bodyArea.getStyle()
+                    .set("font-family", "monospace").set("font-size", "0.8rem")
+                    .set("min-height", "80px");
+            bodyArea.getElement().setAttribute("theme", "small");
+        }
+
+        // Senden-Button
+        Button sendBtn = new Button("▶  Senden");
+        sendBtn.getStyle()
+                .set("font-size", "0.75rem").set("height", "28px")
+                .set("background", methodColor).set("color", "white")
+                .set("border-radius", "6px").set("font-weight", "600")
+                .set("padding", "0 12px");
+
+        final TextArea finalBodyArea = bodyArea;
+        sendBtn.addClickListener(e -> {
+            UI ui = UI.getCurrent();
+            // Pfad-Variablen ersetzen
+            String resolvedPath = ep.path();
+            for (int i = 0; i < varNames.size(); i++) {
+                String val = varInputs.get(i).getValue().trim();
+                resolvedPath = resolvedPath.replace("{" + varNames.get(i) + "}", val.isEmpty() ? "0" : val);
+            }
+            String body = finalBodyArea != null ? finalBodyArea.getValue() : null;
+            resultArea.setVisible(false);
+            sendRequest(ep.method(), resolvedPath, body, statusSpan, timeSpan, summarySpan, resultArea, sendBtn, ui);
+        });
+
+        // Summary-Zeile (immer sichtbar im Accordion-Header)
+        HorizontalLayout summaryRow = new HorizontalLayout(methodBadge, pathSpan, resultArea);
+        summaryRow.setAlignItems(FlexComponent.Alignment.CENTER);
+        summaryRow.setWidthFull();
+        summaryRow.setPadding(false);
+        summaryRow.getStyle().set("gap", "10px");
+
+        // Formular-Inhalt
+        VerticalLayout formContent = new VerticalLayout();
+        formContent.setPadding(false);
+        formContent.getStyle().set("gap", "8px").set("padding", "6px 0 2px 0");
+        if (!varInputs.isEmpty()) formContent.add(varRow);
+        if (bodyArea != null)     formContent.add(bodyArea);
+        formContent.add(sendBtn);
+
+        Details details = new Details(summaryRow, formContent);
+        details.setWidthFull();
+        details.getStyle().set("padding", "3px 0");
+        return details;
+    }
+
+    private void sendRequest(String method, String path, String body,
+                              Span statusSpan, Span timeSpan, Span summarySpan,
+                              HorizontalLayout resultArea, Button btn, UI ui) {
+        btn.setEnabled(false);
+        Executors.newVirtualThreadPerTaskExecutor().submit(() -> {
+            long start = System.currentTimeMillis();
+            try {
+                HttpClient client = HttpClient.newBuilder()
+                        .connectTimeout(Duration.ofSeconds(5))
+                        .build();
+
+                HttpRequest.Builder reqBuilder = HttpRequest.newBuilder()
+                        .uri(URI.create("http://localhost:" + serverPort + "/api/load" + path))
+                        .timeout(Duration.ofSeconds(10))
+                        .header("Content-Type", "application/json");
+
+                String jsonBody = body != null ? body : "";
+                HttpRequest request = switch (method) {
+                    case "POST"   -> reqBuilder.POST(HttpRequest.BodyPublishers.ofString(jsonBody)).build();
+                    case "PUT"    -> reqBuilder.PUT(HttpRequest.BodyPublishers.ofString(jsonBody)).build();
+                    case "DELETE" -> reqBuilder.DELETE().build();
+                    default       -> reqBuilder.GET().build();
+                };
+
+                HttpResponse<String> response =
+                        client.send(request, HttpResponse.BodyHandlers.ofString());
+                long elapsed = System.currentTimeMillis() - start;
+
+                int    status  = response.statusCode();
+                String summary = summarizeBody(response.body());
+
+                ui.access(() -> {
+                    statusSpan.setText(String.valueOf(status));
+                    statusSpan.getStyle().set("color", status < 300 ? "#10b981" : "#ef4444");
+                    timeSpan.setText(elapsed + " ms");
+                    summarySpan.setText(summary);
+                    resultArea.setVisible(true);
+                    btn.setEnabled(true);
+                });
+            } catch (Exception ex) {
+                long elapsed = System.currentTimeMillis() - start;
+                ui.access(() -> {
+                    statusSpan.setText("ERR");
+                    statusSpan.getStyle().set("color", "#ef4444");
+                    timeSpan.setText(elapsed + " ms");
+                    String msg = ex.getMessage() != null ? ex.getMessage() : "Verbindungsfehler";
+                    summarySpan.setText(msg.length() > 50 ? msg.substring(0, 50) + "..." : msg);
+                    resultArea.setVisible(true);
+                    btn.setEnabled(true);
+                });
+            }
+        });
+    }
+
+    private String summarizeBody(String body) {
+        if (body == null || body.isBlank()) return "";
+        body = body.trim();
+        if (body.startsWith("[")) {
+            long count = body.chars().filter(c -> c == '{').count();
+            return count + " Eintraege";
+        }
+        if (body.contains("\"totalElements\"")) {
+            int idx = body.indexOf("\"totalElements\":");
+            if (idx >= 0) {
+                String rest = body.substring(idx + 16).trim();
+                String num  = rest.replaceAll("[^0-9].*", "");
+                if (!num.isEmpty()) return num + " Eintraege";
+            }
+        }
+        return body.length() + " bytes";
+    }
+
+    // ══════════════════════════════════════════════════════════════════════════
+    //  Tab 2: Lasttests (gruppiert nach View)
+    // ══════════════════════════════════════════════════════════════════════════
 
     private Div buildLoadTestTab() {
 
@@ -142,66 +477,49 @@ public class MonitoringView extends Div {
         Div intro = new Div();
         intro.getStyle()
                 .set("background", "#f8faff").set("border", "1px solid #e2e8f0")
-                .set("border-radius", "12px").set("padding", "16px 20px")
-                .set("margin-bottom", "24px");
+                .set("border-radius", "12px").set("padding", "14px 18px")
+                .set("margin-bottom", "16px");
 
-        Span introTitle = new Span("Lasttests – Übersicht");
-        introTitle.getStyle().set("font-size", "1rem").set("font-weight", "700")
-                .set("color", "#1e293b").set("display", "block").set("margin-bottom", "8px");
-
+        Span introTitle = new Span("JMeter-Lasttests nach View");
+        introTitle.getStyle()
+                .set("font-size", "1rem").set("font-weight", "700")
+                .set("color", "#1e293b").set("display", "block").set("margin-bottom", "6px");
         Span introText = new Span(
-                "Die Tests werden über Apache JMeter als Subprozess gestartet und senden HTTP-Anfragen " +
-                "gegen die laufende Logistik-Instanz. Messdaten (Latenz, Fehlerrate, Durchsatz) werden " +
-                "via InfluxDB-Backend-Listener erfasst und in Grafana visualisiert (Tab \"JMeter Ergebnisse\"). " +
+                "Jeder Abschnitt entspricht einer View. " +
+                "Die Tests laufen ueber Apache JMeter (parametrisiert) und senden Metriken an InfluxDB/Grafana. " +
                 "Es kann jeweils nur ein Test aktiv sein.");
-        introText.getStyle().set("font-size", "0.85rem").set("color", "#475569")
+        introText.getStyle()
+                .set("font-size", "0.83rem").set("color", "#475569")
                 .set("line-height", "1.6").set("display", "block");
-
         intro.add(introTitle, introText);
 
-        // ── Test-Karten ───────────────────────────────────────────────────────
-        Details soakAcc     = buildTestAccordion(
-                "Soak Test", "#6366f1",
-                "Dauerlasttest – Langzeitstabilität",
-                "Speicherlecks, Ressourcenerschöpfung und Degradierung unter konstanter Last über " +
-                "einen längeren Zeitraum identifizieren.",
-                "10 virtuelle Nutzer senden über 120 s kontinuierlich Anfragen bei moderater Last.",
-                new String[]{"Benutzer", "10"}, new String[]{"Anlaufzeit", "10 s"}, new String[]{"Dauer", "120 s"},
-                e -> launchJMeter("Soak Test", 10, 10, 120));
+        // ── View-Sektionen ────────────────────────────────────────────────────
+        Details articlesAcc = buildViewTestSection(
+                "Articles",          "LogisticMainView",                "#6366f1", "articles");
+        Details storageAcc  = buildViewTestSection(
+                "Storage Locations", "StorageLocationView",             "#10b981", "storage");
+        Details goodsAcc    = buildViewTestSection(
+                "Goods Receipts",    "GoodsReceiptView",                "#f59e0b", "goods");
+        Details kommAcc     = buildViewTestSection(
+                "Kommissionen",      "OrderPickingView",                "#8b5cf6", "komm");
+        Details gesamtAcc   = buildViewTestSection(
+                "Gesamt",            "Alle Views kombiniert",           "#64748b", "gesamt");
 
-        Details spikeAcc    = buildTestAccordion(
-                "Spike Test", "#ef4444",
-                "Spitzenlasttest – Reaktion auf Lastspitzen",
-                "Verhalten des Systems bei abruptem, massivem Lastanstieg analysieren " +
-                "(Recovery-Zeit, Fehlerrate unter Überlast).",
-                "100 virtuelle Nutzer starten innerhalb von 2 s – maximale Überlast für 40 s.",
-                new String[]{"Benutzer", "100"}, new String[]{"Anlaufzeit", "2 s"}, new String[]{"Dauer", "40 s"},
-                e -> launchJMeter("Spike Test", 100, 2, 40));
-
-        Details capacityAcc = buildTestAccordion(
-                "Capacity Test", "#f59e0b",
-                "Kapazitätstest – Leistungsgrenze ermitteln",
-                "Maximale Nutzerzahl bestimmen, bei der definierte Performance-Schwellenwerte " +
-                "(Latenz, Fehlerrate) noch eingehalten werden.",
-                "50 Nutzer gleichmäßig über 45 s hochgefahren, Dauer 90 s.",
-                new String[]{"Benutzer", "50"}, new String[]{"Anlaufzeit", "45 s"}, new String[]{"Dauer", "90 s"},
-                e -> launchJMeter("Capacity Test", 50, 45, 90));
-
-        Details stressAcc   = buildTestAccordion(
-                "Stress Test", "#dc2626",
-                "Stresstest – Systemgrenzen austesten",
-                "Belastungsgrenze des Systems bewusst überschreiten und Verhalten " +
-                "unter Überlast dokumentieren (Fehlerrate, Timeouts, Absturzverhalten).",
-                "150 Nutzer in 5 s – deutlich jenseits des Normalbetriebs für 60 s.",
-                new String[]{"Benutzer", "150"}, new String[]{"Anlaufzeit", "5 s"}, new String[]{"Dauer", "60 s"},
-                e -> launchJMeter("Stress Test", 150, 5, 60));
-
-        VerticalLayout accordions = new VerticalLayout(soakAcc, spikeAcc, capacityAcc, stressAcc);
-        accordions.setWidthFull();
+        VerticalLayout accordions = new VerticalLayout(
+                articlesAcc, storageAcc, goodsAcc, kommAcc, gesamtAcc);
         accordions.setPadding(false);
+        accordions.setWidthFull();
         accordions.getStyle().set("gap", "8px");
 
-        // ── Stoppen-Button ────────────────────────────────────────────────────
+        // ── Live-Metriken ─────────────────────────────────────────────────────
+        HorizontalLayout cardsRow = new HorizontalLayout(
+                ltRequestsCard, ltRpsCard, ltAvgCard,
+                ltErrorCard, ltSuccessCard, ltElapsedCard);
+        cardsRow.setWidthFull();
+        cardsRow.setPadding(false);
+        cardsRow.getStyle().set("flex-wrap", "wrap").set("gap", "12px");
+
+        // ── Stop + Status ─────────────────────────────────────────────────────
         stopButton = new Button("■  Laufenden Test stoppen");
         stopButton.addThemeVariants(ButtonVariant.LUMO_ERROR);
         stopButton.setEnabled(false);
@@ -209,91 +527,85 @@ public class MonitoringView extends Div {
         stopButton.addClickListener(e -> stopTest());
 
         testStatusBadge = new Span("Kein Test aktiv");
+        testStatusBadge.getStyle()
+                .set("font-size", "0.82rem").set("padding", "4px 14px")
+                .set("border-radius", "20px").set("background", "#f1f5f9")
+                .set("color", "#64748b");
 
-        VerticalLayout tab = new VerticalLayout(intro, accordions, stopButton);
+        HorizontalLayout footer = new HorizontalLayout(stopButton, testStatusBadge);
+        footer.setAlignItems(FlexComponent.Alignment.CENTER);
+        footer.setPadding(false);
+        footer.getStyle().set("gap", "14px");
+
+        VerticalLayout tab = new VerticalLayout(intro, accordions, cardsRow, footer);
         tab.setPadding(false);
-        tab.setSpacing(false);
-        tab.getStyle().set("gap", "0");
         tab.setWidthFull();
+        tab.getStyle().set("gap", "16px");
 
         return new Div(tab);
     }
 
-    private Details buildTestAccordion(String title, String color, String subtitle,
-                                       String whenToUse, String whatHappens,
-                                       String[] param1, String[] param2, String[] param3,
-                                       com.vaadin.flow.component.ComponentEventListener<
-                                               com.vaadin.flow.component.ClickEvent<Button>> clickListener) {
-
-        // ── Summary (immer sichtbar) ──────────────────────────────────────────
+    private Details buildViewTestSection(String title, String viewName,
+                                          String color, String testPrefix) {
+        // ── Header ────────────────────────────────────────────────────────────
         Span titleSpan = new Span(title);
         titleSpan.getStyle()
                 .set("font-weight", "700").set("color", color).set("font-size", "0.95rem");
+        Span viewSpan = new Span(" – " + viewName);
+        viewSpan.getStyle().set("color", "#64748b").set("font-size", "0.82rem");
+        Div header = new Div(titleSpan, viewSpan);
 
-        Span subtitleSpan = new Span(" – " + subtitle);
-        subtitleSpan.getStyle().set("color", "#64748b").set("font-size", "0.82rem");
+        // ── Testtyp-Buttons ───────────────────────────────────────────────────
+        Button soakBtn     = buildTestTypeButton("Soak",     "#6366f1", 10,  10, 120, testPrefix + "-Soak");
+        Button spikeBtn    = buildTestTypeButton("Spike",    "#ef4444", 100,  2,  40, testPrefix + "-Spike");
+        Button capacityBtn = buildTestTypeButton("Capacity", "#f59e0b",  50, 45,  90, testPrefix + "-Capacity");
+        Button stressBtn   = buildTestTypeButton("Stress",   "#dc2626", 150,  5,  60, testPrefix + "-Stress");
 
-        HorizontalLayout summaryParams = new HorizontalLayout(
-                paramBadge(param1[0], param1[1], color),
-                paramBadge(param2[0], param2[1], color),
-                paramBadge(param3[0], param3[1], color));
-        summaryParams.setPadding(false);
-        summaryParams.getStyle().set("gap", "6px").set("flex-wrap", "wrap");
+        HorizontalLayout btnRow = new HorizontalLayout(soakBtn, spikeBtn, capacityBtn, stressBtn);
+        btnRow.setPadding(false);
+        btnRow.getStyle().set("gap", "8px").set("flex-wrap", "wrap");
 
-        HorizontalLayout summaryRow = new HorizontalLayout(
-                new Div(titleSpan, subtitleSpan), summaryParams);
-        summaryRow.setWidthFull();
-        summaryRow.setAlignItems(FlexComponent.Alignment.CENTER);
-        summaryRow.getStyle().set("justify-content", "space-between").set("flex-wrap", "wrap");
-        summaryRow.setPadding(false);
+        // ── Parameter-Badges ──────────────────────────────────────────────────
+        HorizontalLayout paramRow = new HorizontalLayout(
+                testParamBadge("Soak",     "10 User · 120 s",  "#6366f1"),
+                testParamBadge("Spike",    "100 User · 40 s",  "#ef4444"),
+                testParamBadge("Capacity", "50 User · 90 s",   "#f59e0b"),
+                testParamBadge("Stress",   "150 User · 60 s",  "#dc2626")
+        );
+        paramRow.setPadding(false);
+        paramRow.getStyle().set("gap", "6px").set("flex-wrap", "wrap");
 
-        // ── Content (aufgeklappt) ─────────────────────────────────────────────
-        Span zielLabel = new Span("Ziel");
-        zielLabel.getStyle()
-                .set("font-size", "0.72rem").set("font-weight", "700").set("color", "#94a3b8")
-                .set("text-transform", "uppercase").set("letter-spacing", "0.06em")
-                .set("display", "block").set("margin-bottom", "3px");
-        Span zielText = new Span(whenToUse);
-        zielText.getStyle()
-                .set("font-size", "0.82rem").set("color", "#475569")
-                .set("line-height", "1.5").set("display", "block").set("margin-bottom", "12px");
+        VerticalLayout content = new VerticalLayout(paramRow, btnRow);
+        content.setPadding(false);
+        content.getStyle().set("gap", "10px");
 
-        Span konfLabel = new Span("Konfiguration");
-        konfLabel.getStyle()
-                .set("font-size", "0.72rem").set("font-weight", "700").set("color", "#94a3b8")
-                .set("text-transform", "uppercase").set("letter-spacing", "0.06em")
-                .set("display", "block").set("margin-bottom", "3px");
-        Span konfText = new Span(whatHappens);
-        konfText.getStyle()
-                .set("font-size", "0.82rem").set("color", "#475569")
-                .set("line-height", "1.5").set("display", "block").set("margin-bottom", "14px");
-
-        Button startBtn = new Button("▶  " + title + " starten");
-        startBtn.getStyle()
-                .set("background", color).set("color", "white")
-                .set("border-radius", "8px").set("font-weight", "700")
-                .set("box-shadow", "0 2px 8px " + color + "55");
-        startBtn.addClickListener(clickListener);
-        testButtons.add(startBtn);
-
-        Div content = new Div(zielLabel, zielText, konfLabel, konfText, startBtn);
-        content.getStyle().set("padding", "4px 0 4px 0");
-
-        Details details = new Details(summaryRow, content);
+        Details details = new Details(header, content);
         details.setWidthFull();
         details.getStyle()
                 .set("border", "1px solid #e2e8f0").set("border-radius", "10px")
-                .set("padding", "12px 16px")
-                .set("background", "white");
-
+                .set("padding", "12px 16px").set("background", "white");
         return details;
     }
 
-    private Div paramBadge(String label, String value, String color) {
+    private Button buildTestTypeButton(String label, String color,
+                                        int threads, int rampup, int duration,
+                                        String testName) {
+        Button btn = new Button("▶  " + label);
+        btn.getStyle()
+                .set("background", color).set("color", "white")
+                .set("border-radius", "8px").set("font-weight", "700").set("font-size", "0.82rem")
+                .set("box-shadow", "0 2px 8px " + color + "55");
+        btn.addClickListener(e -> launchJMeter(testName, threads, rampup, duration));
+        testButtons.add(btn);
+        return btn;
+    }
+
+    private Div testParamBadge(String label, String value, String color) {
         Span labelSpan = new Span(label + ": ");
-        labelSpan.getStyle().set("color", "#64748b").set("font-size", "0.75rem");
+        labelSpan.getStyle().set("color", "#64748b").set("font-size", "0.72rem");
         Span valueSpan = new Span(value);
-        valueSpan.getStyle().set("font-weight", "700").set("color", color).set("font-size", "0.75rem");
+        valueSpan.getStyle()
+                .set("font-weight", "700").set("color", color).set("font-size", "0.72rem");
 
         Div badge = new Div(labelSpan, valueSpan);
         badge.getStyle()
@@ -303,13 +615,15 @@ public class MonitoringView extends Div {
         return badge;
     }
 
-    // ── Tab 2: Grafana iFrame ─────────────────────────────────────────────────
+    // ══════════════════════════════════════════════════════════════════════════
+    //  Tab 3: Grafana iFrame
+    // ══════════════════════════════════════════════════════════════════════════
 
     private Div buildGrafanaTab() {
         Span hint = new Span(
                 "Grafana muss unter http://localhost:3000 laufen " +
                 "(docker compose up in /monitoring). " +
-                "Beim ersten Start kann es 10–20 Sekunden dauern.");
+                "Beim ersten Start kann es 10-20 Sekunden dauern.");
         hint.getStyle()
                 .set("display", "block").set("font-size", "0.8rem")
                 .set("color", "#64748b").set("padding", "6px 0 12px 0");
@@ -329,10 +643,14 @@ public class MonitoringView extends Div {
         return wrapper;
     }
 
+    // ══════════════════════════════════════════════════════════════════════════
+    //  Tab 4: JMeter Ergebnisse (Grafana)
+    // ══════════════════════════════════════════════════════════════════════════
+
     private Div buildJMeterGrafanaTab() {
         Span hint = new Span(
                 "Zeigt JMeter-Testergebnisse aus InfluxDB. " +
-                "Starte einen Test im Tab \"Lasttests\", dann hier application & transaction auswählen.");
+                "Starte einen Test im Tab \"Lasttests\", dann hier application & transaction auswaehlen.");
         hint.getStyle()
                 .set("display", "block").set("font-size", "0.8rem")
                 .set("color", "#64748b").set("padding", "6px 0 12px 0");
@@ -356,15 +674,9 @@ public class MonitoringView extends Div {
     //  JMeter-Steuerung
     // ══════════════════════════════════════════════════════════════════════════
 
-    /**
-     * Startet JMeter als Subprocess mit den übergebenen Parametern.
-     * Ergebnisse werden in eine temporäre CSV geschrieben, die alle 2 s
-     * gepolt und in die Live-Karten + Micrometer-Metriken übernommen wird.
-     */
     private void launchJMeter(String name, int threads, int rampup, int duration) {
         if (testRunning.getAndSet(true)) return;
 
-        // ApacheJMeter.jar ermitteln (funktioniert auf allen Plattformen ohne bat-Probleme)
         String jmeterJar = jmeterHome + "/bin/ApacheJMeter.jar";
 
         if (jmeterHome.isBlank() || !Path.of(jmeterJar).toFile().exists()) {
@@ -374,7 +686,6 @@ public class MonitoringView extends Div {
             return;
         }
 
-        // JMX-Pfad
         Path jmxFile = Path.of("monitoring/jmeter/logistik-parametrisiert.jmx").toAbsolutePath();
         if (!jmxFile.toFile().exists()) {
             showError("JMX-Datei nicht gefunden: " + jmxFile);
@@ -382,12 +693,11 @@ public class MonitoringView extends Div {
             return;
         }
 
-        // Ergebnis-CSV vorbereiten
         try {
             Path resultsDir = Path.of("monitoring/jmeter/results");
             Files.createDirectories(resultsDir);
             resultFile    = resultsDir.resolve("lasttest-result.csv").toAbsolutePath();
-            Files.deleteIfExists(resultFile);   // alten Lauf löschen
+            Files.deleteIfExists(resultFile);
             csvReadOffset = 0;
         } catch (IOException ex) {
             showError("Konnte Ergebnisordner nicht anlegen: " + ex.getMessage());
@@ -404,26 +714,22 @@ public class MonitoringView extends Div {
         stopButton.setEnabled(true);
         updateStatusBadge(true);
 
-        // JMeter-Kommando: direkt via java -jar (funktioniert auf Windows ohne bat-Probleme)
         List<String> cmd = new ArrayList<>(List.of(
                 "java", "-jar", jmeterJar,
-                "-n",                          // Non-GUI Modus
-                "-t", jmxFile.toString(),      // Test-Plan
-                "-l", resultFile.toString(),   // Ergebnis-CSV
-                "-Jthreads="   + threads,
-                "-Jrampup="    + rampup,
-                "-Jduration="  + duration,
+                "-n",
+                "-t", jmxFile.toString(),
+                "-l", resultFile.toString(),
+                "-Jthreads="  + threads,
+                "-Jrampup="   + rampup,
+                "-Jduration=" + duration,
                 "-Jhost=localhost",
-                "-Jport="      + serverPort,
-                "-Jtestname="  + name.replace(" ", "-")
+                "-Jport="     + serverPort,
+                "-Jtestname=" + name.replace(" ", "-")
         ));
 
-        // Start-Notification mit Kommando
-        String cmdPreview = String.join(" ", cmd);
-        Notification.show("JMeter wird gestartet…  " + cmdPreview, 4000,
-                Notification.Position.BOTTOM_END);
+        Notification.show("JMeter wird gestartet...  " + String.join(" ", cmd),
+                4000, Notification.Position.BOTTOM_END);
 
-        // JMeter im Hintergrund starten
         Executors.newVirtualThreadPerTaskExecutor().submit(() -> {
             StringBuilder jmeterOutput = new StringBuilder();
             try {
@@ -431,7 +737,6 @@ public class MonitoringView extends Div {
                         .redirectErrorStream(true)
                         .start();
 
-                // Output lesen (verhindert Prozess-Deadlock + ermöglicht Fehlerdiagnose)
                 try (var reader = new java.io.BufferedReader(
                         new java.io.InputStreamReader(jmeterProcess.getInputStream()))) {
                     String line;
@@ -464,8 +769,8 @@ public class MonitoringView extends Div {
                         setTestButtonsEnabled(true);
                         stopButton.setEnabled(false);
                         updateStatusBadge(false);
-                        Notification n = Notification.show(name + " abgeschlossen", 4000,
-                                Notification.Position.BOTTOM_END);
+                        Notification n = Notification.show(name + " abgeschlossen",
+                                4000, Notification.Position.BOTTOM_END);
                         n.addThemeVariants(NotificationVariant.LUMO_SUCCESS);
                     });
                 }
@@ -479,18 +784,9 @@ public class MonitoringView extends Div {
     }
 
     // ══════════════════════════════════════════════════════════════════════════
-    //  CSV-Polling  –  liest neue Zeilen aus der JMeter-Ergebnis-CSV
+    //  CSV-Polling
     // ══════════════════════════════════════════════════════════════════════════
 
-    /**
-     * JMeter-CSV Format (mit fieldNames=true Header):
-     * timeStamp,elapsed,label,responseCode,responseMessage,threadName,
-     * dataType,success,failureMessage,bytes,sentBytes,grpThreads,allThreads,...
-     *
-     * Relevante Spalten (0-basiert):
-     *   1 = elapsed (ms)
-     *   7 = success (true/false)
-     */
     private void pollCsvResults() {
         if (resultFile == null || !resultFile.toFile().exists()) return;
         try (RandomAccessFile raf = new RandomAccessFile(resultFile.toFile(), "r")) {
@@ -514,10 +810,10 @@ public class MonitoringView extends Div {
                         errorCount.incrementAndGet();
                         ltErrCounter.increment();
                     }
-                } catch (NumberFormatException ignored) { /* Header oder leere Zeile */ }
+                } catch (NumberFormatException ignored) { }
             }
             csvReadOffset = raf.getFilePointer();
-        } catch (IOException ignored) { /* Datei noch nicht vorhanden oder gesperrt */ }
+        } catch (IOException ignored) { }
     }
 
     // ══════════════════════════════════════════════════════════════════════════
@@ -526,7 +822,7 @@ public class MonitoringView extends Div {
 
     private void updateStatusBadge(boolean running) {
         if (running) {
-            testStatusBadge.setText("▶  " + activeTestName + " läuft (JMeter)...");
+            testStatusBadge.setText("▶  " + activeTestName + " laeuft (JMeter)...");
             testStatusBadge.getStyle().set("background", "#dcfce7").set("color", "#16a34a");
         } else {
             testStatusBadge.setText("✓  " + activeTestName + " abgeschlossen");
@@ -548,14 +844,13 @@ public class MonitoringView extends Div {
         double avgMs   = total > 0 ? (double) respSum / total : 0;
         double succPct = total > 0 ? (double) success / total * 100 : 100;
 
-        ltRequestsCard.setValue(String.valueOf(total),             -1);
-        ltRpsCard     .setValue(String.format("%.1f", rps),        -1);
-        ltAvgCard     .setValue(String.format("%.0f", avgMs),      -1);
+        ltRequestsCard.setValue(String.valueOf(total),           -1);
+        ltRpsCard     .setValue(String.format("%.1f", rps),      -1);
+        ltAvgCard     .setValue(String.format("%.0f", avgMs),    -1);
         ltErrorCard   .setValue(String.valueOf(errors),
                 total > 0 ? (double) errors / total : 0);
-        ltSuccessCard .setValue(String.format("%.1f", succPct),
-                succPct / 100);
-        ltElapsedCard .setValue(String.valueOf(elapsed),            -1);
+        ltSuccessCard .setValue(String.format("%.1f", succPct),  succPct / 100);
+        ltElapsedCard .setValue(String.valueOf(elapsed),         -1);
     }
 
     private void setTestButtonsEnabled(boolean enabled) {
@@ -580,8 +875,8 @@ public class MonitoringView extends Div {
     protected void onAttach(AttachEvent event) {
         UI ui = event.getUI();
         refreshTask = scheduler.scheduleAtFixedRate(() -> ui.access(() -> {
-            pollCsvResults();      // neue JMeter-CSV-Zeilen einlesen
-            updateLiveResults();   // UI-Karten aktualisieren
+            pollCsvResults();
+            updateLiveResults();
         }), 2, 2, TimeUnit.SECONDS);
     }
 
@@ -592,14 +887,14 @@ public class MonitoringView extends Div {
     }
 
     // ══════════════════════════════════════════════════════════════════════════
-    //  MetricCard Komponente
+    //  MetricCard-Komponente
     // ══════════════════════════════════════════════════════════════════════════
 
     static class MetricCard extends Div {
 
-        private final Span   valueSpan     = new Span("–");
-        private final Div    progressBar   = new Div();
-        private final Div    progressTrack = new Div();
+        private final Span valueSpan     = new Span("-");
+        private final Div  progressBar   = new Div();
+        private final Div  progressTrack = new Div();
         private final String accentColor;
 
         MetricCard(String label, String unit, String color) {
