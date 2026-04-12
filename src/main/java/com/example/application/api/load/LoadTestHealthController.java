@@ -7,7 +7,7 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.Map;
 
 /**
- * GET /api/load/health – einfacher Ping fuer JMeter-Warmup
+ * GET /api/load/health – einfacher Ping für JMeter-Warmup
  */
 @RestController
 @RequestMapping("/api/load")

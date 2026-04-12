@@ -11,7 +11,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Lasttest-Endpunkte fuer StorageLocationView.
+ * Lasttest-Endpunkte für StorageLocationView.
  * Basis-URL: /api/load/storage-locations
  */
 @RestController
@@ -45,7 +45,7 @@ public class LoadTestStorageController {
         }
     }
 
-    /** DELETE /api/load/storage-locations/{id} – Lagerplatz loeschen */
+    /** DELETE /api/load/storage-locations/{id} – Lagerplatz löschen */
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deleteStorageLocation(@PathVariable Long id) {

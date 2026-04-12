@@ -15,7 +15,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Lasttest-Endpunkte fuer LogisticMainView.
+ * Lasttest-Endpunkte für LogisticMainView.
  * Basis-URL: /api/load/articles
  */
 @RestController
@@ -53,7 +53,7 @@ public class LoadTestArticleController {
         return articleInfoService.list(PageRequest.of(page, size), spec);
     }
 
-    /** POST /api/load/articles/{id}/stock – Bestand aendern */
+    /** POST /api/load/articles/{id}/stock – Bestand ändern */
     @PostMapping("/{id}/stock")
     public ArticleInfo changeStock(
             @PathVariable Long id,

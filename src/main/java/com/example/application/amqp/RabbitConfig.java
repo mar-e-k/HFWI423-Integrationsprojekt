@@ -10,7 +10,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 /**
- * Workaround fuer Spring AMQP 4.0:
+ * Workaround für Spring AMQP 4.0:
  * SimpleAmqpHeaderMapper.toHeaders() unboxt priority ohne Null-Check → NPE.
  *
  * Zwei Absicherungen:

@@ -102,7 +102,7 @@ public class MessagingView extends Div {
         try {
             long articleId = Long.parseLong(articleIdStr);
             einkaufEventPublisher.publishNewDeal(articleId);
-            Notification.show("NewDeal Event erfolgreich versendet fuer Article ID: " + articleId, 3000, Notification.Position.BOTTOM_START)
+            Notification.show("NewDeal Event erfolgreich versendet für Article ID: " + articleId, 3000, Notification.Position.BOTTOM_START)
                     .addThemeVariants(NotificationVariant.LUMO_SUCCESS);
         } catch (NumberFormatException e) {
             Notification.show("Ungueltige Article ID: " + articleIdStr, 3000, Notification.Position.BOTTOM_START)

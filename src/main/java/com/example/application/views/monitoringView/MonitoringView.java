@@ -52,7 +52,7 @@ public class MonitoringView extends Div {
     private final String jmeterHome;
     private final int    serverPort;
 
-    // ── Scheduler fuer Live-Update ────────────────────────────────────────────
+    // ── Scheduler für Live-Update ─────────────────────────────────────────────
     private final ScheduledExecutorService scheduler =
             Executors.newSingleThreadScheduledExecutor(r -> {
                 Thread t = new Thread(r, "monitoring-refresh");
@@ -156,7 +156,7 @@ public class MonitoringView extends Div {
 
     private Div buildEndpointTab() {
         Span intro = new Span(
-                "Einzelne Endpunkte direkt aufrufen und Antwort pruefen. " +
+                "Einzelne Endpunkte direkt aufrufen und Antwort prüfen. " +
                 "Ausgegraut = noch nicht implementiert (TODO).");
         intro.getStyle()
                 .set("display", "block").set("font-size", "0.82rem").set("color", "#64748b")
@@ -484,7 +484,7 @@ public class MonitoringView extends Div {
                 .set("color", "#1e293b").set("display", "block").set("margin-bottom", "6px");
         Span introText = new Span(
                 "Jeder Abschnitt entspricht einer View. " +
-                "Die Tests laufen ueber Apache JMeter (parametrisiert) und senden Metriken an InfluxDB/Grafana. " +
+                "Die Tests laufen über Apache JMeter (parametrisiert) und senden Metriken an InfluxDB/Grafana. " +
                 "Es kann jeweils nur ein Test aktiv sein.");
         introText.getStyle()
                 .set("font-size", "0.83rem").set("color", "#475569")
@@ -508,6 +508,41 @@ public class MonitoringView extends Div {
         accordions.setPadding(false);
         accordions.setWidthFull();
         accordions.getStyle().set("gap", "8px");
+
+        // ── Szenarien ─────────────────────────────────────────────────────────
+        Div szTitle = new Div();
+        Span szLabel = new Span("Szenarien");
+        szLabel.getStyle()
+                .set("font-size", "1rem").set("font-weight", "700")
+                .set("color", "#1e293b").set("display", "block")
+                .set("margin-top", "8px").set("margin-bottom", "4px");
+        szTitle.add(szLabel);
+
+        Details writLoadAcc  = buildScenarioSection(
+                "Write-Load",
+                "Alle Threads schreiben gleichzeitig: GET articles -> POST stock -> POST goods-receipt -> DELETE",
+                "#3b82f6", 20, 10, 60, "Write-Load", "logistik-write-load.jmx");
+
+        Details mixedAcc     = buildScenarioSection(
+                "Mixed 80/20",
+                "80 % lesende GET-Anfragen (zufällig), 20 % schreibende POST stock-Anfragen",
+                "#10b981", 20, 10, 60, "Mixed-Load", "logistik-mixed.jmx");
+
+        Details workflowAcc  = buildScenarioSection(
+                "Workflow E2E",
+                "Vollständiger Wareneingangs-Workflow als Transaktion: POST receipt -> GET article -> POST item -> PUT status -> POST complete",
+                "#f59e0b", 10, 10, 60, "Workflow-E2E", "logistik-workflow.jmx");
+
+        Details conflictAcc  = buildScenarioSection(
+                "Concurrent Conflict",
+                "Alle 50 Threads greifen gleichzeitig auf denselben Artikel zu (0 s Rampup, kein Think-Time) – testet Locking-Verhalten",
+                "#ef4444", 50, 0, 30, "Concurrent-Conflict", "logistik-conflict.jmx");
+
+        VerticalLayout scenarios = new VerticalLayout(
+                szTitle, writLoadAcc, mixedAcc, workflowAcc, conflictAcc);
+        scenarios.setPadding(false);
+        scenarios.setWidthFull();
+        scenarios.getStyle().set("gap", "8px");
 
         // ── Live-Metriken ─────────────────────────────────────────────────────
         HorizontalLayout cardsRow = new HorizontalLayout(
@@ -535,7 +570,7 @@ public class MonitoringView extends Div {
         footer.setPadding(false);
         footer.getStyle().set("gap", "14px");
 
-        VerticalLayout tab = new VerticalLayout(intro, accordions, cardsRow, footer);
+        VerticalLayout tab = new VerticalLayout(intro, accordions, scenarios, cardsRow, footer);
         tab.setPadding(false);
         tab.setWidthFull();
         tab.getStyle().set("gap", "16px");
@@ -554,10 +589,10 @@ public class MonitoringView extends Div {
         Div header = new Div(titleSpan, viewSpan);
 
         // ── Testtyp-Buttons ───────────────────────────────────────────────────
-        Button soakBtn     = buildTestTypeButton("Soak",     "#6366f1", 10,  10, 120, testPrefix + "-Soak");
-        Button spikeBtn    = buildTestTypeButton("Spike",    "#ef4444", 100,  2,  40, testPrefix + "-Spike");
-        Button capacityBtn = buildTestTypeButton("Capacity", "#f59e0b",  50, 45,  90, testPrefix + "-Capacity");
-        Button stressBtn   = buildTestTypeButton("Stress",   "#dc2626", 150,  5,  60, testPrefix + "-Stress");
+        Button soakBtn     = buildTestTypeButton("Soak",     "#6366f1", 10,  10, 120, testPrefix + "-Soak",     "logistik-parametrisiert.jmx");
+        Button spikeBtn    = buildTestTypeButton("Spike",    "#ef4444", 100,  2,  40, testPrefix + "-Spike",    "logistik-parametrisiert.jmx");
+        Button capacityBtn = buildTestTypeButton("Capacity", "#f59e0b",  50, 45,  90, testPrefix + "-Capacity", "logistik-parametrisiert.jmx");
+        Button stressBtn   = buildTestTypeButton("Stress",   "#dc2626", 150,  5,  60, testPrefix + "-Stress",   "logistik-parametrisiert.jmx");
 
         HorizontalLayout btnRow = new HorizontalLayout(soakBtn, spikeBtn, capacityBtn, stressBtn);
         btnRow.setPadding(false);
@@ -585,15 +620,51 @@ public class MonitoringView extends Div {
         return details;
     }
 
+    private Details buildScenarioSection(String title, String description,
+                                          String color, int threads, int rampup, int duration,
+                                          String testName, String jmxFileName) {
+        Span titleSpan = new Span(title);
+        titleSpan.getStyle()
+                .set("font-weight", "700").set("color", color).set("font-size", "0.95rem");
+        Div header = new Div(titleSpan);
+
+        Span desc = new Span(description);
+        desc.getStyle()
+                .set("font-size", "0.8rem").set("color", "#64748b")
+                .set("display", "block").set("margin-bottom", "10px");
+
+        HorizontalLayout paramRow = new HorizontalLayout(
+                testParamBadge("Threads",  String.valueOf(threads),          color),
+                testParamBadge("Rampup",   rampup + " s",                    color),
+                testParamBadge("Dauer",    duration + " s",                  color),
+                testParamBadge("JMX",      jmxFileName,                      "#64748b")
+        );
+        paramRow.setPadding(false);
+        paramRow.getStyle().set("gap", "6px").set("flex-wrap", "wrap").set("margin-bottom", "8px");
+
+        Button runBtn = buildTestTypeButton("Starten", color, threads, rampup, duration, testName, jmxFileName);
+
+        VerticalLayout content = new VerticalLayout(desc, paramRow, runBtn);
+        content.setPadding(false);
+        content.getStyle().set("gap", "6px");
+
+        Details details = new Details(header, content);
+        details.setWidthFull();
+        details.getStyle()
+                .set("border", "1px solid #e2e8f0").set("border-radius", "10px")
+                .set("padding", "12px 16px").set("background", "white");
+        return details;
+    }
+
     private Button buildTestTypeButton(String label, String color,
                                         int threads, int rampup, int duration,
-                                        String testName) {
+                                        String testName, String jmxFileName) {
         Button btn = new Button("▶  " + label);
         btn.getStyle()
                 .set("background", color).set("color", "white")
                 .set("border-radius", "8px").set("font-weight", "700").set("font-size", "0.82rem")
                 .set("box-shadow", "0 2px 8px " + color + "55");
-        btn.addClickListener(e -> launchJMeter(testName, threads, rampup, duration));
+        btn.addClickListener(e -> launchJMeter(testName, threads, rampup, duration, jmxFileName));
         testButtons.add(btn);
         return btn;
     }
@@ -672,7 +743,7 @@ public class MonitoringView extends Div {
     //  JMeter-Steuerung
     // ══════════════════════════════════════════════════════════════════════════
 
-    private void launchJMeter(String name, int threads, int rampup, int duration) {
+    private void launchJMeter(String name, int threads, int rampup, int duration, String jmxFileName) {
         if (testRunning.getAndSet(true)) return;
 
         String jmeterJar = jmeterHome + "/bin/ApacheJMeter.jar";
@@ -684,7 +755,7 @@ public class MonitoringView extends Div {
             return;
         }
 
-        Path jmxFile = Path.of("monitoring/jmeter/logistik-parametrisiert.jmx").toAbsolutePath();
+        Path jmxFile = Path.of("monitoring/jmeter/" + jmxFileName).toAbsolutePath();
         if (!jmxFile.toFile().exists()) {
             showError("JMX-Datei nicht gefunden: " + jmxFile);
             testRunning.set(false);

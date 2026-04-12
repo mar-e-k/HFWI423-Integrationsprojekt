@@ -16,7 +16,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Lasttest-Endpunkte fuer OrderPickingView.
+ * Lasttest-Endpunkte für OrderPickingView.
  * Basis-URL: /api/load/kommissionen
  */
 @RestController
@@ -59,7 +59,7 @@ public class LoadTestKommissionController {
         return Map.of("result", "Woechentliche Kommissionierung ausgeloest");
     }
 
-    /** PUT /api/load/kommissionen/{id}/finish – Kommission abschliessen */
+    /** PUT /api/load/kommissionen/{id}/finish – Kommission abschließen */
     @PutMapping("/{id}/finish")
     public Kommission finishKommission(@PathVariable Long id) {
         Kommission kommission = kommissionRepository.findById(id)

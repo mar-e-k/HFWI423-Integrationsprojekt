@@ -119,7 +119,7 @@ public class RestockView extends Div {
             approveButton.addClickListener(click -> {
                 try {
                     restockOrderService.approveOrder(item);
-                    Notification.show("Bestellung fuer " + item.getName() + " freigegeben.");
+                    Notification.show("Bestellung für " + item.getName() + " freigegeben.");
                     updateGrid();
                 } catch (Exception ex) {
                     Notification.show(ex.getMessage(), 5000, Notification.Position.MIDDLE);

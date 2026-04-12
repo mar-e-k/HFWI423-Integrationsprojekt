@@ -93,7 +93,7 @@ public class NewArticlesView extends Div {
             Button chooseLocation = new Button("Location waehlen", e -> {
                 StorageLocationPickerDialog dlg = new StorageLocationPickerDialog(
                         storageLocationService,
-                        "Location fuer " + candidate.getName(),
+                        "Location für " + candidate.getName(),
                         selected -> {
                             if (selected != null) {
                                 selectedLocationHolder[0] = selected;

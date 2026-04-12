@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.List;
 
 /**
- * Lasttest-Endpunkte fuer Views ohne eigene Kategorie:
+ * Lasttest-Endpunkte für Views ohne eigene Kategorie:
  * RestockView, StockChangeLogView, NewArticlesView, MessagingView.
  * Basis-URL: /api/load
  */

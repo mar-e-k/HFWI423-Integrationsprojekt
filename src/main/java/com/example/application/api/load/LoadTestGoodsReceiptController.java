@@ -14,7 +14,7 @@ import java.time.LocalDate;
 import java.util.List;
 
 /**
- * Lasttest-Endpunkte fuer GoodsReceiptView.
+ * Lasttest-Endpunkte für GoodsReceiptView.
  * Basis-URL: /api/load/goods-receipts
  */
 @RestController
@@ -51,7 +51,7 @@ public class LoadTestGoodsReceiptController {
         return goodsReceiptService.create(supplier, note, date);
     }
 
-    /** POST /api/load/goods-receipts/{id}/items – Position hinzufuegen */
+    /** POST /api/load/goods-receipts/{id}/items – Position hinzufügen */
     @PostMapping("/{id}/items")
     @ResponseStatus(HttpStatus.CREATED)
     public GoodsReceiptItem addItem(
@@ -99,7 +99,7 @@ public class LoadTestGoodsReceiptController {
         }
     }
 
-    /** POST /api/load/goods-receipts/{id}/complete – Pruefung abschliessen */
+    /** POST /api/load/goods-receipts/{id}/complete – Prüfung abschließen */
     @PostMapping("/{id}/complete")
     public GoodsReceipt completeInspection(@PathVariable Long id) {
         try {
@@ -111,7 +111,7 @@ public class LoadTestGoodsReceiptController {
         }
     }
 
-    /** DELETE /api/load/goods-receipts/{id} – Wareneingang loeschen */
+    /** DELETE /api/load/goods-receipts/{id} – Wareneingang löschen */
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deleteGoodsReceipt(@PathVariable Long id) {
