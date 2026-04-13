@@ -1,4 +1,4 @@
-package de.fhdw.vendix.commons.spring.app.context.app;
+package de.fhdw.vendix.commons.spring.security.context.app;
 
 import java.util.UUID;
 

@@ -1,4 +1,4 @@
-package de.fhdw.vendix.commons.spring.app.context.store;
+package de.fhdw.vendix.store.core.store;
 
 import de.fhdw.vendix.commons.api.domain.store.StoreDTO;
 import org.springframework.context.ApplicationEvent;

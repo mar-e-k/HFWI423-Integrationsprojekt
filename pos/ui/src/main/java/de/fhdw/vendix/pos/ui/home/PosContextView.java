@@ -17,7 +17,7 @@ import com.vaadin.flow.theme.aura.Aura;
 import de.fhdw.vendix.commons.api.domain.account_role.Role;
 import de.fhdw.vendix.commons.api.domain.register.RegisterDTO;
 import de.fhdw.vendix.commons.api.domain.store.StoreDTO;
-import de.fhdw.vendix.commons.spring.app.context.register.RegisterContext;
+import de.fhdw.vendix.pos.core.register.RegisterContext;
 import de.fhdw.vendix.commons.spring.web.client.orchestrator.api.RegisterProxyService;
 import de.fhdw.vendix.commons.spring.web.client.orchestrator.api.StoreProxyService;
 import de.fhdw.vendix.pos.ui.PosAppLayout;
