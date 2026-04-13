@@ -55,26 +55,13 @@ public class StorageLocationView extends Div {
 
         grid.addComponentColumn(item -> {
             Span id = new Span(buildGeneralId(item));
-            id.getStyle()
-                .set("font-family", "monospace")
-                .set("font-weight", "600")
-                .set("font-size", "0.85rem")
-                .set("color", "#1e293b")
-                .set("background", "#f1f5f9")
-                .set("padding", "2px 8px")
-                .set("border-radius", "6px");
+            id.addClassName("code-badge");
             return id;
         }).setHeader("General ID").setAutoWidth(true).setSortable(false);
 
         grid.addComponentColumn(item -> {
             Span zone = new Span(item.getStorageZone() != null ? item.getStorageZone() : "-");
-            zone.getStyle()
-                .set("padding", "2px 10px")
-                .set("border-radius", "999px")
-                .set("font-size", "0.8rem")
-                .set("font-weight", "600")
-                .set("background", "#ede9fe")
-                .set("color", "#6d28d9");
+            zone.addClassNames("badge", "badge-purple");
             return zone;
         }).setHeader("Zone").setAutoWidth(true).setSortable(true);
 
@@ -84,16 +71,7 @@ public class StorageLocationView extends Div {
         grid.addComponentColumn(item -> {
             boolean available = "Available".equalsIgnoreCase(item.getStorageStatus());
             Span status = new Span(available ? "Available" : "Used");
-            status.getStyle()
-                .set("padding", "2px 10px")
-                .set("border-radius", "999px")
-                .set("font-size", "0.8rem")
-                .set("font-weight", "600");
-            if (available) {
-                status.getStyle().set("background", "#dcfce7").set("color", "#16a34a");
-            } else {
-                status.getStyle().set("background", "#fee2e2").set("color", "#dc2626");
-            }
+            status.addClassNames("badge", available ? "badge-success" : "badge-error");
             return status;
         }).setHeader("Status").setAutoWidth(true);
 

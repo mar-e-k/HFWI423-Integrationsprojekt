@@ -57,7 +57,11 @@
       "Bash(curl -s http://admin:admin@localhost:3000/api/search?type=dash-db)",
       "Bash(./mvnw -version)",
       "Bash(docker compose:*)",
-      "mcp__ide__getDiagnostics"
+      "mcp__ide__getDiagnostics",
+      "Bash(mvn compile:*)",
+      "Bash(./mvnw compile:*)",
+      "Bash(JAVA_HOME=\"/c/Program Files/Java/jdk-21\" ./mvnw compile -q)",
+      "Bash(JAVA_HOME=\"/c/Program Files/Java/jdk-21.0.10\" ./mvnw compile -q)"
     ]
   }
 }

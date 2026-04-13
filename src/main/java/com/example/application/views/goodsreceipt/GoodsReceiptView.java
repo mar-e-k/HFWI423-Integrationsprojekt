@@ -91,18 +91,14 @@ public class GoodsReceiptView extends Div {
         grid.addComponentColumn(gr -> {
             String status = gr.getStatus() != null ? gr.getStatus().toString() : "-";
             Span badge = new Span(status);
-            badge.getStyle()
-                .set("padding", "2px 10px")
-                .set("border-radius", "999px")
-                .set("font-size", "0.75rem")
-                .set("font-weight", "600");
+            badge.addClassName("badge");
             String upper = status.toUpperCase();
             if (upper.contains("ABGESCHLOSSEN") || upper.contains("COMPLETE") || upper.contains("DONE")) {
-                badge.getStyle().set("background", "#dcfce7").set("color", "#16a34a");
+                badge.addClassName("badge-success");
             } else if (upper.contains("GESPERRT") || upper.contains("BLOCKED") || upper.contains("ERROR")) {
-                badge.getStyle().set("background", "#fee2e2").set("color", "#dc2626");
+                badge.addClassName("badge-error");
             } else {
-                badge.getStyle().set("background", "#ede9fe").set("color", "#6d28d9");
+                badge.addClassName("badge-purple");
             }
             return badge;
         }).setHeader("Status").setAutoWidth(true).setSortable(true);
@@ -325,18 +321,14 @@ public class GoodsReceiptView extends Div {
         itemGrid.addComponentColumn(item -> {
             String status = item.getStatus() != null ? item.getStatus().toString() : "-";
             Span badge = new Span(status);
-            badge.getStyle()
-                .set("padding", "2px 10px")
-                .set("border-radius", "999px")
-                .set("font-size", "0.75rem")
-                .set("font-weight", "600");
+            badge.addClassName("badge");
             String upper = status.toUpperCase();
             if (upper.contains("FREIGEGEBEN")) {
-                badge.getStyle().set("background", "#dcfce7").set("color", "#16a34a");
+                badge.addClassName("badge-success");
             } else if (upper.contains("GESPERRT")) {
-                badge.getStyle().set("background", "#fee2e2").set("color", "#dc2626");
+                badge.addClassName("badge-error");
             } else {
-                badge.getStyle().set("background", "#f1f5f9").set("color", "#64748b");
+                badge.addClassName("badge-neutral");
             }
             return badge;
         }).setHeader("Status").setAutoWidth(true);

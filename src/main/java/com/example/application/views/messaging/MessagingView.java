@@ -65,13 +65,7 @@ public class MessagingView extends Div {
         grid.addComponentColumn(item -> {
             String type = item.getEventType() != null ? item.getEventType() : "-";
             Span badge = new Span(type);
-            badge.getStyle()
-                .set("padding", "2px 10px")
-                .set("border-radius", "999px")
-                .set("font-size", "0.75rem")
-                .set("font-weight", "600")
-                .set("background", "#ede9fe")
-                .set("color", "#6d28d9");
+            badge.addClassNames("badge", "badge-purple");
             return badge;
         }).setHeader("Event Typ").setAutoWidth(true).setSortable(true);
 

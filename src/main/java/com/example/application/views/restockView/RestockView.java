@@ -88,7 +88,7 @@ public class RestockView extends Div {
             String val = item.getMinStockDisplay();
             Span s = new Span(val);
             if (item.getMinStock() == null) {
-                s.getStyle().set("color", "#dc2626").set("font-weight", "600");
+                s.addClassName("text-danger-bold");
             }
             return s;
         }).setHeader("Mindestbestand (in Pal.)").setAutoWidth(true);
@@ -99,13 +99,7 @@ public class RestockView extends Div {
             Span s = new Span(val + " Pal.");
             int amount = item.getOrderAmount() != null ? item.getOrderAmount() : 0;
             if (amount > 0) {
-                s.getStyle()
-                    .set("padding", "2px 10px")
-                    .set("border-radius", "999px")
-                    .set("font-weight", "600")
-                    .set("font-size", "0.8rem")
-                    .set("background", "#fef3c7")
-                    .set("color", "#92400e");
+                s.addClassNames("badge", "badge-warning");
             }
             return s;
         }).setHeader("Nachbestellmenge").setAutoWidth(true);

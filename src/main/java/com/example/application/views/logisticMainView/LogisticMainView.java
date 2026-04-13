@@ -285,17 +285,13 @@ public class LogisticMainView extends Div {
             int stock = item.getStockLevel() != null ? item.getStockLevel() : 0;
             int min   = item.getMinStock()   != null ? item.getMinStock()   : 0;
             Span badge = new Span(String.valueOf(stock));
-            badge.getStyle()
-                .set("padding", "2px 10px")
-                .set("border-radius", "999px")
-                .set("font-weight", "600")
-                .set("font-size", "0.8rem");
+            badge.addClassName("badge");
             if (stock == 0) {
-                badge.getStyle().set("background", "#fee2e2").set("color", "#dc2626");
+                badge.addClassName("badge-error");
             } else if (min > 0 && stock < min) {
-                badge.getStyle().set("background", "#fef3c7").set("color", "#d97706");
+                badge.addClassName("badge-warning");
             } else {
-                badge.getStyle().set("background", "#dcfce7").set("color", "#16a34a");
+                badge.addClassName("badge-success");
             }
             return badge;
         }).setHeader("Pick Stock").setAutoWidth(true).setSortable(false);
@@ -320,23 +316,7 @@ public class LogisticMainView extends Div {
             String label = hasLocation ? item.getStorageLocation() : "+ Lagerplatz";
 
             Span badge = new Span(label);
-            badge.getStyle()
-                .set("padding", "3px 10px")
-                .set("border-radius", "999px")
-                .set("font-size", "0.8rem")
-                .set("font-weight", "600")
-                .set("cursor", "pointer")
-                .set("transition", "opacity 0.15s");
-            if (hasLocation) {
-                badge.getStyle()
-                    .set("background", "#dbeafe")
-                    .set("color", "#1d4ed8");
-            } else {
-                badge.getStyle()
-                    .set("background", "#f1f5f9")
-                    .set("color", "#94a3b8")
-                    .set("border", "1px dashed #cbd5e1");
-            }
+            badge.addClassName(hasLocation ? "badge-location-set" : "badge-location-unset");
             badge.addClickListener(e -> openAvailableLocationsDialog(item));
             return badge;
         }).setHeader("Lagerplatz")

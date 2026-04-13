@@ -5,13 +5,13 @@
    KEYFRAMES
 ══════════════════════════════════════════════════════════ */
 @keyframes fadeSlideUp {
-    from { opacity: 0; transform: translateY(12px); }
-    to   { opacity: 1; transform: translateY(0);    }
+    from { opacity: 0; transform: translateY(20px) scale(0.98); }
+    to   { opacity: 1; transform: translateY(0)    scale(1);    }
 }
 
 @keyframes slideDownFade {
-    from { opacity: 0; transform: translateY(-6px); }
-    to   { opacity: 1; transform: translateY(0);    }
+    from { opacity: 0; transform: translateY(-10px); }
+    to   { opacity: 1; transform: translateY(0);     }
 }
 
 @keyframes warningSlideIn {
@@ -46,7 +46,10 @@ vaadin-grid::part(missing-minstock-row):hover {
    PAGE BACKGROUND
 ══════════════════════════════════════════════════════════ */
 .logistic-main-view {
-    background: linear-gradient(160deg, #f0f4ff 0%, #f1f5f9 50%, #f8fafc 100%);
+    background:
+        radial-gradient(ellipse at 15% 55%, rgba(99, 102, 241, 0.08) 0%, transparent 55%),
+        radial-gradient(ellipse at 85% 15%, rgba(139, 92, 246, 0.07) 0%, transparent 55%),
+        linear-gradient(160deg, #f0f4ff 0%, #f1f5f9 50%, #f8fafc 100%);
     padding: 20px;
     box-sizing: border-box;
     min-height: 100%;
@@ -57,27 +60,35 @@ vaadin-grid::part(missing-minstock-row):hover {
 }
 
 /* ══════════════════════════════════════════════════════════
-   CONTENT CARD  – accent top border + lifted shadow
+   CONTENT CARD
 ══════════════════════════════════════════════════════════ */
 .content-card {
-    background: white;
-    border-radius: 16px;
+    background: rgba(255, 255, 255, 0.95);
+    border-radius: 20px;
+    border: 1px solid rgba(255, 255, 255, 0.8);
     box-shadow:
-        0 0 0 1px rgba(99, 102, 241, 0.08),
-        0 4px 6px rgba(15, 23, 42, 0.04),
-        0 12px 32px rgba(15, 23, 42, 0.10);
+        0 0 0 1px rgba(99, 102, 241, 0.05),
+        0 2px 4px  rgba(15, 23, 42, 0.03),
+        0 8px 24px rgba(15, 23, 42, 0.07),
+        0 24px 48px rgba(15, 23, 42, 0.05);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
     padding: 0;
     overflow: hidden;
     height: 100%;
-    transition: box-shadow 0.2s ease;
-    animation: fadeSlideUp 0.35s cubic-bezier(0.4, 0, 0.2, 1) both;
+    transition:
+        box-shadow 0.35s cubic-bezier(0.4, 0, 0.2, 1),
+        transform  0.35s cubic-bezier(0.4, 0, 0.2, 1);
+    animation: fadeSlideUp 0.45s cubic-bezier(0.34, 1.56, 0.64, 1) both;
 }
 
 .content-card:hover {
     box-shadow:
-        0 0 0 1px rgba(99, 102, 241, 0.12),
-        0 4px 6px rgba(15, 23, 42, 0.06),
-        0 16px 40px rgba(15, 23, 42, 0.13);
+        0 0 0 1px rgba(99, 102, 241, 0.09),
+        0 4px 8px   rgba(15, 23, 42, 0.05),
+        0 16px 40px rgba(15, 23, 42, 0.10),
+        0 32px 64px rgba(15, 23, 42, 0.07);
+    transform: translateY(-2px);
 }
 
 /* ══════════════════════════════════════════════════════════
@@ -89,11 +100,13 @@ vaadin-grid::part(missing-minstock-row):hover {
     gap: 12px 16px;
     align-items: end;
     padding: 18px 20px;
-    border-bottom: 1px solid #e8edf5;
-    background: linear-gradient(to right, #fafbff, #f8fafc);
+    border-bottom: 1px solid rgba(232, 237, 245, 0.7);
+    background: rgba(250, 251, 255, 0.88);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
     box-sizing: border-box;
     width: 100%;
-    animation: slideDownFade 0.28s cubic-bezier(0.4, 0, 0.2, 1) 0.08s both;
+    animation: slideDownFade 0.32s cubic-bezier(0.4, 0, 0.2, 1) 0.08s both;
 }
 
 .filter-actions {
@@ -117,56 +130,67 @@ vaadin-grid::part(missing-minstock-row):hover {
    ARTICLE GRID
 ══════════════════════════════════════════════════════════ */
 .article-grid {
-    border-radius: 0 0 13px 13px;
+    border-radius: 0 0 18px 18px;
     overflow: hidden;
 }
 
 .article-grid::part(header-cell) {
     background: linear-gradient(to right, #f8faff, #f4f6fb);
     font-weight: 700;
-    font-size: 0.75rem;
+    font-size: 0.72rem;
     color: #6366f1;
     text-transform: uppercase;
-    letter-spacing: 0.07em;
+    letter-spacing: 0.08em;
     border-bottom: 2px solid #e0e4f0;
 }
 
 .article-grid::part(cell) {
-    padding-top: 13px;
-    padding-bottom: 13px;
+    padding-top: 14px;
+    padding-bottom: 14px;
     font-size: 0.9rem;
     color: #1e293b;
-    border-bottom: 1px solid #f3f4f8;
-    transition: background 0.1s ease;
+    border-bottom: 1px solid rgba(243, 244, 248, 0.8);
+    transition: background-color 0.14s ease;
 }
 
 .article-grid::part(even-row) > ::part(cell) {
-    background: #fafbff;
+    background: rgba(250, 251, 255, 0.65);
 }
 
 /* ══════════════════════════════════════════════════════════
    BUTTONS
 ══════════════════════════════════════════════════════════ */
-
-/* Globales Klick-Feedback für alle Vaadin-Buttons */
 vaadin-button {
-    transition: transform 0.1s ease, opacity 0.1s ease;
+    transition:
+        transform 0.14s cubic-bezier(0.34, 1.56, 0.64, 1),
+        opacity   0.14s ease;
 }
+
 vaadin-button:active {
-    transform: scale(0.96) !important;
-    opacity: 0.85;
+    transform: scale(0.93) !important;
+    opacity: 0.82;
+}
+
+vaadin-button[theme~="primary"]::part(button) {
+    background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+    border: none;
+    box-shadow: 0 4px 14px rgba(99, 102, 241, 0.38);
+    transition:
+        box-shadow 0.25s ease,
+        transform  0.25s cubic-bezier(0.34, 1.56, 0.64, 1),
+        background 0.25s ease;
+}
+
+vaadin-button[theme~="primary"]:hover::part(button) {
+    background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+    box-shadow: 0 8px 24px rgba(99, 102, 241, 0.48);
+    transform: translateY(-2px);
 }
 
 .edit-stock-btn {
     border-radius: 8px;
     font-size: 0.82rem;
     font-weight: 600;
-    transition: transform 0.12s ease, box-shadow 0.12s ease;
-}
-
-.edit-stock-btn:hover {
-    transform: translateY(-1px);
-    box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
 }
 
 .location-link {
@@ -174,7 +198,7 @@ vaadin-button:active {
     color: #4f46e5;
     padding: 0;
     min-width: auto;
-    transition: color 0.12s ease;
+    transition: color 0.14s ease;
 }
 
 .location-link:hover {
@@ -187,34 +211,52 @@ vaadin-button:active {
 ══════════════════════════════════════════════════════════ */
 vaadin-text-field::part(input-field) {
     transition: box-shadow 0.2s ease, border-color 0.2s ease;
+    border-radius: 10px;
 }
 vaadin-text-field[focused]::part(input-field) {
-    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15);
+    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.18);
 }
+
 vaadin-combo-box::part(input-field) {
     transition: box-shadow 0.2s ease, border-color 0.2s ease;
+    border-radius: 10px;
 }
 vaadin-combo-box[focused]::part(input-field) {
-    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15);
+    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.18);
 }
+
 vaadin-date-picker::part(input-field) {
     transition: box-shadow 0.2s ease, border-color 0.2s ease;
+    border-radius: 10px;
 }
 vaadin-date-picker[focused]::part(input-field) {
-    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15);
+    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.18);
 }
+
 vaadin-integer-field::part(input-field) {
     transition: box-shadow 0.2s ease;
+    border-radius: 10px;
 }
 vaadin-integer-field[focused]::part(input-field) {
-    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15);
+    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.18);
+}
+
+vaadin-text-area::part(input-field) {
+    transition: box-shadow 0.2s ease;
+    border-radius: 10px;
+}
+vaadin-text-area[focused]::part(input-field) {
+    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.18);
 }
 
 /* ══════════════════════════════════════════════════════════
-   VIEW PAGE WRAPPER (alle Views)
+   VIEW PAGE WRAPPER
 ══════════════════════════════════════════════════════════ */
 .view-page {
-    background: linear-gradient(160deg, #f0f4ff 0%, #f1f5f9 50%, #f8fafc 100%);
+    background:
+        radial-gradient(ellipse at 15% 55%, rgba(99, 102, 241, 0.08) 0%, transparent 55%),
+        radial-gradient(ellipse at 85% 15%, rgba(139, 92, 246, 0.07) 0%, transparent 55%),
+        linear-gradient(160deg, #f0f4ff 0%, #f1f5f9 50%, #f8fafc 100%);
     padding: 20px;
     box-sizing: border-box;
     min-height: 100%;
@@ -225,11 +267,13 @@ vaadin-integer-field[focused]::part(input-field) {
 ══════════════════════════════════════════════════════════ */
 .view-toolbar {
     padding: 16px 20px;
-    border-bottom: 1px solid #e8edf5;
-    background: linear-gradient(to right, #fafbff, #f8fafc);
+    border-bottom: 1px solid rgba(232, 237, 245, 0.7);
+    background: rgba(250, 251, 255, 0.88);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
     box-sizing: border-box;
     flex-shrink: 0;
-    animation: slideDownFade 0.28s cubic-bezier(0.4, 0, 0.2, 1) 0.08s both;
+    animation: slideDownFade 0.32s cubic-bezier(0.4, 0, 0.2, 1) 0.08s both;
 }
 
 /* ══════════════════════════════════════════════════════════
@@ -240,13 +284,15 @@ vaadin-integer-field[focused]::part(input-field) {
     align-items: center;
     gap: 8px;
     padding: 10px 20px;
-    background: linear-gradient(to right, #fef9ec, #fef3c7);
+    background: rgba(254, 249, 236, 0.92);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
     color: #92400e;
     font-weight: 600;
     font-size: 0.85rem;
-    border-bottom: 1px solid #fde68a;
+    border-bottom: 1px solid rgba(253, 230, 138, 0.6);
     border-left: 3px solid #f59e0b;
-    animation: warningSlideIn 0.3s cubic-bezier(0.4, 0, 0.2, 1) both;
+    animation: warningSlideIn 0.35s cubic-bezier(0.4, 0, 0.2, 1) both;
     overflow: hidden;
 }
 
@@ -256,42 +302,43 @@ vaadin-integer-field[focused]::part(input-field) {
 .empty-state-msg {
     color: #94a3b8;
     font-style: italic;
-    padding: 40px 20px;
+    padding: 56px 20px;
     text-align: center;
     font-size: 0.95rem;
+    animation: fadeSlideUp 0.4s cubic-bezier(0.4, 0, 0.2, 1) both;
 }
 
 /* ══════════════════════════════════════════════════════════
-   APP GRID – einheitliches Grid-Design für alle Views
+   APP GRID – einheitliches Grid-Design
 ══════════════════════════════════════════════════════════ */
 .app-grid::part(header-cell) {
     background: linear-gradient(to right, #f8faff, #f4f6fb);
     font-weight: 700;
-    font-size: 0.75rem;
+    font-size: 0.72rem;
     color: #6366f1;
     text-transform: uppercase;
-    letter-spacing: 0.07em;
+    letter-spacing: 0.08em;
     border-bottom: 2px solid #e0e4f0;
 }
 
 .app-grid::part(cell) {
-    padding-top: 13px;
-    padding-bottom: 13px;
+    padding-top: 14px;
+    padding-bottom: 14px;
     font-size: 0.9rem;
     color: #1e293b;
-    border-bottom: 1px solid #f3f4f8;
-    transition: background 0.1s ease;
+    border-bottom: 1px solid rgba(243, 244, 248, 0.8);
+    transition: background-color 0.14s ease;
 }
 
 .app-grid::part(even-row) > ::part(cell) {
-    background: #fafbff;
+    background: rgba(250, 251, 255, 0.65);
 }
 
 /* ══════════════════════════════════════════════════════════
    MONITORING VIEW – Metric Cards
 ══════════════════════════════════════════════════════════ */
 .metric-section-title {
-    font-size: 0.75rem;
+    font-size: 0.72rem;
     font-weight: 700;
     color: #6366f1;
     text-transform: uppercase;
@@ -312,12 +359,14 @@ vaadin-integer-field[focused]::part(input-field) {
 .app-topbar {
     height: 72px;
     padding: 0 28px;
-    border-bottom: 1px solid #e2e8f0;
-    background: white;
+    border-bottom: 1px solid rgba(226, 232, 240, 0.5);
+    background: rgba(255, 255, 255, 0.88);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
     box-sizing: border-box;
     display: flex;
     align-items: center;
-    box-shadow: 0 1px 12px rgba(15, 23, 42, 0.07);
+    box-shadow: 0 1px 20px rgba(15, 23, 42, 0.06);
 }
 
 .app-drawer-toggle {
@@ -364,4 +413,116 @@ vaadin-integer-field[focused]::part(input-field) {
 
 .app-user-avatar {
     --vaadin-avatar-size: 34px;
+}
+
+/* ══════════════════════════════════════════════════════════
+   BADGES – wiederverwendbare Status-/Typ-Badges
+══════════════════════════════════════════════════════════ */
+.badge {
+    padding: 3px 11px;
+    border-radius: 999px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    display: inline-block;
+    transition:
+        transform  0.18s cubic-bezier(0.34, 1.56, 0.64, 1),
+        box-shadow 0.18s ease;
+}
+
+.badge:hover {
+    transform: scale(1.06);
+}
+
+.badge-success { background: #dcfce7; color: #16a34a; }
+.badge-warning { background: #fef3c7; color: #92400e; }
+.badge-error   { background: #fee2e2; color: #dc2626; }
+.badge-purple  { background: #ede9fe; color: #6d28d9; }
+.badge-neutral { background: #f1f5f9; color: #64748b; }
+.badge-info    { background: #dbeafe; color: #1d4ed8; }
+
+/* Monospace-Badge fuer IDs */
+.code-badge {
+    font-family: "SF Mono", "Fira Code", "Consolas", monospace;
+    font-weight: 600;
+    font-size: 0.83rem;
+    color: #1e293b;
+    background: #f1f5f9;
+    padding: 2px 8px;
+    border-radius: 6px;
+    transition: background 0.15s ease;
+}
+
+.code-badge:hover {
+    background: #e2e8f0;
+}
+
+/* Delta-Wert in Bestandsaenderungen */
+.delta-positive { font-weight: 700; color: #16a34a; }
+.delta-negative { font-weight: 700; color: #dc2626; }
+
+/* Abgedunkelter Text fuer abgeschlossene Zeilen */
+.text-muted-row { opacity: 0.45; }
+
+/* Fehlender Mindestbestand */
+.text-danger-bold { color: #dc2626; font-weight: 600; }
+
+/* Lagerplatz-Badges */
+.badge-location-set {
+    padding: 3px 10px;
+    border-radius: 999px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    cursor: pointer;
+    background: #dbeafe;
+    color: #1d4ed8;
+    display: inline-block;
+    transition: all 0.22s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.badge-location-set:hover {
+    background: #bfdbfe;
+    box-shadow: 0 3px 10px rgba(29, 78, 216, 0.22);
+    transform: translateY(-1px);
+}
+
+.badge-location-unset {
+    padding: 3px 10px;
+    border-radius: 999px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    cursor: pointer;
+    background: #f8fafc;
+    color: #94a3b8;
+    border: 1px dashed #cbd5e1;
+    display: inline-block;
+    transition: all 0.22s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.badge-location-unset:hover {
+    background: #f0f4ff;
+    color: #6366f1;
+    border-color: #6366f1;
+    box-shadow: 0 3px 10px rgba(99, 102, 241, 0.18);
+    transform: translateY(-1px);
+}
+
+/* ══════════════════════════════════════════════════════════
+   CUSTOM SCROLLBAR
+══════════════════════════════════════════════════════════ */
+::-webkit-scrollbar {
+    width: 5px;
+    height: 5px;
+}
+
+::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+    background: rgba(99, 102, 241, 0.22);
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: rgba(99, 102, 241, 0.48);
 }

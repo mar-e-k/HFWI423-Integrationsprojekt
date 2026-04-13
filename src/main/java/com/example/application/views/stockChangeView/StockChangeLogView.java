@@ -57,18 +57,14 @@ public class StockChangeLogView extends Div {
         grid.addComponentColumn(item -> {
             String type = item.getChangeType() != null ? item.getChangeType().toString() : "-";
             Span badge = new Span(type);
-            badge.getStyle()
-                .set("padding", "2px 10px")
-                .set("border-radius", "999px")
-                .set("font-size", "0.75rem")
-                .set("font-weight", "600");
+            badge.addClassName("badge");
             String t = type.toUpperCase();
             if (t.contains("ADD") || t.contains("INCREASE") || t.contains("GOODS")) {
-                badge.getStyle().set("background", "#dcfce7").set("color", "#16a34a");
+                badge.addClassName("badge-success");
             } else if (t.contains("REMOVE") || t.contains("DECREASE") || t.contains("PICK")) {
-                badge.getStyle().set("background", "#fee2e2").set("color", "#dc2626");
+                badge.addClassName("badge-error");
             } else {
-                badge.getStyle().set("background", "#f1f5f9").set("color", "#64748b");
+                badge.addClassName("badge-neutral");
             }
             return badge;
         }).setHeader("Typ").setAutoWidth(true);
@@ -78,8 +74,7 @@ public class StockChangeLogView extends Div {
         grid.addComponentColumn(item -> {
             int delta = item.getDelta() != null ? item.getDelta() : 0;
             Span s = new Span((delta >= 0 ? "+" : "") + delta);
-            s.getStyle().set("font-weight", "700")
-                .set("color", delta >= 0 ? "#16a34a" : "#dc2626");
+            s.addClassName(delta >= 0 ? "delta-positive" : "delta-negative");
             return s;
         }).setHeader("Delta").setAutoWidth(true);
 

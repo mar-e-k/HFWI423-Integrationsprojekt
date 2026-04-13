@@ -35,7 +35,7 @@ import java.util.stream.Collectors;
 @Route("order-picking")
 @PageTitle("Order Picking")
 @Menu(order = 6, icon = LineAwesomeIconUrl.TRUCK_SOLID)
-public class orderPickingMainView extends VerticalLayout {
+public class orderPickingMainView extends Div {
 
     private final KommissionService service;
     private final MessageLogisticRepository msgRepo;
@@ -58,8 +58,6 @@ public class orderPickingMainView extends VerticalLayout {
         this.logisticEventPublisher = logisticEventPublisher;
         this.weeklyScheduler = weeklyScheduler;
         setSizeFull();
-        setPadding(false);
-        setSpacing(false);
         addClassName("view-page");
 
         // Einfache Toolbar zum Neuladen der Kommissionen
@@ -82,7 +80,7 @@ public class orderPickingMainView extends VerticalLayout {
         grid.addComponentColumn(k -> {
             Span span = new Span(String.valueOf(k.getOrderPickingNumber()));
             if (Boolean.TRUE.equals(k.getFinished())) {
-                span.getStyle().set("opacity", "0.5");
+                span.addClassName("text-muted-row");
             }
             return span;
         }).setHeader("Order Picking Nr.").setAutoWidth(true);
@@ -92,7 +90,7 @@ public class orderPickingMainView extends VerticalLayout {
             String text = k.getDate() != null ? k.getDate().toString() : "";
             Span span = new Span(text);
             if (Boolean.TRUE.equals(k.getFinished())) {
-                span.getStyle().set("opacity", "0.5");
+                span.addClassName("text-muted-row");
             }
             return span;
         }).setHeader("Created").setAutoWidth(true);
@@ -102,7 +100,7 @@ public class orderPickingMainView extends VerticalLayout {
             String store = k.getStoreId() != null ? k.getStoreId() : "";
             Span span = new Span(store);
             if (Boolean.TRUE.equals(k.getFinished())) {
-                span.getStyle().set("opacity", "0.5");
+                span.addClassName("text-muted-row");
             }
             return span;
         }).setHeader("Store").setAutoWidth(true);
@@ -111,16 +109,7 @@ public class orderPickingMainView extends VerticalLayout {
         grid.addComponentColumn(k -> {
             boolean finished = Boolean.TRUE.equals(k.getFinished());
             Span badge = new Span(finished ? "Abgeschlossen" : "Offen");
-            badge.getStyle()
-                    .set("padding", "2px 10px")
-                    .set("border-radius", "999px")
-                    .set("font-size", "0.75rem")
-                    .set("font-weight", "600");
-            if (finished) {
-                badge.getStyle().set("background", "#dcfce7").set("color", "#16a34a");
-            } else {
-                badge.getStyle().set("background", "#fef3c7").set("color", "#92400e");
-            }
+            badge.addClassNames("badge", finished ? "badge-success" : "badge-warning");
             return badge;
         }).setHeader("Status").setAutoWidth(true);
 
@@ -334,7 +323,6 @@ public class orderPickingMainView extends VerticalLayout {
         card.addClassName("content-card");
         card.setSizeFull();
         add(card);
-        setFlexGrow(1, card);
     }
 
     // Sendet nach dem Abschließen die Rückmeldung an die Filiale

@@ -6,17 +6,17 @@
    KEYFRAMES (Layout)
 ══════════════════════════════════════════════════════════ */
 @keyframes drawerSlideIn {
-  from { opacity: 0; transform: translateX(-16px); }
+  from { opacity: 0; transform: translateX(-20px); }
   to   { opacity: 1; transform: translateX(0);     }
 }
 
 @keyframes topbarFadeIn {
-  from { opacity: 0; transform: translateY(-8px); }
-  to   { opacity: 1; transform: translateY(0);    }
+  from { opacity: 0; transform: translateY(-10px); }
+  to   { opacity: 1; transform: translateY(0);     }
 }
 
 @keyframes titleSwapIn {
-  from { opacity: 0; transform: translateY(6px); }
+  from { opacity: 0; transform: translateY(8px); }
   to   { opacity: 1; transform: translateY(0);   }
 }
 
@@ -24,14 +24,17 @@
    DRAWER
 ══════════════════════════════════════════════════════════ */
 vaadin-app-layout::part(drawer) {
-  background: #0f172a;
+  background:
+    radial-gradient(ellipse at 50% 0%,   rgba(99, 102, 241, 0.18) 0%, transparent 55%),
+    radial-gradient(ellipse at 10% 100%, rgba(139, 92, 246, 0.12) 0%, transparent 50%),
+    linear-gradient(180deg, #0d1526 0%, #0f172a 45%, #0b1120 100%);
   border-right: none;
-  box-shadow: 4px 0 24px rgba(0, 0, 0, 0.25);
+  box-shadow: 4px 0 32px rgba(0, 0, 0, 0.32);
   padding: 0;
   display: flex;
   flex-direction: column;
   align-items: stretch;
-  animation: drawerSlideIn 0.4s cubic-bezier(0.4, 0, 0.2, 1) both;
+  animation: drawerSlideIn 0.45s cubic-bezier(0.34, 1.56, 0.64, 1) both;
 }
 
 .app-drawer-scroller {
@@ -41,7 +44,7 @@ vaadin-app-layout::part(drawer) {
 .app-drawer-layout {
   width: 100%;
   box-sizing: border-box;
-  background: #0f172a;
+  background: transparent;
 }
 
 /* ── Drawer Header ───────────────────────────────────────── */
@@ -54,22 +57,35 @@ vaadin-app-layout::part(drawer) {
   flex-direction: column;
   justify-content: center;
   gap: 0.2rem;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-  background: linear-gradient(145deg, #1e3a8a 0%, #312e81 100%);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  background: linear-gradient(135deg, #1e3a8a 0%, #2e1065 55%, #312e81 100%);
   position: relative;
   overflow: hidden;
 }
 
-/* Decorative glow blob in header */
+/* Glow-Blobs im Header */
 .app-drawer-header::after {
   content: '';
   position: absolute;
-  top: -20px;
-  right: -20px;
-  width: 80px;
-  height: 80px;
+  top: -25px;
+  right: -15px;
+  width: 100px;
+  height: 100px;
   border-radius: 50%;
-  background: rgba(99, 102, 241, 0.35);
+  background: rgba(99, 102, 241, 0.5);
+  filter: blur(30px);
+  pointer-events: none;
+}
+
+.app-drawer-header::before {
+  content: '';
+  position: absolute;
+  bottom: -15px;
+  left: 20px;
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  background: rgba(139, 92, 246, 0.35);
   filter: blur(20px);
   pointer-events: none;
 }
@@ -81,33 +97,38 @@ vaadin-app-layout::part(drawer) {
   line-height: 1.2;
   color: white;
   letter-spacing: -0.01em;
+  position: relative;
+  z-index: 1;
 }
 
 .app-drawer-subtitle {
   font-size: 0.73rem;
-  color: rgba(255, 255, 255, 0.55);
+  color: rgba(255, 255, 255, 0.48);
   line-height: 1.35;
   font-weight: 500;
   letter-spacing: 0.02em;
+  position: relative;
+  z-index: 1;
 }
 
 /* ── Navigation ──────────────────────────────────────────── */
 .app-nav-section-label {
   color: white;
-  font-size: 0.8rem;
+  font-size: 0.68rem;
   font-weight: 700;
-  letter-spacing: 0.1em;
+  letter-spacing: 0.14em;
   text-transform: uppercase;
-  padding: 0.75rem 1rem 0.25rem;
-  opacity: 0.8;
+  padding: 0.85rem 1rem 0.3rem;
+  opacity: 0.45;
   display: flex;
   align-items: center;
   justify-content: space-between;
   user-select: none;
+  transition: opacity 0.2s ease;
 }
 
 .app-nav-section-label:hover {
-  opacity: 1;
+  opacity: 0.75;
 }
 
 .app-nav-section-chevron {
@@ -115,11 +136,11 @@ vaadin-app-layout::part(drawer) {
   height: 0;
   border-left: 4px solid transparent;
   border-right: 4px solid transparent;
-  border-top: 5px solid rgba(255, 255, 255, 0.8);
+  border-top: 5px solid rgba(255, 255, 255, 0.65);
   flex-shrink: 0;
   margin-left: 6px;
   transform: rotate(0deg);
-  transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: transform 0.38s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .app-nav-section-chevron.collapsed {
@@ -127,17 +148,18 @@ vaadin-app-layout::part(drawer) {
 }
 
 .app-sidenav {
-  padding: 0.5rem;
+  padding: 0.4rem;
   display: flex;
   flex-direction: column;
-  gap: 0.15rem;
+  gap: 0.1rem;
 }
 
 .app-sidenav-wrapper {
   display: grid;
   grid-template-rows: 1fr;
-  transition: grid-template-rows 0.4s cubic-bezier(0.4, 0, 0.2, 1),
-              opacity 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+  transition:
+    grid-template-rows 0.42s cubic-bezier(0.4, 0, 0.2, 1),
+    opacity            0.38s cubic-bezier(0.4, 0, 0.2, 1);
   opacity: 1;
   overflow: hidden;
 }
@@ -154,13 +176,16 @@ vaadin-app-layout::part(drawer) {
 .app-nav-item {
   border-radius: 10px;
   margin: 0;
-  min-height: 42px;
-  transition: background-color 0.2s ease-out, box-shadow 0.2s ease-out, transform 0.2s ease-out;
+  min-height: 40px;
+  transition:
+    background-color 0.2s ease,
+    box-shadow       0.2s ease,
+    transform        0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
   position: relative;
 }
 
 .app-nav-item::part(link) {
-  min-height: 42px;
+  min-height: 40px;
   padding: 0 0.85rem;
   border-radius: 10px;
   display: flex;
@@ -168,27 +193,29 @@ vaadin-app-layout::part(drawer) {
   gap: 0.75rem;
   font-size: 0.875rem;
   font-weight: 500;
-  color: rgba(255, 255, 255, 0.65);
-  transition: color 0.2s ease-out;
+  color: rgba(255, 255, 255, 0.52);
+  transition: color 0.2s ease;
 }
 
 .app-nav-item:hover {
-  background-color: rgba(255, 255, 255, 0.1);
-  box-shadow: inset 2px 0 0 rgba(99, 102, 241, 0.5);
-  transform: translateX(3px);
+  background-color: rgba(255, 255, 255, 0.07);
+  box-shadow: inset 2px 0 0 rgba(99, 102, 241, 0.65);
+  transform: translateX(5px);
 }
 
 .app-nav-item:hover::part(link) {
-  color: white;
+  color: rgba(255, 255, 255, 0.92);
 }
 
 /* Active item */
 .app-nav-item[aria-current='page'] {
-  background: linear-gradient(90deg, rgba(99, 102, 241, 0.25) 0%, rgba(99, 102, 241, 0.05) 100%);
-  box-shadow: inset 3px 0 0 #6366f1;
+  background: linear-gradient(90deg, rgba(99, 102, 241, 0.30) 0%, rgba(99, 102, 241, 0.04) 100%);
+  box-shadow:
+    inset 3px 0 0 #6366f1,
+    0 0 24px rgba(99, 102, 241, 0.14);
 }
 
-.app-nav-item[aria-current='page']::part(content) {
+.app-nav-item[aria-current='page']::part(link) {
   background-color: transparent;
   color: white;
   font-weight: 600;
@@ -200,19 +227,16 @@ vaadin-app-layout::part(drawer) {
   width: 17px;
   height: 17px;
   flex-shrink: 0;
-  color: rgba(255, 255, 255, 0.5);
-  transition: color 0.2s ease-out, transform 0.2s ease-out;
+  color: rgba(255, 255, 255, 0.38);
+  transition:
+    color     0.2s ease,
+    transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
 .app-nav-item:hover vaadin-icon,
 .app-nav-item:hover svg {
-  color: rgba(255, 255, 255, 0.9);
-  transform: scale(1.15);
-}
-
-.app-nav-item::part(content):hover vaadin-icon,
-.app-nav-item::part(content):hover svg {
-  color: rgba(255, 255, 255, 0.8);
+  color: rgba(255, 255, 255, 0.85);
+  transform: scale(1.2);
 }
 
 .app-nav-item[aria-current='page'] vaadin-icon,
@@ -235,28 +259,36 @@ vaadin-app-layout::part(drawer) {
   align-items: center;
   justify-content: center;
   box-sizing: border-box;
-  box-shadow: 0 0 10px rgba(99, 102, 241, 0.6);
-  animation: badge-pulse 2.5s ease-in-out infinite;
+  animation: badge-pulse 2.8s ease-in-out infinite;
 }
 
 @keyframes badge-pulse {
-  0%, 100% { box-shadow: 0 0 8px rgba(99, 102, 241, 0.5); }
-  50%       { box-shadow: 0 0 18px rgba(99, 102, 241, 0.9); }
+  0%, 100% {
+    box-shadow: 0 0 8px  rgba(99, 102, 241, 0.55),
+                0 0 0 0  rgba(99, 102, 241, 0.3);
+  }
+  50% {
+    box-shadow: 0 0 20px rgba(99, 102, 241, 0.9),
+                0 0 0 5px rgba(99, 102, 241, 0.08);
+  }
 }
 
 /* ── Topbar ──────────────────────────────────────────────── */
 .app-topbar {
   height: 72px;
   padding: 0 28px;
-  border-bottom: 1px solid #e2e8f0;
-  background: white;
+  border-bottom: 1px solid rgba(226, 232, 240, 0.45);
+  background: rgba(255, 255, 255, 0.88);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
   box-sizing: border-box;
-  box-shadow: 0 1px 12px rgba(15, 23, 42, 0.07);
+  box-shadow: 0 1px 20px rgba(15, 23, 42, 0.06);
   position: relative;
   overflow: hidden;
-  animation: topbarFadeIn 0.3s cubic-bezier(0.4, 0, 0.2, 1) both;
+  animation: topbarFadeIn 0.32s cubic-bezier(0.4, 0, 0.2, 1) both;
 }
 
+/* Gradient-Akzentlinie am unteren Rand */
 .app-topbar::after {
   content: '';
   position: absolute;
@@ -264,7 +296,7 @@ vaadin-app-layout::part(drawer) {
   left: 0;
   right: 0;
   height: 2px;
-  background: linear-gradient(90deg, #6366f1 0%, #8b5cf6 60%, #a78bfa 100%);
+  background: linear-gradient(90deg, #6366f1 0%, #8b5cf6 50%, #a78bfa 100%);
   pointer-events: none;
 }
 
@@ -288,7 +320,11 @@ vaadin-app-layout::part(drawer) {
 .app-drawer-toggle {
   margin-right: 8px;
   flex-shrink: 0;
-  color: rgba(255, 255, 255, 0.85) !important;
+  transition: transform 0.22s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.app-drawer-toggle:hover {
+  transform: scale(1.12);
 }
 
 .app-header-title-block {
@@ -315,7 +351,7 @@ vaadin-app-layout::part(drawer) {
   color: #1e293b;
   line-height: 1.1;
   letter-spacing: -0.02em;
-  animation: titleSwapIn 0.25s cubic-bezier(0.4, 0, 0.2, 1) both;
+  animation: titleSwapIn 0.28s cubic-bezier(0.4, 0, 0.2, 1) both;
 }
 
 .app-name {
@@ -334,15 +370,20 @@ vaadin-app-layout::part(drawer) {
 .app-user-avatar {
   --vaadin-avatar-size: 34px;
   background-color: #ede9fe !important;
+  transition: transform 0.22s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.app-user-avatar:hover {
+  transform: scale(1.1);
 }
 
 /* ── Drawer Footer ───────────────────────────────────────── */
 .app-drawer-footer {
-  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
   padding: 0.8rem 1rem;
 }
 
 .app-drawer-footer-text {
-  color: rgba(255, 255, 255, 0.3);
+  color: rgba(255, 255, 255, 0.22);
   font-size: 0.73rem;
 }
