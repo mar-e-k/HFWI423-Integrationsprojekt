@@ -1,13 +1,16 @@
 package com.example.application.data.articleInfo;
 
+import jakarta.persistence.LockModeType;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
+import org.springframework.data.jpa.repository.Lock;
 import org.springframework.stereotype.Repository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 @Repository
@@ -52,5 +55,9 @@ public interface ArticleInfoRepository
     int findStockLevelForArticle(@Param("articleNumber") String articleNumber);
     
     int deleteByArticleId(Long articleId);
+
+    @Lock(LockModeType.PESSIMISTIC_WRITE)
+    @Query("select a from ArticleInfo a where a.id = :id")
+    Optional<ArticleInfo> findByIdForUpdate(@Param("id") Long id);
 
 }

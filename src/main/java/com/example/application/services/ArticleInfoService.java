@@ -76,7 +76,7 @@ public class ArticleInfoService {
                                         String reason,
                                         String changedBy) {
 
-        ArticleInfo managed = articleInfoRepository.findById(article.getId())
+        ArticleInfo managed = articleInfoRepository.findByIdForUpdate(article.getId())
                 .orElseThrow(() -> new IllegalArgumentException("Article not found: " + article.getId()));
 
         int oldStock = managed.getStockLevel() == null ? 0 : managed.getStockLevel();
