@@ -1,7 +1,7 @@
 package de.fhdw.vendix.orchestrator.core.domain.distributed_lock;
 
 import de.fhdw.vendix.commons.api.embeddable.TargetType;
-import de.fhdw.vendix.commons.spring.data.crud.AbstractEntityCrudAdapter;
+import de.fhdw.vendix.commons.spring.data.crud.AbstractCrudService;
 import de.fhdw.vendix.orchestrator.core.embeddable.entity_target.EntityTarget;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -13,7 +13,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 @Service
-class DistributedLockServiceImpl extends AbstractEntityCrudAdapter<DistributedLock, Long> implements DistributedLockService {
+class DistributedLockServiceImpl extends AbstractCrudService<DistributedLock, Long> implements DistributedLockService {
 
     private static final Logger log = LoggerFactory.getLogger(DistributedLockServiceImpl.class);
 

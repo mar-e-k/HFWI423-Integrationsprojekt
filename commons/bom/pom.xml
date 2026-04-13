@@ -51,6 +51,11 @@
             </dependency>
             <dependency>
                 <groupId>de.fhdw.vendix</groupId>
+                <artifactId>commons-spring-app</artifactId>
+                <version>${commons.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>de.fhdw.vendix</groupId>
                 <artifactId>commons-spring-starter</artifactId>
                 <version>${commons.version}</version>
             </dependency>

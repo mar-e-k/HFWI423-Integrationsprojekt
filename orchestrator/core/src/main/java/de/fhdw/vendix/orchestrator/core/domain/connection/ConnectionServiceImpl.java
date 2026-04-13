@@ -1,7 +1,7 @@
 package de.fhdw.vendix.orchestrator.core.domain.connection;
 
 import de.fhdw.vendix.commons.api.embeddable.TargetType;
-import de.fhdw.vendix.commons.spring.data.crud.AbstractEntityCrudAdapter;
+import de.fhdw.vendix.commons.spring.data.crud.AbstractCrudService;
 import de.fhdw.vendix.orchestrator.core.embeddable.entity_target.EntityTarget;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -13,7 +13,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 @Service
-class ConnectionServiceImpl extends AbstractEntityCrudAdapter<Connection, Long> implements ConnectionService {
+class ConnectionServiceImpl extends AbstractCrudService<Connection, Long> implements ConnectionService {
 
     private static final Logger log = LoggerFactory.getLogger(ConnectionServiceImpl.class);
 

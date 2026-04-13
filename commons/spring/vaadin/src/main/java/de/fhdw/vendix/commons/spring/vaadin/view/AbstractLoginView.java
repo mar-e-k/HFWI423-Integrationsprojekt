@@ -6,7 +6,7 @@ import com.vaadin.flow.router.BeforeEnterEvent;
 import com.vaadin.flow.router.BeforeEnterObserver;
 import com.vaadin.flow.server.VaadinSession;
 import com.vaadin.flow.server.WrappedSession;
-import de.fhdw.vendix.commons.spring.web.handler.SessionAttribute;
+import de.fhdw.vendix.commons.spring.web.SessionAttribute;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

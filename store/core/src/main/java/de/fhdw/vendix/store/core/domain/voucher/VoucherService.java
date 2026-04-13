@@ -1,6 +1,6 @@
 package de.fhdw.vendix.store.core.domain.voucher;
 
-import de.fhdw.vendix.commons.api.structure.service.CrudService;
+import de.fhdw.vendix.commons.spring.data.service.CrudService;
 
 import java.util.Optional;
 import java.util.UUID;

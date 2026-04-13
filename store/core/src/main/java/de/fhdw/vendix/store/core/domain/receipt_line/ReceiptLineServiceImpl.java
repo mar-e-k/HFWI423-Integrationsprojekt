@@ -1,10 +1,10 @@
 package de.fhdw.vendix.store.core.domain.receipt_line;
 
-import de.fhdw.vendix.commons.spring.data.crud.AbstractEntityCrudAdapter;
+import de.fhdw.vendix.commons.spring.data.crud.AbstractCrudService;
 import org.springframework.stereotype.Service;
 
 @Service
-class ReceiptLineServiceImpl extends AbstractEntityCrudAdapter<ReceiptLine, Long> implements ReceiptLineService {
+class ReceiptLineServiceImpl extends AbstractCrudService<ReceiptLine, Long> implements ReceiptLineService {
 
     private final ReceiptLineRepository receiptLineRepository;
 

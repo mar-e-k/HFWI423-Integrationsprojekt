@@ -19,6 +19,7 @@
         <module>data</module>
         <module>web</module>
         <module>vaadin</module>
+        <module>app</module>
         <module>starter</module>
     </modules>
 </project>

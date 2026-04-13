@@ -1,6 +1,6 @@
 package de.fhdw.vendix.store.core.domain.receipt;
 
-import de.fhdw.vendix.commons.api.structure.service.CrudService;
+import de.fhdw.vendix.commons.spring.data.service.CrudService;
 import de.fhdw.vendix.store.core.domain.receipt_line.ReceiptLine;
 
 import java.util.List;

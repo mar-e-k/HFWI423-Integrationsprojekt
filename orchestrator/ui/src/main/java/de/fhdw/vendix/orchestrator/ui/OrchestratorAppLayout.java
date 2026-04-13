@@ -1,17 +1,19 @@
 package de.fhdw.vendix.orchestrator.ui;
 
-import com.vaadin.flow.component.Component;
+import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.icon.VaadinIcon;
+import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.sidenav.SideNav;
 import com.vaadin.flow.component.sidenav.SideNavItem;
 import com.vaadin.flow.router.Layout;
 import com.vaadin.flow.spring.annotation.VaadinSessionScope;
 import com.vaadin.flow.spring.security.AuthenticationContext;
 import de.fhdw.vendix.commons.api.domain.account_role.Role;
-import de.fhdw.vendix.commons.spring.vaadin.view.AbstractApplicationLayout;
+import de.fhdw.vendix.commons.spring.vaadin.layout.AbstractApplicationLayout;
 import de.fhdw.vendix.orchestrator.ui.application.DebugView;
 import de.fhdw.vendix.orchestrator.ui.application.RootView;
 import de.fhdw.vendix.orchestrator.ui.management.*;
+import de.fhdw.vendix.orchestrator.ui.management.account.AccountView;
 import de.fhdw.vendix.orchestrator.ui.orchestrator.ConnectionView;
 import de.fhdw.vendix.orchestrator.ui.orchestrator.LockView;
 import jakarta.annotation.security.RolesAllowed;
@@ -21,12 +23,17 @@ import jakarta.annotation.security.RolesAllowed;
 @VaadinSessionScope
 public class OrchestratorAppLayout extends AbstractApplicationLayout {
 
+    private final VerticalLayout upperDrawer = new VerticalLayout();
+    private final VerticalLayout lowerDrawer = new VerticalLayout();
+
     public OrchestratorAppLayout(AuthenticationContext authenticationContext) {
         super(authenticationContext);
+        configureUpperDrawer();
+        configureLowerDrawer();
+        initLayout();
     }
 
-    @Override
-    protected Component[] draweritems() {
+    private void configureUpperDrawer() {
         SideNav applicationHeader = new SideNav("Application");
         applicationHeader.addItem(
                 new SideNavItem("Home", RootView.class, VaadinIcon.HOME.create()),
@@ -46,8 +53,12 @@ public class OrchestratorAppLayout extends AbstractApplicationLayout {
                 new SideNavItem("Permissions", PermissionView.class, VaadinIcon.KEY.create()),
                 new SideNavItem("Stores", StoreView.class, VaadinIcon.SHOP.create()),
                 new SideNavItem("Registers", RegisterView.class, VaadinIcon.DESKTOP.create())
-                );
+        );
 
+        upperDrawer.add(applicationHeader, orchestratorHeader, managementHeader);
+    }
+
+    private void configureLowerDrawer() {
         SideNav externalHeader = new SideNav("External");
         externalHeader.addItem(
                 new SideNavItem("Grafana", "http://localhost:3000", VaadinIcon.CHART.create()),
@@ -56,12 +67,19 @@ public class OrchestratorAppLayout extends AbstractApplicationLayout {
                 new SideNavItem("Swagger", "http://localhost:8080/swagger", VaadinIcon.CODE.create())
         );
 
-        return new Component[]{
-                applicationHeader,
-                orchestratorHeader,
-                managementHeader,
-                externalHeader
-        };
+        lowerDrawer.add(externalHeader);
+    }
+
+    @Override
+    protected VerticalLayout drawer() {
+        Div spacer = new Div();
+
+        VerticalLayout drawer = new VerticalLayout(upperDrawer, spacer, lowerDrawer);
+        drawer.setHeightFull();
+        drawer.expand(spacer);
+        drawer.setPadding(false);
+
+        return drawer;
     }
 
     @Override

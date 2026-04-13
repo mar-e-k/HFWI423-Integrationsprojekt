@@ -14,7 +14,7 @@ import com.vaadin.flow.router.Route;
 import com.vaadin.flow.theme.aura.Aura;
 import de.fhdw.vendix.commons.api.domain.account_role.Role;
 import de.fhdw.vendix.commons.api.domain.store.StoreDTO;
-import de.fhdw.vendix.commons.spring.security.context.store.StoreContext;
+import de.fhdw.vendix.commons.spring.app.context.store.StoreContext;
 import de.fhdw.vendix.commons.spring.web.client.orchestrator.api.StoreProxyService;
 import de.fhdw.vendix.store.ui.StoreAppLayout;
 import jakarta.annotation.security.RolesAllowed;

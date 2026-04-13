@@ -1,6 +1,6 @@
 package de.fhdw.vendix.commons.spring.starter.autoconfigure.security;
 
-import de.fhdw.vendix.commons.spring.security.user_details.DefaultUserDetailsService;
+import de.fhdw.vendix.commons.spring.app.user_details.DefaultUserDetailsService;
 import de.fhdw.vendix.commons.spring.web.client.orchestrator.api.AccountProxyService;
 import de.fhdw.vendix.commons.spring.web.client.orchestrator.api.DistributedLockProxyService;
 import org.springframework.boot.autoconfigure.AutoConfiguration;

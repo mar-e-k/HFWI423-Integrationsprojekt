@@ -1,6 +1,6 @@
 package de.fhdw.vendix.store.core.domain.store_stock;
 
-import de.fhdw.vendix.commons.spring.data.crud.AbstractEntityCrudAdapter;
+import de.fhdw.vendix.commons.spring.data.crud.AbstractCrudService;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -8,7 +8,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.Optional;
 
 @Service
-class StoreStockServiceImpl extends AbstractEntityCrudAdapter<StoreStock, Long> implements StoreStockService {
+class StoreStockServiceImpl extends AbstractCrudService<StoreStock, Long> implements StoreStockService {
 
     private final StoreStockRepository storeStockRepository;
 

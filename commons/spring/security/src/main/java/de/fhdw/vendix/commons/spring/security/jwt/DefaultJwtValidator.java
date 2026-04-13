@@ -2,7 +2,6 @@ package de.fhdw.vendix.commons.spring.security.jwt;
 
 import com.nimbusds.jwt.JWTClaimsSet;
 import de.fhdw.vendix.commons.api.domain.account_role.Role;
-import de.fhdw.vendix.commons.spring.security.context.app.AppContext;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.AuthenticationException;
 
@@ -15,18 +14,14 @@ import java.util.stream.Collectors;
 
 public class DefaultJwtValidator implements JwtValidator {
 
-    private final AppContext appContext;
-
-    public DefaultJwtValidator(AppContext appContext) {
-        this.appContext = appContext;
-    }
+    public DefaultJwtValidator() {}
 
     public void validate(JWTClaimsSet payload) throws AuthenticationException {
         if (payload == null) {
             throw new IllegalArgumentException("Parameter 'payload' cannot be null");
         }
         validateExpiration(payload);
-        validateAudience(payload);
+//        validateAudience(payload);
         validateIssuer(payload);
         validateRoles(payload);
     }
@@ -39,14 +34,14 @@ public class DefaultJwtValidator implements JwtValidator {
         }
     }
 
-    private void validateAudience(JWTClaimsSet claims) {
-        String expectedAudience = appContext.getApplicationName();
-        List<String> audience = claims.getAudience();
-
-        if (audience == null || !audience.contains(expectedAudience)) {
-            throw new BadCredentialsException("Invalid audience");
-        }
-    }
+//    private void validateAudience(JWTClaimsSet claims) {
+//        String expectedAudience = appContext.getApplicationName();
+//        List<String> audience = claims.getAudience();
+//
+//        if (audience == null || !audience.contains(expectedAudience)) {
+//            throw new BadCredentialsException("Invalid audience");
+//        }
+//    }
 
     private void validateIssuer(JWTClaimsSet claims) {
         String issuer = claims.getIssuer();

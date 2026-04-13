@@ -1,14 +1,14 @@
 package de.fhdw.vendix.store.ui;
 
-import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.icon.VaadinIcon;
+import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.sidenav.SideNav;
 import com.vaadin.flow.component.sidenav.SideNavItem;
 import com.vaadin.flow.router.Layout;
 import com.vaadin.flow.spring.annotation.VaadinSessionScope;
 import com.vaadin.flow.spring.security.AuthenticationContext;
 import de.fhdw.vendix.commons.api.domain.account_role.Role;
-import de.fhdw.vendix.commons.spring.vaadin.view.AbstractApplicationLayout;
+import de.fhdw.vendix.commons.spring.vaadin.layout.AbstractApplicationLayout;
 import de.fhdw.vendix.store.ui.business.ReceiptView;
 import de.fhdw.vendix.store.ui.business.StockView;
 import de.fhdw.vendix.store.ui.business.VoucherView;
@@ -28,7 +28,7 @@ public class StoreAppLayout extends AbstractApplicationLayout {
     }
 
     @Override
-    protected Component[] draweritems() {
+    protected VerticalLayout drawer() {
         SideNav applicationHeader = new SideNav("Application");
         applicationHeader.addItem(
                 new SideNavItem("Home", RootView.class, VaadinIcon.HOME.create()),
@@ -44,10 +44,10 @@ public class StoreAppLayout extends AbstractApplicationLayout {
                 new SideNavItem("Vouchers", VoucherView.class, VaadinIcon.HEALTH_CARD.create())
         );
 
-        return new Component[]{
+        return new VerticalLayout(
                 applicationHeader,
                 storeHeader
-        };
+        );
     }
 
     @Override

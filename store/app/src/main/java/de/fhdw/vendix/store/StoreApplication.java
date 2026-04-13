@@ -1,6 +1,6 @@
 package de.fhdw.vendix.store;
 
-import de.fhdw.vendix.commons.spring.security.context.app.AppContext;
+import de.fhdw.vendix.commons.spring.app.context.app.AppContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.SpringApplication;

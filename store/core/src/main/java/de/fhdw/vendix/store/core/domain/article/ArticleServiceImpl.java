@@ -1,13 +1,13 @@
 package de.fhdw.vendix.store.core.domain.article;
 
-import de.fhdw.vendix.commons.spring.data.crud.AbstractEntityCrudAdapter;
+import de.fhdw.vendix.commons.spring.data.crud.AbstractCrudService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Optional;
 
 @Service
-class ArticleServiceImpl extends AbstractEntityCrudAdapter<Article, Long> implements ArticleService  {
+class ArticleServiceImpl extends AbstractCrudService<Article, Long> implements ArticleService  {
 
     private final ArticleRepository articleRepository;
 

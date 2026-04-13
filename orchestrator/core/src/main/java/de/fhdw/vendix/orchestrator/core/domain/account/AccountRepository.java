@@ -9,7 +9,16 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
-interface AccountRepository extends JpaRepository<Account, Long> {
+interface AccountRepository extends JpaRepository<Account, Long>{
+
+    boolean existsByUuid(UUID uuid);
+
+    boolean existsByUsername(String username);
+
+    boolean existsByEmail(String email);
+
+    boolean existsByPhone(String phone);
+
     Optional<Account> findByUuid(UUID uuid);
 
     Optional<Account> findByUsername(String username);

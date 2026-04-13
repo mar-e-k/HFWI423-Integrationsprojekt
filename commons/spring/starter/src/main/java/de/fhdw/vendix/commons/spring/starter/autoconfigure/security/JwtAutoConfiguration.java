@@ -1,8 +1,5 @@
 package de.fhdw.vendix.commons.spring.starter.autoconfigure.security;
 
-import de.fhdw.vendix.commons.spring.security.context.app.AppContext;
-import de.fhdw.vendix.commons.spring.security.context.register.RegisterContext;
-import de.fhdw.vendix.commons.spring.security.context.store.StoreContext;
 import de.fhdw.vendix.commons.spring.security.jwt.*;
 import de.fhdw.vendix.commons.spring.starter.properties.JwtPropertiesConfiguration;
 import de.fhdw.vendix.commons.spring.web.client.orchestrator.api.AccountProxyService;
@@ -17,19 +14,19 @@ public class JwtAutoConfiguration {
 
     @Bean
     @ConditionalOnMissingBean
-    public JwtValidator jwtValidator(AppContext appContext) {
-        return new DefaultJwtValidator(appContext);
+    public JwtValidator jwtValidator() {
+        return new DefaultJwtValidator();
     }
 
     @Bean
     @ConditionalOnMissingBean
-    public JwtService jwtService(AppContext appContext, StoreContext storeContext, RegisterContext registerContext, JwtProperties jwtProperties) {
-        return new DefaultJwtService(appContext, storeContext, registerContext, jwtProperties);
+    public JwtService jwtService(JwtProperties jwtProperties) {
+        return new DefaultJwtService(jwtProperties);
     }
 
     @Bean
     @ConditionalOnMissingBean
-    public JwtAuthenticationFilter jwtAuthenticationFilter(JwtService jwtService, JwtValidator jwtValidator, AccountProxyService accountProxyService) {
-        return new JwtAuthenticationFilter(jwtService, jwtValidator, accountProxyService);
+    public de.fhdw.vendix.commons.spring.web.filter.JwtAuthenticationFilter jwtAuthenticationFilter(JwtService jwtService, JwtValidator jwtValidator, AccountProxyService accountProxyService) {
+        return new de.fhdw.vendix.commons.spring.web.filter.JwtAuthenticationFilter(jwtService, jwtValidator, accountProxyService);
     }
 }

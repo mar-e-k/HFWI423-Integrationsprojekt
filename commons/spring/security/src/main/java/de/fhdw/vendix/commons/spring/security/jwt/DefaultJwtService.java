@@ -6,10 +6,7 @@ import com.nimbusds.jose.crypto.MACVerifier;
 import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.SignedJWT;
 import de.fhdw.vendix.commons.api.domain.account_role.Role;
-import de.fhdw.vendix.commons.spring.security.context.app.AppContext;
-import de.fhdw.vendix.commons.spring.security.context.register.RegisterContext;
-import de.fhdw.vendix.commons.spring.security.context.store.StoreContext;
-import de.fhdw.vendix.commons.spring.security.user_details.DefaultUser;
+import de.fhdw.vendix.commons.spring.security.context.auth.DefaultUser;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.context.SecurityContextHolder;
 
@@ -17,41 +14,29 @@ import java.nio.charset.StandardCharsets;
 import java.text.ParseException;
 import java.time.Duration;
 import java.util.Date;
-import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
 public final class DefaultJwtService implements JwtService {
 
-    private final AppContext appContext;
-    private final StoreContext storeContext;
-    private final RegisterContext registerContext;
-
     private final byte[] secret;
     private final Duration expiration;
 
-    public DefaultJwtService(
-            AppContext appContext,
-            StoreContext storeContext,
-            RegisterContext registerContext,
-            JwtProperties jwtProperties
-    ) {
-        this.appContext = appContext;
-        this.storeContext = storeContext;
-        this.registerContext = registerContext;
+    public DefaultJwtService(JwtProperties jwtProperties) {
         this.secret = jwtProperties.privateKey().getBytes(StandardCharsets.UTF_8);
         this.expiration = jwtProperties.expiration();
     }
 
     // TODO: Cache this to make it less expensive
+    // centralize this to orchestrator with api/login or similar
     @Override
     public String generateToken() {
         try {
             Date now = new Date();
             Date exp = new Date(now.getTime() + expiration.toMillis());
 
-            Long storeId = storeContext.getStore() == null ? null : storeContext.getStore().id();
-            Long registerId = registerContext.getRegister() == null ? null : registerContext.getRegister().id();
+//            Long storeId = storeContext.getStore() == null ? null : storeContext.getStore().id();
+//            Long registerId = registerContext.getRegister() == null ? null : registerContext.getRegister().id();
 
             String subject;
             Set<Role> roles;
@@ -60,20 +45,20 @@ public final class DefaultJwtService implements JwtService {
                 subject = defaultUser.authContext().account().uuid().toString();
                 roles = defaultUser.authContext().roles();
             } else {
-                subject = appContext.getInstanceUUID().toString();
+                subject = UUID.randomUUID().toString();
                 roles = Set.of(Role.SYSTEM);
             }
 
             JWTClaimsSet claimsSet = new JWTClaimsSet.Builder()
                     .jwtID(UUID.randomUUID().toString())
-                    .issuer(appContext.getApplicationName())
-                    .audience(List.of("orchestrator", "pos", "store"))
+//                    .issuer(appContext.getApplicationName())
+//                    .audience(List.of("orchestrator", "pos", "store"))
                     .issueTime(now)
                     .expirationTime(exp)
                     .subject(subject)
                     .claim(JwtClaims.ROLES.claim(), roles)
-                    .claim(JwtClaims.STORE.claim(), storeId)
-                    .claim(JwtClaims.REGISTER.claim(), registerId)
+//                    .claim(JwtClaims.STORE.claim(), storeId)
+//                    .claim(JwtClaims.REGISTER.claim(), registerId)
                     .build();
 
             JWSHeader header = new JWSHeader(JWSAlgorithm.HS256);

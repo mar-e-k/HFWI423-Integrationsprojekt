@@ -1,7 +1,7 @@
 package de.fhdw.vendix.orchestrator.core.domain.distributed_lock;
 
 import de.fhdw.vendix.commons.api.embeddable.TargetType;
-import de.fhdw.vendix.commons.api.structure.service.CrudService;
+import de.fhdw.vendix.commons.spring.data.service.CrudService;
 import de.fhdw.vendix.orchestrator.core.embeddable.entity_target.EntityTarget;
 
 import java.util.List;

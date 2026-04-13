@@ -1,10 +1,10 @@
 package de.fhdw.vendix.orchestrator.core.domain.account_role_assignment;
 
-import de.fhdw.vendix.commons.spring.data.crud.AbstractEntityCrudAdapter;
+import de.fhdw.vendix.commons.spring.data.crud.AbstractCrudService;
 import org.springframework.stereotype.Service;
 
 @Service
-class AccountRoleAssignmentServiceImpl extends AbstractEntityCrudAdapter<AccountRoleAssignment, Long> implements AccountRoleAssignmentService {
+class AccountRoleAssignmentServiceImpl extends AbstractCrudService<AccountRoleAssignment, Long> implements AccountRoleAssignmentService {
 
     private final AccountRoleAssignmentRepository accountRoleAssignmentRepository;
 

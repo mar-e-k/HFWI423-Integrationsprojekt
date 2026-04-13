@@ -1,13 +1,13 @@
 package de.fhdw.vendix.orchestrator.core.domain.store;
 
-import de.fhdw.vendix.commons.spring.data.crud.AbstractEntityCrudAdapter;
+import de.fhdw.vendix.commons.spring.data.crud.AbstractCrudService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
 @Service
-class StoreServiceImpl extends AbstractEntityCrudAdapter<Store, Long> implements StoreService {
+class StoreServiceImpl extends AbstractCrudService<Store, Long> implements StoreService {
 
     private final StoreRepository storeRepository;
 

@@ -1,6 +1,6 @@
 package de.fhdw.vendix.store.core.domain.voucher;
 
-import de.fhdw.vendix.commons.spring.data.crud.AbstractEntityCrudAdapter;
+import de.fhdw.vendix.commons.spring.data.crud.AbstractCrudService;
 import jakarta.persistence.EntityNotFoundException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -11,7 +11,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 @Service
-class VoucherServiceImpl extends AbstractEntityCrudAdapter<Voucher, Long> implements VoucherService {
+class VoucherServiceImpl extends AbstractCrudService<Voucher, Long> implements VoucherService {
 
     private static final Logger log = LoggerFactory.getLogger(VoucherServiceImpl.class);
 

@@ -21,11 +21,6 @@
         </dependency>
 
         <dependency>
-            <groupId>de.fhdw.vendix</groupId>
-            <artifactId>commons-spring-web</artifactId>
-        </dependency>
-
-        <dependency>
             <groupId>com.nimbusds</groupId>
             <artifactId>nimbus-jose-jwt</artifactId>
         </dependency>

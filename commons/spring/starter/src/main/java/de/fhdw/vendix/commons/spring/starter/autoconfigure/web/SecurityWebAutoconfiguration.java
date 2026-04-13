@@ -1,9 +1,9 @@
 package de.fhdw.vendix.commons.spring.starter.autoconfigure.web;
 
 import com.vaadin.flow.spring.security.VaadinSecurityConfigurer;
-import de.fhdw.vendix.commons.spring.security.jwt.JwtAuthenticationFilter;
+import de.fhdw.vendix.commons.spring.web.filter.JwtAuthenticationFilter;
 import de.fhdw.vendix.commons.spring.starter.autoconfigure.security.SecurityAutoConfiguration;
-import de.fhdw.vendix.commons.spring.web.handler.DefaultAuthenticationFailureHandler;
+import de.fhdw.vendix.commons.spring.app.lifecycle.authentication.DefaultAuthenticationFailureHandler;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.core.annotation.Order;

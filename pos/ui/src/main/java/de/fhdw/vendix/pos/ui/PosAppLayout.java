@@ -1,14 +1,14 @@
 package de.fhdw.vendix.pos.ui;
 
-import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.icon.VaadinIcon;
+import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.sidenav.SideNav;
 import com.vaadin.flow.component.sidenav.SideNavItem;
 import com.vaadin.flow.router.Layout;
 import com.vaadin.flow.spring.annotation.VaadinSessionScope;
 import com.vaadin.flow.spring.security.AuthenticationContext;
 import de.fhdw.vendix.commons.api.domain.account_role.Role;
-import de.fhdw.vendix.commons.spring.vaadin.view.AbstractApplicationLayout;
+import de.fhdw.vendix.commons.spring.vaadin.layout.AbstractApplicationLayout;
 import de.fhdw.vendix.pos.ui.home.ConnectionsView;
 import de.fhdw.vendix.pos.ui.home.DebugView;
 import de.fhdw.vendix.pos.ui.home.PosContextView;
@@ -26,7 +26,7 @@ public class PosAppLayout extends AbstractApplicationLayout {
     }
 
     @Override
-    protected Component[] draweritems() {
+    protected VerticalLayout drawer() {
         SideNav applicationHeader = new SideNav("Application");
         applicationHeader.addItem(
                 new SideNavItem("Home", RootView.class, VaadinIcon.HOME.create()),
@@ -40,9 +40,9 @@ public class PosAppLayout extends AbstractApplicationLayout {
             new SideNavItem("Register", RegisterView.class, VaadinIcon.MONEY_EXCHANGE.create())
         );
 
-        return new Component[]{
+        return new VerticalLayout(
                 applicationHeader
-        };
+        );
     }
 
     @Override

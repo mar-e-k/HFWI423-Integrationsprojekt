@@ -1,7 +1,6 @@
 package de.fhdw.vendix.commons.spring.starter.autoconfigure.web;
 
 import de.fhdw.vendix.commons.spring.security.jwt.JwtService;
-import de.fhdw.vendix.commons.spring.web.client.StoreClientHolder;
 import de.fhdw.vendix.commons.spring.web.client.store.api.ArticleProxyService;
 import de.fhdw.vendix.commons.spring.web.client.store.api.ReceiptProxyService;
 import org.slf4j.Logger;
@@ -17,12 +16,7 @@ import org.springframework.web.service.invoker.HttpServiceProxyFactory;
 public class StoreClientAutoConfiguration {
 
     private static final Logger log = LoggerFactory.getLogger(StoreClientAutoConfiguration.class);
-
-    @Bean
-    @ConditionalOnMissingBean
-    public StoreClientHolder storeClientConfig() {
-        return new StoreClientHolder();
-    }
+    
 
     @Bean
     @ConditionalOnMissingBean
