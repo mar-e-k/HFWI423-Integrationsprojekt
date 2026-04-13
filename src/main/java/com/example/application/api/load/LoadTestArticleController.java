@@ -88,7 +88,7 @@ public class LoadTestArticleController {
             if (articleNumber != null && !articleNumber.isBlank())
                 predicates.add(cb.like(cb.lower(root.get("articleNumber")), "%" + articleNumber.toLowerCase() + "%"));
             if (minStock != null)
-                predicates.add(cb.lessThanOrEqualTo(root.get("stockLevel"), minStock));
+                predicates.add(cb.greaterThanOrEqualTo(root.get("stockLevel"), minStock));
             if (storageLocation != null && !storageLocation.isBlank())
                 predicates.add(cb.equal(root.get("storageLocation"), storageLocation));
             return cb.and(predicates.toArray(new Predicate[0]));

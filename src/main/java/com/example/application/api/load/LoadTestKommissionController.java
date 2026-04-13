@@ -9,6 +9,7 @@ import com.example.application.services.ArticleInfoService;
 import com.example.application.services.KommissionService;
 import com.example.application.services.WeeklyKommissionScheduler;
 import org.springframework.http.HttpStatus;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -61,6 +62,7 @@ public class LoadTestKommissionController {
 
     /** PUT /api/load/kommissionen/{id}/finish – Kommission abschließen */
     @PutMapping("/{id}/finish")
+    @Transactional
     public Kommission finishKommission(@PathVariable Long id) {
         Kommission kommission = kommissionRepository.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
@@ -73,7 +75,16 @@ public class LoadTestKommissionController {
 
         List<MessageLogistic> items = messageLogisticRepository.findByKommissionId(id);
         for (MessageLogistic msg : items) {
-            articleInfoService.updateStock(msg.getArticleNumber(), (int) msg.getQuantity());
+            // articleId bevorzugen, articleNumber als Fallback
+            String articleNumber = msg.getArticleNumber();
+            if (articleNumber == null && msg.getArticleId() != null) {
+                try {
+                    articleNumber = articleInfoService.findById(msg.getArticleId()).getArticleNumber();
+                } catch (Exception ignored) { }
+            }
+            if (articleNumber == null) continue;
+
+            articleInfoService.updateStock(articleNumber, (int) msg.getQuantity());
             try {
                 long storeIdLong = Long.parseLong(kommission.getStoreId().replaceAll("[^0-9]", ""));
                 Long articleId   = msg.getArticleId();

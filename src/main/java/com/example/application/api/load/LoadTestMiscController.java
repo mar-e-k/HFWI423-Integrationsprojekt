@@ -48,7 +48,7 @@ public class LoadTestMiscController {
     /** GET /api/load/stock-changes – Lagerbestand-Aenderungshistorie */
     @GetMapping("/stock-changes")
     public List<StockChangeLog> stockChanges() {
-        return stockChangeLogService.findAll(Sort.by(Sort.Direction.DESC, "id"));
+        return stockChangeLogService.findAll(Sort.by(Sort.Direction.DESC, "changedAt"));
     }
 
     /** GET /api/load/new-articles – neue Artikel aus Kontingenten */

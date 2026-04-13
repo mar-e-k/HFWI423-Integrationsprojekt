@@ -52,7 +52,7 @@
         <ThroughputController guiclass="ThroughputControllerGui" testclass="ThroughputController"
                               testname="80% Reads">
           <intProp name="ThroughputController.style">1</intProp>
-          <floatProp name="ThroughputController.percentThroughput">80.0</floatProp>
+          <stringProp name="ThroughputController.percentThroughput">80.0</stringProp>
         </ThroughputController>
         <hashTree>
 
@@ -104,29 +104,11 @@
         <ThroughputController guiclass="ThroughputControllerGui" testclass="ThroughputController"
                               testname="20% Writes">
           <intProp name="ThroughputController.style">1</intProp>
-          <floatProp name="ThroughputController.percentThroughput">20.0</floatProp>
+          <stringProp name="ThroughputController.percentThroughput">20.0</stringProp>
         </ThroughputController>
         <hashTree>
 
-          <!-- Schritt 1: Artikel laden und ID extrahieren -->
-          <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy"
-                            testname="GET /api/load/articles (for write)">
-            <stringProp name="HTTPSampler.path">/api/load/articles?page=0&amp;size=5</stringProp>
-            <stringProp name="HTTPSampler.method">GET</stringProp>
-            <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
-            <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
-          </HTTPSamplerProxy>
-          <hashTree>
-            <JSONPathExtractor guiclass="JSONPathExtractorGui" testclass="JSONPathExtractor"
-                               testname="Extract articleId">
-              <stringProp name="JSONPathExtractor.referenceName">articleId</stringProp>
-              <stringProp name="JSONPathExtractor.jsonPathExprs">$.content[0].id</stringProp>
-              <stringProp name="JSONPathExtractor.defaultValues">1</stringProp>
-            </JSONPathExtractor>
-            <hashTree/>
-          </hashTree>
-
-          <!-- Schritt 2: Bestand ändern -->
+          <!-- Schreibender Zugriff: Bestand aendern (zufaellige ID 1-20) -->
           <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy"
                             testname="POST /api/load/articles/{id}/stock">
             <boolProp name="HTTPSampler.postBodyRaw">true</boolProp>
@@ -139,7 +121,7 @@
                 </elementProp>
               </collectionProp>
             </elementProp>
-            <stringProp name="HTTPSampler.path">/api/load/articles/${articleId}/stock</stringProp>
+            <stringProp name="HTTPSampler.path">/api/load/articles/${__Random(1,20,articleId)}/stock</stringProp>
             <stringProp name="HTTPSampler.method">POST</stringProp>
             <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
             <boolProp name="HTTPSampler.use_keepalive">true</boolProp>

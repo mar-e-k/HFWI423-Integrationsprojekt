@@ -81,6 +81,11 @@ public class MonitoringView extends Div {
     private final Counter    ltErrCounter;
     private final Timer      ltTimer;
 
+    // ── HTTP-Client (wiederverwendet) ─────────────────────────────────────────
+    private final HttpClient httpClient = HttpClient.newBuilder()
+            .connectTimeout(Duration.ofSeconds(5))
+            .build();
+
     // ── Test-UI ───────────────────────────────────────────────────────────────
     private Button stopButton;
     private Span   testStatusBadge;
@@ -400,10 +405,6 @@ public class MonitoringView extends Div {
         Executors.newVirtualThreadPerTaskExecutor().submit(() -> {
             long start = System.currentTimeMillis();
             try {
-                HttpClient client = HttpClient.newBuilder()
-                        .connectTimeout(Duration.ofSeconds(5))
-                        .build();
-
                 HttpRequest.Builder reqBuilder = HttpRequest.newBuilder()
                         .uri(URI.create("http://localhost:" + serverPort + "/api/load" + path))
                         .timeout(Duration.ofSeconds(10))
@@ -418,7 +419,7 @@ public class MonitoringView extends Div {
                 };
 
                 HttpResponse<String> response =
-                        client.send(request, HttpResponse.BodyHandlers.ofString());
+                        httpClient.send(request, HttpResponse.BodyHandlers.ofString());
                 long elapsed = System.currentTimeMillis() - start;
 
                 int    status  = response.statusCode();
@@ -557,7 +558,12 @@ public class MonitoringView extends Div {
         stopButton.addThemeVariants(ButtonVariant.LUMO_ERROR);
         stopButton.setEnabled(false);
         stopButton.getStyle().set("font-weight", "700");
-        stopButton.addClickListener(e -> stopTest());
+        stopButton.addClickListener(e -> {
+            stopTest();
+            setTestButtonsEnabled(true);
+            stopButton.setEnabled(false);
+            updateStatusBadge(false);
+        });
 
         testStatusBadge = new Span("Kein Test aktiv");
         testStatusBadge.getStyle()
@@ -796,8 +802,8 @@ public class MonitoringView extends Div {
                 "-Jtestname=" + name.replace(" ", "-")
         ));
 
-        Notification.show("JMeter wird gestartet...  " + String.join(" ", cmd),
-                4000, Notification.Position.BOTTOM_END);
+        Notification.show("▶  " + name + " gestartet – " + threads + " Threads, " + duration + " s",
+                3000, Notification.Position.BOTTOM_END);
 
         Executors.newVirtualThreadPerTaskExecutor().submit(() -> {
             StringBuilder jmeterOutput = new StringBuilder();

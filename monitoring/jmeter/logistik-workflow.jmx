@@ -77,12 +77,15 @@
             <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
           </HTTPSamplerProxy>
           <hashTree>
-            <JSONPathExtractor guiclass="JSONPathExtractorGui" testclass="JSONPathExtractor"
-                               testname="Extract receiptId">
-              <stringProp name="JSONPathExtractor.referenceName">receiptId</stringProp>
-              <stringProp name="JSONPathExtractor.jsonPathExprs">$.id</stringProp>
-              <stringProp name="JSONPathExtractor.defaultValues">-1</stringProp>
-            </JSONPathExtractor>
+            <RegexExtractor guiclass="RegexExtractorGui" testclass="RegexExtractor"
+                            testname="Extract receiptId" enabled="true">
+              <stringProp name="RegexExtractor.useHeaders">false</stringProp>
+              <stringProp name="RegexExtractor.refname">receiptId</stringProp>
+              <stringProp name="RegexExtractor.regex">"id"\s*:\s*(\d+)</stringProp>
+              <stringProp name="RegexExtractor.template">$1$</stringProp>
+              <stringProp name="RegexExtractor.default">-1</stringProp>
+              <stringProp name="RegexExtractor.match_no">1</stringProp>
+            </RegexExtractor>
             <hashTree/>
           </hashTree>
 
@@ -95,12 +98,15 @@
             <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
           </HTTPSamplerProxy>
           <hashTree>
-            <JSONPathExtractor guiclass="JSONPathExtractorGui" testclass="JSONPathExtractor"
-                               testname="Extract articleId">
-              <stringProp name="JSONPathExtractor.referenceName">articleId</stringProp>
-              <stringProp name="JSONPathExtractor.jsonPathExprs">$.content[0].id</stringProp>
-              <stringProp name="JSONPathExtractor.defaultValues">1</stringProp>
-            </JSONPathExtractor>
+            <RegexExtractor guiclass="RegexExtractorGui" testclass="RegexExtractor"
+                            testname="Extract articleId" enabled="true">
+              <stringProp name="RegexExtractor.useHeaders">false</stringProp>
+              <stringProp name="RegexExtractor.refname">articleId</stringProp>
+              <stringProp name="RegexExtractor.regex">"id"\s*:\s*(\d+)</stringProp>
+              <stringProp name="RegexExtractor.template">$1$</stringProp>
+              <stringProp name="RegexExtractor.default">1</stringProp>
+              <stringProp name="RegexExtractor.match_no">1</stringProp>
+            </RegexExtractor>
             <hashTree/>
           </hashTree>
 
@@ -123,12 +129,15 @@
             <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
           </HTTPSamplerProxy>
           <hashTree>
-            <JSONPathExtractor guiclass="JSONPathExtractorGui" testclass="JSONPathExtractor"
-                               testname="Extract itemId">
-              <stringProp name="JSONPathExtractor.referenceName">itemId</stringProp>
-              <stringProp name="JSONPathExtractor.jsonPathExprs">$.id</stringProp>
-              <stringProp name="JSONPathExtractor.defaultValues">-1</stringProp>
-            </JSONPathExtractor>
+            <RegexExtractor guiclass="RegexExtractorGui" testclass="RegexExtractor"
+                            testname="Extract itemId" enabled="true">
+              <stringProp name="RegexExtractor.useHeaders">false</stringProp>
+              <stringProp name="RegexExtractor.refname">itemId</stringProp>
+              <stringProp name="RegexExtractor.regex">"id"\s*:\s*(\d+)</stringProp>
+              <stringProp name="RegexExtractor.template">$1$</stringProp>
+              <stringProp name="RegexExtractor.default">-1</stringProp>
+              <stringProp name="RegexExtractor.match_no">1</stringProp>
+            </RegexExtractor>
             <hashTree/>
           </hashTree>
 
