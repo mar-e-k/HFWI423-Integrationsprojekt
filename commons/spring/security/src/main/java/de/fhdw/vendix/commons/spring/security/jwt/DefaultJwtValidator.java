@@ -22,7 +22,7 @@ public class DefaultJwtValidator implements JwtValidator {
         }
         validateExpiration(payload);
 //        validateAudience(payload);
-        validateIssuer(payload);
+//        validateIssuer(payload);
         validateRoles(payload);
     }
 

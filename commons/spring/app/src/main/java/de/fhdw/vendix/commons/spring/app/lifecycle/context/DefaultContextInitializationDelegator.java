@@ -6,7 +6,7 @@ import de.fhdw.vendix.commons.spring.web.client.orchestrator.api.DistributedLock
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public final class DefaultContextInitializationDelegator implements ContextInitializationDelegator {
+public final class DefaultContextInitializationDelegator {
 
     private static final Logger log = LoggerFactory.getLogger(DefaultContextInitializationDelegator.class);
 

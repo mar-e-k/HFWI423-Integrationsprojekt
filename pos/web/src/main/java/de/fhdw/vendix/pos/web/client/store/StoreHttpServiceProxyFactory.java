@@ -19,7 +19,7 @@ class StoreHttpServiceProxyFactory {
     }
 
     public <T> T createClient(Class<T> clientType, InstanceDetailsDTO instance) {
-        String baseUrl = "http://%s:%d".formatted(instance.host(), instance.port());
+        String baseUrl = "http://%s:%d".formatted(instance.server(), instance.port());
 
         RestClient restClient = RestClient.builder()
                 .baseUrl(baseUrl)

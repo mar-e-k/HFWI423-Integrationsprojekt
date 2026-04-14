@@ -13,16 +13,16 @@ import java.util.UUID;
 
 @Embeddable
 @Table(uniqueConstraints = {
-        @UniqueConstraint(name = "unique_connection", columnNames = {"instance_server", "instance_port"}),
+        @UniqueConstraint(name = "unique_connection", columnNames = {"instance_server", "instance_port"})
 })
 @SuppressWarnings("NullAway")
 public class InstanceDetails {
 
-    @Column(nullable = false, updatable = false, unique = true, name = "instance_uuid")
+    @Column(nullable = false, updatable = false, name = "instance_uuid")
     @NotNull(message = "UUID cannot be null")
     private UUID uuid;
 
-    @Column(nullable = false, updatable = false, unique = true, name = "instance_host")
+    @Column(nullable = false, updatable = false, name = "instance_host")
     @NotBlank(message = "Host cannot be blank")
     private String host;
 

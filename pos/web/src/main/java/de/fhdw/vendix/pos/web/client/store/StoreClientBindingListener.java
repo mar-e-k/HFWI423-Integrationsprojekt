@@ -11,8 +11,12 @@ import de.fhdw.vendix.pos.core.register.RegisterContextInitializedEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.event.EventListener;
+import org.springframework.core.Ordered;
+import org.springframework.core.annotation.Order;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
+
+import java.util.Objects;
 
 @Component
 class StoreClientBindingListener {
@@ -34,28 +38,29 @@ class StoreClientBindingListener {
     }
 
     @EventListener
+    @Order(Ordered.LOWEST_PRECEDENCE)
     public void onRegisterInitialized(RegisterContextInitializedEvent event) {
         if (registry.isInitialized()) {
             log.atWarn().log("Store clients already initialized, skipping binding");
             return;
         }
 
-        RegisterDTO register = event.getRegister();
+        Long storeId = event.getRegister().storeId();
         ResponseEntity<ConnectionDTO> response =
                 connectionProxyService.getConnectionByTarget(
-                        TargetType.REGISTER,
-                        register.id()
+                        TargetType.STORE,
+                        storeId
                 );
 
         if (!response.getStatusCode().is2xxSuccessful() || response.getBody() == null) {
             throw new IllegalStateException(
-                    "No connection available for register " + register.id()
+                    "No connection available for store " + storeId
             );
         }
 
         InstanceDetailsDTO instance = response.getBody().instance();
 
-        log.atInfo().log("Binding store clients to {}:{}", instance.host(), instance.port());
+        log.atInfo().log("Binding store clients to {}:{}", instance.server(), instance.port());
 
         ArticleProxyService articleClient = factory.createClient(ArticleProxyService.class, instance);
         ReceiptProxyService receiptClient = factory.createClient(ReceiptProxyService.class, instance);

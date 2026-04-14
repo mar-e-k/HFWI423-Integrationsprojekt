@@ -31,9 +31,7 @@ class ConnectionController implements ConnectionApi {
         Connection converted = connectionMapper.toEntity(dto);
         Connection created = connectionService.create(converted);
         ConnectionDTO createdDTO = connectionMapper.toDTO(created);
-        return ResponseEntity
-                .status(HttpStatus.CREATED)
-                .body(createdDTO);
+        return ResponseEntity.ok(createdDTO);
     }
 
     @Override
@@ -47,7 +45,8 @@ class ConnectionController implements ConnectionApi {
     @Override
     public ResponseEntity<ConnectionDTO> getConnectionByTarget(TargetType target, Long id) {
         EntityTarget entityTarget = new EntityTarget(id, target);
-        Optional<ConnectionDTO> connection = connectionService.findByTarget(entityTarget).map(connectionMapper::toDTO);
+        Optional<ConnectionDTO> connection = connectionService.findByTarget(entityTarget)
+                .map(connectionMapper::toDTO);
         return ResponseEntity.of(connection);
     }
 

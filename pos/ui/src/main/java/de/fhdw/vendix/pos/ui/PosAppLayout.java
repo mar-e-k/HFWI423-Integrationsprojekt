@@ -23,6 +23,7 @@ public class PosAppLayout extends AbstractApplicationLayout {
 
     public PosAppLayout(AuthenticationContext authenticationContext) {
         super(authenticationContext);
+        initLayout();
     }
 
     @Override
@@ -41,7 +42,8 @@ public class PosAppLayout extends AbstractApplicationLayout {
         );
 
         return new VerticalLayout(
-                applicationHeader
+                applicationHeader,
+                registerHeader
         );
     }
 

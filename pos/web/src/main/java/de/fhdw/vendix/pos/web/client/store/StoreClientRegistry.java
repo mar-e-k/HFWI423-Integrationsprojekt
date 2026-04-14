@@ -1,7 +1,10 @@
 package de.fhdw.vendix.pos.web.client.store;
 
+import de.fhdw.vendix.commons.spring.security.context.ContextAlreadySetException;
+import de.fhdw.vendix.commons.spring.security.context.ContextNotSetException;
 import de.fhdw.vendix.commons.spring.web.client.store.api.ArticleProxyService;
 import de.fhdw.vendix.commons.spring.web.client.store.api.ReceiptProxyService;
+import jakarta.annotation.Nullable;
 import org.springframework.stereotype.Component;
 
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -10,7 +13,10 @@ import java.util.concurrent.atomic.AtomicBoolean;
 public class StoreClientRegistry {
 
     private final AtomicBoolean initialized = new AtomicBoolean(false);
+
+    @Nullable
     private volatile ArticleProxyService article;
+    @Nullable
     private volatile ReceiptProxyService receipt;
 
     public void initialize(ArticleProxyService article, ReceiptProxyService receipt) {
@@ -21,28 +27,25 @@ public class StoreClientRegistry {
             throw new IllegalArgumentException("Parameter 'receipt' cannot be null");
         }
         if (!initialized.compareAndSet(false, true)) {
-            throw new IllegalStateException("Store clients already initialized");
+            throw new ContextAlreadySetException("Store clients already initialized");
         }
 
-        // Safe publication via volatile writes after CAS
         this.article = article;
         this.receipt = receipt;
     }
 
     public ArticleProxyService getArticle() {
-        ArticleProxyService client = article;
-        if (client == null) {
-            throw new IllegalStateException("ArticleProxyService not initialized");
+        if (article == null) {
+            throw new ContextNotSetException("ArticleProxyService not initialized");
         }
-        return client;
+        return article;
     }
 
     public ReceiptProxyService getReceipt() {
-        ReceiptProxyService client = receipt;
-        if (client == null) {
-            throw new IllegalStateException("ReceiptProxyService not initialized");
+        if (receipt == null) {
+            throw new ContextNotSetException("ReceiptProxyService not initialized");
         }
-        return client;
+        return receipt;
     }
 
     public boolean isInitialized() {

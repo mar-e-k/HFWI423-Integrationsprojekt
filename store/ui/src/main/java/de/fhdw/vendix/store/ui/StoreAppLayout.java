@@ -25,6 +25,7 @@ public class StoreAppLayout extends AbstractApplicationLayout {
 
     public StoreAppLayout(AuthenticationContext authenticationContext) {
         super(authenticationContext);
+        initLayout();
     }
 
     @Override

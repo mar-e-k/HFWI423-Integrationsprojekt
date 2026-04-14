@@ -6,8 +6,10 @@ import de.fhdw.vendix.commons.spring.security.context.ContextAlreadySetException
 import de.fhdw.vendix.commons.spring.security.context.ContextIllegalSourceException;
 import org.jspecify.annotations.Nullable;
 import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.stereotype.Component;
 
-public final class DefaultStoreContext implements StoreContext {
+@Component
+public class DefaultStoreContext implements StoreContext {
 
     private final AppContext appContext;
     private final ApplicationEventPublisher applicationEventPublisher;

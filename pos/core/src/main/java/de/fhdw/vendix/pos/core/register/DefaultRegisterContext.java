@@ -6,8 +6,10 @@ import de.fhdw.vendix.commons.spring.security.context.ContextAlreadySetException
 import de.fhdw.vendix.commons.spring.security.context.ContextIllegalSourceException;
 import org.jspecify.annotations.Nullable;
 import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.stereotype.Component;
 
-public final class DefaultRegisterContext implements RegisterContext {
+@Component
+public class DefaultRegisterContext implements RegisterContext {
 
     private final AppContext appContext;
     private final ApplicationEventPublisher applicationEventPublisher;

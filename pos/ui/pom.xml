@@ -17,17 +17,22 @@
     <dependencies>
         <dependency>
             <groupId>de.fhdw.vendix</groupId>
+            <artifactId>pos-core</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>de.fhdw.vendix</groupId>
+            <artifactId>pos-web</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>de.fhdw.vendix</groupId>
             <artifactId>commons-core</artifactId>
         </dependency>
 
         <dependency>
             <groupId>de.fhdw.vendix</groupId>
             <artifactId>commons-spring-vaadin</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>de.fhdw.vendix</groupId>
-            <artifactId>pos-core</artifactId>
         </dependency>
     </dependencies>
 

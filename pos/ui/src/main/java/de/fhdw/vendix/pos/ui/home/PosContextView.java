@@ -59,8 +59,8 @@ public class PosContextView extends VerticalLayout {
         createFilterMethods();
         createStoreLayout();
 
-        loadInactiveStores();
-        loadActiveStores();
+        loadLockedStores();
+        loadUnlockedStores();
     }
 
     private void createFilterMethods() {
@@ -78,24 +78,24 @@ public class PosContextView extends VerticalLayout {
         add(storeLayout);
     }
 
-    private void loadInactiveStores() {
+    private void loadUnlockedStores() {
         ResponseEntity<List<StoreDTO>> stores = storeProxyService.getUnlockedStores();
         if (stores.getStatusCode() == HttpStatus.OK && stores.getBody() != null) {
             inactiveStores.addAll(stores.getBody());
         }
         inactiveStores.forEach(store -> {
-            Component storeCard = createStoreCard(store, false);
+            Component storeCard = createStoreCard(store, true);
             storeLayout.add(storeCard);
         });
     }
 
-    private void loadActiveStores() {
+    private void loadLockedStores() {
         ResponseEntity<List<StoreDTO>> stores = storeProxyService.getLockedStores();
         if (stores.getStatusCode() == HttpStatus.OK && stores.getBody() != null) {
             activeStores.addAll(stores.getBody());
         }
         activeStores.forEach(store -> {
-            Component storeCard = createStoreCard(store, true);
+            Component storeCard = createStoreCard(store, false);
             storeLayout.add(storeCard);
         });
     }
