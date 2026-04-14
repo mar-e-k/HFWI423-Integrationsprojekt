@@ -15,6 +15,7 @@ import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.tabs.TabSheet;
+import com.vaadin.flow.component.textfield.IntegerField;
 import com.vaadin.flow.component.textfield.TextArea;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.router.Menu;
@@ -501,11 +502,12 @@ public class MonitoringView extends Div {
                 "Goods Receipts",    "GoodsReceiptView",                "#f59e0b", "goods");
         Details kommAcc     = buildViewTestSection(
                 "Kommissionen",      "OrderPickingView",                "#8b5cf6", "komm");
-        Details gesamtAcc   = buildViewTestSection(
+        Details gesamtAcc       = buildViewTestSection(
                 "Gesamt",            "Alle Views kombiniert",           "#64748b", "gesamt");
+        Details kontingentAcc   = buildKontingentSimulationSection();
 
         VerticalLayout accordions = new VerticalLayout(
-                articlesAcc, storageAcc, goodsAcc, kommAcc, gesamtAcc);
+                articlesAcc, storageAcc, goodsAcc, kommAcc, kontingentAcc, gesamtAcc);
         accordions.setPadding(false);
         accordions.setWidthFull();
         accordions.getStyle().set("gap", "8px");
@@ -660,6 +662,216 @@ public class MonitoringView extends Div {
                 .set("border", "1px solid #e2e8f0").set("border-radius", "10px")
                 .set("padding", "12px 16px").set("background", "white");
         return details;
+    }
+
+    private Details buildKontingentSimulationSection() {
+        // ── Header ────────────────────────────────────────────────────────────
+        Span titleSpan = new Span("Kontingent Simulation");
+        titleSpan.getStyle()
+                .set("font-weight", "700").set("color", "#0ea5e9").set("font-size", "0.95rem");
+        Span viewSpan = new Span(" – contingent_lasttest (isolierte Tabelle)");
+        viewSpan.getStyle().set("color", "#64748b").set("font-size", "0.82rem");
+        Div header = new Div(titleSpan, viewSpan);
+
+        // ── Beschreibung ──────────────────────────────────────────────────────
+        Span desc = new Span(
+                "Simuliert den Masseneingang von NewQuota-Nachrichten via JMeter → InfluxDB → Grafana. " +
+                "95 % bekannte Artikel, 5 % neue Artikel. Jeder JMeter-Thread sendet einen Request. " +
+                "Gesamtnachrichten = Threads × Nachrichten pro Thread.");
+        desc.getStyle()
+                .set("font-size", "0.8rem").set("color", "#475569")
+                .set("display", "block").set("margin-bottom", "6px");
+
+        // ── Nachrichten-pro-Thread-Feld ───────────────────────────────────────
+        IntegerField countField = new IntegerField("Nachrichten / Thread");
+        countField.setValue(1000);
+        countField.setMin(1);
+        countField.setMax(20_000);
+        countField.setStepButtonsVisible(true);
+        countField.getElement().setAttribute("theme", "small");
+        countField.setWidth("180px");
+
+        // ── JMeter-Preset-Buttons ─────────────────────────────────────────────
+        Button soakBtn = buildKontingentTestButton(
+                "Soak",  "#6366f1", 5,  5, "Kontingent-Soak",  countField);
+        Button spikeBtn = buildKontingentTestButton(
+                "Spike", "#ef4444", 20, 2, "Kontingent-Spike", countField);
+        Button stressBtn = buildKontingentTestButton(
+                "Stress","#dc2626", 50, 5, "Kontingent-Stress",countField);
+
+        HorizontalLayout presetBadges = new HorizontalLayout(
+                testParamBadge("Soak",   "5 Threads",  "#6366f1"),
+                testParamBadge("Spike",  "20 Threads", "#ef4444"),
+                testParamBadge("Stress", "50 Threads", "#dc2626"),
+                testParamBadge("Tabelle", "contingent_lasttest", "#64748b")
+        );
+        presetBadges.setPadding(false);
+        presetBadges.getStyle().set("gap", "6px").set("flex-wrap", "wrap");
+
+        HorizontalLayout btnRow = new HorizontalLayout(countField, soakBtn, spikeBtn, stressBtn);
+        btnRow.setAlignItems(FlexComponent.Alignment.CENTER);
+        btnRow.setPadding(false);
+        btnRow.getStyle().set("gap", "10px").set("flex-wrap", "wrap");
+
+        // ── Reset-Button (direkter HTTP-Call, kein JMeter nötig) ─────────────
+        Span resetStatus  = new Span();
+        Span resetTime    = new Span();
+        Span resetSummary = new Span();
+        resetStatus .getStyle().set("font-size", "0.78rem").set("font-weight", "700").set("min-width", "36px");
+        resetTime   .getStyle().set("font-size", "0.78rem").set("color", "#64748b").set("min-width", "55px");
+        resetSummary.getStyle().set("font-size", "0.78rem").set("color", "#94a3b8");
+        HorizontalLayout resetResult = new HorizontalLayout(resetStatus, resetTime, resetSummary);
+        resetResult.setAlignItems(FlexComponent.Alignment.CENTER);
+        resetResult.setPadding(false);
+        resetResult.getStyle().set("gap", "6px");
+        resetResult.setVisible(false);
+
+        Button resetBtn = new Button("✕  Tabelle leeren");
+        resetBtn.getStyle()
+                .set("background", "#ef4444").set("color", "white")
+                .set("border-radius", "8px").set("font-weight", "700").set("font-size", "0.82rem");
+        resetBtn.addClickListener(e -> {
+            UI ui = UI.getCurrent();
+            resetResult.setVisible(false);
+            sendRequest("DELETE", "/contingents/simulate", null,
+                    resetStatus, resetTime, resetSummary, resetResult, resetBtn, ui);
+        });
+
+        HorizontalLayout resetRow = new HorizontalLayout(resetBtn, resetResult);
+        resetRow.setAlignItems(FlexComponent.Alignment.CENTER);
+        resetRow.setPadding(false);
+        resetRow.getStyle().set("gap", "10px");
+
+        VerticalLayout content = new VerticalLayout(desc, presetBadges, btnRow, resetRow);
+        content.setPadding(false);
+        content.getStyle().set("gap", "10px");
+
+        Details details = new Details(header, content);
+        details.setWidthFull();
+        details.getStyle()
+                .set("border", "1px solid #e2e8f0").set("border-radius", "10px")
+                .set("padding", "12px 16px").set("background", "white");
+        return details;
+    }
+
+    private Button buildKontingentTestButton(String label, String color,
+                                              int threads, int rampup,
+                                              String testName, IntegerField countField) {
+        Button btn = new Button("▶  " + label);
+        btn.getStyle()
+                .set("background", color).set("color", "white")
+                .set("border-radius", "8px").set("font-weight", "700").set("font-size", "0.82rem")
+                .set("box-shadow", "0 2px 8px " + color + "55");
+        btn.addClickListener(e -> {
+            int count = countField.getValue() != null ? countField.getValue() : 1000;
+            launchKontingentTest(count, threads, rampup, testName);
+        });
+        testButtons.add(btn);
+        return btn;
+    }
+
+    private void launchKontingentTest(int count, int threads, int rampup, String testName) {
+        if (testRunning.getAndSet(true)) return;
+
+        String jmeterJar = jmeterHome + "/bin/ApacheJMeter.jar";
+        if (jmeterHome.isBlank() || !Path.of(jmeterJar).toFile().exists()) {
+            showError("JMeter nicht gefunden. Bitte jmeter.home in application.properties setzen.\n" +
+                      "Erwartet: \"" + jmeterJar + "\"");
+            testRunning.set(false);
+            return;
+        }
+
+        Path jmxFile = Path.of("monitoring/jmeter/logistik-kontingent.jmx").toAbsolutePath();
+        if (!jmxFile.toFile().exists()) {
+            showError("JMX-Datei nicht gefunden: " + jmxFile);
+            testRunning.set(false);
+            return;
+        }
+
+        try {
+            Path resultsDir = Path.of("monitoring/jmeter/results");
+            Files.createDirectories(resultsDir);
+            resultFile    = resultsDir.resolve("lasttest-result.csv").toAbsolutePath();
+            Files.deleteIfExists(resultFile);
+            csvReadOffset = 0;
+        } catch (IOException ex) {
+            showError("Konnte Ergebnisordner nicht anlegen: " + ex.getMessage());
+            testRunning.set(false);
+            return;
+        }
+
+        resetStats();
+        activeTestName = testName;
+        testStartTime  = Instant.now();
+        activeUsersGauge.set(threads);
+
+        setTestButtonsEnabled(false);
+        stopButton.setEnabled(true);
+        updateStatusBadge(true);
+
+        List<String> cmd = new ArrayList<>(List.of(
+                "java", "-jar", jmeterJar,
+                "-n",
+                "-t", jmxFile.toString(),
+                "-l", resultFile.toString(),
+                "-Jthreads="  + threads,
+                "-Jrampup="   + rampup,
+                "-Jcount="    + count,
+                "-Jhost=localhost",
+                "-Jport="     + serverPort,
+                "-Jtestname=" + testName.replace(" ", "-")
+        ));
+
+        int total = threads * count;
+        Notification.show("▶  " + testName + " gestartet – " + threads + " Threads × " +
+                          count + " Nachrichten = " + total + " gesamt",
+                4000, Notification.Position.BOTTOM_END);
+
+        Executors.newVirtualThreadPerTaskExecutor().submit(() -> {
+            StringBuilder jmeterOutput = new StringBuilder();
+            try {
+                jmeterProcess = new ProcessBuilder(cmd)
+                        .redirectErrorStream(true)
+                        .start();
+
+                try (var reader = new java.io.BufferedReader(
+                        new java.io.InputStreamReader(jmeterProcess.getInputStream()))) {
+                    String line;
+                    while ((line = reader.readLine()) != null) {
+                        jmeterOutput.append(line).append("\n");
+                    }
+                }
+
+                int exitCode = jmeterProcess.waitFor();
+                if (exitCode != 0) {
+                    String out = jmeterOutput.toString();
+                    UI ui = getUI().orElse(null);
+                    if (ui != null) ui.access(() ->
+                            showError("JMeter Exit-Code " + exitCode + ":\n" +
+                                      out.substring(Math.max(0, out.length() - 500))));
+                }
+            } catch (Exception ex) {
+                UI ui = getUI().orElse(null);
+                if (ui != null) ui.access(() ->
+                        showError("JMeter-Fehler: " + ex.getMessage()));
+            } finally {
+                pollCsvResults();
+                testRunning.set(false);
+                activeUsersGauge.set(0);
+                UI ui = getUI().orElse(null);
+                if (ui != null) {
+                    ui.access(() -> {
+                        updateLiveResults();
+                        setTestButtonsEnabled(true);
+                        stopButton.setEnabled(false);
+                        updateStatusBadge(false);
+                        Notification n = Notification.show(testName + " abgeschlossen",
+                                4000, Notification.Position.BOTTOM_END);
+                        n.addThemeVariants(NotificationVariant.LUMO_SUCCESS);
+                    });
+                }
+            }
+        });
     }
 
     private Button buildTestTypeButton(String label, String color,
