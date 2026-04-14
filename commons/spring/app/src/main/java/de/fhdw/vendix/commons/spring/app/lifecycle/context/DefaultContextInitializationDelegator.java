@@ -1,16 +1,10 @@
 package de.fhdw.vendix.commons.spring.app.lifecycle.context;
 
-import de.fhdw.vendix.commons.spring.security.context.app.AppContext;
+import de.fhdw.vendix.commons.spring.app.lifecycle.app.AppContext;
 import de.fhdw.vendix.commons.spring.web.client.orchestrator.api.ConnectionProxyService;
 import de.fhdw.vendix.commons.spring.web.client.orchestrator.api.DistributedLockProxyService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.slf4j.MDC;
-import org.springframework.context.event.EventListener;
-
-import java.time.Instant;
-import java.time.temporal.ChronoUnit;
-import java.util.Objects;
 
 public final class DefaultContextInitializationDelegator implements ContextInitializationDelegator {
 

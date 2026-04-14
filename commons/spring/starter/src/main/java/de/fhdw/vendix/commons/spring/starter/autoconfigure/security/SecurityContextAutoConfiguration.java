@@ -1,9 +1,7 @@
 package de.fhdw.vendix.commons.spring.starter.autoconfigure.security;
 
-import de.fhdw.vendix.commons.spring.security.context.app.AppContext;
-import de.fhdw.vendix.commons.spring.security.context.app.DefaultAppContext;
-import de.fhdw.vendix.commons.spring.app.lifecycle.context.ContextInitializationDelegator;
-import de.fhdw.vendix.commons.spring.app.lifecycle.context.DefaultContextInitializationDelegator;
+import de.fhdw.vendix.commons.spring.app.lifecycle.app.AppContext;
+import de.fhdw.vendix.commons.spring.app.lifecycle.app.DefaultAppContext;
 import de.fhdw.vendix.commons.spring.app.lifecycle.login.DefaultLoginHandler;
 import de.fhdw.vendix.commons.spring.app.lifecycle.login.LoginHandler;
 import de.fhdw.vendix.commons.spring.app.lifecycle.logout.DefaultLogoutHandler;

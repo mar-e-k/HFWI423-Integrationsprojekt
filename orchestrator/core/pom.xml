@@ -27,12 +27,7 @@
 
         <dependency>
             <groupId>de.fhdw.vendix</groupId>
-            <artifactId>commons-spring-security</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>de.fhdw.vendix</groupId>
-            <artifactId>commons-spring-web</artifactId>
+            <artifactId>commons-spring-app</artifactId>
         </dependency>
     </dependencies>
 

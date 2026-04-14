@@ -1,4 +1,4 @@
-package de.fhdw.vendix.commons.spring.security.context.app;
+package de.fhdw.vendix.commons.spring.app.lifecycle.app;
 
 import de.fhdw.vendix.commons.api.embeddable.TargetType;
 import org.slf4j.MDC;

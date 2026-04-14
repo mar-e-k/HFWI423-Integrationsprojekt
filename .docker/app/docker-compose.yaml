@@ -14,17 +14,6 @@ services:
     networks:
       - app
 
-  redis:
-    image: redis:8.6
-    container_name: redis
-    restart: unless-stopped
-    ports:
-      - "6379:6379"
-    volumes:
-      - redis_data:/var/lib/data
-    networks:
-      - app
-
   rabbitmq:
     image: rabbitmq:4.2.4-management
     container_name: rabbitmq
@@ -40,9 +29,32 @@ services:
     networks:
       - app
 
+  keycloak:
+    image: quay.io/keycloak/keycloak:24.0
+    container_name: keycloak
+    restart: unless-stopped
+    command: start-dev
+    environment:
+      KC_DB: postgres
+      KC_DB_URL: jdbc:postgresql://postgres:5432/vendix
+      KC_DB_USERNAME: user
+      KC_DB_PASSWORD: pass
+
+      KEYCLOAK_ADMIN: admin
+      KEYCLOAK_ADMIN_PASSWORD: admin
+
+      KC_HOSTNAME: localhost
+      KC_HTTP_PORT: 8090
+
+    ports:
+      - "8090:8090"
+    depends_on:
+      - postgres
+    networks:
+      - app
+
 volumes:
   postgres_data:
-  redis_data:
   rabbitmq_data:
 
 networks:

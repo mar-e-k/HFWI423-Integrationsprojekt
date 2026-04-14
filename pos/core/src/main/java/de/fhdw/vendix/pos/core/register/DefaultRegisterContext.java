@@ -1,7 +1,7 @@
 package de.fhdw.vendix.pos.core.register;
 
 import de.fhdw.vendix.commons.api.domain.register.RegisterDTO;
-import de.fhdw.vendix.commons.spring.app.context.app.AppContext;
+import de.fhdw.vendix.commons.spring.app.lifecycle.app.AppContext;
 import de.fhdw.vendix.commons.spring.security.context.ContextAlreadySetException;
 import de.fhdw.vendix.commons.spring.security.context.ContextIllegalSourceException;
 import org.jspecify.annotations.Nullable;

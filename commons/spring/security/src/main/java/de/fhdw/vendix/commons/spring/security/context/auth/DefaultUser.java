@@ -1,6 +1,5 @@
 package de.fhdw.vendix.commons.spring.security.context.auth;
 
-import de.fhdw.vendix.commons.spring.security.context.auth.AuthContext;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 import org.springframework.security.core.GrantedAuthority;
