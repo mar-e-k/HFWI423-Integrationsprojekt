@@ -1,5 +1,6 @@
 package com.example.application.api.load;
 
+import com.example.application.data.articleInfo.ArticleInfo;
 import com.example.application.data.articleInfo.RestockItem;
 import com.example.application.data.messagingEvent.MessagingEvent;
 import com.example.application.data.stockChangeLog.StockChangeLog;
@@ -9,11 +10,14 @@ import com.example.application.services.NewArticleCandidate;
 import com.example.application.services.RestockService;
 import com.example.application.services.StockChangeLogService;
 import org.springframework.data.domain.Sort;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Lasttest-Endpunkte für Views ohne eigene Kategorie:
@@ -55,6 +59,24 @@ public class LoadTestMiscController {
     @GetMapping("/new-articles")
     public List<NewArticleCandidate> newArticles() {
         return articleSyncService.findNewArticlesFromContingents();
+    }
+
+    /**
+     * POST /api/load/new-articles/create-next
+     * Legt den nächsten noch nicht angelegten Artikel aus der Lasttest-Tabelle an.
+     * 200 + ArticleInfo  → Artikel erfolgreich angelegt
+     * 204 No Content     → keine neuen Artikel mehr vorhanden
+     */
+    @PostMapping("/new-articles/create-next")
+    public ResponseEntity<ArticleInfo> createNextNewArticle() {
+        try {
+            Optional<ArticleInfo> result = articleSyncService.createNextFromLasttest();
+            return result.map(ResponseEntity::ok)
+                         .orElse(ResponseEntity.noContent().build());
+        } catch (Exception e) {
+            // Konkurrente Erstellung – kein Fehler für den Test
+            return ResponseEntity.noContent().build();
+        }
     }
 
     /** GET /api/load/messaging-events – Messaging-Events */

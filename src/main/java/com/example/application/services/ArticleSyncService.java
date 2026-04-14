@@ -180,6 +180,38 @@ public class ArticleSyncService {
         return sorted;
     }
 
+    /**
+     * Erstellt den nächsten noch nicht angelegten Artikel aus der Lasttest-Tabelle.
+     * Konkurrenz-sicher: bei Duplikat wird einfach der nächste Kandidat versucht.
+     * Gibt Optional.empty() zurück wenn keine neuen Artikel mehr vorhanden.
+     */
+    @Transactional
+    public Optional<ArticleInfo> createNextFromLasttest() {
+        List<NewArticleCandidate> candidates = findNewArticlesFromLasttestContingents();
+        for (NewArticleCandidate candidate : candidates) {
+            if (articleInfoRepository.findByArticleNumber(candidate.getArticleNumber()) != null) {
+                continue; // anderer Thread war schneller
+            }
+            try {
+                ArticleInfo info = new ArticleInfo();
+                info.setArticleNumber(candidate.getArticleNumber());
+                info.setName(candidate.getName());
+                if (candidate.getArticleId() != null && candidate.getArticleId() > 0) {
+                    info.setArticleId(candidate.getArticleId());
+                }
+                info.setStockLevel(0);
+                info.setStorageLocation("UNGESETZT");
+                info.setReservePallets(0);
+                info.setMinStock(null);
+                info.setPiecesPerPallet(null);
+                return Optional.of(articleInfoRepository.save(info));
+            } catch (Exception e) {
+                // Konkurrenter Zugriff – nächsten Kandidaten probieren
+            }
+        }
+        return Optional.empty();
+    }
+
     @Transactional
     public ArticleInfo createArticleInfoForSingleContingentArticle(Long articleId) {
 

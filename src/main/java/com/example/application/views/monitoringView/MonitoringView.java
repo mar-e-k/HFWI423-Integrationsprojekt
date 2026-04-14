@@ -213,11 +213,12 @@ public class MonitoringView extends Div {
 
         Details miscSection = buildEndpointSection(
                 "Sonstige", "Restock / StockChange / NewArticles / Messaging", "#64748b", List.of(
-                        new EndpointDef("GET", "/health",           true),
-                        new EndpointDef("GET", "/restock",          true),
-                        new EndpointDef("GET", "/stock-changes",    true),
-                        new EndpointDef("GET", "/new-articles",     true),
-                        new EndpointDef("GET", "/messaging-events", true)
+                        new EndpointDef("GET",  "/health",                       true),
+                        new EndpointDef("GET",  "/restock",                      true),
+                        new EndpointDef("GET",  "/stock-changes",                true),
+                        new EndpointDef("GET",  "/new-articles",                 true),
+                        new EndpointDef("POST", "/new-articles/create-next",     true),
+                        new EndpointDef("GET",  "/messaging-events",             true)
                 ));
 
         VerticalLayout layout = new VerticalLayout(
@@ -473,79 +474,8 @@ public class MonitoringView extends Div {
 
     private Div buildLoadTestTab() {
 
-        // ── Intro ─────────────────────────────────────────────────────────────
-        Div intro = new Div();
-        intro.getStyle()
-                .set("background", "#f8faff").set("border", "1px solid #e2e8f0")
-                .set("border-radius", "12px").set("padding", "14px 18px")
-                .set("margin-bottom", "16px");
-
-        Span introTitle = new Span("JMeter-Lasttests nach View");
-        introTitle.getStyle()
-                .set("font-size", "1rem").set("font-weight", "700")
-                .set("color", "#1e293b").set("display", "block").set("margin-bottom", "6px");
-        Span introText = new Span(
-                "Jeder Abschnitt entspricht einer View. " +
-                "Die Tests laufen über Apache JMeter (parametrisiert) und senden Metriken an InfluxDB/Grafana. " +
-                "Es kann jeweils nur ein Test aktiv sein.");
-        introText.getStyle()
-                .set("font-size", "0.83rem").set("color", "#475569")
-                .set("line-height", "1.6").set("display", "block");
-        intro.add(introTitle, introText);
-
-        // ── View-Sektionen ────────────────────────────────────────────────────
-        Details articlesAcc = buildViewTestSection(
-                "Articles",          "LogisticMainView",                "#6366f1", "articles");
-        Details storageAcc  = buildViewTestSection(
-                "Storage Locations", "StorageLocationView",             "#10b981", "storage");
-        Details goodsAcc    = buildViewTestSection(
-                "Goods Receipts",    "GoodsReceiptView",                "#f59e0b", "goods");
-        Details kommAcc     = buildViewTestSection(
-                "Kommissionen",      "OrderPickingView",                "#8b5cf6", "komm");
-        Details gesamtAcc       = buildViewTestSection(
-                "Gesamt",            "Alle Views kombiniert",           "#64748b", "gesamt");
-        Details kontingentAcc   = buildKontingentSimulationSection();
-
-        VerticalLayout accordions = new VerticalLayout(
-                articlesAcc, storageAcc, goodsAcc, kommAcc, kontingentAcc, gesamtAcc);
-        accordions.setPadding(false);
-        accordions.setWidthFull();
-        accordions.getStyle().set("gap", "8px");
-
-        // ── Szenarien ─────────────────────────────────────────────────────────
-        Div szTitle = new Div();
-        Span szLabel = new Span("Szenarien");
-        szLabel.getStyle()
-                .set("font-size", "1rem").set("font-weight", "700")
-                .set("color", "#1e293b").set("display", "block")
-                .set("margin-top", "8px").set("margin-bottom", "4px");
-        szTitle.add(szLabel);
-
-        Details writLoadAcc  = buildScenarioSection(
-                "Write-Load",
-                "Alle Threads schreiben gleichzeitig: GET articles -> POST stock -> POST goods-receipt -> DELETE",
-                "#3b82f6", 20, 10, 60, "Write-Load", "logistik-write-load.jmx");
-
-        Details mixedAcc     = buildScenarioSection(
-                "Mixed 80/20",
-                "80 % lesende GET-Anfragen (zufällig), 20 % schreibende POST stock-Anfragen",
-                "#10b981", 20, 10, 60, "Mixed-Load", "logistik-mixed.jmx");
-
-        Details workflowAcc  = buildScenarioSection(
-                "Workflow E2E",
-                "Vollständiger Wareneingangs-Workflow als Transaktion: POST receipt -> GET article -> POST item -> PUT status -> POST complete",
-                "#f59e0b", 10, 10, 60, "Workflow-E2E", "logistik-workflow.jmx");
-
-        Details conflictAcc  = buildScenarioSection(
-                "Concurrent Conflict",
-                "Alle 50 Threads greifen gleichzeitig auf denselben Artikel zu (0 s Rampup, kein Think-Time) – testet Locking-Verhalten",
-                "#ef4444", 50, 0, 30, "Concurrent-Conflict", "logistik-conflict.jmx");
-
-        VerticalLayout scenarios = new VerticalLayout(
-                szTitle, writLoadAcc, mixedAcc, workflowAcc, conflictAcc);
-        scenarios.setPadding(false);
-        scenarios.setWidthFull();
-        scenarios.getStyle().set("gap", "8px");
+        // ── Kontingent Simulation ─────────────────────────────────────────────
+        Details kontingentAcc = buildKontingentSimulationSection();
 
         // ── Live-Metriken ─────────────────────────────────────────────────────
         HorizontalLayout cardsRow = new HorizontalLayout(
@@ -578,90 +508,15 @@ public class MonitoringView extends Div {
         footer.setPadding(false);
         footer.getStyle().set("gap", "14px");
 
-        VerticalLayout tab = new VerticalLayout(intro, accordions, scenarios, cardsRow, footer);
+        // ── Neuer Artikel Anlegen ─────────────────────────────────────────────
+        Details newArticleAcc = buildNewArticleSection();
+
+        VerticalLayout tab = new VerticalLayout(kontingentAcc, newArticleAcc, cardsRow, footer);
         tab.setPadding(false);
         tab.setWidthFull();
         tab.getStyle().set("gap", "16px");
 
         return new Div(tab);
-    }
-
-    private Details buildViewTestSection(String title, String viewName,
-                                          String color, String testPrefix) {
-        // ── Header ────────────────────────────────────────────────────────────
-        Span titleSpan = new Span(title);
-        titleSpan.getStyle()
-                .set("font-weight", "700").set("color", color).set("font-size", "0.95rem");
-        Span viewSpan = new Span(" – " + viewName);
-        viewSpan.getStyle().set("color", "#64748b").set("font-size", "0.82rem");
-        Div header = new Div(titleSpan, viewSpan);
-
-        // ── Testtyp-Buttons ───────────────────────────────────────────────────
-        Button soakBtn     = buildTestTypeButton("Soak",     "#6366f1", 10,  10, 120, testPrefix + "-Soak",     "logistik-parametrisiert.jmx");
-        Button spikeBtn    = buildTestTypeButton("Spike",    "#ef4444", 100,  2,  40, testPrefix + "-Spike",    "logistik-parametrisiert.jmx");
-        Button capacityBtn = buildTestTypeButton("Capacity", "#f59e0b",  50, 45,  90, testPrefix + "-Capacity", "logistik-parametrisiert.jmx");
-        Button stressBtn   = buildTestTypeButton("Stress",   "#dc2626", 150,  5,  60, testPrefix + "-Stress",   "logistik-parametrisiert.jmx");
-
-        HorizontalLayout btnRow = new HorizontalLayout(soakBtn, spikeBtn, capacityBtn, stressBtn);
-        btnRow.setPadding(false);
-        btnRow.getStyle().set("gap", "8px").set("flex-wrap", "wrap");
-
-        // ── Parameter-Badges ──────────────────────────────────────────────────
-        HorizontalLayout paramRow = new HorizontalLayout(
-                testParamBadge("Soak",     "10 User · 120 s",  "#6366f1"),
-                testParamBadge("Spike",    "100 User · 40 s",  "#ef4444"),
-                testParamBadge("Capacity", "50 User · 90 s",   "#f59e0b"),
-                testParamBadge("Stress",   "150 User · 60 s",  "#dc2626")
-        );
-        paramRow.setPadding(false);
-        paramRow.getStyle().set("gap", "6px").set("flex-wrap", "wrap");
-
-        VerticalLayout content = new VerticalLayout(paramRow, btnRow);
-        content.setPadding(false);
-        content.getStyle().set("gap", "10px");
-
-        Details details = new Details(header, content);
-        details.setWidthFull();
-        details.getStyle()
-                .set("border", "1px solid #e2e8f0").set("border-radius", "10px")
-                .set("padding", "12px 16px").set("background", "white");
-        return details;
-    }
-
-    private Details buildScenarioSection(String title, String description,
-                                          String color, int threads, int rampup, int duration,
-                                          String testName, String jmxFileName) {
-        Span titleSpan = new Span(title);
-        titleSpan.getStyle()
-                .set("font-weight", "700").set("color", color).set("font-size", "0.95rem");
-        Div header = new Div(titleSpan);
-
-        Span desc = new Span(description);
-        desc.getStyle()
-                .set("font-size", "0.8rem").set("color", "#64748b")
-                .set("display", "block").set("margin-bottom", "10px");
-
-        HorizontalLayout paramRow = new HorizontalLayout(
-                testParamBadge("Threads",  String.valueOf(threads),          color),
-                testParamBadge("Rampup",   rampup + " s",                    color),
-                testParamBadge("Dauer",    duration + " s",                  color),
-                testParamBadge("JMX",      jmxFileName,                      "#64748b")
-        );
-        paramRow.setPadding(false);
-        paramRow.getStyle().set("gap", "6px").set("flex-wrap", "wrap").set("margin-bottom", "8px");
-
-        Button runBtn = buildTestTypeButton("Starten", color, threads, rampup, duration, testName, jmxFileName);
-
-        VerticalLayout content = new VerticalLayout(desc, paramRow, runBtn);
-        content.setPadding(false);
-        content.getStyle().set("gap", "6px");
-
-        Details details = new Details(header, content);
-        details.setWidthFull();
-        details.getStyle()
-                .set("border", "1px solid #e2e8f0").set("border-radius", "10px")
-                .set("padding", "12px 16px").set("background", "white");
-        return details;
     }
 
     private Details buildKontingentSimulationSection() {
@@ -752,6 +607,189 @@ public class MonitoringView extends Div {
                 .set("border", "1px solid #e2e8f0").set("border-radius", "10px")
                 .set("padding", "12px 16px").set("background", "white");
         return details;
+    }
+
+    private Details buildNewArticleSection() {
+        Span titleSpan = new Span("Neuer Artikel Anlegen");
+        titleSpan.getStyle()
+                .set("font-weight", "700").set("color", "#10b981").set("font-size", "0.95rem");
+        Span viewSpan = new Span(" – ArticleInfo aus contingent_lasttest (benötigt Kontingent Simulation)");
+        viewSpan.getStyle().set("color", "#64748b").set("font-size", "0.82rem");
+        Div header = new Div(titleSpan, viewSpan);
+
+        Span desc = new Span(
+                "Simuliert parallele Lageristen, die neue Artikel aus der Lasttest-Tabelle anlegen. " +
+                "Jeder JMeter-Thread ruft POST /api/load/new-articles/create-next auf. " +
+                "200 = Artikel angelegt, 204 = keine neuen Artikel mehr vorhanden.");
+        desc.getStyle()
+                .set("font-size", "0.8rem").set("color", "#475569")
+                .set("display", "block").set("margin-bottom", "6px");
+
+        IntegerField threadsField = new IntegerField("Threads (parallele User)");
+        threadsField.setValue(5);
+        threadsField.setMin(1);
+        threadsField.setMax(200);
+        threadsField.setStepButtonsVisible(true);
+        threadsField.getElement().setAttribute("theme", "small");
+        threadsField.setWidth("190px");
+
+        IntegerField iterationsField = new IntegerField("Iterationen / Thread");
+        iterationsField.setValue(20);
+        iterationsField.setMin(1);
+        iterationsField.setMax(10_000);
+        iterationsField.setStepButtonsVisible(true);
+        iterationsField.getElement().setAttribute("theme", "small");
+        iterationsField.setWidth("170px");
+
+        IntegerField rampupField = new IntegerField("Ramp-up (s)");
+        rampupField.setValue(2);
+        rampupField.setMin(1);
+        rampupField.setMax(120);
+        rampupField.setStepButtonsVisible(true);
+        rampupField.getElement().setAttribute("theme", "small");
+        rampupField.setWidth("130px");
+
+        Button startBtn = new Button("▶  Starten");
+        startBtn.getStyle()
+                .set("background", "#10b981").set("color", "white")
+                .set("border-radius", "8px").set("font-weight", "700").set("font-size", "0.82rem")
+                .set("box-shadow", "0 2px 8px #10b98155");
+        startBtn.addClickListener(e -> {
+            int threads    = threadsField.getValue()    != null ? threadsField.getValue()    : 5;
+            int iterations = iterationsField.getValue() != null ? iterationsField.getValue() : 20;
+            int rampup     = rampupField.getValue()     != null ? rampupField.getValue()     : 2;
+            launchNewArticlesTest(threads, iterations, rampup,
+                    "Artikel-Anlegen-" + threads + "T");
+        });
+        testButtons.add(startBtn);
+
+        HorizontalLayout presetBadges = new HorizontalLayout(
+                testParamBadge("Endpunkt",  "POST /api/load/new-articles/create-next", "#10b981"),
+                testParamBadge("200",       "Artikel angelegt",                         "#6366f1"),
+                testParamBadge("204",       "Keine neuen Artikel",                      "#64748b")
+        );
+        presetBadges.setPadding(false);
+        presetBadges.getStyle().set("gap", "6px").set("flex-wrap", "wrap");
+
+        HorizontalLayout controls = new HorizontalLayout(threadsField, iterationsField, rampupField, startBtn);
+        controls.setAlignItems(FlexComponent.Alignment.CENTER);
+        controls.setPadding(false);
+        controls.getStyle().set("gap", "10px").set("flex-wrap", "wrap");
+
+        VerticalLayout content = new VerticalLayout(desc, presetBadges, controls);
+        content.setPadding(false);
+        content.getStyle().set("gap", "10px");
+
+        Details details = new Details(header, content);
+        details.setWidthFull();
+        details.getStyle()
+                .set("border", "1px solid #e2e8f0").set("border-radius", "10px")
+                .set("padding", "12px 16px").set("background", "white");
+        return details;
+    }
+
+    private void launchNewArticlesTest(int threads, int iterations, int rampup, String testName) {
+        if (testRunning.getAndSet(true)) return;
+
+        String jmeterJar = jmeterHome + "/bin/ApacheJMeter.jar";
+        if (jmeterHome.isBlank() || !Path.of(jmeterJar).toFile().exists()) {
+            showError("JMeter nicht gefunden. Bitte jmeter.home in application.properties setzen.\n" +
+                      "Erwartet: \"" + jmeterJar + "\"");
+            testRunning.set(false);
+            return;
+        }
+
+        Path jmxFile = Path.of("monitoring/jmeter/logistik-new-articles.jmx").toAbsolutePath();
+        if (!jmxFile.toFile().exists()) {
+            showError("JMX-Datei nicht gefunden: " + jmxFile);
+            testRunning.set(false);
+            return;
+        }
+
+        try {
+            Path resultsDir = Path.of("monitoring/jmeter/results");
+            Files.createDirectories(resultsDir);
+            resultFile    = resultsDir.resolve("lasttest-result.csv").toAbsolutePath();
+            Files.deleteIfExists(resultFile);
+            csvReadOffset = 0;
+        } catch (IOException ex) {
+            showError("Konnte Ergebnisordner nicht anlegen: " + ex.getMessage());
+            testRunning.set(false);
+            return;
+        }
+
+        resetStats();
+        activeTestName = testName;
+        testStartTime  = Instant.now();
+        activeUsersGauge.set(threads);
+
+        setTestButtonsEnabled(false);
+        stopButton.setEnabled(true);
+        updateStatusBadge(true);
+
+        List<String> cmd = new ArrayList<>(List.of(
+                "java", "-jar", jmeterJar,
+                "-n",
+                "-t", jmxFile.toString(),
+                "-l", resultFile.toString(),
+                "-Jthreads="     + threads,
+                "-Jrampup="      + rampup,
+                "-Jiterations="  + iterations,
+                "-Jhost=localhost",
+                "-Jport="        + serverPort,
+                "-Jtestname="    + testName.replace(" ", "-")
+        ));
+
+        int total = threads * iterations;
+        Notification.show("▶  " + testName + " gestartet – " + threads + " Threads × " +
+                          iterations + " Iterationen = " + total + " Requests max",
+                4000, Notification.Position.BOTTOM_END);
+
+        Executors.newVirtualThreadPerTaskExecutor().submit(() -> {
+            StringBuilder jmeterOutput = new StringBuilder();
+            try {
+                jmeterProcess = new ProcessBuilder(cmd)
+                        .redirectErrorStream(true)
+                        .start();
+
+                try (var reader = new java.io.BufferedReader(
+                        new java.io.InputStreamReader(jmeterProcess.getInputStream()))) {
+                    String line;
+                    while ((line = reader.readLine()) != null) {
+                        jmeterOutput.append(line).append("\n");
+                    }
+                }
+
+                int exitCode = jmeterProcess.waitFor();
+                if (exitCode != 0) {
+                    String out = jmeterOutput.toString();
+                    UI ui = getUI().orElse(null);
+                    if (ui != null) ui.access(() ->
+                            showError("JMeter Exit-Code " + exitCode + ":\n" +
+                                      out.substring(Math.max(0, out.length() - 500))));
+                }
+            } catch (Exception ex) {
+                UI ui = getUI().orElse(null);
+                if (ui != null) ui.access(() ->
+                        showError("JMeter-Fehler: " + ex.getMessage()));
+            } finally {
+                pollCsvResults();
+                testRunning.set(false);
+                activeUsersGauge.set(0);
+                UI ui = getUI().orElse(null);
+                if (ui != null) {
+                    ui.access(() -> {
+                        updateLiveResults();
+                        setTestButtonsEnabled(true);
+                        stopButton.setEnabled(false);
+                        updateStatusBadge(false);
+                        Notification n = Notification.show(testName + " abgeschlossen",
+                                4000, Notification.Position.BOTTOM_END);
+                        n.addThemeVariants(NotificationVariant.LUMO_SUCCESS);
+                    });
+                }
+            }
+        });
     }
 
     private Button buildKontingentTestButton(String label, String color,
@@ -874,19 +912,6 @@ public class MonitoringView extends Div {
         });
     }
 
-    private Button buildTestTypeButton(String label, String color,
-                                        int threads, int rampup, int duration,
-                                        String testName, String jmxFileName) {
-        Button btn = new Button("▶  " + label);
-        btn.getStyle()
-                .set("background", color).set("color", "white")
-                .set("border-radius", "8px").set("font-weight", "700").set("font-size", "0.82rem")
-                .set("box-shadow", "0 2px 8px " + color + "55");
-        btn.addClickListener(e -> launchJMeter(testName, threads, rampup, duration, jmxFileName));
-        testButtons.add(btn);
-        return btn;
-    }
-
     private Div testParamBadge(String label, String value, String color) {
         Span labelSpan = new Span(label + ": ");
         labelSpan.getStyle().set("color", "#64748b").set("font-size", "0.72rem");
@@ -955,114 +980,6 @@ public class MonitoringView extends Div {
         Div wrapper = new Div(hint, frame);
         wrapper.setWidthFull();
         return wrapper;
-    }
-
-    // ══════════════════════════════════════════════════════════════════════════
-    //  JMeter-Steuerung
-    // ══════════════════════════════════════════════════════════════════════════
-
-    private void launchJMeter(String name, int threads, int rampup, int duration, String jmxFileName) {
-        if (testRunning.getAndSet(true)) return;
-
-        String jmeterJar = jmeterHome + "/bin/ApacheJMeter.jar";
-
-        if (jmeterHome.isBlank() || !Path.of(jmeterJar).toFile().exists()) {
-            showError("JMeter nicht gefunden. Bitte jmeter.home in application.properties setzen.\n" +
-                      "Erwartet: \"" + jmeterJar + "\"");
-            testRunning.set(false);
-            return;
-        }
-
-        Path jmxFile = Path.of("monitoring/jmeter/" + jmxFileName).toAbsolutePath();
-        if (!jmxFile.toFile().exists()) {
-            showError("JMX-Datei nicht gefunden: " + jmxFile);
-            testRunning.set(false);
-            return;
-        }
-
-        try {
-            Path resultsDir = Path.of("monitoring/jmeter/results");
-            Files.createDirectories(resultsDir);
-            resultFile    = resultsDir.resolve("lasttest-result.csv").toAbsolutePath();
-            Files.deleteIfExists(resultFile);
-            csvReadOffset = 0;
-        } catch (IOException ex) {
-            showError("Konnte Ergebnisordner nicht anlegen: " + ex.getMessage());
-            testRunning.set(false);
-            return;
-        }
-
-        resetStats();
-        activeTestName = name;
-        testStartTime  = Instant.now();
-        activeUsersGauge.set(threads);
-
-        setTestButtonsEnabled(false);
-        stopButton.setEnabled(true);
-        updateStatusBadge(true);
-
-        List<String> cmd = new ArrayList<>(List.of(
-                "java", "-jar", jmeterJar,
-                "-n",
-                "-t", jmxFile.toString(),
-                "-l", resultFile.toString(),
-                "-Jthreads="  + threads,
-                "-Jrampup="   + rampup,
-                "-Jduration=" + duration,
-                "-Jhost=localhost",
-                "-Jport="     + serverPort,
-                "-Jtestname=" + name.replace(" ", "-")
-        ));
-
-        Notification.show("▶  " + name + " gestartet – " + threads + " Threads, " + duration + " s",
-                3000, Notification.Position.BOTTOM_END);
-
-        Executors.newVirtualThreadPerTaskExecutor().submit(() -> {
-            StringBuilder jmeterOutput = new StringBuilder();
-            try {
-                jmeterProcess = new ProcessBuilder(cmd)
-                        .redirectErrorStream(true)
-                        .start();
-
-                try (var reader = new java.io.BufferedReader(
-                        new java.io.InputStreamReader(jmeterProcess.getInputStream()))) {
-                    String line;
-                    while ((line = reader.readLine()) != null) {
-                        jmeterOutput.append(line).append("\n");
-                    }
-                }
-
-                int exitCode = jmeterProcess.waitFor();
-                if (exitCode != 0) {
-                    String out = jmeterOutput.toString();
-                    UI ui = getUI().orElse(null);
-                    if (ui != null) ui.access(() ->
-                            showError("JMeter Exit-Code " + exitCode + ":\n" +
-                                      out.substring(Math.max(0, out.length() - 500))));
-                }
-            } catch (Exception ex) {
-                UI ui = getUI().orElse(null);
-                if (ui != null) ui.access(() ->
-                        showError("JMeter-Fehler: " + ex.getMessage() + "\nOutput:\n" +
-                                  jmeterOutput.substring(Math.max(0, jmeterOutput.length() - 300))));
-            } finally {
-                pollCsvResults();
-                testRunning.set(false);
-                activeUsersGauge.set(0);
-                UI ui = getUI().orElse(null);
-                if (ui != null) {
-                    ui.access(() -> {
-                        updateLiveResults();
-                        setTestButtonsEnabled(true);
-                        stopButton.setEnabled(false);
-                        updateStatusBadge(false);
-                        Notification n = Notification.show(name + " abgeschlossen",
-                                4000, Notification.Position.BOTTOM_END);
-                        n.addThemeVariants(NotificationVariant.LUMO_SUCCESS);
-                    });
-                }
-            }
-        });
     }
 
     private void stopTest() {
