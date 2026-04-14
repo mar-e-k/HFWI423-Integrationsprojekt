@@ -28,6 +28,13 @@ public class ContingentLasttest {
     @Column(name = "supplier_id")
     private Long supplierId;
 
+    /** Nur bei synthetisch simulierten neuen Artikeln gesetzt (kein ExternalArticle vorhanden) */
+    @Column(name = "sim_article_number")
+    private String simArticleNumber;
+
+    @Column(name = "sim_article_name")
+    private String simArticleName;
+
     // ------------------- Getter/Setter -------------------
 
     public Long getId() { return id; }
@@ -43,4 +50,12 @@ public class ContingentLasttest {
 
     public Long getSupplierId() { return supplierId; }
     public void setSupplierId(Long supplierId) { this.supplierId = supplierId; }
+
+    public String getSimArticleNumber() { return simArticleNumber; }
+    public void setSimArticleNumber(String simArticleNumber) { this.simArticleNumber = simArticleNumber; }
+
+    public String getSimArticleName() { return simArticleName; }
+    public void setSimArticleName(String simArticleName) { this.simArticleName = simArticleName; }
+
+    public boolean isSynthetic() { return simArticleNumber != null; }
 }

@@ -14,6 +14,8 @@ import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.GridVariant;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.Span;
+import com.vaadin.flow.component.tabs.Tab;
+import com.vaadin.flow.component.tabs.Tabs;
 import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.notification.NotificationVariant;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
@@ -38,6 +40,7 @@ public class NewArticlesView extends Div {
     private final BadgeNotifier badgeNotifier;
 
     private final Grid<NewArticleCandidate> grid = new Grid<>(NewArticleCandidate.class, false);
+    private boolean lasttestModus = false;
 
     public NewArticlesView(ArticleSyncService articleSyncService,
                            StorageLocationService storageLocationService,
@@ -49,9 +52,18 @@ public class NewArticlesView extends Div {
         setSizeFull();
         addClassName("view-page");
 
-        // Toolbar
+        // Toolbar – Quelle wählen
+        Tab tabProd     = new Tab("Produktion");
+        Tab tabLasttest = new Tab("Lasttest");
+        Tabs sourceTabs = new Tabs(tabProd, tabLasttest);
+        sourceTabs.setSelectedTab(tabProd);
+        sourceTabs.addSelectedChangeListener(e -> {
+            lasttestModus = e.getSelectedTab() == tabLasttest;
+            refresh();
+        });
+
         Button refreshButton = new Button("Aktualisieren", e -> refresh());
-        HorizontalLayout toolbar = new HorizontalLayout(refreshButton);
+        HorizontalLayout toolbar = new HorizontalLayout(sourceTabs, refreshButton);
         toolbar.setWidthFull();
         toolbar.setAlignItems(FlexComponent.Alignment.CENTER);
         toolbar.addClassName("view-toolbar");
@@ -115,6 +127,7 @@ public class NewArticlesView extends Div {
             minStockField.setWidth("130px");
 
             Button createBtn = new Button("Artikel anlegen", click -> {
+                if (lasttestModus) return; // Anlegen im Lasttest-Modus geblockt
                 try {
                     if (locationField.getValue() == null || locationField.getValue().isBlank()) {
                         Notification n = Notification.show("Bitte Storage Location waehlen", 3000, Notification.Position.MIDDLE);
@@ -157,6 +170,8 @@ public class NewArticlesView extends Div {
                 }
             });
             createBtn.addThemeVariants(ButtonVariant.LUMO_SMALL, ButtonVariant.LUMO_PRIMARY);
+            createBtn.setEnabled(!lasttestModus);
+            createBtn.setTooltipText(lasttestModus ? "Im Lasttest-Modus nicht verfügbar" : "");
 
             HorizontalLayout rowLayout = new HorizontalLayout(locationField, chooseLocation, piecesPerPalletField, minStockField, createBtn);
             rowLayout.setAlignItems(FlexComponent.Alignment.BASELINE);
@@ -180,7 +195,9 @@ public class NewArticlesView extends Div {
     }
 
     private void refresh() {
-        List<NewArticleCandidate> items = articleSyncService.findNewArticlesFromContingents();
+        List<NewArticleCandidate> items = lasttestModus
+                ? articleSyncService.findNewArticlesFromLasttestContingents()
+                : articleSyncService.findNewArticlesFromContingents();
         grid.setItems(items);
     }
 }

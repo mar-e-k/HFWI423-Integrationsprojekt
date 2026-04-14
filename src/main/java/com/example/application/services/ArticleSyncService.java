@@ -4,6 +4,8 @@ package com.example.application.services;
 import com.example.application.data.articleInfo.ArticleInfo;
 import com.example.application.data.articleInfo.ArticleInfoRepository;
 import com.example.application.data.contingent.Contingent;
+import com.example.application.data.contingent.ContingentLasttest;
+import com.example.application.data.contingent.ContingentLasttestRepository;
 import com.example.application.data.contingent.ContingentRepository;
 import com.example.application.data.externalArticle.ExternalArticle;
 import com.example.application.data.externalArticle.ExternalArticleRepository;
@@ -13,18 +15,22 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+import java.util.LinkedHashMap;
 
 @Service
 public class ArticleSyncService {
 
     private final ContingentRepository contingentRepository;
+    private final ContingentLasttestRepository contingentLasttestRepository;
     private final ExternalArticleRepository externalArticleRepository;
     private final ArticleInfoRepository articleInfoRepository;
 
     public ArticleSyncService(ContingentRepository contingentRepository,
+                              ContingentLasttestRepository contingentLasttestRepository,
                               ExternalArticleRepository externalArticleRepository,
                               ArticleInfoRepository articleInfoRepository) {
         this.contingentRepository = contingentRepository;
+        this.contingentLasttestRepository = contingentLasttestRepository;
         this.externalArticleRepository = externalArticleRepository;
         this.articleInfoRepository = articleInfoRepository;
     }
@@ -32,6 +38,11 @@ public class ArticleSyncService {
     @Transactional(readOnly = true)
     public long countNewArticles() {
         return contingentRepository.countNewArticles();
+    }
+
+    @Transactional(readOnly = true)
+    public long countNewArticlesFromLasttest() {
+        return contingentLasttestRepository.countDistinctSyntheticNewArticles();
     }
 
     @Transactional(readOnly = true)
@@ -117,6 +128,56 @@ public class ArticleSyncService {
         info.setReserveStorageLocation(null);
 
         return articleInfoRepository.save(info);
+    }
+
+    @Transactional(readOnly = true)
+    public List<NewArticleCandidate> findNewArticlesFromLasttestContingents() {
+        List<ContingentLasttest> contingents = contingentLasttestRepository.findAll();
+        Set<String> existingArticleNumbers = articleInfoRepository.findAllArticleNumbers();
+
+        // Synthetische neue Artikel (sim_article_number gesetzt) – direkt aus der Lasttest-Tabelle
+        Map<String, NewArticleCandidate> result = new LinkedHashMap<>();
+        for (ContingentLasttest c : contingents) {
+            if (c.isSynthetic()) {
+                String nr = c.getSimArticleNumber();
+                if (!existingArticleNumbers.contains(nr) && !result.containsKey(nr)) {
+                    NewArticleCandidate candidate = new NewArticleCandidate();
+                    candidate.setArticleId(c.getArticleId());
+                    candidate.setArticleNumber(nr);
+                    candidate.setName(c.getSimArticleName());
+                    result.put(nr, candidate);
+                }
+            }
+        }
+
+        // Echte neue Artikel (articleId > 0, ExternalArticle vorhanden, noch kein ArticleInfo)
+        Set<Long> echteIds = contingents.stream()
+                .filter(c -> !c.isSynthetic())
+                .map(ContingentLasttest::getArticleId)
+                .collect(Collectors.toSet());
+
+        if (!echteIds.isEmpty()) {
+            Map<Long, ExternalArticle> externalById = externalArticleRepository.findAllById(echteIds)
+                    .stream()
+                    .collect(Collectors.toMap(ExternalArticle::getId, Function.identity()));
+
+            for (Long articleId : echteIds) {
+                ExternalArticle ext = externalById.get(articleId);
+                if (ext == null) continue;
+                if (existingArticleNumbers.contains(ext.getArticleNumber())) continue;
+                if (result.containsKey(ext.getArticleNumber())) continue;
+
+                NewArticleCandidate candidate = new NewArticleCandidate();
+                candidate.setArticleId(articleId);
+                candidate.setArticleNumber(ext.getArticleNumber());
+                candidate.setName(ext.getName());
+                result.put(ext.getArticleNumber(), candidate);
+            }
+        }
+
+        List<NewArticleCandidate> sorted = new ArrayList<>(result.values());
+        sorted.sort(Comparator.comparing(NewArticleCandidate::getArticleNumber));
+        return sorted;
     }
 
     @Transactional

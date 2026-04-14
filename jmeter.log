@@ -1,125 +1,125 @@
-2026-04-14 17:07:07,384 INFO o.a.j.u.JMeterUtils: Setting Locale to de_DE
-2026-04-14 17:07:07,478 INFO o.a.j.u.JMeterUtils: Could not find resources for 'de_DE', using 'de'
-2026-04-14 17:07:07,496 INFO o.a.j.JMeter: Loading user properties from: C:\tools\apache-jmeter-5.6.3\bin\user.properties
-2026-04-14 17:07:07,528 INFO o.a.j.JMeter: Loading system properties from: C:\tools\apache-jmeter-5.6.3\bin\system.properties
-2026-04-14 17:07:07,528 INFO o.a.j.JMeter: Setting JMeter property: threads=20
-2026-04-14 17:07:07,528 INFO o.a.j.JMeter: Setting JMeter property: rampup=2
-2026-04-14 17:07:07,528 INFO o.a.j.JMeter: Setting JMeter property: count=1000
-2026-04-14 17:07:07,528 INFO o.a.j.JMeter: Setting JMeter property: host=localhost
-2026-04-14 17:07:07,528 INFO o.a.j.JMeter: Setting JMeter property: port=8081
-2026-04-14 17:07:07,528 INFO o.a.j.JMeter: Setting JMeter property: testname=Kontingent-Spike
-2026-04-14 17:07:07,537 INFO o.a.j.JMeter: Copyright (c) 1998-2024 The Apache Software Foundation
-2026-04-14 17:07:07,546 INFO o.a.j.JMeter: Version 5.6.3
-2026-04-14 17:07:07,546 INFO o.a.j.JMeter: java.version=21.0.8
-2026-04-14 17:07:07,546 INFO o.a.j.JMeter: java.vm.name=OpenJDK 64-Bit Server VM
-2026-04-14 17:07:07,547 INFO o.a.j.JMeter: os.name=Windows 11
-2026-04-14 17:07:07,547 INFO o.a.j.JMeter: os.arch=amd64
-2026-04-14 17:07:07,548 INFO o.a.j.JMeter: os.version=10.0
-2026-04-14 17:07:07,548 INFO o.a.j.JMeter: file.encoding=UTF-8
-2026-04-14 17:07:07,548 INFO o.a.j.JMeter: java.awt.headless=true
-2026-04-14 17:07:07,549 INFO o.a.j.JMeter: Max memory     =4213178368
-2026-04-14 17:07:07,549 INFO o.a.j.JMeter: Available Processors =12
-2026-04-14 17:07:07,589 INFO o.a.j.JMeter: Default Locale=Deutsch (Deutschland)
-2026-04-14 17:07:07,589 INFO o.a.j.JMeter: JMeter  Locale=Deutsch (Deutschland)
-2026-04-14 17:07:07,589 INFO o.a.j.JMeter: JMeterHome=C:\tools\apache-jmeter-5.6.3
-2026-04-14 17:07:07,589 INFO o.a.j.JMeter: user.dir  =C:\Users\admin\Downloads\logistik\logistik
-2026-04-14 17:07:07,589 INFO o.a.j.JMeter: PWD       =C:\Users\admin\Downloads\logistik\logistik
-2026-04-14 17:07:07,593 INFO o.a.j.JMeter: IP: 172.17.160.176 Name: NB23-767 FullName: NB23-767.ha.bib.de
-2026-04-14 17:07:07,685 INFO o.a.j.s.FileServer: Default base='C:\Users\admin\Downloads\logistik\logistik'
-2026-04-14 17:07:07,697 INFO o.a.j.s.FileServer: Set new base='C:\Users\admin\Downloads\logistik\logistik\monitoring\jmeter'
-2026-04-14 17:07:08,487 INFO o.a.j.s.SaveService: Testplan (JMX) version: 2.2. Testlog (JTL) version: 2.2
-2026-04-14 17:07:08,763 INFO o.a.j.s.SaveService: Using SaveService properties version 5.0
-2026-04-14 17:07:08,784 INFO o.a.j.s.SaveService: Using SaveService properties file encoding UTF-8
-2026-04-14 17:07:08,801 INFO o.a.j.s.SaveService: Loading file: C:\Users\admin\Downloads\logistik\logistik\monitoring\jmeter\logistik-kontingent.jmx
-2026-04-14 17:07:09,423 INFO o.a.j.p.h.s.HTTPSamplerBase: Parser for text/html is org.apache.jmeter.protocol.http.parser.LagartoBasedHtmlParser
-2026-04-14 17:07:09,423 INFO o.a.j.p.h.s.HTTPSamplerBase: Parser for application/xhtml+xml is org.apache.jmeter.protocol.http.parser.LagartoBasedHtmlParser
-2026-04-14 17:07:09,424 INFO o.a.j.p.h.s.HTTPSamplerBase: Parser for application/xml is org.apache.jmeter.protocol.http.parser.LagartoBasedHtmlParser
-2026-04-14 17:07:09,424 INFO o.a.j.p.h.s.HTTPSamplerBase: Parser for text/xml is org.apache.jmeter.protocol.http.parser.LagartoBasedHtmlParser
-2026-04-14 17:07:09,424 INFO o.a.j.p.h.s.HTTPSamplerBase: Parser for text/vnd.wap.wml is org.apache.jmeter.protocol.http.parser.RegexpHTMLParser
-2026-04-14 17:07:09,424 INFO o.a.j.p.h.s.HTTPSamplerBase: Parser for text/css is org.apache.jmeter.protocol.http.parser.CssParser
-2026-04-14 17:07:09,460 INFO o.a.j.s.SampleResult: Note: Sample TimeStamps are START times
-2026-04-14 17:07:09,460 INFO o.a.j.s.SampleResult: sampleresult.default.encoding is set to UTF-8
-2026-04-14 17:07:09,460 INFO o.a.j.s.SampleResult: sampleresult.useNanoTime=true
-2026-04-14 17:07:09,462 INFO o.a.j.s.SampleResult: sampleresult.nanoThreadSleep=5000
-2026-04-14 17:07:09,534 INFO o.a.j.JMeter: Creating summariser <summary>
-2026-04-14 17:07:09,586 INFO o.a.j.e.StandardJMeterEngine: Running the test!
-2026-04-14 17:07:09,586 INFO o.a.j.s.SampleEvent: List of sample_variables: []
-2026-04-14 17:07:09,586 INFO o.a.j.s.SampleEvent: List of sample_variables: []
-2026-04-14 17:07:09,599 INFO o.a.j.e.u.CompoundVariable: Note: Function class names must contain the string: '.functions.'
-2026-04-14 17:07:09,599 INFO o.a.j.e.u.CompoundVariable: Note: Function class names must not contain the string: '.gui.'
-2026-04-14 17:07:09,794 INFO o.a.j.v.b.BackendListener: InfluxDB Backend Listener: Starting worker with class: class org.apache.jmeter.visualizers.backend.influxdb.InfluxdbBackendListenerClient and queue capacity: 5000
-2026-04-14 17:07:09,794 INFO o.a.j.v.b.BackendListener: InfluxDB Backend Listener: Started  worker with class: class org.apache.jmeter.visualizers.backend.influxdb.InfluxdbBackendListenerClient
-2026-04-14 17:07:10,988 INFO o.a.j.JMeter: Test starten (1776179230988)
-2026-04-14 17:07:11,068 INFO o.a.j.e.StandardJMeterEngine: Starting ThreadGroup: 1 : Kontingent Simulation
-2026-04-14 17:07:11,068 INFO o.a.j.e.StandardJMeterEngine: Starting 20 threads for group Kontingent Simulation.
-2026-04-14 17:07:11,068 INFO o.a.j.e.StandardJMeterEngine: Thread will continue on error
-2026-04-14 17:07:11,068 INFO o.a.j.t.ThreadGroup: Starting thread group... number=1 threads=20 ramp-up=2 delayedStart=false
-2026-04-14 17:07:11,088 INFO o.a.j.t.JMeterThread: Thread started: Kontingent Simulation 1-1
-2026-04-14 17:07:11,102 INFO o.a.j.t.ThreadGroup: Started thread group number 1
-2026-04-14 17:07:11,102 INFO o.a.j.e.StandardJMeterEngine: All thread groups have been started
-2026-04-14 17:07:11,141 INFO o.a.j.p.h.s.HTTPHCAbstractImpl: Local host = NB23-767
-2026-04-14 17:07:11,151 INFO o.a.j.p.h.s.HTTPHC4Impl: HTTP request retry count = 0
-2026-04-14 17:07:11,181 INFO o.a.j.t.JMeterThread: Thread started: Kontingent Simulation 1-2
-2026-04-14 17:07:11,279 INFO o.a.j.t.JMeterThread: Thread started: Kontingent Simulation 1-3
-2026-04-14 17:07:11,383 INFO o.a.j.t.JMeterThread: Thread started: Kontingent Simulation 1-4
-2026-04-14 17:07:11,483 INFO o.a.j.t.JMeterThread: Thread started: Kontingent Simulation 1-5
-2026-04-14 17:07:11,582 INFO o.a.j.t.JMeterThread: Thread started: Kontingent Simulation 1-6
-2026-04-14 17:07:11,682 INFO o.a.j.t.JMeterThread: Thread started: Kontingent Simulation 1-7
-2026-04-14 17:07:11,782 INFO o.a.j.t.JMeterThread: Thread started: Kontingent Simulation 1-8
-2026-04-14 17:07:11,926 INFO o.a.j.t.JMeterThread: Thread started: Kontingent Simulation 1-9
-2026-04-14 17:07:11,983 INFO o.a.j.t.JMeterThread: Thread started: Kontingent Simulation 1-10
-2026-04-14 17:07:12,081 INFO o.a.j.t.JMeterThread: Thread started: Kontingent Simulation 1-11
-2026-04-14 17:07:12,179 INFO o.a.j.t.JMeterThread: Thread started: Kontingent Simulation 1-12
-2026-04-14 17:07:12,281 INFO o.a.j.t.JMeterThread: Thread started: Kontingent Simulation 1-13
-2026-04-14 17:07:12,381 INFO o.a.j.t.JMeterThread: Thread started: Kontingent Simulation 1-14
-2026-04-14 17:07:12,482 INFO o.a.j.t.JMeterThread: Thread started: Kontingent Simulation 1-15
-2026-04-14 17:07:12,580 INFO o.a.j.t.JMeterThread: Thread started: Kontingent Simulation 1-16
-2026-04-14 17:07:12,680 INFO o.a.j.t.JMeterThread: Thread started: Kontingent Simulation 1-17
-2026-04-14 17:07:12,781 INFO o.a.j.t.JMeterThread: Thread started: Kontingent Simulation 1-18
-2026-04-14 17:07:12,886 INFO o.a.j.t.JMeterThread: Thread started: Kontingent Simulation 1-19
-2026-04-14 17:07:12,970 INFO o.a.j.t.JMeterThread: Thread started: Kontingent Simulation 1-20
-2026-04-14 17:07:42,353 INFO o.a.j.t.JMeterThread: Thread is done: Kontingent Simulation 1-13
-2026-04-14 17:07:42,353 INFO o.a.j.t.JMeterThread: Thread is done: Kontingent Simulation 1-12
-2026-04-14 17:07:42,353 INFO o.a.j.t.JMeterThread: Thread finished: Kontingent Simulation 1-13
-2026-04-14 17:07:42,353 INFO o.a.j.t.JMeterThread: Thread finished: Kontingent Simulation 1-12
-2026-04-14 17:07:42,354 INFO o.a.j.t.JMeterThread: Thread is done: Kontingent Simulation 1-11
-2026-04-14 17:07:42,354 INFO o.a.j.t.JMeterThread: Thread finished: Kontingent Simulation 1-11
-2026-04-14 17:07:42,439 INFO o.a.j.t.JMeterThread: Thread is done: Kontingent Simulation 1-14
-2026-04-14 17:07:42,439 INFO o.a.j.t.JMeterThread: Thread finished: Kontingent Simulation 1-14
-2026-04-14 17:07:42,521 INFO o.a.j.t.JMeterThread: Thread is done: Kontingent Simulation 1-15
-2026-04-14 17:07:42,521 INFO o.a.j.t.JMeterThread: Thread finished: Kontingent Simulation 1-15
-2026-04-14 17:07:42,636 INFO o.a.j.t.JMeterThread: Thread is done: Kontingent Simulation 1-16
-2026-04-14 17:07:42,636 INFO o.a.j.t.JMeterThread: Thread finished: Kontingent Simulation 1-16
-2026-04-14 17:07:42,732 INFO o.a.j.t.JMeterThread: Thread is done: Kontingent Simulation 1-17
-2026-04-14 17:07:42,733 INFO o.a.j.t.JMeterThread: Thread finished: Kontingent Simulation 1-17
-2026-04-14 17:07:42,878 INFO o.a.j.t.JMeterThread: Thread is done: Kontingent Simulation 1-18
-2026-04-14 17:07:42,879 INFO o.a.j.t.JMeterThread: Thread finished: Kontingent Simulation 1-18
-2026-04-14 17:07:42,935 INFO o.a.j.t.JMeterThread: Thread is done: Kontingent Simulation 1-19
-2026-04-14 17:07:42,935 INFO o.a.j.t.JMeterThread: Thread finished: Kontingent Simulation 1-19
-2026-04-14 17:07:43,116 INFO o.a.j.t.JMeterThread: Thread is done: Kontingent Simulation 1-20
-2026-04-14 17:07:43,116 INFO o.a.j.t.JMeterThread: Thread finished: Kontingent Simulation 1-20
-2026-04-14 17:07:56,449 INFO o.a.j.t.JMeterThread: Thread is done: Kontingent Simulation 1-6
-2026-04-14 17:07:56,451 INFO o.a.j.t.JMeterThread: Thread finished: Kontingent Simulation 1-6
-2026-04-14 17:07:56,451 INFO o.a.j.t.JMeterThread: Thread is done: Kontingent Simulation 1-10
-2026-04-14 17:07:56,452 INFO o.a.j.t.JMeterThread: Thread finished: Kontingent Simulation 1-10
-2026-04-14 17:07:56,452 INFO o.a.j.t.JMeterThread: Thread is done: Kontingent Simulation 1-3
-2026-04-14 17:07:56,453 INFO o.a.j.t.JMeterThread: Thread finished: Kontingent Simulation 1-3
-2026-04-14 17:07:56,471 INFO o.a.j.t.JMeterThread: Thread is done: Kontingent Simulation 1-8
-2026-04-14 17:07:56,472 INFO o.a.j.t.JMeterThread: Thread finished: Kontingent Simulation 1-8
-2026-04-14 17:07:56,505 INFO o.a.j.t.JMeterThread: Thread is done: Kontingent Simulation 1-2
-2026-04-14 17:07:56,507 INFO o.a.j.t.JMeterThread: Thread finished: Kontingent Simulation 1-2
-2026-04-14 17:07:56,612 INFO o.a.j.t.JMeterThread: Thread is done: Kontingent Simulation 1-1
-2026-04-14 17:07:56,614 INFO o.a.j.t.JMeterThread: Thread finished: Kontingent Simulation 1-1
-2026-04-14 17:07:56,651 INFO o.a.j.t.JMeterThread: Thread is done: Kontingent Simulation 1-4
-2026-04-14 17:07:56,651 INFO o.a.j.t.JMeterThread: Thread finished: Kontingent Simulation 1-4
-2026-04-14 17:07:56,789 INFO o.a.j.t.JMeterThread: Thread is done: Kontingent Simulation 1-9
-2026-04-14 17:07:56,789 INFO o.a.j.t.JMeterThread: Thread finished: Kontingent Simulation 1-9
-2026-04-14 17:07:56,823 INFO o.a.j.t.JMeterThread: Thread is done: Kontingent Simulation 1-7
-2026-04-14 17:07:56,823 INFO o.a.j.t.JMeterThread: Thread finished: Kontingent Simulation 1-7
-2026-04-14 17:07:57,006 INFO o.a.j.t.JMeterThread: Thread is done: Kontingent Simulation 1-5
-2026-04-14 17:07:57,007 INFO o.a.j.t.JMeterThread: Thread finished: Kontingent Simulation 1-5
-2026-04-14 17:07:57,008 INFO o.a.j.e.StandardJMeterEngine: Notifying test listeners of end of test
-2026-04-14 17:07:57,008 INFO o.a.j.v.b.BackendListener: Worker ended
-2026-04-14 17:07:57,019 INFO o.a.j.v.b.i.InfluxdbBackendListenerClient: Sending last metrics to InfluxDB
-2026-04-14 17:07:57,026 INFO o.a.j.v.b.i.HttpMetricsSender: Destroying 
-2026-04-14 17:07:57,074 INFO o.a.j.r.Summariser: summary =     20 in 00:00:46 =    0,4/s Avg: 37568 Min: 30035 Max: 45514 Err:    10 (50,00%)
+2026-04-14 17:46:59,428 INFO o.a.j.u.JMeterUtils: Setting Locale to de_DE
+2026-04-14 17:46:59,500 INFO o.a.j.u.JMeterUtils: Could not find resources for 'de_DE', using 'de'
+2026-04-14 17:46:59,502 INFO o.a.j.JMeter: Loading user properties from: C:\tools\apache-jmeter-5.6.3\bin\user.properties
+2026-04-14 17:46:59,503 INFO o.a.j.JMeter: Loading system properties from: C:\tools\apache-jmeter-5.6.3\bin\system.properties
+2026-04-14 17:46:59,505 INFO o.a.j.JMeter: Setting JMeter property: threads=20
+2026-04-14 17:46:59,505 INFO o.a.j.JMeter: Setting JMeter property: rampup=2
+2026-04-14 17:46:59,505 INFO o.a.j.JMeter: Setting JMeter property: count=1000
+2026-04-14 17:46:59,505 INFO o.a.j.JMeter: Setting JMeter property: host=localhost
+2026-04-14 17:46:59,506 INFO o.a.j.JMeter: Setting JMeter property: port=8081
+2026-04-14 17:46:59,506 INFO o.a.j.JMeter: Setting JMeter property: testname=Kontingent-Spike
+2026-04-14 17:46:59,523 INFO o.a.j.JMeter: Copyright (c) 1998-2024 The Apache Software Foundation
+2026-04-14 17:46:59,523 INFO o.a.j.JMeter: Version 5.6.3
+2026-04-14 17:46:59,523 INFO o.a.j.JMeter: java.version=21.0.8
+2026-04-14 17:46:59,523 INFO o.a.j.JMeter: java.vm.name=OpenJDK 64-Bit Server VM
+2026-04-14 17:46:59,523 INFO o.a.j.JMeter: os.name=Windows 11
+2026-04-14 17:46:59,523 INFO o.a.j.JMeter: os.arch=amd64
+2026-04-14 17:46:59,523 INFO o.a.j.JMeter: os.version=10.0
+2026-04-14 17:46:59,523 INFO o.a.j.JMeter: file.encoding=UTF-8
+2026-04-14 17:46:59,523 INFO o.a.j.JMeter: java.awt.headless=true
+2026-04-14 17:46:59,523 INFO o.a.j.JMeter: Max memory     =4213178368
+2026-04-14 17:46:59,523 INFO o.a.j.JMeter: Available Processors =12
+2026-04-14 17:46:59,551 INFO o.a.j.JMeter: Default Locale=Deutsch (Deutschland)
+2026-04-14 17:46:59,552 INFO o.a.j.JMeter: JMeter  Locale=Deutsch (Deutschland)
+2026-04-14 17:46:59,552 INFO o.a.j.JMeter: JMeterHome=C:\tools\apache-jmeter-5.6.3
+2026-04-14 17:46:59,553 INFO o.a.j.JMeter: user.dir  =C:\Users\admin\Downloads\logistik\logistik
+2026-04-14 17:46:59,553 INFO o.a.j.JMeter: PWD       =C:\Users\admin\Downloads\logistik\logistik
+2026-04-14 17:46:59,562 INFO o.a.j.JMeter: IP: 172.17.160.176 Name: NB23-767 FullName: NB23-767.ha.bib.de
+2026-04-14 17:46:59,577 INFO o.a.j.s.FileServer: Default base='C:\Users\admin\Downloads\logistik\logistik'
+2026-04-14 17:46:59,578 INFO o.a.j.s.FileServer: Set new base='C:\Users\admin\Downloads\logistik\logistik\monitoring\jmeter'
+2026-04-14 17:47:00,044 INFO o.a.j.s.SaveService: Testplan (JMX) version: 2.2. Testlog (JTL) version: 2.2
+2026-04-14 17:47:00,090 INFO o.a.j.s.SaveService: Using SaveService properties version 5.0
+2026-04-14 17:47:00,093 INFO o.a.j.s.SaveService: Using SaveService properties file encoding UTF-8
+2026-04-14 17:47:00,096 INFO o.a.j.s.SaveService: Loading file: C:\Users\admin\Downloads\logistik\logistik\monitoring\jmeter\logistik-kontingent.jmx
+2026-04-14 17:47:00,176 INFO o.a.j.p.h.s.HTTPSamplerBase: Parser for text/html is org.apache.jmeter.protocol.http.parser.LagartoBasedHtmlParser
+2026-04-14 17:47:00,176 INFO o.a.j.p.h.s.HTTPSamplerBase: Parser for application/xhtml+xml is org.apache.jmeter.protocol.http.parser.LagartoBasedHtmlParser
+2026-04-14 17:47:00,176 INFO o.a.j.p.h.s.HTTPSamplerBase: Parser for application/xml is org.apache.jmeter.protocol.http.parser.LagartoBasedHtmlParser
+2026-04-14 17:47:00,176 INFO o.a.j.p.h.s.HTTPSamplerBase: Parser for text/xml is org.apache.jmeter.protocol.http.parser.LagartoBasedHtmlParser
+2026-04-14 17:47:00,176 INFO o.a.j.p.h.s.HTTPSamplerBase: Parser for text/vnd.wap.wml is org.apache.jmeter.protocol.http.parser.RegexpHTMLParser
+2026-04-14 17:47:00,176 INFO o.a.j.p.h.s.HTTPSamplerBase: Parser for text/css is org.apache.jmeter.protocol.http.parser.CssParser
+2026-04-14 17:47:00,187 INFO o.a.j.s.SampleResult: Note: Sample TimeStamps are START times
+2026-04-14 17:47:00,187 INFO o.a.j.s.SampleResult: sampleresult.default.encoding is set to UTF-8
+2026-04-14 17:47:00,187 INFO o.a.j.s.SampleResult: sampleresult.useNanoTime=true
+2026-04-14 17:47:00,188 INFO o.a.j.s.SampleResult: sampleresult.nanoThreadSleep=5000
+2026-04-14 17:47:00,214 INFO o.a.j.JMeter: Creating summariser <summary>
+2026-04-14 17:47:00,272 INFO o.a.j.e.StandardJMeterEngine: Running the test!
+2026-04-14 17:47:00,275 INFO o.a.j.s.SampleEvent: List of sample_variables: []
+2026-04-14 17:47:00,275 INFO o.a.j.s.SampleEvent: List of sample_variables: []
+2026-04-14 17:47:00,301 INFO o.a.j.e.u.CompoundVariable: Note: Function class names must contain the string: '.functions.'
+2026-04-14 17:47:00,302 INFO o.a.j.e.u.CompoundVariable: Note: Function class names must not contain the string: '.gui.'
+2026-04-14 17:47:00,846 INFO o.a.j.v.b.BackendListener: InfluxDB Backend Listener: Starting worker with class: class org.apache.jmeter.visualizers.backend.influxdb.InfluxdbBackendListenerClient and queue capacity: 5000
+2026-04-14 17:47:00,849 INFO o.a.j.v.b.BackendListener: InfluxDB Backend Listener: Started  worker with class: class org.apache.jmeter.visualizers.backend.influxdb.InfluxdbBackendListenerClient
+2026-04-14 17:47:01,907 INFO o.a.j.JMeter: Test starten (1776181621907)
+2026-04-14 17:47:02,003 INFO o.a.j.e.StandardJMeterEngine: Starting ThreadGroup: 1 : Kontingent Simulation
+2026-04-14 17:47:02,005 INFO o.a.j.e.StandardJMeterEngine: Starting 20 threads for group Kontingent Simulation.
+2026-04-14 17:47:02,005 INFO o.a.j.e.StandardJMeterEngine: Thread will continue on error
+2026-04-14 17:47:02,007 INFO o.a.j.t.ThreadGroup: Starting thread group... number=1 threads=20 ramp-up=2 delayedStart=false
+2026-04-14 17:47:02,049 INFO o.a.j.t.JMeterThread: Thread started: Kontingent Simulation 1-1
+2026-04-14 17:47:02,085 INFO o.a.j.t.ThreadGroup: Started thread group number 1
+2026-04-14 17:47:02,086 INFO o.a.j.e.StandardJMeterEngine: All thread groups have been started
+2026-04-14 17:47:02,132 INFO o.a.j.t.JMeterThread: Thread started: Kontingent Simulation 1-2
+2026-04-14 17:47:02,162 INFO o.a.j.p.h.s.HTTPHCAbstractImpl: Local host = NB23-767
+2026-04-14 17:47:02,198 INFO o.a.j.p.h.s.HTTPHC4Impl: HTTP request retry count = 0
+2026-04-14 17:47:02,225 INFO o.a.j.t.JMeterThread: Thread started: Kontingent Simulation 1-3
+2026-04-14 17:47:02,321 INFO o.a.j.t.JMeterThread: Thread started: Kontingent Simulation 1-4
+2026-04-14 17:47:02,432 INFO o.a.j.t.JMeterThread: Thread started: Kontingent Simulation 1-5
+2026-04-14 17:47:02,518 INFO o.a.j.t.JMeterThread: Thread started: Kontingent Simulation 1-6
+2026-04-14 17:47:02,618 INFO o.a.j.t.JMeterThread: Thread started: Kontingent Simulation 1-7
+2026-04-14 17:47:02,731 INFO o.a.j.t.JMeterThread: Thread started: Kontingent Simulation 1-8
+2026-04-14 17:47:02,814 INFO o.a.j.t.JMeterThread: Thread started: Kontingent Simulation 1-9
+2026-04-14 17:47:02,916 INFO o.a.j.t.JMeterThread: Thread started: Kontingent Simulation 1-10
+2026-04-14 17:47:03,020 INFO o.a.j.t.JMeterThread: Thread started: Kontingent Simulation 1-11
+2026-04-14 17:47:03,118 INFO o.a.j.t.JMeterThread: Thread started: Kontingent Simulation 1-12
+2026-04-14 17:47:03,219 INFO o.a.j.t.JMeterThread: Thread started: Kontingent Simulation 1-13
+2026-04-14 17:47:03,317 INFO o.a.j.t.JMeterThread: Thread started: Kontingent Simulation 1-14
+2026-04-14 17:47:03,414 INFO o.a.j.t.JMeterThread: Thread started: Kontingent Simulation 1-15
+2026-04-14 17:47:03,516 INFO o.a.j.t.JMeterThread: Thread started: Kontingent Simulation 1-16
+2026-04-14 17:47:03,615 INFO o.a.j.t.JMeterThread: Thread started: Kontingent Simulation 1-17
+2026-04-14 17:47:03,718 INFO o.a.j.t.JMeterThread: Thread started: Kontingent Simulation 1-18
+2026-04-14 17:47:03,828 INFO o.a.j.t.JMeterThread: Thread started: Kontingent Simulation 1-19
+2026-04-14 17:47:03,914 INFO o.a.j.t.JMeterThread: Thread started: Kontingent Simulation 1-20
+2026-04-14 17:48:12,731 INFO o.a.j.t.JMeterThread: Thread is done: Kontingent Simulation 1-5
+2026-04-14 17:48:12,732 INFO o.a.j.t.JMeterThread: Thread finished: Kontingent Simulation 1-5
+2026-04-14 17:48:12,730 INFO o.a.j.t.JMeterThread: Thread is done: Kontingent Simulation 1-12
+2026-04-14 17:48:12,733 INFO o.a.j.t.JMeterThread: Thread finished: Kontingent Simulation 1-12
+2026-04-14 17:48:12,793 INFO o.a.j.t.JMeterThread: Thread is done: Kontingent Simulation 1-8
+2026-04-14 17:48:12,793 INFO o.a.j.t.JMeterThread: Thread is done: Kontingent Simulation 1-1
+2026-04-14 17:48:12,793 INFO o.a.j.t.JMeterThread: Thread finished: Kontingent Simulation 1-8
+2026-04-14 17:48:12,793 INFO o.a.j.t.JMeterThread: Thread finished: Kontingent Simulation 1-1
+2026-04-14 17:48:13,094 INFO o.a.j.t.JMeterThread: Thread is done: Kontingent Simulation 1-14
+2026-04-14 17:48:13,095 INFO o.a.j.t.JMeterThread: Thread is done: Kontingent Simulation 1-10
+2026-04-14 17:48:13,096 INFO o.a.j.t.JMeterThread: Thread finished: Kontingent Simulation 1-14
+2026-04-14 17:48:13,096 INFO o.a.j.t.JMeterThread: Thread finished: Kontingent Simulation 1-10
+2026-04-14 17:48:13,161 INFO o.a.j.t.JMeterThread: Thread is done: Kontingent Simulation 1-3
+2026-04-14 17:48:13,161 INFO o.a.j.t.JMeterThread: Thread finished: Kontingent Simulation 1-3
+2026-04-14 17:48:13,302 INFO o.a.j.t.JMeterThread: Thread is done: Kontingent Simulation 1-17
+2026-04-14 17:48:13,312 INFO o.a.j.t.JMeterThread: Thread finished: Kontingent Simulation 1-17
+2026-04-14 17:48:13,618 INFO o.a.j.t.JMeterThread: Thread is done: Kontingent Simulation 1-6
+2026-04-14 17:48:13,618 INFO o.a.j.t.JMeterThread: Thread is done: Kontingent Simulation 1-4
+2026-04-14 17:48:13,619 INFO o.a.j.t.JMeterThread: Thread finished: Kontingent Simulation 1-6
+2026-04-14 17:48:13,619 INFO o.a.j.t.JMeterThread: Thread finished: Kontingent Simulation 1-4
+2026-04-14 17:48:13,665 INFO o.a.j.t.JMeterThread: Thread is done: Kontingent Simulation 1-9
+2026-04-14 17:48:13,665 INFO o.a.j.t.JMeterThread: Thread finished: Kontingent Simulation 1-9
+2026-04-14 17:48:13,705 INFO o.a.j.t.JMeterThread: Thread is done: Kontingent Simulation 1-2
+2026-04-14 17:48:13,710 INFO o.a.j.t.JMeterThread: Thread finished: Kontingent Simulation 1-2
+2026-04-14 17:48:13,749 INFO o.a.j.t.JMeterThread: Thread is done: Kontingent Simulation 1-7
+2026-04-14 17:48:13,752 INFO o.a.j.t.JMeterThread: Thread finished: Kontingent Simulation 1-7
+2026-04-14 17:48:13,814 INFO o.a.j.t.JMeterThread: Thread is done: Kontingent Simulation 1-19
+2026-04-14 17:48:13,815 INFO o.a.j.t.JMeterThread: Thread finished: Kontingent Simulation 1-19
+2026-04-14 17:48:14,013 INFO o.a.j.t.JMeterThread: Thread is done: Kontingent Simulation 1-11
+2026-04-14 17:48:14,013 INFO o.a.j.t.JMeterThread: Thread finished: Kontingent Simulation 1-11
+2026-04-14 17:48:14,092 INFO o.a.j.t.JMeterThread: Thread is done: Kontingent Simulation 1-13
+2026-04-14 17:48:14,092 INFO o.a.j.t.JMeterThread: Thread is done: Kontingent Simulation 1-16
+2026-04-14 17:48:14,092 INFO o.a.j.t.JMeterThread: Thread finished: Kontingent Simulation 1-13
+2026-04-14 17:48:14,092 INFO o.a.j.t.JMeterThread: Thread finished: Kontingent Simulation 1-16
+2026-04-14 17:48:14,400 INFO o.a.j.t.JMeterThread: Thread is done: Kontingent Simulation 1-15
+2026-04-14 17:48:14,400 INFO o.a.j.t.JMeterThread: Thread finished: Kontingent Simulation 1-15
+2026-04-14 17:48:14,810 INFO o.a.j.t.JMeterThread: Thread is done: Kontingent Simulation 1-18
+2026-04-14 17:48:14,814 INFO o.a.j.t.JMeterThread: Thread finished: Kontingent Simulation 1-18
+2026-04-14 17:48:15,253 INFO o.a.j.t.JMeterThread: Thread is done: Kontingent Simulation 1-20
+2026-04-14 17:48:15,254 INFO o.a.j.t.JMeterThread: Thread finished: Kontingent Simulation 1-20
+2026-04-14 17:48:15,256 INFO o.a.j.e.StandardJMeterEngine: Notifying test listeners of end of test
+2026-04-14 17:48:15,258 INFO o.a.j.v.b.BackendListener: Worker ended
+2026-04-14 17:48:15,262 INFO o.a.j.v.b.i.InfluxdbBackendListenerClient: Sending last metrics to InfluxDB
+2026-04-14 17:48:15,285 INFO o.a.j.v.b.i.HttpMetricsSender: Destroying 
+2026-04-14 17:48:15,321 INFO o.a.j.r.Summariser: summary =     20 in 00:01:13 =    0,3/s Avg: 70583 Min: 69578 Max: 71329 Err:     0 (0,00%)

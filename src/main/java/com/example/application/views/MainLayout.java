@@ -1,5 +1,6 @@
 package com.example.application.views;
 
+import com.example.application.services.ArticleSyncService;
 import com.example.application.services.NewArticleCountService;
 import com.example.application.services.NewArticleNotificationService;
 import com.vaadin.flow.component.AttachEvent;
@@ -39,15 +40,19 @@ public class MainLayout extends AppLayout implements AfterNavigationObserver {
 
     private final NewArticleNotificationService newArticleNotificationService;
     private final NewArticleCountService newArticleCountService;
+    private final ArticleSyncService articleSyncService;
 
     private H1 viewTitle;
     private Span articleBadge;
+    private Span lasttestBadge;
     private Registration broadcasterRegistration;
 
     public MainLayout(NewArticleNotificationService newArticleNotificationService,
-                      NewArticleCountService newArticleCountService) {
+                      NewArticleCountService newArticleCountService,
+                      ArticleSyncService articleSyncService) {
         this.newArticleNotificationService = newArticleNotificationService;
         this.newArticleCountService = newArticleCountService;
+        this.articleSyncService = articleSyncService;
 
         setPrimarySection(Section.DRAWER);
         setDrawerOpened(true);
@@ -81,11 +86,19 @@ public class MainLayout extends AppLayout implements AfterNavigationObserver {
      */
     public void refreshArticleBadge() {
         updateArticleBadge();
+        updateLasttestBadge();
     }
 
     private void updateArticleBadge() {
         int count = newArticleCountService.getCount();
         updateBadgeWithCount(count);
+    }
+
+    private void updateLasttestBadge() {
+        if (lasttestBadge == null) return;
+        long count = articleSyncService.countNewArticlesFromLasttest();
+        lasttestBadge.setText("LT " + count);
+        lasttestBadge.setVisible(count > 0);
     }
 
     private void updateBadgeWithCount(int count) {
@@ -240,7 +253,11 @@ public class MainLayout extends AppLayout implements AfterNavigationObserver {
 
         if ("new-articles".equals(normalizedPath)) {
             articleBadge = createArticleBadge();
-            item.setSuffixComponent(articleBadge);
+            lasttestBadge = createLasttestBadge();
+            HorizontalLayout badges = new HorizontalLayout(articleBadge, lasttestBadge);
+            badges.setPadding(false);
+            badges.setSpacing(true);
+            item.setSuffixComponent(badges);
         }
 
         return item;
@@ -249,6 +266,14 @@ public class MainLayout extends AppLayout implements AfterNavigationObserver {
     private Span createArticleBadge() {
         Span badge = new Span("0");
         badge.addClassName("menu-badge");
+        badge.setVisible(false);
+        return badge;
+    }
+
+    private Span createLasttestBadge() {
+        Span badge = new Span("LT 0");
+        badge.addClassName("menu-badge");
+        badge.getStyle().set("background", "#f59e0b").set("color", "white");
         badge.setVisible(false);
         return badge;
     }
@@ -267,6 +292,7 @@ public class MainLayout extends AppLayout implements AfterNavigationObserver {
     public void afterNavigation(AfterNavigationEvent event) {
         viewTitle.setText(getCurrentPageTitle());
         updateArticleBadge();
+        updateLasttestBadge();
     }
 
     private String getCurrentPageTitle() {
