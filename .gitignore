@@ -39,3 +39,7 @@ Thumbs.db
 # Local development
 .env
 .env.local
+
+# JMeter results
+jmeter-results/
+jmeter.log

@@ -9,9 +9,9 @@ services:
       - ./prometheus/rules:/etc/prometheus/rules
       - prometheus_data:/prometheus
     command:
-      - '--config.file=/etc/prometheus/prometheus.yml'
-      - '--storage.tsdb.path=/prometheus'
-      - '--storage.tsdb.retention.time=30d'
+      - "--config.file=/etc/prometheus/prometheus.yml"
+      - "--storage.tsdb.path=/prometheus"
+      - "--storage.tsdb.retention.time=30d"
     networks:
       - einkauf-network
 
@@ -23,7 +23,7 @@ services:
     environment:
       GF_SECURITY_ADMIN_PASSWORD: admin
       GF_SECURITY_ADMIN_USER: admin
-      GF_USERS_ALLOW_SIGN_UP: 'false'
+      GF_USERS_ALLOW_SIGN_UP: "false"
     volumes:
       - ./grafana/provisioning:/etc/grafana/provisioning
       - grafana_data:/var/lib/grafana
@@ -51,6 +51,27 @@ services:
       SPRING_RABBITMQ_VIRTUAL_HOST: ${SPRING_RABBITMQ_VIRTUAL_HOST}
     networks:
       - einkauf-network
+
+  jmeter:
+    image: justb4/jmeter:latest
+    container_name: einkauf-jmeter
+    volumes:
+      - ./einkauf-service/stress-test.jmx:/tests/stress-test.jmx
+      - ./jmeter-results:/results
+    command: >
+      -n -t /tests/stress-test.jmx
+      -Jhost=host.docker.internal
+      -Jport=8080
+      -Jusers=2
+      -Jrampup=1
+      -Jloops=5
+      -l /results/results.jtl
+      -e -o /results/report
+    depends_on: []
+    networks:
+      - einkauf-network
+    profiles:
+      - test
 
 volumes:
   prometheus_data:
