@@ -127,7 +127,14 @@ public class StorageLocationView extends Div {
             refreshGrid();
         });
 
-        HorizontalLayout toolbar = new HorizontalLayout(addBtn, syncBtn);
+        Button deleteAvailableBtn = new Button("Available loeschen", e -> {
+            int deleted = service.deleteAllAvailable();
+            Notification.show(deleted + " Available-Lagerplaetze geloescht", 3000, Notification.Position.BOTTOM_END);
+            refreshGrid();
+        });
+        deleteAvailableBtn.addThemeVariants(ButtonVariant.LUMO_ERROR);
+
+        HorizontalLayout toolbar = new HorizontalLayout(addBtn, syncBtn, deleteAvailableBtn);
         toolbar.setWidthFull();
         toolbar.setAlignItems(FlexComponent.Alignment.CENTER);
         toolbar.addClassName("view-toolbar");

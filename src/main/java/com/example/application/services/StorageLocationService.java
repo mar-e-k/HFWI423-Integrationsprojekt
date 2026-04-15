@@ -104,6 +104,10 @@ public class StorageLocationService {
         return storageLocationRepository.findByStorageStatus("Available");
     }
 
+    public int deleteAllAvailable() {
+        return storageLocationRepository.deleteAllAvailable();
+    }
+
     public Optional<StorageLocation> findByZoneShelfCompartment(String zone, Integer shelfId, Integer compartmentId) {
         return storageLocationRepository.findByStorageZoneAndShelfIDAndCompartmentID(zone, shelfId, compartmentId);
     }
