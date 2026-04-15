@@ -63,6 +63,7 @@
                             <importMappings>
                                 <importMapping>ArticleDTO=de.fhdw.vendix.commons.api.domain.article.ArticleDTO</importMapping>
                                 <importMapping>ReceiptDTO=de.fhdw.vendix.commons.api.domain.receipt.ReceiptDTO</importMapping>
+                                <importMapping>VoucherDTO=de.fhdw.vendix.commons.api.domain.voucher.VoucherDTO</importMapping>
                             </importMappings>
                         </configuration>
                     </execution>

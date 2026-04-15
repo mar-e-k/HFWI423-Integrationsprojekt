@@ -10,6 +10,8 @@ tags:
     description: Operations related to articles.
   - name: Receipt
     description: Operations related to receipts.
+  - name: Voucher
+    description: Operations related to vouchers.
 
 servers:
   - url: http://localhost:XXXX
@@ -93,6 +95,60 @@ paths:
                 $ref: "#/components/schemas/ReceiptDTO"
         '400':
           description: Invalid request body.
+
+  /api/voucher/{code}:
+    get:
+      operationId: getVoucherByCode
+      summary: Get a voucher by code
+      description: Retrieves a single voucher using its unique code.
+      tags:
+        - Voucher
+      parameters:
+        - in: path
+          name: code
+          required: true
+          description: The unique voucher code (UUID format).
+          schema:
+            type: string
+            format: uuid
+            example: "550e8400-e29b-41d4-a716-446655440000"
+      responses:
+        '200':
+          description: The requested voucher.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/VoucherDTO"
+        '404':
+          description: A voucher with the specified code was not found.
+
+  /api/voucher/{code}/redeem:
+    post:
+      operationId: redeemVoucherByCode
+      summary: Redeem a voucher
+      description: Marks a voucher as redeemed if it is valid and not expired or already redeemed.
+      tags:
+        - Voucher
+      parameters:
+        - in: path
+          name: code
+          required: true
+          description: The unique voucher code (UUID format).
+          schema:
+            type: string
+            format: uuid
+            example: "550e8400-e29b-41d4-a716-446655440000"
+      responses:
+        '200':
+          description: The voucher was successfully redeemed.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/VoucherDTO"
+        '404':
+          description: A voucher with the specified code was not found.
+        '409':
+          description: The voucher cannot be redeemed (e.g., already redeemed or expired).
 
 components:
   securitySchemes:
@@ -191,3 +247,34 @@ components:
         storeId: 101
         registerId: 5
         cashierId: 789
+
+    VoucherDTO:
+      type: object
+      description: Represents a voucher that can be redeemed within the store system.
+      properties:
+        id:
+          type: integer
+          format: int64
+          description: The unique identifier for the voucher.
+          example: 1
+        code:
+          type: string
+          format: uuid
+          description: The unique voucher code used to identify and redeem the voucher.
+          example: "550e8400-e29b-41d4-a716-446655440000"
+        expiresAt:
+          type: string
+          format: date-time
+          description: The date and time when the voucher expires. After this point, the voucher is no longer valid.
+          example: "2026-12-31T23:59:59Z"
+        redeemedAt:
+          type: string
+          format: date-time
+          nullable: true
+          description: The date and time when the voucher was redeemed. Null if the voucher has not yet been redeemed.
+          example: "2026-04-10T14:30:00Z"
+      example:
+        id: 1
+        code: "550e8400-e29b-41d4-a716-446655440000"
+        expiresAt: "2026-12-31T23:59:59Z"
+        redeemedAt: null
