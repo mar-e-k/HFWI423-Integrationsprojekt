@@ -1,4 +1,4 @@
-package de.fhdw.vendix.pos.ui.register;
+package de.fhdw.vendix.pos.ui.register.article_search;
 
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;

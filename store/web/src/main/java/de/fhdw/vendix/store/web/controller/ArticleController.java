@@ -27,8 +27,8 @@ class ArticleController implements ArticleApi {
     }
 
     @Override
-    public ResponseEntity<ArticleDTO> getArticleByGtin(Long gtin) {
-        Optional<ArticleDTO> articleDTO = articleService.findByGtin(String.valueOf(gtin)).map(articleMapper::toDTO);
+    public ResponseEntity<ArticleDTO> getArticleByGtin(String gtin) {
+        Optional<ArticleDTO> articleDTO = articleService.findByGtin(gtin).map(articleMapper::toDTO);
         return ResponseEntity.of(articleDTO);
     }
 }

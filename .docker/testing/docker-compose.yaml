@@ -1,0 +1,18 @@
+services:
+
+  k6:
+    image: grafana/k6:1.7.1-with-browser
+    volumes:
+      - ./k6/scripts:/etc/k6/scripts
+    entrypoint: ["sleep", "infinity"]
+    ports:
+      - "${K6_PORT}:3020"
+    networks:
+      - app
+      - monitor-net
+
+networks:
+  app:
+    external: true
+  monitor-net:
+    external: true

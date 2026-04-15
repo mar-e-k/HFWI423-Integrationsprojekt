@@ -1,9 +1,9 @@
 services:
 
   grafana:
-    image: grafana/grafana:main
+    image: grafana/grafana:13.0
     ports:
-      - "3000:3000"
+      - "${GRAFANA_PORT}:3000"
     volumes:
       - grafana-storage:/var/lib/grafana
       - ./grafana/provisioning:/etc/grafana/provisioning
@@ -14,23 +14,24 @@ services:
       - monitor-net
 
   loki:
-    image: grafana/loki:latest
+    image: grafana/loki:3.7.1
     command: -config.file=/etc/loki/loki.yaml
     volumes:
       - ./loki.yaml:/etc/loki/loki.yaml
     ports:
-      - "3100:3100"
+      - "${LOKI_PORT}:3100"
     networks:
       - monitor-net
 
   prometheus:
-    image: prom/prometheus:main
+    image: prom/prometheus:v3.11.2
     command:
       - --config.file=/etc/prometheus/prometheus.yaml
+      - --web.enable-remote-write-receiver
     volumes:
       - ./prometheus.yaml:/etc/prometheus/prometheus.yaml
     ports:
-      - "9090:9090"
+      - "${PROMETHEUS_PORT}:9090"
     networks:
       - monitor-net
     extra_hosts:
@@ -41,4 +42,4 @@ volumes:
 
 networks:
   monitor-net:
-    driver: bridge
+    external: true

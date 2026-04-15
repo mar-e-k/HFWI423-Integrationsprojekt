@@ -19,7 +19,7 @@ class ArticleServiceImpl extends AbstractCrudService<Article, Long> implements A
     @Override
     @Transactional(readOnly = true)
     public Optional<Article> findByGtin(String gtin) {
-        if (gtin == null || gtin.isEmpty()) {
+        if (gtin == null || gtin.isEmpty() || !gtin.matches("^\\d{8}(\\d{4}|\\d{5}|\\d{6})?$")) {
             return Optional.empty();
         }
         return articleRepository.findByArticleNumber(gtin);

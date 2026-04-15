@@ -6,6 +6,7 @@ import de.fhdw.vendix.commons.api.domain.receipt.ReceiptDTO;
 import de.fhdw.vendix.commons.api.domain.receipt_line.ReceiptLineDTO;
 import de.fhdw.vendix.commons.spring.security.context.auth.DefaultUser;
 import de.fhdw.vendix.pos.core.register.RegisterContext;
+import de.fhdw.vendix.pos.ui.register.receipt_view.CartLine;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -14,7 +15,6 @@ import org.springframework.web.context.annotation.SessionScope;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Objects;
-import java.util.Optional;
 
 @Component
 @SessionScope
