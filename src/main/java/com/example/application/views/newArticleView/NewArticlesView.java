@@ -199,5 +199,10 @@ public class NewArticlesView extends Div {
                 ? articleSyncService.findNewArticlesFromLasttestContingents()
                 : articleSyncService.findNewArticlesFromContingents();
         grid.setItems(items);
+
+        MainLayout mainLayout = findMainLayout();
+        if (mainLayout != null) {
+            mainLayout.refreshArticleBadge();
+        }
     }
 }

@@ -3,10 +3,12 @@ package com.example.application.api.load;
 import com.example.application.data.articleInfo.ArticleInfo;
 import com.example.application.data.articleInfo.RestockItem;
 import com.example.application.data.messagingEvent.MessagingEvent;
+import com.example.application.data.restockorder.RestockOrder;
 import com.example.application.data.stockChangeLog.StockChangeLog;
 import com.example.application.services.ArticleSyncService;
 import com.example.application.services.MessagingEventService;
 import com.example.application.services.NewArticleCandidate;
+import com.example.application.services.RestockOrderService;
 import com.example.application.services.RestockService;
 import com.example.application.services.StockChangeLogService;
 import org.springframework.data.domain.Sort;
@@ -29,15 +31,18 @@ import java.util.Optional;
 public class LoadTestMiscController {
 
     private final RestockService restockService;
+    private final RestockOrderService restockOrderService;
     private final StockChangeLogService stockChangeLogService;
     private final ArticleSyncService articleSyncService;
     private final MessagingEventService messagingEventService;
 
     public LoadTestMiscController(RestockService restockService,
+                                   RestockOrderService restockOrderService,
                                    StockChangeLogService stockChangeLogService,
                                    ArticleSyncService articleSyncService,
                                    MessagingEventService messagingEventService) {
         this.restockService = restockService;
+        this.restockOrderService = restockOrderService;
         this.stockChangeLogService = stockChangeLogService;
         this.articleSyncService = articleSyncService;
         this.messagingEventService = messagingEventService;
@@ -47,6 +52,29 @@ public class LoadTestMiscController {
     @GetMapping("/restock")
     public List<RestockItem> restock() {
         return restockService.getArticlesToRestock();
+    }
+
+    /**
+     * POST /api/load/restock/approve-next
+     * Bestellt den naechsten bestellbaren Artikel aus der Nachbestellliste.
+     * Vereinfacht fuer den Lasttest: keine Kontingent-Pruefung.
+     * 200 + RestockOrder  → Bestellung erfolgreich angelegt
+     * 204 No Content      → kein bestellbarer Artikel vorhanden
+     */
+    @PostMapping("/restock/approve-next")
+    public ResponseEntity<RestockOrder> approveNextRestock() {
+        List<RestockItem> items = restockService.getArticlesToRestock();
+        for (RestockItem item : items) {
+            if (item.getOrderAmount() == null || item.getOrderAmount() <= 0) continue;
+            if (restockOrderService.hasOpenOrderForArticle(item.getArticle())) continue;
+            try {
+                RestockOrder order = restockOrderService.approveOrderForLoadTest(item);
+                return ResponseEntity.ok(order);
+            } catch (Exception e) {
+                // naechsten Kandidaten probieren
+            }
+        }
+        return ResponseEntity.noContent().build();
     }
 
     /** GET /api/load/stock-changes – Lagerbestand-Aenderungshistorie */

@@ -72,7 +72,7 @@ public class LogisticMainView extends Div {
         addClassNames("gridwith-filters-view", "logistic-main-view");
 
         // Filterleiste: ruft bei Änderungen/Buttons refreshGrid() auf
-        filters = new Filters(this::refreshGrid);
+        filters = new Filters(this::refreshGrid, this::deleteSimArticles);
 
         // Datengrid erzeugen (Spalten/Renderer/Selektor etc. im Helper kapseln)
         Component gridComponent = createGrid();
@@ -158,7 +158,7 @@ public class LogisticMainView extends Div {
          * onSearch: Callback, der ausgeführt wird, wenn der Nutzer sucht oder zurücksetzt.
          * Lädt die Liste/ das Grid neu.
          */
-        public Filters(Runnable onSearch) {
+        public Filters(Runnable onSearch, Runnable onDeleteSim) {
             setWidthFull();
             addClassName("filter-layout");
 
@@ -184,7 +184,19 @@ public class LogisticMainView extends Div {
             Button searchBtn = new Button("Search", e -> onSearch.run());
             searchBtn.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
 
-            Div actions = new Div(resetBtn, searchBtn);
+            Button deleteSimBtn = new Button("SIM-Artikel loeschen", e -> {
+                ConfirmDialog confirm = new ConfirmDialog();
+                confirm.setHeader("SIM-Artikel loeschen");
+                confirm.setText("Alle Artikel mit Artikelnummer 'SIM-...' werden unwiderruflich geloescht. Fortfahren?");
+                confirm.setCancelable(true);
+                confirm.setConfirmText("Loeschen");
+                confirm.setConfirmButtonTheme("error primary");
+                confirm.addConfirmListener(ev -> onDeleteSim.run());
+                confirm.open();
+            });
+            deleteSimBtn.addThemeVariants(ButtonVariant.LUMO_ERROR, ButtonVariant.LUMO_TERTIARY);
+
+            Div actions = new Div(resetBtn, searchBtn, deleteSimBtn);
             actions.addClassName("filter-actions");
 
             add(articleName, articleNumber, stockLevel, storageLocation, actions);
@@ -492,6 +504,18 @@ public class LogisticMainView extends Div {
             // Falls Parsing schiefgeht, einfach null zurückgeben
             return null;
         }
+    }
+
+    /**
+     * Loescht alle SIM-Artikel (articleNumber LIKE 'SIM-%') und aktualisiert das Grid.
+     */
+    private void deleteSimArticles() {
+        int deleted = articleInfoService.deleteSimArticles();
+        getUI().ifPresent(ui -> ui.access(() -> {
+            Notification n = Notification.show(deleted + " SIM-Artikel geloescht", 3000, Notification.Position.BOTTOM_START);
+            n.addThemeVariants(NotificationVariant.LUMO_SUCCESS);
+            refreshGrid();
+        }));
     }
 
     /**

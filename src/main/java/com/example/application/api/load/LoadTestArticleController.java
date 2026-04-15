@@ -1,6 +1,7 @@
 package com.example.application.api.load;
 
 import com.example.application.data.articleInfo.ArticleInfo;
+import com.example.application.data.articleInfo.ArticleInfoRepository;
 import com.example.application.data.stockChangeLog.ChangeType;
 import com.example.application.services.ArticleInfoService;
 import jakarta.persistence.criteria.Predicate;
@@ -8,6 +9,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.HttpStatus;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -23,9 +25,12 @@ import java.util.List;
 public class LoadTestArticleController {
 
     private final ArticleInfoService articleInfoService;
+    private final ArticleInfoRepository articleInfoRepository;
 
-    public LoadTestArticleController(ArticleInfoService articleInfoService) {
+    public LoadTestArticleController(ArticleInfoService articleInfoService,
+                                     ArticleInfoRepository articleInfoRepository) {
         this.articleInfoService = articleInfoService;
+        this.articleInfoRepository = articleInfoRepository;
     }
 
     record StockChangeRequest(int delta, String reason) {}
@@ -77,6 +82,14 @@ public class LoadTestArticleController {
         } catch (IllegalArgumentException e) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage());
         }
+    }
+
+    /** DELETE /api/load/articles/sim – alle SIM-Artikel loeschen */
+    @DeleteMapping("/sim")
+    @Transactional
+    public java.util.Map<String, Object> deleteSimArticles() {
+        int deleted = articleInfoRepository.deleteAllSimArticles();
+        return java.util.Map.of("deleted", deleted);
     }
 
     private Specification<ArticleInfo> buildFilterSpec(String name, String articleNumber,

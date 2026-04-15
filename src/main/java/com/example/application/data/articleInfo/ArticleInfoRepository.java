@@ -56,6 +56,10 @@ public interface ArticleInfoRepository
     
     int deleteByArticleId(Long articleId);
 
+    @Modifying
+    @Query("delete from ArticleInfo a where a.articleNumber like 'SIM-%'")
+    int deleteAllSimArticles();
+
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     @Query("select a from ArticleInfo a where a.id = :id")
     Optional<ArticleInfo> findByIdForUpdate(@Param("id") Long id);

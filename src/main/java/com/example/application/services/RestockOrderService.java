@@ -29,6 +29,37 @@ public class RestockOrderService {
         this.einkaufEventPublisher = einkaufEventPublisher;
     }
 
+    /**
+     * Vereinfachte Nachbestellung fuer den Lasttest – ohne Kontingent-Pruefung.
+     * Lasttest-Artikel haben keine echten Contingent-Eintraege.
+     */
+    @Transactional
+    public RestockOrder approveOrderForLoadTest(RestockItem item) {
+        ArticleInfo article = item.getArticle();
+
+        Integer palletsToOrder = item.getOrderAmount();
+        if (palletsToOrder == null || palletsToOrder <= 0) {
+            throw new IllegalStateException("Keine gueltige Nachbestellmenge fuer diesen Artikel.");
+        }
+
+        Integer piecesPerPallet = article.getPiecesPerPallet();
+        if (piecesPerPallet == null || piecesPerPallet <= 0) {
+            throw new IllegalStateException("Artikel hat keinen gueltigen Wert fuer pieces_per_pallet.");
+        }
+
+        int piecesToOrder = palletsToOrder * piecesPerPallet;
+
+        RestockOrder order = new RestockOrder();
+        order.setArticleNumber(article.getArticleNumber());
+        order.setArticleName(article.getName());
+        order.setQuantity(piecesToOrder);
+        order.setCreatedAt(LocalDateTime.now());
+        order.setApproved(true);
+        order.setDelivered(false);
+
+        return restockOrderRepository.save(order);
+    }
+
     public boolean hasOpenOrderForArticle(ArticleInfo article) {
         return restockOrderRepository.existsByArticleNumberAndDeliveredFalse(
                 article.getArticleNumber()

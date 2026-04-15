@@ -1,71 +1,80 @@
-2026-04-14 18:58:06,868 INFO o.a.j.u.JMeterUtils: Setting Locale to de_DE
-2026-04-14 18:58:06,921 INFO o.a.j.u.JMeterUtils: Could not find resources for 'de_DE', using 'de'
-2026-04-14 18:58:06,924 INFO o.a.j.JMeter: Loading user properties from: C:\tools\apache-jmeter-5.6.3\bin\user.properties
-2026-04-14 18:58:06,924 INFO o.a.j.JMeter: Loading system properties from: C:\tools\apache-jmeter-5.6.3\bin\system.properties
-2026-04-14 18:58:06,924 INFO o.a.j.JMeter: Setting JMeter property: threads=10
-2026-04-14 18:58:06,924 INFO o.a.j.JMeter: Setting JMeter property: rampup=2
-2026-04-14 18:58:06,924 INFO o.a.j.JMeter: Setting JMeter property: iterations=30
-2026-04-14 18:58:06,924 INFO o.a.j.JMeter: Setting JMeter property: host=localhost
-2026-04-14 18:58:06,926 INFO o.a.j.JMeter: Setting JMeter property: port=8081
-2026-04-14 18:58:06,926 INFO o.a.j.JMeter: Setting JMeter property: testname=Artikel-Anlegen-10T
-2026-04-14 18:58:06,941 INFO o.a.j.JMeter: Copyright (c) 1998-2024 The Apache Software Foundation
-2026-04-14 18:58:06,941 INFO o.a.j.JMeter: Version 5.6.3
-2026-04-14 18:58:06,941 INFO o.a.j.JMeter: java.version=21.0.8
-2026-04-14 18:58:06,941 INFO o.a.j.JMeter: java.vm.name=OpenJDK 64-Bit Server VM
-2026-04-14 18:58:06,941 INFO o.a.j.JMeter: os.name=Windows 11
-2026-04-14 18:58:06,941 INFO o.a.j.JMeter: os.arch=amd64
-2026-04-14 18:58:06,941 INFO o.a.j.JMeter: os.version=10.0
-2026-04-14 18:58:06,944 INFO o.a.j.JMeter: file.encoding=UTF-8
-2026-04-14 18:58:06,944 INFO o.a.j.JMeter: java.awt.headless=true
-2026-04-14 18:58:06,944 INFO o.a.j.JMeter: Max memory     =4213178368
-2026-04-14 18:58:06,944 INFO o.a.j.JMeter: Available Processors =12
-2026-04-14 18:58:06,972 INFO o.a.j.JMeter: Default Locale=Deutsch (Deutschland)
-2026-04-14 18:58:06,972 INFO o.a.j.JMeter: JMeter  Locale=Deutsch (Deutschland)
-2026-04-14 18:58:06,972 INFO o.a.j.JMeter: JMeterHome=C:\tools\apache-jmeter-5.6.3
-2026-04-14 18:58:06,972 INFO o.a.j.JMeter: user.dir  =C:\Users\admin\Downloads\logistik\logistik
-2026-04-14 18:58:06,972 INFO o.a.j.JMeter: PWD       =C:\Users\admin\Downloads\logistik\logistik
-2026-04-14 18:58:06,984 INFO o.a.j.JMeter: IP: 172.17.160.176 Name: NB23-767 FullName: NB23-767.ha.bib.de
-2026-04-14 18:58:07,017 INFO o.a.j.s.FileServer: Default base='C:\Users\admin\Downloads\logistik\logistik'
-2026-04-14 18:58:07,017 INFO o.a.j.s.FileServer: Set new base='C:\Users\admin\Downloads\logistik\logistik\monitoring\jmeter'
-2026-04-14 18:58:07,359 INFO o.a.j.s.SaveService: Testplan (JMX) version: 2.2. Testlog (JTL) version: 2.2
-2026-04-14 18:58:07,422 INFO o.a.j.s.SaveService: Using SaveService properties version 5.0
-2026-04-14 18:58:07,426 INFO o.a.j.s.SaveService: Using SaveService properties file encoding UTF-8
-2026-04-14 18:58:07,426 INFO o.a.j.s.SaveService: Loading file: C:\Users\admin\Downloads\logistik\logistik\monitoring\jmeter\logistik-new-articles.jmx
-2026-04-14 18:58:07,517 INFO o.a.j.p.h.s.HTTPSamplerBase: Parser for text/html is org.apache.jmeter.protocol.http.parser.LagartoBasedHtmlParser
-2026-04-14 18:58:07,517 INFO o.a.j.p.h.s.HTTPSamplerBase: Parser for application/xhtml+xml is org.apache.jmeter.protocol.http.parser.LagartoBasedHtmlParser
-2026-04-14 18:58:07,517 INFO o.a.j.p.h.s.HTTPSamplerBase: Parser for application/xml is org.apache.jmeter.protocol.http.parser.LagartoBasedHtmlParser
-2026-04-14 18:58:07,517 INFO o.a.j.p.h.s.HTTPSamplerBase: Parser for text/xml is org.apache.jmeter.protocol.http.parser.LagartoBasedHtmlParser
-2026-04-14 18:58:07,517 INFO o.a.j.p.h.s.HTTPSamplerBase: Parser for text/vnd.wap.wml is org.apache.jmeter.protocol.http.parser.RegexpHTMLParser
-2026-04-14 18:58:07,517 INFO o.a.j.p.h.s.HTTPSamplerBase: Parser for text/css is org.apache.jmeter.protocol.http.parser.CssParser
-2026-04-14 18:58:07,517 INFO o.a.j.s.SampleResult: Note: Sample TimeStamps are START times
-2026-04-14 18:58:07,517 INFO o.a.j.s.SampleResult: sampleresult.default.encoding is set to UTF-8
-2026-04-14 18:58:07,517 INFO o.a.j.s.SampleResult: sampleresult.useNanoTime=true
-2026-04-14 18:58:07,517 INFO o.a.j.s.SampleResult: sampleresult.nanoThreadSleep=5000
-2026-04-14 18:58:07,538 INFO o.a.j.JMeter: Creating summariser <summary>
-2026-04-14 18:58:07,565 INFO o.a.j.e.StandardJMeterEngine: Running the test!
-2026-04-14 18:58:07,567 INFO o.a.j.s.SampleEvent: List of sample_variables: []
-2026-04-14 18:58:07,569 INFO o.a.j.s.SampleEvent: List of sample_variables: []
-2026-04-14 18:58:07,580 INFO o.a.j.e.u.CompoundVariable: Note: Function class names must contain the string: '.functions.'
-2026-04-14 18:58:07,580 INFO o.a.j.e.u.CompoundVariable: Note: Function class names must not contain the string: '.gui.'
-2026-04-14 18:58:07,733 INFO o.a.j.v.b.BackendListener: InfluxDB – Grafana: Starting worker with class: class org.apache.jmeter.visualizers.backend.influxdb.InfluxdbBackendListenerClient and queue capacity: 5000
-2026-04-14 18:58:07,737 INFO o.a.j.v.b.BackendListener: InfluxDB – Grafana: Started  worker with class: class org.apache.jmeter.visualizers.backend.influxdb.InfluxdbBackendListenerClient
-2026-04-14 18:58:08,235 INFO o.a.j.JMeter: Test starten (1776185888235)
-2026-04-14 18:58:08,359 INFO o.a.j.e.StandardJMeterEngine: Starting ThreadGroup: 1 : Artikel anlegen – 10 Threads
-2026-04-14 18:58:08,359 INFO o.a.j.e.StandardJMeterEngine: Starting 10 threads for group Artikel anlegen – 10 Threads.
-2026-04-14 18:58:08,359 INFO o.a.j.e.StandardJMeterEngine: Thread will continue on error
-2026-04-14 18:58:08,359 INFO o.a.j.t.ThreadGroup: Starting thread group... number=1 threads=10 ramp-up=2 delayedStart=false
-2026-04-14 18:58:08,407 INFO o.a.j.t.JMeterThread: Thread started: Artikel anlegen – 10 Threads 1-1
-2026-04-14 18:58:08,412 INFO o.a.j.t.ThreadGroup: Started thread group number 1
-2026-04-14 18:58:08,412 INFO o.a.j.e.StandardJMeterEngine: All thread groups have been started
-2026-04-14 18:58:08,530 INFO o.a.j.p.h.s.HTTPHCAbstractImpl: Local host = NB23-767
-2026-04-14 18:58:08,562 INFO o.a.j.p.h.s.HTTPHC4Impl: HTTP request retry count = 0
-2026-04-14 18:58:08,584 INFO o.a.j.t.JMeterThread: Thread started: Artikel anlegen – 10 Threads 1-2
-2026-04-14 18:58:08,786 INFO o.a.j.t.JMeterThread: Thread started: Artikel anlegen – 10 Threads 1-3
-2026-04-14 18:58:08,981 INFO o.a.j.t.JMeterThread: Thread started: Artikel anlegen – 10 Threads 1-4
-2026-04-14 18:58:09,182 INFO o.a.j.t.JMeterThread: Thread started: Artikel anlegen – 10 Threads 1-5
-2026-04-14 18:58:09,382 INFO o.a.j.t.JMeterThread: Thread started: Artikel anlegen – 10 Threads 1-6
-2026-04-14 18:58:09,566 INFO o.a.j.t.JMeterThread: Thread started: Artikel anlegen – 10 Threads 1-7
-2026-04-14 18:58:09,766 INFO o.a.j.t.JMeterThread: Thread started: Artikel anlegen – 10 Threads 1-8
-2026-04-14 18:58:09,966 INFO o.a.j.t.JMeterThread: Thread started: Artikel anlegen – 10 Threads 1-9
-2026-04-14 18:58:10,167 INFO o.a.j.t.JMeterThread: Thread started: Artikel anlegen – 10 Threads 1-10
-2026-04-14 18:58:30,721 INFO o.a.j.r.Summariser: summary +     82 in 00:00:22 =    3,6/s Avg:  2312 Min:   554 Max: 14979 Err:     0 (0,00%) Active: 10 Started: 10 Finished: 0
+2026-04-15 16:19:02,289 INFO o.a.j.u.JMeterUtils: Setting Locale to de_DE
+2026-04-15 16:19:02,303 INFO o.a.j.u.JMeterUtils: Could not find resources for 'de_DE', using 'de'
+2026-04-15 16:19:02,304 INFO o.a.j.JMeter: Loading user properties from: C:\tools\apache-jmeter-5.6.3\bin\user.properties
+2026-04-15 16:19:02,305 INFO o.a.j.JMeter: Loading system properties from: C:\tools\apache-jmeter-5.6.3\bin\system.properties
+2026-04-15 16:19:02,305 INFO o.a.j.JMeter: Setting JMeter property: threads=20
+2026-04-15 16:19:02,305 INFO o.a.j.JMeter: Setting JMeter property: rampup=2
+2026-04-15 16:19:02,305 INFO o.a.j.JMeter: Setting JMeter property: count=200
+2026-04-15 16:19:02,305 INFO o.a.j.JMeter: Setting JMeter property: host=localhost
+2026-04-15 16:19:02,305 INFO o.a.j.JMeter: Setting JMeter property: port=8081
+2026-04-15 16:19:02,305 INFO o.a.j.JMeter: Setting JMeter property: testname=Kontingent-Spike
+2026-04-15 16:19:02,312 INFO o.a.j.JMeter: Copyright (c) 1998-2024 The Apache Software Foundation
+2026-04-15 16:19:02,312 INFO o.a.j.JMeter: Version 5.6.3
+2026-04-15 16:19:02,312 INFO o.a.j.JMeter: java.version=24
+2026-04-15 16:19:02,312 INFO o.a.j.JMeter: java.vm.name=OpenJDK 64-Bit Server VM
+2026-04-15 16:19:02,312 INFO o.a.j.JMeter: os.name=Windows 11
+2026-04-15 16:19:02,312 INFO o.a.j.JMeter: os.arch=amd64
+2026-04-15 16:19:02,312 INFO o.a.j.JMeter: os.version=10.0
+2026-04-15 16:19:02,312 INFO o.a.j.JMeter: file.encoding=UTF-8
+2026-04-15 16:19:02,312 INFO o.a.j.JMeter: java.awt.headless=true
+2026-04-15 16:19:02,312 INFO o.a.j.JMeter: Max memory     =8547991552
+2026-04-15 16:19:02,312 INFO o.a.j.JMeter: Available Processors =16
+2026-04-15 16:19:02,322 INFO o.a.j.JMeter: Default Locale=Deutsch (Deutschland)
+2026-04-15 16:19:02,323 INFO o.a.j.JMeter: JMeter  Locale=Deutsch (Deutschland)
+2026-04-15 16:19:02,323 INFO o.a.j.JMeter: JMeterHome=C:\tools\apache-jmeter-5.6.3
+2026-04-15 16:19:02,323 INFO o.a.j.JMeter: user.dir  =C:\Users\jason\IdeaProjects\HFWI423-Integrationsprojekt
+2026-04-15 16:19:02,324 INFO o.a.j.JMeter: PWD       =C:\Users\jason\IdeaProjects\HFWI423-Integrationsprojekt
+2026-04-15 16:19:11,790 INFO o.a.j.JMeter: IP: 169.254.123.70 Name: JasonPC FullName: JasonPC
+2026-04-15 16:19:11,806 INFO o.a.j.s.FileServer: Default base='C:\Users\jason\IdeaProjects\HFWI423-Integrationsprojekt'
+2026-04-15 16:19:11,807 INFO o.a.j.s.FileServer: Set new base='C:\Users\jason\IdeaProjects\HFWI423-Integrationsprojekt\monitoring\jmeter'
+2026-04-15 16:19:12,066 INFO o.a.j.s.SaveService: Testplan (JMX) version: 2.2. Testlog (JTL) version: 2.2
+2026-04-15 16:19:12,102 INFO o.a.j.s.SaveService: Using SaveService properties version 5.0
+2026-04-15 16:19:12,105 INFO o.a.j.s.SaveService: Using SaveService properties file encoding UTF-8
+2026-04-15 16:19:12,109 INFO o.a.j.s.SaveService: Loading file: C:\Users\jason\IdeaProjects\HFWI423-Integrationsprojekt\monitoring\jmeter\logistik-kontingent.jmx
+2026-04-15 16:19:12,154 INFO o.a.j.p.h.s.HTTPSamplerBase: Parser for text/html is org.apache.jmeter.protocol.http.parser.LagartoBasedHtmlParser
+2026-04-15 16:19:12,155 INFO o.a.j.p.h.s.HTTPSamplerBase: Parser for application/xhtml+xml is org.apache.jmeter.protocol.http.parser.LagartoBasedHtmlParser
+2026-04-15 16:19:12,155 INFO o.a.j.p.h.s.HTTPSamplerBase: Parser for application/xml is org.apache.jmeter.protocol.http.parser.LagartoBasedHtmlParser
+2026-04-15 16:19:12,155 INFO o.a.j.p.h.s.HTTPSamplerBase: Parser for text/xml is org.apache.jmeter.protocol.http.parser.LagartoBasedHtmlParser
+2026-04-15 16:19:12,155 INFO o.a.j.p.h.s.HTTPSamplerBase: Parser for text/vnd.wap.wml is org.apache.jmeter.protocol.http.parser.RegexpHTMLParser
+2026-04-15 16:19:12,155 INFO o.a.j.p.h.s.HTTPSamplerBase: Parser for text/css is org.apache.jmeter.protocol.http.parser.CssParser
+2026-04-15 16:19:12,161 INFO o.a.j.s.SampleResult: Note: Sample TimeStamps are START times
+2026-04-15 16:19:12,161 INFO o.a.j.s.SampleResult: sampleresult.default.encoding is set to UTF-8
+2026-04-15 16:19:12,161 INFO o.a.j.s.SampleResult: sampleresult.useNanoTime=true
+2026-04-15 16:19:12,161 INFO o.a.j.s.SampleResult: sampleresult.nanoThreadSleep=5000
+2026-04-15 16:19:12,171 INFO o.a.j.JMeter: Creating summariser <summary>
+2026-04-15 16:19:12,187 INFO o.a.j.e.StandardJMeterEngine: Running the test!
+2026-04-15 16:19:12,188 INFO o.a.j.s.SampleEvent: List of sample_variables: []
+2026-04-15 16:19:12,188 INFO o.a.j.s.SampleEvent: List of sample_variables: []
+2026-04-15 16:19:12,193 INFO o.a.j.e.u.CompoundVariable: Note: Function class names must contain the string: '.functions.'
+2026-04-15 16:19:12,193 INFO o.a.j.e.u.CompoundVariable: Note: Function class names must not contain the string: '.gui.'
+2026-04-15 16:19:12,267 INFO o.a.j.v.b.BackendListener: InfluxDB Backend Listener: Starting worker with class: class org.apache.jmeter.visualizers.backend.influxdb.InfluxdbBackendListenerClient and queue capacity: 5000
+2026-04-15 16:19:12,268 INFO o.a.j.v.b.BackendListener: InfluxDB Backend Listener: Started  worker with class: class org.apache.jmeter.visualizers.backend.influxdb.InfluxdbBackendListenerClient
+2026-04-15 16:19:12,477 INFO o.a.j.JMeter: Test starten (1776262752477)
+2026-04-15 16:19:12,500 INFO o.a.j.e.StandardJMeterEngine: Starting ThreadGroup: 1 : Kontingent Simulation
+2026-04-15 16:19:12,500 INFO o.a.j.e.StandardJMeterEngine: Starting 20 threads for group Kontingent Simulation.
+2026-04-15 16:19:12,501 INFO o.a.j.e.StandardJMeterEngine: Thread will continue on error
+2026-04-15 16:19:12,501 INFO o.a.j.t.ThreadGroup: Starting thread group... number=1 threads=20 ramp-up=2 delayedStart=false
+2026-04-15 16:19:12,507 INFO o.a.j.t.JMeterThread: Thread started: Kontingent Simulation 1-1
+2026-04-15 16:19:12,512 INFO o.a.j.t.ThreadGroup: Started thread group number 1
+2026-04-15 16:19:12,512 INFO o.a.j.e.StandardJMeterEngine: All thread groups have been started
+2026-04-15 16:19:12,526 INFO o.a.j.p.h.s.HTTPHCAbstractImpl: Local host = JasonPC
+2026-04-15 16:19:12,529 INFO o.a.j.p.h.s.HTTPHC4Impl: HTTP request retry count = 0
+2026-04-15 16:19:12,605 INFO o.a.j.t.JMeterThread: Thread started: Kontingent Simulation 1-2
+2026-04-15 16:19:12,705 INFO o.a.j.t.JMeterThread: Thread started: Kontingent Simulation 1-3
+2026-04-15 16:19:12,804 INFO o.a.j.t.JMeterThread: Thread started: Kontingent Simulation 1-4
+2026-04-15 16:19:12,903 INFO o.a.j.t.JMeterThread: Thread started: Kontingent Simulation 1-5
+2026-04-15 16:19:13,003 INFO o.a.j.t.JMeterThread: Thread started: Kontingent Simulation 1-6
+2026-04-15 16:19:13,104 INFO o.a.j.t.JMeterThread: Thread started: Kontingent Simulation 1-7
+2026-04-15 16:19:13,203 INFO o.a.j.t.JMeterThread: Thread started: Kontingent Simulation 1-8
+2026-04-15 16:19:13,303 INFO o.a.j.t.JMeterThread: Thread started: Kontingent Simulation 1-9
+2026-04-15 16:19:13,403 INFO o.a.j.t.JMeterThread: Thread started: Kontingent Simulation 1-10
+2026-04-15 16:19:13,503 INFO o.a.j.t.JMeterThread: Thread started: Kontingent Simulation 1-11
+2026-04-15 16:19:13,603 INFO o.a.j.t.JMeterThread: Thread started: Kontingent Simulation 1-12
+2026-04-15 16:19:13,703 INFO o.a.j.t.JMeterThread: Thread started: Kontingent Simulation 1-13
+2026-04-15 16:19:13,802 INFO o.a.j.t.JMeterThread: Thread started: Kontingent Simulation 1-14
+2026-04-15 16:19:13,903 INFO o.a.j.t.JMeterThread: Thread started: Kontingent Simulation 1-15
+2026-04-15 16:19:14,002 INFO o.a.j.t.JMeterThread: Thread started: Kontingent Simulation 1-16
+2026-04-15 16:19:14,103 INFO o.a.j.t.JMeterThread: Thread started: Kontingent Simulation 1-17
+2026-04-15 16:19:14,201 INFO o.a.j.t.JMeterThread: Thread started: Kontingent Simulation 1-18
+2026-04-15 16:19:14,303 INFO o.a.j.t.JMeterThread: Thread started: Kontingent Simulation 1-19
+2026-04-15 16:19:14,401 INFO o.a.j.t.JMeterThread: Thread started: Kontingent Simulation 1-20

@@ -222,6 +222,11 @@ public class ArticleInfoService {
         return articleInfoRepository.save(article);
     }
 
+    @Transactional
+    public int deleteSimArticles() {
+        return articleInfoRepository.deleteAllSimArticles();
+    }
+
     //Für spätere Logik
     @Transactional
     public void deleteArticle(Long articleId) {

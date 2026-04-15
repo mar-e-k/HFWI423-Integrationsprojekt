@@ -42,7 +42,7 @@ public class ArticleSyncService {
 
     @Transactional(readOnly = true)
     public long countNewArticlesFromLasttest() {
-        return contingentLasttestRepository.countDistinctSyntheticNewArticles();
+        return findNewArticlesFromLasttestContingents().size();
     }
 
     @Transactional(readOnly = true)
@@ -202,8 +202,8 @@ public class ArticleSyncService {
                 info.setStockLevel(0);
                 info.setStorageLocation("UNGESETZT");
                 info.setReservePallets(0);
-                info.setMinStock(null);
-                info.setPiecesPerPallet(null);
+                info.setMinStock(5);
+                info.setPiecesPerPallet(100);
                 return Optional.of(articleInfoRepository.save(info));
             } catch (Exception e) {
                 // Konkurrenter Zugriff – nächsten Kandidaten probieren
