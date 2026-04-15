@@ -56,10 +56,10 @@ services:
     image: justb4/jmeter:latest
     container_name: einkauf-jmeter
     volumes:
-      - ./einkauf-service/stress-test.jmx:/tests/stress-test.jmx
+      - ./einkauf-service/soak-test.jmx:/tests/soak-test.jmx
       - ./jmeter-results:/results
     command: >
-      -n -t /tests/stress-test.jmx
+      -n -t /tests/soak-test.jmx
       -Jhost=host.docker.internal
       -Jport=8080
       -Jusers=2

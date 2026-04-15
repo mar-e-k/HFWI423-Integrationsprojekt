@@ -82,11 +82,13 @@ public class ArticleServiceImpl extends CrudRepositoryService<Article, Long, Art
                             "Hauptlieferant mit ID " + newArticleRequestDTO.getMainSupplierId() + " nicht gefunden."
                     ));
 
-            if (!suppliers.contains(mainSupplier)) {
-                throw new IllegalArgumentException("Hauptlieferant muss einer der zugeordneten Supplier sein.");
-            }
+//            if (!suppliers.contains(mainSupplier)) {
+//                throw new IllegalArgumentException("Hauptlieferant muss einer der zugeordneten Supplier sein.");
+//            }
 
             newArticle.setMainSupplier(mainSupplier);
+
+            suppliers.remove(mainSupplier);
 
             // --- 5. Supplier setzen (managed Entities) ---
             newArticle.setSuppliers(suppliers);
@@ -173,9 +175,9 @@ public class ArticleServiceImpl extends CrudRepositoryService<Article, Long, Art
                             "Hauptlieferant mit ID " + updatedArticleRequestDTO.getMainSupplierId() + " nicht gefunden."
                     ));
 
-            if (!suppliers.contains(mainSupplier)) {
-                throw new IllegalArgumentException("Hauptlieferant muss einer der zugeordneten Supplier sein.");
-            }
+//            if (!suppliers.contains(mainSupplier)) {
+//                throw new IllegalArgumentException("Hauptlieferant muss einer der zugeordneten Supplier sein.");
+//            }
 
             existingArticle.setMainSupplier(mainSupplier);
 
@@ -197,6 +199,8 @@ public class ArticleServiceImpl extends CrudRepositoryService<Article, Long, Art
             existingArticle.setDepthCm(updatedArticleRequestDTO.getDepthCm());
 
             // --- 5. Supplier-Relation aktualisieren ---
+
+            suppliers.remove(mainSupplier);
             existingArticle.setSuppliers(suppliers);
 
             // --- 6. Speichern & zurückgeben ---
@@ -250,6 +254,8 @@ public class ArticleServiceImpl extends CrudRepositoryService<Article, Long, Art
         entity.setDescription(request.getDescription());
         // kein setIsAvailable, da Standardwert false ist, soll bei Erstellung nicht gesetzt werden dürfen
         // → muss dann manuell nochmal auf true gesetzt werden
+        // TESTEN: wieder eingefügt
+        entity.setAvailable(request.getAvailable());
         entity.setHasDeposit(request.getHasDeposit());
         entity.setCategories(mapCategoryIdsToEntities(request.getCategoryIds()));
         entity.setProductImage(request.getProductImage());

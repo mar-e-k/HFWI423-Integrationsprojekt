@@ -194,4 +194,16 @@ public class Supplier {
 
     @ManyToMany(mappedBy = "suppliers")
     private Set<Article> articles = new HashSet<>();
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Supplier that)) return false;
+        return id != null && id.equals(that.id);
+    }
+
+    @Override
+    public int hashCode() {
+        return getClass().hashCode();
+    }
 }
