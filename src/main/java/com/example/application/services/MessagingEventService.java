@@ -27,8 +27,16 @@ public class MessagingEventService {
         return repository.save(entity);
     }
 
+    public List<MessagingEvent> saveAll(List<MessagingEvent> entities) {
+        return repository.saveAll(entities);
+    }
+
     public void delete(Long id) {
         repository.deleteById(id);
+    }
+
+    public void deleteAll() {
+        repository.deleteAllBulk();
     }
 
     public Page<MessagingEvent> list(Pageable pageable) {

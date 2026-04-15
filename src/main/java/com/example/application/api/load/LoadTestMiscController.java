@@ -5,19 +5,22 @@ import com.example.application.data.articleInfo.RestockItem;
 import com.example.application.data.messagingEvent.MessagingEvent;
 import com.example.application.data.restockorder.RestockOrder;
 import com.example.application.data.stockChangeLog.StockChangeLog;
+import com.example.application.data.storageLocation.StorageLocation;
 import com.example.application.services.ArticleSyncService;
 import com.example.application.services.MessagingEventService;
 import com.example.application.services.NewArticleCandidate;
 import com.example.application.services.RestockOrderService;
 import com.example.application.services.RestockService;
 import com.example.application.services.StockChangeLogService;
+import com.example.application.services.StorageLocationService;
 import org.springframework.data.domain.Sort;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.orm.ObjectOptimisticLockingFailureException;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -35,17 +38,20 @@ public class LoadTestMiscController {
     private final StockChangeLogService stockChangeLogService;
     private final ArticleSyncService articleSyncService;
     private final MessagingEventService messagingEventService;
+    private final StorageLocationService storageLocationService;
 
     public LoadTestMiscController(RestockService restockService,
                                    RestockOrderService restockOrderService,
                                    StockChangeLogService stockChangeLogService,
                                    ArticleSyncService articleSyncService,
-                                   MessagingEventService messagingEventService) {
+                                   MessagingEventService messagingEventService,
+                                   StorageLocationService storageLocationService) {
         this.restockService = restockService;
         this.restockOrderService = restockOrderService;
         this.stockChangeLogService = stockChangeLogService;
         this.articleSyncService = articleSyncService;
         this.messagingEventService = messagingEventService;
+        this.storageLocationService = storageLocationService;
     }
 
     /** GET /api/load/restock – Artikel unter Mindestbestand */
@@ -83,10 +89,17 @@ public class LoadTestMiscController {
         return stockChangeLogService.findAll(Sort.by(Sort.Direction.DESC, "changedAt"));
     }
 
-    /** GET /api/load/new-articles – neue Artikel aus Kontingenten */
+    /**
+     * GET /api/load/new-articles – neue Artikel aus Kontingenten
+     * ?lasttest=true  → liest aus contingent_lasttest (SIM-Artikel)
+     * ?lasttest=false → liest aus echtem contingent (Produktion, Standard)
+     */
     @GetMapping("/new-articles")
-    public List<NewArticleCandidate> newArticles() {
-        return articleSyncService.findNewArticlesFromContingents();
+    public List<NewArticleCandidate> newArticles(
+            @RequestParam(defaultValue = "false") boolean lasttest) {
+        return lasttest
+                ? articleSyncService.findNewArticlesFromLasttestContingents()
+                : articleSyncService.findNewArticlesFromContingents();
     }
 
     /**
@@ -105,6 +118,42 @@ public class LoadTestMiscController {
             // Konkurrente Erstellung – kein Fehler für den Test
             return ResponseEntity.noContent().build();
         }
+    }
+
+    /**
+     * POST /api/load/new-articles/create-next-with-storage
+     * Legt den nächsten Artikel an und weist ihm automatisch einen freien Lagerplatz zu.
+     * 200 + ArticleInfo  → Artikel erfolgreich angelegt
+     * 204 No Content     → keine neuen Artikel mehr vorhanden
+     * 503 Service Unavailable → kein freier Lagerplatz vorhanden
+     */
+    @PostMapping("/new-articles/create-next-with-storage")
+    public ResponseEntity<ArticleInfo> createNextNewArticleWithStorage() {
+        List<StorageLocation> available = storageLocationService.findAllAvailable();
+        if (available.isEmpty()) {
+            throw new ResponseStatusException(HttpStatus.SERVICE_UNAVAILABLE,
+                    "Keine freien Lagerplatze verfugbar – bitte zuerst Lagerplatze anlegen.");
+        }
+
+        // Shuffeln damit parallele Threads nicht alle denselben Lagerplatz treffen
+        Collections.shuffle(available);
+
+        for (StorageLocation loc : available) {
+            try {
+                loc.setStorageStatus("Used");
+                storageLocationService.save(loc);
+                // Lagerplatz gesichert – jetzt Artikel anlegen
+                Optional<ArticleInfo> result = articleSyncService.createNextWithStorageLocation(loc.getGeneralId());
+                return result.map(ResponseEntity::ok)
+                             .orElse(ResponseEntity.noContent().build());
+            } catch (ObjectOptimisticLockingFailureException e) {
+                // Anderer Thread hat diesen Lagerplatz gleichzeitig belegt – naechsten probieren
+            }
+        }
+
+        // Alle verfuegbaren Lagerplaetze wurden von parallelen Requests belegt
+        throw new ResponseStatusException(HttpStatus.SERVICE_UNAVAILABLE,
+                "Keine freien Lagerplatze verfugbar – bitte zuerst Lagerplatze anlegen.");
     }
 
     /** GET /api/load/messaging-events – Messaging-Events */

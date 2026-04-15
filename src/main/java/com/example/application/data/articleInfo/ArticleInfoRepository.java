@@ -40,6 +40,9 @@ public interface ArticleInfoRepository
     @Query("select a.articleNumber from ArticleInfo a")
     Set<String> findAllArticleNumbers();
 
+    @Query("select a.articleId from ArticleInfo a where a.articleId is not null")
+    Set<Long> findAllArticleIds();
+
     ArticleInfo findByArticleId(Long articleId);
 
     @Query("select a.storageLocation from ArticleInfo a where a.articleNumber = :articleNumber")

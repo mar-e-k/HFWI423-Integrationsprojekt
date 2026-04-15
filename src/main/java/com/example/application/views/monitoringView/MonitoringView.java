@@ -75,6 +75,7 @@ public class MonitoringView extends Div {
     private final AtomicLong    totalRespMs   = new AtomicLong(0);
     private volatile Instant    testStartTime;
     private volatile String     activeTestName = "";
+    private volatile boolean    lastTestFailed = false;
 
     // ── Grafana-Metriken (Micrometer) ─────────────────────────────────────────
     private final AtomicLong activeUsersGauge = new AtomicLong(0);
@@ -215,8 +216,9 @@ public class MonitoringView extends Div {
                 "Sonstige", "Restock / StockChange / NewArticles / Messaging", "#64748b", List.of(
                         new EndpointDef("GET",  "/health",                       true),
                         new EndpointDef("GET",  "/restock",                      true),
+                        new EndpointDef("POST", "/restock/approve-next",         true),
                         new EndpointDef("GET",  "/stock-changes",                true),
-                        new EndpointDef("GET",  "/new-articles",                 true),
+                        new EndpointDef("GET",  "/new-articles?lasttest=true",    true),
                         new EndpointDef("POST", "/new-articles/create-next",     true),
                         new EndpointDef("GET",  "/messaging-events",             true)
                 ));
@@ -514,7 +516,10 @@ public class MonitoringView extends Div {
         // ── Storage Location Lasttest ─────────────────────────────────────────
         Details storageLocationAcc = buildStorageLocationSection();
 
-        VerticalLayout tab = new VerticalLayout(kontingentAcc, newArticleAcc, storageLocationAcc, cardsRow, footer);
+        // ── Artikel-Workflow Lasttest ─────────────────────────────────────────
+        Details artikelWorkflowAcc = buildArtikelWorkflowSection();
+
+        VerticalLayout tab = new VerticalLayout(kontingentAcc, newArticleAcc, storageLocationAcc, artikelWorkflowAcc, cardsRow, footer);
         tab.setPadding(false);
         tab.setWidthFull();
         tab.getStyle().set("gap", "16px");
@@ -765,6 +770,7 @@ public class MonitoringView extends Div {
 
                 int exitCode = jmeterProcess.waitFor();
                 if (exitCode != 0) {
+                    lastTestFailed = true;
                     String out = jmeterOutput.toString();
                     UI ui = getUI().orElse(null);
                     if (ui != null) ui.access(() ->
@@ -772,6 +778,7 @@ public class MonitoringView extends Div {
                                       out.substring(Math.max(0, out.length() - 500))));
                 }
             } catch (Exception ex) {
+                lastTestFailed = true;
                 UI ui = getUI().orElse(null);
                 if (ui != null) ui.access(() ->
                         showError("JMeter-Fehler: " + ex.getMessage()));
@@ -785,10 +792,16 @@ public class MonitoringView extends Div {
                         updateLiveResults();
                         setTestButtonsEnabled(true);
                         stopButton.setEnabled(false);
-                        updateStatusBadge(false);
-                        Notification n = Notification.show(testName + " abgeschlossen",
+                        if (lastTestFailed) {
+                            testStatusBadge.setText("✗  " + activeTestName + " fehlgeschlagen");
+                            testStatusBadge.getStyle().set("background", "#fee2e2").set("color", "#dc2626");
+                        } else {
+                            updateStatusBadge(false);
+                        }
+                        Notification n = Notification.show(
+                                lastTestFailed ? activeTestName + " fehlgeschlagen" : testName + " abgeschlossen",
                                 4000, Notification.Position.BOTTOM_END);
-                        n.addThemeVariants(NotificationVariant.LUMO_SUCCESS);
+                        n.addThemeVariants(lastTestFailed ? NotificationVariant.LUMO_ERROR : NotificationVariant.LUMO_SUCCESS);
                     });
                 }
             }
@@ -948,6 +961,7 @@ public class MonitoringView extends Div {
 
                 int exitCode = jmeterProcess.waitFor();
                 if (exitCode != 0) {
+                    lastTestFailed = true;
                     String out = jmeterOutput.toString();
                     UI ui = getUI().orElse(null);
                     if (ui != null) ui.access(() ->
@@ -955,6 +969,7 @@ public class MonitoringView extends Div {
                                       out.substring(Math.max(0, out.length() - 500))));
                 }
             } catch (Exception ex) {
+                lastTestFailed = true;
                 UI ui = getUI().orElse(null);
                 if (ui != null) ui.access(() ->
                         showError("JMeter-Fehler: " + ex.getMessage()));
@@ -968,10 +983,207 @@ public class MonitoringView extends Div {
                         updateLiveResults();
                         setTestButtonsEnabled(true);
                         stopButton.setEnabled(false);
-                        updateStatusBadge(false);
-                        Notification n = Notification.show(testName + " abgeschlossen",
+                        if (lastTestFailed) {
+                            testStatusBadge.setText("✗  " + activeTestName + " fehlgeschlagen");
+                            testStatusBadge.getStyle().set("background", "#fee2e2").set("color", "#dc2626");
+                        } else {
+                            updateStatusBadge(false);
+                        }
+                        Notification n = Notification.show(
+                                lastTestFailed ? activeTestName + " fehlgeschlagen" : testName + " abgeschlossen",
                                 4000, Notification.Position.BOTTOM_END);
-                        n.addThemeVariants(NotificationVariant.LUMO_SUCCESS);
+                        n.addThemeVariants(lastTestFailed ? NotificationVariant.LUMO_ERROR : NotificationVariant.LUMO_SUCCESS);
+                    });
+                }
+            }
+        });
+    }
+
+    private Details buildArtikelWorkflowSection() {
+        Span titleSpan = new Span("Artikel-Workflow Lasttest");
+        titleSpan.getStyle()
+                .set("font-weight", "700").set("color", "#f59e0b").set("font-size", "0.95rem");
+        Span viewSpan = new Span(" – Artikel anlegen mit automatischer Lagerplatz-Zuweisung");
+        viewSpan.getStyle().set("color", "#64748b").set("font-size", "0.82rem");
+        Div header = new Div(titleSpan, viewSpan);
+
+        Span desc = new Span(
+                "Simuliert einen Mitarbeiter, der neue Artikel anlegt. Sind keine freien Lagerplaetze vorhanden (503), " +
+                "legt der Thread automatisch einen neuen Lagerplatz an und wiederholt die Artikel-Anlage (If-Controller). " +
+                "Kombiniert Storage-Location- und New-Articles-Lasttest in einem realistischen Workflow.");
+        desc.getStyle()
+                .set("font-size", "0.8rem").set("color", "#475569")
+                .set("display", "block").set("margin-bottom", "6px");
+
+        IntegerField threadsField = new IntegerField("Threads (parallele User)");
+        threadsField.setValue(5);
+        threadsField.setMin(1);
+        threadsField.setMax(200);
+        threadsField.setStepButtonsVisible(true);
+        threadsField.getElement().setAttribute("theme", "small");
+        threadsField.setWidth("190px");
+
+        IntegerField iterationsField = new IntegerField("Iterationen / Thread");
+        iterationsField.setValue(10);
+        iterationsField.setMin(1);
+        iterationsField.setMax(10_000);
+        iterationsField.setStepButtonsVisible(true);
+        iterationsField.getElement().setAttribute("theme", "small");
+        iterationsField.setWidth("170px");
+
+        IntegerField rampupField = new IntegerField("Ramp-up (s)");
+        rampupField.setValue(2);
+        rampupField.setMin(1);
+        rampupField.setMax(120);
+        rampupField.setStepButtonsVisible(true);
+        rampupField.getElement().setAttribute("theme", "small");
+        rampupField.setWidth("130px");
+
+        Button startBtn = new Button("▶  Starten");
+        startBtn.getStyle()
+                .set("background", "#f59e0b").set("color", "white")
+                .set("border-radius", "8px").set("font-weight", "700").set("font-size", "0.82rem")
+                .set("box-shadow", "0 2px 8px #f59e0b55");
+        startBtn.addClickListener(e -> {
+            int threads    = threadsField.getValue()    != null ? threadsField.getValue()    : 5;
+            int iterations = iterationsField.getValue() != null ? iterationsField.getValue() : 10;
+            int rampup     = rampupField.getValue()     != null ? rampupField.getValue()     : 2;
+            launchArtikelWorkflowTest(threads, iterations, rampup,
+                    "Artikel-Workflow-" + threads + "T");
+        });
+        testButtons.add(startBtn);
+
+        HorizontalLayout presetBadges = new HorizontalLayout(
+                testParamBadge("Schritt 1", "POST create-next-with-storage",  "#f59e0b"),
+                testParamBadge("503",       "Lagerplatz anlegen + Retry",      "#ef4444"),
+                testParamBadge("200/204",   "Artikel angelegt / fertig",        "#10b981")
+        );
+        presetBadges.setPadding(false);
+        presetBadges.getStyle().set("gap", "6px").set("flex-wrap", "wrap");
+
+        HorizontalLayout controls = new HorizontalLayout(threadsField, iterationsField, rampupField, startBtn);
+        controls.setAlignItems(FlexComponent.Alignment.CENTER);
+        controls.setPadding(false);
+        controls.getStyle().set("gap", "10px").set("flex-wrap", "wrap");
+
+        VerticalLayout content = new VerticalLayout(desc, presetBadges, controls);
+        content.setPadding(false);
+        content.getStyle().set("gap", "10px");
+
+        Details details = new Details(header, content);
+        details.setWidthFull();
+        details.getStyle()
+                .set("border", "1px solid #e2e8f0").set("border-radius", "10px")
+                .set("padding", "12px 16px").set("background", "white");
+        return details;
+    }
+
+    private void launchArtikelWorkflowTest(int threads, int iterations, int rampup, String testName) {
+        if (testRunning.getAndSet(true)) return;
+
+        String jmeterJar = jmeterHome + "/bin/ApacheJMeter.jar";
+        if (jmeterHome.isBlank() || !Path.of(jmeterJar).toFile().exists()) {
+            showError("JMeter nicht gefunden. Bitte jmeter.home in application.properties setzen.\n" +
+                      "Erwartet: \"" + jmeterJar + "\"");
+            testRunning.set(false);
+            return;
+        }
+
+        Path jmxFile = Path.of("monitoring/jmeter/logistik-artikel-workflow.jmx").toAbsolutePath();
+        if (!jmxFile.toFile().exists()) {
+            showError("JMX-Datei nicht gefunden: " + jmxFile);
+            testRunning.set(false);
+            return;
+        }
+
+        try {
+            Path resultsDir = Path.of("monitoring/jmeter/results");
+            Files.createDirectories(resultsDir);
+            resultFile    = resultsDir.resolve("lasttest-result.csv").toAbsolutePath();
+            Files.deleteIfExists(resultFile);
+            csvReadOffset = 0;
+        } catch (IOException ex) {
+            showError("Konnte Ergebnisordner nicht anlegen: " + ex.getMessage());
+            testRunning.set(false);
+            return;
+        }
+
+        resetStats();
+        activeTestName = testName;
+        testStartTime  = Instant.now();
+        activeUsersGauge.set(threads);
+
+        setTestButtonsEnabled(false);
+        stopButton.setEnabled(true);
+        updateStatusBadge(true);
+
+        List<String> cmd = new ArrayList<>(List.of(
+                "java", "-jar", jmeterJar,
+                "-n",
+                "-t", jmxFile.toString(),
+                "-l", resultFile.toString(),
+                "-Jthreads="    + threads,
+                "-Jrampup="     + rampup,
+                "-Jiterations=" + iterations,
+                "-Jhost=localhost",
+                "-Jport="       + serverPort,
+                "-Jtestname="   + testName.replace(" ", "-")
+        ));
+
+        int total = threads * iterations;
+        Notification.show("▶  " + testName + " gestartet – " + threads + " Threads x " +
+                          iterations + " Iterationen = " + total + " Durchlaeufe",
+                4000, Notification.Position.BOTTOM_END);
+
+        Executors.newVirtualThreadPerTaskExecutor().submit(() -> {
+            StringBuilder jmeterOutput = new StringBuilder();
+            try {
+                jmeterProcess = new ProcessBuilder(cmd)
+                        .redirectErrorStream(true)
+                        .start();
+
+                try (var reader = new java.io.BufferedReader(
+                        new java.io.InputStreamReader(jmeterProcess.getInputStream()))) {
+                    String line;
+                    while ((line = reader.readLine()) != null) {
+                        jmeterOutput.append(line).append("\n");
+                    }
+                }
+
+                int exitCode = jmeterProcess.waitFor();
+                if (exitCode != 0) {
+                    lastTestFailed = true;
+                    String out = jmeterOutput.toString();
+                    UI ui = getUI().orElse(null);
+                    if (ui != null) ui.access(() ->
+                            showError("JMeter Exit-Code " + exitCode + ":\n" +
+                                      out.substring(Math.max(0, out.length() - 500))));
+                }
+            } catch (Exception ex) {
+                lastTestFailed = true;
+                UI ui = getUI().orElse(null);
+                if (ui != null) ui.access(() ->
+                        showError("JMeter-Fehler: " + ex.getMessage()));
+            } finally {
+                pollCsvResults();
+                testRunning.set(false);
+                activeUsersGauge.set(0);
+                UI ui = getUI().orElse(null);
+                if (ui != null) {
+                    ui.access(() -> {
+                        updateLiveResults();
+                        setTestButtonsEnabled(true);
+                        stopButton.setEnabled(false);
+                        if (lastTestFailed) {
+                            testStatusBadge.setText("✗  " + activeTestName + " fehlgeschlagen");
+                            testStatusBadge.getStyle().set("background", "#fee2e2").set("color", "#dc2626");
+                        } else {
+                            updateStatusBadge(false);
+                        }
+                        Notification n = Notification.show(
+                                lastTestFailed ? activeTestName + " fehlgeschlagen" : testName + " abgeschlossen",
+                                4000, Notification.Position.BOTTOM_END);
+                        n.addThemeVariants(lastTestFailed ? NotificationVariant.LUMO_ERROR : NotificationVariant.LUMO_SUCCESS);
                     });
                 }
             }
@@ -1033,22 +1245,25 @@ public class MonitoringView extends Div {
         stopButton.setEnabled(true);
         updateStatusBadge(true);
 
+        // Simulation muss als EINZELNER Aufruf laufen, damit zielNeu (5 %) gross genug
+        // ist und SIM-Artikel generiert werden. Mehrere parallele Threads wuerden
+        // jeweils nur (count / threads) neue Kandidaten sehen und Race Conditions erzeugen.
+        int totalCount = threads * count;
+
         List<String> cmd = new ArrayList<>(List.of(
                 "java", "-jar", jmeterJar,
                 "-n",
                 "-t", jmxFile.toString(),
                 "-l", resultFile.toString(),
-                "-Jthreads="  + threads,
-                "-Jrampup="   + rampup,
-                "-Jcount="    + count,
+                "-Jthreads=1",
+                "-Jrampup=1",
+                "-Jcount="    + totalCount,
                 "-Jhost=localhost",
                 "-Jport="     + serverPort,
                 "-Jtestname=" + testName.replace(" ", "-")
         ));
 
-        int total = threads * count;
-        Notification.show("▶  " + testName + " gestartet – " + threads + " Threads × " +
-                          count + " Nachrichten = " + total + " gesamt",
+        Notification.show("▶  " + testName + " gestartet – " + totalCount + " Nachrichten gesamt",
                 4000, Notification.Position.BOTTOM_END);
 
         Executors.newVirtualThreadPerTaskExecutor().submit(() -> {
@@ -1068,6 +1283,7 @@ public class MonitoringView extends Div {
 
                 int exitCode = jmeterProcess.waitFor();
                 if (exitCode != 0) {
+                    lastTestFailed = true;
                     String out = jmeterOutput.toString();
                     UI ui = getUI().orElse(null);
                     if (ui != null) ui.access(() ->
@@ -1075,6 +1291,7 @@ public class MonitoringView extends Div {
                                       out.substring(Math.max(0, out.length() - 500))));
                 }
             } catch (Exception ex) {
+                lastTestFailed = true;
                 UI ui = getUI().orElse(null);
                 if (ui != null) ui.access(() ->
                         showError("JMeter-Fehler: " + ex.getMessage()));
@@ -1088,10 +1305,16 @@ public class MonitoringView extends Div {
                         updateLiveResults();
                         setTestButtonsEnabled(true);
                         stopButton.setEnabled(false);
-                        updateStatusBadge(false);
-                        Notification n = Notification.show(testName + " abgeschlossen",
+                        if (lastTestFailed) {
+                            testStatusBadge.setText("✗  " + activeTestName + " fehlgeschlagen");
+                            testStatusBadge.getStyle().set("background", "#fee2e2").set("color", "#dc2626");
+                        } else {
+                            updateStatusBadge(false);
+                        }
+                        Notification n = Notification.show(
+                                lastTestFailed ? activeTestName + " fehlgeschlagen" : testName + " abgeschlossen",
                                 4000, Notification.Position.BOTTOM_END);
-                        n.addThemeVariants(NotificationVariant.LUMO_SUCCESS);
+                        n.addThemeVariants(lastTestFailed ? NotificationVariant.LUMO_ERROR : NotificationVariant.LUMO_SUCCESS);
                     });
                 }
             }
@@ -1250,6 +1473,7 @@ public class MonitoringView extends Div {
     private void resetStats() {
         totalRequests.set(0); successCount.set(0);
         errorCount.set(0);    totalRespMs.set(0);
+        lastTestFailed = false;
     }
 
     private void showError(String msg) {

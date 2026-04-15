@@ -1,9 +1,11 @@
-﻿<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <jmeterTestPlan version="1.2" properties="5.0" jmeter="5.6.3">
   <hashTree>
     <TestPlan guiclass="TestPlanGui" testclass="TestPlan" testname="Logistik – Storage Location Lasttest" enabled="true">
       <stringProp name="TestPlan.comments">
-        Lasttest: Mehrere JMeter-Threads rufen parallel Lagerplätze ab.
+        Lasttest: Mehrere JMeter-Threads legen parallel neue Lagerplätze an.
+        Zufällige Zone (1-5), Regal (1-20), Fach (1-50).
+        201 = angelegt, 409 = Kombination existiert bereits.
         Parameter:
           -Jthreads=N    Anzahl paralleler User (default 5)
           -Jrampup=N     Ramp-up in Sekunden (default 2)
@@ -22,7 +24,7 @@
 
       <!-- ── Thread Group ──────────────────────────────────────────────────── -->
       <ThreadGroup guiclass="ThreadGroupGui" testclass="ThreadGroup"
-                   testname="Storage Locations abrufen – ${__P(threads,5)} Threads" enabled="true">
+                   testname="Lagerplätze anlegen – ${__P(threads,5)} Threads" enabled="true">
         <stringProp name="ThreadGroup.on_sample_error">continue</stringProp>
         <elementProp name="ThreadGroup.main_controller" elementType="LoopController"
                      guiclass="LoopControlPanel" testclass="LoopController">
@@ -37,17 +39,36 @@
       </ThreadGroup>
       <hashTree>
 
+        <!-- ── HTTP Header (Content-Type: application/json) ─────────────── -->
+        <HeaderManager guiclass="HeaderPanel" testclass="HeaderManager"
+                       testname="JSON Header" enabled="true">
+          <collectionProp name="HeaderManager.headers">
+            <elementProp name="" elementType="Header">
+              <stringProp name="Header.name">Content-Type</stringProp>
+              <stringProp name="Header.value">application/json</stringProp>
+            </elementProp>
+          </collectionProp>
+        </HeaderManager>
+        <hashTree/>
+
         <!-- ── HTTP Request ──────────────────────────────────────────────── -->
         <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy"
-                          testname="StorageLocation – Lagerplätze abrufen" enabled="true">
+                          testname="StorageLocation – Lagerplatz anlegen" enabled="true">
+          <boolProp name="HTTPSampler.postBodyRaw">true</boolProp>
           <elementProp name="HTTPsampler.Arguments" elementType="Arguments">
-            <collectionProp name="Arguments.arguments"/>
+            <collectionProp name="Arguments.arguments">
+              <elementProp name="" elementType="HTTPArgument">
+                <boolProp name="HTTPArgument.always_encode">false</boolProp>
+                <stringProp name="Argument.value">{"storageZone": "Zone ${__Random(1,5,)}", "shelfID": ${__Random(1,20,)}, "compartmentID": ${__Random(1,50,)}}</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+              </elementProp>
+            </collectionProp>
           </elementProp>
           <stringProp name="HTTPSampler.domain">${__P(host,localhost)}</stringProp>
           <stringProp name="HTTPSampler.port">${__P(port,8081)}</stringProp>
           <stringProp name="HTTPSampler.protocol">http</stringProp>
           <stringProp name="HTTPSampler.path">/api/load/storage-locations</stringProp>
-          <stringProp name="HTTPSampler.method">GET</stringProp>
+          <stringProp name="HTTPSampler.method">POST</stringProp>
           <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
           <boolProp name="HTTPSampler.auto_redirects">false</boolProp>
           <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
@@ -57,13 +78,14 @@
         </HTTPSamplerProxy>
         <hashTree>
 
-          <!-- ── Response Assertion: 200 ───────────────────────────────── -->
+          <!-- ── Response Assertion: 201 (angelegt) oder 409 (existiert) ── -->
           <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion"
-                             testname="HTTP 200" enabled="true">
+                             testname="HTTP 201 oder 409" enabled="true">
             <collectionProp name="Asserion.test_strings">
-              <stringProp name="49586">200</stringProp>
+              <stringProp name="49586">201</stringProp>
+              <stringProp name="51721">409</stringProp>
             </collectionProp>
-            <stringProp name="Assertion.custom_message">Erwartet 200 (Lagerplätze geladen)</stringProp>
+            <stringProp name="Assertion.custom_message">Erwartet 201 (angelegt) oder 409 (Kombination existiert bereits)</stringProp>
             <stringProp name="Assertion.test_field">Assertion.response_code</stringProp>
             <boolProp name="Assertion.assume_success">false</boolProp>
             <intProp name="Assertion.test_type">40</intProp>

@@ -56,7 +56,15 @@ public class MessagingView extends Div {
 
         Button refreshButton = new Button("Aktualisieren", e -> updateGrid());
 
-        HorizontalLayout toolbar = new HorizontalLayout(articleIdField, publishButton, testMessageButton, refreshButton);
+        Button deleteAllButton = new Button("Alle loeschen", e -> {
+            messagingEventService.deleteAll();
+            updateGrid();
+            Notification.show("Alle Messaging-Events geloescht", 3000, Notification.Position.BOTTOM_START)
+                    .addThemeVariants(NotificationVariant.LUMO_SUCCESS);
+        });
+        deleteAllButton.addThemeVariants(ButtonVariant.LUMO_ERROR);
+
+        HorizontalLayout toolbar = new HorizontalLayout(articleIdField, publishButton, testMessageButton, refreshButton, deleteAllButton);
         toolbar.setWidthFull();
         toolbar.setAlignItems(FlexComponent.Alignment.CENTER);
         toolbar.addClassName("view-toolbar");

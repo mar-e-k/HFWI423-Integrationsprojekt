@@ -132,29 +132,26 @@ public class ArticleSyncService {
 
     @Transactional(readOnly = true)
     public List<NewArticleCandidate> findNewArticlesFromLasttestContingents() {
-        List<ContingentLasttest> contingents = contingentLasttestRepository.findAll();
         Set<String> existingArticleNumbers = articleInfoRepository.findAllArticleNumbers();
+        Set<Long>   existingArticleIds     = articleInfoRepository.findAllArticleIds();
 
-        // Synthetische neue Artikel (sim_article_number gesetzt) – direkt aus der Lasttest-Tabelle
+        // Synthetische Artikel direkt per DB-Query – kein findAll() mehr nötig
         Map<String, NewArticleCandidate> result = new LinkedHashMap<>();
-        for (ContingentLasttest c : contingents) {
-            if (c.isSynthetic()) {
-                String nr = c.getSimArticleNumber();
-                if (!existingArticleNumbers.contains(nr) && !result.containsKey(nr)) {
-                    NewArticleCandidate candidate = new NewArticleCandidate();
-                    candidate.setArticleId(c.getArticleId());
-                    candidate.setArticleNumber(nr);
-                    candidate.setName(c.getSimArticleName());
-                    result.put(nr, candidate);
-                }
+        for (Object[] row : contingentLasttestRepository.findDistinctSyntheticArticles()) {
+            String nr        = (String) row[0];
+            String name      = (String) row[1];
+            Long   articleId = (Long)   row[2];
+            if (!existingArticleNumbers.contains(nr)) {
+                NewArticleCandidate candidate = new NewArticleCandidate();
+                candidate.setArticleId(articleId);
+                candidate.setArticleNumber(nr);
+                candidate.setName(name);
+                result.put(nr, candidate);
             }
         }
 
-        // Echte neue Artikel (articleId > 0, ExternalArticle vorhanden, noch kein ArticleInfo)
-        Set<Long> echteIds = contingents.stream()
-                .filter(c -> !c.isSynthetic())
-                .map(ContingentLasttest::getArticleId)
-                .collect(Collectors.toSet());
+        // Echte neue Artikel per DB-Query – nur distinct IDs laden
+        Set<Long> echteIds = contingentLasttestRepository.findDistinctRealArticleIds();
 
         if (!echteIds.isEmpty()) {
             Map<Long, ExternalArticle> externalById = externalArticleRepository.findAllById(echteIds)
@@ -164,7 +161,7 @@ public class ArticleSyncService {
             for (Long articleId : echteIds) {
                 ExternalArticle ext = externalById.get(articleId);
                 if (ext == null) continue;
-                if (existingArticleNumbers.contains(ext.getArticleNumber())) continue;
+                if (existingArticleIds.contains(articleId)) continue;
                 if (result.containsKey(ext.getArticleNumber())) continue;
 
                 NewArticleCandidate candidate = new NewArticleCandidate();
@@ -201,6 +198,37 @@ public class ArticleSyncService {
                 }
                 info.setStockLevel(0);
                 info.setStorageLocation("UNGESETZT");
+                info.setReservePallets(0);
+                info.setMinStock(5);
+                info.setPiecesPerPallet(100);
+                return Optional.of(articleInfoRepository.save(info));
+            } catch (Exception e) {
+                // Konkurrenter Zugriff – nächsten Kandidaten probieren
+            }
+        }
+        return Optional.empty();
+    }
+
+    /**
+     * Erstellt den nächsten noch nicht angelegten Artikel mit einem vorgegebenen Lagerplatz.
+     * Wird vom Artikel-Workflow-Lasttest verwendet.
+     */
+    @Transactional
+    public Optional<ArticleInfo> createNextWithStorageLocation(String storageLocationId) {
+        List<NewArticleCandidate> candidates = findNewArticlesFromLasttestContingents();
+        for (NewArticleCandidate candidate : candidates) {
+            if (articleInfoRepository.findByArticleNumber(candidate.getArticleNumber()) != null) {
+                continue;
+            }
+            try {
+                ArticleInfo info = new ArticleInfo();
+                info.setArticleNumber(candidate.getArticleNumber());
+                info.setName(candidate.getName());
+                if (candidate.getArticleId() != null && candidate.getArticleId() > 0) {
+                    info.setArticleId(candidate.getArticleId());
+                }
+                info.setStockLevel(0);
+                info.setStorageLocation(storageLocationId);
                 info.setReservePallets(0);
                 info.setMinStock(5);
                 info.setPiecesPerPallet(100);

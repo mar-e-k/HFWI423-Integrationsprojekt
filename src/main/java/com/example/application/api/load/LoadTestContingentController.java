@@ -4,17 +4,16 @@ import com.example.application.data.articleInfo.ArticleInfo;
 import com.example.application.data.articleInfo.ArticleInfoRepository;
 import com.example.application.data.contingent.ContingentLasttest;
 import com.example.application.data.contingent.ContingentLasttestRepository;
-import com.example.application.data.externalArticle.ExternalArticle;
-import com.example.application.data.externalArticle.ExternalArticleRepository;
 import com.example.application.data.messagingEvent.MessagingEvent;
 import com.example.application.services.MessagingEventService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpStatus;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 /**
  * Lasttest-Endpunkte für Kontingent-Nachrichten-Simulation.
@@ -30,20 +29,17 @@ public class LoadTestContingentController {
 
     private static final Logger logger = LoggerFactory.getLogger(LoadTestContingentController.class);
 
-    private static final double NEW_ARTICLE_RATIO = 0.05; // 5 %
+    private static final double NEW_ARTICLE_RATIO = 0.50; // 50 %
 
     private final ContingentLasttestRepository contingentLasttestRepository;
     private final ArticleInfoRepository articleInfoRepository;
-    private final ExternalArticleRepository externalArticleRepository;
     private final MessagingEventService messagingEventService;
 
     public LoadTestContingentController(ContingentLasttestRepository contingentLasttestRepository,
                                         ArticleInfoRepository articleInfoRepository,
-                                        ExternalArticleRepository externalArticleRepository,
                                         MessagingEventService messagingEventService) {
         this.contingentLasttestRepository = contingentLasttestRepository;
         this.articleInfoRepository = articleInfoRepository;
-        this.externalArticleRepository = externalArticleRepository;
         this.messagingEventService = messagingEventService;
     }
 
@@ -73,55 +69,48 @@ public class LoadTestContingentController {
             throw new IllegalArgumentException("count muss zwischen 1 und 100.000 liegen");
         }
 
-        // --- Daten laden (kurze Transaktion, Connection wird danach freigegeben) -
+        // --- Daten laden --------------------------------------------------------
 
-        List<ArticleInfo> bekannteArtikel = articleInfoRepository.findAll();
-        Set<String> vorhandeneArtikelnummern = articleInfoRepository.findAllArticleNumbers();
-        List<ExternalArticle> neueExterneArtikel = externalArticleRepository.findAll().stream()
-                .filter(ea -> !vorhandeneArtikelnummern.contains(ea.getArticleNumber()))
-                .collect(Collectors.toList());
+        // Nur Artikel mit gesetzter articleId verwenden – Fallback auf getId() wuerde
+        // ArticleInfo-Primaerschluessel als ExternalArticle-ID missbrauchen und faelschlich
+        // Order-Test-Artikel als neue Kandidaten anzeigen.
+        List<ArticleInfo> bekannteArtikel = articleInfoRepository.findAll().stream()
+                .filter(a -> a.getArticleId() != null)
+                .collect(java.util.stream.Collectors.toList());
+
+        if (bekannteArtikel.isEmpty()) {
+            throw new ResponseStatusException(HttpStatus.PRECONDITION_FAILED,
+                    "Keine bekannten Artikel mit ExternalArticle-Verknuepfung vorhanden – bitte zuerst Artikel anlegen.");
+        }
 
         // --- Ziel-Aufteilung berechnen ------------------------------------------
 
-        // 5 % immer als Ziel – egal ob echte neue Artikel vorhanden sind oder nicht
-        int zielNeu        = (int) Math.round(count * NEW_ARTICLE_RATIO);
+        int zielNeu             = (int) Math.round(count * NEW_ARTICLE_RATIO);
         int tatsaechlichBekannt = count - zielNeu;
-
-        if (bekannteArtikel.isEmpty()) {
-            return new SimulationResult(count, 0, 0, 0, 0,
-                    "Keine bekannten Artikel vorhanden – Simulation abgebrochen.");
-        }
 
         logger.info("Starte Kontingent-Simulation: {} Nachrichten ({} bekannt, {} neu)",
                 count, tatsaechlichBekannt, zielNeu);
 
-        // --- Datensätze generieren (im Speicher, keine DB-Connection nötig) -----
+        // --- Datensätze generieren (im Speicher) --------------------------------
 
         Random random = new Random();
         List<ContingentLasttest> contingents = new ArrayList<>(count);
         List<MessagingEvent> events = new ArrayList<>(count);
 
-        // 95 % – bekannte Artikel
+        // 95 % – bekannte Artikel (articleId ist garantiert nicht null nach dem Filter oben)
         for (int i = 0; i < tatsaechlichBekannt; i++) {
             ArticleInfo artikel = bekannteArtikel.get(random.nextInt(bekannteArtikel.size()));
-            long articleId = artikel.getArticleId() != null ? artikel.getArticleId() : artikel.getId();
+            long articleId = artikel.getArticleId();
             int menge = 10 + random.nextInt(491);
             contingents.add(buildContingent(articleId, menge));
             events.add(buildEvent(articleId, menge));
         }
 
-        // 5 % – neue Artikel: echte bevorzugen, sonst synthetisch
-        Collections.shuffle(neueExterneArtikel, random);
+        // 5 % – immer synthetische neue Artikel (SIM-XXXXX), unabhängig von ExternalArticle
         for (int i = 0; i < zielNeu; i++) {
             int menge = 10 + random.nextInt(491);
-            if (!neueExterneArtikel.isEmpty()) {
-                ExternalArticle ext = neueExterneArtikel.get(i % neueExterneArtikel.size());
-                contingents.add(buildContingent(ext.getId(), menge));
-                events.add(buildEvent(ext.getId(), menge));
-            } else {
-                contingents.add(buildSyntheticNewArticle(menge, random));
-                events.add(buildEvent(-(i + 1L), menge));
-            }
+            contingents.add(buildSyntheticNewArticle(menge, random));
+            events.add(buildEvent(-(i + 1L), menge));
         }
 
         // --- Chunk-weise speichern (je Chunk eigene kurze Transaktion) -----------
@@ -134,19 +123,15 @@ public class LoadTestContingentController {
 
         for (int i = 0; i < events.size(); i += CHUNK_SIZE) {
             List<MessagingEvent> chunk = events.subList(i, Math.min(i + CHUNK_SIZE, events.size()));
-            for (MessagingEvent ev : chunk) {
-                messagingEventService.save(ev);
-            }
+            messagingEventService.saveAll(chunk);
         }
 
         int erstellt = contingents.size();
-        logger.info("Kontingent-Simulation abgeschlossen: {} Datensätze angelegt", erstellt);
+        logger.info("Kontingent-Simulation abgeschlossen: {} Datensätze angelegt ({} SIM-Artikel)",
+                erstellt, zielNeu);
 
-        String info = neueExterneArtikel.isEmpty()
-                ? zielNeu + " synthetische neue Artikel generiert (keine echten verfügbar)."
-                : "Simulation erfolgreich.";
-
-        return new SimulationResult(count, erstellt, tatsaechlichBekannt, zielNeu, 0, info);
+        return new SimulationResult(count, erstellt, tatsaechlichBekannt, zielNeu, 0,
+                zielNeu + " synthetische neue Artikel (SIM-XXXXX) generiert.");
     }
 
     /**
