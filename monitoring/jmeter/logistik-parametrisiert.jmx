@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
+﻿<?xml version="1.0" encoding="UTF-8"?>
 <jmeterTestPlan version="1.2" properties="5.0" jmeter="5.6.3">
   <hashTree>
     <TestPlan guiclass="TestPlanGui" testclass="TestPlan" testname="Logistik Lasttest (parametrisiert)">
@@ -44,7 +44,7 @@
         <hashTree>
 
           <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy"
-                            testname="GET /api/load/articles">
+                            testname="Param - Artikel abrufen">
             <stringProp name="HTTPSampler.path">/api/load/articles?page=0&amp;size=20</stringProp>
             <stringProp name="HTTPSampler.method">GET</stringProp>
             <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
@@ -53,7 +53,7 @@
           <hashTree/>
 
           <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy"
-                            testname="GET /api/load/storage-locations">
+                            testname="Param - Lagerplätze abrufen">
             <stringProp name="HTTPSampler.path">/api/load/storage-locations</stringProp>
             <stringProp name="HTTPSampler.method">GET</stringProp>
             <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
@@ -62,7 +62,7 @@
           <hashTree/>
 
           <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy"
-                            testname="GET /api/load/goods-receipts">
+                            testname="Param - Wareneingänge abrufen">
             <stringProp name="HTTPSampler.path">/api/load/goods-receipts</stringProp>
             <stringProp name="HTTPSampler.method">GET</stringProp>
             <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
@@ -71,7 +71,7 @@
           <hashTree/>
 
           <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy"
-                            testname="GET /api/load/kommissionen">
+                            testname="Param - Kommissionen abrufen">
             <stringProp name="HTTPSampler.path">/api/load/kommissionen</stringProp>
             <stringProp name="HTTPSampler.method">GET</stringProp>
             <boolProp name="HTTPSampler.follow_redirects">true</boolProp>

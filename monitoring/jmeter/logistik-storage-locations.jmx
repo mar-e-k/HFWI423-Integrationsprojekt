@@ -1,10 +1,9 @@
 ﻿<?xml version="1.0" encoding="UTF-8"?>
 <jmeterTestPlan version="1.2" properties="5.0" jmeter="5.6.3">
   <hashTree>
-    <TestPlan guiclass="TestPlanGui" testclass="TestPlan" testname="Logistik – Neuer Artikel Anlegen" enabled="true">
+    <TestPlan guiclass="TestPlanGui" testclass="TestPlan" testname="Logistik – Storage Location Lasttest" enabled="true">
       <stringProp name="TestPlan.comments">
-        Lasttest: Mehrere JMeter-Threads legen parallel neue Artikel an.
-        Voraussetzung: contingent_lasttest muss Datensätze enthalten (Kontingent Simulation vorher starten).
+        Lasttest: Mehrere JMeter-Threads rufen parallel Lagerplätze ab.
         Parameter:
           -Jthreads=N    Anzahl paralleler User (default 5)
           -Jrampup=N     Ramp-up in Sekunden (default 2)
@@ -23,7 +22,7 @@
 
       <!-- ── Thread Group ──────────────────────────────────────────────────── -->
       <ThreadGroup guiclass="ThreadGroupGui" testclass="ThreadGroup"
-                   testname="Artikel anlegen – ${__P(threads,5)} Threads" enabled="true">
+                   testname="Storage Locations abrufen – ${__P(threads,5)} Threads" enabled="true">
         <stringProp name="ThreadGroup.on_sample_error">continue</stringProp>
         <elementProp name="ThreadGroup.main_controller" elementType="LoopController"
                      guiclass="LoopControlPanel" testclass="LoopController">
@@ -40,15 +39,15 @@
 
         <!-- ── HTTP Request ──────────────────────────────────────────────── -->
         <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy"
-                          testname="NewArticle - Nächsten Artikel anlegen" enabled="true">
+                          testname="StorageLocation – Lagerplätze abrufen" enabled="true">
           <elementProp name="HTTPsampler.Arguments" elementType="Arguments">
             <collectionProp name="Arguments.arguments"/>
           </elementProp>
           <stringProp name="HTTPSampler.domain">${__P(host,localhost)}</stringProp>
           <stringProp name="HTTPSampler.port">${__P(port,8081)}</stringProp>
           <stringProp name="HTTPSampler.protocol">http</stringProp>
-          <stringProp name="HTTPSampler.path">/api/load/new-articles/create-next</stringProp>
-          <stringProp name="HTTPSampler.method">POST</stringProp>
+          <stringProp name="HTTPSampler.path">/api/load/storage-locations</stringProp>
+          <stringProp name="HTTPSampler.method">GET</stringProp>
           <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
           <boolProp name="HTTPSampler.auto_redirects">false</boolProp>
           <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
@@ -58,14 +57,13 @@
         </HTTPSamplerProxy>
         <hashTree>
 
-          <!-- ── Response Assertion: 200 (angelegt) oder 204 (keine mehr) ── -->
+          <!-- ── Response Assertion: 200 ───────────────────────────────── -->
           <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion"
-                             testname="HTTP 200 oder 204" enabled="true">
+                             testname="HTTP 200" enabled="true">
             <collectionProp name="Asserion.test_strings">
               <stringProp name="49586">200</stringProp>
-              <stringProp name="51468">204</stringProp>
             </collectionProp>
-            <stringProp name="Assertion.custom_message">Erwartet 200 (angelegt) oder 204 (keine neuen Artikel mehr)</stringProp>
+            <stringProp name="Assertion.custom_message">Erwartet 200 (Lagerplätze geladen)</stringProp>
             <stringProp name="Assertion.test_field">Assertion.response_code</stringProp>
             <boolProp name="Assertion.assume_success">false</boolProp>
             <intProp name="Assertion.test_type">40</intProp>
@@ -109,7 +107,7 @@
               </elementProp>
               <elementProp name="testTitle" elementType="Argument">
                 <stringProp name="Argument.name">testTitle</stringProp>
-                <stringProp name="Argument.value">${__P(testname,Artikel-Anlegen)}</stringProp>
+                <stringProp name="Argument.value">${__P(testname,Storage-Location)}</stringProp>
               </elementProp>
               <elementProp name="eventTags" elementType="Argument">
                 <stringProp name="Argument.name">eventTags</stringProp>

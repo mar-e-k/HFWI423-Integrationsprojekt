@@ -119,7 +119,7 @@ public class MonitoringView extends Div {
         Gauge.builder("loadtest.active.users", activeUsersGauge, AtomicLong::get)
                 .description("Aktive simulierte User im Lasttest").register(meterRegistry);
         Gauge.builder("loadtest.running", testRunning, b -> b.get() ? 1.0 : 0.0)
-                .description("1 wenn ein Lasttest gerade laeuft").register(meterRegistry);
+                .description("1 wenn ein Lasttest gerade läuft").register(meterRegistry);
         Gauge.builder("loadtest.requests.live", totalRequests, AtomicLong::get)
                 .description("Gesamtanfragen im laufenden Test").register(meterRegistry);
         Gauge.builder("loadtest.errors.live", errorCount, AtomicLong::get)
@@ -195,7 +195,7 @@ public class MonitoringView extends Div {
                         new EndpointDef("POST",   "/goods-receipts/{id}/items",                 true,
                                 "{\"articleId\": 1, \"expectedQty\": 5, \"actualQty\": 5, \"defectNotes\": null}"),
                         new EndpointDef("PUT",    "/goods-receipts/{id}/items/{itemId}",        true,
-                                "{\"actualQty\": 4, \"defectNotes\": \"Lasttest-Maengel\"}"),
+                                "{\"actualQty\": 4, \"defectNotes\": \"Lasttest-Mängel\"}"),
                         new EndpointDef("PUT",    "/goods-receipts/{id}/items/{itemId}/status", true,
                                 "{\"status\": \"FREIGEGEBEN\"}"),
                         new EndpointDef("POST",   "/goods-receipts/{id}/complete",              true),
@@ -345,7 +345,7 @@ public class MonitoringView extends Div {
             varRow.add(input);
         }
 
-        // Body-Textarea (null = kein Body benoetigt)
+        // Body-Textarea (null = kein Body benötigt)
         TextArea bodyArea = null;
         if (ep.exampleBody() != null) {
             bodyArea = new TextArea("Request Body (JSON)");
@@ -455,14 +455,14 @@ public class MonitoringView extends Div {
         body = body.trim();
         if (body.startsWith("[")) {
             long count = body.chars().filter(c -> c == '{').count();
-            return count + " Eintraege";
+            return count + " Einträge";
         }
         if (body.contains("\"totalElements\"")) {
             int idx = body.indexOf("\"totalElements\":");
             if (idx >= 0) {
                 String rest = body.substring(idx + 16).trim();
                 String num  = rest.replaceAll("[^0-9].*", "");
-                if (!num.isEmpty()) return num + " Eintraege";
+                if (!num.isEmpty()) return num + " Einträge";
             }
         }
         return body.length() + " bytes";
@@ -511,7 +511,10 @@ public class MonitoringView extends Div {
         // ── Neuer Artikel Anlegen ─────────────────────────────────────────────
         Details newArticleAcc = buildNewArticleSection();
 
-        VerticalLayout tab = new VerticalLayout(kontingentAcc, newArticleAcc, cardsRow, footer);
+        // ── Storage Location Lasttest ─────────────────────────────────────────
+        Details storageLocationAcc = buildStorageLocationSection();
+
+        VerticalLayout tab = new VerticalLayout(kontingentAcc, newArticleAcc, storageLocationAcc, cardsRow, footer);
         tab.setPadding(false);
         tab.setWidthFull();
         tab.getStyle().set("gap", "16px");
@@ -792,6 +795,189 @@ public class MonitoringView extends Div {
         });
     }
 
+    private Details buildStorageLocationSection() {
+        Span titleSpan = new Span("Storage Location Lasttest");
+        titleSpan.getStyle()
+                .set("font-weight", "700").set("color", "#8b5cf6").set("font-size", "0.95rem");
+        Span viewSpan = new Span(" – GET /api/load/storage-locations (Read-Load)");
+        viewSpan.getStyle().set("color", "#64748b").set("font-size", "0.82rem");
+        Div header = new Div(titleSpan, viewSpan);
+
+        Span desc = new Span(
+                "Simuliert parallele Lageristen, die Lagerplätze abrufen. " +
+                "Jeder JMeter-Thread ruft GET /api/load/storage-locations auf. " +
+                "Gesamtanfragen = Threads x Iterationen.");
+        desc.getStyle()
+                .set("font-size", "0.8rem").set("color", "#475569")
+                .set("display", "block").set("margin-bottom", "6px");
+
+        IntegerField threadsField = new IntegerField("Threads (parallele User)");
+        threadsField.setValue(5);
+        threadsField.setMin(1);
+        threadsField.setMax(200);
+        threadsField.setStepButtonsVisible(true);
+        threadsField.getElement().setAttribute("theme", "small");
+        threadsField.setWidth("190px");
+
+        IntegerField iterationsField = new IntegerField("Iterationen / Thread");
+        iterationsField.setValue(20);
+        iterationsField.setMin(1);
+        iterationsField.setMax(10_000);
+        iterationsField.setStepButtonsVisible(true);
+        iterationsField.getElement().setAttribute("theme", "small");
+        iterationsField.setWidth("170px");
+
+        IntegerField rampupField = new IntegerField("Ramp-up (s)");
+        rampupField.setValue(2);
+        rampupField.setMin(1);
+        rampupField.setMax(120);
+        rampupField.setStepButtonsVisible(true);
+        rampupField.getElement().setAttribute("theme", "small");
+        rampupField.setWidth("130px");
+
+        Button startBtn = new Button("▶  Starten");
+        startBtn.getStyle()
+                .set("background", "#8b5cf6").set("color", "white")
+                .set("border-radius", "8px").set("font-weight", "700").set("font-size", "0.82rem")
+                .set("box-shadow", "0 2px 8px #8b5cf655");
+        startBtn.addClickListener(e -> {
+            int threads    = threadsField.getValue()    != null ? threadsField.getValue()    : 5;
+            int iterations = iterationsField.getValue() != null ? iterationsField.getValue() : 20;
+            int rampup     = rampupField.getValue()     != null ? rampupField.getValue()     : 2;
+            launchStorageLocationTest(threads, iterations, rampup,
+                    "Storage-Location-" + threads + "T");
+        });
+        testButtons.add(startBtn);
+
+        HorizontalLayout presetBadges = new HorizontalLayout(
+                testParamBadge("Endpunkt",   "GET /api/load/storage-locations", "#8b5cf6"),
+                testParamBadge("200",        "Lagerplätze geladen",             "#10b981"),
+                testParamBadge("Methode",    "Read-Load",                        "#64748b")
+        );
+        presetBadges.setPadding(false);
+        presetBadges.getStyle().set("gap", "6px").set("flex-wrap", "wrap");
+
+        HorizontalLayout controls = new HorizontalLayout(threadsField, iterationsField, rampupField, startBtn);
+        controls.setAlignItems(FlexComponent.Alignment.CENTER);
+        controls.setPadding(false);
+        controls.getStyle().set("gap", "10px").set("flex-wrap", "wrap");
+
+        VerticalLayout content = new VerticalLayout(desc, presetBadges, controls);
+        content.setPadding(false);
+        content.getStyle().set("gap", "10px");
+
+        Details details = new Details(header, content);
+        details.setWidthFull();
+        details.getStyle()
+                .set("border", "1px solid #e2e8f0").set("border-radius", "10px")
+                .set("padding", "12px 16px").set("background", "white");
+        return details;
+    }
+
+    private void launchStorageLocationTest(int threads, int iterations, int rampup, String testName) {
+        if (testRunning.getAndSet(true)) return;
+
+        String jmeterJar = jmeterHome + "/bin/ApacheJMeter.jar";
+        if (jmeterHome.isBlank() || !Path.of(jmeterJar).toFile().exists()) {
+            showError("JMeter nicht gefunden. Bitte jmeter.home in application.properties setzen.\n" +
+                      "Erwartet: \"" + jmeterJar + "\"");
+            testRunning.set(false);
+            return;
+        }
+
+        Path jmxFile = Path.of("monitoring/jmeter/logistik-storage-locations.jmx").toAbsolutePath();
+        if (!jmxFile.toFile().exists()) {
+            showError("JMX-Datei nicht gefunden: " + jmxFile);
+            testRunning.set(false);
+            return;
+        }
+
+        try {
+            Path resultsDir = Path.of("monitoring/jmeter/results");
+            Files.createDirectories(resultsDir);
+            resultFile    = resultsDir.resolve("lasttest-result.csv").toAbsolutePath();
+            Files.deleteIfExists(resultFile);
+            csvReadOffset = 0;
+        } catch (IOException ex) {
+            showError("Konnte Ergebnisordner nicht anlegen: " + ex.getMessage());
+            testRunning.set(false);
+            return;
+        }
+
+        resetStats();
+        activeTestName = testName;
+        testStartTime  = Instant.now();
+        activeUsersGauge.set(threads);
+
+        setTestButtonsEnabled(false);
+        stopButton.setEnabled(true);
+        updateStatusBadge(true);
+
+        List<String> cmd = new ArrayList<>(List.of(
+                "java", "-jar", jmeterJar,
+                "-n",
+                "-t", jmxFile.toString(),
+                "-l", resultFile.toString(),
+                "-Jthreads="    + threads,
+                "-Jrampup="     + rampup,
+                "-Jiterations=" + iterations,
+                "-Jhost=localhost",
+                "-Jport="       + serverPort,
+                "-Jtestname="   + testName.replace(" ", "-")
+        ));
+
+        int total = threads * iterations;
+        Notification.show("▶  " + testName + " gestartet – " + threads + " Threads x " +
+                          iterations + " Iterationen = " + total + " Requests",
+                4000, Notification.Position.BOTTOM_END);
+
+        Executors.newVirtualThreadPerTaskExecutor().submit(() -> {
+            StringBuilder jmeterOutput = new StringBuilder();
+            try {
+                jmeterProcess = new ProcessBuilder(cmd)
+                        .redirectErrorStream(true)
+                        .start();
+
+                try (var reader = new java.io.BufferedReader(
+                        new java.io.InputStreamReader(jmeterProcess.getInputStream()))) {
+                    String line;
+                    while ((line = reader.readLine()) != null) {
+                        jmeterOutput.append(line).append("\n");
+                    }
+                }
+
+                int exitCode = jmeterProcess.waitFor();
+                if (exitCode != 0) {
+                    String out = jmeterOutput.toString();
+                    UI ui = getUI().orElse(null);
+                    if (ui != null) ui.access(() ->
+                            showError("JMeter Exit-Code " + exitCode + ":\n" +
+                                      out.substring(Math.max(0, out.length() - 500))));
+                }
+            } catch (Exception ex) {
+                UI ui = getUI().orElse(null);
+                if (ui != null) ui.access(() ->
+                        showError("JMeter-Fehler: " + ex.getMessage()));
+            } finally {
+                pollCsvResults();
+                testRunning.set(false);
+                activeUsersGauge.set(0);
+                UI ui = getUI().orElse(null);
+                if (ui != null) {
+                    ui.access(() -> {
+                        updateLiveResults();
+                        setTestButtonsEnabled(true);
+                        stopButton.setEnabled(false);
+                        updateStatusBadge(false);
+                        Notification n = Notification.show(testName + " abgeschlossen",
+                                4000, Notification.Position.BOTTOM_END);
+                        n.addThemeVariants(NotificationVariant.LUMO_SUCCESS);
+                    });
+                }
+            }
+        });
+    }
+
     private Button buildKontingentTestButton(String label, String color,
                                               int threads, int rampup,
                                               String testName, IntegerField countField) {
@@ -962,7 +1148,7 @@ public class MonitoringView extends Div {
     private Div buildJMeterGrafanaTab() {
         Span hint = new Span(
                 "Zeigt JMeter-Testergebnisse aus InfluxDB. " +
-                "Starte einen Test im Tab \"Lasttests\", dann hier application & transaction auswaehlen.");
+                "Starte einen Test im Tab \"Lasttests\", dann hier application & transaction auswählen.");
         hint.getStyle()
                 .set("display", "block").set("font-size", "0.8rem")
                 .set("color", "#64748b").set("padding", "6px 0 12px 0");
@@ -1026,7 +1212,7 @@ public class MonitoringView extends Div {
 
     private void updateStatusBadge(boolean running) {
         if (running) {
-            testStatusBadge.setText("▶  " + activeTestName + " laeuft (JMeter)...");
+            testStatusBadge.setText("▶  " + activeTestName + " läuft (JMeter)...");
             testStatusBadge.getStyle().set("background", "#dcfce7").set("color", "#16a34a");
         } else {
             testStatusBadge.setText("✓  " + activeTestName + " abgeschlossen");

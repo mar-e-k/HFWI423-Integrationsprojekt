@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
+﻿<?xml version="1.0" encoding="UTF-8"?>
 <jmeterTestPlan version="1.2" properties="5.0" jmeter="5.6.3">
   <hashTree>
     <TestPlan guiclass="TestPlanGui" testclass="TestPlan"
@@ -62,7 +62,7 @@
           <hashTree>
 
             <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy"
-                              testname="GET /api/load/articles">
+                              testname="Mixed - Artikel abrufen (80pct)">
               <stringProp name="HTTPSampler.path">/api/load/articles?page=0&amp;size=10</stringProp>
               <stringProp name="HTTPSampler.method">GET</stringProp>
               <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
@@ -71,7 +71,7 @@
             <hashTree/>
 
             <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy"
-                              testname="GET /api/load/storage-locations">
+                              testname="Mixed - Lagerplätze abrufen">
               <stringProp name="HTTPSampler.path">/api/load/storage-locations</stringProp>
               <stringProp name="HTTPSampler.method">GET</stringProp>
               <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
@@ -80,7 +80,7 @@
             <hashTree/>
 
             <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy"
-                              testname="GET /api/load/goods-receipts">
+                              testname="Mixed - Wareneingänge abrufen">
               <stringProp name="HTTPSampler.path">/api/load/goods-receipts</stringProp>
               <stringProp name="HTTPSampler.method">GET</stringProp>
               <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
@@ -89,7 +89,7 @@
             <hashTree/>
 
             <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy"
-                              testname="GET /api/load/kommissionen">
+                              testname="Mixed - Kommissionen abrufen">
               <stringProp name="HTTPSampler.path">/api/load/kommissionen</stringProp>
               <stringProp name="HTTPSampler.method">GET</stringProp>
               <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
@@ -108,9 +108,9 @@
         </ThroughputController>
         <hashTree>
 
-          <!-- Schreibender Zugriff: Bestand aendern (zufaellige ID 1-20) -->
+          <!-- Schreibender Zugriff: Bestand ändern (zufaellige ID 1-20) -->
           <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy"
-                            testname="POST /api/load/articles/{id}/stock">
+                            testname="Mixed - Bestand ändern (20pct)">
             <boolProp name="HTTPSampler.postBodyRaw">true</boolProp>
             <elementProp name="HTTPsampler.Arguments" elementType="Arguments">
               <collectionProp name="Arguments.arguments">

@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
+﻿<?xml version="1.0" encoding="UTF-8"?>
 <jmeterTestPlan version="1.2" properties="5.0" jmeter="5.6.3">
   <hashTree>
     <TestPlan guiclass="TestPlanGui" testclass="TestPlan"
@@ -52,7 +52,7 @@
 
         <!-- Schritt 1: Artikel laden und ID extrahieren -->
         <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy"
-                          testname="GET /api/load/articles">
+                          testname="Write - Artikel abrufen">
           <stringProp name="HTTPSampler.path">/api/load/articles?page=0&amp;size=5</stringProp>
           <stringProp name="HTTPSampler.method">GET</stringProp>
           <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
@@ -73,7 +73,7 @@
 
         <!-- Schritt 2: Bestand ändern -->
         <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy"
-                          testname="POST /api/load/articles/{id}/stock">
+                          testname="Write - Bestand ändern">
           <boolProp name="HTTPSampler.postBodyRaw">true</boolProp>
           <elementProp name="HTTPsampler.Arguments" elementType="Arguments">
             <collectionProp name="Arguments.arguments">
@@ -93,7 +93,7 @@
 
         <!-- Schritt 3: Wareneingang anlegen -->
         <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy"
-                          testname="POST /api/load/goods-receipts">
+                          testname="Write - Wareneingang anlegen">
           <boolProp name="HTTPSampler.postBodyRaw">true</boolProp>
           <elementProp name="HTTPsampler.Arguments" elementType="Arguments">
             <collectionProp name="Arguments.arguments">
@@ -124,7 +124,7 @@
 
         <!-- Schritt 4: Wareneingang wieder löschen (Cleanup) -->
         <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy"
-                          testname="DELETE /api/load/goods-receipts/{id}">
+                          testname="Write - Wareneingang löschen">
           <elementProp name="HTTPsampler.Arguments" elementType="Arguments">
             <collectionProp name="Arguments.arguments"/>
           </elementProp>

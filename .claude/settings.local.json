@@ -61,7 +61,11 @@
       "Bash(mvn compile:*)",
       "Bash(./mvnw compile:*)",
       "Bash(JAVA_HOME=\"/c/Program Files/Java/jdk-21\" ./mvnw compile -q)",
-      "Bash(JAVA_HOME=\"/c/Program Files/Java/jdk-21.0.10\" ./mvnw compile -q)"
+      "Bash(JAVA_HOME=\"/c/Program Files/Java/jdk-21.0.10\" ./mvnw compile -q)",
+      "Bash(grep -n \"testname=\" C:/Users/jason/IdeaProjects/HFWI423-Integrationsprojekt/monitoring/jmeter/*.jmx)",
+      "Bash(grep -rn \"ae\\\\|oe\\\\|ue\\\\|ss\" C:/Users/jason/IdeaProjects/HFWI423-Integrationsprojekt/monitoring/jmeter/*.jmx)",
+      "Bash(powershell -Command \"\n\\\\$file = 'C:\\\\Users\\\\jason\\\\IdeaProjects\\\\HFWI423-Integrationsprojekt\\\\src\\\\main\\\\java\\\\com\\\\example\\\\application\\\\views\\\\monitoringView\\\\MonitoringView.java'\n\\\\$content = Get-Content -Path \\\\$file -Raw -Encoding UTF8\n\n\\\\$replacements = @\\(\n    @\\('Lagerplaetze', 'Lagerplätze'\\),\n    @\\('auswaehlen', 'auswählen'\\),\n    @\\('laeuft', 'läuft'\\),\n    @\\('Eintraege', 'Einträge'\\),\n    @\\('benoetigt', 'benötigt'\\),\n    @\\('Maengel', 'Mängel'\\)\n\\)\n\nforeach \\(\\\\$r in \\\\$replacements\\) {\n    \\\\$content = \\\\$content -replace [regex]::Escape\\(\\\\$r[0]\\), \\\\$r[1]\n}\n\nSet-Content -Path \\\\$file -Value \\\\$content -Encoding UTF8 -NoNewline\nWrite-Host 'Done'\n\")",
+      "Bash(python:*)"
     ]
   }
 }
