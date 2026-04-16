@@ -92,7 +92,12 @@ public class RestockOrderService {
         } else {
             // Fallback für bestehende Daten:
             // Contingent.article_id entspricht der Artikelnummer
-            contingentKey = Long.valueOf(article.getArticleNumber());
+            try {
+                contingentKey = Long.valueOf(article.getArticleNumber());
+            } catch (NumberFormatException e) {
+                throw new IllegalStateException(
+                        "Artikel '" + article.getArticleNumber() + "' ist ein Lasttest-Artikel ohne Kontingent und kann nicht nachbestellt werden.");
+            }
         }
 
         System.out.println("approveOrder → articleNumber=" + article.getArticleNumber()

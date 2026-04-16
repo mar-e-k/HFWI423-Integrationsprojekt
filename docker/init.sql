@@ -1,0 +1,1 @@
+CREATE SEQUENCE IF NOT EXISTS goods_receipt_seq START 1;

@@ -2,6 +2,7 @@ package com.example.application.api.load;
 
 import com.example.application.data.articleInfo.ArticleInfo;
 import com.example.application.data.articleInfo.ArticleInfoRepository;
+import com.example.application.data.contingent.ContingentRepository;
 import com.example.application.data.stockChangeLog.ChangeType;
 import com.example.application.services.ArticleInfoService;
 import jakarta.persistence.criteria.Predicate;
@@ -26,11 +27,14 @@ public class LoadTestArticleController {
 
     private final ArticleInfoService articleInfoService;
     private final ArticleInfoRepository articleInfoRepository;
+    private final ContingentRepository contingentRepository;
 
     public LoadTestArticleController(ArticleInfoService articleInfoService,
-                                     ArticleInfoRepository articleInfoRepository) {
+                                     ArticleInfoRepository articleInfoRepository,
+                                     ContingentRepository contingentRepository) {
         this.articleInfoService = articleInfoService;
         this.articleInfoRepository = articleInfoRepository;
+        this.contingentRepository = contingentRepository;
     }
 
     record StockChangeRequest(int delta, String reason) {}
@@ -84,10 +88,17 @@ public class LoadTestArticleController {
         }
     }
 
-    /** DELETE /api/load/articles/sim – alle SIM-Artikel loeschen */
+    /** DELETE /api/load/articles/sim – alle SIM-Artikel und ihre Kontingente loeschen */
     @DeleteMapping("/sim")
     @Transactional
     public java.util.Map<String, Object> deleteSimArticles() {
+        List<Long> simIds = articleInfoRepository.findAll().stream()
+                .filter(a -> a.getArticleNumber() != null && a.getArticleNumber().startsWith("SIM-"))
+                .map(ArticleInfo::getId)
+                .toList();
+        if (!simIds.isEmpty()) {
+            contingentRepository.deleteByArticleIdIn(simIds);
+        }
         int deleted = articleInfoRepository.deleteAllSimArticles();
         return java.util.Map.of("deleted", deleted);
     }

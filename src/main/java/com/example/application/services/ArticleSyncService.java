@@ -12,6 +12,8 @@ import com.example.application.data.externalArticle.ExternalArticleRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.concurrent.ThreadLocalRandom;
+
 import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -33,6 +35,17 @@ public class ArticleSyncService {
         this.contingentLasttestRepository = contingentLasttestRepository;
         this.externalArticleRepository = externalArticleRepository;
         this.articleInfoRepository = articleInfoRepository;
+    }
+
+    /** Legt einen Contingent-Eintrag fuer einen frisch angelegten SIM-Artikel an. */
+    private void createContingentForSimArticle(ArticleInfo saved) {
+        Contingent contingent = new Contingent();
+        contingent.setArticleId(saved.getId());
+        contingent.setAvailableQuantity(2000);
+        contingentRepository.save(contingent);
+        // articleId auf eigene DB-ID setzen damit approveOrder() den Contingent findet
+        saved.setArticleId(saved.getId());
+        articleInfoRepository.save(saved);
     }
 
     @Transactional(readOnly = true)
@@ -198,9 +211,11 @@ public class ArticleSyncService {
                 info.setStockLevel(0);
                 info.setStorageLocation("UNGESETZT");
                 info.setReservePallets(0);
-                info.setMinStock(5);
-                info.setPiecesPerPallet(100);
-                return Optional.of(articleInfoRepository.save(info));
+                info.setMinStock(ThreadLocalRandom.current().nextInt(3, 9));
+                info.setPiecesPerPallet(ThreadLocalRandom.current().nextInt(20, 101));
+                ArticleInfo saved = articleInfoRepository.save(info);
+                createContingentForSimArticle(saved);
+                return Optional.of(saved);
             } catch (Exception e) {
                 // Konkurrenter Zugriff – nächsten Kandidaten probieren
             }
@@ -228,9 +243,11 @@ public class ArticleSyncService {
                 info.setStockLevel(0);
                 info.setStorageLocation(storageLocationId);
                 info.setReservePallets(0);
-                info.setMinStock(5);
-                info.setPiecesPerPallet(100);
-                return Optional.of(articleInfoRepository.save(info));
+                info.setMinStock(ThreadLocalRandom.current().nextInt(3, 9));
+                info.setPiecesPerPallet(ThreadLocalRandom.current().nextInt(20, 101));
+                ArticleInfo saved = articleInfoRepository.save(info);
+                createContingentForSimArticle(saved);
+                return Optional.of(saved);
             } catch (Exception e) {
                 // Konkurrenter Zugriff – nächsten Kandidaten probieren
             }

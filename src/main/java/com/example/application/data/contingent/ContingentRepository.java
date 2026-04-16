@@ -1,9 +1,11 @@
 package com.example.application.data.contingent;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.util.Collection;
 import java.util.List;
 
 public interface ContingentRepository extends JpaRepository<Contingent, Long> {
@@ -24,4 +26,8 @@ public interface ContingentRepository extends JpaRepository<Contingent, Long> {
               )
             """)
     long countNewArticles();
+
+    @Modifying
+    @Query("delete from Contingent c where c.articleId in :ids")
+    int deleteByArticleIdIn(@Param("ids") Collection<Long> ids);
 }
