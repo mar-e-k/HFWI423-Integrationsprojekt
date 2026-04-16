@@ -131,6 +131,12 @@ public class LoadTestMiscController {
     public ResponseEntity<ArticleInfo> createNextNewArticleWithStorage() {
         List<StorageLocation> available = storageLocationService.findAllAvailable();
         if (available.isEmpty()) {
+            // Keine Lagerplaetze verfuegbar – aber nur 503 wenn noch Artikel-Kandidaten existieren.
+            // Wenn keine Kandidaten mehr da sind, direkt 204 zurueckgeben damit der JMeter-Thread
+            // sofort stoppt statt sinnlos einen neuen Lagerplatz anzulegen.
+            if (articleSyncService.countNewArticlesFromLasttest() == 0) {
+                return ResponseEntity.noContent().build();
+            }
             throw new ResponseStatusException(HttpStatus.SERVICE_UNAVAILABLE,
                     "Keine freien Lagerplatze verfugbar – bitte zuerst Lagerplatze anlegen.");
         }

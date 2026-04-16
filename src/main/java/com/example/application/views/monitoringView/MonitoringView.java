@@ -510,16 +510,10 @@ public class MonitoringView extends Div {
         footer.setPadding(false);
         footer.getStyle().set("gap", "14px");
 
-        // ── Neuer Artikel Anlegen ─────────────────────────────────────────────
-        Details newArticleAcc = buildNewArticleSection();
-
-        // ── Storage Location Lasttest ─────────────────────────────────────────
-        Details storageLocationAcc = buildStorageLocationSection();
-
         // ── Artikel-Workflow Lasttest ─────────────────────────────────────────
         Details artikelWorkflowAcc = buildArtikelWorkflowSection();
 
-        VerticalLayout tab = new VerticalLayout(kontingentAcc, newArticleAcc, storageLocationAcc, artikelWorkflowAcc, cardsRow, footer);
+        VerticalLayout tab = new VerticalLayout(kontingentAcc, artikelWorkflowAcc, cardsRow, footer);
         tab.setPadding(false);
         tab.setWidthFull();
         tab.getStyle().set("gap", "16px");
@@ -617,7 +611,11 @@ public class MonitoringView extends Div {
         return details;
     }
 
-    private Details buildNewArticleSection() {
+    private Details buildArtikelWorkflowSection_RENAMED_MARKER() {
+        // MARKER – wird gleich gelöscht
+    }
+
+    private Details buildNewArticleSection_DELETE_START() {
         Span titleSpan = new Span("Neuer Artikel Anlegen");
         titleSpan.getStyle()
                 .set("font-weight", "700").set("color", "#10b981").set("font-size", "0.95rem");
@@ -759,6 +757,7 @@ public class MonitoringView extends Div {
                 jmeterProcess = new ProcessBuilder(cmd)
                         .redirectErrorStream(true)
                         .start();
+                writePid(jmeterProcess.pid());
 
                 try (var reader = new java.io.BufferedReader(
                         new java.io.InputStreamReader(jmeterProcess.getInputStream()))) {
@@ -784,6 +783,7 @@ public class MonitoringView extends Div {
                         showError("JMeter-Fehler: " + ex.getMessage()));
             } finally {
                 pollCsvResults();
+                deletePid();
                 testRunning.set(false);
                 activeUsersGauge.set(0);
                 UI ui = getUI().orElse(null);
@@ -950,6 +950,7 @@ public class MonitoringView extends Div {
                 jmeterProcess = new ProcessBuilder(cmd)
                         .redirectErrorStream(true)
                         .start();
+                writePid(jmeterProcess.pid());
 
                 try (var reader = new java.io.BufferedReader(
                         new java.io.InputStreamReader(jmeterProcess.getInputStream()))) {
@@ -975,6 +976,7 @@ public class MonitoringView extends Div {
                         showError("JMeter-Fehler: " + ex.getMessage()));
             } finally {
                 pollCsvResults();
+                deletePid();
                 testRunning.set(false);
                 activeUsersGauge.set(0);
                 UI ui = getUI().orElse(null);
@@ -1023,14 +1025,6 @@ public class MonitoringView extends Div {
         threadsField.getElement().setAttribute("theme", "small");
         threadsField.setWidth("190px");
 
-        IntegerField iterationsField = new IntegerField("Iterationen / Thread");
-        iterationsField.setValue(10);
-        iterationsField.setMin(1);
-        iterationsField.setMax(10_000);
-        iterationsField.setStepButtonsVisible(true);
-        iterationsField.getElement().setAttribute("theme", "small");
-        iterationsField.setWidth("170px");
-
         IntegerField rampupField = new IntegerField("Ramp-up (s)");
         rampupField.setValue(2);
         rampupField.setMin(1);
@@ -1045,10 +1039,9 @@ public class MonitoringView extends Div {
                 .set("border-radius", "8px").set("font-weight", "700").set("font-size", "0.82rem")
                 .set("box-shadow", "0 2px 8px #f59e0b55");
         startBtn.addClickListener(e -> {
-            int threads    = threadsField.getValue()    != null ? threadsField.getValue()    : 5;
-            int iterations = iterationsField.getValue() != null ? iterationsField.getValue() : 10;
-            int rampup     = rampupField.getValue()     != null ? rampupField.getValue()     : 2;
-            launchArtikelWorkflowTest(threads, iterations, rampup,
+            int threads = threadsField.getValue() != null ? threadsField.getValue() : 5;
+            int rampup  = rampupField.getValue()  != null ? rampupField.getValue()  : 2;
+            launchArtikelWorkflowTest(threads, rampup,
                     "Artikel-Workflow-" + threads + "T");
         });
         testButtons.add(startBtn);
@@ -1061,7 +1054,7 @@ public class MonitoringView extends Div {
         presetBadges.setPadding(false);
         presetBadges.getStyle().set("gap", "6px").set("flex-wrap", "wrap");
 
-        HorizontalLayout controls = new HorizontalLayout(threadsField, iterationsField, rampupField, startBtn);
+        HorizontalLayout controls = new HorizontalLayout(threadsField, rampupField, startBtn);
         controls.setAlignItems(FlexComponent.Alignment.CENTER);
         controls.setPadding(false);
         controls.getStyle().set("gap", "10px").set("flex-wrap", "wrap");
@@ -1078,7 +1071,7 @@ public class MonitoringView extends Div {
         return details;
     }
 
-    private void launchArtikelWorkflowTest(int threads, int iterations, int rampup, String testName) {
+    private void launchArtikelWorkflowTest(int threads, int rampup, String testName) {
         if (testRunning.getAndSet(true)) return;
 
         String jmeterJar = jmeterHome + "/bin/ApacheJMeter.jar";
@@ -1122,17 +1115,14 @@ public class MonitoringView extends Div {
                 "-n",
                 "-t", jmxFile.toString(),
                 "-l", resultFile.toString(),
-                "-Jthreads="    + threads,
-                "-Jrampup="     + rampup,
-                "-Jiterations=" + iterations,
+                "-Jthreads=" + threads,
+                "-Jrampup="  + rampup,
                 "-Jhost=localhost",
-                "-Jport="       + serverPort,
-                "-Jtestname="   + testName.replace(" ", "-")
+                "-Jport="    + serverPort,
+                "-Jtestname=" + testName.replace(" ", "-")
         ));
 
-        int total = threads * iterations;
-        Notification.show("▶  " + testName + " gestartet – " + threads + " Threads x " +
-                          iterations + " Iterationen = " + total + " Durchlaeufe",
+        Notification.show("▶  " + testName + " gestartet – " + threads + " Threads, alle Artikel werden angelegt",
                 4000, Notification.Position.BOTTOM_END);
 
         Executors.newVirtualThreadPerTaskExecutor().submit(() -> {
@@ -1141,6 +1131,7 @@ public class MonitoringView extends Div {
                 jmeterProcess = new ProcessBuilder(cmd)
                         .redirectErrorStream(true)
                         .start();
+                writePid(jmeterProcess.pid());
 
                 try (var reader = new java.io.BufferedReader(
                         new java.io.InputStreamReader(jmeterProcess.getInputStream()))) {
@@ -1166,6 +1157,7 @@ public class MonitoringView extends Div {
                         showError("JMeter-Fehler: " + ex.getMessage()));
             } finally {
                 pollCsvResults();
+                deletePid();
                 testRunning.set(false);
                 activeUsersGauge.set(0);
                 UI ui = getUI().orElse(null);
@@ -1272,6 +1264,7 @@ public class MonitoringView extends Div {
                 jmeterProcess = new ProcessBuilder(cmd)
                         .redirectErrorStream(true)
                         .start();
+                writePid(jmeterProcess.pid());
 
                 try (var reader = new java.io.BufferedReader(
                         new java.io.InputStreamReader(jmeterProcess.getInputStream()))) {
@@ -1297,6 +1290,7 @@ public class MonitoringView extends Div {
                         showError("JMeter-Fehler: " + ex.getMessage()));
             } finally {
                 pollCsvResults();
+                deletePid();
                 testRunning.set(false);
                 activeUsersGauge.set(0);
                 UI ui = getUI().orElse(null);
@@ -1391,9 +1385,32 @@ public class MonitoringView extends Div {
         return wrapper;
     }
 
+    private static final Path PID_FILE = Path.of("monitoring/jmeter/jmeter.pid");
+
+    private void writePid(long pid) {
+        try { Files.writeString(PID_FILE, String.valueOf(pid)); }
+        catch (IOException ignored) {}
+    }
+
+    private void deletePid() {
+        try { Files.deleteIfExists(PID_FILE); }
+        catch (IOException ignored) {}
+    }
+
     private void stopTest() {
         testRunning.set(false);
-        if (jmeterProcess != null) jmeterProcess.destroyForcibly();
+        if (jmeterProcess != null) {
+            jmeterProcess.destroyForcibly();
+        } else {
+            // Nach Neustart: PID-Datei lesen und Prozess killen
+            try {
+                if (Files.exists(PID_FILE)) {
+                    long pid = Long.parseLong(Files.readString(PID_FILE).trim());
+                    ProcessHandle.of(pid).ifPresent(ProcessHandle::destroyForcibly);
+                }
+            } catch (Exception ignored) {}
+        }
+        deletePid();
     }
 
     // ══════════════════════════════════════════════════════════════════════════
@@ -1497,7 +1514,7 @@ public class MonitoringView extends Div {
     @Override
     protected void onDetach(DetachEvent event) {
         if (refreshTask != null) refreshTask.cancel(false);
-        stopTest();
+        // Lasttest laeuft weiter – nur expliziter Stop-Button beendet den Prozess
     }
 
     // ══════════════════════════════════════════════════════════════════════════
