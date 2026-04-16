@@ -69,7 +69,8 @@
       "Bash(tasklist)",
       "Bash(taskkill:*)",
       "Bash(tasklist:*)",
-      "Bash(wmic process:*)"
+      "Bash(wmic process:*)",
+      "Bash(find:*)"
     ]
   }
 }
