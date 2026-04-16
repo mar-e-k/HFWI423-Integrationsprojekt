@@ -144,8 +144,13 @@ public class LoadTestMiscController {
                 storageLocationService.save(loc);
                 // Lagerplatz gesichert – jetzt Artikel anlegen
                 Optional<ArticleInfo> result = articleSyncService.createNextWithStorageLocation(loc.getGeneralId());
-                return result.map(ResponseEntity::ok)
-                             .orElse(ResponseEntity.noContent().build());
+                if (result.isPresent()) {
+                    return ResponseEntity.ok(result.get());
+                }
+                // Keine Kandidaten mehr – Lagerplatz wieder freigeben
+                loc.setStorageStatus("Available");
+                storageLocationService.save(loc);
+                return ResponseEntity.noContent().build();
             } catch (ObjectOptimisticLockingFailureException e) {
                 // Anderer Thread hat diesen Lagerplatz gleichzeitig belegt – naechsten probieren
             }

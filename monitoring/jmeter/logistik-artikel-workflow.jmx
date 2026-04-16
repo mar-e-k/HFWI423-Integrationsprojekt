@@ -186,44 +186,71 @@
             <hashTree/>
           </hashTree>
 
-          <!-- Schritt 4: Neuen Lagerplatz anlegen -->
-          <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy"
-                            testname="Workflow - Lagerplatz anlegen" enabled="true">
-            <boolProp name="HTTPSampler.postBodyRaw">true</boolProp>
-            <elementProp name="HTTPsampler.Arguments" elementType="Arguments">
-              <collectionProp name="Arguments.arguments">
-                <elementProp name="" elementType="HTTPArgument">
-                  <boolProp name="HTTPArgument.always_encode">false</boolProp>
-                  <stringProp name="Argument.value">{"storageZone": "Zone ${__Random(1,5,)}", "shelfID": ${__Random(1,20,)}, "compartmentID": ${__Random(1,50,)}}</stringProp>
-                  <stringProp name="Argument.metadata">=</stringProp>
-                </elementProp>
-              </collectionProp>
-            </elementProp>
-            <stringProp name="HTTPSampler.domain">${__P(host,localhost)}</stringProp>
-            <stringProp name="HTTPSampler.port">${__P(port,8081)}</stringProp>
-            <stringProp name="HTTPSampler.protocol">http</stringProp>
-            <stringProp name="HTTPSampler.path">/api/load/storage-locations</stringProp>
-            <stringProp name="HTTPSampler.method">POST</stringProp>
-            <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
-            <boolProp name="HTTPSampler.auto_redirects">false</boolProp>
-            <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
-            <boolProp name="HTTPSampler.DO_MULTIPART_POST">false</boolProp>
-            <stringProp name="HTTPSampler.connect_timeout">10000</stringProp>
-            <stringProp name="HTTPSampler.response_timeout">30000</stringProp>
-          </HTTPSamplerProxy>
+          <!-- Schritt 4 Init: storageCreated-Variable zuruecksetzen -->
+          <JSR223Sampler guiclass="TestBeanGUI" testclass="JSR223Sampler"
+                         testname="Init - storageCreated zuruecksetzen" enabled="true">
+            <stringProp name="scriptLanguage">groovy</stringProp>
+            <stringProp name="script">vars.put("storageCreated", "false");</stringProp>
+            <stringProp name="filename"></stringProp>
+            <stringProp name="parameters"></stringProp>
+            <boolProp name="cacheKey">true</boolProp>
+          </JSR223Sampler>
+          <hashTree/>
+
+          <!-- Schritt 4: Neuen Lagerplatz anlegen (Retry bis 201) -->
+          <WhileController guiclass="WhileControllerGui" testclass="WhileController"
+                           testname="Lagerplatz anlegen bis 201" enabled="true">
+            <stringProp name="WhileController.condition">"${storageCreated}" != "true"</stringProp>
+          </WhileController>
           <hashTree>
-            <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion"
-                               testname="HTTP 201 oder 409" enabled="true">
-              <collectionProp name="Asserion.test_strings">
-                <stringProp name="49586">201</stringProp>
-                <stringProp name="51721">409</stringProp>
-              </collectionProp>
-              <stringProp name="Assertion.custom_message">Erwartet 201 (angelegt) oder 409 (Kombination existiert bereits)</stringProp>
-              <stringProp name="Assertion.test_field">Assertion.response_code</stringProp>
-              <boolProp name="Assertion.assume_success">false</boolProp>
-              <intProp name="Assertion.test_type">40</intProp>
-            </ResponseAssertion>
-            <hashTree/>
+            <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy"
+                              testname="Workflow - Lagerplatz anlegen" enabled="true">
+              <boolProp name="HTTPSampler.postBodyRaw">true</boolProp>
+              <elementProp name="HTTPsampler.Arguments" elementType="Arguments">
+                <collectionProp name="Arguments.arguments">
+                  <elementProp name="" elementType="HTTPArgument">
+                    <boolProp name="HTTPArgument.always_encode">false</boolProp>
+                    <stringProp name="Argument.value">{"storageZone": "Zone ${__Random(1,9,)}", "shelfID": ${__Random(1,999,)}, "compartmentID": ${__Random(1,999,)}}</stringProp>
+                    <stringProp name="Argument.metadata">=</stringProp>
+                  </elementProp>
+                </collectionProp>
+              </elementProp>
+              <stringProp name="HTTPSampler.domain">${__P(host,localhost)}</stringProp>
+              <stringProp name="HTTPSampler.port">${__P(port,8081)}</stringProp>
+              <stringProp name="HTTPSampler.protocol">http</stringProp>
+              <stringProp name="HTTPSampler.path">/api/load/storage-locations</stringProp>
+              <stringProp name="HTTPSampler.method">POST</stringProp>
+              <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
+              <boolProp name="HTTPSampler.auto_redirects">false</boolProp>
+              <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
+              <boolProp name="HTTPSampler.DO_MULTIPART_POST">false</boolProp>
+              <stringProp name="HTTPSampler.connect_timeout">10000</stringProp>
+              <stringProp name="HTTPSampler.response_timeout">30000</stringProp>
+            </HTTPSamplerProxy>
+            <hashTree>
+              <RegexExtractor guiclass="RegexExtractorGui" testclass="RegexExtractor"
+                              testname="Capture 201" enabled="true">
+                <stringProp name="RegexExtractor.useHeaders">code</stringProp>
+                <stringProp name="RegexExtractor.refname">storageCreated</stringProp>
+                <stringProp name="RegexExtractor.regex">201</stringProp>
+                <stringProp name="RegexExtractor.template">true</stringProp>
+                <stringProp name="RegexExtractor.default">false</stringProp>
+                <stringProp name="RegexExtractor.match_number">1</stringProp>
+              </RegexExtractor>
+              <hashTree/>
+              <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion"
+                                 testname="HTTP 201 oder 409" enabled="true">
+                <collectionProp name="Asserion.test_strings">
+                  <stringProp name="49586">201</stringProp>
+                  <stringProp name="51721">409</stringProp>
+                </collectionProp>
+                <stringProp name="Assertion.custom_message">Erwartet 201 (angelegt) oder 409 (Kombination existiert bereits)</stringProp>
+                <stringProp name="Assertion.test_field">Assertion.response_code</stringProp>
+                <boolProp name="Assertion.assume_success">false</boolProp>
+                <intProp name="Assertion.test_type">40</intProp>
+              </ResponseAssertion>
+              <hashTree/>
+            </hashTree>
           </hashTree>
 
           <!-- Schritt 5: Zurueck zu Neue Artikel navigieren -->

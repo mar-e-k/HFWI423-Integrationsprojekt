@@ -182,7 +182,6 @@ public class ArticleSyncService {
      * Konkurrenz-sicher: bei Duplikat wird einfach der nächste Kandidat versucht.
      * Gibt Optional.empty() zurück wenn keine neuen Artikel mehr vorhanden.
      */
-    @Transactional
     public Optional<ArticleInfo> createNextFromLasttest() {
         List<NewArticleCandidate> candidates = findNewArticlesFromLasttestContingents();
         for (NewArticleCandidate candidate : candidates) {
@@ -213,7 +212,6 @@ public class ArticleSyncService {
      * Erstellt den nächsten noch nicht angelegten Artikel mit einem vorgegebenen Lagerplatz.
      * Wird vom Artikel-Workflow-Lasttest verwendet.
      */
-    @Transactional
     public Optional<ArticleInfo> createNextWithStorageLocation(String storageLocationId) {
         List<NewArticleCandidate> candidates = findNewArticlesFromLasttestContingents();
         for (NewArticleCandidate candidate : candidates) {
