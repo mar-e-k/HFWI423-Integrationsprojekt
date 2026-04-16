@@ -1,7 +1,5 @@
 package com.example.application.api.load;
 
-import com.example.application.data.articleInfo.ArticleInfo;
-import com.example.application.data.articleInfo.ArticleInfoRepository;
 import com.example.application.data.contingent.ContingentLasttest;
 import com.example.application.data.contingent.ContingentLasttestRepository;
 import com.example.application.data.messagingEvent.MessagingEvent;
@@ -29,17 +27,12 @@ public class LoadTestContingentController {
 
     private static final Logger logger = LoggerFactory.getLogger(LoadTestContingentController.class);
 
-    private static final double NEW_ARTICLE_RATIO = 0.50; // 50 %
-
     private final ContingentLasttestRepository contingentLasttestRepository;
-    private final ArticleInfoRepository articleInfoRepository;
     private final MessagingEventService messagingEventService;
 
     public LoadTestContingentController(ContingentLasttestRepository contingentLasttestRepository,
-                                        ArticleInfoRepository articleInfoRepository,
                                         MessagingEventService messagingEventService) {
         this.contingentLasttestRepository = contingentLasttestRepository;
-        this.articleInfoRepository = articleInfoRepository;
         this.messagingEventService = messagingEventService;
     }
 
@@ -69,52 +62,17 @@ public class LoadTestContingentController {
             throw new IllegalArgumentException("count muss zwischen 1 und 100.000 liegen");
         }
 
-        // --- Daten laden --------------------------------------------------------
-
-        // Nur Artikel mit gesetzter articleId verwenden – Fallback auf getId() wuerde
-        // ArticleInfo-Primaerschluessel als ExternalArticle-ID missbrauchen und faelschlich
-        // Order-Test-Artikel als neue Kandidaten anzeigen.
-        List<ArticleInfo> bekannteArtikel = articleInfoRepository.findAll().stream()
-                .filter(a -> a.getArticleId() != null)
-                .collect(java.util.stream.Collectors.toList());
-
-        if (bekannteArtikel.isEmpty()) {
-            throw new ResponseStatusException(HttpStatus.PRECONDITION_FAILED,
-                    "Keine bekannten Artikel mit ExternalArticle-Verknuepfung vorhanden – bitte zuerst Artikel anlegen.");
-        }
-
-        // --- Ziel-Aufteilung berechnen ------------------------------------------
-
-        int zielNeu             = (int) Math.round(count * NEW_ARTICLE_RATIO);
-        int tatsaechlichBekannt = count - zielNeu;
-
-        logger.info("Starte Kontingent-Simulation: {} Nachrichten ({} bekannt, {} neu)",
-                count, tatsaechlichBekannt, zielNeu);
-
-        // --- Datensätze generieren (im Speicher) --------------------------------
+        logger.info("Starte Kontingent-Simulation: {} neue SIM-Artikel", count);
 
         Random random = new Random();
         List<ContingentLasttest> contingents = new ArrayList<>(count);
         List<MessagingEvent> events = new ArrayList<>(count);
 
-        // 95 % – bekannte Artikel (articleId ist garantiert nicht null nach dem Filter oben)
-        for (int i = 0; i < tatsaechlichBekannt; i++) {
-            ArticleInfo artikel = bekannteArtikel.get(random.nextInt(bekannteArtikel.size()));
-            long articleId = artikel.getArticleId();
-            int menge = 10 + random.nextInt(491);
-            contingents.add(buildContingent(articleId, menge));
-            events.add(buildEvent(articleId, menge));
-        }
-
-        // 5 % – immer synthetische neue Artikel (SIM-XXXXX), unabhängig von ExternalArticle
-        for (int i = 0; i < zielNeu; i++) {
+        for (int i = 0; i < count; i++) {
             int menge = 10 + random.nextInt(491);
             contingents.add(buildSyntheticNewArticle(menge, random));
             events.add(buildEvent(-(i + 1L), menge));
         }
-
-        // --- Chunk-weise speichern (je Chunk eigene kurze Transaktion) -----------
-        // → Connection wird nach jedem Chunk freigegeben, Pool bleibt verfügbar
 
         for (int i = 0; i < contingents.size(); i += CHUNK_SIZE) {
             List<ContingentLasttest> chunk = contingents.subList(i, Math.min(i + CHUNK_SIZE, contingents.size()));
@@ -126,12 +84,10 @@ public class LoadTestContingentController {
             messagingEventService.saveAll(chunk);
         }
 
-        int erstellt = contingents.size();
-        logger.info("Kontingent-Simulation abgeschlossen: {} Datensätze angelegt ({} SIM-Artikel)",
-                erstellt, zielNeu);
+        logger.info("Kontingent-Simulation abgeschlossen: {} SIM-Artikel angelegt", count);
 
-        return new SimulationResult(count, erstellt, tatsaechlichBekannt, zielNeu, 0,
-                zielNeu + " synthetische neue Artikel (SIM-XXXXX) generiert.");
+        return new SimulationResult(count, count, 0, count, 0,
+                count + " synthetische neue Artikel (SIM-XXXXX) generiert.");
     }
 
     /**
