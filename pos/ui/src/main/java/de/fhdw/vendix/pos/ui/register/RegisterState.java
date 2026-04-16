@@ -2,6 +2,7 @@ package de.fhdw.vendix.pos.ui.register;
 
 import de.fhdw.vendix.commons.api.domain.article.ArticleDTO;
 import de.fhdw.vendix.pos.ui.register.receipt_view.CartLine;
+import org.jspecify.annotations.Nullable;
 import org.springframework.stereotype.Component;
 import org.springframework.web.context.annotation.SessionScope;
 
@@ -19,7 +20,7 @@ public class RegisterState {
 
     private final List<Runnable> listeners = new ArrayList<>();
 
-    public void setSelectedArticle(ArticleDTO article) {
+    public void setSelectedArticle(@Nullable ArticleDTO article) {
         this.selectedArticle = Optional.ofNullable(article);
         notifyListeners();
     }
@@ -28,7 +29,7 @@ public class RegisterState {
         return selectedArticle;
     }
 
-    public void setSelectedCartLine(CartLine line) {
+    public void setSelectedCartLine(@Nullable CartLine line) {
         this.selectedCartLine = Optional.ofNullable(line);
         notifyListeners();
     }
