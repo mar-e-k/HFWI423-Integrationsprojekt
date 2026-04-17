@@ -2,11 +2,23 @@ services:
 
   k6:
     image: grafana/k6:1.7.1-with-browser
+    container_name: vendix-k6
     volumes:
       - ./k6/scripts:/etc/k6/scripts
     entrypoint: ["sleep", "infinity"]
     ports:
       - "${K6_PORT}:3020"
+    environment:
+      # ─── Prometheus Remote-Write Konfiguration ──────────────────────────────
+      # k6 pusht Metriken direkt an Prometheus → sichtbar in Grafana in Echtzeit
+      - K6_PROMETHEUS_RW_SERVER_URL=http://prometheus:9090/api/v1/write
+      - K6_PROMETHEUS_RW_TREND_STATS=p(50),p(90),p(95),p(99),min,max,avg
+      - K6_PROMETHEUS_RW_PUSH_INTERVAL=5s
+      # Metriken mit nützlichen Labels versehen (Szenario, VU, usw.)
+      - K6_PROMETHEUS_RW_STALE_MARKERS=true
+    extra_hosts:
+      # Damit k6 den Spring-Boot-Host erreichen kann (Store + Orchestrator)
+      - "host.docker.internal:host-gateway"
     networks:
       - app
       - monitor-net

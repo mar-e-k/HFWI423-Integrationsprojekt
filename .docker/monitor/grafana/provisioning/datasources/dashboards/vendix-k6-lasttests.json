@@ -1,0 +1,1463 @@
+{
+  "uid": "vendix-k6-lasttests",
+  "title": "Vendix \u2013 k6 Lasttest Monitor",
+  "tags": [
+    "vendix",
+    "k6",
+    "lasttest"
+  ],
+  "timezone": "browser",
+  "refresh": "5s",
+  "time": {
+    "from": "now-30m",
+    "to": "now"
+  },
+  "schemaVersion": 38,
+  "panels": [
+    {
+      "id": 1,
+      "type": "row",
+      "title": "\ud83c\udfaf k6 Test Status",
+      "gridPos": {
+        "x": 0,
+        "y": 0,
+        "w": 24,
+        "h": 1
+      },
+      "collapsed": false
+    },
+    {
+      "id": 2,
+      "type": "stat",
+      "title": "Aktive VUs",
+      "gridPos": {
+        "x": 0,
+        "y": 1,
+        "w": 4,
+        "h": 4
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "vendix-prometheus"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "color": {
+            "mode": "thresholds"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "blue",
+                "value": null
+              }
+            ]
+          }
+        }
+      },
+      "options": {
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ]
+        },
+        "graphMode": "area",
+        "colorMode": "background"
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "vendix-prometheus"
+          },
+          "expr": "k6_vus or on() vector(0)",
+          "refId": "A"
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "type": "stat",
+      "title": "Iterationen/s",
+      "gridPos": {
+        "x": 4,
+        "y": 1,
+        "w": 4,
+        "h": 4
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "vendix-prometheus"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "reqps",
+          "color": {
+            "mode": "thresholds"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "blue",
+                "value": null
+              }
+            ]
+          }
+        }
+      },
+      "options": {
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ]
+        },
+        "graphMode": "area",
+        "colorMode": "background"
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "vendix-prometheus"
+          },
+          "expr": "rate(k6_iterations_total[1m]) or on() vector(0)",
+          "refId": "A"
+        }
+      ]
+    },
+    {
+      "id": 4,
+      "type": "stat",
+      "title": "HTTP Request Rate",
+      "gridPos": {
+        "x": 8,
+        "y": 1,
+        "w": 4,
+        "h": 4
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "vendix-prometheus"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "reqps",
+          "color": {
+            "mode": "thresholds"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          }
+        }
+      },
+      "options": {
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ]
+        },
+        "graphMode": "area",
+        "colorMode": "background"
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "vendix-prometheus"
+          },
+          "expr": "rate(k6_http_reqs_total[1m]) or on() vector(0)",
+          "refId": "A"
+        }
+      ]
+    },
+    {
+      "id": 5,
+      "type": "stat",
+      "title": "HTTP Fehlerrate %",
+      "gridPos": {
+        "x": 12,
+        "y": 1,
+        "w": 4,
+        "h": 4
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "vendix-prometheus"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "percent",
+          "color": {
+            "mode": "thresholds"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "yellow",
+                "value": 1
+              },
+              {
+                "color": "red",
+                "value": 5
+              }
+            ]
+          }
+        }
+      },
+      "options": {
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ]
+        },
+        "graphMode": "area",
+        "colorMode": "background"
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "vendix-prometheus"
+          },
+          "expr": "(rate(k6_http_reqs_total{expected_response=\"false\"}[1m])\n/ clamp_min(rate(k6_http_reqs_total[1m]), 0.001)) * 100\nor on() vector(0)",
+          "refId": "A"
+        }
+      ]
+    },
+    {
+      "id": 6,
+      "type": "stat",
+      "title": "P95 Response Time",
+      "gridPos": {
+        "x": 16,
+        "y": 1,
+        "w": 4,
+        "h": 4
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "vendix-prometheus"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "ms",
+          "color": {
+            "mode": "thresholds"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "yellow",
+                "value": 500
+              },
+              {
+                "color": "red",
+                "value": 2000
+              }
+            ]
+          }
+        }
+      },
+      "options": {
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ]
+        },
+        "graphMode": "area",
+        "colorMode": "background"
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "vendix-prometheus"
+          },
+          "expr": "k6_http_req_duration{quantile=\"0.95\"} or on() vector(0)",
+          "refId": "A"
+        }
+      ]
+    },
+    {
+      "id": 7,
+      "type": "stat",
+      "title": "P99 Response Time",
+      "gridPos": {
+        "x": 20,
+        "y": 1,
+        "w": 4,
+        "h": 4
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "vendix-prometheus"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "ms",
+          "color": {
+            "mode": "thresholds"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "yellow",
+                "value": 1000
+              },
+              {
+                "color": "red",
+                "value": 3000
+              }
+            ]
+          }
+        }
+      },
+      "options": {
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ]
+        },
+        "graphMode": "area",
+        "colorMode": "background"
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "vendix-prometheus"
+          },
+          "expr": "k6_http_req_duration{quantile=\"0.99\"} or on() vector(0)",
+          "refId": "A"
+        }
+      ]
+    },
+    {
+      "id": 8,
+      "type": "row",
+      "title": "\u23f1 k6 Response Time",
+      "gridPos": {
+        "x": 0,
+        "y": 5,
+        "w": 24,
+        "h": 1
+      },
+      "collapsed": false
+    },
+    {
+      "id": 9,
+      "type": "timeseries",
+      "title": "k6 HTTP Response Time (\u00d8 / P95 / P99)",
+      "gridPos": {
+        "x": 0,
+        "y": 6,
+        "w": 16,
+        "h": 8
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "vendix-prometheus"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "ms",
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "fillOpacity": 10,
+            "lineWidth": 2,
+            "spanNulls": false,
+            "thresholdsStyle": {
+              "mode": "line"
+            }
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "yellow",
+                "value": 500
+              },
+              {
+                "color": "red",
+                "value": 2000
+              }
+            ]
+          }
+        }
+      },
+      "options": {
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        },
+        "legend": {
+          "displayMode": "table",
+          "placement": "bottom",
+          "calcs": [
+            "mean",
+            "max",
+            "lastNotNull"
+          ]
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "vendix-prometheus"
+          },
+          "expr": "k6_http_req_duration{quantile=\"0.5\"}",
+          "legendFormat": "Median",
+          "refId": "A",
+          "interval": "5s"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "vendix-prometheus"
+          },
+          "expr": "k6_http_req_duration{quantile=\"0.95\"}",
+          "legendFormat": "P95",
+          "refId": "B",
+          "interval": "5s"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "vendix-prometheus"
+          },
+          "expr": "k6_http_req_duration{quantile=\"0.99\"}",
+          "legendFormat": "P99",
+          "refId": "C",
+          "interval": "5s"
+        }
+      ]
+    },
+    {
+      "id": 10,
+      "type": "timeseries",
+      "title": "k6 Response Time nach Endpunkt",
+      "gridPos": {
+        "x": 16,
+        "y": 6,
+        "w": 8,
+        "h": 8
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "vendix-prometheus"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "ms",
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "fillOpacity": 10,
+            "lineWidth": 2,
+            "spanNulls": false
+          }
+        }
+      },
+      "options": {
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        },
+        "legend": {
+          "displayMode": "table",
+          "placement": "bottom",
+          "calcs": [
+            "mean",
+            "max",
+            "lastNotNull"
+          ]
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "vendix-prometheus"
+          },
+          "expr": "k6_http_req_duration{quantile=\"0.95\",endpoint!=\"\"}",
+          "legendFormat": "{{endpoint}}",
+          "refId": "A",
+          "interval": "5s"
+        }
+      ]
+    },
+    {
+      "id": 11,
+      "type": "row",
+      "title": "\ud83d\udcca k6 Request Volume & Errors",
+      "gridPos": {
+        "x": 0,
+        "y": 14,
+        "w": 24,
+        "h": 1
+      },
+      "collapsed": false
+    },
+    {
+      "id": 12,
+      "type": "timeseries",
+      "title": "Requests / Sekunde",
+      "gridPos": {
+        "x": 0,
+        "y": 15,
+        "w": 12,
+        "h": 7
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "vendix-prometheus"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "reqps",
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "fillOpacity": 10,
+            "lineWidth": 2,
+            "spanNulls": false
+          }
+        }
+      },
+      "options": {
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        },
+        "legend": {
+          "displayMode": "table",
+          "placement": "bottom",
+          "calcs": [
+            "mean",
+            "max",
+            "lastNotNull"
+          ]
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "vendix-prometheus"
+          },
+          "expr": "rate(k6_http_reqs_total[1m])",
+          "legendFormat": "Total",
+          "refId": "A",
+          "interval": "5s"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "vendix-prometheus"
+          },
+          "expr": "rate(k6_http_reqs_total{expected_response=\"true\"}[1m])",
+          "legendFormat": "\u2705 Erfolgreich",
+          "refId": "B",
+          "interval": "5s"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "vendix-prometheus"
+          },
+          "expr": "rate(k6_http_reqs_total{expected_response=\"false\"}[1m])",
+          "legendFormat": "\u274c Fehler",
+          "refId": "C",
+          "interval": "5s"
+        }
+      ]
+    },
+    {
+      "id": 13,
+      "type": "timeseries",
+      "title": "VUs und Iterations",
+      "gridPos": {
+        "x": 12,
+        "y": 15,
+        "w": 12,
+        "h": 7
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "vendix-prometheus"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "fillOpacity": 10,
+            "lineWidth": 2,
+            "spanNulls": false
+          }
+        }
+      },
+      "options": {
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        },
+        "legend": {
+          "displayMode": "table",
+          "placement": "bottom",
+          "calcs": [
+            "mean",
+            "max",
+            "lastNotNull"
+          ]
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "vendix-prometheus"
+          },
+          "expr": "k6_vus",
+          "legendFormat": "Aktive VUs",
+          "refId": "A",
+          "interval": "5s"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "vendix-prometheus"
+          },
+          "expr": "rate(k6_iterations_total[1m])",
+          "legendFormat": "Iterations/s",
+          "refId": "B",
+          "interval": "5s"
+        }
+      ]
+    },
+    {
+      "id": 14,
+      "type": "row",
+      "title": "\ud83e\uddfe Business-Metriken (Vendix-Counters)",
+      "gridPos": {
+        "x": 0,
+        "y": 22,
+        "w": 24,
+        "h": 1
+      },
+      "collapsed": false
+    },
+    {
+      "id": 15,
+      "type": "timeseries",
+      "title": "Bons pro Sekunde",
+      "gridPos": {
+        "x": 0,
+        "y": 23,
+        "w": 12,
+        "h": 7
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "vendix-prometheus"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "ops",
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "fillOpacity": 10,
+            "lineWidth": 2,
+            "spanNulls": false
+          }
+        }
+      },
+      "options": {
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        },
+        "legend": {
+          "displayMode": "table",
+          "placement": "bottom",
+          "calcs": [
+            "mean",
+            "max",
+            "lastNotNull"
+          ]
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "vendix-prometheus"
+          },
+          "expr": "rate(k6_vendix_bons_created_total[1m]) or on() vector(0)",
+          "legendFormat": "\u2705 Erstellt",
+          "refId": "A",
+          "interval": "5s"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "vendix-prometheus"
+          },
+          "expr": "rate(k6_vendix_bons_failed_total[1m]) or on() vector(0)",
+          "legendFormat": "\u274c Fehlgeschlagen",
+          "refId": "B",
+          "interval": "5s"
+        }
+      ]
+    },
+    {
+      "id": 16,
+      "type": "timeseries",
+      "title": "Business-Aktionen pro Sekunde",
+      "gridPos": {
+        "x": 12,
+        "y": 23,
+        "w": 12,
+        "h": 7
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "vendix-prometheus"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "ops",
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "fillOpacity": 10,
+            "lineWidth": 2,
+            "spanNulls": false
+          }
+        }
+      },
+      "options": {
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        },
+        "legend": {
+          "displayMode": "table",
+          "placement": "bottom",
+          "calcs": [
+            "mean",
+            "max",
+            "lastNotNull"
+          ]
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "vendix-prometheus"
+          },
+          "expr": "rate(k6_vendix_articles_added_total[1m]) or on() vector(0)",
+          "legendFormat": "Artikel hinzugef\u00fcgt",
+          "refId": "A",
+          "interval": "5s"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "vendix-prometheus"
+          },
+          "expr": "rate(k6_vendix_discounts_total[1m]) or on() vector(0)",
+          "legendFormat": "Rabatte",
+          "refId": "B",
+          "interval": "5s"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "vendix-prometheus"
+          },
+          "expr": "rate(k6_vendix_deposits_total[1m]) or on() vector(0)",
+          "legendFormat": "Pfandr\u00fcckgaben",
+          "refId": "C",
+          "interval": "5s"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "vendix-prometheus"
+          },
+          "expr": "rate(k6_vendix_cancels_total[1m]) or on() vector(0)",
+          "legendFormat": "Stornierungen",
+          "refId": "D",
+          "interval": "5s"
+        }
+      ]
+    },
+    {
+      "id": 17,
+      "type": "row",
+      "title": "\ud83c\udfea Spring Boot Store \u2013 Reaktion auf k6-Last",
+      "gridPos": {
+        "x": 0,
+        "y": 30,
+        "w": 24,
+        "h": 1
+      },
+      "collapsed": false
+    },
+    {
+      "id": 18,
+      "type": "timeseries",
+      "title": "Store Response Time (\u00d8 / P95 / P99)",
+      "gridPos": {
+        "x": 0,
+        "y": 31,
+        "w": 16,
+        "h": 8
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "vendix-prometheus"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "ms",
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "fillOpacity": 10,
+            "lineWidth": 2,
+            "spanNulls": false,
+            "thresholdsStyle": {
+              "mode": "line"
+            }
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "yellow",
+                "value": 500
+              },
+              {
+                "color": "red",
+                "value": 2000
+              }
+            ]
+          }
+        }
+      },
+      "options": {
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        },
+        "legend": {
+          "displayMode": "table",
+          "placement": "bottom",
+          "calcs": [
+            "mean",
+            "max",
+            "lastNotNull"
+          ]
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "vendix-prometheus"
+          },
+          "expr": "(\n  sum(rate(http_server_requests_seconds_sum{application=\"store\", uri!~\"/actuator.*\"}[1m]))\n/ clamp_min(sum(rate(http_server_requests_seconds_count{application=\"store\", uri!~\"/actuator.*\"}[1m])), 0.001)\n) * 1000 or on() vector(0)",
+          "legendFormat": "\u00d8 (ms)",
+          "refId": "A",
+          "interval": "5s"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "vendix-prometheus"
+          },
+          "expr": "histogram_quantile(0.95, sum by(le) (\n  rate(http_server_requests_seconds_bucket{application=\"store\", uri!~\"/actuator.*\"}[1m])\n)) * 1000 or on() vector(0)",
+          "legendFormat": "P95 (ms)",
+          "refId": "B",
+          "interval": "5s"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "vendix-prometheus"
+          },
+          "expr": "histogram_quantile(0.99, sum by(le) (\n  rate(http_server_requests_seconds_bucket{application=\"store\", uri!~\"/actuator.*\"}[1m])\n)) * 1000 or on() vector(0)",
+          "legendFormat": "P99 (ms)",
+          "refId": "C",
+          "interval": "5s"
+        }
+      ]
+    },
+    {
+      "id": 19,
+      "type": "timeseries",
+      "title": "Store Requests/s nach Status",
+      "gridPos": {
+        "x": 16,
+        "y": 31,
+        "w": 8,
+        "h": 8
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "vendix-prometheus"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "reqps",
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "fillOpacity": 10,
+            "lineWidth": 2,
+            "spanNulls": false
+          }
+        }
+      },
+      "options": {
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        },
+        "legend": {
+          "displayMode": "table",
+          "placement": "bottom",
+          "calcs": [
+            "mean",
+            "max",
+            "lastNotNull"
+          ]
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "vendix-prometheus"
+          },
+          "expr": "sum(rate(http_server_requests_seconds_count{application=\"store\", status=~\"2..\", uri!~\"/actuator.*\"}[1m])) or on() vector(0)",
+          "legendFormat": "2xx",
+          "refId": "A",
+          "interval": "5s"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "vendix-prometheus"
+          },
+          "expr": "sum(rate(http_server_requests_seconds_count{application=\"store\", status=~\"4..\", uri!~\"/actuator.*\"}[1m])) or on() vector(0)",
+          "legendFormat": "4xx",
+          "refId": "B",
+          "interval": "5s"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "vendix-prometheus"
+          },
+          "expr": "sum(rate(http_server_requests_seconds_count{application=\"store\", status=~\"5..\", uri!~\"/actuator.*\"}[1m])) or on() vector(0)",
+          "legendFormat": "5xx",
+          "refId": "C",
+          "interval": "5s"
+        }
+      ]
+    },
+    {
+      "id": 20,
+      "type": "row",
+      "title": "\ud83d\udd25 System-S\u00e4ttigung (Store)",
+      "gridPos": {
+        "x": 0,
+        "y": 39,
+        "w": 24,
+        "h": 1
+      },
+      "collapsed": false
+    },
+    {
+      "id": 21,
+      "type": "timeseries",
+      "title": "Tomcat Threads \u2013 Store",
+      "gridPos": {
+        "x": 0,
+        "y": 40,
+        "w": 8,
+        "h": 7
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "vendix-prometheus"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "fillOpacity": 10,
+            "lineWidth": 2,
+            "spanNulls": false,
+            "thresholdsStyle": {
+              "mode": "line"
+            }
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "yellow",
+                "value": 150
+              },
+              {
+                "color": "red",
+                "value": 190
+              }
+            ]
+          }
+        }
+      },
+      "options": {
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        },
+        "legend": {
+          "displayMode": "table",
+          "placement": "bottom",
+          "calcs": [
+            "mean",
+            "max",
+            "lastNotNull"
+          ]
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "vendix-prometheus"
+          },
+          "expr": "tomcat_threads_busy{application=\"store\"} or on() vector(0)",
+          "legendFormat": "Busy",
+          "refId": "A",
+          "interval": "5s"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "vendix-prometheus"
+          },
+          "expr": "tomcat_threads_current{application=\"store\"} or on() vector(0)",
+          "legendFormat": "Aktuell",
+          "refId": "B",
+          "interval": "5s"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "vendix-prometheus"
+          },
+          "expr": "tomcat_threads_config_max{application=\"store\"} or on() vector(0)",
+          "legendFormat": "Max",
+          "refId": "C",
+          "interval": "5s"
+        }
+      ]
+    },
+    {
+      "id": 22,
+      "type": "timeseries",
+      "title": "HikariCP Connection Pool \u2013 Store",
+      "gridPos": {
+        "x": 8,
+        "y": 40,
+        "w": 8,
+        "h": 7
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "vendix-prometheus"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "fillOpacity": 10,
+            "lineWidth": 2,
+            "spanNulls": false,
+            "thresholdsStyle": {
+              "mode": "line"
+            }
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "yellow",
+                "value": 8
+              },
+              {
+                "color": "red",
+                "value": 10
+              }
+            ]
+          }
+        }
+      },
+      "options": {
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        },
+        "legend": {
+          "displayMode": "table",
+          "placement": "bottom",
+          "calcs": [
+            "mean",
+            "max",
+            "lastNotNull"
+          ]
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "vendix-prometheus"
+          },
+          "expr": "hikaricp_connections_active{application=\"store\"}",
+          "legendFormat": "Aktiv",
+          "refId": "A",
+          "interval": "5s"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "vendix-prometheus"
+          },
+          "expr": "hikaricp_connections_idle{application=\"store\"}",
+          "legendFormat": "Idle",
+          "refId": "B",
+          "interval": "5s"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "vendix-prometheus"
+          },
+          "expr": "hikaricp_connections_pending{application=\"store\"}",
+          "legendFormat": "Wartend",
+          "refId": "C",
+          "interval": "5s"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "vendix-prometheus"
+          },
+          "expr": "hikaricp_connections_max{application=\"store\"}",
+          "legendFormat": "Max",
+          "refId": "D",
+          "interval": "5s"
+        }
+      ]
+    },
+    {
+      "id": 23,
+      "type": "timeseries",
+      "title": "JVM Heap & CPU \u2013 Store",
+      "gridPos": {
+        "x": 16,
+        "y": 40,
+        "w": 8,
+        "h": 7
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "vendix-prometheus"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "percent",
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "fillOpacity": 10,
+            "lineWidth": 2,
+            "spanNulls": false,
+            "thresholdsStyle": {
+              "mode": "line"
+            }
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "yellow",
+                "value": 70
+              },
+              {
+                "color": "red",
+                "value": 90
+              }
+            ]
+          }
+        }
+      },
+      "options": {
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        },
+        "legend": {
+          "displayMode": "table",
+          "placement": "bottom",
+          "calcs": [
+            "mean",
+            "max",
+            "lastNotNull"
+          ]
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "vendix-prometheus"
+          },
+          "expr": "(\n  sum(jvm_memory_used_bytes{application=\"store\", area=\"heap\"})\n/ clamp_min(sum(jvm_memory_max_bytes{application=\"store\", area=\"heap\"}), 1)\n) * 100",
+          "legendFormat": "Heap %",
+          "refId": "A",
+          "interval": "5s"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "vendix-prometheus"
+          },
+          "expr": "process_cpu_usage{application=\"store\"} * 100",
+          "legendFormat": "CPU %",
+          "refId": "B",
+          "interval": "5s"
+        }
+      ]
+    },
+    {
+      "id": 24,
+      "type": "row",
+      "title": "\ud83c\udf9b\ufe0f Orchestrator Status",
+      "gridPos": {
+        "x": 0,
+        "y": 47,
+        "w": 24,
+        "h": 1
+      },
+      "collapsed": false
+    },
+    {
+      "id": 25,
+      "type": "timeseries",
+      "title": "Orchestrator Response Time",
+      "gridPos": {
+        "x": 0,
+        "y": 48,
+        "w": 12,
+        "h": 7
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "vendix-prometheus"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "ms",
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "fillOpacity": 10,
+            "lineWidth": 2,
+            "spanNulls": false
+          }
+        }
+      },
+      "options": {
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        },
+        "legend": {
+          "displayMode": "table",
+          "placement": "bottom",
+          "calcs": [
+            "mean",
+            "max",
+            "lastNotNull"
+          ]
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "vendix-prometheus"
+          },
+          "expr": "(\n  sum(rate(http_server_requests_seconds_sum{application=\"orchestrator\", uri!~\"/actuator.*\"}[1m]))\n/ clamp_min(sum(rate(http_server_requests_seconds_count{application=\"orchestrator\", uri!~\"/actuator.*\"}[1m])), 0.001)\n) * 1000 or on() vector(0)",
+          "legendFormat": "\u00d8 (ms)",
+          "refId": "A",
+          "interval": "5s"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "vendix-prometheus"
+          },
+          "expr": "histogram_quantile(0.95, sum by(le) (\n  rate(http_server_requests_seconds_bucket{application=\"orchestrator\", uri!~\"/actuator.*\"}[1m])\n)) * 1000 or on() vector(0)",
+          "legendFormat": "P95 (ms)",
+          "refId": "B",
+          "interval": "5s"
+        }
+      ]
+    },
+    {
+      "id": 26,
+      "type": "timeseries",
+      "title": "Orchestrator Requests/s",
+      "gridPos": {
+        "x": 12,
+        "y": 48,
+        "w": 12,
+        "h": 7
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "vendix-prometheus"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "reqps",
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "fillOpacity": 10,
+            "lineWidth": 2,
+            "spanNulls": false
+          }
+        }
+      },
+      "options": {
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        },
+        "legend": {
+          "displayMode": "table",
+          "placement": "bottom",
+          "calcs": [
+            "mean",
+            "max",
+            "lastNotNull"
+          ]
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "vendix-prometheus"
+          },
+          "expr": "sum(rate(http_server_requests_seconds_count{application=\"orchestrator\", status=~\"2..\", uri!~\"/actuator.*\"}[1m])) or on() vector(0)",
+          "legendFormat": "\u2705 2xx",
+          "refId": "A",
+          "interval": "5s"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "vendix-prometheus"
+          },
+          "expr": "sum(rate(http_server_requests_seconds_count{application=\"orchestrator\", status=~\"4..|5..\", uri!~\"/actuator.*\"}[1m])) or on() vector(0)",
+          "legendFormat": "\u274c Fehler",
+          "refId": "B",
+          "interval": "5s"
+        }
+      ]
+    }
+  ],
+  "templating": {
+    "list": []
+  },
+  "annotations": {
+    "list": []
+  }
+}
