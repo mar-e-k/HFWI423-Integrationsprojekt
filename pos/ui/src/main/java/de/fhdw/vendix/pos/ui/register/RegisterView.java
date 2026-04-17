@@ -5,9 +5,10 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.Route;
 import de.fhdw.vendix.commons.api.domain.account_role.Role;
 import de.fhdw.vendix.pos.ui.PosAppLayout;
-import de.fhdw.vendix.pos.ui.RegisterController;
 import de.fhdw.vendix.pos.ui.register.action_pad.ActionPad;
 import de.fhdw.vendix.pos.ui.register.article_search.ArticleSearch;
+import de.fhdw.vendix.pos.ui.register.article_search.ArticleSearchController;
+import de.fhdw.vendix.pos.ui.register.controller.RegisterController;
 import de.fhdw.vendix.pos.ui.register.receipt_view.ReceiptList;
 import de.fhdw.vendix.pos.web.client.store.StoreClients;
 import jakarta.annotation.security.RolesAllowed;
@@ -18,13 +19,14 @@ public class RegisterView extends HorizontalLayout {
 
     public RegisterView(
             StoreClients storeClients,
-            Cart cart,
+            CartService cartService,
             RegisterState state,
-            RegisterController controller
+            RegisterController controller,
+            ArticleSearchController searchController
     ) {
 
-        ReceiptList receiptList = new ReceiptList(cart, state);
-        ArticleSearch articleSearch = new ArticleSearch(storeClients.article(), state);
+        ReceiptList receiptList = new ReceiptList(cartService, state);
+        ArticleSearch articleSearch = new ArticleSearch(searchController, state);
 
         ActionPad actionPad = new ActionPad(
                 state,

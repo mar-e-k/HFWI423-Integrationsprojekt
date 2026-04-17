@@ -1,59 +1,15 @@
-INSERT INTO article (article_number, description, manufacturer, name, purchase_price, selling_price, stock_level, supplier, tax_rate_percent, unit, is_available, has_deposit)
-VALUES ('10000001', 'apfel', 'FreshFarms', 'Apfel', 0.80, 1.20, 50, 'EuroFruit GmbH', 7.7, 'kg', true, false)
-ON CONFLICT DO NOTHING;
-
-INSERT INTO article (article_number, description, manufacturer, name, purchase_price, selling_price, stock_level, supplier, tax_rate_percent, unit, is_available, has_deposit)
-VALUES ('10000002', 'birne', 'FreshFarms', 'Birne', 0.90, 1.30, 40, 'EuroFruit GmbH', 7.7, 'kg', true, false)
-ON CONFLICT DO NOTHING;
-
-INSERT INTO article (article_number, description, manufacturer, name, purchase_price, selling_price, stock_level, supplier, tax_rate_percent, unit, is_available, has_deposit)
-VALUES ('10000003', 'banane', 'TropicTrade', 'Banane', 0.70, 1.10, 60, 'GlobalFruit AG', 7.7, 'kg', true, false)
-ON CONFLICT DO NOTHING;
-
-INSERT INTO article (article_number, description, manufacturer, name, purchase_price, selling_price, stock_level, supplier, tax_rate_percent, unit, is_available, has_deposit)
-VALUES ('10000004', 'orange', 'CitrusCo', 'Orange', 0.85, 1.40, 55, 'Mediterranean Supply', 7.7, 'kg', true, false)
-ON CONFLICT DO NOTHING;
-
-INSERT INTO article (article_number, description, manufacturer, name, purchase_price, selling_price, stock_level, supplier, tax_rate_percent, unit, is_available, has_deposit)
-VALUES ('10000005', 'traube', 'Vineyard Select', 'Traube', 1.50, 2.30, 30, 'EuroFruit GmbH', 7.7, 'kg', true, false)
-ON CONFLICT DO NOTHING;
-
-INSERT INTO article (article_number, description, manufacturer, name, purchase_price, selling_price, stock_level, supplier, tax_rate_percent, unit, is_available, has_deposit)
-VALUES ('10000006', 'mango', 'TropicTrade', 'Mango', 1.80, 2.90, 25, 'GlobalFruit AG', 7.7, 'pcs', true, false)
-ON CONFLICT DO NOTHING;
-
-INSERT INTO article (article_number, description, manufacturer, name, purchase_price, selling_price, stock_level, supplier, tax_rate_percent, unit, is_available, has_deposit)
-VALUES ('10000007', 'ananas', 'TropicTrade', 'Ananas', 2.20, 3.50, 20, 'GlobalFruit AG', 7.7, 'pcs', true, false)
-ON CONFLICT DO NOTHING;
-
-INSERT INTO article (article_number, description, manufacturer, name, purchase_price, selling_price, stock_level, supplier, tax_rate_percent, unit, is_available, has_deposit)
-VALUES ('10000008', 'kiwi', 'GreenWorld', 'Kiwi', 1.00, 1.80, 45, 'Mediterranean Supply', 7.7, 'kg', true, false)
-ON CONFLICT DO NOTHING;
-
-INSERT INTO article (article_number, description, manufacturer, name, purchase_price, selling_price, stock_level, supplier, tax_rate_percent, unit, is_available, has_deposit)
-VALUES ('10000009', 'erdbeere', 'BerryBest', 'Erdbeere', 2.50, 3.90, 35, 'FreshFarms Ltd.', 7.7, 'kg', true, false)
-ON CONFLICT DO NOTHING;
-
-INSERT INTO article (article_number, description, manufacturer, name, purchase_price, selling_price, stock_level, supplier, tax_rate_percent, unit, is_available, has_deposit)
-VALUES ('10000010', 'blaubeere', 'BerryBest', 'Blaubeere', 3.00, 4.50, 28, 'FreshFarms Ltd.', 7.7, 'kg', true, false)
-ON CONFLICT DO NOTHING;
-
-INSERT INTO article (article_number, description, manufacturer, name, purchase_price, selling_price, stock_level, supplier, tax_rate_percent, unit, is_available, has_deposit)
-VALUES ('10000011', 'pfirsich', 'StoneFruit Co', 'Pfirsich', 1.40, 2.10, 33, 'EuroFruit GmbH', 7.7, 'kg', true, false)
-ON CONFLICT DO NOTHING;
-
-INSERT INTO article (article_number, description, manufacturer, name, purchase_price, selling_price, stock_level, supplier, tax_rate_percent, unit, is_available, has_deposit)
-VALUES ('10000012', 'pflaume', 'StoneFruit Co', 'Pflaume', 1.20, 1.90, 38, 'EuroFruit GmbH', 7.7, 'kg', true, false)
-ON CONFLICT DO NOTHING;
-
-INSERT INTO article (article_number, description, manufacturer, name, purchase_price, selling_price, stock_level, supplier, tax_rate_percent, unit, is_available, has_deposit)
-VALUES ('10000013', 'zitrone', 'CitrusCo', 'Zitrone', 0.60, 1.00, 70, 'Mediterranean Supply', 7.7, 'kg', true, false)
-ON CONFLICT DO NOTHING;
-
-INSERT INTO article (article_number, description, manufacturer, name, purchase_price, selling_price, stock_level, supplier, tax_rate_percent, unit, is_available, has_deposit)
-VALUES ('10000014', 'limette', 'CitrusCo', 'Limette', 0.75, 1.20, 65, 'Mediterranean Supply', 7.7, 'kg', true, false)
-ON CONFLICT DO NOTHING;
-
-INSERT INTO article (article_number, description, manufacturer, name, purchase_price, selling_price, stock_level, supplier, tax_rate_percent, unit, is_available, has_deposit)
-VALUES ('10000015', 'wassermelone', 'SummerFresh', 'Wassermelone', 4.00, 6.50, 15, 'GlobalFruit AG', 7.7, 'pcs', true, false)
-ON CONFLICT DO NOTHING;
+INSERT INTO article (article_number, description, manufacturer, name, purchase_price, selling_price, stock_level, supplier, tax_rate_percent, unit, is_available, has_deposit) VALUES ('10000001', 'apfel', 'FreshFarms', 'Apfel', 0.80, 1.20, 50, 'EuroFruit GmbH', 7.7, 'kg', true, false) ON CONFLICT DO NOTHING;
+INSERT INTO article (article_number, description, manufacturer, name, purchase_price, selling_price, stock_level, supplier, tax_rate_percent, unit, is_available, has_deposit) VALUES ('10000002', 'birne', 'FreshFarms', 'Birne', 0.90, 1.30, 40, 'EuroFruit GmbH', 7.7, 'kg', true, false) ON CONFLICT DO NOTHING;
+INSERT INTO article (article_number, description, manufacturer, name, purchase_price, selling_price, stock_level, supplier, tax_rate_percent, unit, is_available, has_deposit) VALUES ('10000003', 'banane', 'TropicTrade', 'Banane', 0.70, 1.10, 60, 'GlobalFruit AG', 7.7, 'kg', true, false) ON CONFLICT DO NOTHING;
+INSERT INTO article (article_number, description, manufacturer, name, purchase_price, selling_price, stock_level, supplier, tax_rate_percent, unit, is_available, has_deposit) VALUES ('10000004', 'orange', 'CitrusCo', 'Orange', 0.85, 1.40, 55, 'Mediterranean Supply', 7.7, 'kg', true, false) ON CONFLICT DO NOTHING;
+INSERT INTO article (article_number, description, manufacturer, name, purchase_price, selling_price, stock_level, supplier, tax_rate_percent, unit, is_available, has_deposit) VALUES ('10000005', 'traube', 'Vineyard Select', 'Traube', 1.50, 2.30, 30, 'EuroFruit GmbH', 7.7, 'kg', true, false) ON CONFLICT DO NOTHING;
+INSERT INTO article (article_number, description, manufacturer, name, purchase_price, selling_price, stock_level, supplier, tax_rate_percent, unit, is_available, has_deposit) VALUES ('10000006', 'mango', 'TropicTrade', 'Mango', 1.80, 2.90, 25, 'GlobalFruit AG', 7.7, 'pcs', true, false) ON CONFLICT DO NOTHING;
+INSERT INTO article (article_number, description, manufacturer, name, purchase_price, selling_price, stock_level, supplier, tax_rate_percent, unit, is_available, has_deposit) VALUES ('10000007', 'ananas', 'TropicTrade', 'Ananas', 2.20, 3.50, 20, 'GlobalFruit AG', 7.7, 'pcs', true, false) ON CONFLICT DO NOTHING;
+INSERT INTO article (article_number, description, manufacturer, name, purchase_price, selling_price, stock_level, supplier, tax_rate_percent, unit, is_available, has_deposit) VALUES ('10000008', 'kiwi', 'GreenWorld', 'Kiwi', 1.00, 1.80, 45, 'Mediterranean Supply', 7.7, 'kg', true, false) ON CONFLICT DO NOTHING;
+INSERT INTO article (article_number, description, manufacturer, name, purchase_price, selling_price, stock_level, supplier, tax_rate_percent, unit, is_available, has_deposit) VALUES ('10000009', 'erdbeere', 'BerryBest', 'Erdbeere', 2.50, 3.90, 35, 'FreshFarms Ltd.', 7.7, 'kg', true, false) ON CONFLICT DO NOTHING;
+INSERT INTO article (article_number, description, manufacturer, name, purchase_price, selling_price, stock_level, supplier, tax_rate_percent, unit, is_available, has_deposit) VALUES ('10000010', 'blaubeere', 'BerryBest', 'Blaubeere', 3.00, 4.50, 28, 'FreshFarms Ltd.', 7.7, 'kg', true, false) ON CONFLICT DO NOTHING;
+INSERT INTO article (article_number, description, manufacturer, name, purchase_price, selling_price, stock_level, supplier, tax_rate_percent, unit, is_available, has_deposit) VALUES ('10000011', 'pfirsich', 'StoneFruit Co', 'Pfirsich', 1.40, 2.10, 33, 'EuroFruit GmbH', 7.7, 'kg', true, false) ON CONFLICT DO NOTHING;
+INSERT INTO article (article_number, description, manufacturer, name, purchase_price, selling_price, stock_level, supplier, tax_rate_percent, unit, is_available, has_deposit) VALUES ('10000012', 'pflaume', 'StoneFruit Co', 'Pflaume', 1.20, 1.90, 38, 'EuroFruit GmbH', 7.7, 'kg', true, false) ON CONFLICT DO NOTHING;
+INSERT INTO article (article_number, description, manufacturer, name, purchase_price, selling_price, stock_level, supplier, tax_rate_percent, unit, is_available, has_deposit) VALUES ('10000013', 'zitrone', 'CitrusCo', 'Zitrone', 0.60, 1.00, 70, 'Mediterranean Supply', 7.7, 'kg', true, false) ON CONFLICT DO NOTHING;
+INSERT INTO article (article_number, description, manufacturer, name, purchase_price, selling_price, stock_level, supplier, tax_rate_percent, unit, is_available, has_deposit) VALUES ('10000014', 'limette', 'CitrusCo', 'Limette', 0.75, 1.20, 65, 'Mediterranean Supply', 7.7, 'kg', true, false) ON CONFLICT DO NOTHING;
+INSERT INTO article (article_number, description, manufacturer, name, purchase_price, selling_price, stock_level, supplier, tax_rate_percent, unit, is_available, has_deposit) VALUES ('10000015', 'wassermelone', 'SummerFresh', 'Wassermelone', 4.00, 6.50, 15, 'GlobalFruit AG', 7.7, 'pcs', true, false) ON CONFLICT DO NOTHING;

@@ -15,11 +15,6 @@ import java.util.UUID;
 @Entity
 public class Voucher extends AbstractSpringDataAuditingEntity<Long> {
 
-    @NotNull(message = "Receipt ID cannot be null")
-    @Min(value = 1, message = "Receipt ID must be at least 1")
-    @Column(nullable = false)
-    private Long receiptId;
-
     @NotNull(message = "Code cannot be null")
     @Column(nullable = false, unique = true)
     private UUID code;
@@ -33,35 +28,27 @@ public class Voucher extends AbstractSpringDataAuditingEntity<Long> {
 
     protected Voucher() {}
 
-    protected Voucher(Long receiptId, UUID code) {
-        this.receiptId = receiptId;
+    protected Voucher(UUID code) {
         this.code = code;
     }
 
-    public Voucher(@Nullable Long id, Long receiptId, UUID code) {
+    public Voucher(@Nullable Long id, UUID code) {
         super(id);
-        this.receiptId = receiptId;
         this.code = code;
     }
 
-    public Voucher(Long receiptId, UUID code, @Nullable Instant expiresAt, @Nullable Instant redeemedAt) {
-        this.receiptId = receiptId;
+    public Voucher(UUID code, @Nullable Instant expiresAt, @Nullable Instant redeemedAt) {
         this.code = code;
         this.expiresAt = expiresAt;
         this.redeemedAt = redeemedAt;
     }
 
     @Default
-    protected Voucher(@Nullable Long id, Long receiptId, UUID code, @Nullable Instant expiresAt, @Nullable Instant redeemedAt) {
+    protected Voucher(@Nullable Long id, UUID code, @Nullable Instant expiresAt, @Nullable Instant redeemedAt) {
         super(id);
-        this.receiptId = receiptId;
         this.code = code;
         this.expiresAt = expiresAt;
         this.redeemedAt = redeemedAt;
-    }
-
-    public Long getReceiptId() {
-        return receiptId;
     }
 
     public UUID getCode() {
@@ -76,7 +63,7 @@ public class Voucher extends AbstractSpringDataAuditingEntity<Long> {
         return redeemedAt;
     }
 
-    public Voucher redeem() {
+    public Voucher redeem() throws VoucherExpiredException, VoucherAlreadyRedeemedException {
         if (expiresAt != null && expiresAt.isBefore(Instant.now())) {
             throw new VoucherExpiredException("Voucher has already expired and cannot be redeemed");
         }

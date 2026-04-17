@@ -5,19 +5,20 @@ import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
-import de.fhdw.vendix.pos.ui.register.Cart;
+import de.fhdw.vendix.pos.ui.register.CartService;
+import de.fhdw.vendix.pos.ui.register.CartLine;
 import de.fhdw.vendix.pos.ui.register.RegisterState;
 
 import java.math.BigDecimal;
 
 public class ReceiptList extends VerticalLayout {
 
-    private final Cart cart;
+    private final CartService cartService;
     private final Grid<CartLine> grid = new Grid<>(CartLine.class, false);
     private final RegisterState state;
 
-    public ReceiptList(Cart cart, RegisterState state) {
-        this.cart = cart;
+    public ReceiptList(CartService cartService, RegisterState state) {
+        this.cartService = cartService;
         this.state = state;
 
         setHeightFull();
@@ -52,7 +53,7 @@ public class ReceiptList extends VerticalLayout {
     }
 
     private String renderIndexColumn(CartLine line) {
-        int index = cart.getCartLines().indexOf(line) + 1;
+        int index = cartService.getCartLines().indexOf(line) + 1;
         return String.valueOf(index);
     }
 
@@ -100,6 +101,6 @@ public class ReceiptList extends VerticalLayout {
         return layout;
     }
     public void refresh() {
-        grid.setItems(cart.getCartLines());
+        grid.setItems(cartService.getCartLines());
     }
 }

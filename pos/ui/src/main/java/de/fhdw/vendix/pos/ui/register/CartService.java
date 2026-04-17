@@ -2,11 +2,11 @@ package de.fhdw.vendix.pos.ui.register;
 
 import com.vaadin.flow.spring.security.AuthenticationContext;
 import de.fhdw.vendix.commons.api.domain.article.ArticleDTO;
+import de.fhdw.vendix.commons.api.domain.receipt.PaymentMethod;
 import de.fhdw.vendix.commons.api.domain.receipt.ReceiptDTO;
 import de.fhdw.vendix.commons.api.domain.receipt_line.ReceiptLineDTO;
 import de.fhdw.vendix.commons.spring.security.context.auth.DefaultUser;
 import de.fhdw.vendix.pos.core.register.RegisterContext;
-import de.fhdw.vendix.pos.ui.register.receipt_view.CartLine;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -18,15 +18,15 @@ import java.util.Objects;
 
 @Component
 @SessionScope
-public class Cart {
+public class CartService {
 
-    private static final Logger log = LoggerFactory.getLogger(Cart.class);
+    private static final Logger log = LoggerFactory.getLogger(CartService.class);
 
     private final RegisterContext registerContext;
     private final AuthenticationContext authenticationContext;
     private final List<CartLine> cartLines = new LinkedList<>();
 
-    public Cart(RegisterContext registerContext, AuthenticationContext authenticationContext) {
+    public CartService(RegisterContext registerContext, AuthenticationContext authenticationContext) {
         this.registerContext = registerContext;
         this.authenticationContext = authenticationContext;
     }
@@ -95,7 +95,8 @@ public class Cart {
                     null,
                     registerContext.getRegister().id(),
                     registerContext.getRegister().storeId(),
-                    cashier.authContext().account().id()
+                    cashier.authContext().account().id(),
+                    PaymentMethod.CARD
             );
             log.atDebug().log("Successfully generated receipt");
             clearCart();

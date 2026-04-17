@@ -1,7 +1,7 @@
-package de.fhdw.vendix.pos.ui;
+package de.fhdw.vendix.pos.ui.register.controller;
 
 import com.vaadin.flow.component.notification.Notification;
-import de.fhdw.vendix.pos.ui.register.Cart;
+import de.fhdw.vendix.pos.ui.register.CartService;
 import de.fhdw.vendix.pos.ui.register.RegisterState;
 import org.springframework.stereotype.Component;
 import org.springframework.web.context.annotation.SessionScope;
@@ -10,11 +10,11 @@ import org.springframework.web.context.annotation.SessionScope;
 @SessionScope
 public class RegisterController {
 
-    private final Cart cart;
+    private final CartService cartService;
     private final RegisterState state;
 
-    public RegisterController(Cart cart, RegisterState state) {
-        this.cart = cart;
+    public RegisterController(CartService cartService, RegisterState state) {
+        this.cartService = cartService;
         this.state = state;
     }
 
@@ -26,6 +26,6 @@ public class RegisterController {
             return;
         }
 
-        cart.addLine(article.get(), state.getAmount());
+        cartService.addLine(article.get(), state.getAmount());
     }
 }

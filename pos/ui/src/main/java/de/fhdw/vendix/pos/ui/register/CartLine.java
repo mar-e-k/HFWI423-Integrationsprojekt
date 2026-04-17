@@ -1,9 +1,11 @@
-package de.fhdw.vendix.pos.ui.register.receipt_view;
+package de.fhdw.vendix.pos.ui.register;
 
 import de.fhdw.vendix.commons.api.domain.article.ArticleDTO;
 import de.fhdw.vendix.commons.api.domain.receipt_line.ReceiptLineDTO;
+import de.fhdw.vendix.pos.ui.register.receipt_view.PriceResult;
 
 import java.math.BigDecimal;
+import java.util.Objects;
 
 public record CartLine(
         ReceiptLineDTO line,
@@ -15,6 +17,9 @@ public record CartLine(
         }
         if (article == null) {
             throw new IllegalArgumentException("Parameter 'line' cannot be null");
+        }
+        if (!Objects.equals(line.articleId(), article.id())) {
+            throw new IllegalArgumentException("Line article ID and article ID do not match");
         }
     }
 

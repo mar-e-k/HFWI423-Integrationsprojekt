@@ -1,9 +1,12 @@
 package de.fhdw.vendix.store.core.domain.receipt;
 
+import de.fhdw.vendix.commons.api.domain.receipt.PaymentMethod;
 import de.fhdw.vendix.commons.api.structure.mapper.Default;
 import de.fhdw.vendix.commons.spring.data.entity.AbstractSpringDataAuditingEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
 import org.jspecify.annotations.Nullable;
@@ -26,20 +29,27 @@ public class Receipt extends AbstractSpringDataAuditingEntity<Long> {
     @Column(nullable = false)
     private Long cashierId;
 
+    @Enumerated(EnumType.STRING)
+    @NotNull(message = "Payment method cannot be null")
+    @Column(nullable = false)
+    private PaymentMethod paymentMethod;
+
     protected Receipt() {}
 
-    public Receipt(Long storeId, Long registerId, Long cashierId) {
+    public Receipt(Long storeId, Long registerId, Long cashierId, PaymentMethod paymentMethod) {
         this.storeId = storeId;
         this.registerId = registerId;
         this.cashierId = cashierId;
+        this.paymentMethod = paymentMethod;
     }
 
     @Default
-    protected Receipt(@Nullable Long id, Long storeId, Long registerId, Long cashierId) {
+    protected Receipt(@Nullable Long id, Long storeId, Long registerId, Long cashierId, PaymentMethod paymentMethod) {
         super(id);
         this.storeId = storeId;
         this.registerId = registerId;
         this.cashierId = cashierId;
+        this.paymentMethod = paymentMethod;
     }
 
     public Long getStoreId() {
@@ -52,5 +62,9 @@ public class Receipt extends AbstractSpringDataAuditingEntity<Long> {
 
     public Long getCashierId() {
         return cashierId;
+    }
+
+    public PaymentMethod getPaymentMethod() {
+        return paymentMethod;
     }
 }
