@@ -27,7 +27,7 @@ public interface ContingentRepository extends JpaRepository<Contingent, Long> {
             """)
     long countNewArticles();
 
-    @Modifying
+    @Modifying(clearAutomatically = true, flushAutomatically = true)
     @Query("delete from Contingent c where c.articleId in :ids")
     int deleteByArticleIdIn(@Param("ids") Collection<Long> ids);
 }

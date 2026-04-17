@@ -61,7 +61,7 @@ public interface ArticleInfoRepository
     
     int deleteByArticleId(Long articleId);
 
-    @Modifying
+    @Modifying(clearAutomatically = true, flushAutomatically = true)
     @Query("delete from ArticleInfo a where a.articleNumber like 'SIM-%'")
     int deleteAllSimArticles();
 

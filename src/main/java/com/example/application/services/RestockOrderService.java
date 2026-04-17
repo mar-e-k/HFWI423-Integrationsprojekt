@@ -2,12 +2,14 @@ package com.example.application.services;
 
 import com.example.application.amqp.einkaufEvents.EinkaufEventPublisher;
 import com.example.application.data.articleInfo.ArticleInfo;
+import com.example.application.data.articleInfo.ArticleInfoRepository;
 import com.example.application.data.articleInfo.RestockItem;
 import com.example.application.data.contingent.Contingent;
 import com.example.application.data.contingent.ContingentRepository;
 import com.example.application.data.restockorder.RestockOrder;
 import com.example.application.data.restockorder.RestockOrderRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
 import java.util.Comparator;
@@ -20,22 +22,40 @@ public class RestockOrderService {
     private final RestockOrderRepository restockOrderRepository;
     private final ContingentRepository contingentRepository;
     private final EinkaufEventPublisher einkaufEventPublisher;
+    private final ArticleInfoRepository articleInfoRepository;
 
     public RestockOrderService(RestockOrderRepository restockOrderRepository,
                                ContingentRepository contingentRepository,
-                               EinkaufEventPublisher einkaufEventPublisher) {
+                               EinkaufEventPublisher einkaufEventPublisher,
+                               ArticleInfoRepository articleInfoRepository) {
         this.restockOrderRepository = restockOrderRepository;
         this.contingentRepository = contingentRepository;
         this.einkaufEventPublisher = einkaufEventPublisher;
+        this.articleInfoRepository = articleInfoRepository;
     }
 
     /**
      * Vereinfachte Nachbestellung fuer den Lasttest – ohne Kontingent-Pruefung.
      * Lasttest-Artikel haben keine echten Contingent-Eintraege.
+     * REQUIRES_NEW: jeder Versuch hat eine eigene Transaktion, damit ein Fehler
+     * fuer einen Artikel nicht die aeussere Transaktion als rollback-only markiert.
      */
-    @Transactional
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
     public RestockOrder approveOrderForLoadTest(RestockItem item) {
         ArticleInfo article = item.getArticle();
+
+        // Pessimistischer Lock auf den Artikel-Datensatz – serialisiert konkurrierende Threads
+        // pro Artikel. Erst wenn Thread A committed (Lock frei), kann Thread B weitermachen
+        // und sieht dann die bereits vorhandene Bestellung.
+        articleInfoRepository.findByIdForUpdate(article.getId())
+                .orElseThrow(() -> new IllegalStateException(
+                        "Artikel nicht gefunden: " + article.getId()));
+
+        // Nochmals pruefen (innerhalb des Locks): existiert schon eine offene Bestellung?
+        if (restockOrderRepository.existsByArticleNumberAndDeliveredFalse(article.getArticleNumber())) {
+            throw new IllegalStateException(
+                    "Offene Bestellung fuer " + article.getArticleNumber() + " existiert bereits");
+        }
 
         Integer palletsToOrder = item.getOrderAmount();
         if (palletsToOrder == null || palletsToOrder <= 0) {

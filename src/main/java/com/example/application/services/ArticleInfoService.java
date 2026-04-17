@@ -2,6 +2,7 @@ package com.example.application.services;
 
 import com.example.application.data.articleInfo.ArticleInfo;
 import com.example.application.data.articleInfo.ArticleInfoRepository;
+import org.springframework.jdbc.core.JdbcTemplate;
 import com.example.application.data.storageLocation.StorageLocation;
 import com.vaadin.flow.component.html.Article;
 import org.springframework.stereotype.Service;
@@ -23,6 +24,7 @@ import com.example.application.data.storageLocation.StorageLocation;
 public class ArticleInfoService {
 
     private final ArticleInfoRepository articleInfoRepository;
+    private final JdbcTemplate jdbc;
 
     private final StorageLocationService storageLocationService;
 
@@ -60,11 +62,14 @@ public class ArticleInfoService {
         return articleInfoRepository.count(filter);
     }
 
-    public ArticleInfoService(ArticleInfoRepository repository, StorageLocationService storageLocationService,
-                              StockChangeLogRepository logRepository) {
+    public ArticleInfoService(ArticleInfoRepository repository,
+                              StorageLocationService storageLocationService,
+                              StockChangeLogRepository logRepository,
+                              JdbcTemplate jdbc) {
         this.articleInfoRepository = repository;
         this.storageLocationService = storageLocationService;
         this.logRepository = logRepository;
+        this.jdbc = jdbc;
     }
 
     private final StockChangeLogRepository logRepository;
@@ -224,7 +229,33 @@ public class ArticleInfoService {
 
     @Transactional
     public int deleteSimArticles() {
-        return articleInfoRepository.deleteAllSimArticles();
+        // Schritt 0: Lagerplaetze der SIM-Artikel auf "Available" setzen,
+        // damit beim naechsten Testlauf findAllAvailable() nicht leer ist.
+        List<String> simLocations = jdbc.queryForList(
+                "SELECT storage_location FROM article_info WHERE article_number LIKE 'SIM-%' AND storage_location IS NOT NULL",
+                String.class
+        );
+        for (String generalId : simLocations) {
+            if (generalId == null || generalId.isBlank() || generalId.equalsIgnoreCase("UNGESETZT")) continue;
+            StorageLocation parsed = parseGeneralIdToLocation(generalId);
+            if (parsed != null) {
+                storageLocationService
+                        .findByZoneShelfCompartment(parsed.getStorageZone(), parsed.getShelfID(), parsed.getCompartmentID())
+                        .ifPresent(loc -> {
+                            loc.setStorageStatus("Available");
+                            storageLocationService.save(loc);
+                        });
+            }
+        }
+
+        jdbc.update("DELETE FROM goods_receipt_item" +
+                    " WHERE article_info_id IN (SELECT id FROM article_info WHERE article_number LIKE 'SIM-%')");
+        jdbc.update("DELETE FROM goods_receipt" +
+                    " WHERE id NOT IN (SELECT DISTINCT goods_receipt_id FROM goods_receipt_item)");
+        jdbc.update("DELETE FROM contingent" +
+                    " WHERE article_id IN (SELECT id FROM article_info WHERE article_number LIKE 'SIM-%')");
+        jdbc.update("DELETE FROM restock_order WHERE article_number LIKE 'SIM-%'");
+        return jdbc.update("DELETE FROM article_info WHERE article_number LIKE 'SIM-%'");
     }
 
     //Für spätere Logik

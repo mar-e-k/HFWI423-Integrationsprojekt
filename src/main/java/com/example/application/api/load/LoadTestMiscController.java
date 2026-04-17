@@ -6,6 +6,7 @@ import com.example.application.data.messagingEvent.MessagingEvent;
 import com.example.application.data.restockorder.RestockOrder;
 import com.example.application.data.stockChangeLog.StockChangeLog;
 import com.example.application.data.storageLocation.StorageLocation;
+import com.example.application.data.restockorder.RestockOrderRepository;
 import com.example.application.services.ArticleSyncService;
 import com.example.application.services.MessagingEventService;
 import com.example.application.services.NewArticleCandidate;
@@ -17,6 +18,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.orm.ObjectOptimisticLockingFailureException;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -35,6 +37,7 @@ public class LoadTestMiscController {
 
     private final RestockService restockService;
     private final RestockOrderService restockOrderService;
+    private final RestockOrderRepository restockOrderRepository;
     private final StockChangeLogService stockChangeLogService;
     private final ArticleSyncService articleSyncService;
     private final MessagingEventService messagingEventService;
@@ -42,12 +45,14 @@ public class LoadTestMiscController {
 
     public LoadTestMiscController(RestockService restockService,
                                    RestockOrderService restockOrderService,
+                                   RestockOrderRepository restockOrderRepository,
                                    StockChangeLogService stockChangeLogService,
                                    ArticleSyncService articleSyncService,
                                    MessagingEventService messagingEventService,
                                    StorageLocationService storageLocationService) {
         this.restockService = restockService;
         this.restockOrderService = restockOrderService;
+        this.restockOrderRepository = restockOrderRepository;
         this.stockChangeLogService = stockChangeLogService;
         this.articleSyncService = articleSyncService;
         this.messagingEventService = messagingEventService;
@@ -57,6 +62,7 @@ public class LoadTestMiscController {
     /** GET /api/load/restock – Artikel unter Mindestbestand */
     @GetMapping("/restock")
     public List<RestockItem> restock() {
+        System.out.println("[GET-restock] aufgerufen");
         return restockService.getArticlesToRestock();
     }
 
@@ -68,18 +74,32 @@ public class LoadTestMiscController {
      * 204 No Content      → kein bestellbarer Artikel vorhanden
      */
     @PostMapping("/restock/approve-next")
+    @Transactional
     public ResponseEntity<RestockOrder> approveNextRestock() {
+        int orphansDeleted = restockOrderRepository.deleteOrphanedSimOrders();
+        System.out.println("[approve-next] orphansDeleted=" + orphansDeleted);
+
         List<RestockItem> items = restockService.getArticlesToRestock();
+        System.out.println("[approve-next] restockList.size=" + items.size());
+
         for (RestockItem item : items) {
-            if (item.getOrderAmount() == null || item.getOrderAmount() <= 0) continue;
-            if (restockOrderService.hasOpenOrderForArticle(item.getArticle())) continue;
+            if (item.getOrderAmount() == null || item.getOrderAmount() <= 0) {
+                System.out.println("[approve-next] SKIP (orderAmount) " + item.getArticleNumber() + " orderAmount=" + item.getOrderAmount());
+                continue;
+            }
+            if (restockOrderService.hasOpenOrderForArticle(item.getArticle())) {
+                System.out.println("[approve-next] SKIP (openOrder) " + item.getArticleNumber());
+                continue;
+            }
             try {
                 RestockOrder order = restockOrderService.approveOrderForLoadTest(item);
+                System.out.println("[approve-next] OK orderId=" + order.getId() + " article=" + item.getArticleNumber());
                 return ResponseEntity.ok(order);
             } catch (Exception e) {
-                // naechsten Kandidaten probieren
+                System.out.println("[approve-next] SKIP (exception) " + item.getArticleNumber() + ": " + e.getMessage());
             }
         }
+        System.out.println("[approve-next] 204 – kein Kandidat gefunden");
         return ResponseEntity.noContent().build();
     }
 
@@ -97,6 +117,7 @@ public class LoadTestMiscController {
     @GetMapping("/new-articles")
     public List<NewArticleCandidate> newArticles(
             @RequestParam(defaultValue = "false") boolean lasttest) {
+        System.out.println("[GET-new-articles] aufgerufen lasttest=" + lasttest);
         return lasttest
                 ? articleSyncService.findNewArticlesFromLasttestContingents()
                 : articleSyncService.findNewArticlesFromContingents();
@@ -129,6 +150,16 @@ public class LoadTestMiscController {
      */
     @PostMapping("/new-articles/create-next-with-storage")
     public ResponseEntity<ArticleInfo> createNextNewArticleWithStorage() {
+        long remaining = articleSyncService.countNewArticlesFromLasttest();
+        int availableCount = storageLocationService.findAllAvailable().size();
+        System.out.println("[POST-create-with-storage] remaining=" + remaining + " available=" + availableCount);
+
+        // Fruehzeitiger Abbruch: keine Kandidaten mehr -> sofort 204, kein Lagerplatz-Zugriff noetig
+        if (remaining == 0) {
+            System.out.println("[POST-create-with-storage] remaining=0 -> 204 sofort");
+            return ResponseEntity.noContent().build();
+        }
+
         List<StorageLocation> available = storageLocationService.findAllAvailable();
         if (available.isEmpty()) {
             // Keine Lagerplaetze verfuegbar – aber nur 503 wenn noch Artikel-Kandidaten existieren.

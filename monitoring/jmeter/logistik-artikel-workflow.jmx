@@ -95,11 +95,11 @@
           <hashTree/>
         </hashTree>
 
-        <!-- ── Init: articleDone zuruecksetzen ──────────────────────────────── -->
+        <!-- ── Init: Loop-Variable setzen ──────────────────────────────────── -->
         <JSR223Sampler guiclass="TestBeanGUI" testclass="JSR223Sampler"
                        testname="Init - articleDone zuruecksetzen" enabled="true">
           <stringProp name="scriptLanguage">groovy</stringProp>
-          <stringProp name="script">vars.put("articleDone", "false");</stringProp>
+          <stringProp name="script">vars.put("continueLoop", "true");</stringProp>
           <stringProp name="filename"></stringProp>
           <stringProp name="parameters"></stringProp>
           <boolProp name="cacheKey">true</boolProp>
@@ -107,9 +107,10 @@
         <hashTree/>
 
         <!-- ── WhileController: Artikel anlegen bis Erfolg ───────────────── -->
+        <!-- continueLoop = "false" stoppt den Loop (JMeter beendet bei "false") -->
         <WhileController guiclass="WhileControllerGui" testclass="WhileController"
                          testname="Artikel anlegen bis Erfolg" enabled="true">
-          <stringProp name="WhileController.condition">${__groovy(vars.get("articleDone") != "true",)}</stringProp>
+          <stringProp name="WhileController.condition">${continueLoop}</stringProp>
         </WhileController>
         <hashTree>
 
@@ -146,16 +147,16 @@
             </RegexExtractor>
             <hashTree/>
 
-            <!-- articleDone = "true" nur bei 204 (keine Kandidaten mehr); 200 = weiter anlegen -->
+            <!-- continueLoop = "false" bei 204 (keine Kandidaten mehr) -> WhileController stoppt -->
             <JSR223PostProcessor guiclass="TestBeanGUI" testclass="JSR223PostProcessor"
                                  testname="Erfolg erkennen (204 = fertig)" enabled="true">
               <stringProp name="scriptLanguage">groovy</stringProp>
               <stringProp name="script">
 def code = prev.getResponseCode()
 if (code == "204") {
-    vars.put("articleDone", "true")
+    vars.put("continueLoop", "false")
 } else {
-    vars.put("articleDone", "false")
+    vars.put("continueLoop", "true")
 }
               </stringProp>
               <boolProp name="cacheKey">true</boolProp>
@@ -298,6 +299,219 @@ if (code == "204") {
               <hashTree/>
             </hashTree>
 
+          </hashTree>
+
+        </hashTree>
+
+        <!-- ══════════════════════════════════════════════════════════════════
+             PHASE 2: Restock freigeben – alle Bestellungen abarbeiten
+             ══════════════════════════════════════════════════════════════════ -->
+
+        <JSR223Sampler guiclass="TestBeanGUI" testclass="JSR223Sampler"
+                       testname="Init - Restock Loop" enabled="true">
+          <stringProp name="scriptLanguage">groovy</stringProp>
+          <stringProp name="script">vars.put("continueApprove", "true");</stringProp>
+          <stringProp name="filename"></stringProp>
+          <stringProp name="parameters"></stringProp>
+          <boolProp name="cacheKey">true</boolProp>
+        </JSR223Sampler>
+        <hashTree/>
+
+        <WhileController guiclass="WhileControllerGui" testclass="WhileController"
+                         testname="Bestellungen freigeben bis fertig" enabled="true">
+          <stringProp name="WhileController.condition">${continueApprove}</stringProp>
+        </WhileController>
+        <hashTree>
+
+          <!-- Schritt 6: Zur Restock-Ansicht navigieren -->
+          <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy"
+                            testname="Nav - Nachbestellliste oeffnen" enabled="true">
+            <boolProp name="HTTPSampler.postBodyRaw">false</boolProp>
+            <elementProp name="HTTPsampler.Arguments" elementType="Arguments">
+              <collectionProp name="Arguments.arguments"/>
+            </elementProp>
+            <stringProp name="HTTPSampler.domain">${__P(host,localhost)}</stringProp>
+            <stringProp name="HTTPSampler.port">${__P(port,8081)}</stringProp>
+            <stringProp name="HTTPSampler.protocol">http</stringProp>
+            <stringProp name="HTTPSampler.path">/api/load/restock</stringProp>
+            <stringProp name="HTTPSampler.method">GET</stringProp>
+            <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
+            <stringProp name="HTTPSampler.connect_timeout">10000</stringProp>
+            <stringProp name="HTTPSampler.response_timeout">30000</stringProp>
+          </HTTPSamplerProxy>
+          <hashTree>
+            <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion"
+                               testname="HTTP 200" enabled="true">
+              <collectionProp name="Asserion.test_strings">
+                <stringProp name="49586">200</stringProp>
+              </collectionProp>
+              <stringProp name="Assertion.test_field">Assertion.response_code</stringProp>
+              <boolProp name="Assertion.assume_success">false</boolProp>
+              <intProp name="Assertion.test_type">8</intProp>
+            </ResponseAssertion>
+            <hashTree/>
+            <ConstantTimer guiclass="ConstantTimerGui" testclass="ConstantTimer"
+                           testname="Think Time 800ms - Liste lesen" enabled="true">
+              <stringProp name="ConstantTimer.delay">800</stringProp>
+            </ConstantTimer>
+            <hashTree/>
+          </hashTree>
+
+          <!-- Schritt 7: Eine Bestellung freigeben -->
+          <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy"
+                            testname="Workflow - Bestellung freigeben" enabled="true">
+            <boolProp name="HTTPSampler.postBodyRaw">false</boolProp>
+            <elementProp name="HTTPsampler.Arguments" elementType="Arguments">
+              <collectionProp name="Arguments.arguments"/>
+            </elementProp>
+            <stringProp name="HTTPSampler.domain">${__P(host,localhost)}</stringProp>
+            <stringProp name="HTTPSampler.port">${__P(port,8081)}</stringProp>
+            <stringProp name="HTTPSampler.protocol">http</stringProp>
+            <stringProp name="HTTPSampler.path">/api/load/restock/approve-next</stringProp>
+            <stringProp name="HTTPSampler.method">POST</stringProp>
+            <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
+            <stringProp name="HTTPSampler.connect_timeout">10000</stringProp>
+            <stringProp name="HTTPSampler.response_timeout">30000</stringProp>
+          </HTTPSamplerProxy>
+          <hashTree>
+            <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion"
+                               testname="HTTP 200 oder 204" enabled="true">
+              <collectionProp name="Asserion.test_strings">
+                <stringProp name="49586">200</stringProp>
+                <stringProp name="49559">204</stringProp>
+              </collectionProp>
+              <stringProp name="Assertion.custom_message">Erwartet 200 (freigegeben) oder 204 (nichts zu bestellen)</stringProp>
+              <stringProp name="Assertion.test_field">Assertion.response_code</stringProp>
+              <boolProp name="Assertion.assume_success">false</boolProp>
+              <intProp name="Assertion.test_type">40</intProp>
+            </ResponseAssertion>
+            <hashTree/>
+            <JSR223PostProcessor guiclass="TestBeanGUI" testclass="JSR223PostProcessor"
+                                 testname="Restock-Loop steuern (204 = fertig)" enabled="true">
+              <stringProp name="scriptLanguage">groovy</stringProp>
+              <stringProp name="script">
+def code = prev.getResponseCode()
+if (code == "204") {
+    vars.put("continueApprove", "false")
+} else {
+    vars.put("continueApprove", "true")
+}
+              </stringProp>
+              <boolProp name="cacheKey">true</boolProp>
+            </JSR223PostProcessor>
+            <hashTree/>
+            <ConstantTimer guiclass="ConstantTimerGui" testclass="ConstantTimer"
+                           testname="Think Time 1000ms - Navigation" enabled="true">
+              <stringProp name="ConstantTimer.delay">1000</stringProp>
+            </ConstantTimer>
+            <hashTree/>
+          </hashTree>
+
+        </hashTree>
+
+        <!-- ══════════════════════════════════════════════════════════════════
+             PHASE 3: Wareneingaenge anlegen – alle offenen Bestellungen abarbeiten
+             ══════════════════════════════════════════════════════════════════ -->
+
+        <JSR223Sampler guiclass="TestBeanGUI" testclass="JSR223Sampler"
+                       testname="Init - Wareneingang Loop" enabled="true">
+          <stringProp name="scriptLanguage">groovy</stringProp>
+          <stringProp name="script">vars.put("continueReceipt", "true");</stringProp>
+          <stringProp name="filename"></stringProp>
+          <stringProp name="parameters"></stringProp>
+          <boolProp name="cacheKey">true</boolProp>
+        </JSR223Sampler>
+        <hashTree/>
+
+        <WhileController guiclass="WhileControllerGui" testclass="WhileController"
+                         testname="Wareneingaenge anlegen bis fertig" enabled="true">
+          <stringProp name="WhileController.condition">${continueReceipt}</stringProp>
+        </WhileController>
+        <hashTree>
+
+          <!-- Schritt 8: Zur Wareneingaenge-Ansicht navigieren -->
+          <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy"
+                            testname="Nav - Wareneingaenge oeffnen" enabled="true">
+            <boolProp name="HTTPSampler.postBodyRaw">false</boolProp>
+            <elementProp name="HTTPsampler.Arguments" elementType="Arguments">
+              <collectionProp name="Arguments.arguments"/>
+            </elementProp>
+            <stringProp name="HTTPSampler.domain">${__P(host,localhost)}</stringProp>
+            <stringProp name="HTTPSampler.port">${__P(port,8081)}</stringProp>
+            <stringProp name="HTTPSampler.protocol">http</stringProp>
+            <stringProp name="HTTPSampler.path">/api/load/goods-receipts</stringProp>
+            <stringProp name="HTTPSampler.method">GET</stringProp>
+            <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
+            <stringProp name="HTTPSampler.connect_timeout">10000</stringProp>
+            <stringProp name="HTTPSampler.response_timeout">30000</stringProp>
+          </HTTPSamplerProxy>
+          <hashTree>
+            <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion"
+                               testname="HTTP 200" enabled="true">
+              <collectionProp name="Asserion.test_strings">
+                <stringProp name="49586">200</stringProp>
+              </collectionProp>
+              <stringProp name="Assertion.test_field">Assertion.response_code</stringProp>
+              <boolProp name="Assertion.assume_success">false</boolProp>
+              <intProp name="Assertion.test_type">8</intProp>
+            </ResponseAssertion>
+            <hashTree/>
+            <ConstantTimer guiclass="ConstantTimerGui" testclass="ConstantTimer"
+                           testname="Think Time 1500ms - Dialog oeffnen und lesen" enabled="true">
+              <stringProp name="ConstantTimer.delay">1500</stringProp>
+            </ConstantTimer>
+            <hashTree/>
+          </hashTree>
+
+          <!-- Schritt 9: Wareneingang aus naechster offener Bestellung anlegen -->
+          <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy"
+                            testname="Workflow - Wareneingang aus Bestellung anlegen" enabled="true">
+            <boolProp name="HTTPSampler.postBodyRaw">true</boolProp>
+            <elementProp name="HTTPsampler.Arguments" elementType="Arguments">
+              <collectionProp name="Arguments.arguments">
+                <elementProp name="" elementType="HTTPArgument">
+                  <boolProp name="HTTPArgument.always_encode">false</boolProp>
+                  <stringProp name="Argument.value">{"supplierName":"Lasttest-Lieferant","deliveryNoteNumber":"${__Random(100,9999,)}","deliveryDate":"${__time(yyyy-MM-dd,)}"}</stringProp>
+                  <stringProp name="Argument.metadata">=</stringProp>
+                </elementProp>
+              </collectionProp>
+            </elementProp>
+            <stringProp name="HTTPSampler.domain">${__P(host,localhost)}</stringProp>
+            <stringProp name="HTTPSampler.port">${__P(port,8081)}</stringProp>
+            <stringProp name="HTTPSampler.protocol">http</stringProp>
+            <stringProp name="HTTPSampler.path">/api/load/goods-receipts/from-next-order</stringProp>
+            <stringProp name="HTTPSampler.method">POST</stringProp>
+            <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
+            <stringProp name="HTTPSampler.connect_timeout">10000</stringProp>
+            <stringProp name="HTTPSampler.response_timeout">30000</stringProp>
+          </HTTPSamplerProxy>
+          <hashTree>
+            <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion"
+                               testname="HTTP 201 oder 204" enabled="true">
+              <collectionProp name="Asserion.test_strings">
+                <stringProp name="51508">201</stringProp>
+                <stringProp name="49559">204</stringProp>
+              </collectionProp>
+              <stringProp name="Assertion.custom_message">Erwartet 201 (angelegt) oder 204 (keine offene Bestellung)</stringProp>
+              <stringProp name="Assertion.test_field">Assertion.response_code</stringProp>
+              <boolProp name="Assertion.assume_success">false</boolProp>
+              <intProp name="Assertion.test_type">40</intProp>
+            </ResponseAssertion>
+            <hashTree/>
+            <JSR223PostProcessor guiclass="TestBeanGUI" testclass="JSR223PostProcessor"
+                                 testname="Wareneingang-Loop steuern (204 = fertig)" enabled="true">
+              <stringProp name="scriptLanguage">groovy</stringProp>
+              <stringProp name="script">
+def code = prev.getResponseCode()
+if (code == "204") {
+    vars.put("continueReceipt", "false")
+} else {
+    vars.put("continueReceipt", "true")
+}
+              </stringProp>
+              <boolProp name="cacheKey">true</boolProp>
+            </JSR223PostProcessor>
+            <hashTree/>
           </hashTree>
 
         </hashTree>

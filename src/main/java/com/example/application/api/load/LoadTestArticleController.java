@@ -3,6 +3,9 @@ package com.example.application.api.load;
 import com.example.application.data.articleInfo.ArticleInfo;
 import com.example.application.data.articleInfo.ArticleInfoRepository;
 import com.example.application.data.contingent.ContingentRepository;
+import com.example.application.data.goodsreceipts.GoodsReceiptItemRepository;
+import com.example.application.data.goodsreceipts.GoodsReceiptRepository;
+import com.example.application.data.restockorder.RestockOrderRepository;
 import com.example.application.data.stockChangeLog.ChangeType;
 import com.example.application.services.ArticleInfoService;
 import jakarta.persistence.criteria.Predicate;
@@ -28,13 +31,22 @@ public class LoadTestArticleController {
     private final ArticleInfoService articleInfoService;
     private final ArticleInfoRepository articleInfoRepository;
     private final ContingentRepository contingentRepository;
+    private final RestockOrderRepository restockOrderRepository;
+    private final GoodsReceiptItemRepository goodsReceiptItemRepository;
+    private final GoodsReceiptRepository goodsReceiptRepository;
 
     public LoadTestArticleController(ArticleInfoService articleInfoService,
                                      ArticleInfoRepository articleInfoRepository,
-                                     ContingentRepository contingentRepository) {
+                                     ContingentRepository contingentRepository,
+                                     RestockOrderRepository restockOrderRepository,
+                                     GoodsReceiptItemRepository goodsReceiptItemRepository,
+                                     GoodsReceiptRepository goodsReceiptRepository) {
         this.articleInfoService = articleInfoService;
         this.articleInfoRepository = articleInfoRepository;
         this.contingentRepository = contingentRepository;
+        this.restockOrderRepository = restockOrderRepository;
+        this.goodsReceiptItemRepository = goodsReceiptItemRepository;
+        this.goodsReceiptRepository = goodsReceiptRepository;
     }
 
     record StockChangeRequest(int delta, String reason) {}
@@ -88,7 +100,7 @@ public class LoadTestArticleController {
         }
     }
 
-    /** DELETE /api/load/articles/sim – alle SIM-Artikel und ihre Kontingente loeschen */
+    /** DELETE /api/load/articles/sim – alle SIM-Artikel und alle abhaengigen Daten loeschen */
     @DeleteMapping("/sim")
     @Transactional
     public java.util.Map<String, Object> deleteSimArticles() {
@@ -97,8 +109,16 @@ public class LoadTestArticleController {
                 .map(ArticleInfo::getId)
                 .toList();
         if (!simIds.isEmpty()) {
+            // 1. Wareneingang-Positionen fuer SIM-Artikel loeschen
+            goodsReceiptItemRepository.deleteByArticleIdIn(simIds);
+            // 2. Wareneingaenge ohne Positionen loeschen
+            goodsReceiptRepository.deleteReceiptsWithNoItems();
+            // 3. Kontingente loeschen
             contingentRepository.deleteByArticleIdIn(simIds);
         }
+        // 4. Offene Bestellungen loeschen
+        restockOrderRepository.deleteAllSimOrders();
+        // 5. Artikel loeschen
         int deleted = articleInfoRepository.deleteAllSimArticles();
         return java.util.Map.of("deleted", deleted);
     }

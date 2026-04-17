@@ -63,7 +63,25 @@ public class GoodsReceiptView extends Div {
         Button add = new Button("Neuer Wareneingang", e -> openCreateDialog());
         add.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
 
-        HorizontalLayout toolbar = new HorizontalLayout(add);
+        Button deleteAll = new Button("Alle löschen", e -> {
+            Dialog confirm = new Dialog();
+            confirm.setHeaderTitle("Alle Wareneingänge löschen");
+            confirm.add(new Span("Sollen wirklich alle Wareneingänge unwiderruflich gelöscht werden?"));
+            Button cancel = new Button("Abbrechen", ev -> confirm.close());
+            Button confirmBtn = new Button("Alle löschen", ev -> {
+                confirm.close();
+                int deleted = service.deleteAll();
+                Notification n = Notification.show(deleted + " Wareneingänge gelöscht.", 3000, Position.MIDDLE);
+                n.addThemeVariants(NotificationVariant.LUMO_SUCCESS);
+                refresh();
+            });
+            confirmBtn.addThemeVariants(ButtonVariant.LUMO_ERROR, ButtonVariant.LUMO_PRIMARY);
+            confirm.getFooter().add(cancel, confirmBtn);
+            confirm.open();
+        });
+        deleteAll.addThemeVariants(ButtonVariant.LUMO_ERROR, ButtonVariant.LUMO_TERTIARY);
+
+        HorizontalLayout toolbar = new HorizontalLayout(add, deleteAll);
         toolbar.setWidthFull();
         toolbar.setAlignItems(FlexComponent.Alignment.CENTER);
         toolbar.addClassName("view-toolbar");

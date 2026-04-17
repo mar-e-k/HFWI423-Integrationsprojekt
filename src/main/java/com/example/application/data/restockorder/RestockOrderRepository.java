@@ -1,14 +1,43 @@
 package com.example.application.data.restockorder;
 
+import jakarta.persistence.LockModeType;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Lock;
+import org.springframework.data.jpa.repository.Modifying;
+import org.springframework.data.jpa.repository.Query;
 import java.util.List;
+import java.util.Optional;
 
 public interface RestockOrderRepository extends JpaRepository<RestockOrder, Long> {
 
     boolean existsByArticleNumberAndDeliveredFalse(String articleNumber);
 
+    @Lock(LockModeType.PESSIMISTIC_WRITE)
+    @Query("select r from RestockOrder r where r.id = :id")
+    Optional<RestockOrder> findByIdForUpdate(@jakarta.annotation.Nonnull Long id);
 
-    // für den Wareneingang: alle genehmigten, aber noch nicht gelieferten Bestellungen
+    // fur den Wareneingang: alle genehmigten, aber noch nicht gelieferten Bestellungen
     List<RestockOrder> findByDeliveredFalseAndApprovedTrue();
+
+    @Modifying
+    @Query("delete from RestockOrder r where r.articleNumber like 'SIM-%'")
+    int deleteAllSimOrders();
+
+    /**
+     * Loescht offene SIM-Bestellungen, fuer die kein Artikel mehr existiert.
+     * Noetig wenn Artikel geloescht und mit gleicher Nummer neu angelegt wurden.
+     */
+    @Modifying(clearAutomatically = true, flushAutomatically = true)
+    @Query(value = """
+        DELETE FROM restock_order
+         WHERE article_number LIKE 'SIM-%'
+           AND delivered = false
+           AND approved  = true
+           AND NOT EXISTS (
+               SELECT 1 FROM article_info ai
+                WHERE ai.article_number = restock_order.article_number
+           )
+        """, nativeQuery = true)
+    int deleteOrphanedSimOrders();
 
 }

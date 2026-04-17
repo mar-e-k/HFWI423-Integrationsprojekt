@@ -70,7 +70,8 @@
       "Bash(taskkill:*)",
       "Bash(tasklist:*)",
       "Bash(wmic process:*)",
-      "Bash(find:*)"
+      "Bash(find:*)",
+      "Bash(grep -rl \"Workflow\\\\|Lasttest\\\\|jmeter\\\\|JMeter\" C:/Users/jason/IdeaProjects/HFWI423-Integrationsprojekt/src --include=*.java)"
     ]
   }
 }

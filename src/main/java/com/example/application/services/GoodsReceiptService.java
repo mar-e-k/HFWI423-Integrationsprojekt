@@ -90,6 +90,17 @@ public class GoodsReceiptService {
         return receiptRepo.save(gr);
     }
 
+    /** Loescht alle Wareneingaenge inkl. aller Positionen. */
+    @Transactional
+    public int deleteAll() {
+        List<GoodsReceipt> all = receiptRepo.findAll();
+        for (GoodsReceipt gr : all) {
+            itemRepo.deleteByGoodsReceiptId(gr.getId());
+        }
+        receiptRepo.deleteAll(all);
+        return all.size();
+    }
+
     /**
      * Löscht einen Wareneingang inkl. aller Items,
      * aber nur wenn er noch im Status IN_PRUEFUNG ist.
@@ -144,8 +155,12 @@ public class GoodsReceiptService {
 
         // 2) Für jede RestockOrder ein Item erzeugen (in PALLETTEN)
         for (Long roId : restockOrderIds) {
-            RestockOrder ro = restockOrderRepo.findById(roId)
+            RestockOrder ro = restockOrderRepo.findByIdForUpdate(roId)
                     .orElseThrow(() -> new IllegalArgumentException("RestockOrder " + roId + " nicht gefunden"));
+
+            if (ro.isDelivered()) {
+                throw new IllegalStateException("RestockOrder " + roId + " wurde bereits geliefert");
+            }
 
             ArticleInfo article = articleRepo.findByArticleNumber(ro.getArticleNumber());
             if (article == null) {
@@ -268,6 +283,13 @@ public class GoodsReceiptService {
     @Transactional
     public GoodsReceipt completeInspection(Long receiptId) {
         GoodsReceipt gr = getById(receiptId);
+
+        if (gr.getStatus() == GoodsReceiptStatus.FREIGEGEBEN
+                || gr.getStatus() == GoodsReceiptStatus.GEPRUEFT) {
+            throw new IllegalStateException(
+                    "Prüfung wurde bereits abgeschlossen (Status: " + gr.getStatus() + ")");
+        }
+
         List<GoodsReceiptItem> items = getItemsForReceipt(receiptId);
 
         boolean anyInPruefung = items.stream()
