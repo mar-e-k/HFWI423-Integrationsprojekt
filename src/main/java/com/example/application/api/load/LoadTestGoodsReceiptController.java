@@ -92,6 +92,27 @@ public class LoadTestGoodsReceiptController {
     }
 
     /**
+     * POST /api/load/goods-receipts/from-next-batch
+     * Legt einen Wareneingang aus den naechsten 10 offenen Bestellungen an.
+     * Simuliert: User waehlt 10 Artikel im Dialog aus und klickt Anlegen.
+     * 201 + GoodsReceipt -> Wareneingang angelegt
+     * 204 No Content    -> keine offene Bestellung vorhanden
+     */
+    @PostMapping("/from-next-batch")
+    public ResponseEntity<GoodsReceipt> createFromNextBatch(@RequestBody CreateReceiptRequest req) {
+        LocalDate date = req.deliveryDate() != null ? req.deliveryDate() : LocalDate.now();
+        String supplier = req.supplierName() != null ? req.supplierName() : "Lasttest-Lieferant";
+        String note = req.deliveryNoteNumber() != null ? req.deliveryNoteNumber() : "LT-" + System.currentTimeMillis();
+        GoodsReceipt receipt = goodsReceiptService.createFromNextBatch(10, supplier, note, date);
+        if (receipt == null) {
+            System.out.println("[from-next-batch] 204 - keine Bestellung verfuegbar");
+            return ResponseEntity.noContent().build();
+        }
+        System.out.println("[from-next-batch] 201 receiptId=" + receipt.getId() + " items=" + receipt.getId());
+        return ResponseEntity.status(HttpStatus.CREATED).body(receipt);
+    }
+
+    /**
      * POST /api/load/goods-receipts/from-next-order
      * Legt einen Wareneingang aus der naechsten offenen Bestellung an.
      * Simuliert: User oeffnet Dialog, klickt ersten Artikel an, klickt Anlegen.

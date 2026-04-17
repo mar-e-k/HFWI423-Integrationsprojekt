@@ -357,7 +357,7 @@ if (code == "204") {
 
         <WhileController guiclass="WhileControllerGui" testclass="WhileController"
                          testname="Wareneingaenge anlegen bis fertig" enabled="true">
-          <stringProp name="WhileController.condition">${__groovy(vars.get("receiptCode") == "201",)}</stringProp>
+          <stringProp name="WhileController.condition">${__groovy(vars.get("receiptCode") == null || vars.get("receiptCode") == "201",)}</stringProp>
         </WhileController>
         <hashTree>
 
@@ -395,7 +395,41 @@ if (code == "204") {
             <hashTree/>
           </hashTree>
 
-          <!-- Schritt 9: Wareneingang aus naechster offener Bestellung anlegen -->
+          <!-- Schritt 9: Dialog laden – offene Bestellungen fuer Auswahl abrufen -->
+          <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy"
+                            testname="Dialog - Offene Bestellungen laden" enabled="true">
+            <boolProp name="HTTPSampler.postBodyRaw">false</boolProp>
+            <elementProp name="HTTPsampler.Arguments" elementType="Arguments">
+              <collectionProp name="Arguments.arguments"/>
+            </elementProp>
+            <stringProp name="HTTPSampler.domain">${__P(host,localhost)}</stringProp>
+            <stringProp name="HTTPSampler.port">${__P(port,8081)}</stringProp>
+            <stringProp name="HTTPSampler.protocol">http</stringProp>
+            <stringProp name="HTTPSampler.path">/api/load/goods-receipts/open-orders</stringProp>
+            <stringProp name="HTTPSampler.method">GET</stringProp>
+            <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
+            <stringProp name="HTTPSampler.connect_timeout">10000</stringProp>
+            <stringProp name="HTTPSampler.response_timeout">30000</stringProp>
+          </HTTPSamplerProxy>
+          <hashTree>
+            <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion"
+                               testname="HTTP 200" enabled="true">
+              <collectionProp name="Asserion.test_strings">
+                <stringProp name="49586">200</stringProp>
+              </collectionProp>
+              <stringProp name="Assertion.test_field">Assertion.response_code</stringProp>
+              <boolProp name="Assertion.assume_success">false</boolProp>
+              <intProp name="Assertion.test_type">8</intProp>
+            </ResponseAssertion>
+            <hashTree/>
+            <ConstantTimer guiclass="ConstantTimerGui" testclass="ConstantTimer"
+                           testname="Think Time 2000ms - Liste lesen und 10 auswaehlen" enabled="true">
+              <stringProp name="ConstantTimer.delay">2000</stringProp>
+            </ConstantTimer>
+            <hashTree/>
+          </hashTree>
+
+          <!-- Schritt 10: Wareneingang aus den naechsten 10 offenen Bestellungen anlegen -->
           <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy"
                             testname="Workflow - Wareneingang anlegen" enabled="true">
             <boolProp name="HTTPSampler.postBodyRaw">true</boolProp>
@@ -403,7 +437,7 @@ if (code == "204") {
               <collectionProp name="Arguments.arguments">
                 <elementProp name="" elementType="HTTPArgument">
                   <boolProp name="HTTPArgument.always_encode">false</boolProp>
-                  <stringProp name="Argument.value">{"supplierName":"Lasttest-Lieferant","deliveryNoteNumber":"LT-${__threadNum}-${__counter(FALSE,)}","deliveryDate":"${__time(yyyy-MM-dd,)}"}</stringProp>
+                  <stringProp name="Argument.value">{"supplierName":"Lasttest","deliveryNoteNumber":"Lasttest","deliveryDate":"${__time(yyyy-MM-dd,)}"}</stringProp>
                   <stringProp name="Argument.metadata">=</stringProp>
                 </elementProp>
               </collectionProp>
@@ -411,7 +445,7 @@ if (code == "204") {
             <stringProp name="HTTPSampler.domain">${__P(host,localhost)}</stringProp>
             <stringProp name="HTTPSampler.port">${__P(port,8081)}</stringProp>
             <stringProp name="HTTPSampler.protocol">http</stringProp>
-            <stringProp name="HTTPSampler.path">/api/load/goods-receipts/from-next-order</stringProp>
+            <stringProp name="HTTPSampler.path">/api/load/goods-receipts/from-next-batch</stringProp>
             <stringProp name="HTTPSampler.method">POST</stringProp>
             <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
             <stringProp name="HTTPSampler.connect_timeout">10000</stringProp>

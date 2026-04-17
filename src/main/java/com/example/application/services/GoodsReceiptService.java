@@ -129,6 +129,75 @@ public class GoodsReceiptService {
     }
 
     /**
+     * Legt einen Wareneingang aus den naechsten (bis zu maxCount) offenen Bestellungen an.
+     * Simuliert: User waehlt mehrere Bestellungen im Dialog aus und klickt Anlegen.
+     * Jede Bestellung wird atomar per markDeliveredIfOpen beansprucht – Race-Condition-sicher.
+     * Gibt null zurueck wenn keine einzige Bestellung mehr verfuegbar war.
+     */
+    @Transactional
+    public GoodsReceipt createFromNextBatch(int maxCount, String supplierName,
+                                             String deliveryNoteNumber, LocalDate deliveryDate) {
+        List<RestockOrder> open = restockOrderRepo.findByDeliveredFalseAndApprovedTrue();
+        System.out.println("[createFromNextBatch] offeneBestellungen=" + open.size());
+
+        // Phase 1: bis zu maxCount Bestellungen atomar beanspruchen
+        List<Long>        claimedIds      = new java.util.ArrayList<>();
+        List<ArticleInfo> claimedArticles = new java.util.ArrayList<>();
+        List<Integer>     claimedPallets  = new java.util.ArrayList<>();
+
+        for (RestockOrder ro : open) {
+            if (claimedIds.size() >= maxCount) break;
+
+            int updated = restockOrderRepo.markDeliveredIfOpen(ro.getId());
+            if (updated == 0) continue; // anderer Thread war schneller
+
+            ArticleInfo article = articleRepo.findByArticleNumber(ro.getArticleNumber());
+            if (article == null) {
+                System.out.println("[createFromNextBatch] SKIP kein Artikel: " + ro.getArticleNumber());
+                continue;
+            }
+            Integer ppp = article.getPiecesPerPallet();
+            if (ppp == null || ppp <= 0) {
+                System.out.println("[createFromNextBatch] SKIP piecesPerPallet ungueltig: " + ro.getArticleNumber());
+                continue;
+            }
+            int pallets = ro.getQuantity() != null ? ro.getQuantity() / ppp : 0;
+            claimedIds.add(ro.getId());
+            claimedArticles.add(article);
+            claimedPallets.add(pallets);
+        }
+
+        if (claimedIds.isEmpty()) {
+            System.out.println("[createFromNextBatch] keine Bestellungen verfuegbar -> null");
+            return null;
+        }
+
+        // Phase 2: Wareneingang anlegen
+        GoodsReceipt receipt = new GoodsReceipt();
+        receipt.setReceiptNumber(nextReceiptNumber());
+        receipt.setSupplierName(supplierName);
+        receipt.setDeliveryNoteNumber(deliveryNoteNumber);
+        receipt.setDeliveryDate(deliveryDate);
+        receipt.setStatus(GoodsReceiptStatus.IN_PRUEFUNG);
+        receipt = receiptRepo.save(receipt);
+
+        for (int i = 0; i < claimedIds.size(); i++) {
+            GoodsReceiptItem item = new GoodsReceiptItem();
+            item.setGoodsReceipt(receipt);
+            item.setArticle(claimedArticles.get(i));
+            item.setExpectedQuantity(claimedPallets.get(i));
+            item.setActualQuantity(claimedPallets.get(i));
+            item.setDefectNotes(null);
+            item.setStatus(GoodsReceiptItemStatus.IN_PRUEFUNG);
+            itemRepo.save(item);
+        }
+
+        recomputeReceiptStatus(receipt);
+        System.out.println("[createFromNextBatch] receiptId=" + receipt.getId() + " items=" + claimedIds.size());
+        return receipt;
+    }
+
+    /**
      * Legt einen neuen Wareneingang aus einer Liste von RestockOrders an.
      * Für jede RestockOrder wird eine Prüfposition (GoodsReceiptItem) erzeugt.
      *
