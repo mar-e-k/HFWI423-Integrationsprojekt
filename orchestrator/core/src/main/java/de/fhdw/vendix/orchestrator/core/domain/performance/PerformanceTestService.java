@@ -220,6 +220,7 @@ public class PerformanceTestService {
     private void ensureK6ContainerRunning(Path repositoryRoot, Consumer<String> logConsumer) throws IOException {
         ProcessBuilder pb = new ProcessBuilder(
                 "docker", "compose",
+                "--env-file", repositoryRoot.resolve(".docker/.env").toString(),
                 "-f", repositoryRoot.resolve(K6_COMPOSE).toString(),
                 "up", "-d", "k6"
         );
