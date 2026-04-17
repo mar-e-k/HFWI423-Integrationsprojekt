@@ -1,0 +1,12 @@
+EntityTargetDTO:
+  type: object
+  description: Represents a target resource.
+  properties:
+    id:
+      type: integer
+      format: int64
+    type:
+      $ref: "#/components/schemas/TargetType"
+  example:
+    id: 101
+    type: "STORE"

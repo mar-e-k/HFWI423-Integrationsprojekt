@@ -1,0 +1,24 @@
+openapi: 3.0.0
+info:
+  title: Orchestrator API
+  version: 1.0.0
+
+servers:
+  - url: http://localhost:8080
+
+tags:
+  - name: Connection
+  - name: DistributedLock
+  - name: Account
+  - name: Store
+  - name: Register
+
+paths:
+  /api/connection:
+    post:
+      $ref: "/paths/connection.yaml#/postConnection"
+
+components:
+  schemas:
+    ConnectionDTO:
+      $ref: "./schemas/connection.yaml#/ConnectionDTO"

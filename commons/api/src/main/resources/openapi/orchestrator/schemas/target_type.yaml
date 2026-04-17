@@ -1,0 +1,8 @@
+TargetType:
+  type: string
+  description: The type of a target resource.
+  enum:
+    - STORE
+    - REGISTER
+    - ACCOUNT
+    - ORCHESTRATOR

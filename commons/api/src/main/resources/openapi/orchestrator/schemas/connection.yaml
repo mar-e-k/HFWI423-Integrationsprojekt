@@ -1,0 +1,36 @@
+ConnectionDTO:
+  type: object
+  description: Represents a connection from a service instance to a target resource.
+  properties:
+    id:
+      type: integer
+      format: int64
+    target:
+      $ref: "./entity_target.yaml#/EntityTargetDTO"
+    instance:
+      $ref: "./instance_details.yaml#/InstanceDetailsDTO"
+    acquiredAt:
+      type: string
+      format: date-time
+    heartbeatAt:
+      type: string
+      format: date-time
+    failedAttempts:
+      type: integer
+      format: int64
+    connectionState:
+      $ref: "./connection_state.yaml#/ConnectionState"
+  example:
+    id: 1
+    target:
+      id: 101
+      type: "STORE"
+    instance:
+      uuid: "a1b2c3d4-e5f6-7890-1234-567890abcdef"
+      host: "localhost"
+      server: "store-service-1"
+      port: 8080
+    acquiredAt: "2023-10-27T10:00:00Z"
+    heartbeatAt: "2023-10-27T10:05:00Z"
+    failedAttempts: 0
+    connectionState: UP

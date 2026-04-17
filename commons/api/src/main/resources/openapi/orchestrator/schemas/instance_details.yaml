@@ -1,0 +1,19 @@
+InstanceDetailsDTO:
+  type: object
+  description: Represents the details of a service instance.
+  properties:
+    uuid:
+      type: string
+      format: uuid
+    host:
+      type: string
+    server:
+      type: string
+    port:
+      type: integer
+      format: int64
+  example:
+    uuid: "a1b2c3d4-e5f6-7890-1234-567890abcdef"
+    host: "DESKTOP-AH8CD"
+    server: "localhost"
+    port: 8080

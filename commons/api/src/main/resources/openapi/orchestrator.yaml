@@ -636,7 +636,6 @@ components:
           format: int64
         connectionState:
           $ref: "#/components/schemas/ConnectionState"
-
       example:
         id: 1
         target:
