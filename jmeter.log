@@ -1,146 +1,74 @@
-2026-04-17 03:28:25,335 INFO o.a.j.u.JMeterUtils: Setting Locale to de_DE
-2026-04-17 03:28:25,351 INFO o.a.j.u.JMeterUtils: Could not find resources for 'de_DE', using 'de'
-2026-04-17 03:28:25,351 INFO o.a.j.JMeter: Loading user properties from: C:\tools\apache-jmeter-5.6.3\bin\user.properties
-2026-04-17 03:28:25,352 INFO o.a.j.JMeter: Loading system properties from: C:\tools\apache-jmeter-5.6.3\bin\system.properties
-2026-04-17 03:28:25,352 INFO o.a.j.JMeter: Setting JMeter property: threads=5
-2026-04-17 03:28:25,352 INFO o.a.j.JMeter: Setting JMeter property: rampup=2
-2026-04-17 03:28:25,352 INFO o.a.j.JMeter: Setting JMeter property: host=localhost
-2026-04-17 03:28:25,352 INFO o.a.j.JMeter: Setting JMeter property: port=8081
-2026-04-17 03:28:25,352 INFO o.a.j.JMeter: Setting JMeter property: testname=Artikel-Workflow-5T
-2026-04-17 03:28:25,364 INFO o.a.j.JMeter: Copyright (c) 1998-2024 The Apache Software Foundation
-2026-04-17 03:28:25,364 INFO o.a.j.JMeter: Version 5.6.3
-2026-04-17 03:28:25,364 INFO o.a.j.JMeter: java.version=24
-2026-04-17 03:28:25,364 INFO o.a.j.JMeter: java.vm.name=OpenJDK 64-Bit Server VM
-2026-04-17 03:28:25,364 INFO o.a.j.JMeter: os.name=Windows 11
-2026-04-17 03:28:25,364 INFO o.a.j.JMeter: os.arch=amd64
-2026-04-17 03:28:25,364 INFO o.a.j.JMeter: os.version=10.0
-2026-04-17 03:28:25,364 INFO o.a.j.JMeter: file.encoding=UTF-8
-2026-04-17 03:28:25,364 INFO o.a.j.JMeter: java.awt.headless=true
-2026-04-17 03:28:25,364 INFO o.a.j.JMeter: Max memory     =8547991552
-2026-04-17 03:28:25,364 INFO o.a.j.JMeter: Available Processors =16
-2026-04-17 03:28:25,375 INFO o.a.j.JMeter: Default Locale=Deutsch (Deutschland)
-2026-04-17 03:28:25,375 INFO o.a.j.JMeter: JMeter  Locale=Deutsch (Deutschland)
-2026-04-17 03:28:25,375 INFO o.a.j.JMeter: JMeterHome=C:\tools\apache-jmeter-5.6.3
-2026-04-17 03:28:25,375 INFO o.a.j.JMeter: user.dir  =C:\Users\jason\IdeaProjects\HFWI423-Integrationsprojekt
-2026-04-17 03:28:25,376 INFO o.a.j.JMeter: PWD       =C:\Users\jason\IdeaProjects\HFWI423-Integrationsprojekt
-2026-04-17 03:28:34,848 INFO o.a.j.JMeter: IP: 169.254.123.70 Name: JasonPC FullName: JasonPC
-2026-04-17 03:28:34,859 INFO o.a.j.s.FileServer: Default base='C:\Users\jason\IdeaProjects\HFWI423-Integrationsprojekt'
-2026-04-17 03:28:34,860 INFO o.a.j.s.FileServer: Set new base='C:\Users\jason\IdeaProjects\HFWI423-Integrationsprojekt\monitoring\jmeter'
-2026-04-17 03:28:35,117 INFO o.a.j.s.SaveService: Testplan (JMX) version: 2.2. Testlog (JTL) version: 2.2
-2026-04-17 03:28:35,144 INFO o.a.j.s.SaveService: Using SaveService properties version 5.0
-2026-04-17 03:28:35,146 INFO o.a.j.s.SaveService: Using SaveService properties file encoding UTF-8
-2026-04-17 03:28:35,149 INFO o.a.j.s.SaveService: Loading file: C:\Users\jason\IdeaProjects\HFWI423-Integrationsprojekt\monitoring\jmeter\logistik-artikel-workflow.jmx
-2026-04-17 03:28:35,196 INFO o.a.j.p.h.s.HTTPSamplerBase: Parser for text/html is org.apache.jmeter.protocol.http.parser.LagartoBasedHtmlParser
-2026-04-17 03:28:35,197 INFO o.a.j.p.h.s.HTTPSamplerBase: Parser for application/xhtml+xml is org.apache.jmeter.protocol.http.parser.LagartoBasedHtmlParser
-2026-04-17 03:28:35,197 INFO o.a.j.p.h.s.HTTPSamplerBase: Parser for application/xml is org.apache.jmeter.protocol.http.parser.LagartoBasedHtmlParser
-2026-04-17 03:28:35,197 INFO o.a.j.p.h.s.HTTPSamplerBase: Parser for text/xml is org.apache.jmeter.protocol.http.parser.LagartoBasedHtmlParser
-2026-04-17 03:28:35,197 INFO o.a.j.p.h.s.HTTPSamplerBase: Parser for text/vnd.wap.wml is org.apache.jmeter.protocol.http.parser.RegexpHTMLParser
-2026-04-17 03:28:35,197 INFO o.a.j.p.h.s.HTTPSamplerBase: Parser for text/css is org.apache.jmeter.protocol.http.parser.CssParser
-2026-04-17 03:28:35,244 INFO o.a.j.s.SampleResult: Note: Sample TimeStamps are START times
-2026-04-17 03:28:35,319 INFO o.a.j.s.SampleResult: sampleresult.default.encoding is set to UTF-8
-2026-04-17 03:28:35,319 INFO o.a.j.s.SampleResult: sampleresult.useNanoTime=true
-2026-04-17 03:28:35,319 INFO o.a.j.s.SampleResult: sampleresult.nanoThreadSleep=5000
-2026-04-17 03:28:35,338 INFO o.a.j.JMeter: Creating summariser <summary>
-2026-04-17 03:28:35,359 INFO o.a.j.e.StandardJMeterEngine: Running the test!
-2026-04-17 03:28:35,360 INFO o.a.j.s.SampleEvent: List of sample_variables: []
-2026-04-17 03:28:35,360 INFO o.a.j.s.SampleEvent: List of sample_variables: []
-2026-04-17 03:28:35,366 INFO o.a.j.e.u.CompoundVariable: Note: Function class names must contain the string: '.functions.'
-2026-04-17 03:28:35,367 INFO o.a.j.e.u.CompoundVariable: Note: Function class names must not contain the string: '.gui.'
-2026-04-17 03:28:35,626 INFO o.a.j.v.b.BackendListener: InfluxDB – Grafana: Starting worker with class: class org.apache.jmeter.visualizers.backend.influxdb.InfluxdbBackendListenerClient and queue capacity: 5000
-2026-04-17 03:28:35,627 INFO o.a.j.v.b.BackendListener: InfluxDB – Grafana: Started  worker with class: class org.apache.jmeter.visualizers.backend.influxdb.InfluxdbBackendListenerClient
-2026-04-17 03:28:35,831 INFO o.a.j.JMeter: Test starten (1776389315831)
-2026-04-17 03:28:35,863 INFO o.a.j.e.StandardJMeterEngine: Starting ThreadGroup: 1 : Artikel-Workflow – 5 Threads
-2026-04-17 03:28:35,863 INFO o.a.j.e.StandardJMeterEngine: Starting 5 threads for group Artikel-Workflow – 5 Threads.
-2026-04-17 03:28:35,863 INFO o.a.j.e.StandardJMeterEngine: Thread will continue on error
-2026-04-17 03:28:35,864 INFO o.a.j.t.ThreadGroup: Starting thread group... number=1 threads=5 ramp-up=2 delayedStart=false
-2026-04-17 03:28:35,876 INFO o.a.j.t.JMeterThread: Thread started: Artikel-Workflow – 5 Threads 1-1
-2026-04-17 03:28:35,880 INFO o.a.j.t.ThreadGroup: Started thread group number 1
-2026-04-17 03:28:35,880 INFO o.a.j.e.StandardJMeterEngine: All thread groups have been started
-2026-04-17 03:28:35,902 INFO o.a.j.p.h.s.HTTPHCAbstractImpl: Local host = JasonPC
-2026-04-17 03:28:35,913 INFO o.a.j.p.h.s.HTTPHC4Impl: HTTP request retry count = 0
-2026-04-17 03:28:35,985 INFO o.a.j.r.Summariser: summary +      1 in 00:00:00 =    6,5/s Avg:    34 Min:    34 Max:    34 Err:     0 (0,00%) Active: 1 Started: 1 Finished: 0
-2026-04-17 03:28:36,270 INFO o.a.j.t.JMeterThread: Thread started: Artikel-Workflow – 5 Threads 1-2
-2026-04-17 03:28:36,669 INFO o.a.j.t.JMeterThread: Thread started: Artikel-Workflow – 5 Threads 1-3
-2026-04-17 03:28:37,067 INFO o.a.j.t.JMeterThread: Thread started: Artikel-Workflow – 5 Threads 1-4
-2026-04-17 03:28:37,469 INFO o.a.j.t.JMeterThread: Thread started: Artikel-Workflow – 5 Threads 1-5
-2026-04-17 03:28:41,486 INFO o.a.j.t.JMeterThread: Thread finished: Artikel-Workflow – 5 Threads 1-2
-2026-04-17 03:28:41,498 INFO o.a.j.t.JMeterThread: Thread finished: Artikel-Workflow – 5 Threads 1-3
-2026-04-17 03:28:41,487 ERROR o.a.j.JMeter: Uncaught exception in thread Thread[#63,Artikel-Workflow – 5 Threads 1-2,5,main]
-org.codehaus.groovy.GroovyBugError: BUG! exception in phase 'semantic analysis' in source unit 'Script9.groovy' Unsupported class file major version 68
-	at org.codehaus.groovy.control.CompilationUnit$ISourceUnitOperation.doPhaseOperation(CompilationUnit.java:906) ~[groovy-3.0.20.jar:3.0.20]
-	at org.codehaus.groovy.control.CompilationUnit.compile(CompilationUnit.java:628) ~[groovy-3.0.20.jar:3.0.20]
-	at groovy.lang.GroovyClassLoader.doParseClass(GroovyClassLoader.java:389) ~[groovy-3.0.20.jar:3.0.20]
-	at groovy.lang.GroovyClassLoader.lambda$parseClass$3(GroovyClassLoader.java:332) ~[groovy-3.0.20.jar:3.0.20]
-	at org.codehaus.groovy.runtime.memoize.StampedCommonCache.compute(StampedCommonCache.java:163) ~[groovy-3.0.20.jar:3.0.20]
-	at org.codehaus.groovy.runtime.memoize.StampedCommonCache.getAndPut(StampedCommonCache.java:154) ~[groovy-3.0.20.jar:3.0.20]
-	at groovy.lang.GroovyClassLoader.parseClass(GroovyClassLoader.java:330) ~[groovy-3.0.20.jar:3.0.20]
-	at groovy.lang.GroovyClassLoader.parseClass(GroovyClassLoader.java:314) ~[groovy-3.0.20.jar:3.0.20]
-	at groovy.lang.GroovyClassLoader.parseClass(GroovyClassLoader.java:257) ~[groovy-3.0.20.jar:3.0.20]
-	at org.codehaus.groovy.jsr223.GroovyScriptEngineImpl.getScriptClass(GroovyScriptEngineImpl.java:336) ~[groovy-jsr223-3.0.20.jar:3.0.20]
-	at org.codehaus.groovy.jsr223.GroovyScriptEngineImpl.compile(GroovyScriptEngineImpl.java:181) ~[groovy-jsr223-3.0.20.jar:3.0.20]
-	at org.apache.jmeter.util.JSR223TestElement.lambda$processFileOrScript$1(JSR223TestElement.java:225) ~[ApacheJMeter_core.jar:5.6.3]
-	at com.github.benmanes.caffeine.cache.BoundedLocalCache.lambda$doComputeIfAbsent$14(BoundedLocalCache.java:2406) ~[caffeine-2.9.3.jar:?]
-	at java.base/java.util.concurrent.ConcurrentHashMap.compute(ConcurrentHashMap.java:1932) ~[?:?]
-	at com.github.benmanes.caffeine.cache.BoundedLocalCache.doComputeIfAbsent(BoundedLocalCache.java:2404) ~[caffeine-2.9.3.jar:?]
-	at com.github.benmanes.caffeine.cache.BoundedLocalCache.computeIfAbsent(BoundedLocalCache.java:2387) ~[caffeine-2.9.3.jar:?]
-	at com.github.benmanes.caffeine.cache.LocalCache.computeIfAbsent(LocalCache.java:108) ~[caffeine-2.9.3.jar:?]
-	at com.github.benmanes.caffeine.cache.LocalManualCache.get(LocalManualCache.java:62) ~[caffeine-2.9.3.jar:?]
-	at org.apache.jmeter.util.JSR223TestElement.getCompiledScript(JSR223TestElement.java:252) ~[ApacheJMeter_core.jar:5.6.3]
-	at org.apache.jmeter.util.JSR223TestElement.processFileOrScript(JSR223TestElement.java:223) ~[ApacheJMeter_core.jar:5.6.3]
-	at org.apache.jmeter.protocol.java.sampler.JSR223Sampler.sample(JSR223Sampler.java:72) ~[ApacheJMeter_java.jar:5.6.3]
-	at org.apache.jmeter.threads.JMeterThread.doSampling(JMeterThread.java:651) ~[ApacheJMeter_core.jar:5.6.3]
-	at org.apache.jmeter.threads.JMeterThread.executeSamplePackage(JMeterThread.java:570) ~[ApacheJMeter_core.jar:5.6.3]
-	at org.apache.jmeter.threads.JMeterThread.processSampler(JMeterThread.java:501) ~[ApacheJMeter_core.jar:5.6.3]
-	at org.apache.jmeter.threads.JMeterThread.run(JMeterThread.java:268) ~[ApacheJMeter_core.jar:5.6.3]
-	at java.base/java.lang.Thread.run(Thread.java:1447) [?:?]
-Caused by: java.lang.IllegalArgumentException: Unsupported class file major version 68
-	at groovyjarjarasm.asm.ClassReader.<init>(ClassReader.java:199) ~[groovy-3.0.20.jar:3.0.20]
-	at groovyjarjarasm.asm.ClassReader.<init>(ClassReader.java:180) ~[groovy-3.0.20.jar:3.0.20]
-	at groovyjarjarasm.asm.ClassReader.<init>(ClassReader.java:166) ~[groovy-3.0.20.jar:3.0.20]
-	at groovyjarjarasm.asm.ClassReader.<init>(ClassReader.java:287) ~[groovy-3.0.20.jar:3.0.20]
-	at org.codehaus.groovy.ast.decompiled.AsmDecompiler.parseClass(AsmDecompiler.java:81) ~[groovy-3.0.20.jar:3.0.20]
-	at org.codehaus.groovy.control.ClassNodeResolver.findDecompiled(ClassNodeResolver.java:251) ~[groovy-3.0.20.jar:3.0.20]
-	at org.codehaus.groovy.control.ClassNodeResolver.tryAsLoaderClassOrScript(ClassNodeResolver.java:189) ~[groovy-3.0.20.jar:3.0.20]
-	at org.codehaus.groovy.control.ClassNodeResolver.findClassNode(ClassNodeResolver.java:169) ~[groovy-3.0.20.jar:3.0.20]
-	at org.codehaus.groovy.control.ClassNodeResolver.resolveName(ClassNodeResolver.java:125) ~[groovy-3.0.20.jar:3.0.20]
-	at org.codehaus.groovy.control.ResolveVisitor.resolveToOuter(ResolveVisitor.java:875) ~[groovy-3.0.20.jar:3.0.20]
-	at org.codehaus.groovy.control.ResolveVisitor.resolve(ResolveVisitor.java:506) ~[groovy-3.0.20.jar:3.0.20]
-	at org.codehaus.groovy.control.ResolveVisitor.resolveFromDefaultImports(ResolveVisitor.java:667) ~[groovy-3.0.20.jar:3.0.20]
-	at org.codehaus.groovy.control.ResolveVisitor.resolveFromDefaultImports(ResolveVisitor.java:631) ~[groovy-3.0.20.jar:3.0.20]
-	at org.codehaus.groovy.control.ResolveVisitor.resolve(ResolveVisitor.java:505) ~[groovy-3.0.20.jar:3.0.20]
-	at org.codehaus.groovy.control.ResolveVisitor.resolve(ResolveVisitor.java:467) ~[groovy-3.0.20.jar:3.0.20]
-	at org.codehaus.groovy.control.ResolveVisitor.transformVariableExpression(ResolveVisitor.java:1125) ~[groovy-3.0.20.jar:3.0.20]
-	at org.codehaus.groovy.control.ResolveVisitor.transform(ResolveVisitor.java:894) ~[groovy-3.0.20.jar:3.0.20]
-	at org.codehaus.groovy.control.ResolveVisitor.transformMethodCallExpression(ResolveVisitor.java:1270) ~[groovy-3.0.20.jar:3.0.20]
-	at org.codehaus.groovy.control.ResolveVisitor.transform(ResolveVisitor.java:902) ~[groovy-3.0.20.jar:3.0.20]
-	at org.codehaus.groovy.control.ResolveVisitor.transformBinaryExpression(ResolveVisitor.java:1150) ~[groovy-3.0.20.jar:3.0.20]
-	at org.codehaus.groovy.control.ResolveVisitor.transform(ResolveVisitor.java:900) ~[groovy-3.0.20.jar:3.0.20]
-	at org.codehaus.groovy.ast.expr.CastExpression.transformExpression(CastExpression.java:95) ~[groovy-3.0.20.jar:3.0.20]
-	at org.codehaus.groovy.control.ResolveVisitor.transform(ResolveVisitor.java:911) ~[groovy-3.0.20.jar:3.0.20]
-	at org.codehaus.groovy.control.ResolveVisitor.transformBinaryExpression(ResolveVisitor.java:1150) ~[groovy-3.0.20.jar:3.0.20]
-	at org.codehaus.groovy.control.ResolveVisitor.transform(ResolveVisitor.java:900) ~[groovy-3.0.20.jar:3.0.20]
-	at org.codehaus.groovy.control.ResolveVisitor.transformDeclarationExpression(ResolveVisitor.java:1294) ~[groovy-3.0.20.jar:3.0.20]
-	at org.codehaus.groovy.control.ResolveVisitor.transform(ResolveVisitor.java:898) ~[groovy-3.0.20.jar:3.0.20]
-	at org.codehaus.groovy.ast.ClassCodeExpressionTransformer.visitExpressionStatement(ClassCodeExpressionTransformer.java:108) ~[groovy-3.0.20.jar:3.0.20]
-	at org.codehaus.groovy.ast.stmt.ExpressionStatement.visit(ExpressionStatement.java:40) ~[groovy-3.0.20.jar:3.0.20]
-	at org.codehaus.groovy.ast.CodeVisitorSupport.visitBlockStatement(CodeVisitorSupport.java:86) ~[groovy-3.0.20.jar:3.0.20]
-	at org.codehaus.groovy.ast.ClassCodeVisitorSupport.visitBlockStatement(ClassCodeVisitorSupport.java:164) ~[groovy-3.0.20.jar:3.0.20]
-	at org.codehaus.groovy.control.ResolveVisitor.visitBlockStatement(ResolveVisitor.java:1562) ~[groovy-3.0.20.jar:3.0.20]
-	at org.codehaus.groovy.ast.stmt.BlockStatement.visit(BlockStatement.java:69) ~[groovy-3.0.20.jar:3.0.20]
-	at org.codehaus.groovy.ast.ClassCodeVisitorSupport.visitClassCodeContainer(ClassCodeVisitorSupport.java:138) ~[groovy-3.0.20.jar:3.0.20]
-	at org.codehaus.groovy.ast.ClassCodeVisitorSupport.visitConstructorOrMethod(ClassCodeVisitorSupport.java:111) ~[groovy-3.0.20.jar:3.0.20]
-	at org.codehaus.groovy.ast.ClassCodeExpressionTransformer.visitConstructorOrMethod(ClassCodeExpressionTransformer.java:66) ~[groovy-3.0.20.jar:3.0.20]
-	at org.codehaus.groovy.control.ResolveVisitor.visitConstructorOrMethod(ResolveVisitor.java:293) ~[groovy-3.0.20.jar:3.0.20]
-	at org.codehaus.groovy.ast.ClassCodeVisitorSupport.visitMethod(ClassCodeVisitorSupport.java:106) ~[groovy-3.0.20.jar:3.0.20]
-	at org.codehaus.groovy.ast.ClassNode.visitMethods(ClassNode.java:1095) ~[groovy-3.0.20.jar:3.0.20]
-	at org.codehaus.groovy.ast.ClassNode.visitContents(ClassNode.java:1088) ~[groovy-3.0.20.jar:3.0.20]
-	at org.codehaus.groovy.ast.ClassCodeVisitorSupport.visitClass(ClassCodeVisitorSupport.java:52) ~[groovy-3.0.20.jar:3.0.20]
-	at org.codehaus.groovy.control.ResolveVisitor.visitClass(ResolveVisitor.java:1479) ~[groovy-3.0.20.jar:3.0.20]
-	at org.codehaus.groovy.control.ResolveVisitor.startResolving(ResolveVisitor.java:262) ~[groovy-3.0.20.jar:3.0.20]
-	at org.codehaus.groovy.control.CompilationUnit.lambda$new$16(CompilationUnit.java:739) ~[groovy-3.0.20.jar:3.0.20]
-	at org.codehaus.groovy.control.CompilationUnit$ISourceUnitOperation.doPhaseOperation(CompilationUnit.java:902) ~[groovy-3.0.20.jar:3.0.20]
-	... 25 more
-2026-04-17 03:28:41,498 ERROR o.a.j.JMeter: Uncaught exception in thread Thread[#64,Artikel-Workflow – 5 Threads 1-3,5,main]
+2026-04-17 13:11:38,149 INFO o.a.j.u.JMeterUtils: Setting Locale to de_DE
+2026-04-17 13:11:38,170 INFO o.a.j.u.JMeterUtils: Could not find resources for 'de_DE', using 'de'
+2026-04-17 13:11:38,179 INFO o.a.j.JMeter: Loading user properties from: C:\tools\apache-jmeter-5.6.3\bin\user.properties
+2026-04-17 13:11:38,190 INFO o.a.j.JMeter: Loading system properties from: C:\tools\apache-jmeter-5.6.3\bin\system.properties
+2026-04-17 13:11:38,190 INFO o.a.j.JMeter: Setting JMeter property: threads=5
+2026-04-17 13:11:38,190 INFO o.a.j.JMeter: Setting JMeter property: rampup=2
+2026-04-17 13:11:38,190 INFO o.a.j.JMeter: Setting JMeter property: host=localhost
+2026-04-17 13:11:38,190 INFO o.a.j.JMeter: Setting JMeter property: port=8081
+2026-04-17 13:11:38,190 INFO o.a.j.JMeter: Setting JMeter property: testname=Artikel-Workflow-5T
+2026-04-17 13:11:38,197 INFO o.a.j.JMeter: Copyright (c) 1998-2024 The Apache Software Foundation
+2026-04-17 13:11:38,197 INFO o.a.j.JMeter: Version 5.6.3
+2026-04-17 13:11:38,197 INFO o.a.j.JMeter: java.version=24
+2026-04-17 13:11:38,197 INFO o.a.j.JMeter: java.vm.name=OpenJDK 64-Bit Server VM
+2026-04-17 13:11:38,197 INFO o.a.j.JMeter: os.name=Windows 11
+2026-04-17 13:11:38,197 INFO o.a.j.JMeter: os.arch=amd64
+2026-04-17 13:11:38,197 INFO o.a.j.JMeter: os.version=10.0
+2026-04-17 13:11:38,197 INFO o.a.j.JMeter: file.encoding=UTF-8
+2026-04-17 13:11:38,197 INFO o.a.j.JMeter: java.awt.headless=true
+2026-04-17 13:11:38,197 INFO o.a.j.JMeter: Max memory     =8547991552
+2026-04-17 13:11:38,198 INFO o.a.j.JMeter: Available Processors =16
+2026-04-17 13:11:38,207 INFO o.a.j.JMeter: Default Locale=Deutsch (Deutschland)
+2026-04-17 13:11:38,207 INFO o.a.j.JMeter: JMeter  Locale=Deutsch (Deutschland)
+2026-04-17 13:11:38,207 INFO o.a.j.JMeter: JMeterHome=C:\tools\apache-jmeter-5.6.3
+2026-04-17 13:11:38,207 INFO o.a.j.JMeter: user.dir  =C:\Users\jason\IdeaProjects\HFWI423-Integrationsprojekt
+2026-04-17 13:11:38,208 INFO o.a.j.JMeter: PWD       =C:\Users\jason\IdeaProjects\HFWI423-Integrationsprojekt
+2026-04-17 13:11:47,685 INFO o.a.j.JMeter: IP: 169.254.123.70 Name: JasonPC FullName: JasonPC
+2026-04-17 13:11:47,706 INFO o.a.j.s.FileServer: Default base='C:\Users\jason\IdeaProjects\HFWI423-Integrationsprojekt'
+2026-04-17 13:11:47,706 INFO o.a.j.s.FileServer: Set new base='C:\Users\jason\IdeaProjects\HFWI423-Integrationsprojekt\monitoring\jmeter'
+2026-04-17 13:11:47,994 INFO o.a.j.s.SaveService: Testplan (JMX) version: 2.2. Testlog (JTL) version: 2.2
+2026-04-17 13:11:48,036 INFO o.a.j.s.SaveService: Using SaveService properties version 5.0
+2026-04-17 13:11:48,039 INFO o.a.j.s.SaveService: Using SaveService properties file encoding UTF-8
+2026-04-17 13:11:48,043 INFO o.a.j.s.SaveService: Loading file: C:\Users\jason\IdeaProjects\HFWI423-Integrationsprojekt\monitoring\jmeter\logistik-artikel-workflow.jmx
+2026-04-17 13:11:48,120 INFO o.a.j.p.h.s.HTTPSamplerBase: Parser for text/html is org.apache.jmeter.protocol.http.parser.LagartoBasedHtmlParser
+2026-04-17 13:11:48,120 INFO o.a.j.p.h.s.HTTPSamplerBase: Parser for application/xhtml+xml is org.apache.jmeter.protocol.http.parser.LagartoBasedHtmlParser
+2026-04-17 13:11:48,120 INFO o.a.j.p.h.s.HTTPSamplerBase: Parser for application/xml is org.apache.jmeter.protocol.http.parser.LagartoBasedHtmlParser
+2026-04-17 13:11:48,121 INFO o.a.j.p.h.s.HTTPSamplerBase: Parser for text/xml is org.apache.jmeter.protocol.http.parser.LagartoBasedHtmlParser
+2026-04-17 13:11:48,121 INFO o.a.j.p.h.s.HTTPSamplerBase: Parser for text/vnd.wap.wml is org.apache.jmeter.protocol.http.parser.RegexpHTMLParser
+2026-04-17 13:11:48,121 INFO o.a.j.p.h.s.HTTPSamplerBase: Parser for text/css is org.apache.jmeter.protocol.http.parser.CssParser
+2026-04-17 13:11:48,185 INFO o.a.j.s.SampleResult: Note: Sample TimeStamps are START times
+2026-04-17 13:11:48,185 INFO o.a.j.s.SampleResult: sampleresult.default.encoding is set to UTF-8
+2026-04-17 13:11:48,185 INFO o.a.j.s.SampleResult: sampleresult.useNanoTime=true
+2026-04-17 13:11:48,185 INFO o.a.j.s.SampleResult: sampleresult.nanoThreadSleep=5000
+2026-04-17 13:11:48,200 INFO o.a.j.JMeter: Creating summariser <summary>
+2026-04-17 13:11:48,222 INFO o.a.j.e.StandardJMeterEngine: Running the test!
+2026-04-17 13:11:48,224 INFO o.a.j.s.SampleEvent: List of sample_variables: []
+2026-04-17 13:11:48,224 INFO o.a.j.s.SampleEvent: List of sample_variables: []
+2026-04-17 13:11:48,229 INFO o.a.j.e.u.CompoundVariable: Note: Function class names must contain the string: '.functions.'
+2026-04-17 13:11:48,229 INFO o.a.j.e.u.CompoundVariable: Note: Function class names must not contain the string: '.gui.'
+2026-04-17 13:11:48,512 INFO o.a.j.v.b.BackendListener: InfluxDB – Grafana: Starting worker with class: class org.apache.jmeter.visualizers.backend.influxdb.InfluxdbBackendListenerClient and queue capacity: 5000
+2026-04-17 13:11:48,514 INFO o.a.j.v.b.BackendListener: InfluxDB – Grafana: Started  worker with class: class org.apache.jmeter.visualizers.backend.influxdb.InfluxdbBackendListenerClient
+2026-04-17 13:11:48,740 INFO o.a.j.JMeter: Test starten (1776424308739)
+2026-04-17 13:11:48,768 INFO o.a.j.e.StandardJMeterEngine: Starting ThreadGroup: 1 : Artikel-Workflow – 5 Threads
+2026-04-17 13:11:48,768 INFO o.a.j.e.StandardJMeterEngine: Starting 5 threads for group Artikel-Workflow – 5 Threads.
+2026-04-17 13:11:48,769 INFO o.a.j.e.StandardJMeterEngine: Thread will continue on error
+2026-04-17 13:11:48,769 INFO o.a.j.t.ThreadGroup: Starting thread group... number=1 threads=5 ramp-up=2 delayedStart=false
+2026-04-17 13:11:48,783 INFO o.a.j.t.ThreadGroup: Started thread group number 1
+2026-04-17 13:11:48,783 INFO o.a.j.e.StandardJMeterEngine: All thread groups have been started
+2026-04-17 13:11:48,790 INFO o.a.j.t.JMeterThread: Thread started: Artikel-Workflow – 5 Threads 1-1
+2026-04-17 13:11:48,821 INFO o.a.j.p.h.s.HTTPHCAbstractImpl: Local host = JasonPC
+2026-04-17 13:11:48,832 INFO o.a.j.p.h.s.HTTPHC4Impl: HTTP request retry count = 0
+2026-04-17 13:11:49,184 INFO o.a.j.t.JMeterThread: Thread started: Artikel-Workflow – 5 Threads 1-2
+2026-04-17 13:11:49,584 INFO o.a.j.t.JMeterThread: Thread started: Artikel-Workflow – 5 Threads 1-3
+2026-04-17 13:11:49,979 INFO o.a.j.t.JMeterThread: Thread started: Artikel-Workflow – 5 Threads 1-4
+2026-04-17 13:11:50,378 INFO o.a.j.t.JMeterThread: Thread started: Artikel-Workflow – 5 Threads 1-5
+2026-04-17 13:12:00,121 INFO o.a.j.r.Summariser: summary +    615 in 00:00:11 =   54,0/s Avg:    19 Min:     0 Max:   635 Err:    88 (14,31%) Active: 5 Started: 5 Finished: 0
+2026-04-17 13:12:30,013 INFO o.a.j.r.Summariser: summary +    155 in 00:00:30 =    5,2/s Avg:    57 Min:     4 Max:   239 Err:     0 (0,00%) Active: 5 Started: 5 Finished: 0
+2026-04-17 13:12:30,013 INFO o.a.j.r.Summariser: summary =    770 in 00:00:41 =   18,7/s Avg:    26 Min:     0 Max:   635 Err:    88 (11,43%)
+2026-04-17 13:12:35,758 INFO o.a.j.t.JMeterThread: Thread finished: Artikel-Workflow – 5 Threads 1-3
+2026-04-17 13:12:35,766 INFO o.a.j.t.JMeterThread: Thread finished: Artikel-Workflow – 5 Threads 1-4
+2026-04-17 13:12:35,777 INFO o.a.j.t.JMeterThread: Thread finished: Artikel-Workflow – 5 Threads 1-5
+2026-04-17 13:12:35,760 ERROR o.a.j.JMeter: Uncaught exception in thread Thread[#64,Artikel-Workflow – 5 Threads 1-3,5,main]
 org.codehaus.groovy.GroovyBugError: BUG! exception in phase 'semantic analysis' in source unit 'Script10.groovy' Unsupported class file major version 68
 	at org.codehaus.groovy.control.CompilationUnit$ISourceUnitOperation.doPhaseOperation(CompilationUnit.java:906) ~[groovy-3.0.20.jar:3.0.20]
 	at org.codehaus.groovy.control.CompilationUnit.compile(CompilationUnit.java:628) ~[groovy-3.0.20.jar:3.0.20]
@@ -215,84 +143,7 @@ Caused by: java.lang.IllegalArgumentException: Unsupported class file major vers
 	at org.codehaus.groovy.control.CompilationUnit.lambda$new$16(CompilationUnit.java:739) ~[groovy-3.0.20.jar:3.0.20]
 	at org.codehaus.groovy.control.CompilationUnit$ISourceUnitOperation.doPhaseOperation(CompilationUnit.java:902) ~[groovy-3.0.20.jar:3.0.20]
 	... 25 more
-2026-04-17 03:28:41,506 INFO o.a.j.t.JMeterThread: Thread finished: Artikel-Workflow – 5 Threads 1-1
-2026-04-17 03:28:41,506 ERROR o.a.j.JMeter: Uncaught exception in thread Thread[#62,Artikel-Workflow – 5 Threads 1-1,5,main]
-org.codehaus.groovy.GroovyBugError: BUG! exception in phase 'semantic analysis' in source unit 'Script11.groovy' Unsupported class file major version 68
-	at org.codehaus.groovy.control.CompilationUnit$ISourceUnitOperation.doPhaseOperation(CompilationUnit.java:906) ~[groovy-3.0.20.jar:3.0.20]
-	at org.codehaus.groovy.control.CompilationUnit.compile(CompilationUnit.java:628) ~[groovy-3.0.20.jar:3.0.20]
-	at groovy.lang.GroovyClassLoader.doParseClass(GroovyClassLoader.java:389) ~[groovy-3.0.20.jar:3.0.20]
-	at groovy.lang.GroovyClassLoader.lambda$parseClass$3(GroovyClassLoader.java:332) ~[groovy-3.0.20.jar:3.0.20]
-	at org.codehaus.groovy.runtime.memoize.StampedCommonCache.compute(StampedCommonCache.java:163) ~[groovy-3.0.20.jar:3.0.20]
-	at org.codehaus.groovy.runtime.memoize.StampedCommonCache.getAndPut(StampedCommonCache.java:154) ~[groovy-3.0.20.jar:3.0.20]
-	at groovy.lang.GroovyClassLoader.parseClass(GroovyClassLoader.java:330) ~[groovy-3.0.20.jar:3.0.20]
-	at groovy.lang.GroovyClassLoader.parseClass(GroovyClassLoader.java:314) ~[groovy-3.0.20.jar:3.0.20]
-	at groovy.lang.GroovyClassLoader.parseClass(GroovyClassLoader.java:257) ~[groovy-3.0.20.jar:3.0.20]
-	at org.codehaus.groovy.jsr223.GroovyScriptEngineImpl.getScriptClass(GroovyScriptEngineImpl.java:336) ~[groovy-jsr223-3.0.20.jar:3.0.20]
-	at org.codehaus.groovy.jsr223.GroovyScriptEngineImpl.compile(GroovyScriptEngineImpl.java:181) ~[groovy-jsr223-3.0.20.jar:3.0.20]
-	at org.apache.jmeter.util.JSR223TestElement.lambda$processFileOrScript$1(JSR223TestElement.java:225) ~[ApacheJMeter_core.jar:5.6.3]
-	at com.github.benmanes.caffeine.cache.BoundedLocalCache.lambda$doComputeIfAbsent$14(BoundedLocalCache.java:2406) ~[caffeine-2.9.3.jar:?]
-	at java.base/java.util.concurrent.ConcurrentHashMap.compute(ConcurrentHashMap.java:1932) ~[?:?]
-	at com.github.benmanes.caffeine.cache.BoundedLocalCache.doComputeIfAbsent(BoundedLocalCache.java:2404) ~[caffeine-2.9.3.jar:?]
-	at com.github.benmanes.caffeine.cache.BoundedLocalCache.computeIfAbsent(BoundedLocalCache.java:2387) ~[caffeine-2.9.3.jar:?]
-	at com.github.benmanes.caffeine.cache.LocalCache.computeIfAbsent(LocalCache.java:108) ~[caffeine-2.9.3.jar:?]
-	at com.github.benmanes.caffeine.cache.LocalManualCache.get(LocalManualCache.java:62) ~[caffeine-2.9.3.jar:?]
-	at org.apache.jmeter.util.JSR223TestElement.getCompiledScript(JSR223TestElement.java:252) ~[ApacheJMeter_core.jar:5.6.3]
-	at org.apache.jmeter.util.JSR223TestElement.processFileOrScript(JSR223TestElement.java:223) ~[ApacheJMeter_core.jar:5.6.3]
-	at org.apache.jmeter.protocol.java.sampler.JSR223Sampler.sample(JSR223Sampler.java:72) ~[ApacheJMeter_java.jar:5.6.3]
-	at org.apache.jmeter.threads.JMeterThread.doSampling(JMeterThread.java:651) ~[ApacheJMeter_core.jar:5.6.3]
-	at org.apache.jmeter.threads.JMeterThread.executeSamplePackage(JMeterThread.java:570) ~[ApacheJMeter_core.jar:5.6.3]
-	at org.apache.jmeter.threads.JMeterThread.processSampler(JMeterThread.java:501) ~[ApacheJMeter_core.jar:5.6.3]
-	at org.apache.jmeter.threads.JMeterThread.run(JMeterThread.java:268) ~[ApacheJMeter_core.jar:5.6.3]
-	at java.base/java.lang.Thread.run(Thread.java:1447) [?:?]
-Caused by: java.lang.IllegalArgumentException: Unsupported class file major version 68
-	at groovyjarjarasm.asm.ClassReader.<init>(ClassReader.java:199) ~[groovy-3.0.20.jar:3.0.20]
-	at groovyjarjarasm.asm.ClassReader.<init>(ClassReader.java:180) ~[groovy-3.0.20.jar:3.0.20]
-	at groovyjarjarasm.asm.ClassReader.<init>(ClassReader.java:166) ~[groovy-3.0.20.jar:3.0.20]
-	at groovyjarjarasm.asm.ClassReader.<init>(ClassReader.java:287) ~[groovy-3.0.20.jar:3.0.20]
-	at org.codehaus.groovy.ast.decompiled.AsmDecompiler.parseClass(AsmDecompiler.java:81) ~[groovy-3.0.20.jar:3.0.20]
-	at org.codehaus.groovy.control.ClassNodeResolver.findDecompiled(ClassNodeResolver.java:251) ~[groovy-3.0.20.jar:3.0.20]
-	at org.codehaus.groovy.control.ClassNodeResolver.tryAsLoaderClassOrScript(ClassNodeResolver.java:189) ~[groovy-3.0.20.jar:3.0.20]
-	at org.codehaus.groovy.control.ClassNodeResolver.findClassNode(ClassNodeResolver.java:169) ~[groovy-3.0.20.jar:3.0.20]
-	at org.codehaus.groovy.control.ClassNodeResolver.resolveName(ClassNodeResolver.java:125) ~[groovy-3.0.20.jar:3.0.20]
-	at org.codehaus.groovy.control.ResolveVisitor.resolveToOuter(ResolveVisitor.java:875) ~[groovy-3.0.20.jar:3.0.20]
-	at org.codehaus.groovy.control.ResolveVisitor.resolve(ResolveVisitor.java:506) ~[groovy-3.0.20.jar:3.0.20]
-	at org.codehaus.groovy.control.ResolveVisitor.resolveFromDefaultImports(ResolveVisitor.java:667) ~[groovy-3.0.20.jar:3.0.20]
-	at org.codehaus.groovy.control.ResolveVisitor.resolveFromDefaultImports(ResolveVisitor.java:631) ~[groovy-3.0.20.jar:3.0.20]
-	at org.codehaus.groovy.control.ResolveVisitor.resolve(ResolveVisitor.java:505) ~[groovy-3.0.20.jar:3.0.20]
-	at org.codehaus.groovy.control.ResolveVisitor.resolve(ResolveVisitor.java:467) ~[groovy-3.0.20.jar:3.0.20]
-	at org.codehaus.groovy.control.ResolveVisitor.transformVariableExpression(ResolveVisitor.java:1125) ~[groovy-3.0.20.jar:3.0.20]
-	at org.codehaus.groovy.control.ResolveVisitor.transform(ResolveVisitor.java:894) ~[groovy-3.0.20.jar:3.0.20]
-	at org.codehaus.groovy.control.ResolveVisitor.transformMethodCallExpression(ResolveVisitor.java:1270) ~[groovy-3.0.20.jar:3.0.20]
-	at org.codehaus.groovy.control.ResolveVisitor.transform(ResolveVisitor.java:902) ~[groovy-3.0.20.jar:3.0.20]
-	at org.codehaus.groovy.control.ResolveVisitor.transformBinaryExpression(ResolveVisitor.java:1150) ~[groovy-3.0.20.jar:3.0.20]
-	at org.codehaus.groovy.control.ResolveVisitor.transform(ResolveVisitor.java:900) ~[groovy-3.0.20.jar:3.0.20]
-	at org.codehaus.groovy.ast.expr.CastExpression.transformExpression(CastExpression.java:95) ~[groovy-3.0.20.jar:3.0.20]
-	at org.codehaus.groovy.control.ResolveVisitor.transform(ResolveVisitor.java:911) ~[groovy-3.0.20.jar:3.0.20]
-	at org.codehaus.groovy.control.ResolveVisitor.transformBinaryExpression(ResolveVisitor.java:1150) ~[groovy-3.0.20.jar:3.0.20]
-	at org.codehaus.groovy.control.ResolveVisitor.transform(ResolveVisitor.java:900) ~[groovy-3.0.20.jar:3.0.20]
-	at org.codehaus.groovy.control.ResolveVisitor.transformDeclarationExpression(ResolveVisitor.java:1294) ~[groovy-3.0.20.jar:3.0.20]
-	at org.codehaus.groovy.control.ResolveVisitor.transform(ResolveVisitor.java:898) ~[groovy-3.0.20.jar:3.0.20]
-	at org.codehaus.groovy.ast.ClassCodeExpressionTransformer.visitExpressionStatement(ClassCodeExpressionTransformer.java:108) ~[groovy-3.0.20.jar:3.0.20]
-	at org.codehaus.groovy.ast.stmt.ExpressionStatement.visit(ExpressionStatement.java:40) ~[groovy-3.0.20.jar:3.0.20]
-	at org.codehaus.groovy.ast.CodeVisitorSupport.visitBlockStatement(CodeVisitorSupport.java:86) ~[groovy-3.0.20.jar:3.0.20]
-	at org.codehaus.groovy.ast.ClassCodeVisitorSupport.visitBlockStatement(ClassCodeVisitorSupport.java:164) ~[groovy-3.0.20.jar:3.0.20]
-	at org.codehaus.groovy.control.ResolveVisitor.visitBlockStatement(ResolveVisitor.java:1562) ~[groovy-3.0.20.jar:3.0.20]
-	at org.codehaus.groovy.ast.stmt.BlockStatement.visit(BlockStatement.java:69) ~[groovy-3.0.20.jar:3.0.20]
-	at org.codehaus.groovy.ast.ClassCodeVisitorSupport.visitClassCodeContainer(ClassCodeVisitorSupport.java:138) ~[groovy-3.0.20.jar:3.0.20]
-	at org.codehaus.groovy.ast.ClassCodeVisitorSupport.visitConstructorOrMethod(ClassCodeVisitorSupport.java:111) ~[groovy-3.0.20.jar:3.0.20]
-	at org.codehaus.groovy.ast.ClassCodeExpressionTransformer.visitConstructorOrMethod(ClassCodeExpressionTransformer.java:66) ~[groovy-3.0.20.jar:3.0.20]
-	at org.codehaus.groovy.control.ResolveVisitor.visitConstructorOrMethod(ResolveVisitor.java:293) ~[groovy-3.0.20.jar:3.0.20]
-	at org.codehaus.groovy.ast.ClassCodeVisitorSupport.visitMethod(ClassCodeVisitorSupport.java:106) ~[groovy-3.0.20.jar:3.0.20]
-	at org.codehaus.groovy.ast.ClassNode.visitMethods(ClassNode.java:1095) ~[groovy-3.0.20.jar:3.0.20]
-	at org.codehaus.groovy.ast.ClassNode.visitContents(ClassNode.java:1088) ~[groovy-3.0.20.jar:3.0.20]
-	at org.codehaus.groovy.ast.ClassCodeVisitorSupport.visitClass(ClassCodeVisitorSupport.java:52) ~[groovy-3.0.20.jar:3.0.20]
-	at org.codehaus.groovy.control.ResolveVisitor.visitClass(ResolveVisitor.java:1479) ~[groovy-3.0.20.jar:3.0.20]
-	at org.codehaus.groovy.control.ResolveVisitor.startResolving(ResolveVisitor.java:262) ~[groovy-3.0.20.jar:3.0.20]
-	at org.codehaus.groovy.control.CompilationUnit.lambda$new$16(CompilationUnit.java:739) ~[groovy-3.0.20.jar:3.0.20]
-	at org.codehaus.groovy.control.CompilationUnit$ISourceUnitOperation.doPhaseOperation(CompilationUnit.java:902) ~[groovy-3.0.20.jar:3.0.20]
-	... 25 more
-2026-04-17 03:28:41,534 INFO o.a.j.t.JMeterThread: Thread finished: Artikel-Workflow – 5 Threads 1-4
-2026-04-17 03:28:41,534 ERROR o.a.j.JMeter: Uncaught exception in thread Thread[#65,Artikel-Workflow – 5 Threads 1-4,5,main]
+2026-04-17 13:12:35,778 ERROR o.a.j.JMeter: Uncaught exception in thread Thread[#66,Artikel-Workflow – 5 Threads 1-5,5,main]
 org.codehaus.groovy.GroovyBugError: BUG! exception in phase 'semantic analysis' in source unit 'Script12.groovy' Unsupported class file major version 68
 	at org.codehaus.groovy.control.CompilationUnit$ISourceUnitOperation.doPhaseOperation(CompilationUnit.java:906) ~[groovy-3.0.20.jar:3.0.20]
 	at org.codehaus.groovy.control.CompilationUnit.compile(CompilationUnit.java:628) ~[groovy-3.0.20.jar:3.0.20]
@@ -367,8 +218,83 @@ Caused by: java.lang.IllegalArgumentException: Unsupported class file major vers
 	at org.codehaus.groovy.control.CompilationUnit.lambda$new$16(CompilationUnit.java:739) ~[groovy-3.0.20.jar:3.0.20]
 	at org.codehaus.groovy.control.CompilationUnit$ISourceUnitOperation.doPhaseOperation(CompilationUnit.java:902) ~[groovy-3.0.20.jar:3.0.20]
 	... 25 more
-2026-04-17 03:28:41,927 INFO o.a.j.t.JMeterThread: Thread finished: Artikel-Workflow – 5 Threads 1-5
-2026-04-17 03:28:41,928 ERROR o.a.j.JMeter: Uncaught exception in thread Thread[#66,Artikel-Workflow – 5 Threads 1-5,5,main]
+2026-04-17 13:12:35,766 ERROR o.a.j.JMeter: Uncaught exception in thread Thread[#65,Artikel-Workflow – 5 Threads 1-4,5,main]
+org.codehaus.groovy.GroovyBugError: BUG! exception in phase 'semantic analysis' in source unit 'Script11.groovy' Unsupported class file major version 68
+	at org.codehaus.groovy.control.CompilationUnit$ISourceUnitOperation.doPhaseOperation(CompilationUnit.java:906) ~[groovy-3.0.20.jar:3.0.20]
+	at org.codehaus.groovy.control.CompilationUnit.compile(CompilationUnit.java:628) ~[groovy-3.0.20.jar:3.0.20]
+	at groovy.lang.GroovyClassLoader.doParseClass(GroovyClassLoader.java:389) ~[groovy-3.0.20.jar:3.0.20]
+	at groovy.lang.GroovyClassLoader.lambda$parseClass$3(GroovyClassLoader.java:332) ~[groovy-3.0.20.jar:3.0.20]
+	at org.codehaus.groovy.runtime.memoize.StampedCommonCache.compute(StampedCommonCache.java:163) ~[groovy-3.0.20.jar:3.0.20]
+	at org.codehaus.groovy.runtime.memoize.StampedCommonCache.getAndPut(StampedCommonCache.java:154) ~[groovy-3.0.20.jar:3.0.20]
+	at groovy.lang.GroovyClassLoader.parseClass(GroovyClassLoader.java:330) ~[groovy-3.0.20.jar:3.0.20]
+	at groovy.lang.GroovyClassLoader.parseClass(GroovyClassLoader.java:314) ~[groovy-3.0.20.jar:3.0.20]
+	at groovy.lang.GroovyClassLoader.parseClass(GroovyClassLoader.java:257) ~[groovy-3.0.20.jar:3.0.20]
+	at org.codehaus.groovy.jsr223.GroovyScriptEngineImpl.getScriptClass(GroovyScriptEngineImpl.java:336) ~[groovy-jsr223-3.0.20.jar:3.0.20]
+	at org.codehaus.groovy.jsr223.GroovyScriptEngineImpl.compile(GroovyScriptEngineImpl.java:181) ~[groovy-jsr223-3.0.20.jar:3.0.20]
+	at org.apache.jmeter.util.JSR223TestElement.lambda$processFileOrScript$1(JSR223TestElement.java:225) ~[ApacheJMeter_core.jar:5.6.3]
+	at com.github.benmanes.caffeine.cache.BoundedLocalCache.lambda$doComputeIfAbsent$14(BoundedLocalCache.java:2406) ~[caffeine-2.9.3.jar:?]
+	at java.base/java.util.concurrent.ConcurrentHashMap.compute(ConcurrentHashMap.java:1932) ~[?:?]
+	at com.github.benmanes.caffeine.cache.BoundedLocalCache.doComputeIfAbsent(BoundedLocalCache.java:2404) ~[caffeine-2.9.3.jar:?]
+	at com.github.benmanes.caffeine.cache.BoundedLocalCache.computeIfAbsent(BoundedLocalCache.java:2387) ~[caffeine-2.9.3.jar:?]
+	at com.github.benmanes.caffeine.cache.LocalCache.computeIfAbsent(LocalCache.java:108) ~[caffeine-2.9.3.jar:?]
+	at com.github.benmanes.caffeine.cache.LocalManualCache.get(LocalManualCache.java:62) ~[caffeine-2.9.3.jar:?]
+	at org.apache.jmeter.util.JSR223TestElement.getCompiledScript(JSR223TestElement.java:252) ~[ApacheJMeter_core.jar:5.6.3]
+	at org.apache.jmeter.util.JSR223TestElement.processFileOrScript(JSR223TestElement.java:223) ~[ApacheJMeter_core.jar:5.6.3]
+	at org.apache.jmeter.protocol.java.sampler.JSR223Sampler.sample(JSR223Sampler.java:72) ~[ApacheJMeter_java.jar:5.6.3]
+	at org.apache.jmeter.threads.JMeterThread.doSampling(JMeterThread.java:651) ~[ApacheJMeter_core.jar:5.6.3]
+	at org.apache.jmeter.threads.JMeterThread.executeSamplePackage(JMeterThread.java:570) ~[ApacheJMeter_core.jar:5.6.3]
+	at org.apache.jmeter.threads.JMeterThread.processSampler(JMeterThread.java:501) ~[ApacheJMeter_core.jar:5.6.3]
+	at org.apache.jmeter.threads.JMeterThread.run(JMeterThread.java:268) ~[ApacheJMeter_core.jar:5.6.3]
+	at java.base/java.lang.Thread.run(Thread.java:1447) [?:?]
+Caused by: java.lang.IllegalArgumentException: Unsupported class file major version 68
+	at groovyjarjarasm.asm.ClassReader.<init>(ClassReader.java:199) ~[groovy-3.0.20.jar:3.0.20]
+	at groovyjarjarasm.asm.ClassReader.<init>(ClassReader.java:180) ~[groovy-3.0.20.jar:3.0.20]
+	at groovyjarjarasm.asm.ClassReader.<init>(ClassReader.java:166) ~[groovy-3.0.20.jar:3.0.20]
+	at groovyjarjarasm.asm.ClassReader.<init>(ClassReader.java:287) ~[groovy-3.0.20.jar:3.0.20]
+	at org.codehaus.groovy.ast.decompiled.AsmDecompiler.parseClass(AsmDecompiler.java:81) ~[groovy-3.0.20.jar:3.0.20]
+	at org.codehaus.groovy.control.ClassNodeResolver.findDecompiled(ClassNodeResolver.java:251) ~[groovy-3.0.20.jar:3.0.20]
+	at org.codehaus.groovy.control.ClassNodeResolver.tryAsLoaderClassOrScript(ClassNodeResolver.java:189) ~[groovy-3.0.20.jar:3.0.20]
+	at org.codehaus.groovy.control.ClassNodeResolver.findClassNode(ClassNodeResolver.java:169) ~[groovy-3.0.20.jar:3.0.20]
+	at org.codehaus.groovy.control.ClassNodeResolver.resolveName(ClassNodeResolver.java:125) ~[groovy-3.0.20.jar:3.0.20]
+	at org.codehaus.groovy.control.ResolveVisitor.resolveToOuter(ResolveVisitor.java:875) ~[groovy-3.0.20.jar:3.0.20]
+	at org.codehaus.groovy.control.ResolveVisitor.resolve(ResolveVisitor.java:506) ~[groovy-3.0.20.jar:3.0.20]
+	at org.codehaus.groovy.control.ResolveVisitor.resolveFromDefaultImports(ResolveVisitor.java:667) ~[groovy-3.0.20.jar:3.0.20]
+	at org.codehaus.groovy.control.ResolveVisitor.resolveFromDefaultImports(ResolveVisitor.java:631) ~[groovy-3.0.20.jar:3.0.20]
+	at org.codehaus.groovy.control.ResolveVisitor.resolve(ResolveVisitor.java:505) ~[groovy-3.0.20.jar:3.0.20]
+	at org.codehaus.groovy.control.ResolveVisitor.resolve(ResolveVisitor.java:467) ~[groovy-3.0.20.jar:3.0.20]
+	at org.codehaus.groovy.control.ResolveVisitor.transformVariableExpression(ResolveVisitor.java:1125) ~[groovy-3.0.20.jar:3.0.20]
+	at org.codehaus.groovy.control.ResolveVisitor.transform(ResolveVisitor.java:894) ~[groovy-3.0.20.jar:3.0.20]
+	at org.codehaus.groovy.control.ResolveVisitor.transformMethodCallExpression(ResolveVisitor.java:1270) ~[groovy-3.0.20.jar:3.0.20]
+	at org.codehaus.groovy.control.ResolveVisitor.transform(ResolveVisitor.java:902) ~[groovy-3.0.20.jar:3.0.20]
+	at org.codehaus.groovy.control.ResolveVisitor.transformBinaryExpression(ResolveVisitor.java:1150) ~[groovy-3.0.20.jar:3.0.20]
+	at org.codehaus.groovy.control.ResolveVisitor.transform(ResolveVisitor.java:900) ~[groovy-3.0.20.jar:3.0.20]
+	at org.codehaus.groovy.ast.expr.CastExpression.transformExpression(CastExpression.java:95) ~[groovy-3.0.20.jar:3.0.20]
+	at org.codehaus.groovy.control.ResolveVisitor.transform(ResolveVisitor.java:911) ~[groovy-3.0.20.jar:3.0.20]
+	at org.codehaus.groovy.control.ResolveVisitor.transformBinaryExpression(ResolveVisitor.java:1150) ~[groovy-3.0.20.jar:3.0.20]
+	at org.codehaus.groovy.control.ResolveVisitor.transform(ResolveVisitor.java:900) ~[groovy-3.0.20.jar:3.0.20]
+	at org.codehaus.groovy.control.ResolveVisitor.transformDeclarationExpression(ResolveVisitor.java:1294) ~[groovy-3.0.20.jar:3.0.20]
+	at org.codehaus.groovy.control.ResolveVisitor.transform(ResolveVisitor.java:898) ~[groovy-3.0.20.jar:3.0.20]
+	at org.codehaus.groovy.ast.ClassCodeExpressionTransformer.visitExpressionStatement(ClassCodeExpressionTransformer.java:108) ~[groovy-3.0.20.jar:3.0.20]
+	at org.codehaus.groovy.ast.stmt.ExpressionStatement.visit(ExpressionStatement.java:40) ~[groovy-3.0.20.jar:3.0.20]
+	at org.codehaus.groovy.ast.CodeVisitorSupport.visitBlockStatement(CodeVisitorSupport.java:86) ~[groovy-3.0.20.jar:3.0.20]
+	at org.codehaus.groovy.ast.ClassCodeVisitorSupport.visitBlockStatement(ClassCodeVisitorSupport.java:164) ~[groovy-3.0.20.jar:3.0.20]
+	at org.codehaus.groovy.control.ResolveVisitor.visitBlockStatement(ResolveVisitor.java:1562) ~[groovy-3.0.20.jar:3.0.20]
+	at org.codehaus.groovy.ast.stmt.BlockStatement.visit(BlockStatement.java:69) ~[groovy-3.0.20.jar:3.0.20]
+	at org.codehaus.groovy.ast.ClassCodeVisitorSupport.visitClassCodeContainer(ClassCodeVisitorSupport.java:138) ~[groovy-3.0.20.jar:3.0.20]
+	at org.codehaus.groovy.ast.ClassCodeVisitorSupport.visitConstructorOrMethod(ClassCodeVisitorSupport.java:111) ~[groovy-3.0.20.jar:3.0.20]
+	at org.codehaus.groovy.ast.ClassCodeExpressionTransformer.visitConstructorOrMethod(ClassCodeExpressionTransformer.java:66) ~[groovy-3.0.20.jar:3.0.20]
+	at org.codehaus.groovy.control.ResolveVisitor.visitConstructorOrMethod(ResolveVisitor.java:293) ~[groovy-3.0.20.jar:3.0.20]
+	at org.codehaus.groovy.ast.ClassCodeVisitorSupport.visitMethod(ClassCodeVisitorSupport.java:106) ~[groovy-3.0.20.jar:3.0.20]
+	at org.codehaus.groovy.ast.ClassNode.visitMethods(ClassNode.java:1095) ~[groovy-3.0.20.jar:3.0.20]
+	at org.codehaus.groovy.ast.ClassNode.visitContents(ClassNode.java:1088) ~[groovy-3.0.20.jar:3.0.20]
+	at org.codehaus.groovy.ast.ClassCodeVisitorSupport.visitClass(ClassCodeVisitorSupport.java:52) ~[groovy-3.0.20.jar:3.0.20]
+	at org.codehaus.groovy.control.ResolveVisitor.visitClass(ResolveVisitor.java:1479) ~[groovy-3.0.20.jar:3.0.20]
+	at org.codehaus.groovy.control.ResolveVisitor.startResolving(ResolveVisitor.java:262) ~[groovy-3.0.20.jar:3.0.20]
+	at org.codehaus.groovy.control.CompilationUnit.lambda$new$16(CompilationUnit.java:739) ~[groovy-3.0.20.jar:3.0.20]
+	at org.codehaus.groovy.control.CompilationUnit$ISourceUnitOperation.doPhaseOperation(CompilationUnit.java:902) ~[groovy-3.0.20.jar:3.0.20]
+	... 25 more
+2026-04-17 13:12:35,785 INFO o.a.j.t.JMeterThread: Thread finished: Artikel-Workflow – 5 Threads 1-2
+2026-04-17 13:12:35,786 ERROR o.a.j.JMeter: Uncaught exception in thread Thread[#63,Artikel-Workflow – 5 Threads 1-2,5,main]
 org.codehaus.groovy.GroovyBugError: BUG! exception in phase 'semantic analysis' in source unit 'Script13.groovy' Unsupported class file major version 68
 	at org.codehaus.groovy.control.CompilationUnit$ISourceUnitOperation.doPhaseOperation(CompilationUnit.java:906) ~[groovy-3.0.20.jar:3.0.20]
 	at org.codehaus.groovy.control.CompilationUnit.compile(CompilationUnit.java:628) ~[groovy-3.0.20.jar:3.0.20]
@@ -443,9 +369,85 @@ Caused by: java.lang.IllegalArgumentException: Unsupported class file major vers
 	at org.codehaus.groovy.control.CompilationUnit.lambda$new$16(CompilationUnit.java:739) ~[groovy-3.0.20.jar:3.0.20]
 	at org.codehaus.groovy.control.CompilationUnit$ISourceUnitOperation.doPhaseOperation(CompilationUnit.java:902) ~[groovy-3.0.20.jar:3.0.20]
 	... 25 more
-2026-04-17 03:28:41,931 INFO o.a.j.e.StandardJMeterEngine: Notifying test listeners of end of test
-2026-04-17 03:28:41,933 INFO o.a.j.v.b.BackendListener: Worker ended
-2026-04-17 03:28:41,935 INFO o.a.j.v.b.i.InfluxdbBackendListenerClient: Sending last metrics to InfluxDB
-2026-04-17 03:28:41,936 INFO o.a.j.v.b.i.HttpMetricsSender: Destroying 
-2026-04-17 03:28:41,965 INFO o.a.j.r.Summariser: summary +     54 in 00:00:06 =    9,0/s Avg:    46 Min:     0 Max:   548 Err:     0 (0,00%) Active: 0 Started: 5 Finished: 5
-2026-04-17 03:28:41,965 INFO o.a.j.r.Summariser: summary =     55 in 00:00:06 =    9,0/s Avg:    46 Min:     0 Max:   548 Err:     0 (0,00%)
+2026-04-17 13:12:35,792 INFO o.a.j.t.JMeterThread: Thread finished: Artikel-Workflow – 5 Threads 1-1
+2026-04-17 13:12:35,792 ERROR o.a.j.JMeter: Uncaught exception in thread Thread[#62,Artikel-Workflow – 5 Threads 1-1,5,main]
+org.codehaus.groovy.GroovyBugError: BUG! exception in phase 'semantic analysis' in source unit 'Script14.groovy' Unsupported class file major version 68
+	at org.codehaus.groovy.control.CompilationUnit$ISourceUnitOperation.doPhaseOperation(CompilationUnit.java:906) ~[groovy-3.0.20.jar:3.0.20]
+	at org.codehaus.groovy.control.CompilationUnit.compile(CompilationUnit.java:628) ~[groovy-3.0.20.jar:3.0.20]
+	at groovy.lang.GroovyClassLoader.doParseClass(GroovyClassLoader.java:389) ~[groovy-3.0.20.jar:3.0.20]
+	at groovy.lang.GroovyClassLoader.lambda$parseClass$3(GroovyClassLoader.java:332) ~[groovy-3.0.20.jar:3.0.20]
+	at org.codehaus.groovy.runtime.memoize.StampedCommonCache.compute(StampedCommonCache.java:163) ~[groovy-3.0.20.jar:3.0.20]
+	at org.codehaus.groovy.runtime.memoize.StampedCommonCache.getAndPut(StampedCommonCache.java:154) ~[groovy-3.0.20.jar:3.0.20]
+	at groovy.lang.GroovyClassLoader.parseClass(GroovyClassLoader.java:330) ~[groovy-3.0.20.jar:3.0.20]
+	at groovy.lang.GroovyClassLoader.parseClass(GroovyClassLoader.java:314) ~[groovy-3.0.20.jar:3.0.20]
+	at groovy.lang.GroovyClassLoader.parseClass(GroovyClassLoader.java:257) ~[groovy-3.0.20.jar:3.0.20]
+	at org.codehaus.groovy.jsr223.GroovyScriptEngineImpl.getScriptClass(GroovyScriptEngineImpl.java:336) ~[groovy-jsr223-3.0.20.jar:3.0.20]
+	at org.codehaus.groovy.jsr223.GroovyScriptEngineImpl.compile(GroovyScriptEngineImpl.java:181) ~[groovy-jsr223-3.0.20.jar:3.0.20]
+	at org.apache.jmeter.util.JSR223TestElement.lambda$processFileOrScript$1(JSR223TestElement.java:225) ~[ApacheJMeter_core.jar:5.6.3]
+	at com.github.benmanes.caffeine.cache.BoundedLocalCache.lambda$doComputeIfAbsent$14(BoundedLocalCache.java:2406) ~[caffeine-2.9.3.jar:?]
+	at java.base/java.util.concurrent.ConcurrentHashMap.compute(ConcurrentHashMap.java:1932) ~[?:?]
+	at com.github.benmanes.caffeine.cache.BoundedLocalCache.doComputeIfAbsent(BoundedLocalCache.java:2404) ~[caffeine-2.9.3.jar:?]
+	at com.github.benmanes.caffeine.cache.BoundedLocalCache.computeIfAbsent(BoundedLocalCache.java:2387) ~[caffeine-2.9.3.jar:?]
+	at com.github.benmanes.caffeine.cache.LocalCache.computeIfAbsent(LocalCache.java:108) ~[caffeine-2.9.3.jar:?]
+	at com.github.benmanes.caffeine.cache.LocalManualCache.get(LocalManualCache.java:62) ~[caffeine-2.9.3.jar:?]
+	at org.apache.jmeter.util.JSR223TestElement.getCompiledScript(JSR223TestElement.java:252) ~[ApacheJMeter_core.jar:5.6.3]
+	at org.apache.jmeter.util.JSR223TestElement.processFileOrScript(JSR223TestElement.java:223) ~[ApacheJMeter_core.jar:5.6.3]
+	at org.apache.jmeter.protocol.java.sampler.JSR223Sampler.sample(JSR223Sampler.java:72) ~[ApacheJMeter_java.jar:5.6.3]
+	at org.apache.jmeter.threads.JMeterThread.doSampling(JMeterThread.java:651) ~[ApacheJMeter_core.jar:5.6.3]
+	at org.apache.jmeter.threads.JMeterThread.executeSamplePackage(JMeterThread.java:570) ~[ApacheJMeter_core.jar:5.6.3]
+	at org.apache.jmeter.threads.JMeterThread.processSampler(JMeterThread.java:501) ~[ApacheJMeter_core.jar:5.6.3]
+	at org.apache.jmeter.threads.JMeterThread.run(JMeterThread.java:268) ~[ApacheJMeter_core.jar:5.6.3]
+	at java.base/java.lang.Thread.run(Thread.java:1447) [?:?]
+Caused by: java.lang.IllegalArgumentException: Unsupported class file major version 68
+	at groovyjarjarasm.asm.ClassReader.<init>(ClassReader.java:199) ~[groovy-3.0.20.jar:3.0.20]
+	at groovyjarjarasm.asm.ClassReader.<init>(ClassReader.java:180) ~[groovy-3.0.20.jar:3.0.20]
+	at groovyjarjarasm.asm.ClassReader.<init>(ClassReader.java:166) ~[groovy-3.0.20.jar:3.0.20]
+	at groovyjarjarasm.asm.ClassReader.<init>(ClassReader.java:287) ~[groovy-3.0.20.jar:3.0.20]
+	at org.codehaus.groovy.ast.decompiled.AsmDecompiler.parseClass(AsmDecompiler.java:81) ~[groovy-3.0.20.jar:3.0.20]
+	at org.codehaus.groovy.control.ClassNodeResolver.findDecompiled(ClassNodeResolver.java:251) ~[groovy-3.0.20.jar:3.0.20]
+	at org.codehaus.groovy.control.ClassNodeResolver.tryAsLoaderClassOrScript(ClassNodeResolver.java:189) ~[groovy-3.0.20.jar:3.0.20]
+	at org.codehaus.groovy.control.ClassNodeResolver.findClassNode(ClassNodeResolver.java:169) ~[groovy-3.0.20.jar:3.0.20]
+	at org.codehaus.groovy.control.ClassNodeResolver.resolveName(ClassNodeResolver.java:125) ~[groovy-3.0.20.jar:3.0.20]
+	at org.codehaus.groovy.control.ResolveVisitor.resolveToOuter(ResolveVisitor.java:875) ~[groovy-3.0.20.jar:3.0.20]
+	at org.codehaus.groovy.control.ResolveVisitor.resolve(ResolveVisitor.java:506) ~[groovy-3.0.20.jar:3.0.20]
+	at org.codehaus.groovy.control.ResolveVisitor.resolveFromDefaultImports(ResolveVisitor.java:667) ~[groovy-3.0.20.jar:3.0.20]
+	at org.codehaus.groovy.control.ResolveVisitor.resolveFromDefaultImports(ResolveVisitor.java:631) ~[groovy-3.0.20.jar:3.0.20]
+	at org.codehaus.groovy.control.ResolveVisitor.resolve(ResolveVisitor.java:505) ~[groovy-3.0.20.jar:3.0.20]
+	at org.codehaus.groovy.control.ResolveVisitor.resolve(ResolveVisitor.java:467) ~[groovy-3.0.20.jar:3.0.20]
+	at org.codehaus.groovy.control.ResolveVisitor.transformVariableExpression(ResolveVisitor.java:1125) ~[groovy-3.0.20.jar:3.0.20]
+	at org.codehaus.groovy.control.ResolveVisitor.transform(ResolveVisitor.java:894) ~[groovy-3.0.20.jar:3.0.20]
+	at org.codehaus.groovy.control.ResolveVisitor.transformMethodCallExpression(ResolveVisitor.java:1270) ~[groovy-3.0.20.jar:3.0.20]
+	at org.codehaus.groovy.control.ResolveVisitor.transform(ResolveVisitor.java:902) ~[groovy-3.0.20.jar:3.0.20]
+	at org.codehaus.groovy.control.ResolveVisitor.transformBinaryExpression(ResolveVisitor.java:1150) ~[groovy-3.0.20.jar:3.0.20]
+	at org.codehaus.groovy.control.ResolveVisitor.transform(ResolveVisitor.java:900) ~[groovy-3.0.20.jar:3.0.20]
+	at org.codehaus.groovy.ast.expr.CastExpression.transformExpression(CastExpression.java:95) ~[groovy-3.0.20.jar:3.0.20]
+	at org.codehaus.groovy.control.ResolveVisitor.transform(ResolveVisitor.java:911) ~[groovy-3.0.20.jar:3.0.20]
+	at org.codehaus.groovy.control.ResolveVisitor.transformBinaryExpression(ResolveVisitor.java:1150) ~[groovy-3.0.20.jar:3.0.20]
+	at org.codehaus.groovy.control.ResolveVisitor.transform(ResolveVisitor.java:900) ~[groovy-3.0.20.jar:3.0.20]
+	at org.codehaus.groovy.control.ResolveVisitor.transformDeclarationExpression(ResolveVisitor.java:1294) ~[groovy-3.0.20.jar:3.0.20]
+	at org.codehaus.groovy.control.ResolveVisitor.transform(ResolveVisitor.java:898) ~[groovy-3.0.20.jar:3.0.20]
+	at org.codehaus.groovy.ast.ClassCodeExpressionTransformer.visitExpressionStatement(ClassCodeExpressionTransformer.java:108) ~[groovy-3.0.20.jar:3.0.20]
+	at org.codehaus.groovy.ast.stmt.ExpressionStatement.visit(ExpressionStatement.java:40) ~[groovy-3.0.20.jar:3.0.20]
+	at org.codehaus.groovy.ast.CodeVisitorSupport.visitBlockStatement(CodeVisitorSupport.java:86) ~[groovy-3.0.20.jar:3.0.20]
+	at org.codehaus.groovy.ast.ClassCodeVisitorSupport.visitBlockStatement(ClassCodeVisitorSupport.java:164) ~[groovy-3.0.20.jar:3.0.20]
+	at org.codehaus.groovy.control.ResolveVisitor.visitBlockStatement(ResolveVisitor.java:1562) ~[groovy-3.0.20.jar:3.0.20]
+	at org.codehaus.groovy.ast.stmt.BlockStatement.visit(BlockStatement.java:69) ~[groovy-3.0.20.jar:3.0.20]
+	at org.codehaus.groovy.ast.ClassCodeVisitorSupport.visitClassCodeContainer(ClassCodeVisitorSupport.java:138) ~[groovy-3.0.20.jar:3.0.20]
+	at org.codehaus.groovy.ast.ClassCodeVisitorSupport.visitConstructorOrMethod(ClassCodeVisitorSupport.java:111) ~[groovy-3.0.20.jar:3.0.20]
+	at org.codehaus.groovy.ast.ClassCodeExpressionTransformer.visitConstructorOrMethod(ClassCodeExpressionTransformer.java:66) ~[groovy-3.0.20.jar:3.0.20]
+	at org.codehaus.groovy.control.ResolveVisitor.visitConstructorOrMethod(ResolveVisitor.java:293) ~[groovy-3.0.20.jar:3.0.20]
+	at org.codehaus.groovy.ast.ClassCodeVisitorSupport.visitMethod(ClassCodeVisitorSupport.java:106) ~[groovy-3.0.20.jar:3.0.20]
+	at org.codehaus.groovy.ast.ClassNode.visitMethods(ClassNode.java:1095) ~[groovy-3.0.20.jar:3.0.20]
+	at org.codehaus.groovy.ast.ClassNode.visitContents(ClassNode.java:1088) ~[groovy-3.0.20.jar:3.0.20]
+	at org.codehaus.groovy.ast.ClassCodeVisitorSupport.visitClass(ClassCodeVisitorSupport.java:52) ~[groovy-3.0.20.jar:3.0.20]
+	at org.codehaus.groovy.control.ResolveVisitor.visitClass(ResolveVisitor.java:1479) ~[groovy-3.0.20.jar:3.0.20]
+	at org.codehaus.groovy.control.ResolveVisitor.startResolving(ResolveVisitor.java:262) ~[groovy-3.0.20.jar:3.0.20]
+	at org.codehaus.groovy.control.CompilationUnit.lambda$new$16(CompilationUnit.java:739) ~[groovy-3.0.20.jar:3.0.20]
+	at org.codehaus.groovy.control.CompilationUnit$ISourceUnitOperation.doPhaseOperation(CompilationUnit.java:902) ~[groovy-3.0.20.jar:3.0.20]
+	... 25 more
+2026-04-17 13:12:35,794 INFO o.a.j.e.StandardJMeterEngine: Notifying test listeners of end of test
+2026-04-17 13:12:35,798 INFO o.a.j.v.b.BackendListener: Worker ended
+2026-04-17 13:12:35,799 INFO o.a.j.v.b.i.InfluxdbBackendListenerClient: Sending last metrics to InfluxDB
+2026-04-17 13:12:35,800 INFO o.a.j.v.b.i.HttpMetricsSender: Destroying 
+2026-04-17 13:12:35,807 INFO o.a.j.r.Summariser: summary +     39 in 00:00:06 =    6,7/s Avg:    58 Min:     0 Max:   235 Err:     0 (0,00%) Active: 0 Started: 5 Finished: 5
+2026-04-17 13:12:35,807 INFO o.a.j.r.Summariser: summary =    809 in 00:00:47 =   17,2/s Avg:    28 Min:     0 Max:   635 Err:    88 (10,88%)
