@@ -31,39 +31,25 @@ import jakarta.annotation.security.RolesAllowed;
 import java.io.IOException;
 import java.util.Arrays;
 
-/**
- * Lasttest-Steuerung (k6) und Grafana-Dashboards in Tabs.
- *
- * Tab 1 – Tests:
- *   Auswahl des Szenarios + Start/Stop + Fortschrittsbalken + Live-Log
- *
- * Tab 2 – k6 Dashboard:
- *   IFrame mit vendix-k6-lasttests (Echtzeit-Metriken von k6 + Spring Boot)
- *
- * Tab 3 – Logs:
- *   IFrame mit vendix-logs (Loki Log-Streams)
- */
 @Route(value = "performance", layout = OrchestratorAppLayout.class)
 @RolesAllowed(Role.ROLE_ADMIN)
 public class PerformanceTestView extends VerticalLayout {
 
-    private static final String GRAFANA_K6_URL =
-            "http://localhost:3000/d/vendix-k6-lasttests?orgId=1&refresh=5s&kiosk=tv";
-    private static final String GRAFANA_LOGS_URL =
-            "http://localhost:3000/d/vendix-logs?orgId=1&refresh=10s&kiosk=tv";
+    private static final String GRAFANA_K6_URL      = "http://localhost:3000/d/vendix-k6-lasttests?orgId=1&refresh=5s&kiosk=tv";
+    private static final String GRAFANA_LOGS_URL     = "http://localhost:3000/d/vendix-logs?orgId=1&refresh=10s&kiosk=tv";
+    private static final String K6_WEB_DASHBOARD_URL = "http://localhost:5665";
 
     private final PerformanceTestService testService;
 
-    // UI-Komponenten
-    private final RadioButtonGroup<TestType> testSelector  = new RadioButtonGroup<>();
-    private final Button                     startButton   = new Button("Test starten", VaadinIcon.PLAY.create());
-    private final Button                     stopButton    = new Button("Test stoppen", VaadinIcon.STOP.create());
-    private final TextArea                   logArea       = new TextArea("k6 Output");
-    private final Span                       statusBadge   = new Span("● Kein Test aktiv");
-    private final ProgressBar                progressBar   = new ProgressBar(0.0, 1.0);
-    private final Span                       progressLabel = new Span("–");
+    private final RadioButtonGroup<TestType> testSelector   = new RadioButtonGroup<>();
+    private final Button                     startButton    = new Button("Test starten", VaadinIcon.PLAY.create());
+    private final Button                     stopButton     = new Button("Test stoppen", VaadinIcon.STOP.create());
+    private final TextArea                   logArea        = new TextArea("k6 Output");
+    private final Span                       statusBadge    = new Span("● Kein Test aktiv");
+    private final ProgressBar                progressBar    = new ProgressBar(0.0, 1.0);
+    private final Span                       progressLabel  = new Span("–");
     private final Span                       remainingLabel = new Span("–");
-    private final HorizontalLayout           progressRow   = new HorizontalLayout();
+    private final HorizontalLayout           progressRow    = new HorizontalLayout();
 
     public PerformanceTestView(PerformanceTestService testService) {
         this.testService = testService;
@@ -73,9 +59,10 @@ public class PerformanceTestView extends VerticalLayout {
 
         TabSheet tabs = new TabSheet();
         tabs.setSizeFull();
-        tabs.add("Tests",         buildTestsTab());
-        tabs.add("k6 Dashboard",  buildGrafanaTab(GRAFANA_K6_URL,  "k6 Lasttest-Dashboard"));
-        tabs.add("Logs (Loki)",   buildGrafanaTab(GRAFANA_LOGS_URL, "Logs & Exceptions"));
+        tabs.add("Tests",               buildTestsTab());
+        tabs.add("k6 Dashboard",        buildGrafanaTab(GRAFANA_K6_URL,       "k6 Lasttest-Dashboard"));
+        tabs.add("Logs (Loki)",         buildGrafanaTab(GRAFANA_LOGS_URL,      "Logs & Exceptions"));
+        tabs.add("k6 Live (Port 5665)", buildK6LiveTab());
         add(tabs);
     }
 
@@ -88,17 +75,15 @@ public class PerformanceTestView extends VerticalLayout {
 
         H2 title = new H2("k6 Lasttest-Szenarien");
         Paragraph subtitle = new Paragraph(
-                "Wähle ein Szenario und starte den Test. k6 läuft im Docker-Container " +
-                        "und pusht Metriken live an Prometheus — sichtbar im k6-Dashboard."
+                "Wähle eines der 5 Szenarien und starte den Test. " +
+                        "k6 läuft im Docker-Container und pusht Metriken live an Prometheus."
         );
 
-        // Test-Auswahl
         testSelector.setLabel("Testszenario auswählen");
         testSelector.setItems(TestType.values());
         testSelector.setItemLabelGenerator(TestType::getDisplayName);
         testSelector.setValue(TestType.LASTTEST);
 
-        // Beschreibungsbox
         Div descBox = new Div();
         descBox.getStyle()
                 .set("background", "var(--lumo-contrast-5pct)")
@@ -112,7 +97,6 @@ public class PerformanceTestView extends VerticalLayout {
         updateDesc(TestType.LASTTEST, descText, paramSpan);
         testSelector.addValueChangeListener(e -> updateDesc(e.getValue(), descText, paramSpan));
 
-        // Fortschrittsbalken
         progressBar.setWidthFull();
         progressBar.setValue(0.0);
         progressBar.setVisible(false);
@@ -130,7 +114,6 @@ public class PerformanceTestView extends VerticalLayout {
         progressRow.setSpacing(true);
         progressRow.setVisible(false);
 
-        // Status + Buttons
         statusBadge.getStyle()
                 .set("color", "var(--lumo-secondary-text-color)")
                 .set("font-size", "var(--lumo-font-size-s)");
@@ -145,7 +128,6 @@ public class PerformanceTestView extends VerticalLayout {
         HorizontalLayout buttonRow = new HorizontalLayout(startButton, stopButton, statusBadge);
         buttonRow.setAlignItems(Alignment.CENTER);
 
-        // Log-Bereich
         logArea.setWidthFull();
         logArea.setHeight("380px");
         logArea.setReadOnly(true);
@@ -165,7 +147,7 @@ public class PerformanceTestView extends VerticalLayout {
         params.setText("⚙ " + type.getParameters());
     }
 
-    // ─── Tabs 2 & 3: Grafana IFrames ──────────────────────────────────────────
+    // ─── Tab 2 & 3: Grafana IFrames ───────────────────────────────────────────
 
     private VerticalLayout buildGrafanaTab(String url, String iframeTitle) {
         VerticalLayout layout = new VerticalLayout();
@@ -186,6 +168,53 @@ public class PerformanceTestView extends VerticalLayout {
         iframe.setTitle(iframeTitle);
 
         layout.add(openExternal, iframe);
+        layout.expand(iframe);
+        return layout;
+    }
+
+    // ─── Tab 4: k6 Live Dashboard mit Aktualisier-Button ─────────────────────
+
+    private VerticalLayout buildK6LiveTab() {
+        VerticalLayout layout = new VerticalLayout();
+        layout.setSizeFull();
+        layout.setPadding(false);
+        layout.setSpacing(false);
+
+        // IFrame-Container — wird per JS neu geladen statt Browser-Refresh
+        IFrame iframe = new IFrame(K6_WEB_DASHBOARD_URL);
+        iframe.setSizeFull();
+        iframe.setId("k6-live-iframe");
+        iframe.getStyle().set("border", "none").set("min-height", "calc(100vh - 90px)");
+        iframe.setTitle("k6 Web Dashboard");
+
+        // Toolbar mit Aktualisier-Button und externem Link
+        Anchor openExternal = new Anchor(K6_WEB_DASHBOARD_URL, "In neuem Tab öffnen ↗");
+        openExternal.setTarget("_blank");
+        openExternal.getStyle()
+                .set("font-size", "var(--lumo-font-size-xs)")
+                .set("display", "block");
+
+        Span hint = new Span("Das Dashboard ist nur sichtbar während ein Test läuft.");
+        hint.getStyle()
+                .set("font-size", "var(--lumo-font-size-xs)")
+                .set("color", "var(--lumo-secondary-text-color)");
+
+        // Aktualisier-Button: lädt nur das IFrame neu, nicht die gesamte Seite
+        // → laufender Test wird nicht unterbrochen
+        Button refreshBtn = new Button("Dashboard aktualisieren", VaadinIcon.REFRESH.create());
+        refreshBtn.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
+        refreshBtn.addClickListener(e ->
+                // Setzt src des IFrames neu → Browser lädt nur das IFrame neu
+                refreshBtn.getElement().executeJs(
+                        "document.getElementById('k6-live-iframe').src = '" + K6_WEB_DASHBOARD_URL + "';"
+                )
+        );
+
+        HorizontalLayout toolbar = new HorizontalLayout(refreshBtn, openExternal, hint);
+        toolbar.setAlignItems(Alignment.CENTER);
+        toolbar.getStyle().set("padding", "4px 12px");
+
+        layout.add(toolbar, iframe);
         layout.expand(iframe);
         return layout;
     }
@@ -263,12 +292,10 @@ public class PerformanceTestView extends VerticalLayout {
         progressRow.setVisible(false);
 
         UI ui = UI.getCurrent();
-        if (ui != null) {
-            ui.setPollInterval(-1);
-        }
+        if (ui != null) ui.setPollInterval(-1);
     }
 
-    // ─── Polling für Fortschritt ───────────────────────────────────────────────
+    // ─── Polling ──────────────────────────────────────────────────────────────
 
     @Override
     protected void onAttach(AttachEvent attachEvent) {
@@ -286,14 +313,14 @@ public class PerformanceTestView extends VerticalLayout {
         ui.setPollInterval(1000);
         ui.addPollListener(event -> {
             if (!testService.isRunning()) return;
-            double progress = testService.getProgress();
-            long   elapsed  = testService.getElapsedSeconds();
-            TestType test   = testService.getActiveTest().orElse(null);
+            double   progress  = testService.getProgress();
+            long     elapsed   = testService.getElapsedSeconds();
+            TestType test      = testService.getActiveTest().orElse(null);
             if (test == null) return;
 
             progressBar.setValue(progress);
             long remaining = Math.max(0, test.getDurationSeconds() - elapsed);
-            int pct = (int) (progress * 100);
+            int  pct       = (int) (progress * 100);
             progressLabel.setText(pct + "% (" + formatDuration((int) elapsed) +
                     " / " + formatDuration(test.getDurationSeconds()) + ")");
             remainingLabel.setText("⏳ Noch ca. " + formatDuration((int) remaining));
@@ -306,7 +333,7 @@ public class PerformanceTestView extends VerticalLayout {
         detachEvent.getUI().setPollInterval(-1);
     }
 
-    // ─── Hilfsmethoden ─────────────────────────────────────────────────────────
+    // ─── Hilfsmethoden ────────────────────────────────────────────────────────
 
     private void appendLog(String line) {
         String current = logArea.getValue();
@@ -324,8 +351,8 @@ public class PerformanceTestView extends VerticalLayout {
     }
 
     private static String formatDuration(int seconds) {
-        if (seconds < 60)       return seconds + "s";
-        if (seconds < 3600)     return (seconds / 60) + " min " + (seconds % 60) + "s";
+        if (seconds < 60)   return seconds + "s";
+        if (seconds < 3600) return (seconds / 60) + " min " + (seconds % 60) + "s";
         int h = seconds / 3600;
         int m = (seconds % 3600) / 60;
         return h + "h " + m + "min";

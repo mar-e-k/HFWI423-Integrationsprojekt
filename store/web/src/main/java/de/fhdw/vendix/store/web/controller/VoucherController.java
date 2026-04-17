@@ -3,8 +3,10 @@ package de.fhdw.vendix.store.web.controller;
 import de.fhdw.vendix.commons.api.domain.voucher.VoucherDTO;
 import de.fhdw.vendix.commons.spring.web.server.store.api.VoucherApi;
 import de.fhdw.vendix.store.core.domain.voucher.*;
+import jakarta.persistence.OptimisticLockException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.orm.ObjectOptimisticLockingFailureException;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.Optional;
@@ -14,11 +16,11 @@ import java.util.UUID;
 public class VoucherController implements VoucherApi {
 
     private final VoucherService voucherService;
-    private final VoucherMapper voucherMapper;
+    private final VoucherMapper  voucherMapper;
 
     public VoucherController(VoucherService voucherService, VoucherMapper voucherMapper) {
         this.voucherService = voucherService;
-        this.voucherMapper = voucherMapper;
+        this.voucherMapper  = voucherMapper;
     }
 
     @Override
@@ -40,6 +42,12 @@ public class VoucherController implements VoucherApi {
             voucherService.update(voucher);
             return ResponseEntity.ok(voucherMapper.toDTO(voucher));
         } catch (VoucherExpiredException | VoucherAlreadyRedeemedException e) {
+            // Fachliche Ablehnung: abgelaufen oder bereits eingelöst
+            return ResponseEntity.status(HttpStatus.CONFLICT).build();
+        } catch (OptimisticLockException | ObjectOptimisticLockingFailureException e) {
+            // Concurrency-Fall: zwei Threads haben gleichzeitig denselben Voucher eingelöst.
+            // @Version in AbstractSpringDataVersioningEntity hat den zweiten Write geblockt.
+            // Korrekte fachliche Antwort: 409 Conflict statt 500 Internal Server Error.
             return ResponseEntity.status(HttpStatus.CONFLICT).build();
         }
     }
