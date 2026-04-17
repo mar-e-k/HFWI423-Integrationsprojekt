@@ -46,6 +46,16 @@ public class LoadTestGoodsReceiptController {
         return goodsReceiptService.findAll();
     }
 
+    /** GET /api/load/goods-receipts/{id} – einzelnen Wareneingang laden (Detailansicht) */
+    @GetMapping("/{id}")
+    public GoodsReceipt getById(@PathVariable Long id) {
+        try {
+            return goodsReceiptService.getById(id);
+        } catch (IllegalArgumentException e) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage());
+        }
+    }
+
     /** GET /api/load/goods-receipts/pending-ids – IDs aller Wareneingaenge im Status IN_PRUEFUNG */
     @GetMapping("/pending-ids")
     public List<Long> pendingIds() {
