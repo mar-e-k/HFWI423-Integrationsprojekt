@@ -19,6 +19,15 @@ public interface RestockOrderRepository extends JpaRepository<RestockOrder, Long
     // fur den Wareneingang: alle genehmigten, aber noch nicht gelieferten Bestellungen
     List<RestockOrder> findByDeliveredFalseAndApprovedTrue();
 
+    /**
+     * Setzt delivered=true atomar, aber nur wenn es noch false ist.
+     * Gibt 1 zurueck wenn die Zeile aktualisiert wurde, 0 wenn ein anderer Thread schneller war.
+     * Ersetzt den fehleranfaelligen JPA-Pessimistic-Lock fuer Concurrent-Szenarien.
+     */
+    @Modifying
+    @Query("UPDATE RestockOrder r SET r.delivered = true WHERE r.id = :id AND r.delivered = false")
+    int markDeliveredIfOpen(@jakarta.annotation.Nonnull @org.springframework.data.repository.query.Param("id") Long id);
+
     @Modifying
     @Query("delete from RestockOrder r where r.articleNumber like 'SIM-%'")
     int deleteAllSimOrders();

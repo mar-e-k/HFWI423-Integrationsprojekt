@@ -103,6 +103,33 @@ public class LoadTestMiscController {
         return ResponseEntity.noContent().build();
     }
 
+    /**
+     * POST /api/load/restock/approve-all
+     * Genehmigt alle nachbestellbaren Artikel in einem einzigen Aufruf.
+     * Entspricht dem Klick auf "Alle Bestellungen freigeben" in der UI.
+     * 200 + Anzahl angelegter Bestellungen (kann 0 sein, wenn alle schon freigegeben)
+     */
+    @PostMapping("/restock/approve-all")
+    public ResponseEntity<Integer> approveAllRestock() {
+        List<RestockItem> items = restockService.getArticlesToRestock();
+        System.out.println("[approve-all] restockList.size=" + items.size());
+        int approved = 0;
+        for (RestockItem item : items) {
+            if (item.getOrderAmount() == null || item.getOrderAmount() <= 0) continue;
+            if (restockOrderService.hasOpenOrderForArticle(item.getArticle())) continue;
+            try {
+                restockOrderService.approveOrderForLoadTest(item);
+                approved++;
+            } catch (IllegalStateException e) {
+                // Erwartete Race-Condition: anderer Thread hat dieselbe Bestellung bereits angelegt
+            } catch (Exception e) {
+                System.out.println("[approve-all] SKIP (exception) " + item.getArticleNumber() + ": " + e.getMessage());
+            }
+        }
+        System.out.println("[approve-all] approved=" + approved);
+        return ResponseEntity.ok(approved);
+    }
+
     /** GET /api/load/stock-changes – Lagerbestand-Aenderungshistorie */
     @GetMapping("/stock-changes")
     public List<StockChangeLog> stockChanges() {

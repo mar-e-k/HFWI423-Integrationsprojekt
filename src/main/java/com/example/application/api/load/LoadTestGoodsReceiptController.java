@@ -115,8 +115,8 @@ public class LoadTestGoodsReceiptController {
                         List.of(order.getId()), supplier, note, date);
                 System.out.println("[from-next-order] 201 orderId=" + order.getId() + " article=" + order.getArticleNumber());
                 return ResponseEntity.status(HttpStatus.CREATED).body(receipt);
-            } catch (IllegalArgumentException | IllegalStateException e) {
-                System.out.println("[from-next-order] SKIP orderId=" + order.getId() + ": " + e.getMessage());
+            } catch (Exception e) {
+                System.out.println("[from-next-order] SKIP orderId=" + order.getId() + ": " + e.getClass().getSimpleName() + ": " + e.getMessage());
             }
         }
         System.out.println("[from-next-order] 204 – alle Bestellungen fehlgeschlagen");

@@ -155,12 +155,14 @@ public class GoodsReceiptService {
 
         // 2) Für jede RestockOrder ein Item erzeugen (in PALLETTEN)
         for (Long roId : restockOrderIds) {
-            RestockOrder ro = restockOrderRepo.findByIdForUpdate(roId)
-                    .orElseThrow(() -> new IllegalArgumentException("RestockOrder " + roId + " nicht gefunden"));
-
-            if (ro.isDelivered()) {
+            // Atomisches UPDATE: setzt delivered=true nur wenn es noch false ist.
+            // Gibt 0 zurueck wenn ein anderer Thread diese Order bereits verarbeitet hat.
+            int updated = restockOrderRepo.markDeliveredIfOpen(roId);
+            if (updated == 0) {
                 throw new IllegalStateException("RestockOrder " + roId + " wurde bereits geliefert");
             }
+            RestockOrder ro = restockOrderRepo.findById(roId)
+                    .orElseThrow(() -> new IllegalArgumentException("RestockOrder " + roId + " nicht gefunden"));
 
             ArticleInfo article = articleRepo.findByArticleNumber(ro.getArticleNumber());
             if (article == null) {
@@ -189,11 +191,7 @@ public class GoodsReceiptService {
             item.setStatus(GoodsReceiptItemStatus.IN_PRUEFUNG);
 
             itemRepo.save(item);
-
-            // RestockOrder als "geliefert" markieren,
-            // weil jetzt ein Wareneingang dafür existiert.
-            ro.setDelivered(true);
-            restockOrderRepo.save(ro);
+            // delivered=true wurde bereits atomar per markDeliveredIfOpen gesetzt
         }
 
         // 3) Status des Wareneingangs initial ableiten
@@ -257,6 +255,7 @@ public class GoodsReceiptService {
         GoodsReceiptItem item = itemRepo.findById(itemId)
                 .orElseThrow(() -> new IllegalArgumentException("Item " + itemId + " nicht gefunden"));
 
+        System.out.println("[setItemStatus] itemId=" + itemId + " status=" + status + " receiptId=" + item.getGoodsReceipt().getId());
         item.setStatus(status);
         GoodsReceiptItem saved = itemRepo.save(item);
 
@@ -284,17 +283,21 @@ public class GoodsReceiptService {
     public GoodsReceipt completeInspection(Long receiptId) {
         GoodsReceipt gr = getById(receiptId);
 
+        System.out.println("[completeInspection] receiptId=" + receiptId + " currentStatus=" + gr.getStatus());
+
         if (gr.getStatus() == GoodsReceiptStatus.FREIGEGEBEN) {
             throw new IllegalStateException(
                     "Prüfung wurde bereits abgeschlossen (Status: FREIGEGEBEN)");
         }
 
         List<GoodsReceiptItem> items = getItemsForReceipt(receiptId);
+        System.out.println("[completeInspection] items=" + items.size() + " statuses=" + items.stream().map(i -> i.getStatus().name()).toList());
 
         boolean anyInPruefung = items.stream()
                 .anyMatch(i -> i.getStatus() == GoodsReceiptItemStatus.IN_PRUEFUNG);
 
         if (anyInPruefung) {
+            System.out.println("[completeInspection] BLOCKED – noch IN_PRUEFUNG");
             throw new IllegalStateException(
                     "Prüfung kann nicht abgeschlossen werden: es gibt noch Positionen IN_PRUEFUNG");
         }
