@@ -4,6 +4,7 @@ import com.example.application.data.articleInfo.ArticleInfo;
 import com.example.application.data.goodsreceipts.GoodsReceipt;
 import com.example.application.data.goodsreceipts.GoodsReceiptItem;
 import com.example.application.data.goodsreceipts.GoodsReceiptItemStatus;
+import com.example.application.data.goodsreceipts.GoodsReceiptStatus;
 import com.example.application.data.restockorder.RestockOrder;
 import com.example.application.services.ArticleInfoService;
 import com.example.application.services.GoodsReceiptService;
@@ -37,11 +38,29 @@ public class LoadTestGoodsReceiptController {
     record AddItemRequest(Long articleId, Integer expectedQty, Integer actualQty, String defectNotes) {}
     record UpdateItemRequest(Integer actualQty, String defectNotes) {}
     record SetItemStatusRequest(String status) {}
+    record ItemSummary(Long itemId, Integer qty) {}
 
     /** GET /api/load/goods-receipts – alle Wareneingaenge */
     @GetMapping
     public List<GoodsReceipt> goodsReceipts() {
         return goodsReceiptService.findAll();
+    }
+
+    /** GET /api/load/goods-receipts/pending-ids – IDs aller Wareneingaenge im Status IN_PRUEFUNG */
+    @GetMapping("/pending-ids")
+    public List<Long> pendingIds() {
+        return goodsReceiptService.findAll().stream()
+                .filter(gr -> gr.getStatus() == GoodsReceiptStatus.IN_PRUEFUNG)
+                .map(GoodsReceipt::getId)
+                .toList();
+    }
+
+    /** GET /api/load/goods-receipts/{id}/item-summaries – itemId + qty jeder Position (fuer JMeter RegexExtractor) */
+    @GetMapping("/{id}/item-summaries")
+    public List<ItemSummary> itemSummaries(@PathVariable Long id) {
+        return goodsReceiptService.getItemsForReceipt(id).stream()
+                .map(item -> new ItemSummary(item.getId(), item.getActualQuantity()))
+                .toList();
     }
 
     /** GET /api/load/goods-receipts/open-orders – offene Bestellungen fuer Wareneingang-Dialog */

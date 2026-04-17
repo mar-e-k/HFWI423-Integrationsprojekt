@@ -284,10 +284,9 @@ public class GoodsReceiptService {
     public GoodsReceipt completeInspection(Long receiptId) {
         GoodsReceipt gr = getById(receiptId);
 
-        if (gr.getStatus() == GoodsReceiptStatus.FREIGEGEBEN
-                || gr.getStatus() == GoodsReceiptStatus.GEPRUEFT) {
+        if (gr.getStatus() == GoodsReceiptStatus.FREIGEGEBEN) {
             throw new IllegalStateException(
-                    "Prüfung wurde bereits abgeschlossen (Status: " + gr.getStatus() + ")");
+                    "Prüfung wurde bereits abgeschlossen (Status: FREIGEGEBEN)");
         }
 
         List<GoodsReceiptItem> items = getItemsForReceipt(receiptId);
@@ -323,7 +322,6 @@ public class GoodsReceiptService {
     private void recomputeReceiptStatus(GoodsReceipt receipt) {
         List<GoodsReceiptItem> items = itemRepo.findByGoodsReceiptId(receipt.getId());
         if (items.isEmpty()) {
-            // keine Items => bleibt IN_PRUEFUNG
             receipt.setStatus(GoodsReceiptStatus.IN_PRUEFUNG);
             receiptRepo.save(receipt);
             return;
@@ -332,16 +330,13 @@ public class GoodsReceiptService {
         boolean anyInPruefung = items.stream()
                 .anyMatch(i -> i.getStatus() == GoodsReceiptItemStatus.IN_PRUEFUNG);
 
+        // FREIGEGEBEN wird ausschliesslich durch completeInspection gesetzt,
+        // weil dort auch applyApprovedItemsToReserve ausgefuehrt wird.
+        // Hier nur: noch offen (IN_PRUEFUNG) oder alle entschieden (GEPRUEFT).
         if (anyInPruefung) {
             receipt.setStatus(GoodsReceiptStatus.IN_PRUEFUNG);
         } else {
-            boolean allFreigegeben = items.stream()
-                    .allMatch(i -> i.getStatus() == GoodsReceiptItemStatus.FREIGEGEBEN);
-            if (allFreigegeben) {
-                receipt.setStatus(GoodsReceiptStatus.FREIGEGEBEN);
-            } else {
-                receipt.setStatus(GoodsReceiptStatus.GEPRUEFT);
-            }
+            receipt.setStatus(GoodsReceiptStatus.GEPRUEFT);
         }
 
         receiptRepo.save(receipt);
