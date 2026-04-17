@@ -1,177 +1,180 @@
 // ═══════════════════════════════════════════════════════════════════════════
-// lib/business.js – Business-Logik: Bon, Artikel, Rabatt, Pfand, Stornierung
+// lib/business.js – Vollständiger Kassierer-Workflow
+//
+// Fachlicher Ablauf (wie ein echter Kassierer):
+//   1. Artikel scannen via GTIN   → GET  /api/article/gtin/{gtin}
+//   2. Bon abschließen (Checkout) → POST /api/receipt/checkout
+//   3. Bon drucken                → POST /api/receipt/{id}/print
+//   4. Optional: Voucher prüfen   → GET  /api/voucher/{code}
+//   5. Optional: Voucher einlösen → POST /api/voucher/{code}/redeem
+//   6. Optional: Pfand            → POST /api/receipt/checkout (Pfand-Artikel)
+//   7. Optional: Stornierung      → POST /api/receipt/{id}/cancel
 // ═══════════════════════════════════════════════════════════════════════════
 
-import http from 'k6/http';
+import http   from 'k6/http';
 import { check } from 'k6';
 
 import {
-    STORE_URL, STORE_ID, REGISTER_IDS,
-    NORMAL_ARTICLE_IDS, DEPOSIT_ARTICLE_IDS,
-    PAYMENT_METHODS,
+    STORE_URL, STORE_ID, REGISTER_IDS, CASHIER_IDS,
+    ARTICLE_GTINS, DEPOSIT_ARTICLE_IDS,
+    PAYMENT_METHODS, VOUCHER_REGULAR_CODES,
 } from './config.js';
 import { authHeaders } from './auth.js';
 import {
-    bonsCreatedMetric, bonsFailedMetric,
-    articlesAddedMetric, cancelsMetric,
-    depositsMetric, discountsMetric,
+    bonsCreatedMetric, bonsFailedMetric, checkoutsMetric,
+    articlesAddedMetric, cancelsMetric, depositsMetric,
+    discountsMetric, voucherChecksMetric, voucherRedeemsMetric,
+    gtinScansMetric, bonPrintsMetric,
 } from './metrics.js';
 
-// ─── Hilfsfunktionen ────────────────────────────────────────────────────────
+// ─── Hilfsfunktionen ─────────────────────────────────────────────────────────
 
 export function pickRandom(arr) {
     return arr[Math.floor(Math.random() * arr.length)];
 }
 
-export function pickRegisterId() {
-    return pickRandom(REGISTER_IDS);
-}
+export function pickRegisterId()    { return pickRandom(REGISTER_IDS); }
+export function pickCashierId(vuId) { return CASHIER_IDS[(vuId - 1) % CASHIER_IDS.length]; }
+export function pickPaymentMethod() { return pickRandom(PAYMENT_METHODS); }
+export function pickGtin()          { return pickRandom(ARTICLE_GTINS); }
 
-export function pickPaymentMethod() {
-    return pickRandom(PAYMENT_METHODS);
-}
+// ─── Artikel via GTIN scannen ─────────────────────────────────────────────────
 
-export function pickArticleId() {
-    return pickRandom(NORMAL_ARTICLE_IDS);
-}
-
-export function pickDepositArticleId() {
-    return pickRandom(DEPOSIT_ARTICLE_IDS);
-}
-
-// ─── Bon-Erstellung ─────────────────────────────────────────────────────────
-
-/**
- * Legt einen neuen Bon an.
- *
- * POST /api/receipt/
- * Body: { storeId, registerId, cashierId, paymentMethod, status:null, isDepositReturn:false }
- *
- * Gibt die Receipt-ID zurück oder null wenn fehlgeschlagen.
- */
-export function createReceipt(token, registerId, cashierId, paymentMethod) {
-    const body = JSON.stringify({
-        storeId:        STORE_ID,
-        registerId:     registerId,
-        cashierId:      cashierId,
-        paymentMethod:  paymentMethod,
-        status:         null,
-        isDepositReturn: false,
-    });
-
-    const res = http.post(`${STORE_URL}/api/receipt/`, body, {
+export function scanArticleByGtin(token, gtin) {
+    const res = http.get(`${STORE_URL}/api/article/gtin/${gtin}`, {
         ...authHeaders(token),
-        tags: { endpoint: 'create_receipt' },
+        tags: { endpoint: 'scan_gtin' },
     });
 
-    const ok = check(res, {
-        '[Bon] Status 200/201': (r) => r.status === 200 || r.status === 201,
-        '[Bon] ID in Response':  (r) => r.json('id') !== undefined || r.json('receiptId') !== undefined,
-    });
+    check(res, { '[GTIN-Scan] Status 200': (r) => r.status === 200 });
+    if (res.status !== 200) return null;
 
-    if (!ok) {
-        bonsFailedMetric.add(1);
-        return null;
+    gtinScansMetric.add(1);
+    try { return res.json('id'); } catch (_) { return null; }
+}
+
+// ─── Artikel-Pool vorladen ────────────────────────────────────────────────────
+
+export function preloadArticlePool(token) {
+    const pool = [];
+    const depositPool = [];
+
+    console.log('[Articles] Lade Artikel-Pool via GTIN-Scan...');
+
+    for (const gtin of ARTICLE_GTINS) {
+        const res = http.get(`${STORE_URL}/api/article/gtin/${gtin}`, {
+            ...authHeaders(token),
+            tags: { endpoint: 'preload_article' },
+        });
+        if (res.status === 200) {
+            try {
+                const a = res.json();
+                if (a && a.id) {
+                    if (a.isDeposit) depositPool.push(a.id);
+                    else pool.push(a.id);
+                }
+            } catch (_) {}
+        }
     }
 
+    if (pool.length === 0) {
+        for (let id = 1; id <= 15 && pool.length < 15; id++) {
+            const res = http.get(`${STORE_URL}/api/article/id/${id}`, {
+                ...authHeaders(token), tags: { endpoint: 'preload_fallback' },
+            });
+            if (res.status === 200) {
+                try { const a = res.json(); if (a?.id) pool.push(a.id); } catch (_) {}
+            }
+        }
+    }
+
+    console.log(`[Articles] Pool: ${pool.length} Artikel, ${depositPool.length} Pfand-Artikel`);
+    return { articlePool: pool, depositPool };
+}
+
+// ─── Checkout ────────────────────────────────────────────────────────────────
+
+/**
+ * POST /api/receipt/checkout
+ * Erstellt Bon + alle Positionen in EINER Transaktion.
+ * Gibt die receiptId zurück oder null bei Fehler.
+ */
+export function checkout(token, registerId, cashierId, articlePool, opts = {}) {
+    const articleCount   = opts.articleCount   ?? 18;
+    const discountChance = opts.discountChance  ?? 0.33;
+    const discountRates  = opts.discountRates   ?? [10, 30];
+    const paymentMethod  = opts.paymentMethod   ?? pickPaymentMethod();
+    const scanGtins      = opts.scanGtins       ?? false;
+
+    const pool = articlePool?.length > 0 ? articlePool : [1, 2, 3, 4, 5];
+
+    const lines = [];
+    for (let i = 0; i < articleCount; i++) {
+        let articleId = pickRandom(pool);
+        if (scanGtins) {
+            const scanned = scanArticleByGtin(token, pickGtin());
+            if (scanned) articleId = scanned;
+        }
+        lines.push({
+            articleId,
+            articleAmount:   1,
+            discountPercent: Math.random() < discountChance ? pickRandom(discountRates) : null,
+        });
+    }
+
+    const res = http.post(`${STORE_URL}/api/receipt/checkout`, JSON.stringify({
+        storeId: STORE_ID, registerId, cashierId, paymentMethod, lines,
+    }), { ...authHeaders(token), tags: { endpoint: 'checkout' } });
+
+    const ok = check(res, {
+        '[Checkout] Status 201':          (r) => r.status === 201,
+        '[Checkout] receiptId vorhanden': (r) => { try { return r.json('receiptId') != null; } catch (_) { return false; } },
+    });
+
+    if (!ok) { bonsFailedMetric.add(1); return null; }
+
+    checkoutsMetric.add(1);
     bonsCreatedMetric.add(1);
-    return res.json('id') || res.json('receiptId');
+    articlesAddedMetric.add(lines.length);
+    if (lines.some((l) => l.discountPercent != null)) discountsMetric.add(1);
+
+    try { return res.json('receiptId'); } catch (_) { return null; }
 }
 
-// ─── Artikel hinzufügen ─────────────────────────────────────────────────────
+// ─── Bondruck: OPEN → PRINTED ────────────────────────────────────────────────
 
 /**
- * Fügt eine Artikelposition zum Bon hinzu.
+ * POST /api/receipt/{id}/print
  *
- * POST /api/receipt/{receiptId}/line
- * Body: { articleId, quantity, ... }
+ * Druckt den Bon ab — letzter Schritt des Kassier-Workflows.
+ * 200 = erfolgreich gedruckt
+ * 409 = bereits gedruckt oder storniert
+ * 404 = nicht gefunden
  */
-export function addArticleLine(token, receiptId, articleId, quantity = 1) {
-    const body = JSON.stringify({
-        articleId: articleId,
-        quantity:  quantity,
-    });
-
-    const res = http.post(`${STORE_URL}/api/receipt/${receiptId}/line`, body, {
+export function printReceipt(token, receiptId) {
+    const res = http.post(`${STORE_URL}/api/receipt/${receiptId}/print`, null, {
         ...authHeaders(token),
-        tags: { endpoint: 'add_article' },
+        tags: { endpoint: 'print_receipt' },
     });
 
     const ok = check(res, {
-        '[Artikel] Status 200/201': (r) => r.status === 200 || r.status === 201,
+        '[Bondruck] Status 200 oder 409': (r) => r.status === 200 || r.status === 409,
+        '[Bondruck] Kein 500':            (r) => r.status !== 500,
     });
 
-    if (ok) articlesAddedMetric.add(1);
-    return ok;
+    if (res.status === 200) bonPrintsMetric.add(1);
+    return res.status;
 }
 
-// ─── Rabatt anwenden ────────────────────────────────────────────────────────
+// ─── Stornierung: OPEN → CANCELLED ───────────────────────────────────────────
 
 /**
- * Wendet einen prozentualen Rabatt auf einen Bon an.
+ * POST /api/receipt/{id}/cancel
  *
- * PATCH /api/receipt/{receiptId}/discount
- * Body: { discountPercent }
- *
- * Hinweis: Falls der Rabatt-Endpunkt anders heißt, ist das nicht-kritisch —
- * wir zählen den Fehler als "Rabatt-Versuch" und laufen weiter.
- */
-export function applyDiscount(token, receiptId, discountPercent) {
-    const body = JSON.stringify({ discountPercent });
-
-    const res = http.patch(`${STORE_URL}/api/receipt/${receiptId}/discount`, body, {
-        ...authHeaders(token),
-        tags: { endpoint: 'apply_discount' },
-    });
-
-    // Rabatt-Endpunkt kann 200, 201 oder 204 liefern
-    const ok = check(res, {
-        '[Rabatt] Status 2xx': (r) => r.status >= 200 && r.status < 300,
-    });
-
-    if (ok) discountsMetric.add(1);
-    return ok;
-}
-
-// ─── Pfandrückgabe ──────────────────────────────────────────────────────────
-
-/**
- * Erstellt eine Pfandrückgabe-Transaktion.
- *
- * POST /api/receipt/{storeId}/{registerId}/{cashierId}/deposit-return
- * Body: { storeId, registerId, cashierId, paymentMethod, status:null, isDepositReturn:true }
- */
-export function depositReturn(token, registerId, cashierId, paymentMethod) {
-    const body = JSON.stringify({
-        storeId:         STORE_ID,
-        registerId:      registerId,
-        cashierId:       cashierId,
-        paymentMethod:   paymentMethod,
-        status:          null,
-        isDepositReturn: true,
-    });
-
-    const url = `${STORE_URL}/api/receipt/${STORE_ID}/${registerId}/${cashierId}/deposit-return`;
-
-    const res = http.post(url, body, {
-        ...authHeaders(token),
-        tags: { endpoint: 'deposit_return' },
-    });
-
-    const ok = check(res, {
-        '[Pfand] Status 2xx': (r) => r.status >= 200 && r.status < 300,
-    });
-
-    if (ok) depositsMetric.add(1);
-    return ok;
-}
-
-// ─── Stornierung ────────────────────────────────────────────────────────────
-
-/**
- * Storniert einen Bon.
- *
- * POST /api/receipt/{receiptId}/cancel
+ * Storniert den Bon.
+ * 200 = erfolgreich storniert
+ * 409 = bereits storniert oder bereits gedruckt
+ * 404 = nicht gefunden
  */
 export function cancelReceipt(token, receiptId) {
     const res = http.post(`${STORE_URL}/api/receipt/${receiptId}/cancel`, null, {
@@ -179,56 +182,113 @@ export function cancelReceipt(token, receiptId) {
         tags: { endpoint: 'cancel_receipt' },
     });
 
-    const ok = check(res, {
-        '[Storno] Status 2xx': (r) => r.status >= 200 && r.status < 300,
+    check(res, {
+        '[Storno] Status 200 oder 409': (r) => r.status === 200 || r.status === 409,
+        '[Storno] Kein 500':            (r) => r.status !== 500,
     });
 
-    if (ok) cancelsMetric.add(1);
+    if (res.status === 200) cancelsMetric.add(1);
+    return res.status;
+}
+
+// ─── Voucher prüfen + einlösen ────────────────────────────────────────────────
+
+export function checkAndRedeemVoucher(token, voucherCode) {
+    const checkRes = http.get(`${STORE_URL}/api/voucher/${voucherCode}`, {
+        ...authHeaders(token), tags: { endpoint: 'voucher_check' },
+    });
+    if (checkRes.status !== 200) return { checked: false, redeemed: false };
+    voucherChecksMetric.add(1);
+
+    try { if (checkRes.json('redeemedAt') != null) return { checked: true, redeemed: false }; } catch (_) {}
+
+    const redeemRes = http.post(`${STORE_URL}/api/voucher/${voucherCode}/redeem`, null, {
+        ...authHeaders(token), tags: { endpoint: 'voucher_redeem' },
+    });
+    check(redeemRes, {
+        '[Voucher] 200 oder 409': (r) => r.status === 200 || r.status === 409,
+        '[Voucher] Kein 500':     (r) => r.status !== 500,
+    });
+    if (redeemRes.status === 200) voucherRedeemsMetric.add(1);
+    return { checked: true, redeemed: redeemRes.status === 200 };
+}
+
+export function redeemVoucher(token, voucherCode) {
+    const res = http.post(`${STORE_URL}/api/voucher/${voucherCode}/redeem`, null, {
+        ...authHeaders(token), tags: { endpoint: 'voucher_race_redeem' },
+    });
+    check(res, {
+        '[Race] 200 oder 409 (kein 500!)': (r) => r.status === 200 || r.status === 409,
+        '[Race] Kein DB-Fehler':           (r) => r.status !== 500,
+    });
+    if (res.status === 200) voucherRedeemsMetric.add(1);
+    return res.status;
+}
+
+// ─── Pfandrückgabe ────────────────────────────────────────────────────────────
+
+export function depositReturn(token, registerId, cashierId, depositPool) {
+    const pool = depositPool?.length > 0 ? depositPool : [1];
+    const res = http.post(`${STORE_URL}/api/receipt/checkout`, JSON.stringify({
+        storeId: STORE_ID, registerId, cashierId,
+        paymentMethod: pickPaymentMethod(),
+        lines: [{ articleId: pickRandom(pool), articleAmount: 1, discountPercent: null }],
+    }), { ...authHeaders(token), tags: { endpoint: 'deposit_return' } });
+
+    const ok = check(res, { '[Pfand] Status 201': (r) => r.status === 201 });
+    if (ok) {
+        depositsMetric.add(1);
+        // Pfandbon direkt drucken
+        try {
+            const id = res.json('receiptId');
+            if (id) printReceipt(token, id);
+        } catch (_) {}
+    }
     return ok;
 }
 
-// ─── Kompletter Bon-Workflow ────────────────────────────────────────────────
+// ─── Kompletter Bon-Workflow ──────────────────────────────────────────────────
 
 /**
- * Führt einen kompletten Bon aus: erstellen, Artikel hinzufügen, optional
- * Rabatt, optional Pfand, optional Storno.
+ * Vollständiger Kassierer-Ablauf:
+ *   1. Checkout (mit optionalem GTIN-Scan)
+ *   2. Bondruck (immer — jeder Bon wird abgeschlossen)
+ *   3. Optional: Voucher prüfen + einlösen
+ *   4. Optional: Pfandrückgabe
+ *   5. Optional: Stornierung (nur wenn nicht gedruckt — daher zuerst prüfen)
  *
- * @param {string}  token           - JWT-Token
- * @param {number}  cashierId       - Kassierer-ID aus Rotation
- * @param {object}  opts            - { articleCount, discountChance, discountRates, depositChance, cancelChance, paymentMethod, registerId }
+ * Fachliche Besonderheit: Stornierung passiert VOR dem Druck.
+ * Bons die gedruckt wurden können nicht mehr storniert werden (→ 409).
  */
-export function runFullBon(token, cashierId, opts) {
-    const registerId     = opts.registerId     || pickRegisterId();
-    const paymentMethod  = opts.paymentMethod  || pickPaymentMethod();
-    const articleCount   = opts.articleCount   || 18;
-    const discountChance = opts.discountChance != null ? opts.discountChance : 0.33;
-    const discountRates  = opts.discountRates  || [10, 30];
-    const depositChance  = opts.depositChance  != null ? opts.depositChance  : 0.25;
-    const cancelChance   = opts.cancelChance   != null ? opts.cancelChance   : 0.01;
+export function runFullBon(token, vuId, pools, opts = {}) {
+    const cashierId    = pickCashierId(vuId);
+    const registerId   = pickRegisterId();
+    const depositChance = opts.depositChance ?? 0.25;
+    const cancelChance  = opts.cancelChance  ?? 0.01;
+    const voucherChance = opts.voucherChance ?? 0.10;
 
-    // 1) Bon erstellen
-    const receiptId = createReceipt(token, registerId, cashierId, paymentMethod);
+    // 1) Checkout
+    const receiptId = checkout(token, registerId, cashierId, pools.articlePool, opts);
     if (!receiptId) return false;
 
-    // 2) Artikel hinzufügen
-    for (let i = 0; i < articleCount; i++) {
-        addArticleLine(token, receiptId, pickArticleId(), 1);
-    }
-
-    // 3) Rabatt
-    if (Math.random() < discountChance) {
-        applyDiscount(token, receiptId, pickRandom(discountRates));
-    }
-
-    // 4) Pfandrückgabe als separate Transaktion
-    if (Math.random() < depositChance) {
-        depositReturn(token, registerId, cashierId, paymentMethod);
-    }
-
-    // 5) Stornierung
+    // 2) Stornierung kommt VOR dem Druck (sonst → 409)
     if (Math.random() < cancelChance) {
         cancelReceipt(token, receiptId);
+        return true;   // stornierte Bons werden nicht gedruckt
     }
+
+    // 3) Optional: Voucher einlösen
+    if (Math.random() < voucherChance && VOUCHER_REGULAR_CODES.length > 0) {
+        checkAndRedeemVoucher(token, pickRandom(VOUCHER_REGULAR_CODES));
+    }
+
+    // 4) Optional: Pfandrückgabe
+    if (Math.random() < depositChance) {
+        depositReturn(token, registerId, cashierId, pools.depositPool);
+    }
+
+    // 5) Bondruck — immer der letzte Schritt
+    printReceipt(token, receiptId);
 
     return true;
 }
