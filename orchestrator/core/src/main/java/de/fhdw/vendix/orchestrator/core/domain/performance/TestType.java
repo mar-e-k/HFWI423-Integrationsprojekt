@@ -1,12 +1,21 @@
 package de.fhdw.vendix.orchestrator.core.domain.performance;
 
 /**
- * Die 5 k6-Lasttest-Szenarien für das Vendix Kassensystem.
- * Der scenarioKey wird als -e SCENARIO=... an k6 übergeben.
+ * Alle k6-Lasttest-Szenarien für das Vendix Kassensystem.
+ *
+ * <p>Der {@code scenarioKey} wird als {@code -e SCENARIO=...} an k6 übergeben.
+ * Das {@code script} steuert, welche k6-Skript-Datei ausgeführt wird:
+ * <ul>
+ *   <li>{@code test.js} – die fünf klassischen HTTP/POS-Lasttests</li>
+ *   <li>{@code messaging-e2e-test.js} – der AMQP-E2E-Kreislauf-Test</li>
+ * </ul>
  */
 public enum TestType {
 
+    // ── Klassische HTTP-/POS-Lasttests ──────────────────────────────────────
+
     LASTTEST(
+            "test.js",
             "lasttest",
             "1. Lasttest – Normalbetrieb",
             "Prüft Stabilität bei erwarteter Nutzung: 6 VUs, 180 Trans/h, " +
@@ -18,6 +27,7 @@ public enum TestType {
     ),
 
     STRESSTEST(
+            "test.js",
             "stresstest",
             "2. Stresstest – Belastungsgrenze",
             "Überlastet das System gezielt: Start mit 10 VUs, +20 alle 60s bis 200. " +
@@ -28,6 +38,7 @@ public enum TestType {
     ),
 
     SPIKE_TEST(
+            "test.js",
             "spiketest",
             "3. Spike-Test – Lastspitze",
             "Baseline 6 Trans/min, Spike auf 80 Trans/min in 1 Minute. " +
@@ -38,6 +49,7 @@ public enum TestType {
     ),
 
     SOAK_TEST(
+            "test.js",
             "soaktest",
             "4. Soak-Test – Memory-Drift",
             "Aggressiver 16-Stunden-Dauerlasttest: 12–30 VUs, kein Sleep. " +
@@ -48,6 +60,7 @@ public enum TestType {
     ),
 
     CAPACITY_TEST(
+            "test.js",
             "capacitytest",
             "5. Capacity-Test – Kipppunkt",
             "Multi-dimensionaler Stufentest: VUs wachsen 5→50 (+10 alle 2 min), " +
@@ -55,16 +68,34 @@ public enum TestType {
                     "Ziel: exakten Kipppunkt bei steigender Last und Payload-Größe finden.",
             "5 → 50 VUs · 100 → 600 Artikel/Bon · ~14 min",
             840
+    ),
+
+    // ── AMQP-Messaging-E2E-Test ─────────────────────────────────────────────
+
+    MESSAGING_E2E(
+            "messaging-e2e-test.js",
+            "messaging-e2e",
+            "6. Messaging E2E – AMQP-Kreislauf",
+            "k6 triggert über POST /api/test/order[/urgent] Bestellanforderungen im Store. " +
+                    "Der Store publiziert ArticleOrderEvents an RabbitMQ. " +
+                    "Die Logistikseite (JMeter) konsumiert die Orders und schickt ArticleSentEvents zurück. " +
+                    "Der Store verarbeitet die Events und bucht den Bestand hoch. " +
+                    "k6 verifiziert anschließend per GET /api/test/store-stock, dass der Bestand gestiegen ist. " +
+                    "Voraussetzung: JMeter auf der Logistikseite läuft und ist mit RabbitMQ verbunden.",
+            "30 Orders/min · 5 min · 30 % urgent · Bestand-Verifikation aktiv",
+            300
     );
 
+    private final String script;
     private final String scenarioKey;
     private final String displayName;
     private final String description;
     private final String parameters;
     private final int    durationSeconds;
 
-    TestType(String scenarioKey, String displayName, String description,
-             String parameters, int durationSeconds) {
+    TestType(String script, String scenarioKey, String displayName,
+             String description, String parameters, int durationSeconds) {
+        this.script          = script;
         this.scenarioKey     = scenarioKey;
         this.displayName     = displayName;
         this.description     = description;
@@ -72,6 +103,8 @@ public enum TestType {
         this.durationSeconds = durationSeconds;
     }
 
+    /** Dateiname des k6-Skripts (relativ zu {@code /etc/k6/scripts/}). */
+    public String getScript()          { return script; }
     public String getScenarioKey()     { return scenarioKey; }
     public String getDisplayName()     { return displayName; }
     public String getDescription()     { return description; }
