@@ -104,10 +104,8 @@ public class ArticleServiceImpl extends CrudRepositoryService<Article, Long, Art
             metrics.articlesAdded.increment();
 
             return mapEntityToResponse(savedArticle);
-        } catch (Exception e) {
-            throw e;
-        } finally {
-            sample.stop(metrics.orderProcessingTime);
+        }finally {
+            sample.stop(metrics.articleCreationTime);
         }
     }
 
@@ -145,8 +143,7 @@ public class ArticleServiceImpl extends CrudRepositoryService<Article, Long, Art
     @Transactional
     @CacheEvict(value = "articleSearch", allEntries = true)
     public ArticleResponseDTO updateArticle(Long id, ArticleRequestDTO updatedArticleRequestDTO) {
-        Timer.Sample sample = Timer.start();
-        try {
+
             // --- 1. Artikel aus DB holen ---
             Article existingArticle = articleRepository.findById(id)
                     .orElseThrow(() ->
@@ -209,11 +206,6 @@ public class ArticleServiceImpl extends CrudRepositoryService<Article, Long, Art
             metrics.articlesUpdated.increment();
 
             return mapEntityToResponse(savedArticle);
-        } catch (Exception e) {
-            throw e;
-        } finally {
-            sample.stop(metrics.orderProcessingTime);
-        }
     }
 
     // ==================================================================================

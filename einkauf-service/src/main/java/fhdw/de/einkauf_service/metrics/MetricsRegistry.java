@@ -25,6 +25,7 @@ public class MetricsRegistry {
     public final Counter articlesUpdated;
     public final Counter articlesDeleted;
     public final Counter articlesViewed;
+    public final Timer articleCreationTime;
 
     // ==================== Shopping Cart Metrics ====================
     public final Counter cartItemsAdded;
@@ -100,6 +101,12 @@ public class MetricsRegistry {
         this.articlesViewed = Counter.builder("einkauf_service.articles.viewed.total")
                 .description("Total number of article view events")
                 .tag("service", "einkauf-service")
+                .register(meterRegistry);
+
+        this.articleCreationTime = Timer.builder("einkauf_service.articles.creation.time")
+                .description("Article creation processing time")
+                .tag("service", "einkauf-service")
+                .publishPercentiles(0.5, 0.95, 0.99)
                 .register(meterRegistry);
 
         // Shopping Cart Metrics

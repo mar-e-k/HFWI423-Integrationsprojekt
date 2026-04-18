@@ -6,17 +6,24 @@
       <boolProp name="TestPlan.serialize_threadgroups">false</boolProp>
     </TestPlan>
     <hashTree>
-      <ThreadGroup guiclass="ThreadGroupGui" testclass="ThreadGroup" testname="Users">
-        <stringProp name="ThreadGroup.num_threads">${__P(users,10)}</stringProp>
-        <stringProp name="ThreadGroup.ramp_time">${__P(rampup,20)}</stringProp>
-        <longProp name="ThreadGroup.duration">1800</longProp>
-        <boolProp name="ThreadGroup.same_user_on_next_iteration">true</boolProp>
-        <stringProp name="ThreadGroup.on_sample_error">continue</stringProp>
-        <elementProp name="ThreadGroup.main_controller" elementType="LoopController" guiclass="LoopControlPanel" testclass="LoopController">
-          <stringProp name="LoopController.loops">${__P(loops,-1)}</stringProp>
-          <boolProp name="LoopController.continue_forever">false</boolProp>
-        </elementProp>
-      </ThreadGroup>
+      <ThreadGroup guiclass="ThreadGroupGui" testclass="ThreadGroup" testname="Soak Test Users" enabled="true">
+  <stringProp name="ThreadGroup.num_threads">${__P(users,30)}</stringProp>
+  <stringProp name="ThreadGroup.ramp_time">${__P(rampup,60)}</stringProp>
+
+  <elementProp name="ThreadGroup.main_controller"
+               elementType="LoopController"
+               guiclass="LoopControlPanel"
+               testclass="LoopController">
+    <stringProp name="LoopController.loops">-1</stringProp>
+    <boolProp name="LoopController.continue_forever">true</boolProp>
+  </elementProp>
+
+  <boolProp name="ThreadGroup.scheduler">true</boolProp>
+  <stringProp name="ThreadGroup.duration">${__P(duration,2400)}</stringProp>
+
+  <boolProp name="ThreadGroup.same_user_on_next_iteration">true</boolProp>
+  <stringProp name="ThreadGroup.on_sample_error">continue</stringProp>
+</ThreadGroup>
       <hashTree>
         <CookieManager guiclass="CookiePanel" testclass="CookieManager" testname="Cookies" enabled="true">
           <collectionProp name="CookieManager.cookies"/>
