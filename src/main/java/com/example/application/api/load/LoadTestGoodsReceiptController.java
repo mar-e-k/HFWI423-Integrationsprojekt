@@ -212,6 +212,26 @@ public class LoadTestGoodsReceiptController {
         }
     }
 
+    /**
+     * POST /api/load/goods-receipts/{id}/approve-all-items
+     * Setzt alle Items eines Wareneingangs auf FREIGEGEBEN.
+     * Ersetzt den fehleranfaelligen JMeter-ForeachController fuer den Lasttest.
+     * 200 + Anzahl freigegebener Items
+     */
+    @PostMapping("/{id}/approve-all-items")
+    public ResponseEntity<Integer> approveAllItems(@PathVariable Long id) {
+        List<GoodsReceiptItem> items = goodsReceiptService.getItemsForReceipt(id);
+        int approved = 0;
+        for (GoodsReceiptItem item : items) {
+            if (item.getStatus() == GoodsReceiptItemStatus.IN_PRUEFUNG) {
+                goodsReceiptService.setItemStatus(item.getId(), GoodsReceiptItemStatus.FREIGEGEBEN);
+                approved++;
+            }
+        }
+        System.out.println("[approve-all-items] receiptId=" + id + " approved=" + approved);
+        return ResponseEntity.ok(approved);
+    }
+
     /** POST /api/load/goods-receipts/{id}/complete – Prüfung abschließen */
     @PostMapping("/{id}/complete")
     public GoodsReceipt completeInspection(@PathVariable Long id) {

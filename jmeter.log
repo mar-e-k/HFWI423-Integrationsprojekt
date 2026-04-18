@@ -1,92 +1,100 @@
-2026-04-19 00:03:33,193 INFO o.a.j.u.JMeterUtils: Setting Locale to de_DE
-2026-04-19 00:03:33,207 INFO o.a.j.u.JMeterUtils: Could not find resources for 'de_DE', using 'de'
-2026-04-19 00:03:33,208 INFO o.a.j.JMeter: Loading user properties from: C:\tools\apache-jmeter-5.6.3\bin\user.properties
-2026-04-19 00:03:33,208 INFO o.a.j.JMeter: Loading system properties from: C:\tools\apache-jmeter-5.6.3\bin\system.properties
-2026-04-19 00:03:33,208 INFO o.a.j.JMeter: Setting JMeter property: threads=10
-2026-04-19 00:03:33,208 INFO o.a.j.JMeter: Setting JMeter property: rampup=2
-2026-04-19 00:03:33,208 INFO o.a.j.JMeter: Setting JMeter property: host=localhost
-2026-04-19 00:03:33,208 INFO o.a.j.JMeter: Setting JMeter property: port=8081
-2026-04-19 00:03:33,209 INFO o.a.j.JMeter: Setting JMeter property: testname=Artikel-Workflow-10T
-2026-04-19 00:03:33,215 INFO o.a.j.JMeter: Copyright (c) 1998-2024 The Apache Software Foundation
-2026-04-19 00:03:33,215 INFO o.a.j.JMeter: Version 5.6.3
-2026-04-19 00:03:33,215 INFO o.a.j.JMeter: java.version=24
-2026-04-19 00:03:33,215 INFO o.a.j.JMeter: java.vm.name=OpenJDK 64-Bit Server VM
-2026-04-19 00:03:33,215 INFO o.a.j.JMeter: os.name=Windows 11
-2026-04-19 00:03:33,215 INFO o.a.j.JMeter: os.arch=amd64
-2026-04-19 00:03:33,215 INFO o.a.j.JMeter: os.version=10.0
-2026-04-19 00:03:33,215 INFO o.a.j.JMeter: file.encoding=UTF-8
-2026-04-19 00:03:33,215 INFO o.a.j.JMeter: java.awt.headless=true
-2026-04-19 00:03:33,215 INFO o.a.j.JMeter: Max memory     =8547991552
-2026-04-19 00:03:33,215 INFO o.a.j.JMeter: Available Processors =16
-2026-04-19 00:03:33,226 INFO o.a.j.JMeter: Default Locale=Deutsch (Deutschland)
-2026-04-19 00:03:33,226 INFO o.a.j.JMeter: JMeter  Locale=Deutsch (Deutschland)
-2026-04-19 00:03:33,226 INFO o.a.j.JMeter: JMeterHome=C:\tools\apache-jmeter-5.6.3
-2026-04-19 00:03:33,227 INFO o.a.j.JMeter: user.dir  =C:\Users\jason\IdeaProjects\HFWI423-Integrationsprojekt
-2026-04-19 00:03:33,227 INFO o.a.j.JMeter: PWD       =C:\Users\jason\IdeaProjects\HFWI423-Integrationsprojekt
-2026-04-19 00:03:42,668 INFO o.a.j.JMeter: IP: 169.254.123.70 Name: JasonPC FullName: JasonPC
-2026-04-19 00:03:42,686 INFO o.a.j.s.FileServer: Default base='C:\Users\jason\IdeaProjects\HFWI423-Integrationsprojekt'
-2026-04-19 00:03:42,687 INFO o.a.j.s.FileServer: Set new base='C:\Users\jason\IdeaProjects\HFWI423-Integrationsprojekt\monitoring\jmeter'
-2026-04-19 00:03:42,969 INFO o.a.j.s.SaveService: Testplan (JMX) version: 2.2. Testlog (JTL) version: 2.2
-2026-04-19 00:03:43,011 INFO o.a.j.s.SaveService: Using SaveService properties version 5.0
-2026-04-19 00:03:43,014 INFO o.a.j.s.SaveService: Using SaveService properties file encoding UTF-8
-2026-04-19 00:03:43,018 INFO o.a.j.s.SaveService: Loading file: C:\Users\jason\IdeaProjects\HFWI423-Integrationsprojekt\monitoring\jmeter\logistik-artikel-workflow.jmx
-2026-04-19 00:03:43,077 INFO o.a.j.p.h.s.HTTPSamplerBase: Parser for text/html is org.apache.jmeter.protocol.http.parser.LagartoBasedHtmlParser
-2026-04-19 00:03:43,077 INFO o.a.j.p.h.s.HTTPSamplerBase: Parser for application/xhtml+xml is org.apache.jmeter.protocol.http.parser.LagartoBasedHtmlParser
-2026-04-19 00:03:43,077 INFO o.a.j.p.h.s.HTTPSamplerBase: Parser for application/xml is org.apache.jmeter.protocol.http.parser.LagartoBasedHtmlParser
-2026-04-19 00:03:43,077 INFO o.a.j.p.h.s.HTTPSamplerBase: Parser for text/xml is org.apache.jmeter.protocol.http.parser.LagartoBasedHtmlParser
-2026-04-19 00:03:43,077 INFO o.a.j.p.h.s.HTTPSamplerBase: Parser for text/vnd.wap.wml is org.apache.jmeter.protocol.http.parser.RegexpHTMLParser
-2026-04-19 00:03:43,078 INFO o.a.j.p.h.s.HTTPSamplerBase: Parser for text/css is org.apache.jmeter.protocol.http.parser.CssParser
-2026-04-19 00:03:43,137 INFO o.a.j.s.SampleResult: Note: Sample TimeStamps are START times
-2026-04-19 00:03:43,138 INFO o.a.j.s.SampleResult: sampleresult.default.encoding is set to UTF-8
-2026-04-19 00:03:43,138 INFO o.a.j.s.SampleResult: sampleresult.useNanoTime=true
-2026-04-19 00:03:43,138 INFO o.a.j.s.SampleResult: sampleresult.nanoThreadSleep=5000
-2026-04-19 00:03:43,151 INFO o.a.j.JMeter: Creating summariser <summary>
-2026-04-19 00:03:43,172 INFO o.a.j.e.StandardJMeterEngine: Running the test!
-2026-04-19 00:03:43,173 INFO o.a.j.s.SampleEvent: List of sample_variables: []
-2026-04-19 00:03:43,173 INFO o.a.j.s.SampleEvent: List of sample_variables: []
-2026-04-19 00:03:43,179 INFO o.a.j.e.u.CompoundVariable: Note: Function class names must contain the string: '.functions.'
-2026-04-19 00:03:43,179 INFO o.a.j.e.u.CompoundVariable: Note: Function class names must not contain the string: '.gui.'
-2026-04-19 00:03:43,475 INFO o.a.j.v.b.BackendListener: InfluxDB – Grafana: Starting worker with class: class org.apache.jmeter.visualizers.backend.influxdb.InfluxdbBackendListenerClient and queue capacity: 5000
-2026-04-19 00:03:43,476 INFO o.a.j.v.b.BackendListener: InfluxDB – Grafana: Started  worker with class: class org.apache.jmeter.visualizers.backend.influxdb.InfluxdbBackendListenerClient
-2026-04-19 00:03:43,653 INFO o.a.j.JMeter: Test starten (1776549823653)
-2026-04-19 00:03:43,678 INFO o.a.j.e.StandardJMeterEngine: Starting ThreadGroup: 1 : Artikel-Workflow – 10 Threads
-2026-04-19 00:03:43,678 INFO o.a.j.e.StandardJMeterEngine: Starting 10 threads for group Artikel-Workflow – 10 Threads.
-2026-04-19 00:03:43,679 INFO o.a.j.e.StandardJMeterEngine: Thread will continue on error
-2026-04-19 00:03:43,679 INFO o.a.j.t.ThreadGroup: Starting thread group... number=1 threads=10 ramp-up=2 delayedStart=false
-2026-04-19 00:03:43,698 INFO o.a.j.t.ThreadGroup: Started thread group number 1
-2026-04-19 00:03:43,698 INFO o.a.j.e.StandardJMeterEngine: All thread groups have been started
-2026-04-19 00:03:43,708 INFO o.a.j.t.JMeterThread: Thread started: Artikel-Workflow – 10 Threads 1-1
-2026-04-19 00:03:43,903 INFO o.a.j.t.JMeterThread: Thread started: Artikel-Workflow – 10 Threads 1-2
-2026-04-19 00:03:44,102 INFO o.a.j.t.JMeterThread: Thread started: Artikel-Workflow – 10 Threads 1-3
-2026-04-19 00:03:44,300 INFO o.a.j.t.JMeterThread: Thread started: Artikel-Workflow – 10 Threads 1-4
-2026-04-19 00:03:44,500 INFO o.a.j.t.JMeterThread: Thread started: Artikel-Workflow – 10 Threads 1-5
-2026-04-19 00:03:44,698 INFO o.a.j.t.JMeterThread: Thread started: Artikel-Workflow – 10 Threads 1-6
-2026-04-19 00:03:44,894 INFO o.a.j.t.JMeterThread: Thread started: Artikel-Workflow – 10 Threads 1-7
-2026-04-19 00:03:45,093 INFO o.a.j.t.JMeterThread: Thread started: Artikel-Workflow – 10 Threads 1-8
-2026-04-19 00:03:45,290 INFO o.a.j.t.JMeterThread: Thread started: Artikel-Workflow – 10 Threads 1-9
-2026-04-19 00:03:45,493 INFO o.a.j.t.JMeterThread: Thread started: Artikel-Workflow – 10 Threads 1-10
-2026-04-19 00:03:45,729 INFO o.a.j.p.h.s.HTTPHCAbstractImpl: Local host = JasonPC
-2026-04-19 00:03:45,737 INFO o.a.j.p.h.s.HTTPHC4Impl: HTTP request retry count = 0
-2026-04-19 00:04:02,292 INFO o.a.j.r.Summariser: summary +     61 in 00:00:19 =    3,3/s Avg:    54 Min:     0 Max:   509 Err:     0 (0,00%) Active: 10 Started: 10 Finished: 0
-2026-04-19 00:04:30,250 INFO o.a.j.r.Summariser: summary +    119 in 00:00:28 =    4,3/s Avg:    30 Min:     0 Max:   384 Err:    14 (11,76%) Active: 10 Started: 10 Finished: 0
-2026-04-19 00:04:30,250 INFO o.a.j.r.Summariser: summary =    180 in 00:00:47 =    3,9/s Avg:    38 Min:     0 Max:   509 Err:    14 (7,78%)
-2026-04-19 00:05:01,010 INFO o.a.j.r.Summariser: summary +    107 in 00:00:31 =    3,5/s Avg:    13 Min:     0 Max:   201 Err:    18 (16,82%) Active: 10 Started: 10 Finished: 0
-2026-04-19 00:05:01,011 INFO o.a.j.r.Summariser: summary =    287 in 00:01:17 =    3,7/s Avg:    29 Min:     0 Max:   509 Err:    32 (11,15%)
-2026-04-19 00:05:31,457 INFO o.a.j.r.Summariser: summary +    116 in 00:00:30 =    3,8/s Avg:     4 Min:     0 Max:    15 Err:    17 (14,66%) Active: 10 Started: 10 Finished: 0
-2026-04-19 00:05:31,457 INFO o.a.j.r.Summariser: summary =    403 in 00:01:48 =    3,7/s Avg:    22 Min:     0 Max:   509 Err:    49 (12,16%)
-2026-04-19 00:06:00,106 INFO o.a.j.r.Summariser: summary +    121 in 00:00:29 =    4,2/s Avg:     7 Min:     0 Max:    52 Err:    17 (14,05%) Active: 10 Started: 10 Finished: 0
-2026-04-19 00:06:00,106 INFO o.a.j.r.Summariser: summary =    524 in 00:02:16 =    3,8/s Avg:    18 Min:     0 Max:   509 Err:    66 (12,60%)
-2026-04-19 00:06:30,005 INFO o.a.j.r.Summariser: summary +    145 in 00:00:30 =    4,8/s Avg:    10 Min:     0 Max:    57 Err:    30 (20,69%) Active: 10 Started: 10 Finished: 0
-2026-04-19 00:06:30,005 INFO o.a.j.r.Summariser: summary =    669 in 00:02:46 =    4,0/s Avg:    17 Min:     0 Max:   509 Err:    96 (14,35%)
-2026-04-19 00:07:00,489 INFO o.a.j.r.Summariser: summary +    114 in 00:00:30 =    3,7/s Avg:    17 Min:     0 Max:   206 Err:    16 (14,04%) Active: 10 Started: 10 Finished: 0
-2026-04-19 00:07:00,489 INFO o.a.j.r.Summariser: summary =    783 in 00:03:17 =    4,0/s Avg:    17 Min:     0 Max:   509 Err:   112 (14,30%)
-2026-04-19 00:07:30,592 INFO o.a.j.r.Summariser: summary +    120 in 00:00:30 =    4,0/s Avg:    13 Min:     0 Max:   239 Err:    10 (8,33%) Active: 10 Started: 10 Finished: 0
-2026-04-19 00:07:30,592 INFO o.a.j.r.Summariser: summary =    903 in 00:03:47 =    4,0/s Avg:    16 Min:     0 Max:   509 Err:   122 (13,51%)
-2026-04-19 00:08:00,111 INFO o.a.j.r.Summariser: summary +    104 in 00:00:30 =    3,5/s Avg:    12 Min:     0 Max:   191 Err:    18 (17,31%) Active: 10 Started: 10 Finished: 0
-2026-04-19 00:08:00,111 INFO o.a.j.r.Summariser: summary =   1007 in 00:04:16 =    3,9/s Avg:    16 Min:     0 Max:   509 Err:   140 (13,90%)
-2026-04-19 00:08:31,596 INFO o.a.j.r.Summariser: summary +    112 in 00:00:31 =    3,6/s Avg:    13 Min:     0 Max:   206 Err:    20 (17,86%) Active: 10 Started: 10 Finished: 0
-2026-04-19 00:08:31,596 INFO o.a.j.r.Summariser: summary =   1119 in 00:04:48 =    3,9/s Avg:    15 Min:     0 Max:   509 Err:   160 (14,30%)
-2026-04-19 00:09:00,157 INFO o.a.j.r.Summariser: summary +    114 in 00:00:29 =    4,0/s Avg:    15 Min:     0 Max:   176 Err:    16 (14,04%) Active: 10 Started: 10 Finished: 0
-2026-04-19 00:09:00,157 INFO o.a.j.r.Summariser: summary =   1233 in 00:05:17 =    3,9/s Avg:    15 Min:     0 Max:   509 Err:   176 (14,27%)
-2026-04-19 00:09:30,474 INFO o.a.j.r.Summariser: summary +    106 in 00:00:30 =    3,5/s Avg:    20 Min:     0 Max:   267 Err:    12 (11,32%) Active: 10 Started: 10 Finished: 0
-2026-04-19 00:09:30,474 INFO o.a.j.r.Summariser: summary =   1339 in 00:05:47 =    3,9/s Avg:    16 Min:     0 Max:   509 Err:   188 (14,04%)
+2026-04-19 00:24:44,241 INFO o.a.j.u.JMeterUtils: Setting Locale to de_DE
+2026-04-19 00:24:44,258 INFO o.a.j.u.JMeterUtils: Could not find resources for 'de_DE', using 'de'
+2026-04-19 00:24:44,259 INFO o.a.j.JMeter: Loading user properties from: C:\tools\apache-jmeter-5.6.3\bin\user.properties
+2026-04-19 00:24:44,260 INFO o.a.j.JMeter: Loading system properties from: C:\tools\apache-jmeter-5.6.3\bin\system.properties
+2026-04-19 00:24:44,260 INFO o.a.j.JMeter: Setting JMeter property: threads=20
+2026-04-19 00:24:44,260 INFO o.a.j.JMeter: Setting JMeter property: rampup=2
+2026-04-19 00:24:44,260 INFO o.a.j.JMeter: Setting JMeter property: host=localhost
+2026-04-19 00:24:44,260 INFO o.a.j.JMeter: Setting JMeter property: port=8081
+2026-04-19 00:24:44,260 INFO o.a.j.JMeter: Setting JMeter property: testname=Artikel-Workflow-20T
+2026-04-19 00:24:44,272 INFO o.a.j.JMeter: Copyright (c) 1998-2024 The Apache Software Foundation
+2026-04-19 00:24:44,272 INFO o.a.j.JMeter: Version 5.6.3
+2026-04-19 00:24:44,272 INFO o.a.j.JMeter: java.version=24
+2026-04-19 00:24:44,272 INFO o.a.j.JMeter: java.vm.name=OpenJDK 64-Bit Server VM
+2026-04-19 00:24:44,272 INFO o.a.j.JMeter: os.name=Windows 11
+2026-04-19 00:24:44,272 INFO o.a.j.JMeter: os.arch=amd64
+2026-04-19 00:24:44,272 INFO o.a.j.JMeter: os.version=10.0
+2026-04-19 00:24:44,272 INFO o.a.j.JMeter: file.encoding=UTF-8
+2026-04-19 00:24:44,272 INFO o.a.j.JMeter: java.awt.headless=true
+2026-04-19 00:24:44,272 INFO o.a.j.JMeter: Max memory     =8547991552
+2026-04-19 00:24:44,272 INFO o.a.j.JMeter: Available Processors =16
+2026-04-19 00:24:44,281 INFO o.a.j.JMeter: Default Locale=Deutsch (Deutschland)
+2026-04-19 00:24:44,282 INFO o.a.j.JMeter: JMeter  Locale=Deutsch (Deutschland)
+2026-04-19 00:24:44,282 INFO o.a.j.JMeter: JMeterHome=C:\tools\apache-jmeter-5.6.3
+2026-04-19 00:24:44,282 INFO o.a.j.JMeter: user.dir  =C:\Users\jason\IdeaProjects\HFWI423-Integrationsprojekt
+2026-04-19 00:24:44,282 INFO o.a.j.JMeter: PWD       =C:\Users\jason\IdeaProjects\HFWI423-Integrationsprojekt
+2026-04-19 00:24:53,746 INFO o.a.j.JMeter: IP: 169.254.123.70 Name: JasonPC FullName: JasonPC
+2026-04-19 00:24:53,757 INFO o.a.j.s.FileServer: Default base='C:\Users\jason\IdeaProjects\HFWI423-Integrationsprojekt'
+2026-04-19 00:24:53,757 INFO o.a.j.s.FileServer: Set new base='C:\Users\jason\IdeaProjects\HFWI423-Integrationsprojekt\monitoring\jmeter'
+2026-04-19 00:24:54,031 INFO o.a.j.s.SaveService: Testplan (JMX) version: 2.2. Testlog (JTL) version: 2.2
+2026-04-19 00:24:54,064 INFO o.a.j.s.SaveService: Using SaveService properties version 5.0
+2026-04-19 00:24:54,067 INFO o.a.j.s.SaveService: Using SaveService properties file encoding UTF-8
+2026-04-19 00:24:54,071 INFO o.a.j.s.SaveService: Loading file: C:\Users\jason\IdeaProjects\HFWI423-Integrationsprojekt\monitoring\jmeter\logistik-artikel-workflow.jmx
+2026-04-19 00:24:54,123 INFO o.a.j.p.h.s.HTTPSamplerBase: Parser for text/html is org.apache.jmeter.protocol.http.parser.LagartoBasedHtmlParser
+2026-04-19 00:24:54,123 INFO o.a.j.p.h.s.HTTPSamplerBase: Parser for application/xhtml+xml is org.apache.jmeter.protocol.http.parser.LagartoBasedHtmlParser
+2026-04-19 00:24:54,123 INFO o.a.j.p.h.s.HTTPSamplerBase: Parser for application/xml is org.apache.jmeter.protocol.http.parser.LagartoBasedHtmlParser
+2026-04-19 00:24:54,123 INFO o.a.j.p.h.s.HTTPSamplerBase: Parser for text/xml is org.apache.jmeter.protocol.http.parser.LagartoBasedHtmlParser
+2026-04-19 00:24:54,123 INFO o.a.j.p.h.s.HTTPSamplerBase: Parser for text/vnd.wap.wml is org.apache.jmeter.protocol.http.parser.RegexpHTMLParser
+2026-04-19 00:24:54,123 INFO o.a.j.p.h.s.HTTPSamplerBase: Parser for text/css is org.apache.jmeter.protocol.http.parser.CssParser
+2026-04-19 00:24:54,181 INFO o.a.j.s.SampleResult: Note: Sample TimeStamps are START times
+2026-04-19 00:24:54,181 INFO o.a.j.s.SampleResult: sampleresult.default.encoding is set to UTF-8
+2026-04-19 00:24:54,181 INFO o.a.j.s.SampleResult: sampleresult.useNanoTime=true
+2026-04-19 00:24:54,181 INFO o.a.j.s.SampleResult: sampleresult.nanoThreadSleep=5000
+2026-04-19 00:24:54,192 INFO o.a.j.JMeter: Creating summariser <summary>
+2026-04-19 00:24:54,211 INFO o.a.j.e.StandardJMeterEngine: Running the test!
+2026-04-19 00:24:54,212 INFO o.a.j.s.SampleEvent: List of sample_variables: []
+2026-04-19 00:24:54,212 INFO o.a.j.s.SampleEvent: List of sample_variables: []
+2026-04-19 00:24:54,217 INFO o.a.j.e.u.CompoundVariable: Note: Function class names must contain the string: '.functions.'
+2026-04-19 00:24:54,217 INFO o.a.j.e.u.CompoundVariable: Note: Function class names must not contain the string: '.gui.'
+2026-04-19 00:24:54,472 INFO o.a.j.v.b.BackendListener: InfluxDB – Grafana: Starting worker with class: class org.apache.jmeter.visualizers.backend.influxdb.InfluxdbBackendListenerClient and queue capacity: 5000
+2026-04-19 00:24:54,473 INFO o.a.j.v.b.BackendListener: InfluxDB – Grafana: Started  worker with class: class org.apache.jmeter.visualizers.backend.influxdb.InfluxdbBackendListenerClient
+2026-04-19 00:24:54,638 INFO o.a.j.JMeter: Test starten (1776551094637)
+2026-04-19 00:24:54,664 INFO o.a.j.e.StandardJMeterEngine: Starting ThreadGroup: 1 : Artikel-Workflow – 20 Threads
+2026-04-19 00:24:54,664 INFO o.a.j.e.StandardJMeterEngine: Starting 20 threads for group Artikel-Workflow – 20 Threads.
+2026-04-19 00:24:54,664 INFO o.a.j.e.StandardJMeterEngine: Thread will continue on error
+2026-04-19 00:24:54,664 INFO o.a.j.t.ThreadGroup: Starting thread group... number=1 threads=20 ramp-up=2 delayedStart=false
+2026-04-19 00:24:54,695 INFO o.a.j.t.ThreadGroup: Started thread group number 1
+2026-04-19 00:24:54,695 INFO o.a.j.e.StandardJMeterEngine: All thread groups have been started
+2026-04-19 00:24:54,697 INFO o.a.j.t.JMeterThread: Thread started: Artikel-Workflow – 20 Threads 1-1
+2026-04-19 00:24:54,793 INFO o.a.j.t.JMeterThread: Thread started: Artikel-Workflow – 20 Threads 1-2
+2026-04-19 00:24:54,890 INFO o.a.j.t.JMeterThread: Thread started: Artikel-Workflow – 20 Threads 1-3
+2026-04-19 00:24:54,988 INFO o.a.j.t.JMeterThread: Thread started: Artikel-Workflow – 20 Threads 1-4
+2026-04-19 00:24:55,090 INFO o.a.j.t.JMeterThread: Thread started: Artikel-Workflow – 20 Threads 1-5
+2026-04-19 00:24:55,188 INFO o.a.j.t.JMeterThread: Thread started: Artikel-Workflow – 20 Threads 1-6
+2026-04-19 00:24:55,287 INFO o.a.j.t.JMeterThread: Thread started: Artikel-Workflow – 20 Threads 1-7
+2026-04-19 00:24:55,383 INFO o.a.j.t.JMeterThread: Thread started: Artikel-Workflow – 20 Threads 1-8
+2026-04-19 00:24:55,481 INFO o.a.j.t.JMeterThread: Thread started: Artikel-Workflow – 20 Threads 1-9
+2026-04-19 00:24:55,580 INFO o.a.j.t.JMeterThread: Thread started: Artikel-Workflow – 20 Threads 1-10
+2026-04-19 00:24:55,676 INFO o.a.j.t.JMeterThread: Thread started: Artikel-Workflow – 20 Threads 1-11
+2026-04-19 00:24:55,775 INFO o.a.j.t.JMeterThread: Thread started: Artikel-Workflow – 20 Threads 1-12
+2026-04-19 00:24:55,876 INFO o.a.j.t.JMeterThread: Thread started: Artikel-Workflow – 20 Threads 1-13
+2026-04-19 00:24:55,974 INFO o.a.j.t.JMeterThread: Thread started: Artikel-Workflow – 20 Threads 1-14
+2026-04-19 00:24:56,076 INFO o.a.j.t.JMeterThread: Thread started: Artikel-Workflow – 20 Threads 1-15
+2026-04-19 00:24:56,176 INFO o.a.j.t.JMeterThread: Thread started: Artikel-Workflow – 20 Threads 1-16
+2026-04-19 00:24:56,272 INFO o.a.j.t.JMeterThread: Thread started: Artikel-Workflow – 20 Threads 1-17
+2026-04-19 00:24:56,373 INFO o.a.j.t.JMeterThread: Thread started: Artikel-Workflow – 20 Threads 1-18
+2026-04-19 00:24:56,472 INFO o.a.j.t.JMeterThread: Thread started: Artikel-Workflow – 20 Threads 1-19
+2026-04-19 00:24:56,571 INFO o.a.j.t.JMeterThread: Thread started: Artikel-Workflow – 20 Threads 1-20
+2026-04-19 00:24:56,719 INFO o.a.j.p.h.s.HTTPHCAbstractImpl: Local host = JasonPC
+2026-04-19 00:24:56,724 INFO o.a.j.p.h.s.HTTPHC4Impl: HTTP request retry count = 0
+2026-04-19 00:25:00,089 INFO o.a.j.r.Summariser: summary +     35 in 00:00:05 =    6,4/s Avg:    65 Min:     0 Max:   543 Err:     0 (0,00%) Active: 20 Started: 20 Finished: 0
+2026-04-19 00:25:30,593 INFO o.a.j.r.Summariser: summary +    222 in 00:00:31 =    7,3/s Avg:    44 Min:     0 Max:   871 Err:     0 (0,00%) Active: 20 Started: 20 Finished: 0
+2026-04-19 00:25:30,593 INFO o.a.j.r.Summariser: summary =    257 in 00:00:36 =    7,1/s Avg:    47 Min:     0 Max:   871 Err:     0 (0,00%)
+2026-04-19 00:26:01,174 INFO o.a.j.r.Summariser: summary +    240 in 00:00:31 =    7,8/s Avg:     5 Min:     0 Max:    19 Err:     0 (0,00%) Active: 20 Started: 20 Finished: 0
+2026-04-19 00:26:01,175 INFO o.a.j.r.Summariser: summary =    497 in 00:01:07 =    7,5/s Avg:    27 Min:     0 Max:   871 Err:     0 (0,00%)
+2026-04-19 00:26:30,050 INFO o.a.j.r.Summariser: summary +    236 in 00:00:29 =    8,2/s Avg:     6 Min:     0 Max:    31 Err:    24 (10,17%) Active: 20 Started: 20 Finished: 0
+2026-04-19 00:26:30,050 INFO o.a.j.r.Summariser: summary =    733 in 00:01:35 =    7,7/s Avg:    20 Min:     0 Max:   871 Err:    24 (3,27%)
+2026-04-19 00:27:00,709 INFO o.a.j.r.Summariser: summary +    265 in 00:00:31 =    8,6/s Avg:    18 Min:     0 Max:   320 Err:    20 (7,55%) Active: 20 Started: 20 Finished: 0
+2026-04-19 00:27:00,709 INFO o.a.j.r.Summariser: summary =    998 in 00:02:06 =    7,9/s Avg:    19 Min:     0 Max:   871 Err:    44 (4,41%)
+2026-04-19 00:27:30,629 INFO o.a.j.r.Summariser: summary +    222 in 00:00:30 =    7,4/s Avg:     8 Min:     0 Max:   159 Err:     0 (0,00%) Active: 20 Started: 20 Finished: 0
+2026-04-19 00:27:30,630 INFO o.a.j.r.Summariser: summary =   1220 in 00:02:36 =    7,8/s Avg:    17 Min:     0 Max:   871 Err:    44 (3,61%)
+2026-04-19 00:28:01,190 INFO o.a.j.r.Summariser: summary +    278 in 00:00:31 =    9,1/s Avg:    13 Min:     0 Max:   143 Err:    25 (8,99%) Active: 20 Started: 20 Finished: 0
+2026-04-19 00:28:01,190 INFO o.a.j.r.Summariser: summary =   1498 in 00:03:07 =    8,0/s Avg:    17 Min:     0 Max:   871 Err:    69 (4,61%)
+2026-04-19 00:28:30,281 INFO o.a.j.r.Summariser: summary +    219 in 00:00:29 =    7,5/s Avg:     8 Min:     0 Max:   187 Err:     0 (0,00%) Active: 20 Started: 20 Finished: 0
+2026-04-19 00:28:30,281 INFO o.a.j.r.Summariser: summary =   1717 in 00:03:36 =    8,0/s Avg:    15 Min:     0 Max:   871 Err:    69 (4,02%)
+2026-04-19 00:29:00,439 INFO o.a.j.r.Summariser: summary +    218 in 00:00:30 =    7,2/s Avg:   162 Min:     0 Max:  2403 Err:    19 (8,72%) Active: 20 Started: 20 Finished: 0
+2026-04-19 00:29:00,440 INFO o.a.j.r.Summariser: summary =   1935 in 00:04:06 =    7,9/s Avg:    32 Min:     0 Max:  2403 Err:    88 (4,55%)
+2026-04-19 00:29:30,202 INFO o.a.j.r.Summariser: summary +    223 in 00:00:30 =    7,5/s Avg:     7 Min:     0 Max:    20 Err:     0 (0,00%) Active: 20 Started: 20 Finished: 0
+2026-04-19 00:29:30,203 INFO o.a.j.r.Summariser: summary =   2158 in 00:04:36 =    7,8/s Avg:    29 Min:     0 Max:  2403 Err:    88 (4,08%)
+2026-04-19 00:30:01,612 INFO o.a.j.r.Summariser: summary +    223 in 00:00:31 =    7,1/s Avg:   249 Min:     0 Max:  2046 Err:    32 (14,35%) Active: 20 Started: 20 Finished: 0
+2026-04-19 00:30:01,612 INFO o.a.j.r.Summariser: summary =   2381 in 00:05:07 =    7,8/s Avg:    50 Min:     0 Max:  2403 Err:   120 (5,04%)
