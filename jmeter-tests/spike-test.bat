@@ -2,19 +2,22 @@
 title JMeter Test Runner
 
 echo =====================================
-echo      JMeter Test wird gestartet
+echo      Spike-Test wird gestartet
 echo =====================================
 echo.
 
 REM Alten Ergebnisordner komplett loeschen
+cd /d "%~dp0.."
 if exist jmeter-results (
-    echo Loesche alten Ordner jmeter-results ...
+    echo Loesche echten jmeter-results Ordner...
     rmdir /s /q jmeter-results
 )
 
 echo.
-echo Starte JMeter Test...
+echo Starte Spike-Test...
 echo.
+
+set TESTPLAN=spike-test.jmx
 
 docker compose --profile test run --rm jmeter
 

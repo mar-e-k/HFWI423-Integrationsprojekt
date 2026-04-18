@@ -6,7 +6,7 @@ start-infra.bat -> startet lokale (leere) DB, pgadmin, prometheus und grafan in 
 
 starte Anwendung in der IDE -> Hibernate erstellt Tabellenstruktur und fuellt sie mit ersten Daten (immer dieselben)
 
-fuer JMeter-Test: Test-Art in der docker-compose.yml aendern -> jmeter-test.bat ausfuehren
+fuer JMeter-Test: im jmeter-test Ordner Batchjob für entsprechenden Test ausführen
 
 stop-infra.bat -> Infrastruktur beenden
 
