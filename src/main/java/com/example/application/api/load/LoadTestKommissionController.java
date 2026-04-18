@@ -153,7 +153,6 @@ public class LoadTestKommissionController {
      * 200 + Anzahl abgeschlossener Kommissionen
      */
     @PostMapping("/finish-all")
-    @Transactional
     public ResponseEntity<Integer> finishAll() {
         List<Kommission> open = kommissionRepository.findAll().stream()
                 .filter(k -> !Boolean.TRUE.equals(k.getFinished()))
@@ -162,28 +161,7 @@ public class LoadTestKommissionController {
         int finished = 0;
         for (Kommission kommission : open) {
             try {
-                List<MessageLogistic> items = messageLogisticRepository.findByKommissionId(kommission.getId());
-                for (MessageLogistic msg : items) {
-                    String articleNumber = msg.getArticleNumber();
-                    if (articleNumber == null && msg.getArticleId() != null) {
-                        try {
-                            articleNumber = articleInfoService.findById(msg.getArticleId()).getArticleNumber();
-                        } catch (Exception ignored) { }
-                    }
-                    if (articleNumber == null) continue;
-                    articleInfoService.updateStock(articleNumber, (int) msg.getQuantity());
-                    try {
-                        long storeIdLong = Long.parseLong(kommission.getStoreId().replaceAll("[^0-9]", ""));
-                        Long articleId = msg.getArticleId();
-                        if (articleId != null) {
-                            logisticEventPublisher.publishArticleDelivery(storeIdLong, articleId, msg.getQuantity());
-                        }
-                    } catch (Exception ignored) {
-                        // Event-Publishing schlaegt fehl wenn AMQP nicht verfuegbar
-                    }
-                }
-                kommission.setFinished(true);
-                kommissionService.save(kommission);
+                kommissionService.finishAtomar(kommission);
                 finished++;
             } catch (Exception e) {
                 System.out.println("[finish-all] FEHLER Kommission " + kommission.getId() + ": " + e.getMessage());

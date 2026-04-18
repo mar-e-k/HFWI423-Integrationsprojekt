@@ -1,10 +1,13 @@
 package com.example.application.services;
 
+import com.example.application.amqp.storeEvents.LogisticEventPublisher;
 import com.example.application.data.articleInfo.ArticleInfo;
 import com.example.application.data.articleInfo.ArticleInfoRepository;
 import com.example.application.data.orderPicking.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -25,6 +28,9 @@ public class KommissionService {
 
     @Autowired
     private ArticleInfoRepository articleRepo;
+
+    @Autowired
+    private LogisticEventPublisher logisticEventPublisher;
 
     // Zentrale Auflösung: zuerst über articleId, dann Fallback über articleNumber
     private ArticleInfo resolveArticle(Long articleId, String articleNumber) {
@@ -100,6 +106,37 @@ public class KommissionService {
 
     public Kommission save(Kommission k) {
         return komRepo.save(k);
+    }
+
+    /**
+     * Verarbeitet eine einzelne Kommission atomar in einer eigenen Transaktion.
+     * REQUIRES_NEW: schlaegt diese Kommission fehl, rollt nur sie zurueck –
+     * finishAll() kann mit der naechsten weitermachen.
+     */
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    public void finishAtomar(Kommission kommission) {
+        List<MessageLogistic> items = msgRepo.findByKommissionId(kommission.getId());
+        for (MessageLogistic msg : items) {
+            String articleNumber = msg.getArticleNumber();
+            if (articleNumber == null && msg.getArticleId() != null) {
+                try {
+                    articleNumber = artikelService.findById(msg.getArticleId()).getArticleNumber();
+                } catch (Exception ignored) { }
+            }
+            if (articleNumber == null) continue;
+            artikelService.updateStock(articleNumber, (int) msg.getQuantity());
+            try {
+                long storeIdLong = Long.parseLong(kommission.getStoreId().replaceAll("[^0-9]", ""));
+                Long articleId = msg.getArticleId();
+                if (articleId != null) {
+                    logisticEventPublisher.publishArticleDelivery(storeIdLong, articleId, msg.getQuantity());
+                }
+            } catch (Exception ignored) {
+                // Event-Publishing schlaegt fehl wenn AMQP nicht verfuegbar
+            }
+        }
+        kommission.setFinished(true);
+        komRepo.save(kommission);
     }
 
     // Prüft bevorzugt über articleId, sonst über articleNumber
