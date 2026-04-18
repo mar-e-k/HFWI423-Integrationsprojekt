@@ -7,11 +7,11 @@ import jakarta.validation.constraints.Size;
 import lombok.EqualsAndHashCode;
 
 import java.util.HashSet;
+import java.util.Objects;
 import java.util.Set;
 
 @Entity
 @Table(name = "supplier")
-@EqualsAndHashCode(onlyExplicitlyIncluded = true)
 public class Supplier {
 
     public Supplier() {
@@ -204,6 +204,6 @@ public class Supplier {
 
     @Override
     public int hashCode() {
-        return getClass().hashCode();
+        return Objects.hash(getId(), getName(), getStreet(), getHouseNumber(), getZip(), getCity(), getCountry(), getEmail(), getPhone(), getPaymentTerm(), getContactPeople(), isActive, getArticles());
     }
 }

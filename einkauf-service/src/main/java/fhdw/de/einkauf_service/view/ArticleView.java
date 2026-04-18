@@ -65,9 +65,8 @@ public class ArticleView extends VerticalLayout {
     private final Map<Long, Integer> selectedArticles = new HashMap<>();
 
     private final ArticleCategoryService categoryService;
-    private final SupplierView supplierView;
 
-    public ArticleView(ArticleService articleService, SupplierService supplierService, ShoppingCartSession cartSession, ArticleCategoryService categoryService, SupplierView supplierView) {
+    public ArticleView(ArticleService articleService, SupplierService supplierService, ShoppingCartSession cartSession, ArticleCategoryService categoryService) {
         this.articleService = articleService;
         this.cartSession = cartSession;
         this.categoryService = categoryService;
@@ -122,7 +121,6 @@ public class ArticleView extends VerticalLayout {
         add(searchLayout, grid);
 
         updateList();
-        this.supplierView = supplierView;
     }
 
     // ----------------------------------------------------------------------------------

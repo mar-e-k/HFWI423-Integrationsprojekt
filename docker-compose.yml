@@ -1,7 +1,55 @@
+# docker-compose.yml
+# Startreihenfolge:
+# 1. postgres
+# 2. pgadmin
+# 3. prometheus
+# 4. grafana
+# 5. spring-app manuell starten
+# jmeter nur bei Bedarf über --profile test
+
 services:
+
+  postgres:
+    image: postgres:16
+    container_name: test-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: appdb
+      POSTGRES_USER: appuser
+      POSTGRES_PASSWORD: geheim123
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./init:/docker-entrypoint-initdb.d
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U appuser -d appdb"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+
+  pgadmin:
+    image: dpage/pgadmin4
+    container_name: test-pgadmin
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@test.de
+      PGADMIN_DEFAULT_PASSWORD: admin123
+    ports:
+      - "5050:80"
+    volumes:
+      - pgadmin_data:/var/lib/pgadmin
+
   prometheus:
     image: prom/prometheus:latest
     container_name: einkauf-prometheus
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
     ports:
       - "9090:9090"
     volumes:
@@ -12,73 +60,74 @@ services:
       - "--config.file=/etc/prometheus/prometheus.yml"
       - "--storage.tsdb.path=/prometheus"
       - "--storage.tsdb.retention.time=30d"
-    networks:
-      - einkauf-network
 
   grafana:
     image: grafana/grafana:latest
     container_name: einkauf-grafana
+    restart: unless-stopped
+    depends_on:
+      prometheus:
+        condition: service_started
     ports:
       - "3000:3000"
     environment:
-      GF_SECURITY_ADMIN_PASSWORD: admin
       GF_SECURITY_ADMIN_USER: admin
+      GF_SECURITY_ADMIN_PASSWORD: admin
       GF_USERS_ALLOW_SIGN_UP: "false"
     volumes:
       - ./grafana/provisioning:/etc/grafana/provisioning
       - grafana_data:/var/lib/grafana
-    networks:
-      - einkauf-network
-    depends_on:
-      - prometheus
 
+  # OPTIONAL:
+  # Nur starten wenn du die App im Container willst:
+  # docker compose --profile app up -d
   spring-app:
     build:
       context: ./einkauf-service
       dockerfile: Dockerfile
     container_name: einkauf-service-app
+    profiles:
+      - app
+    depends_on:
+      postgres:
+        condition: service_healthy
+      prometheus:
+        condition: service_started
     ports:
       - "8080:8080"
     environment:
       SPRING_PROFILES_ACTIVE: docker
-      SPRING_DATASOURCE_URL: ${SPRING_DATASOURCE_URL}
-      SPRING_DATASOURCE_USERNAME: ${SPRING_DATASOURCE_USERNAME}
-      SPRING_DATASOURCE_PASSWORD: ${SPRING_DATASOURCE_PASSWORD}
-      SPRING_RABBITMQ_HOST: ${SPRING_RABBITMQ_HOST}
-      SPRING_RABBITMQ_PORT: ${SPRING_RABBITMQ_PORT}
-      SPRING_RABBITMQ_USERNAME: ${SPRING_RABBITMQ_USERNAME}
-      SPRING_RABBITMQ_PASSWORD: ${SPRING_RABBITMQ_PASSWORD}
-      SPRING_RABBITMQ_VIRTUAL_HOST: ${SPRING_RABBITMQ_VIRTUAL_HOST}
-    networks:
-      - einkauf-network
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/appdb
+      SPRING_DATASOURCE_USERNAME: appuser
+      SPRING_DATASOURCE_PASSWORD: geheim123
+      SPRING_RABBITMQ_HOST: cow.rmq2.cloudamqp.com
+      SPRING_RABBITMQ_PORT: 5671
+      SPRING_RABBITMQ_USERNAME: tgamtfjc
+      SPRING_RABBITMQ_PASSWORD: LGl-i3KF-JuaNxoPrUGCNsffR9AYfo-i
+      SPRING_RABBITMQ_VIRTUAL_HOST: tgamtfjc
 
+  # Nur bei Bedarf:
+  # docker compose --profile test run --rm jmeter
   jmeter:
     image: justb4/jmeter:latest
     container_name: einkauf-jmeter
-    volumes:
-      - ./einkauf-service/soak-test.jmx:/tests/soak-test.jmx
-      - ./jmeter-results:/results
-    command: >
-      -n -t /tests/soak-test.jmx
-      -Jhost=host.docker.internal
-      -Jport=8080
-      -Jusers=2
-      -Jrampup=1
-      -Jloops=5
-      -l /results/results.jtl
-      -e -o /results/report
-    depends_on: []
-    networks:
-      - einkauf-network
     profiles:
       - test
+    volumes:
+      - ./einkauf-service/last-test.jmx:/tests/last-test.jmx
+      - ./jmeter-results:/results
+    command: >
+      -n -t /tests/last-test.jmx
+      -Jhost=host.docker.internal
+      -Jport=8080
+      -Jusers=20
+      -Jrampup=30
+      -Jloops=-1
+      -l /results/results.jtl
+      -e -o /results/report
 
 volumes:
+  postgres_data:
+  pgadmin_data:
   prometheus_data:
-    driver: local
   grafana_data:
-    driver: local
-
-networks:
-  einkauf-network:
-    driver: bridge

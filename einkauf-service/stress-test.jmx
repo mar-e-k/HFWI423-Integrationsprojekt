@@ -7,12 +7,13 @@
     </TestPlan>
     <hashTree>
       <ThreadGroup guiclass="ThreadGroupGui" testclass="ThreadGroup" testname="Users">
-        <stringProp name="ThreadGroup.num_threads">${__P(users,30)}</stringProp>
-        <stringProp name="ThreadGroup.ramp_time">${__P(rampup,20)}</stringProp>
+        <stringProp name="ThreadGroup.num_threads">${__P(users,120)}</stringProp>
+        <stringProp name="ThreadGroup.ramp_time">${__P(rampup,15)}</stringProp>
+        <longProp name="ThreadGroup.duration">300</longProp>
         <boolProp name="ThreadGroup.same_user_on_next_iteration">true</boolProp>
         <stringProp name="ThreadGroup.on_sample_error">continue</stringProp>
         <elementProp name="ThreadGroup.main_controller" elementType="LoopController" guiclass="LoopControlPanel" testclass="LoopController">
-          <stringProp name="LoopController.loops">${__P(loops,20)}</stringProp>
+          <stringProp name="LoopController.loops">${__P(loops,-1)}</stringProp>
           <boolProp name="LoopController.continue_forever">false</boolProp>
         </elementProp>
       </ThreadGroup>
@@ -58,7 +59,7 @@
                 <boolProp name="HTTPArgument.always_encode">false</boolProp>
                 <stringProp name="Argument.value">&#xd;
 {&#xd;
-  &quot;name&quot;: &quot;Order-Test-${__threadNum}-${counter}&quot;,&#xd;
+  &quot;name&quot;: &quot;Test${__threadNum}-${counter}&quot;,&#xd;
   &quot;manufacturer&quot;: &quot;JMeter&quot;,&#xd;
 &#xd;
   &quot;articleNumber&quot;: &quot;${__Random(10000000,999999999)}&quot;,&#xd;
@@ -75,10 +76,10 @@
   &quot;isAvailable&quot;: true,&#xd;
   &quot;hasDeposit&quot;: false,&#xd;
 &#xd;
-  &quot;categoryIds&quot;: [13],&#xd;
-  &quot;supplierIds&quot;: [6],&#xd;
+  &quot;categoryIds&quot;: [1],&#xd;
+  &quot;supplierIds&quot;: [1],&#xd;
 &#xd;
-  &quot;mainSupplierId&quot;: 6&#xd;
+  &quot;mainSupplierId&quot;: 1&#xd;
 }&#xd;
                 </stringProp>
                 <stringProp name="Argument.metadata">=</stringProp>
@@ -87,7 +88,7 @@
           </elementProp>
         </HTTPSamplerProxy>
         <hashTree>
-          <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="Assert Create Article OK" enabled="true">
+          <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="Assert Create Article OK">
             <collectionProp name="Asserion.test_strings"/>
             <stringProp name="Assertion.test_field">Assertion.response_code</stringProp>
             <collectionProp name="Assertion.test_strings">
@@ -99,7 +100,7 @@
             <intProp name="Assertion.test_type">2</intProp>
           </ResponseAssertion>
           <hashTree/>
-          <JSONPostProcessor guiclass="JSONPostProcessorGui" testclass="JSONPostProcessor" testname="Extract Article ID" enabled="true">
+          <JSONPostProcessor guiclass="JSONPostProcessorGui" testclass="JSONPostProcessor" testname="Extract Article ID">
             <stringProp name="JSONPostProcessor.referenceNames">articleId</stringProp>
             <stringProp name="JSONPostProcessor.jsonPathExprs">$.id</stringProp>
             <stringProp name="JSONPostProcessor.match_numbers"></stringProp>
@@ -151,16 +152,7 @@
           <stringProp name="HTTPSampler.method">POST</stringProp>
           <boolProp name="HTTPSampler.postBodyRaw">false</boolProp>
           <elementProp name="HTTPsampler.Arguments" elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" testname="User Defined Variables">
-            <collectionProp name="Arguments.arguments">
-              <elementProp name="" elementType="HTTPArgument">
-                <stringProp name="Argument.value">${articleId}</stringProp>
-                <stringProp name="Argument.metadata">=</stringProp>
-              </elementProp>
-              <elementProp name="" elementType="HTTPArgument">
-                <stringProp name="Argument.value">5</stringProp>
-                <stringProp name="Argument.metadata">=</stringProp>
-              </elementProp>
-            </collectionProp>
+            <collectionProp name="Arguments.arguments"/>
           </elementProp>
         </HTTPSamplerProxy>
         <hashTree>

@@ -48,7 +48,7 @@ class ArticleServiceImplTest {
 
     @BeforeEach
     void setUp() {
-        service = new ArticleServiceImpl(articleRepository, supplierRepository, categoryRepository, supplierView, metrics);
+        service = new ArticleServiceImpl(articleRepository, supplierRepository, categoryRepository, metrics);
     }
 
     // --- Helpers ---

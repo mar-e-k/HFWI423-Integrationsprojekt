@@ -19,7 +19,6 @@ import fhdw.de.einkauf_service.repository.ArticleCategoryRepository;
 import fhdw.de.einkauf_service.repository.ArticleRepository;
 import fhdw.de.einkauf_service.repository.SupplierRepository;
 import fhdw.de.einkauf_service.service.ArticleService;
-import fhdw.de.einkauf_service.view.SupplierView;
 import io.micrometer.core.instrument.Timer;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.cache.annotation.CacheEvict;
@@ -40,7 +39,7 @@ public class ArticleServiceImpl extends CrudRepositoryService<Article, Long, Art
     private final ArticleCategoryRepository categoryRepository;
     private final MetricsRegistry metrics;
 
-    public ArticleServiceImpl(ArticleRepository articleRepository, SupplierRepository supplierRepository, ArticleCategoryRepository categoryRepository, SupplierView suppliers, MetricsRegistry metrics) {
+    public ArticleServiceImpl(ArticleRepository articleRepository, SupplierRepository supplierRepository, ArticleCategoryRepository categoryRepository, MetricsRegistry metrics) {
         super(articleRepository);
         this.articleRepository = articleRepository;
         this.supplierRepository = supplierRepository;
