@@ -32,7 +32,9 @@ public class RestockItem {
         return article.getStockLevel();
     }
 
-    public Integer getReservePallets() {return article.getReservePallets();}
+    public int getReservePallets() {
+        return article.getReservePallets() != null ? article.getReservePallets() : 0;
+    }
 
     public Integer getMinStock() {
         return article.getMinStock();

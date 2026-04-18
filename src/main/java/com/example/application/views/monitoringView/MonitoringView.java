@@ -1192,6 +1192,24 @@ public class MonitoringView extends Div {
     @Override
     protected void onAttach(AttachEvent event) {
         UI ui = event.getUI();
+
+        // Nach Page-Reload: pruefen ob JMeter-Prozess noch laeuft (PID-Datei)
+        if (Files.exists(PID_FILE)) {
+            try {
+                long pid = Long.parseLong(Files.readString(PID_FILE).trim());
+                boolean alive = ProcessHandle.of(pid).map(ProcessHandle::isAlive).orElse(false);
+                if (alive) {
+                    testRunning.set(true);
+                    activeTestName = "Artikel-Workflow";
+                    stopButton.setEnabled(true);
+                    setTestButtonsEnabled(false);
+                    updateStatusBadge(true);
+                } else {
+                    deletePid();
+                }
+            } catch (Exception ignored) {}
+        }
+
         refreshTask = scheduler.scheduleAtFixedRate(() -> ui.access(() -> {
             pollCsvResults();
             updateLiveResults();

@@ -4,6 +4,8 @@
     <TestPlan guiclass="TestPlanGui" testclass="TestPlan" testname="Logistik – Artikel-Workflow Lasttest" enabled="true">
       <stringProp name="TestPlan.comments">
         Workflow-Lasttest: Simuliert Mitarbeiter die gleichzeitig den kompletten Logistik-Workflow ausfuehren.
+        Laeuft als Endlosschleife (loop forever) bis manuell gestoppt.
+        Nach jeder Runde: 10s Polling-Pause, dann erneute Pruefung auf neue Arbeit.
         Phase 1: Neue Artikel anlegen (WhileController bis 204)
           GET neue-artikel → POST create-next-with-storage
           Falls 503: Lagerplatz anlegen, dann retry
@@ -37,8 +39,8 @@
         <stringProp name="ThreadGroup.on_sample_error">continue</stringProp>
         <elementProp name="ThreadGroup.main_controller" elementType="LoopController"
                      guiclass="LoopControlPanel" testclass="LoopController">
-          <boolProp name="LoopController.continue_forever">false</boolProp>
-          <stringProp name="LoopController.loops">1</stringProp>
+          <boolProp name="LoopController.continue_forever">true</boolProp>
+          <stringProp name="LoopController.loops">-1</stringProp>
         </elementProp>
         <stringProp name="ThreadGroup.num_threads">${__P(threads,5)}</stringProp>
         <stringProp name="ThreadGroup.ramp_time">${__P(rampup,2)}</stringProp>
@@ -103,7 +105,7 @@
         <JSR223Sampler guiclass="TestBeanGUI" testclass="JSR223Sampler"
                        testname="Init - articleDone zuruecksetzen" enabled="true">
           <stringProp name="scriptLanguage">javascript</stringProp>
-          <stringProp name="script">vars.put("continueLoop", "true");</stringProp>
+          <stringProp name="script">vars.put("continueLoop", "true"); vars.put("httpCode", "0"); vars.put("receiptCode", "201");</stringProp>
           <stringProp name="filename"></stringProp>
           <stringProp name="parameters"></stringProp>
           <boolProp name="cacheKey">true</boolProp>
@@ -784,6 +786,13 @@ if (code == "201") {
           </ResponseAssertion>
           <hashTree/>
         </hashTree>
+
+        <!-- Polling-Pause: kurze Wartezeit bevor naechste Runde startet -->
+        <ConstantTimer guiclass="ConstantTimerGui" testclass="ConstantTimer"
+                       testname="Polling-Pause 2s - Warten auf neue Arbeit" enabled="true">
+          <stringProp name="ConstantTimer.delay">2000</stringProp>
+        </ConstantTimer>
+        <hashTree/>
 
         <!-- ── InfluxDB Backend Listener ─────────────────────────────────── -->
         <BackendListener guiclass="BackendListenerGui" testclass="BackendListener"
