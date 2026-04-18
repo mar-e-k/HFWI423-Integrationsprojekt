@@ -405,13 +405,19 @@ public class MonitoringView extends Div {
     private void sendRequest(String method, String path, String body,
                               Span statusSpan, Span timeSpan, Span summarySpan,
                               HorizontalLayout resultArea, Button btn, UI ui) {
+        sendRequest(method, path, body, statusSpan, timeSpan, summarySpan, resultArea, btn, ui, Duration.ofSeconds(10));
+    }
+
+    private void sendRequest(String method, String path, String body,
+                              Span statusSpan, Span timeSpan, Span summarySpan,
+                              HorizontalLayout resultArea, Button btn, UI ui, Duration timeout) {
         btn.setEnabled(false);
         Executors.newVirtualThreadPerTaskExecutor().submit(() -> {
             long start = System.currentTimeMillis();
             try {
                 HttpRequest.Builder reqBuilder = HttpRequest.newBuilder()
                         .uri(URI.create("http://localhost:" + serverPort + "/api/load" + path))
-                        .timeout(Duration.ofSeconds(10))
+                        .timeout(timeout)
                         .header("Content-Type", "application/json");
 
                 String jsonBody = body != null ? body : "";
@@ -535,45 +541,53 @@ public class MonitoringView extends Div {
 
         // ── Beschreibung ──────────────────────────────────────────────────────
         Span desc = new Span(
-                "Simuliert den Masseneingang von NewQuota-Nachrichten via JMeter → InfluxDB → Grafana. " +
-                "95 % bekannte Artikel, 5 % neue Artikel. Jeder JMeter-Thread sendet einen Request. " +
-                "Gesamtnachrichten = Threads × Nachrichten pro Thread.");
+                "Simuliert den Eingang von NewQuota-Nachrichten (Voraussetzung fuer den Lasttest). " +
+                "95 % bekannte Artikel, 5 % neue Artikel.");
         desc.getStyle()
                 .set("font-size", "0.8rem").set("color", "#475569")
                 .set("display", "block").set("margin-bottom", "6px");
 
-        // ── Nachrichten-pro-Thread-Feld ───────────────────────────────────────
-        IntegerField countField = new IntegerField("Nachrichten / Thread");
-        countField.setValue(1000);
+        // ── Anzahl-Feld ───────────────────────────────────────────────────────
+        IntegerField countField = new IntegerField("Anzahl Nachrichten");
+        countField.setValue(100);
         countField.setMin(1);
-        countField.setMax(20_000);
+        countField.setMax(50_000);
         countField.setStepButtonsVisible(true);
         countField.getElement().setAttribute("theme", "small");
         countField.setWidth("180px");
 
-        // ── JMeter-Preset-Buttons ─────────────────────────────────────────────
-        Button soakBtn = buildKontingentTestButton(
-                "Soak",  "#6366f1", 5,  5, "Kontingent-Soak",  countField);
-        Button spikeBtn = buildKontingentTestButton(
-                "Spike", "#ef4444", 20, 2, "Kontingent-Spike", countField);
-        Button stressBtn = buildKontingentTestButton(
-                "Stress","#dc2626", 50, 5, "Kontingent-Stress",countField);
+        // ── Simulieren-Button ─────────────────────────────────────────────────
+        Span simStatus  = new Span();
+        Span simTime    = new Span();
+        Span simSummary = new Span();
+        simStatus .getStyle().set("font-size", "0.78rem").set("font-weight", "700").set("min-width", "36px");
+        simTime   .getStyle().set("font-size", "0.78rem").set("color", "#64748b").set("min-width", "55px");
+        simSummary.getStyle().set("font-size", "0.78rem").set("color", "#94a3b8");
+        HorizontalLayout simResult = new HorizontalLayout(simStatus, simTime, simSummary);
+        simResult.setAlignItems(FlexComponent.Alignment.CENTER);
+        simResult.setPadding(false);
+        simResult.getStyle().set("gap", "6px");
+        simResult.setVisible(false);
 
-        HorizontalLayout presetBadges = new HorizontalLayout(
-                testParamBadge("Soak",   "5 Threads",  "#6366f1"),
-                testParamBadge("Spike",  "20 Threads", "#ef4444"),
-                testParamBadge("Stress", "50 Threads", "#dc2626"),
-                testParamBadge("Tabelle", "contingent_lasttest", "#64748b")
-        );
-        presetBadges.setPadding(false);
-        presetBadges.getStyle().set("gap", "6px").set("flex-wrap", "wrap");
+        Button simulateBtn = new Button("\u25b6  Simulieren");
+        simulateBtn.getStyle()
+                .set("background", "#0ea5e9").set("color", "white")
+                .set("border-radius", "8px").set("font-weight", "700").set("font-size", "0.82rem");
+        simulateBtn.addClickListener(e -> {
+            int count = countField.getValue() != null ? countField.getValue() : 100;
+            UI ui = UI.getCurrent();
+            simResult.setVisible(false);
+            sendRequest("POST", "/contingents/simulate?count=" + count, null,
+                    simStatus, simTime, simSummary, simResult, simulateBtn, ui,
+                    Duration.ofSeconds(120));
+        });
 
-        HorizontalLayout btnRow = new HorizontalLayout(countField, soakBtn, spikeBtn, stressBtn);
+        HorizontalLayout btnRow = new HorizontalLayout(countField, simulateBtn, simResult);
         btnRow.setAlignItems(FlexComponent.Alignment.CENTER);
         btnRow.setPadding(false);
         btnRow.getStyle().set("gap", "10px").set("flex-wrap", "wrap");
 
-        // ── Reset-Button (direkter HTTP-Call, kein JMeter nötig) ─────────────
+        // ── Reset-Button ──────────────────────────────────────────────────────
         Span resetStatus  = new Span();
         Span resetTime    = new Span();
         Span resetSummary = new Span();
@@ -586,7 +600,7 @@ public class MonitoringView extends Div {
         resetResult.getStyle().set("gap", "6px");
         resetResult.setVisible(false);
 
-        Button resetBtn = new Button("✕  Tabelle leeren");
+        Button resetBtn = new Button("\u2715  Tabelle leeren");
         resetBtn.getStyle()
                 .set("background", "#ef4444").set("color", "white")
                 .set("border-radius", "8px").set("font-weight", "700").set("font-size", "0.82rem");
@@ -602,7 +616,7 @@ public class MonitoringView extends Div {
         resetRow.setPadding(false);
         resetRow.getStyle().set("gap", "10px");
 
-        VerticalLayout content = new VerticalLayout(desc, presetBadges, btnRow, resetRow);
+        VerticalLayout content = new VerticalLayout(desc, btnRow, resetRow);
         content.setPadding(false);
         content.getStyle().set("gap", "10px");
 
@@ -810,139 +824,6 @@ public class MonitoringView extends Div {
         ));
 
         Notification.show("▶  " + testName + " gestartet – " + threads + " Threads, alle Artikel werden angelegt",
-                4000, Notification.Position.BOTTOM_END);
-
-        Executors.newVirtualThreadPerTaskExecutor().submit(() -> {
-            StringBuilder jmeterOutput = new StringBuilder();
-            try {
-                jmeterProcess = new ProcessBuilder(cmd)
-                        .redirectErrorStream(true)
-                        .start();
-                writePid(jmeterProcess.pid());
-
-                try (var reader = new java.io.BufferedReader(
-                        new java.io.InputStreamReader(jmeterProcess.getInputStream()))) {
-                    String line;
-                    while ((line = reader.readLine()) != null) {
-                        jmeterOutput.append(line).append("\n");
-                    }
-                }
-
-                int exitCode = jmeterProcess.waitFor();
-                if (exitCode != 0) {
-                    lastTestFailed = true;
-                    String out = jmeterOutput.toString();
-                    UI ui = getUI().orElse(null);
-                    if (ui != null) ui.access(() ->
-                            showError("JMeter Exit-Code " + exitCode + ":\n" +
-                                      out.substring(Math.max(0, out.length() - 500))));
-                }
-            } catch (Exception ex) {
-                lastTestFailed = true;
-                UI ui = getUI().orElse(null);
-                if (ui != null) ui.access(() ->
-                        showError("JMeter-Fehler: " + ex.getMessage()));
-            } finally {
-                pollCsvResults();
-                deletePid();
-                testRunning.set(false);
-                activeUsersGauge.set(0);
-                UI ui = getUI().orElse(null);
-                if (ui != null) {
-                    ui.access(() -> {
-                        updateLiveResults();
-                        setTestButtonsEnabled(true);
-                        stopButton.setEnabled(false);
-                        if (lastTestFailed) {
-                            testStatusBadge.setText("✗  " + activeTestName + " fehlgeschlagen");
-                            testStatusBadge.getStyle().set("background", "#fee2e2").set("color", "#dc2626");
-                        } else {
-                            updateStatusBadge(false);
-                        }
-                        Notification n = Notification.show(
-                                lastTestFailed ? activeTestName + " fehlgeschlagen" : testName + " abgeschlossen",
-                                4000, Notification.Position.BOTTOM_END);
-                        n.addThemeVariants(lastTestFailed ? NotificationVariant.LUMO_ERROR : NotificationVariant.LUMO_SUCCESS);
-                    });
-                }
-            }
-        });
-    }
-
-    private Button buildKontingentTestButton(String label, String color,
-                                              int threads, int rampup,
-                                              String testName, IntegerField countField) {
-        Button btn = new Button("▶  " + label);
-        btn.getStyle()
-                .set("background", color).set("color", "white")
-                .set("border-radius", "8px").set("font-weight", "700").set("font-size", "0.82rem")
-                .set("box-shadow", "0 2px 8px " + color + "55");
-        btn.addClickListener(e -> {
-            int count = countField.getValue() != null ? countField.getValue() : 1000;
-            launchKontingentTest(count, threads, rampup, testName);
-        });
-        testButtons.add(btn);
-        return btn;
-    }
-
-    private void launchKontingentTest(int count, int threads, int rampup, String testName) {
-        if (testRunning.getAndSet(true)) return;
-
-        String jmeterJar = jmeterHome + "/bin/ApacheJMeter.jar";
-        if (jmeterHome.isBlank() || !Path.of(jmeterJar).toFile().exists()) {
-            showError("JMeter nicht gefunden. Bitte jmeter.home in application.properties setzen.\n" +
-                      "Erwartet: \"" + jmeterJar + "\"");
-            testRunning.set(false);
-            return;
-        }
-
-        Path jmxFile = Path.of("monitoring/jmeter/logistik-kontingent.jmx").toAbsolutePath();
-        if (!jmxFile.toFile().exists()) {
-            showError("JMX-Datei nicht gefunden: " + jmxFile);
-            testRunning.set(false);
-            return;
-        }
-
-        try {
-            Path resultsDir = Path.of("monitoring/jmeter/results");
-            Files.createDirectories(resultsDir);
-            resultFile    = resultsDir.resolve("lasttest-result.csv").toAbsolutePath();
-            Files.deleteIfExists(resultFile);
-            csvReadOffset = 0;
-        } catch (IOException ex) {
-            showError("Konnte Ergebnisordner nicht anlegen: " + ex.getMessage());
-            testRunning.set(false);
-            return;
-        }
-
-        resetStats();
-        activeTestName = testName;
-        testStartTime  = Instant.now();
-        activeUsersGauge.set(threads);
-
-        setTestButtonsEnabled(false);
-        stopButton.setEnabled(true);
-        updateStatusBadge(true);
-
-        // Simulation muss als EINZELNER Aufruf laufen, damit zielNeu (5 %) gross genug
-        // ist und SIM-Artikel generiert werden. Mehrere parallele Threads wuerden
-        // jeweils nur (count / threads) neue Kandidaten sehen und Race Conditions erzeugen.
-        int totalCount = threads * count;
-
-        List<String> cmd = new ArrayList<>(List.of(
-                "java", "-jar", jmeterJar,
-                "-n",
-                "-t", jmxFile.toString(),
-                "-l", resultFile.toString(),
-                "-Jthreads=1",
-                "-Jrampup=1",
-                "-Jcount="    + totalCount,
-                "-Jhost=localhost",
-                "-Jport="     + serverPort,
-                "-Jtestname=" + testName.replace(" ", "-")
-        ));
-
-        Notification.show("▶  " + testName + " gestartet – " + totalCount + " Nachrichten gesamt",
                 4000, Notification.Position.BOTTOM_END);
 
         Executors.newVirtualThreadPerTaskExecutor().submit(() -> {

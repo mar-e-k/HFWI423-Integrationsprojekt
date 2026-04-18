@@ -12,6 +12,7 @@ import com.example.application.data.externalArticle.ExternalArticleRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ThreadLocalRandom;
 
 import java.util.*;
@@ -21,6 +22,9 @@ import java.util.LinkedHashMap;
 
 @Service
 public class ArticleSyncService {
+
+    /** Verhindert Race Conditions beim parallelen Anlegen desselben Artikels. */
+    private final ConcurrentHashMap<String, Boolean> articleCreationLocks = new ConcurrentHashMap<>();
 
     private final ContingentRepository contingentRepository;
     private final ContingentLasttestRepository contingentLasttestRepository;
@@ -198,12 +202,16 @@ public class ArticleSyncService {
     public Optional<ArticleInfo> createNextFromLasttest() {
         List<NewArticleCandidate> candidates = findNewArticlesFromLasttestContingents();
         for (NewArticleCandidate candidate : candidates) {
-            if (articleInfoRepository.findByArticleNumber(candidate.getArticleNumber()) != null) {
-                continue; // anderer Thread war schneller
+            String nr = candidate.getArticleNumber();
+            if (articleCreationLocks.putIfAbsent(nr, Boolean.TRUE) != null) {
+                continue; // anderer Thread legt diesen Artikel gerade an
             }
             try {
+                if (articleInfoRepository.findByArticleNumber(nr) != null) {
+                    continue; // inzwischen von anderem Thread angelegt
+                }
                 ArticleInfo info = new ArticleInfo();
-                info.setArticleNumber(candidate.getArticleNumber());
+                info.setArticleNumber(nr);
                 info.setName(candidate.getName());
                 if (candidate.getArticleId() != null && candidate.getArticleId() > 0) {
                     info.setArticleId(candidate.getArticleId());
@@ -218,6 +226,8 @@ public class ArticleSyncService {
                 return Optional.of(saved);
             } catch (Exception e) {
                 // Konkurrenter Zugriff – nächsten Kandidaten probieren
+            } finally {
+                articleCreationLocks.remove(nr);
             }
         }
         return Optional.empty();
@@ -230,12 +240,16 @@ public class ArticleSyncService {
     public Optional<ArticleInfo> createNextWithStorageLocation(String storageLocationId) {
         List<NewArticleCandidate> candidates = findNewArticlesFromLasttestContingents();
         for (NewArticleCandidate candidate : candidates) {
-            if (articleInfoRepository.findByArticleNumber(candidate.getArticleNumber()) != null) {
-                continue;
+            String nr = candidate.getArticleNumber();
+            if (articleCreationLocks.putIfAbsent(nr, Boolean.TRUE) != null) {
+                continue; // anderer Thread legt diesen Artikel gerade an
             }
             try {
+                if (articleInfoRepository.findByArticleNumber(nr) != null) {
+                    continue; // inzwischen von anderem Thread angelegt
+                }
                 ArticleInfo info = new ArticleInfo();
-                info.setArticleNumber(candidate.getArticleNumber());
+                info.setArticleNumber(nr);
                 info.setName(candidate.getName());
                 if (candidate.getArticleId() != null && candidate.getArticleId() > 0) {
                     info.setArticleId(candidate.getArticleId());
@@ -250,6 +264,8 @@ public class ArticleSyncService {
                 return Optional.of(saved);
             } catch (Exception e) {
                 // Konkurrenter Zugriff – nächsten Kandidaten probieren
+            } finally {
+                articleCreationLocks.remove(nr);
             }
         }
         return Optional.empty();
