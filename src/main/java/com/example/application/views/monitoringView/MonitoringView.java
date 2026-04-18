@@ -513,7 +513,10 @@ public class MonitoringView extends Div {
         // ── Artikel-Workflow Lasttest ─────────────────────────────────────────
         Details artikelWorkflowAcc = buildArtikelWorkflowSection();
 
-        VerticalLayout tab = new VerticalLayout(kontingentAcc, artikelWorkflowAcc, cardsRow, footer);
+        // ── Store Orders simulieren ───────────────────────────────────────────
+        Details storeOrdersAcc = buildStoreOrdersSection();
+
+        VerticalLayout tab = new VerticalLayout(kontingentAcc, artikelWorkflowAcc, storeOrdersAcc, cardsRow, footer);
         tab.setPadding(false);
         tab.setWidthFull();
         tab.getStyle().set("gap", "16px");
@@ -666,6 +669,79 @@ public class MonitoringView extends Div {
         presetBadges.getStyle().set("gap", "6px").set("flex-wrap", "wrap");
 
         HorizontalLayout controls = new HorizontalLayout(threadsField, rampupField, startBtn);
+        controls.setAlignItems(FlexComponent.Alignment.CENTER);
+        controls.setPadding(false);
+        controls.getStyle().set("gap", "10px").set("flex-wrap", "wrap");
+
+        VerticalLayout content = new VerticalLayout(desc, presetBadges, controls);
+        content.setPadding(false);
+        content.getStyle().set("gap", "10px");
+
+        Details details = new Details(header, content);
+        details.setWidthFull();
+        details.getStyle()
+                .set("border", "1px solid #e2e8f0").set("border-radius", "10px")
+                .set("padding", "12px 16px").set("background", "white");
+        return details;
+    }
+
+    private Details buildStoreOrdersSection() {
+        Span titleSpan = new Span("Store Orders simulieren");
+        titleSpan.getStyle()
+                .set("font-weight", "700").set("color", "#8b5cf6").set("font-size", "0.95rem");
+        Span viewSpan = new Span(" – MessageLogistic-Eintraege direkt anlegen (kein AMQP noetig)");
+        viewSpan.getStyle().set("color", "#64748b").set("font-size", "0.82rem");
+        Div header = new Div(titleSpan, viewSpan);
+
+        Span desc = new Span(
+                "Simuliert Filial-Bestellungen, die normalerweise per AMQP ankommen. " +
+                "Erstellt MessageLogistic-Eintraege fuer alle Artikel mit positivem Bestand. " +
+                "Danach kann der WeeklyKommissionScheduler (oder 'trigger') Kommissionen daraus erzeugen.");
+        desc.getStyle()
+                .set("font-size", "0.8rem").set("color", "#475569")
+                .set("display", "block").set("margin-bottom", "6px");
+
+        IntegerField storesField = new IntegerField("Anzahl Filialen");
+        storesField.setValue(3);
+        storesField.setMin(1);
+        storesField.setMax(50);
+        storesField.setStepButtonsVisible(true);
+        storesField.getElement().setAttribute("theme", "small");
+        storesField.setWidth("160px");
+
+        Span statusSpan  = new Span();
+        Span timeSpan    = new Span();
+        Span summarySpan = new Span();
+        statusSpan .getStyle().set("font-size", "0.78rem").set("font-weight", "700").set("min-width", "36px");
+        timeSpan   .getStyle().set("font-size", "0.78rem").set("color", "#64748b").set("min-width", "55px");
+        summarySpan.getStyle().set("font-size", "0.78rem").set("color", "#94a3b8");
+        HorizontalLayout resultArea = new HorizontalLayout(statusSpan, timeSpan, summarySpan);
+        resultArea.setAlignItems(FlexComponent.Alignment.CENTER);
+        resultArea.setPadding(false);
+        resultArea.getStyle().set("gap", "6px");
+        resultArea.setVisible(false);
+
+        Button triggerBtn = new Button("▶  Store Orders senden");
+        triggerBtn.getStyle()
+                .set("background", "#8b5cf6").set("color", "white")
+                .set("border-radius", "8px").set("font-weight", "700").set("font-size", "0.82rem")
+                .set("box-shadow", "0 2px 8px #8b5cf655");
+        triggerBtn.addClickListener(e -> {
+            int stores = storesField.getValue() != null ? storesField.getValue() : 3;
+            UI ui = UI.getCurrent();
+            resultArea.setVisible(false);
+            sendRequest("POST", "/kommissionen/simulate-store-orders?stores=" + stores,
+                    null, statusSpan, timeSpan, summarySpan, resultArea, triggerBtn, ui);
+        });
+
+        HorizontalLayout presetBadges = new HorizontalLayout(
+                testParamBadge("Ergebnis", "200 + {createdOrders, stores}", "#8b5cf6"),
+                testParamBadge("Naechster Schritt", "Kommissionen trigger", "#64748b")
+        );
+        presetBadges.setPadding(false);
+        presetBadges.getStyle().set("gap", "6px").set("flex-wrap", "wrap");
+
+        HorizontalLayout controls = new HorizontalLayout(storesField, triggerBtn, resultArea);
         controls.setAlignItems(FlexComponent.Alignment.CENTER);
         controls.setPadding(false);
         controls.getStyle().set("gap", "10px").set("flex-wrap", "wrap");
