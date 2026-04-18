@@ -5,10 +5,9 @@
 //   1. Artikel scannen via GTIN   → GET  /api/article/gtin/{gtin}
 //   2. Bon abschließen (Checkout) → POST /api/receipt/checkout
 //   3. Bon drucken                → POST /api/receipt/{id}/print
-//   4. Optional: Voucher prüfen   → GET  /api/voucher/{code}
-//   5. Optional: Voucher einlösen → POST /api/voucher/{code}/redeem
-//   6. Optional: Pfand            → POST /api/receipt/checkout (Pfand-Artikel)
-//   7. Optional: Stornierung      → POST /api/receipt/{id}/cancel
+//   4. Optional: Voucher einlösen → POST /api/voucher/{code}/redeem
+//   5. Optional: Pfand            → POST /api/receipt/checkout (Pfand-Artikel)
+//   6. Optional: Stornierung      → POST /api/receipt/{id}/cancel
 // ═══════════════════════════════════════════════════════════════════════════
 
 import http   from 'k6/http';
@@ -94,11 +93,6 @@ export function preloadArticlePool(token) {
 
 // ─── Checkout ────────────────────────────────────────────────────────────────
 
-/**
- * POST /api/receipt/checkout
- * Erstellt Bon + alle Positionen in EINER Transaktion.
- * Gibt die receiptId zurück oder null bei Fehler.
- */
 export function checkout(token, registerId, cashierId, articlePool, opts = {}) {
     const articleCount   = opts.articleCount   ?? 18;
     const discountChance = opts.discountChance  ?? 0.33;
@@ -128,7 +122,9 @@ export function checkout(token, registerId, cashierId, articlePool, opts = {}) {
 
     const ok = check(res, {
         '[Checkout] Status 201':          (r) => r.status === 201,
-        '[Checkout] receiptId vorhanden': (r) => { try { return r.json('receiptId') != null; } catch (_) { return false; } },
+        '[Checkout] receiptId vorhanden': (r) => {
+            try { return r.json('receiptId') != null; } catch (_) { return false; }
+        },
     });
 
     if (!ok) { bonsFailedMetric.add(1); return null; }
@@ -143,14 +139,6 @@ export function checkout(token, registerId, cashierId, articlePool, opts = {}) {
 
 // ─── Bondruck: OPEN → PRINTED ────────────────────────────────────────────────
 
-/**
- * POST /api/receipt/{id}/print
- *
- * Druckt den Bon ab — letzter Schritt des Kassier-Workflows.
- * 200 = erfolgreich gedruckt
- * 409 = bereits gedruckt oder storniert
- * 404 = nicht gefunden
- */
 export function printReceipt(token, receiptId) {
     const res = http.post(`${STORE_URL}/api/receipt/${receiptId}/print`, null, {
         ...authHeaders(token),
@@ -168,14 +156,6 @@ export function printReceipt(token, receiptId) {
 
 // ─── Stornierung: OPEN → CANCELLED ───────────────────────────────────────────
 
-/**
- * POST /api/receipt/{id}/cancel
- *
- * Storniert den Bon.
- * 200 = erfolgreich storniert
- * 409 = bereits storniert oder bereits gedruckt
- * 404 = nicht gefunden
- */
 export function cancelReceipt(token, receiptId) {
     const res = http.post(`${STORE_URL}/api/receipt/${receiptId}/cancel`, null, {
         ...authHeaders(token),
@@ -191,7 +171,36 @@ export function cancelReceipt(token, receiptId) {
     return res.status;
 }
 
-// ─── Voucher prüfen + einlösen ────────────────────────────────────────────────
+// ─── Voucher: Direktes Einlösen (ohne vorherigen Check) ─────────────────────
+//
+// Wird in allen 5 Testarten genutzt wenn ein Kassierer einen Voucher-Code
+// scannt und sofort einlöst — ohne vorher zu prüfen ob er gültig ist.
+// 200 = erfolgreich eingelöst
+// 409 = bereits eingelöst oder abgelaufen (fachlich korrekt, kein Fehler)
+// 404 = Voucher-Code existiert nicht
+
+export function redeemVoucher(token) {
+    if (!VOUCHER_REGULAR_CODES || VOUCHER_REGULAR_CODES.length === 0) return;
+
+    const voucherCode = pickRandom(VOUCHER_REGULAR_CODES);
+
+    const res = http.post(`${STORE_URL}/api/voucher/${voucherCode}/redeem`, null, {
+        ...authHeaders(token),
+        tags: { endpoint: 'voucher_redeem' },
+    });
+
+    check(res, {
+        '[Voucher] 200, 404 oder 409': (r) => r.status === 200 || r.status === 404 || r.status === 409,
+        '[Voucher] Kein 500':          (r) => r.status !== 500,
+    });
+
+    if (res.status === 200) voucherRedeemsMetric.add(1);
+}
+
+// ─── Voucher: Check + Einlösen (voller Kassierer-Flow) ─────────────────────
+//
+// Wird in runFullBon genutzt: Kassierer prüft zuerst ob Voucher gültig ist,
+// dann löst er ein. Realistischer aber langsamer als redeemVoucher.
 
 export function checkAndRedeemVoucher(token, voucherCode) {
     const checkRes = http.get(`${STORE_URL}/api/voucher/${voucherCode}`, {
@@ -200,7 +209,9 @@ export function checkAndRedeemVoucher(token, voucherCode) {
     if (checkRes.status !== 200) return { checked: false, redeemed: false };
     voucherChecksMetric.add(1);
 
-    try { if (checkRes.json('redeemedAt') != null) return { checked: true, redeemed: false }; } catch (_) {}
+    try {
+        if (checkRes.json('redeemedAt') != null) return { checked: true, redeemed: false };
+    } catch (_) {}
 
     const redeemRes = http.post(`${STORE_URL}/api/voucher/${voucherCode}/redeem`, null, {
         ...authHeaders(token), tags: { endpoint: 'voucher_redeem' },
@@ -211,18 +222,6 @@ export function checkAndRedeemVoucher(token, voucherCode) {
     });
     if (redeemRes.status === 200) voucherRedeemsMetric.add(1);
     return { checked: true, redeemed: redeemRes.status === 200 };
-}
-
-export function redeemVoucher(token, voucherCode) {
-    const res = http.post(`${STORE_URL}/api/voucher/${voucherCode}/redeem`, null, {
-        ...authHeaders(token), tags: { endpoint: 'voucher_race_redeem' },
-    });
-    check(res, {
-        '[Race] 200 oder 409 (kein 500!)': (r) => r.status === 200 || r.status === 409,
-        '[Race] Kein DB-Fehler':           (r) => r.status !== 500,
-    });
-    if (res.status === 200) voucherRedeemsMetric.add(1);
-    return res.status;
 }
 
 // ─── Pfandrückgabe ────────────────────────────────────────────────────────────
@@ -238,7 +237,6 @@ export function depositReturn(token, registerId, cashierId, depositPool) {
     const ok = check(res, { '[Pfand] Status 201': (r) => r.status === 201 });
     if (ok) {
         depositsMetric.add(1);
-        // Pfandbon direkt drucken
         try {
             const id = res.json('receiptId');
             if (id) printReceipt(token, id);
@@ -248,47 +246,37 @@ export function depositReturn(token, registerId, cashierId, depositPool) {
 }
 
 // ─── Kompletter Bon-Workflow ──────────────────────────────────────────────────
+//
+// Reihenfolge:
+//   1. Checkout
+//   2. Stornierung (VOR dem Druck — danach wäre es ein 409)
+//   3. Voucher einlösen (checkAndRedeemVoucher mit GET+POST)
+//   4. Pfandrückgabe
+//   5. Bondruck (immer letzter Schritt)
 
-/**
- * Vollständiger Kassierer-Ablauf:
- *   1. Checkout (mit optionalem GTIN-Scan)
- *   2. Bondruck (immer — jeder Bon wird abgeschlossen)
- *   3. Optional: Voucher prüfen + einlösen
- *   4. Optional: Pfandrückgabe
- *   5. Optional: Stornierung (nur wenn nicht gedruckt — daher zuerst prüfen)
- *
- * Fachliche Besonderheit: Stornierung passiert VOR dem Druck.
- * Bons die gedruckt wurden können nicht mehr storniert werden (→ 409).
- */
 export function runFullBon(token, vuId, pools, opts = {}) {
-    const cashierId    = pickCashierId(vuId);
-    const registerId   = pickRegisterId();
+    const cashierId     = pickCashierId(vuId);
+    const registerId    = pickRegisterId();
     const depositChance = opts.depositChance ?? 0.25;
     const cancelChance  = opts.cancelChance  ?? 0.01;
     const voucherChance = opts.voucherChance ?? 0.10;
 
-    // 1) Checkout
     const receiptId = checkout(token, registerId, cashierId, pools.articlePool, opts);
     if (!receiptId) return false;
 
-    // 2) Stornierung kommt VOR dem Druck (sonst → 409)
     if (Math.random() < cancelChance) {
         cancelReceipt(token, receiptId);
-        return true;   // stornierte Bons werden nicht gedruckt
+        return true;
     }
 
-    // 3) Optional: Voucher einlösen
     if (Math.random() < voucherChance && VOUCHER_REGULAR_CODES.length > 0) {
         checkAndRedeemVoucher(token, pickRandom(VOUCHER_REGULAR_CODES));
     }
 
-    // 4) Optional: Pfandrückgabe
     if (Math.random() < depositChance) {
         depositReturn(token, registerId, cashierId, pools.depositPool);
     }
 
-    // 5) Bondruck — immer der letzte Schritt
     printReceipt(token, receiptId);
-
     return true;
 }

@@ -14,15 +14,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
-/**
- * Implementierung des Kassenabschluss-Services.
- *
- * Ablauf:
- *  1. Receipt anlegen (storeId, registerId, cashierId, paymentMethod)
- *  2. Für jede Zeile eine ReceiptLine speichern — optional mit Rabatt
- *  3. Alles in einer Transaktion → bei Fehler vollständiger Rollback
- */
 @Service
 class CheckoutServiceImpl implements CheckoutService {
 
@@ -42,20 +35,19 @@ class CheckoutServiceImpl implements CheckoutService {
     @Transactional
     public CheckoutResponseDTO checkout(CheckoutRequestDTO request) {
 
-        // ── 1. Bon-Header erstellen (inkl. PaymentMethod) ──────────────────────
+        // 1. Bon-Header erstellen
         Receipt receipt = new Receipt(
                 request.storeId(),
                 request.registerId(),
                 request.cashierId(),
-                request.paymentMethod()   // neu: PaymentMethod wird jetzt persistiert
+                request.paymentMethod()
         );
-        Receipt saved = receiptService.create(receipt);
-        Long receiptId = saved.getId();
-        if (receiptId == null) {
-            throw new IllegalStateException("Bon wurde gespeichert, hat aber keine ID erhalten");
-        }
+        Long receiptId = Objects.requireNonNull(
+                receiptService.create(receipt).getId(),
+                "Receipt ID nach save() ist null — Hibernate-Fehler"
+        );
 
-        // ── 2. Bon-Positionen speichern ────────────────────────────────────────
+        // 2. Bon-Positionen speichern
         List<Long> lineIds = new ArrayList<>();
 
         for (CheckoutLineDTO line : request.lines()) {
@@ -68,21 +60,20 @@ class CheckoutServiceImpl implements CheckoutService {
                 );
             }
 
-            ReceiptLineDTO lineDTO = new ReceiptLineDTO(
-                    null,
-                    receiptId,
-                    line.articleId(),
-                    line.articleAmount(),
-                    discount,
-                    null
+            ReceiptLine savedLine = receiptLineService.create(
+                    receiptLineMapper.toEntity(new ReceiptLineDTO(
+                            null,
+                            receiptId,
+                            line.articleId(),
+                            line.articleAmount(),
+                            discount,
+                            null
+                    ))
             );
-
-            ReceiptLine receiptLine = receiptLineMapper.toEntity(lineDTO);
-            ReceiptLine savedLine   = receiptLineService.create(receiptLine);
             lineIds.add(savedLine.getId());
         }
 
-        // ── 3. Response zusammenbauen ──────────────────────────────────────────
+        // 3. Response
         return new CheckoutResponseDTO(
                 receiptId,
                 request.storeId(),

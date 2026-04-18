@@ -18,10 +18,9 @@ export const ADMIN_PASSWORD = __ENV.ADMIN_PASSWORD || 'admin';
 // Store-Konfiguration
 export const STORE_ID     = Number(__ENV.STORE_ID || 1);
 export const REGISTER_IDS = [1, 2, 3];
-export const CASHIER_IDS  = [4, 5, 6];    // cashier.one/two/three
+export const CASHIER_IDS  = [4, 5, 6]; // cashier.one/two/three
 
 // ── Artikel-GTINs (aus import.sql) ──────────────────────────────────────────
-// Echte GTINs aus der DB — werden beim GTIN-Scan-Endpunkt GET /api/article/gtin/{gtin} genutzt
 export const ARTICLE_GTINS = [
     '10000001', // Apfel
     '10000002', // Birne
@@ -40,14 +39,13 @@ export const ARTICLE_GTINS = [
     '10000015', // Wassermelone
 ];
 
-// Artikel-IDs (Fallback wenn GTIN-Scan fehlschlägt, werden in setup() befüllt)
-export let NORMAL_ARTICLE_IDS  = Array.from({ length: 15 }, (_, i) => i + 1);
+// Artikel-IDs — Fallback wenn GTIN-Scan fehlschlägt
+export let NORMAL_ARTICLE_IDS   = Array.from({ length: 15 }, (_, i) => i + 1);
 export const DEPOSIT_ARTICLE_IDS = parseIdList(__ENV.DEPOSIT_ARTICLE_IDS, []);
 
-// ── Voucher-Codes (aus import.sql geseedet) ─────────────────────────────────
-// Diese UUIDs sind fix in import.sql eingetragen und immer verfügbar.
-// Für den Concurrency-Test wird VOUCHER_RACE_CODE von allen VUs gleichzeitig eingelöst.
-export const VOUCHER_RACE_CODE    = __ENV.VOUCHER_RACE_CODE    || 'aaaaaaaa-0000-0000-0000-000000000001';
+// ── Voucher-Codes (aus import.sql geseedet) ──────────────────────────────────
+// Werden in allen 5 Testarten gelegentlich direkt eingelöst (redeemVoucher).
+// 5 verschiedene Codes damit nicht immer derselbe Voucher getroffen wird.
 export const VOUCHER_REGULAR_CODES = [
     'bbbbbbbb-0000-0000-0000-000000000001',
     'bbbbbbbb-0000-0000-0000-000000000002',
@@ -56,11 +54,11 @@ export const VOUCHER_REGULAR_CODES = [
     'bbbbbbbb-0000-0000-0000-000000000005',
 ];
 
-// ── Zahlungsmethoden ──────────────────────────────────────────────────────────
+// ── Zahlungsmethoden ─────────────────────────────────────────────────────────
 // Entsprechen exakt dem PaymentMethod-Enum: CASH, CARD, ONLINE
 export const PAYMENT_METHODS = ['CASH', 'CARD', 'ONLINE'];
 
-// ── Rabattstufen ──────────────────────────────────────────────────────────────
+// ── Rabattstufen ─────────────────────────────────────────────────────────────
 export const DISCOUNT_RATES     = Array.from({ length: 46 }, (_, i) => 5 + i); // 5%–50%
 export const LASTTEST_DISCOUNTS = [10, 30];
 

@@ -7,7 +7,7 @@ import jakarta.persistence.Version;
 public abstract class AbstractSpringDataVersioningEntity<ID> extends AbstractSpringDataEntity<ID> {
 
     @Version
-    private Long version;
+    private Long version = 0L;
 
     protected AbstractSpringDataVersioningEntity() {}
 

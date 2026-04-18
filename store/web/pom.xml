@@ -64,9 +64,14 @@
                             </configOptions>
 
                             <importMappings>
+                                <!-- Bestehende DTOs -->
                                 <importMapping>ArticleDTO=de.fhdw.vendix.commons.api.domain.article.ArticleDTO</importMapping>
                                 <importMapping>ReceiptDTO=de.fhdw.vendix.commons.api.domain.receipt.ReceiptDTO</importMapping>
                                 <importMapping>VoucherDTO=de.fhdw.vendix.commons.api.domain.voucher.VoucherDTO</importMapping>
+                                <!-- Checkout-DTOs: damit der Generator diese nicht neu generiert -->
+                                <importMapping>CheckoutRequestDTO=de.fhdw.vendix.commons.api.domain.receipt.CheckoutRequestDTO</importMapping>
+                                <importMapping>CheckoutResponseDTO=de.fhdw.vendix.commons.api.domain.receipt.CheckoutResponseDTO</importMapping>
+                                <importMapping>CheckoutLineDTO=de.fhdw.vendix.commons.api.domain.receipt.CheckoutLineDTO</importMapping>
                             </importMappings>
                         </configuration>
                     </execution>

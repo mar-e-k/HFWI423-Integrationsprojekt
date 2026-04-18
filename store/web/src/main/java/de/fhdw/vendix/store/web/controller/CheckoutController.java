@@ -2,58 +2,58 @@ package de.fhdw.vendix.store.web.controller;
 
 import de.fhdw.vendix.commons.api.domain.receipt.CheckoutRequestDTO;
 import de.fhdw.vendix.commons.api.domain.receipt.CheckoutResponseDTO;
+import de.fhdw.vendix.commons.api.domain.receipt.ReceiptDTO;
+import de.fhdw.vendix.commons.spring.web.server.store.api.CheckoutApi;
 import de.fhdw.vendix.store.core.domain.receipt.CheckoutService;
+import de.fhdw.vendix.store.core.domain.receipt.ReceiptAlreadyCancelledException;
+import de.fhdw.vendix.store.core.domain.receipt.ReceiptAlreadyPrintedException;
+import de.fhdw.vendix.store.core.domain.receipt.ReceiptMapper;
+import de.fhdw.vendix.store.core.domain.receipt.ReceiptService;
+import jakarta.persistence.EntityNotFoundException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-/**
- * Kassenabschluss-Endpunkt.
- *
- * POST /api/receipt/checkout
- *
- * Erstellt einen Bon mit allen Positionen in einer einzigen Transaktion.
- * Wird von k6-Lasttests als "vollständiger Checkout" genutzt.
- *
- * Request-Body Beispiel:
- * {
- *   "storeId":    1,
- *   "registerId": 2,
- *   "cashierId":  4,
- *   "lines": [
- *     { "articleId": 5, "articleAmount": 2, "discountPercent": null },
- *     { "articleId": 17, "articleAmount": 1, "discountPercent": 10.00 }
- *   ]
- * }
- *
- * Response-Body Beispiel (201 Created):
- * {
- *   "receiptId": 42,
- *   "storeId": 1,
- *   "registerId": 2,
- *   "cashierId": 4,
- *   "lineCount": 2,
- *   "lineIds": [101, 102]
- * }
- */
 @RestController
-@RequestMapping("/api/receipt")
-class CheckoutController {
+class CheckoutController implements CheckoutApi {
 
     private final CheckoutService checkoutService;
+    private final ReceiptService  receiptService;
+    private final ReceiptMapper   receiptMapper;
 
-    CheckoutController(CheckoutService checkoutService) {
+    CheckoutController(CheckoutService checkoutService,
+                       ReceiptService receiptService,
+                       ReceiptMapper receiptMapper) {
         this.checkoutService = checkoutService;
+        this.receiptService  = receiptService;
+        this.receiptMapper   = receiptMapper;
     }
 
-    @PostMapping("/checkout")
-    ResponseEntity<CheckoutResponseDTO> checkout(@RequestBody CheckoutRequestDTO request) {
+    @Override
+    public ResponseEntity<CheckoutResponseDTO> checkout(CheckoutRequestDTO request) {
         CheckoutResponseDTO response = checkoutService.checkout(request);
-        return ResponseEntity
-                .status(HttpStatus.CREATED)
-                .body(response);
+        return ResponseEntity.status(HttpStatus.CREATED).body(response);
+    }
+
+    @Override
+    public ResponseEntity<ReceiptDTO> printReceipt(Long id) {
+        try {
+            return ResponseEntity.ok(receiptMapper.toDTO(receiptService.printReceipt(id)));
+        } catch (EntityNotFoundException e) {
+            return ResponseEntity.notFound().build();
+        } catch (ReceiptAlreadyPrintedException | ReceiptAlreadyCancelledException e) {
+            return ResponseEntity.status(HttpStatus.CONFLICT).build();
+        }
+    }
+
+    @Override
+    public ResponseEntity<ReceiptDTO> cancelReceipt(Long id) {
+        try {
+            return ResponseEntity.ok(receiptMapper.toDTO(receiptService.cancelReceipt(id)));
+        } catch (EntityNotFoundException e) {
+            return ResponseEntity.notFound().build();
+        } catch (ReceiptAlreadyCancelledException | ReceiptAlreadyPrintedException e) {
+            return ResponseEntity.status(HttpStatus.CONFLICT).build();
+        }
     }
 }

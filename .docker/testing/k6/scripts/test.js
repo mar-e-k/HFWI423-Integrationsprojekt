@@ -16,10 +16,13 @@
 import exec from 'k6/execution';
 
 import { CURRENT_SCENARIO, LASTTEST_DISCOUNTS, DISCOUNT_RATES } from './lib/config.js';
-import { setupAuth, getCashierId } from './lib/auth.js';
+import { setupAuth } from './lib/auth.js';
 import {
-    preloadArticlePool, runFullBon, checkout,
-    pickRegisterId, pickRandom,
+    preloadArticlePool,
+    runFullBon,
+    checkout,
+    redeemVoucher,
+    pickRegisterId,
     pickCashierId,
 } from './lib/business.js';
 
@@ -158,7 +161,6 @@ export const options = {
         'http_req_duration{endpoint:checkout}':         ['p(95)<2000'],
         'http_req_duration{endpoint:scan_gtin}':        ['p(95)<500'],
         'http_req_duration{endpoint:print_receipt}':    ['p(95)<1000'],
-        'http_req_duration{endpoint:voucher_check}':    ['p(95)<500'],
         'http_req_duration{endpoint:voucher_redeem}':   ['p(95)<1000'],
     },
     tags:              { scenario: CURRENT_SCENARIO },
@@ -170,6 +172,8 @@ export const options = {
 // ═══════════════════════════════════════════════════════════════════════════
 
 // ── 1. Lasttest ──────────────────────────────────────────────────────────────
+// runFullBon ruft intern checkAndRedeemVoucher auf (GET + POST).
+// Zusätzlich: jeder 10. Bon löst direkt per redeemVoucher ein.
 export function lasttest(data) {
     runFullBon(data.token, exec.vu.idInTest, data.pools, {
         articleCount:   20,
@@ -177,23 +181,33 @@ export function lasttest(data) {
         discountRates:  LASTTEST_DISCOUNTS,
         depositChance:  0.25,
         cancelChance:   0.017,
-        voucherChance:  0.10,
+        voucherChance:  0.10,   // checkAndRedeemVoucher (GET+POST)
         scanGtins:      true,
     });
+
+    // Zusätzlich: ~10% der Bons mit direktem Voucher-Scan (nur POST, kein GET)
+    if (Math.random() < 0.10) redeemVoucher(data.token);
 }
 
 // ── 2. Stresstest ────────────────────────────────────────────────────────────
+// Kein runFullBon — maximaler Dauerfeuer für Pool-Erschöpfung.
+// Jeder 5. Checkout löst danach direkt einen Voucher ein.
 export function stresstest(data) {
     const cashierId = pickCashierId(exec.vu.idInTest);
-    checkout(data.token, pickRegisterId(), cashierId, data.pools.articlePool, {
+
+    const receiptId = checkout(data.token, pickRegisterId(), cashierId, data.pools.articlePool, {
         articleCount:   5,
         discountChance: 0.0,
         discountRates:  [],
         scanGtins:      true,
     });
+
+    // Jeder 5. Bon mit Voucher — erhöht DB-Last durch zusätzliche Transaktionen
+    if (receiptId && Math.random() < 0.20) redeemVoucher(data.token);
 }
 
 // ── 3. Spike-Test ────────────────────────────────────────────────────────────
+// Hohe Voucher-Quote unter Spike-Last (15% im runFullBon + 15% direkt).
 export function spiketest(data) {
     runFullBon(data.token, exec.vu.idInTest, data.pools, {
         articleCount:   8,
@@ -201,12 +215,17 @@ export function spiketest(data) {
         discountRates:  DISCOUNT_RATES,
         depositChance:  0.20,
         cancelChance:   0.02,
-        voucherChance:  0.15,
+        voucherChance:  0.15,   // checkAndRedeemVoucher
         scanGtins:      false,
     });
+
+    // Zusätzlich direktes Einlösen unter Spike-Last
+    if (Math.random() < 0.15) redeemVoucher(data.token);
 }
 
 // ── 4. Soak-Test ─────────────────────────────────────────────────────────────
+// Über 16h werden Voucher kontinuierlich eingelöst — testet ob Voucher-Tabelle
+// nach tausenden Einlösungen noch performant antwortet.
 export function soaktest(data) {
     runFullBon(data.token, exec.vu.idInTest, data.pools, {
         articleCount:   15,
@@ -214,24 +233,32 @@ export function soaktest(data) {
         discountRates:  LASTTEST_DISCOUNTS,
         depositChance:  0.20,
         cancelChance:   0.01,
-        voucherChance:  0.08,
+        voucherChance:  0.08,   // checkAndRedeemVoucher
         scanGtins:      true,
     });
+
+    // Direktes Einlösen in 8% der Iterationen
+    if (Math.random() < 0.08) redeemVoucher(data.token);
 }
 
 // ── 5. Capacity-Test ─────────────────────────────────────────────────────────
+// Artikel/Bon wächst stufenweise — Voucher-Einlösungen testen ob der DB-Write
+// unter steigender Checkout-Last noch funktioniert.
 export function capacitytest(data) {
     const cashierId    = pickCashierId(exec.vu.idInTest);
     const elapsedMin   = (Date.now() - exec.scenario.startTime) / 60000;
     const stage        = Math.min(6, Math.floor(elapsedMin / 2) + 1);
     const articleCount = 100 * stage;
 
-    checkout(data.token, pickRegisterId(), cashierId, data.pools.articlePool, {
+    const receiptId = checkout(data.token, pickRegisterId(), cashierId, data.pools.articlePool, {
         articleCount:   articleCount,
         discountChance: 0.30,
         discountRates:  LASTTEST_DISCOUNTS,
         scanGtins:      false,
     });
+
+    // Nach jedem Checkout: 12% Chance auf Voucher-Einlösung
+    if (receiptId && Math.random() < 0.12) redeemVoucher(data.token);
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
