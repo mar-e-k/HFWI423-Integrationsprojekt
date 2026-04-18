@@ -3,13 +3,15 @@ openapi: 3.0.0
 info:
   title: Store API
   description: This API provides operations for managing articles and receipts within a store.
-  version: 1.0.0
+  version: 1.1.0
 
 tags:
   - name: Article
     description: Operations related to articles.
   - name: Receipt
     description: Operations related to receipts.
+  - name: Checkout
+    description: Operations related to checkout, print and cancel of receipts.
   - name: Voucher
     description: Operations related to vouchers.
 
@@ -21,6 +23,9 @@ security:
   - bearerAuth: [ ]
 
 paths:
+
+  # ─── Article ──────────────────────────────────────────────────────────────
+
   /api/article/id/{id}:
     get:
       operationId: getArticleById
@@ -61,7 +66,7 @@ paths:
           description: The GTIN of the article.
           schema:
             type: string
-            example: "4006381333931"
+            example: "10000001"
       responses:
         '200':
           description: The requested article.
@@ -72,11 +77,13 @@ paths:
         '404':
           description: An article with the specified GTIN was not found.
 
+  # ─── Receipt ──────────────────────────────────────────────────────────────
+
   /api/receipt/:
     post:
       operationId: postReceipt
-      summary: Create a new receipt
-      description: Creates a new receipt record.
+      summary: Create a new receipt (header only)
+      description: Creates a new receipt record without any line items.
       tags:
         - Receipt
       requestBody:
@@ -95,6 +102,109 @@ paths:
                 $ref: "#/components/schemas/ReceiptDTO"
         '400':
           description: Invalid request body.
+
+  # ─── Checkout ─────────────────────────────────────────────────────────────
+
+  /api/receipt/checkout:
+    post:
+      operationId: checkout
+      summary: Create a receipt with all line items (full checkout)
+      description: >
+        Creates a receipt together with all article positions in a single
+        transaction. This is the primary endpoint for completing a sale at the
+        cash register. The receipt starts with status OPEN.
+      tags:
+        - Checkout
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CheckoutRequestDTO"
+            example:
+              storeId: 1
+              registerId: 2
+              cashierId: 4
+              paymentMethod: CASH
+              lines:
+                - articleId: 5
+                  articleAmount: 2
+                  discountPercent: null
+                - articleId: 17
+                  articleAmount: 1
+                  discountPercent: 10.00
+      responses:
+        '201':
+          description: Checkout successful. Returns the created receipt ID and line IDs.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CheckoutResponseDTO"
+        '400':
+          description: Invalid request body (e.g. empty lines, unknown articleId).
+
+  /api/receipt/{id}/print:
+    post:
+      operationId: printReceipt
+      summary: Print (close) a receipt
+      description: >
+        Transitions the receipt from OPEN to PRINTED. This represents the
+        cashier printing the receipt and handing it to the customer. A printed
+        receipt cannot be cancelled or printed again.
+      tags:
+        - Checkout
+      parameters:
+        - in: path
+          name: id
+          required: true
+          description: The unique identifier of the receipt to print.
+          schema:
+            type: integer
+            format: int64
+            example: 42
+      responses:
+        '200':
+          description: Receipt successfully printed. Returns the updated receipt.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ReceiptDTO"
+        '404':
+          description: Receipt not found.
+        '409':
+          description: Receipt is already printed or cancelled.
+
+  /api/receipt/{id}/cancel:
+    post:
+      operationId: cancelReceipt
+      summary: Cancel a receipt
+      description: >
+        Transitions the receipt from OPEN to CANCELLED. Only receipts with
+        status OPEN can be cancelled. A printed receipt cannot be cancelled.
+      tags:
+        - Checkout
+      parameters:
+        - in: path
+          name: id
+          required: true
+          description: The unique identifier of the receipt to cancel.
+          schema:
+            type: integer
+            format: int64
+            example: 42
+      responses:
+        '200':
+          description: Receipt successfully cancelled. Returns the updated receipt.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ReceiptDTO"
+        '404':
+          description: Receipt not found.
+        '409':
+          description: Receipt is already cancelled or already printed.
+
+  # ─── Voucher ──────────────────────────────────────────────────────────────
 
   /api/voucher/{code}:
     get:
@@ -148,7 +258,7 @@ paths:
         '404':
           description: A voucher with the specified code was not found.
         '409':
-          description: The voucher cannot be redeemed (e.g., already redeemed or expired).
+          description: The voucher cannot be redeemed (already redeemed, expired, or optimistic lock conflict).
 
 components:
   securitySchemes:
@@ -159,6 +269,27 @@ components:
       description: "Bearer token for authentication. Example: 'Bearer {token}'"
 
   schemas:
+
+    # ── Enums ────────────────────────────────────────────────────────────────
+
+    PaymentMethod:
+      type: string
+      description: Payment method used for the transaction.
+      enum:
+        - CASH
+        - CARD
+        - ONLINE
+
+    ReceiptStatus:
+      type: string
+      description: Lifecycle status of a receipt.
+      enum:
+        - OPEN
+        - PRINTED
+        - CANCELLED
+
+    # ── Article ──────────────────────────────────────────────────────────────
+
     ArticleDTO:
       type: object
       description: Represents an article in the store.
@@ -166,61 +297,51 @@ components:
         id:
           type: integer
           format: int64
-          description: The unique identifier for the article.
         gtin:
           type: string
           description: The Global Trade Item Number of the article.
         name:
           type: string
-          description: The name of the article.
         description:
           type: string
-          description: A short description of the article.
         manufacturer:
           type: string
-          description: The manufacturer of the article.
         supplier:
           type: string
-          description: The supplier of the article.
         unit:
           type: string
-          description: The unit of measurement for the article (e.g., piece, kg).
         purchasePrice:
           type: number
           format: double
-          description: The price at which the article was purchased.
         sellingPrice:
           type: number
           format: double
-          description: The price at which the article is sold.
         taxRate:
           type: number
           format: double
-          description: The tax rate applicable to the article.
         stock:
           type: integer
           format: int64
-          description: The current stock level of the article.
         isAvailable:
           type: boolean
-          description: Indicates if the article is currently available for sale.
         isDeposit:
           type: boolean
-          description: Indicates if the article has a deposit.
       example:
-        id: 123
-        gtin: "4006381333931"
-        name: "Sample Article"
-        description: "A sample article for demonstration."
-        manufacturer: "Sample Manufacturer"
-        supplier: "Sample Supplier"
-        unit: "piece"
-        purchasePrice: 10.50
-        sellingPrice: 19.99
-        taxRate: 0.19
-        stock: 100
+        id: 1
+        gtin: "10000001"
+        name: "Apfel"
+        description: "apfel"
+        manufacturer: "FreshFarms"
+        supplier: "EuroFruit GmbH"
+        unit: "kg"
+        purchasePrice: 0.80
+        sellingPrice: 1.20
+        taxRate: 7.7
+        stock: 50
         isAvailable: true
         isDeposit: false
+
+    # ── Receipt ──────────────────────────────────────────────────────────────
 
     ReceiptDTO:
       type: object
@@ -229,24 +350,113 @@ components:
         id:
           type: integer
           format: int64
-          description: The unique identifier for the receipt.
+          nullable: true
         storeId:
           type: integer
           format: int64
-          description: The ID of the store where the purchase was made.
         registerId:
           type: integer
           format: int64
-          description: The ID of the cash register that processed the transaction.
         cashierId:
           type: integer
           format: int64
-          description: The ID of the cashier who processed the transaction.
+        paymentMethod:
+          $ref: "#/components/schemas/PaymentMethod"
+        status:
+          $ref: "#/components/schemas/ReceiptStatus"
       example:
-        id: 1
-        storeId: 101
-        registerId: 5
-        cashierId: 789
+        id: 42
+        storeId: 1
+        registerId: 2
+        cashierId: 4
+        paymentMethod: CASH
+        status: OPEN
+
+    CheckoutLineDTO:
+      type: object
+      description: A single article line within a checkout request.
+      required:
+        - articleId
+        - articleAmount
+      properties:
+        articleId:
+          type: integer
+          format: int64
+          description: ID of the article to add.
+          example: 5
+        articleAmount:
+          type: integer
+          format: int64
+          description: Quantity (minimum 1).
+          example: 2
+        discountPercent:
+          type: number
+          format: double
+          nullable: true
+          description: Optional discount in percent (0–100). Null means no discount.
+          example: 10.00
+
+    CheckoutRequestDTO:
+      type: object
+      description: Full checkout request — creates a receipt with all line items at once.
+      required:
+        - storeId
+        - registerId
+        - cashierId
+        - paymentMethod
+        - lines
+      properties:
+        storeId:
+          type: integer
+          format: int64
+          example: 1
+        registerId:
+          type: integer
+          format: int64
+          example: 2
+        cashierId:
+          type: integer
+          format: int64
+          example: 4
+        paymentMethod:
+          $ref: "#/components/schemas/PaymentMethod"
+        lines:
+          type: array
+          minItems: 1
+          items:
+            $ref: "#/components/schemas/CheckoutLineDTO"
+
+    CheckoutResponseDTO:
+      type: object
+      description: Response after a successful checkout.
+      properties:
+        receiptId:
+          type: integer
+          format: int64
+          description: ID of the created receipt.
+          example: 42
+        storeId:
+          type: integer
+          format: int64
+        registerId:
+          type: integer
+          format: int64
+        cashierId:
+          type: integer
+          format: int64
+        lineCount:
+          type: integer
+          description: Number of line items created.
+          example: 3
+        lineIds:
+          type: array
+          items:
+            type: integer
+            format: int64
+          description: IDs of the created ReceiptLine entries.
+          example: [101, 102, 103]
+
+    # ── Voucher ──────────────────────────────────────────────────────────────
 
     VoucherDTO:
       type: object
@@ -255,26 +465,17 @@ components:
         id:
           type: integer
           format: int64
-          description: The unique identifier for the voucher.
           example: 1
         code:
           type: string
           format: uuid
-          description: The unique voucher code used to identify and redeem the voucher.
           example: "550e8400-e29b-41d4-a716-446655440000"
         expiresAt:
           type: string
           format: date-time
-          description: The date and time when the voucher expires. After this point, the voucher is no longer valid.
           example: "2026-12-31T23:59:59Z"
         redeemedAt:
           type: string
           format: date-time
           nullable: true
-          description: The date and time when the voucher was redeemed. Null if the voucher has not yet been redeemed.
-          example: "2026-04-10T14:30:00Z"
-      example:
-        id: 1
-        code: "550e8400-e29b-41d4-a716-446655440000"
-        expiresAt: "2026-12-31T23:59:59Z"
-        redeemedAt: null
+          example: null

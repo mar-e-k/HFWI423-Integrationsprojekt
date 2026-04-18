@@ -13,20 +13,21 @@ import org.springframework.web.bind.annotation.RestController;
 class ReceiptController implements ReceiptApi {
 
     private final ReceiptService receiptService;
-    private final ReceiptMapper receiptMapper;
+    private final ReceiptMapper  receiptMapper;
 
     ReceiptController(ReceiptService receiptService, ReceiptMapper receiptMapper) {
         this.receiptService = receiptService;
-        this.receiptMapper = receiptMapper;
+        this.receiptMapper  = receiptMapper;
     }
+
+    // ─── Bon anlegen (bestehendes Interface) ──────────────────────────────────
 
     @Override
     public ResponseEntity<ReceiptDTO> postReceipt(ReceiptDTO receiptDTO) {
         Receipt receipt = receiptMapper.toEntity(receiptDTO);
         Receipt created = receiptService.create(receipt);
-        ReceiptDTO dto = receiptMapper.toDTO(created);
         return ResponseEntity
                 .status(HttpStatus.CREATED)
-                .body(dto);
+                .body(receiptMapper.toDTO(created));
     }
 }

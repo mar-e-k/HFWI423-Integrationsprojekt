@@ -28,7 +28,7 @@ public class RegisterState {
         return selectedArticle;
     }
 
-    public void setSelectedCartLine(CartLine line) {
+    public void setSelectedCartLine(@Nullable CartLine line) {
         this.selectedCartLine = Optional.ofNullable(line);
         notifyListeners();
     }
