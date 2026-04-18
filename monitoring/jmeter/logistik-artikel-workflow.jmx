@@ -104,7 +104,7 @@
         <!-- ── Init: Loop-Variable setzen ──────────────────────────────────── -->
         <JSR223Sampler guiclass="TestBeanGUI" testclass="JSR223Sampler"
                        testname="Init - articleDone zuruecksetzen" enabled="true">
-          <stringProp name="scriptLanguage">javascript</stringProp>
+          <stringProp name="scriptLanguage">groovy</stringProp>
           <stringProp name="script">vars.put("continueLoop", "true"); vars.put("httpCode", "0"); vars.put("receiptCode", "201");</stringProp>
           <stringProp name="filename"></stringProp>
           <stringProp name="parameters"></stringProp>
@@ -353,7 +353,7 @@ if (code == "204") {
 
         <JSR223Sampler guiclass="TestBeanGUI" testclass="JSR223Sampler"
                        testname="Init - Wareneingang Loop" enabled="true">
-          <stringProp name="scriptLanguage">javascript</stringProp>
+          <stringProp name="scriptLanguage">groovy</stringProp>
           <stringProp name="script">vars.put("receiptCode", "201");</stringProp>
           <stringProp name="filename"></stringProp>
           <stringProp name="parameters"></stringProp>

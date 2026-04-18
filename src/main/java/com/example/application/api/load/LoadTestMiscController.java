@@ -211,9 +211,16 @@ public class LoadTestMiscController {
                 if (result.isPresent()) {
                     return ResponseEntity.ok(result.get());
                 }
-                // Keine Kandidaten mehr – Lagerplatz wieder freigeben
+                // Lagerplatz freigeben
                 loc.setStorageStatus("Available");
                 storageLocationService.save(loc);
+                // Kandidaten noch vorhanden? Dann werden sie gerade von einem anderen Thread gesperrt.
+                // 200 zurueckgeben damit der JMeter-WhileController weiter loopt und es erneut versucht.
+                // Wenn wirklich keine Kandidaten mehr da sind → 204 (WhileController stoppt).
+                if (articleSyncService.countNewArticlesFromLasttest() > 0) {
+                    System.out.println("[POST-create-with-storage] Kandidaten vorhanden aber gesperrt – retry");
+                    return ResponseEntity.ok().build();
+                }
                 return ResponseEntity.noContent().build();
             } catch (ObjectOptimisticLockingFailureException e) {
                 // Anderer Thread hat diesen Lagerplatz gleichzeitig belegt – naechsten probieren

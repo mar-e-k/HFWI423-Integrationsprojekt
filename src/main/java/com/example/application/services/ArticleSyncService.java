@@ -179,6 +179,7 @@ public class ArticleSyncService {
                 ExternalArticle ext = externalById.get(articleId);
                 if (ext == null) continue;
                 if (existingArticleIds.contains(articleId)) continue;
+                if (existingArticleNumbers.contains(ext.getArticleNumber())) continue;
                 if (result.containsKey(ext.getArticleNumber())) continue;
 
                 NewArticleCandidate candidate = new NewArticleCandidate();
@@ -239,13 +240,17 @@ public class ArticleSyncService {
      */
     public Optional<ArticleInfo> createNextWithStorageLocation(String storageLocationId) {
         List<NewArticleCandidate> candidates = findNewArticlesFromLasttestContingents();
+        System.out.println("[create-article] candidates=" + candidates.size() + " storageLocation=\"" + storageLocationId + "\"");
         for (NewArticleCandidate candidate : candidates) {
             String nr = candidate.getArticleNumber();
+            System.out.println("[create-article] trying nr=" + nr);
             if (articleCreationLocks.putIfAbsent(nr, Boolean.TRUE) != null) {
+                System.out.println("[create-article] LOCKED nr=" + nr);
                 continue; // anderer Thread legt diesen Artikel gerade an
             }
             try {
                 if (articleInfoRepository.findByArticleNumber(nr) != null) {
+                    System.out.println("[create-article] ALREADY_EXISTS nr=" + nr);
                     continue; // inzwischen von anderem Thread angelegt
                 }
                 ArticleInfo info = new ArticleInfo();
@@ -261,13 +266,15 @@ public class ArticleSyncService {
                 info.setPiecesPerPallet(ThreadLocalRandom.current().nextInt(20, 101));
                 ArticleInfo saved = articleInfoRepository.save(info);
                 createContingentForSimArticle(saved);
+                System.out.println("[create-article] CREATED nr=" + nr + " id=" + saved.getId());
                 return Optional.of(saved);
             } catch (Exception e) {
-                // Konkurrenter Zugriff – nächsten Kandidaten probieren
+                System.out.println("[create-article] EXCEPTION nr=" + nr + ": " + e.getClass().getSimpleName() + ": " + e.getMessage());
             } finally {
                 articleCreationLocks.remove(nr);
             }
         }
+        System.out.println("[create-article] DONE – no article created, returning empty");
         return Optional.empty();
     }
 
