@@ -72,7 +72,8 @@
       "Bash(wmic process:*)",
       "Bash(find:*)",
       "Bash(grep -rl \"Workflow\\\\|Lasttest\\\\|jmeter\\\\|JMeter\" C:/Users/jason/IdeaProjects/HFWI423-Integrationsprojekt/src --include=*.java)",
-      "Bash(\"C:/Users/jason/IdeaProjects/HFWI423-Integrationsprojekt/jmeter.log\")"
+      "Bash(\"C:/Users/jason/IdeaProjects/HFWI423-Integrationsprojekt/jmeter.log\")",
+      "Skill(update-config)"
     ]
   }
 }
