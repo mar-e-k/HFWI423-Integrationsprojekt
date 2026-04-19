@@ -19,3 +19,18 @@ INSERT INTO voucher (code, expires_at, redeemed_at) VALUES ('bbbbbbbb-0000-0000-
 INSERT INTO voucher (code, expires_at, redeemed_at) VALUES ('bbbbbbbb-0000-0000-0000-000000000003', '2099-12-31T23:59:59Z', NULL) ON CONFLICT DO NOTHING;
 INSERT INTO voucher (code, expires_at, redeemed_at) VALUES ('bbbbbbbb-0000-0000-0000-000000000004', '2099-12-31T23:59:59Z', NULL) ON CONFLICT DO NOTHING;
 INSERT INTO voucher (code, expires_at, redeemed_at) VALUES ('bbbbbbbb-0000-0000-0000-000000000005', '2099-12-31T23:59:59Z', NULL) ON CONFLICT DO NOTHING;
+INSERT INTO store_stock (store_id, article_id, current_amount, pref_amount_min, pref_amount_avg, pref_amount_max) VALUES (1,  1, 50, 10, 30, 60) ON CONFLICT DO NOTHING;
+INSERT INTO store_stock (store_id, article_id, current_amount, pref_amount_min, pref_amount_avg, pref_amount_max) VALUES (1,  2, 40, 10, 30, 60) ON CONFLICT DO NOTHING;
+INSERT INTO store_stock (store_id, article_id, current_amount, pref_amount_min, pref_amount_avg, pref_amount_max) VALUES (1,  3, 60, 10, 30, 60) ON CONFLICT DO NOTHING;
+INSERT INTO store_stock (store_id, article_id, current_amount, pref_amount_min, pref_amount_avg, pref_amount_max) VALUES (1,  4, 55, 10, 30, 60) ON CONFLICT DO NOTHING;
+INSERT INTO store_stock (store_id, article_id, current_amount, pref_amount_min, pref_amount_avg, pref_amount_max) VALUES (1,  5, 30, 10, 30, 60) ON CONFLICT DO NOTHING;
+INSERT INTO store_stock (store_id, article_id, current_amount, pref_amount_min, pref_amount_avg, pref_amount_max) VALUES (1,  6, 25, 10, 30, 60) ON CONFLICT DO NOTHING;
+INSERT INTO store_stock (store_id, article_id, current_amount, pref_amount_min, pref_amount_avg, pref_amount_max) VALUES (1,  7, 20, 10, 30, 60) ON CONFLICT DO NOTHING;
+INSERT INTO store_stock (store_id, article_id, current_amount, pref_amount_min, pref_amount_avg, pref_amount_max) VALUES (1,  8, 45, 10, 30, 60) ON CONFLICT DO NOTHING;
+INSERT INTO store_stock (store_id, article_id, current_amount, pref_amount_min, pref_amount_avg, pref_amount_max) VALUES (1,  9, 35, 10, 30, 60) ON CONFLICT DO NOTHING;
+INSERT INTO store_stock (store_id, article_id, current_amount, pref_amount_min, pref_amount_avg, pref_amount_max) VALUES (1, 10, 28, 10, 30, 60) ON CONFLICT DO NOTHING;
+INSERT INTO store_stock (store_id, article_id, current_amount, pref_amount_min, pref_amount_avg, pref_amount_max) VALUES (1, 11, 33, 10, 30, 60) ON CONFLICT DO NOTHING;
+INSERT INTO store_stock (store_id, article_id, current_amount, pref_amount_min, pref_amount_avg, pref_amount_max) VALUES (1, 12, 38, 10, 30, 60) ON CONFLICT DO NOTHING;
+INSERT INTO store_stock (store_id, article_id, current_amount, pref_amount_min, pref_amount_avg, pref_amount_max) VALUES (1, 13, 70, 10, 30, 60) ON CONFLICT DO NOTHING;
+INSERT INTO store_stock (store_id, article_id, current_amount, pref_amount_min, pref_amount_avg, pref_amount_max) VALUES (1, 14, 65, 10, 30, 60) ON CONFLICT DO NOTHING;
+INSERT INTO store_stock (store_id, article_id, current_amount, pref_amount_min, pref_amount_avg, pref_amount_max) VALUES (1, 15, 15, 10, 30, 60) ON CONFLICT DO NOTHING;

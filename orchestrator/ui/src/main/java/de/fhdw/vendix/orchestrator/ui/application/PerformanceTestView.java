@@ -466,7 +466,7 @@ public class PerformanceTestView extends VerticalLayout {
         extraEnv.put("STORE_URL",       storeUrl);
         extraEnv.put("STORE_ID",        String.valueOf(storeId));
         extraEnv.put("ORDER_RATE",      String.valueOf(orderRate));
-        extraEnv.put("URGENT_RATIO",    String.format("%.1f", urgentRatio));
+        extraEnv.put("URGENT_RATIO",    String.format(java.util.Locale.US, "%.1f", urgentRatio));
         extraEnv.put("VERIFY_STOCK",    "true");
         extraEnv.put("VERIFY_WAIT_MS",  String.valueOf(verifyWait));
 
