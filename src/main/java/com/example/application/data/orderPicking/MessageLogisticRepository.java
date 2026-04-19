@@ -1,7 +1,9 @@
 package com.example.application.data.orderPicking;
 
+import jakarta.persistence.LockModeType;
 import jakarta.transaction.Transactional;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Lock;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -23,6 +25,10 @@ public interface MessageLogisticRepository extends JpaRepository<MessageLogistic
     List<MessageLogistic> findByStoreId(String storeId);
 
     List<MessageLogistic> findByKommissionId(Long kommissionId);
+
+    @Lock(LockModeType.PESSIMISTIC_WRITE)
+    @Query("select m from MessageLogistic m where m.kommission.id = :kommissionId")
+    List<MessageLogistic> findByKommissionIdForUpdate(@Param("kommissionId") Long kommissionId);
 
  	int deleteByArticleId(Long articleId);
  	

@@ -115,7 +115,8 @@ public class KommissionService {
      */
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void finishAtomar(Kommission kommission) {
-        List<MessageLogistic> items = msgRepo.findByKommissionId(kommission.getId());
+        // PESSIMISTIC_WRITE: sperrt die Zeilen -> AMQP-Listener kann sie erst nach Commit loeschen
+        List<MessageLogistic> items = msgRepo.findByKommissionIdForUpdate(kommission.getId());
         for (MessageLogistic msg : items) {
             String articleNumber = msg.getArticleNumber();
             if (articleNumber == null && msg.getArticleId() != null) {
@@ -125,6 +126,9 @@ public class KommissionService {
             }
             if (articleNumber == null) continue;
             artikelService.updateStock(articleNumber, (int) msg.getQuantity());
+            // Als verarbeitet markieren damit AMQP-Cleanup (deleteProcessedByStore) greift
+            msg.setProcessed(true);
+            msgRepo.save(msg);
             try {
                 long storeIdLong = Long.parseLong(kommission.getStoreId().replaceAll("[^0-9]", ""));
                 Long articleId = msg.getArticleId();
