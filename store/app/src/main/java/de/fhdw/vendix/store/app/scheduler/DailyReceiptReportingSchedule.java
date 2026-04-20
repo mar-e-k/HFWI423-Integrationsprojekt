@@ -8,11 +8,7 @@ import de.fhdw.vendix.store.core.domain.receipt.ReceiptService;
 import de.fhdw.vendix.store.core.domain.receipt_line.ReceiptLine;
 import de.fhdw.vendix.store.core.domain.store_stock.StoreStock;
 import de.fhdw.vendix.store.core.domain.store_stock.StoreStockService;
-import io.github.plaguv.amqp.api.envelope.EventEnvelope;
-import io.github.plaguv.amqp.api.envelope.EventEnvelopeBuilder;
-import io.github.plaguv.amqp.api.event.pos.ArticleOrderEvent;
-import io.github.plaguv.amqp.api.event.pos.ArticleUrgentOrderEvent;
-import io.github.plaguv.amqp.core.publisher.EventPublisher;
+import de.fhdw.vendix.store.core.messaging.ArticleOrderMessagingService;
 import jakarta.persistence.EntityNotFoundException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -24,25 +20,34 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 
+/**
+ * Runs every evening at 22:00 and emits order events for articles that fell
+ * below their preferred stock levels during the day.
+ *
+ * <p>The actual event publishing is delegated to
+ * {@link ArticleOrderMessagingService} so that the AMQP library is not
+ * referenced here directly, and the same logic can be reused by the test
+ * controller.
+ */
 @Service
 public class DailyReceiptReportingSchedule {
 
     private static final Logger log = LoggerFactory.getLogger(DailyReceiptReportingSchedule.class);
 
-    private final EventPublisher eventPublisher;
+    private final ArticleOrderMessagingService articleOrderMessagingService;
     private final StoreContext storeContext;
     private final ReceiptService receiptService;
     private final StoreStockService storeStockService;
     private final ArticleService articleService;
 
     public DailyReceiptReportingSchedule(
-            EventPublisher eventPublisher,
+            ArticleOrderMessagingService articleOrderMessagingService,
             StoreContext storeContext,
             ReceiptService receiptService,
             StoreStockService storeStockService,
             ArticleService articleService
     ) {
-        this.eventPublisher = eventPublisher;
+        this.articleOrderMessagingService = articleOrderMessagingService;
         this.storeContext = storeContext;
         this.receiptService = receiptService;
         this.storeStockService = storeStockService;
@@ -84,7 +89,7 @@ public class DailyReceiptReportingSchedule {
             long deltaAmount = Math.max(0, stock.getPreferenceAmount().getMax() - currentAmount);
 
             if (currentAmount < stock.getPreferenceAmount().getMin()) {
-                sendUrgentArticleOrder(storeId, article.getId(), deltaAmount);
+                articleOrderMessagingService.sendUrgentOrder(storeId, article.getId(), deltaAmount);
             } else if (currentAmount > stock.getPreferenceAmount().getAvg()) {
                 log.atInfo().log("Order ignored for article '{}' as current stock '{}' is higher than specified avg '{}'",
                         article,
@@ -92,34 +97,10 @@ public class DailyReceiptReportingSchedule {
                         stock.getPreferenceAmount().getAvg()
                         );
             } else {
-                sendNormalArticleOrder(storeId, article.getId(), deltaAmount);
+                articleOrderMessagingService.sendOrder(storeId, article.getId(), deltaAmount);
             }
         }
 
         log.atInfo().log("[SCHEDULED] Successfully sent daily receipt report");
-    }
-
-    private void sendNormalArticleOrder(long storeId, long articleId, long amount) {
-        ArticleOrderEvent event = new ArticleOrderEvent(
-                storeId,
-                articleId,
-                amount
-        );
-        EventEnvelope eventEnvelope = EventEnvelopeBuilder.defaults()
-                .withContent(event)
-                .build();
-        eventPublisher.publishMessage(eventEnvelope);
-    }
-
-    private void sendUrgentArticleOrder(long storeId, long articleId, long amount) {
-        ArticleUrgentOrderEvent event = new ArticleUrgentOrderEvent(
-                storeId,
-                articleId,
-                amount
-        );
-        EventEnvelope eventEnvelope = EventEnvelopeBuilder.defaults()
-                .withContent(event)
-                .build();
-        eventPublisher.publishMessage(eventEnvelope);
     }
 }

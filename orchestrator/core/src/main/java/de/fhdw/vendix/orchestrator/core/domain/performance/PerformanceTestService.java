@@ -12,7 +12,9 @@ import java.nio.file.Path;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
@@ -22,19 +24,26 @@ import java.util.function.Consumer;
 /**
  * Startet und stoppt k6-Lasttests via Docker.
  *
- * Features:
- *  - k6 läuft im Container vendix-k6
- *  - Metriken werden live nach Prometheus gepusht (experimental-prometheus-rw)
- *  - Am Ende jedes Tests wird automatisch ein HTML-Report gespeichert
- *    (K6_WEB_DASHBOARD_EXPORT) — sichtbar im k6 Live Dashboard und als Datei
+ * <p>Features:
+ * <ul>
+ *   <li>k6 läuft im Container {@code vendix-k6}</li>
+ *   <li>Metriken werden live nach Prometheus gepusht ({@code experimental-prometheus-rw})</li>
+ *   <li>Am Ende jedes Tests wird automatisch ein HTML-Report gespeichert
+ *       ({@code K6_WEB_DASHBOARD_EXPORT}) — sichtbar im k6 Live Dashboard und als Datei</li>
+ *   <li>Das auszuführende k6-Skript wird per {@link TestType#getScript()} bestimmt,
+ *       sodass klassische Lasttests ({@code test.js}) und der Messaging-E2E-Test
+ *       ({@code messaging-e2e-test.js}) über dieselbe Infrastruktur laufen</li>
+ *   <li>Zusätzliche Umgebungsvariablen (z.B. STORE_ID, ORDER_RATE) können pro
+ *       Teststart als {@code Map<String,String>} übergeben werden</li>
+ * </ul>
  */
 @Service
 public class PerformanceTestService {
 
-    private static final Logger log       = LoggerFactory.getLogger(PerformanceTestService.class);
-    private static final String SEP       = "═".repeat(70);
+    private static final Logger log      = LoggerFactory.getLogger(PerformanceTestService.class);
+    private static final String SEP      = "═".repeat(70);
     private static final String K6_CONTAINER  = "vendix-k6";
-    private static final String K6_SCRIPT     = "/etc/k6/scripts/test.js";
+    private static final String K6_SCRIPT_DIR = "/etc/k6/scripts/";
     private static final String K6_COMPOSE    = ".docker/testing/docker-compose.yaml";
     private static final String PROMETHEUS_RW = "experimental-prometheus-rw";
 
@@ -58,7 +67,38 @@ public class PerformanceTestService {
 
     // ─── Starten ──────────────────────────────────────────────────────────────
 
+    /**
+     * Startet einen k6-Lasttest ohne zusätzliche Umgebungsvariablen.
+     * Kurzform von {@link #startTest(TestType, Consumer, Map)}.
+     */
     public void startTest(TestType testType, Consumer<String> logConsumer) throws IOException {
+        startTest(testType, logConsumer, Map.of());
+    }
+
+    /**
+     * Startet einen k6-Lasttest mit optionalen zusätzlichen Umgebungsvariablen.
+     *
+     * <p>Die Variablen werden als {@code -e KEY=VALUE} an {@code docker exec} übergeben
+     * und stehen im k6-Skript via {@code __ENV.KEY} zur Verfügung.
+     *
+     * <p>Typische Zusatzvariablen für den Messaging-E2E-Test:
+     * <pre>
+     *   STORE_URL       – z.B. http://host.docker.internal:8081
+     *   STORE_ID        – z.B. 1
+     *   ORDER_RATE      – Orders/Minute, z.B. 30
+     *   URGENT_RATIO    – Anteil dringend, z.B. 0.3
+     *   VERIFY_STOCK    – Bestandsprüfung, true/false
+     *   VERIFY_WAIT_MS  – Wartezeit vor Verifikation in ms, z.B. 2000
+     * </pre>
+     *
+     * @param testType    Testszenario (bestimmt Skript und Standard-Konfiguration)
+     * @param logConsumer Callback, der jede Log-Zeile aus k6's stdout empfängt
+     * @param extraEnv    Zusätzliche Umgebungsvariablen (können leer sein)
+     * @throws IOException            wenn der k6-Container nicht erreichbar ist
+     * @throws IllegalStateException  wenn bereits ein Test läuft
+     */
+    public void startTest(TestType testType, Consumer<String> logConsumer,
+                          Map<String, String> extraEnv) throws IOException {
         if (running.get()) {
             TestType current = activeTest.get();
             String name = current != null ? current.getDisplayName() : "Unbekannt";
@@ -68,33 +108,42 @@ public class PerformanceTestService {
         Path repositoryRoot = resolveRepositoryRoot();
         ensureK6ContainerRunning(repositoryRoot, logConsumer);
 
-        // Report-Dateiname: z.B. vendix-lasttest_2026-04-17_14-30.html
+        // Report-Dateiname: z.B. vendix-messaging-e2e_2026-04-18_14-30.html
         String timestamp  = REPORT_FMT.format(Instant.now());
-        String reportFile = REPORT_DIR + "/vendix-" + testType.getScenarioKey() + "_" + timestamp + ".html";
+        String reportFile = REPORT_DIR + "/vendix-" + testType.getScenarioKey()
+                + "_" + timestamp + ".html";
 
-        // docker exec -e K6_WEB_DASHBOARD_EXPORT=<file> vendix-k6 k6 run ...
-        // K6_WEB_DASHBOARD_EXPORT: k6 schreibt am Ende automatisch einen vollständigen
-        // HTML-Report ins angegebene File — enthält alle Metriken, Charts, Thresholds.
-        List<String> command = List.of(
+        // k6-Skript aus dem TestType bestimmen (test.js oder messaging-e2e-test.js)
+        String k6Script = K6_SCRIPT_DIR + testType.getScript();
+
+        // Basis-Kommando zusammenbauen
+        List<String> command = new ArrayList<>(List.of(
                 "docker", "exec",
                 "-e", "K6_WEB_DASHBOARD_EXPORT=" + reportFile,
                 K6_CONTAINER,
                 "k6", "run",
                 "-o", PROMETHEUS_RW,
-                K6_SCRIPT,
+                k6Script,
                 "-e", "K6_MASTER_TOKEN=" + jwtService.generateToken(),
                 "-e", "SCENARIO=" + testType.getScenarioKey()
-        );
+        ));
+
+        // Zusätzliche Umgebungsvariablen anhängen (z.B. STORE_ID, ORDER_RATE, …)
+        for (Map.Entry<String, String> entry : extraEnv.entrySet()) {
+            command.add("-e");
+            command.add(entry.getKey() + "=" + entry.getValue());
+        }
 
         log.info("");
         log.info(SEP);
         log.info("  VENDIX LASTTEST GESTARTET (k6)");
         log.info("  Szenario  : {}", testType.getDisplayName());
+        log.info("  Skript    : {}", k6Script);
         log.info("  Parameter : {}", testType.getParameters());
+        log.info("  Extra-Env : {}", extraEnv.isEmpty() ? "–" : extraEnv.keySet());
         log.info("  Dauer     : {} Sekunden", testType.getDurationSeconds());
         log.info("  Container : {}", K6_CONTAINER);
         log.info("  Report    : {}", reportFile);
-        log.info("  Befehl    : {}", String.join(" ", command));
         log.info(SEP);
         log.info("");
 
