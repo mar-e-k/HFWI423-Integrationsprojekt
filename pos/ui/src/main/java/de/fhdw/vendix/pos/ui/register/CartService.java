@@ -4,6 +4,7 @@ import com.vaadin.flow.spring.security.AuthenticationContext;
 import de.fhdw.vendix.commons.api.domain.article.ArticleDTO;
 import de.fhdw.vendix.commons.api.domain.receipt.PaymentMethod;
 import de.fhdw.vendix.commons.api.domain.receipt.ReceiptDTO;
+import de.fhdw.vendix.commons.api.domain.receipt.ReceiptStatus;
 import de.fhdw.vendix.commons.api.domain.receipt_line.ReceiptLineDTO;
 import de.fhdw.vendix.commons.spring.security.context.auth.DefaultUser;
 import de.fhdw.vendix.pos.core.register.RegisterContext;
@@ -96,7 +97,8 @@ public class CartService {
                     registerContext.getRegister().id(),
                     registerContext.getRegister().storeId(),
                     cashier.authContext().account().id(),
-                    PaymentMethod.CARD
+                    PaymentMethod.CARD,
+                    ReceiptStatus.OPEN
             );
             log.atDebug().log("Successfully generated receipt");
             clearCart();

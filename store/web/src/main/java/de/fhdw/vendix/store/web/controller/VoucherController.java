@@ -38,16 +38,10 @@ public class VoucherController implements VoucherApi {
 
     private ResponseEntity<VoucherDTO> redeemVoucher(Voucher voucher) {
         try {
-            voucher.redeem();
-            voucherService.update(voucher);
-            return ResponseEntity.ok(voucherMapper.toDTO(voucher));
-        } catch (VoucherExpiredException | VoucherAlreadyRedeemedException e) {
-            // Fachliche Ablehnung: abgelaufen oder bereits eingelöst
-            return ResponseEntity.status(HttpStatus.CONFLICT).build();
-        } catch (OptimisticLockException | ObjectOptimisticLockingFailureException e) {
-            // Concurrency-Fall: zwei Threads haben gleichzeitig denselben Voucher eingelöst.
-            // @Version in AbstractSpringDataVersioningEntity hat den zweiten Write geblockt.
-            // Korrekte fachliche Antwort: 409 Conflict statt 500 Internal Server Error.
+            Voucher redeemed = voucher.redeem();
+            Voucher saved = voucherService.update(redeemed);
+            return ResponseEntity.ok(voucherMapper.toDTO(saved));
+        } catch (VoucherExpiredException | VoucherAlreadyRedeemedException | OptimisticLockException | ObjectOptimisticLockingFailureException e) {
             return ResponseEntity.status(HttpStatus.CONFLICT).build();
         }
     }
