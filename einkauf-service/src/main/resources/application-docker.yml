@@ -1,0 +1,53 @@
+# Docker Production Profile - NO Vaadin (excluded via Maven profile)
+spring.profiles.active=docker
+
+# Management Endpoints - Actuator und Prometheus
+management.endpoints.web.exposure.include=health,info,metrics,prometheus
+management.endpoint.health.show-details=always
+management.metrics.export.prometheus.enabled=true
+management.metrics.distribution.percentiles-histogram.http.server.requests=true
+management.metrics.distribution.percentiles-histogram.einkauf_service_orders_processing_time_seconds=true
+management.metrics.distribution.percentiles-histogram.einkauf_service_checkouts_processing_time_seconds=true
+management.metrics.distribution.percentiles-histogram.einkauf_service_amqp_events_processing_time_seconds=true
+
+# Micrometer Tags für Umgebung-Kennzeichnung
+management.metrics.tags.application=einkauf-service
+management.metrics.tags.environment=docker
+
+# Server Configuration
+server.port=8080
+server.servlet.context-path=/
+
+# Logging für Docker
+logging.level.fhdw.de.einkauf_service=INFO
+logging.level.fhdw.de.einkauf_service.amqp=INFO
+logging.level.org.springframework.web=INFO
+logging.level.com.zaxxer.hikari=INFO
+
+# Database Configuration (will be overridden by environment variables)
+spring.datasource.url=${SPRING_DATASOURCE_URL}
+spring.datasource.username=${SPRING_DATASOURCE_USERNAME}
+spring.datasource.password=${SPRING_DATASOURCE_PASSWORD}
+spring.datasource.driver-class-name=org.postgresql.Driver
+
+# JPA/Hibernate Einstellungen
+spring.jpa.hibernate.ddl-auto=update
+spring.jpa.show-sql=false
+spring.jpa.properties.hibernate.dialect=org.hibernate.dialect.PostgreSQLDialect
+spring.jpa.open-in-view=false
+
+# AMQP/RabbitMQ Konfiguration (will be overridden by environment variables)
+spring.rabbitmq.ssl.enabled=true
+spring.rabbitmq.host=${SPRING_RABBITMQ_HOST}
+spring.rabbitmq.port=${SPRING_RABBITMQ_PORT}
+spring.rabbitmq.username=${SPRING_RABBITMQ_USERNAME}
+spring.rabbitmq.password=${SPRING_RABBITMQ_PASSWORD}
+spring.rabbitmq.virtual-host=${SPRING_RABBITMQ_VIRTUAL_HOST}
+amqp.central-exchange=central
+amqp.central-application=purchase-service
+
+# Cache Configuration
+spring.cache.type=simple
+
+# Security (disable for monitoring demo)
+spring.security.enabled=false

@@ -637,8 +637,8 @@
       "options": {},
       "targets": [
         {
-          "expr": "process_cpu_usage * 100",
-          "legendFormat": "CPU %",
+          "expr": "rate(process_cpu_seconds_total[30s]) * 100",
+          "legendFormat": "App CPU (100 = 1 Core)",
           "refId": "A"
         }
       ],

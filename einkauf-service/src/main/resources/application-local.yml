@@ -1,0 +1,24 @@
+# Local Development Profile
+spring.profiles.active=local
+
+# Actuator für lokale Entwicklung
+management.endpoints.web.exposure.include=health,info,metrics,prometheus
+management.endpoint.health.show-details=always
+management.endpoint.health.probes.enabled=true
+
+# Micrometer Tags für Umgebung-Kennzeichnung
+management.metrics.tags.application=einkauf-service
+management.metrics.tags.environment=local
+
+# Prometheus Metriken-Export
+management.metrics.export.prometheus.enabled=true
+management.metrics.distribution.percentiles-histogram.http.server.requests=true
+management.metrics.distribution.percentiles-histogram.einkauf_service_orders_processing_time_seconds=true
+management.metrics.distribution.percentiles-histogram.einkauf_service_checkouts_processing_time_seconds=true
+management.metrics.distribution.percentiles-histogram.einkauf_service_amqp_events_processing_time_seconds=true
+
+# Micrometer Histogram Konfiguration
+management.metrics.distribution.slo.http.server.requests=50ms,100ms,200ms,500ms,1s,2s
+management.metrics.distribution.slo.einkauf_service_orders_processing_time_seconds=1,2,5
+management.metrics.distribution.slo.einkauf_service_amqp_events_processing_time_seconds=100ms,500ms,1s
+
