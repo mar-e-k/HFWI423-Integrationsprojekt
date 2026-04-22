@@ -42,7 +42,7 @@
                             <goal>generate</goal>
                         </goals>
                         <configuration>
-                            <inputSpec>${maven.multiModuleProjectDirectory}/commons/api/src/main/resources/openapi/orchestrator.yaml</inputSpec>
+                            <inputSpec>${maven.multiModuleProjectDirectory}/commons/api/src/main/resources/META-INF/resources/openapi/orchestrator.yaml</inputSpec>
                             <output>${project.build.directory}/generated-sources/openapi</output>
 
                             <ignoreFileOverride>${maven.multiModuleProjectDirectory}/commons/api/src/main/resources/openapi/.openapi-generator-ignore</ignoreFileOverride>
