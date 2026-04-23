@@ -199,7 +199,7 @@ export function stresstest(data) {
         articleCount:   5,
         discountChance: 0.0,
         discountRates:  [],
-        scanGtins:      true,
+        scanGtins:      false,
     });
 
     // Jeder 5. Bon mit Voucher — erhöht DB-Last durch zusätzliche Transaktionen

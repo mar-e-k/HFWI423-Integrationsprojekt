@@ -143,6 +143,7 @@ export function printReceipt(token, receiptId) {
     const res = http.post(`${STORE_URL}/api/receipt/${receiptId}/print`, null, {
         ...authHeaders(token),
         tags: { endpoint: 'print_receipt' },
+        responseCallback: http.expectedStatuses(200, 409),
     });
 
     const ok = check(res, {
@@ -160,6 +161,7 @@ export function cancelReceipt(token, receiptId) {
     const res = http.post(`${STORE_URL}/api/receipt/${receiptId}/cancel`, null, {
         ...authHeaders(token),
         tags: { endpoint: 'cancel_receipt' },
+        responseCallback: http.expectedStatuses(200, 409),
     });
 
     check(res, {
@@ -187,6 +189,7 @@ export function redeemVoucher(token) {
     const res = http.post(`${STORE_URL}/api/voucher/${voucherCode}/redeem`, null, {
         ...authHeaders(token),
         tags: { endpoint: 'voucher_redeem' },
+        responseCallback: http.expectedStatuses(200, 404, 409),
     });
 
     check(res, {
@@ -214,7 +217,9 @@ export function checkAndRedeemVoucher(token, voucherCode) {
     } catch (_) {}
 
     const redeemRes = http.post(`${STORE_URL}/api/voucher/${voucherCode}/redeem`, null, {
-        ...authHeaders(token), tags: { endpoint: 'voucher_redeem' },
+        ...authHeaders(token),
+        tags: { endpoint: 'voucher_redeem' },
+        responseCallback: http.expectedStatuses(200, 409),
     });
     check(redeemRes, {
         '[Voucher] 200 oder 409': (r) => r.status === 200 || r.status === 409,
