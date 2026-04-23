@@ -10,6 +10,7 @@ import com.example.application.services.ArticleInfoService;
 import com.example.application.services.GoodsReceiptService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.orm.ObjectOptimisticLockingFailureException;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -220,16 +221,22 @@ public class LoadTestGoodsReceiptController {
      */
     @PostMapping("/{id}/approve-all-items")
     public ResponseEntity<Integer> approveAllItems(@PathVariable Long id) {
-        List<GoodsReceiptItem> items = goodsReceiptService.getItemsForReceipt(id);
-        int approved = 0;
-        for (GoodsReceiptItem item : items) {
-            if (item.getStatus() == GoodsReceiptItemStatus.IN_PRUEFUNG) {
-                goodsReceiptService.setItemStatus(item.getId(), GoodsReceiptItemStatus.FREIGEGEBEN);
-                approved++;
+        try {
+            List<GoodsReceiptItem> items = goodsReceiptService.getItemsForReceipt(id);
+            int approved = 0;
+            for (GoodsReceiptItem item : items) {
+                if (item.getStatus() == GoodsReceiptItemStatus.IN_PRUEFUNG) {
+                    goodsReceiptService.setItemStatus(item.getId(), GoodsReceiptItemStatus.FREIGEGEBEN);
+                    approved++;
+                }
             }
+            System.out.println("[approve-all-items] receiptId=" + id + " approved=" + approved);
+            return ResponseEntity.ok(approved);
+        } catch (ObjectOptimisticLockingFailureException e) {
+            // Race condition: anderer Thread hat denselben Wareneingang gleichzeitig
+            // bearbeitet. Items sind bereits freigegeben -> 200 zurueckgeben.
+            return ResponseEntity.ok(0);
         }
-        System.out.println("[approve-all-items] receiptId=" + id + " approved=" + approved);
-        return ResponseEntity.ok(approved);
     }
 
     /** POST /api/load/goods-receipts/{id}/complete – Prüfung abschließen */
@@ -241,6 +248,10 @@ public class LoadTestGoodsReceiptController {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage());
         } catch (IllegalStateException e) {
             throw new ResponseStatusException(HttpStatus.CONFLICT, e.getMessage());
+        } catch (ObjectOptimisticLockingFailureException e) {
+            // Race condition: anderer Thread hat denselben Wareneingang gleichzeitig
+            // abgeschlossen. version-Konflikt -> Receipt ist bereits im Endzustand.
+            return goodsReceiptService.getById(id);
         }
     }
 

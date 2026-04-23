@@ -645,13 +645,45 @@ public class MonitoringView extends Div {
                 .set("font-size", "0.8rem").set("color", "#475569")
                 .set("display", "block").set("margin-bottom", "6px");
 
-        IntegerField threadsField = new IntegerField("Threads (parallele User)");
-        threadsField.setValue(5);
-        threadsField.setMin(1);
-        threadsField.setMax(200);
-        threadsField.setStepButtonsVisible(true);
-        threadsField.getElement().setAttribute("theme", "small");
-        threadsField.setWidth("190px");
+        IntegerField p1Field = new IntegerField("P1 – Artikel anlegen");
+        p1Field.setValue(2);
+        p1Field.setMin(1);
+        p1Field.setMax(50);
+        p1Field.setStepButtonsVisible(true);
+        p1Field.getElement().setAttribute("theme", "small");
+        p1Field.setWidth("175px");
+
+        IntegerField p2Field = new IntegerField("P2 – Nachbestellungen");
+        p2Field.setValue(1);
+        p2Field.setMin(1);
+        p2Field.setMax(50);
+        p2Field.setStepButtonsVisible(true);
+        p2Field.getElement().setAttribute("theme", "small");
+        p2Field.setWidth("175px");
+
+        IntegerField p3Field = new IntegerField("P3 – Wareneingaenge");
+        p3Field.setValue(3);
+        p3Field.setMin(1);
+        p3Field.setMax(50);
+        p3Field.setStepButtonsVisible(true);
+        p3Field.getElement().setAttribute("theme", "small");
+        p3Field.setWidth("175px");
+
+        IntegerField p4Field = new IntegerField("P4 – WE abschliessen");
+        p4Field.setValue(2);
+        p4Field.setMin(1);
+        p4Field.setMax(50);
+        p4Field.setStepButtonsVisible(true);
+        p4Field.getElement().setAttribute("theme", "small");
+        p4Field.setWidth("175px");
+
+        IntegerField p5Field = new IntegerField("P5 – Kommissionierung");
+        p5Field.setValue(2);
+        p5Field.setMin(1);
+        p5Field.setMax(50);
+        p5Field.setStepButtonsVisible(true);
+        p5Field.getElement().setAttribute("theme", "small");
+        p5Field.setWidth("175px");
 
         IntegerField rampupField = new IntegerField("Ramp-up (s)");
         rampupField.setValue(2);
@@ -667,10 +699,14 @@ public class MonitoringView extends Div {
                 .set("border-radius", "8px").set("font-weight", "700").set("font-size", "0.82rem")
                 .set("box-shadow", "0 2px 8px #f59e0b55");
         startBtn.addClickListener(e -> {
-            int threads = threadsField.getValue() != null ? threadsField.getValue() : 5;
-            int rampup  = rampupField.getValue()  != null ? rampupField.getValue()  : 2;
-            launchArtikelWorkflowTest(threads, rampup,
-                    "Artikel-Workflow-" + threads + "T");
+            int p1     = p1Field.getValue()     != null ? p1Field.getValue()     : 2;
+            int p2     = p2Field.getValue()     != null ? p2Field.getValue()     : 1;
+            int p3     = p3Field.getValue()     != null ? p3Field.getValue()     : 3;
+            int p4     = p4Field.getValue()     != null ? p4Field.getValue()     : 2;
+            int p5     = p5Field.getValue()     != null ? p5Field.getValue()     : 2;
+            int rampup = rampupField.getValue() != null ? rampupField.getValue() : 2;
+            launchArtikelWorkflowTest(p1, p2, p3, p4, p5, rampup,
+                    "Artikel-Workflow-" + (p1 + p2 + p3 + p4 + p5) + "T");
         });
         testButtons.add(startBtn);
 
@@ -682,12 +718,17 @@ public class MonitoringView extends Div {
         presetBadges.setPadding(false);
         presetBadges.getStyle().set("gap", "6px").set("flex-wrap", "wrap");
 
-        HorizontalLayout controls = new HorizontalLayout(threadsField, rampupField, startBtn);
+        HorizontalLayout phaseFields = new HorizontalLayout(p1Field, p2Field, p3Field, p4Field, p5Field);
+        phaseFields.setAlignItems(FlexComponent.Alignment.END);
+        phaseFields.setPadding(false);
+        phaseFields.getStyle().set("gap", "10px").set("flex-wrap", "wrap");
+
+        HorizontalLayout controls = new HorizontalLayout(rampupField, startBtn);
         controls.setAlignItems(FlexComponent.Alignment.CENTER);
         controls.setPadding(false);
         controls.getStyle().set("gap", "10px").set("flex-wrap", "wrap");
 
-        VerticalLayout content = new VerticalLayout(desc, presetBadges, controls);
+        VerticalLayout content = new VerticalLayout(desc, presetBadges, phaseFields, controls);
         content.setPadding(false);
         content.getStyle().set("gap", "10px");
 
@@ -772,7 +813,8 @@ public class MonitoringView extends Div {
         return details;
     }
 
-    private void launchArtikelWorkflowTest(int threads, int rampup, String testName) {
+    private void launchArtikelWorkflowTest(int threadsP1, int threadsP2, int threadsP3, int threadsP4, int threadsP5, int rampup, String testName) {
+        int threads = threadsP1 + threadsP2 + threadsP3 + threadsP4 + threadsP5;
         if (testRunning.getAndSet(true)) return;
 
         String jmeterJar = jmeterHome + "/bin/ApacheJMeter.jar";
@@ -816,14 +858,18 @@ public class MonitoringView extends Div {
                 "-n",
                 "-t", jmxFile.toString(),
                 "-l", resultFile.toString(),
-                "-Jthreads=" + threads,
-                "-Jrampup="  + rampup,
+                "-Jthreads_p1=" + threadsP1,
+                "-Jthreads_p2=" + threadsP2,
+                "-Jthreads_p3=" + threadsP3,
+                "-Jthreads_p4=" + threadsP4,
+                "-Jthreads_p5=" + threadsP5,
+                "-Jrampup="     + rampup,
                 "-Jhost=localhost",
                 "-Jport="    + serverPort,
                 "-Jtestname=" + testName.replace(" ", "-")
         ));
 
-        Notification.show("▶  " + testName + " gestartet – " + threads + " Threads, alle Artikel werden angelegt",
+        Notification.show("▶  " + testName + " gestartet – P1:" + threadsP1 + " P2:" + threadsP2 + " P3:" + threadsP3 + " P4:" + threadsP4 + " P5:" + threadsP5 + " User",
                 4000, Notification.Position.BOTTOM_END);
 
         Executors.newVirtualThreadPerTaskExecutor().submit(() -> {

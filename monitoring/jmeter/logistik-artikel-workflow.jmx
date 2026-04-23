@@ -1,56 +1,117 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <jmeterTestPlan version="1.2" properties="5.0" jmeter="5.6.3">
   <hashTree>
-    <TestPlan guiclass="TestPlanGui" testclass="TestPlan" testname="Logistik – Artikel-Workflow Lasttest" enabled="true">
+    <TestPlan guiclass="TestPlanGui" testclass="TestPlan" testname="Logistik - Artikel-Workflow Lasttest" enabled="true">
       <stringProp name="TestPlan.comments">
-        Workflow-Lasttest: Simuliert Mitarbeiter die gleichzeitig den kompletten Logistik-Workflow ausfuehren.
-        Laeuft als Endlosschleife (loop forever) bis manuell gestoppt.
-        Nach jeder Runde: 10s Polling-Pause, dann erneute Pruefung auf neue Arbeit.
-        Phase 1: Neue Artikel anlegen (WhileController bis 204)
-          GET neue-artikel → POST create-next-with-storage
-          Falls 503: Lagerplatz anlegen, dann retry
-        Phase 2: Nachbestellungen genehmigen (einmaliger Bulk-Aufruf, laeuft einmal)
-          POST restock/approve-all (200 + Anzahl angelegter Bestellungen)
-        Phase 3: Wareneingaenge anlegen und pruefen (WhileController bis 204)
-          POST from-next-order (201=angelegt, 204=keine offene Bestellung mehr)
-          Dann: item-summaries laden, Items freigeben (10% Mengenkorrektur), complete
-        Phase 4: Kommissionierung (End-to-End-Abschluss)
-          POST kommissionen/trigger (woechentliche Kommissionen erstellen)
-          POST kommissionen/finish-all (Kommissionen abschliessen, Lager dekrementieren)
-          Voraussetzung: Store Orders muessen vorher manuell simuliert oder per AMQP angelegt worden sein
-        Parameter:
-          -Jthreads=N    Anzahl paralleler User (default 5)
-          -Jrampup=N     Ramp-up in Sekunden (default 2)
-          -Jhost=...     Hostname (default localhost)
-          -Jport=...     Port (default 8081)
-          -Jtestname=... Name in InfluxDB/Grafana
+        Workflow-Lasttest: 5 Phasen laufen gleichzeitig und unabhaengig als Endlosschleifen.
+        Phase 1 (Einkauf/Stammdaten):     Neue Artikel anlegen, Lagerplaetze verwalten
+        Phase 2 (Einkaufsleitung):         Nachbestellungen genehmigen (approve-all)
+        Phase 3 (Wareneingang - Anlegen):  Wareneingaenge aus offenen Bestellungen erstellen
+        Phase 4 (Wareneingang - Pruefen):  IN_PRUEFUNG-Wareneingaenge abschliessen (pending-ids Loop)
+        Phase 5 (Kommissionierung):        Kommissionen ausloesen und abschliessen
+
+        Parameter (GUI oder -J CLI-Flag):
+          threads_p1   Anzahl User Phase 1 (default 2)
+          threads_p2   Anzahl User Phase 2 (default 1)
+          threads_p3   Anzahl User Phase 3 (default 3)
+          threads_p4   Anzahl User Phase 4 (default 2)
+          threads_p5   Anzahl User Phase 5 (default 2)
+          rampup       Ramp-up in Sekunden (default 2)
+          host         Hostname            (default localhost)
+          port         Port                (default 8081)
+          testname     Name in InfluxDB/Grafana
       </stringProp>
       <boolProp name="TestPlan.functional_mode">false</boolProp>
       <boolProp name="TestPlan.serialize_threadgroups">false</boolProp>
-      <elementProp name="TestPlan.user_defined_variables" elementType="Arguments" guiclass="ArgumentsPanel" testclass="Arguments">
-        <collectionProp name="Arguments.arguments"/>
+      <elementProp name="TestPlan.user_defined_variables" elementType="Arguments" guiclass="ArgumentsPanel" testclass="Arguments" testname="User Defined Variables">
+        <collectionProp name="Arguments.arguments">
+
+          <elementProp name="threads_p1" elementType="Argument">
+            <stringProp name="Argument.name">threads_p1</stringProp>
+            <stringProp name="Argument.value">${__P(threads_p1,2)}</stringProp>
+            <stringProp name="Argument.desc">Phase 1: Neue Artikel anlegen</stringProp>
+            <stringProp name="Argument.metadata">=</stringProp>
+          </elementProp>
+
+          <elementProp name="threads_p2" elementType="Argument">
+            <stringProp name="Argument.name">threads_p2</stringProp>
+            <stringProp name="Argument.value">${__P(threads_p2,1)}</stringProp>
+            <stringProp name="Argument.desc">Phase 2: Nachbestellungen genehmigen</stringProp>
+            <stringProp name="Argument.metadata">=</stringProp>
+          </elementProp>
+
+          <elementProp name="threads_p3" elementType="Argument">
+            <stringProp name="Argument.name">threads_p3</stringProp>
+            <stringProp name="Argument.value">${__P(threads_p3,3)}</stringProp>
+            <stringProp name="Argument.desc">Phase 3: Wareneingaenge anlegen</stringProp>
+            <stringProp name="Argument.metadata">=</stringProp>
+          </elementProp>
+
+          <elementProp name="threads_p4" elementType="Argument">
+            <stringProp name="Argument.name">threads_p4</stringProp>
+            <stringProp name="Argument.value">${__P(threads_p4,2)}</stringProp>
+            <stringProp name="Argument.desc">Phase 4: Wareneingaenge abschliessen</stringProp>
+            <stringProp name="Argument.metadata">=</stringProp>
+          </elementProp>
+
+          <elementProp name="threads_p5" elementType="Argument">
+            <stringProp name="Argument.name">threads_p5</stringProp>
+            <stringProp name="Argument.value">${__P(threads_p5,2)}</stringProp>
+            <stringProp name="Argument.desc">Phase 5: Kommissionierung</stringProp>
+            <stringProp name="Argument.metadata">=</stringProp>
+          </elementProp>
+
+          <elementProp name="rampup" elementType="Argument">
+            <stringProp name="Argument.name">rampup</stringProp>
+            <stringProp name="Argument.value">${__P(rampup,2)}</stringProp>
+            <stringProp name="Argument.metadata">=</stringProp>
+          </elementProp>
+
+          <elementProp name="host" elementType="Argument">
+            <stringProp name="Argument.name">host</stringProp>
+            <stringProp name="Argument.value">${__P(host,localhost)}</stringProp>
+            <stringProp name="Argument.metadata">=</stringProp>
+          </elementProp>
+
+          <elementProp name="port" elementType="Argument">
+            <stringProp name="Argument.name">port</stringProp>
+            <stringProp name="Argument.value">${__P(port,8081)}</stringProp>
+            <stringProp name="Argument.metadata">=</stringProp>
+          </elementProp>
+
+          <elementProp name="testname" elementType="Argument">
+            <stringProp name="Argument.name">testname</stringProp>
+            <stringProp name="Argument.value">${__P(testname,Artikel-Workflow)}</stringProp>
+            <stringProp name="Argument.metadata">=</stringProp>
+          </elementProp>
+
+        </collectionProp>
       </elementProp>
     </TestPlan>
     <hashTree>
 
-      <!-- ── Thread Group ──────────────────────────────────────────────────── -->
+      <!-- ══════════════════════════════════════════════════════════════════════
+           PHASE 1: Neue Artikel anlegen
+           Einkauf / Stammdatenpflege: Legt neue Artikel an bis keine Kandidaten
+           mehr vorhanden (204). Bei fehlendem Lagerplatz (503) wird automatisch
+           ein neuer Platz angelegt.
+           ══════════════════════════════════════════════════════════════════════ -->
       <ThreadGroup guiclass="ThreadGroupGui" testclass="ThreadGroup"
-                   testname="Artikel-Workflow – ${__P(threads,5)} Threads" enabled="true">
+                   testname="Phase 1 - Neue Artikel anlegen (${threads_p1} User)" enabled="true">
         <stringProp name="ThreadGroup.on_sample_error">continue</stringProp>
         <elementProp name="ThreadGroup.main_controller" elementType="LoopController"
                      guiclass="LoopControlPanel" testclass="LoopController">
           <boolProp name="LoopController.continue_forever">true</boolProp>
           <stringProp name="LoopController.loops">-1</stringProp>
         </elementProp>
-        <stringProp name="ThreadGroup.num_threads">${__P(threads,5)}</stringProp>
-        <stringProp name="ThreadGroup.ramp_time">${__P(rampup,2)}</stringProp>
+        <stringProp name="ThreadGroup.num_threads">${threads_p1}</stringProp>
+        <stringProp name="ThreadGroup.ramp_time">${rampup}</stringProp>
         <boolProp name="ThreadGroup.scheduler">false</boolProp>
         <stringProp name="ThreadGroup.duration"></stringProp>
         <stringProp name="ThreadGroup.delay"></stringProp>
       </ThreadGroup>
       <hashTree>
 
-        <!-- ── JSON Header (fuer Storage Location POST) ──────────────────── -->
         <HeaderManager guiclass="HeaderPanel" testclass="HeaderManager"
                        testname="JSON Header" enabled="true">
           <collectionProp name="HeaderManager.headers">
@@ -62,7 +123,6 @@
         </HeaderManager>
         <hashTree/>
 
-        <!-- ── Schritt 1: Neue-Artikel-Seite oeffnen ─────────────────────── -->
         <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy"
                           testname="Nav - Neue Artikel oeffnen" enabled="true">
           <boolProp name="HTTPSampler.postBodyRaw">false</boolProp>
@@ -76,8 +136,8 @@
               </elementProp>
             </collectionProp>
           </elementProp>
-          <stringProp name="HTTPSampler.domain">${__P(host,localhost)}</stringProp>
-          <stringProp name="HTTPSampler.port">${__P(port,8081)}</stringProp>
+          <stringProp name="HTTPSampler.domain">${host}</stringProp>
+          <stringProp name="HTTPSampler.port">${port}</stringProp>
           <stringProp name="HTTPSampler.protocol">http</stringProp>
           <stringProp name="HTTPSampler.path">/api/load/new-articles</stringProp>
           <stringProp name="HTTPSampler.method">GET</stringProp>
@@ -101,34 +161,30 @@
           <hashTree/>
         </hashTree>
 
-        <!-- ── Init: Loop-Variable setzen ──────────────────────────────────── -->
         <JSR223Sampler guiclass="TestBeanGUI" testclass="JSR223Sampler"
-                       testname="Init - articleDone zuruecksetzen" enabled="true">
+                       testname="Init - httpCode zuruecksetzen" enabled="true">
           <stringProp name="scriptLanguage">groovy</stringProp>
-          <stringProp name="script">vars.put("continueLoop", "true"); vars.put("httpCode", "0"); vars.put("receiptCode", "201");</stringProp>
+          <stringProp name="script">vars.put("httpCode", "0");</stringProp>
           <stringProp name="filename"></stringProp>
           <stringProp name="parameters"></stringProp>
           <boolProp name="cacheKey">true</boolProp>
         </JSR223Sampler>
         <hashTree/>
 
-        <!-- ── WhileController: Artikel anlegen bis Erfolg ───────────────── -->
-        <!-- Stoppt wenn httpCode == "204" (keine Kandidaten mehr) -->
         <WhileController guiclass="WhileControllerGui" testclass="WhileController"
-                         testname="Artikel anlegen bis Erfolg" enabled="true">
+                         testname="Artikel anlegen bis keine Kandidaten (204)" enabled="true">
           <stringProp name="WhileController.condition">${__groovy(vars.get("httpCode") != "204",)}</stringProp>
         </WhileController>
         <hashTree>
 
-          <!-- Schritt 2: Artikel anlegen -->
           <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy"
                             testname="Workflow - Artikel anlegen" enabled="true">
             <boolProp name="HTTPSampler.postBodyRaw">false</boolProp>
             <elementProp name="HTTPsampler.Arguments" elementType="Arguments">
               <collectionProp name="Arguments.arguments"/>
             </elementProp>
-            <stringProp name="HTTPSampler.domain">${__P(host,localhost)}</stringProp>
-            <stringProp name="HTTPSampler.port">${__P(port,8081)}</stringProp>
+            <stringProp name="HTTPSampler.domain">${host}</stringProp>
+            <stringProp name="HTTPSampler.port">${port}</stringProp>
             <stringProp name="HTTPSampler.protocol">http</stringProp>
             <stringProp name="HTTPSampler.path">/api/load/new-articles/create-next-with-storage</stringProp>
             <stringProp name="HTTPSampler.method">POST</stringProp>
@@ -140,8 +196,6 @@
             <stringProp name="HTTPSampler.response_timeout">30000</stringProp>
           </HTTPSamplerProxy>
           <hashTree>
-
-            <!-- HTTP Code fuer IfController speichern -->
             <RegexExtractor guiclass="RegexExtractorGui" testclass="RegexExtractor"
                             testname="HTTP Code extrahieren" enabled="true">
               <stringProp name="RegexExtractor.useHeaders">code</stringProp>
@@ -152,23 +206,6 @@
               <intProp name="RegexExtractor.match_number">1</intProp>
             </RegexExtractor>
             <hashTree/>
-
-            <!-- continueLoop = "false" bei 204 (keine Kandidaten mehr) -> WhileController stoppt -->
-            <JSR223PostProcessor guiclass="TestBeanGUI" testclass="JSR223PostProcessor"
-                                 testname="Erfolg erkennen (204 = fertig)" enabled="false">
-              <stringProp name="scriptLanguage">javascript</stringProp>
-              <stringProp name="script">
-var code = "" + prev.getResponseCode();
-if (code == "204") {
-    vars.put("continueLoop", "false");
-} else {
-    vars.put("continueLoop", "true");
-}
-              </stringProp>
-              <boolProp name="cacheKey">true</boolProp>
-            </JSR223PostProcessor>
-            <hashTree/>
-
             <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion"
                                testname="HTTP 200, 204 oder 503" enabled="true">
               <collectionProp name="Asserion.test_strings">
@@ -182,10 +219,8 @@ if (code == "204") {
               <intProp name="Assertion.test_type">40</intProp>
             </ResponseAssertion>
             <hashTree/>
-
           </hashTree>
 
-          <!-- Falls 503: Lagerplatzverwaltung, einen Platz anlegen, zurueck -->
           <IfController guiclass="IfControllerPanel" testclass="IfController"
                         testname="Falls kein Lagerplatz (503)" enabled="true">
             <stringProp name="IfController.condition">${__groovy(vars.get("httpCode") == "503",)}</stringProp>
@@ -194,15 +229,14 @@ if (code == "204") {
           </IfController>
           <hashTree>
 
-            <!-- Schritt 3: Zu Lagerplatzverwaltung navigieren -->
             <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy"
                               testname="Nav - Lagerplatzverwaltung oeffnen" enabled="true">
               <boolProp name="HTTPSampler.postBodyRaw">false</boolProp>
               <elementProp name="HTTPsampler.Arguments" elementType="Arguments">
                 <collectionProp name="Arguments.arguments"/>
               </elementProp>
-              <stringProp name="HTTPSampler.domain">${__P(host,localhost)}</stringProp>
-              <stringProp name="HTTPSampler.port">${__P(port,8081)}</stringProp>
+              <stringProp name="HTTPSampler.domain">${host}</stringProp>
+              <stringProp name="HTTPSampler.port">${port}</stringProp>
               <stringProp name="HTTPSampler.protocol">http</stringProp>
               <stringProp name="HTTPSampler.path">/api/load/storage-locations</stringProp>
               <stringProp name="HTTPSampler.method">GET</stringProp>
@@ -226,7 +260,6 @@ if (code == "204") {
               <hashTree/>
             </hashTree>
 
-            <!-- Schritt 4: Genau einen Lagerplatz anlegen (201 oder 409) -->
             <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy"
                               testname="Workflow - Lagerplatz anlegen" enabled="true">
               <boolProp name="HTTPSampler.postBodyRaw">true</boolProp>
@@ -239,8 +272,8 @@ if (code == "204") {
                   </elementProp>
                 </collectionProp>
               </elementProp>
-              <stringProp name="HTTPSampler.domain">${__P(host,localhost)}</stringProp>
-              <stringProp name="HTTPSampler.port">${__P(port,8081)}</stringProp>
+              <stringProp name="HTTPSampler.domain">${host}</stringProp>
+              <stringProp name="HTTPSampler.port">${port}</stringProp>
               <stringProp name="HTTPSampler.protocol">http</stringProp>
               <stringProp name="HTTPSampler.path">/api/load/storage-locations</stringProp>
               <stringProp name="HTTPSampler.method">POST</stringProp>
@@ -258,7 +291,6 @@ if (code == "204") {
                   <stringProp name="49586">201</stringProp>
                   <stringProp name="51721">409</stringProp>
                 </collectionProp>
-                <stringProp name="Assertion.custom_message">Erwartet 201 (angelegt) oder 409 (Kombination existiert bereits)</stringProp>
                 <stringProp name="Assertion.test_field">Assertion.response_code</stringProp>
                 <boolProp name="Assertion.assume_success">false</boolProp>
                 <intProp name="Assertion.test_type">40</intProp>
@@ -266,7 +298,6 @@ if (code == "204") {
               <hashTree/>
             </hashTree>
 
-            <!-- Schritt 5: Zurueck zu Neue Artikel navigieren -->
             <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy"
                               testname="Nav - Neue Artikel zurueck" enabled="true">
               <boolProp name="HTTPSampler.postBodyRaw">false</boolProp>
@@ -280,8 +311,8 @@ if (code == "204") {
                   </elementProp>
                 </collectionProp>
               </elementProp>
-              <stringProp name="HTTPSampler.domain">${__P(host,localhost)}</stringProp>
-              <stringProp name="HTTPSampler.port">${__P(port,8081)}</stringProp>
+              <stringProp name="HTTPSampler.domain">${host}</stringProp>
+              <stringProp name="HTTPSampler.port">${port}</stringProp>
               <stringProp name="HTTPSampler.protocol">http</stringProp>
               <stringProp name="HTTPSampler.path">/api/load/new-articles</stringProp>
               <stringProp name="HTTPSampler.method">GET</stringProp>
@@ -309,22 +340,37 @@ if (code == "204") {
 
         </hashTree>
 
-        <!-- ══════════════════════════════════════════════════════════════════
-             PHASE 2: Restock freigeben – alle Bestellungen auf einmal
-             Entspricht dem Klick auf "Alle Bestellungen freigeben" in der UI.
-             Falls der User den Button bereits geklickt hat, gibt der Endpoint
-             einfach 0 zurueck (keine Arbeit noetig).
-             ══════════════════════════════════════════════════════════════════ -->
+      </hashTree>
 
-        <!-- Schritt 6: Alle Bestellungen auf einmal freigeben -->
+
+      <!-- ══════════════════════════════════════════════════════════════════════
+           PHASE 2: Nachbestellungen genehmigen
+           Einkaufsleitung: Genehmigt alle offenen Nachbestellungen auf einmal.
+           ══════════════════════════════════════════════════════════════════════ -->
+      <ThreadGroup guiclass="ThreadGroupGui" testclass="ThreadGroup"
+                   testname="Phase 2 - Nachbestellungen genehmigen (${threads_p2} User)" enabled="true">
+        <stringProp name="ThreadGroup.on_sample_error">continue</stringProp>
+        <elementProp name="ThreadGroup.main_controller" elementType="LoopController"
+                     guiclass="LoopControlPanel" testclass="LoopController">
+          <boolProp name="LoopController.continue_forever">true</boolProp>
+          <stringProp name="LoopController.loops">-1</stringProp>
+        </elementProp>
+        <stringProp name="ThreadGroup.num_threads">${threads_p2}</stringProp>
+        <stringProp name="ThreadGroup.ramp_time">${rampup}</stringProp>
+        <boolProp name="ThreadGroup.scheduler">false</boolProp>
+        <stringProp name="ThreadGroup.duration"></stringProp>
+        <stringProp name="ThreadGroup.delay"></stringProp>
+      </ThreadGroup>
+      <hashTree>
+
         <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy"
                           testname="Workflow - Alle Bestellungen freigeben" enabled="true">
           <boolProp name="HTTPSampler.postBodyRaw">false</boolProp>
           <elementProp name="HTTPsampler.Arguments" elementType="Arguments">
             <collectionProp name="Arguments.arguments"/>
           </elementProp>
-          <stringProp name="HTTPSampler.domain">${__P(host,localhost)}</stringProp>
-          <stringProp name="HTTPSampler.port">${__P(port,8081)}</stringProp>
+          <stringProp name="HTTPSampler.domain">${host}</stringProp>
+          <stringProp name="HTTPSampler.port">${port}</stringProp>
           <stringProp name="HTTPSampler.protocol">http</stringProp>
           <stringProp name="HTTPSampler.path">/api/load/restock/approve-all</stringProp>
           <stringProp name="HTTPSampler.method">POST</stringProp>
@@ -345,14 +391,44 @@ if (code == "204") {
           <hashTree/>
         </hashTree>
 
-        <!-- ══════════════════════════════════════════════════════════════════
-             PHASE 3: Wareneingaenge anlegen (Dialog-Workflow)
-             User klickt "Neuer Wareneingang", waehlt Lieferant + erste 10
-             Artikel, klickt Anlegen. Wiederholt bis keine offenen Bestellungen.
-             ══════════════════════════════════════════════════════════════════ -->
+      </hashTree>
+
+
+      <!-- ══════════════════════════════════════════════════════════════════════
+           PHASE 3: Wareneingaenge anlegen
+           Lagermitarbeiter (Anlegen): Erstellt Wareneingaenge aus den naechsten
+           offenen Bestellungen. Laeuft bis keine offenen Bestellungen mehr (204).
+           Das Abschliessen (approve + complete) uebernimmt Phase 4.
+           ══════════════════════════════════════════════════════════════════════ -->
+      <ThreadGroup guiclass="ThreadGroupGui" testclass="ThreadGroup"
+                   testname="Phase 3 - Wareneingaenge anlegen (${threads_p3} User)" enabled="true">
+        <stringProp name="ThreadGroup.on_sample_error">continue</stringProp>
+        <elementProp name="ThreadGroup.main_controller" elementType="LoopController"
+                     guiclass="LoopControlPanel" testclass="LoopController">
+          <boolProp name="LoopController.continue_forever">true</boolProp>
+          <stringProp name="LoopController.loops">-1</stringProp>
+        </elementProp>
+        <stringProp name="ThreadGroup.num_threads">${threads_p3}</stringProp>
+        <stringProp name="ThreadGroup.ramp_time">${rampup}</stringProp>
+        <boolProp name="ThreadGroup.scheduler">false</boolProp>
+        <stringProp name="ThreadGroup.duration"></stringProp>
+        <stringProp name="ThreadGroup.delay"></stringProp>
+      </ThreadGroup>
+      <hashTree>
+
+        <HeaderManager guiclass="HeaderPanel" testclass="HeaderManager"
+                       testname="JSON Header" enabled="true">
+          <collectionProp name="HeaderManager.headers">
+            <elementProp name="" elementType="Header">
+              <stringProp name="Header.name">Content-Type</stringProp>
+              <stringProp name="Header.value">application/json</stringProp>
+            </elementProp>
+          </collectionProp>
+        </HeaderManager>
+        <hashTree/>
 
         <JSR223Sampler guiclass="TestBeanGUI" testclass="JSR223Sampler"
-                       testname="Init - Wareneingang Loop" enabled="true">
+                       testname="Init - receiptCode zuruecksetzen" enabled="true">
           <stringProp name="scriptLanguage">groovy</stringProp>
           <stringProp name="script">vars.put("receiptCode", "201");</stringProp>
           <stringProp name="filename"></stringProp>
@@ -361,21 +437,21 @@ if (code == "204") {
         </JSR223Sampler>
         <hashTree/>
 
+        <!-- Wareneingaenge anlegen bis keine offenen Bestellungen mehr (204) -->
         <WhileController guiclass="WhileControllerGui" testclass="WhileController"
-                         testname="Wareneingaenge anlegen bis fertig" enabled="true">
+                         testname="Wareneingaenge anlegen bis 204" enabled="true">
           <stringProp name="WhileController.condition">${__groovy(vars.get("receiptCode") == null || vars.get("receiptCode") == "201",)}</stringProp>
         </WhileController>
         <hashTree>
 
-          <!-- Schritt 8: Zur Wareneingaenge-Ansicht navigieren -->
           <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy"
                             testname="Nav - Wareneingaenge oeffnen" enabled="true">
             <boolProp name="HTTPSampler.postBodyRaw">false</boolProp>
             <elementProp name="HTTPsampler.Arguments" elementType="Arguments">
               <collectionProp name="Arguments.arguments"/>
             </elementProp>
-            <stringProp name="HTTPSampler.domain">${__P(host,localhost)}</stringProp>
-            <stringProp name="HTTPSampler.port">${__P(port,8081)}</stringProp>
+            <stringProp name="HTTPSampler.domain">${host}</stringProp>
+            <stringProp name="HTTPSampler.port">${port}</stringProp>
             <stringProp name="HTTPSampler.protocol">http</stringProp>
             <stringProp name="HTTPSampler.path">/api/load/goods-receipts</stringProp>
             <stringProp name="HTTPSampler.method">GET</stringProp>
@@ -395,21 +471,20 @@ if (code == "204") {
             </ResponseAssertion>
             <hashTree/>
             <ConstantTimer guiclass="ConstantTimerGui" testclass="ConstantTimer"
-                           testname="Think Time 1500ms - Seite oeffnen und lesen" enabled="true">
+                           testname="Think Time 1500ms" enabled="true">
               <stringProp name="ConstantTimer.delay">1500</stringProp>
             </ConstantTimer>
             <hashTree/>
           </hashTree>
 
-          <!-- Schritt 9: Dialog laden – offene Bestellungen fuer Auswahl abrufen -->
           <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy"
                             testname="Dialog - Offene Bestellungen laden" enabled="true">
             <boolProp name="HTTPSampler.postBodyRaw">false</boolProp>
             <elementProp name="HTTPsampler.Arguments" elementType="Arguments">
               <collectionProp name="Arguments.arguments"/>
             </elementProp>
-            <stringProp name="HTTPSampler.domain">${__P(host,localhost)}</stringProp>
-            <stringProp name="HTTPSampler.port">${__P(port,8081)}</stringProp>
+            <stringProp name="HTTPSampler.domain">${host}</stringProp>
+            <stringProp name="HTTPSampler.port">${port}</stringProp>
             <stringProp name="HTTPSampler.protocol">http</stringProp>
             <stringProp name="HTTPSampler.path">/api/load/goods-receipts/open-orders</stringProp>
             <stringProp name="HTTPSampler.method">GET</stringProp>
@@ -429,13 +504,13 @@ if (code == "204") {
             </ResponseAssertion>
             <hashTree/>
             <ConstantTimer guiclass="ConstantTimerGui" testclass="ConstantTimer"
-                           testname="Think Time 2000ms - Liste lesen und 10 auswaehlen" enabled="true">
+                           testname="Think Time 2000ms" enabled="true">
               <stringProp name="ConstantTimer.delay">2000</stringProp>
             </ConstantTimer>
             <hashTree/>
           </hashTree>
 
-          <!-- Schritt 10: Wareneingang aus den naechsten 10 offenen Bestellungen anlegen -->
+          <!-- Wareneingang anlegen: 201=angelegt, 204=keine offene Bestellung mehr -->
           <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy"
                             testname="Workflow - Wareneingang anlegen" enabled="true">
             <boolProp name="HTTPSampler.postBodyRaw">true</boolProp>
@@ -448,8 +523,8 @@ if (code == "204") {
                 </elementProp>
               </collectionProp>
             </elementProp>
-            <stringProp name="HTTPSampler.domain">${__P(host,localhost)}</stringProp>
-            <stringProp name="HTTPSampler.port">${__P(port,8081)}</stringProp>
+            <stringProp name="HTTPSampler.domain">${host}</stringProp>
+            <stringProp name="HTTPSampler.port">${port}</stringProp>
             <stringProp name="HTTPSampler.protocol">http</stringProp>
             <stringProp name="HTTPSampler.path">/api/load/goods-receipts/from-next-batch</stringProp>
             <stringProp name="HTTPSampler.method">POST</stringProp>
@@ -458,16 +533,6 @@ if (code == "204") {
             <stringProp name="HTTPSampler.response_timeout">30000</stringProp>
           </HTTPSamplerProxy>
           <hashTree>
-            <RegexExtractor guiclass="RegexExtractorGui" testclass="RegexExtractor"
-                            testname="Receipt ID extrahieren" enabled="true">
-              <stringProp name="RegexExtractor.useHeaders">false</stringProp>
-              <stringProp name="RegexExtractor.refname">receiptId</stringProp>
-              <stringProp name="RegexExtractor.regex">"id"\s*:\s*(\d+)</stringProp>
-              <stringProp name="RegexExtractor.template">$1$</stringProp>
-              <stringProp name="RegexExtractor.default">-1</stringProp>
-              <intProp name="RegexExtractor.match_number">1</intProp>
-            </RegexExtractor>
-            <hashTree/>
             <RegexExtractor guiclass="RegexExtractorGui" testclass="RegexExtractor"
                             testname="Receipt HTTP Code extrahieren" enabled="true">
               <stringProp name="RegexExtractor.useHeaders">code</stringProp>
@@ -490,158 +555,243 @@ if (code == "204") {
               <intProp name="Assertion.test_type">40</intProp>
             </ResponseAssertion>
             <hashTree/>
-            <JSR223PostProcessor guiclass="TestBeanGUI" testclass="JSR223PostProcessor"
-                                 testname="Ergebnis tracken (201=angelegt, 204=fertig)" enabled="false">
-              <stringProp name="scriptLanguage">javascript</stringProp>
-              <stringProp name="script">
-var code = "" + prev.getResponseCode();
-if (code == "201") {
-    vars.put("phase3GotWork", "true");
-    java.lang.System.out.println("[receipt] 201 - Wareneingang angelegt, receiptId=" + vars.get("receiptId"));
-} else if (code == "204") {
-    vars.put("continueReceipt", "false");
-    java.lang.System.out.println("[receipt] 204 - keine offene Bestellung mehr -> fertig");
-} else {
-    java.lang.System.out.println("[receipt] FEHLER " + code + " - breche ab");
-    vars.put("continueReceipt", "false");
-}
-              </stringProp>
-              <boolProp name="cacheKey">true</boolProp>
-            </JSR223PostProcessor>
-            <hashTree/>
             <ConstantTimer guiclass="ConstantTimerGui" testclass="ConstantTimer"
-                           testname="Think Time 500ms - Ergebnis lesen" enabled="true">
+                           testname="Think Time 500ms" enabled="true">
               <stringProp name="ConstantTimer.delay">500</stringProp>
             </ConstantTimer>
             <hashTree/>
           </hashTree>
 
-          <!-- IfController: Detailschritte nur ausfuehren wenn receiptCode == 201 -->
-          <!-- (verhindert 404-Fehler wenn from-next-batch 204 zurueckgab) -->
-          <IfController guiclass="IfControllerPanel" testclass="IfController"
-                        testname="Nur wenn Wareneingang angelegt (201)" enabled="true">
-            <stringProp name="IfController.condition">${__groovy(vars.get("receiptCode") == "201",)}</stringProp>
-            <boolProp name="IfController.evaluateAll">false</boolProp>
-            <boolProp name="IfController.useExpression">true</boolProp>
-          </IfController>
+        </hashTree>
+
+      </hashTree>
+
+
+      <!-- ══════════════════════════════════════════════════════════════════════
+           PHASE 4: Wareneingaenge pruefen und abschliessen
+           Lagermitarbeiter (Pruefen): Holt alle IN_PRUEFUNG-Wareneingaenge via
+           pending-ids, genehmigt Positionen und schliesst jeden ab.
+           Loest den Stau auf: verarbeitet auch Wareneingaenge aus frueheren
+           Durchlaeufen die noch nicht abgeschlossen wurden.
+           ══════════════════════════════════════════════════════════════════════ -->
+      <ThreadGroup guiclass="ThreadGroupGui" testclass="ThreadGroup"
+                   testname="Phase 4 - Wareneingaenge abschliessen (${threads_p4} User)" enabled="true">
+        <stringProp name="ThreadGroup.on_sample_error">continue</stringProp>
+        <elementProp name="ThreadGroup.main_controller" elementType="LoopController"
+                     guiclass="LoopControlPanel" testclass="LoopController">
+          <boolProp name="LoopController.continue_forever">true</boolProp>
+          <stringProp name="LoopController.loops">-1</stringProp>
+        </elementProp>
+        <stringProp name="ThreadGroup.num_threads">${threads_p4}</stringProp>
+        <stringProp name="ThreadGroup.ramp_time">${rampup}</stringProp>
+        <boolProp name="ThreadGroup.scheduler">false</boolProp>
+        <stringProp name="ThreadGroup.duration"></stringProp>
+        <stringProp name="ThreadGroup.delay"></stringProp>
+      </ThreadGroup>
+      <hashTree>
+
+        <!-- Alle IDs der IN_PRUEFUNG-Wareneingaenge laden -->
+        <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy"
+                          testname="Laden - Alle pending Receipt IDs" enabled="true">
+          <boolProp name="HTTPSampler.postBodyRaw">false</boolProp>
+          <elementProp name="HTTPsampler.Arguments" elementType="Arguments">
+            <collectionProp name="Arguments.arguments"/>
+          </elementProp>
+          <stringProp name="HTTPSampler.domain">${host}</stringProp>
+          <stringProp name="HTTPSampler.port">${port}</stringProp>
+          <stringProp name="HTTPSampler.protocol">http</stringProp>
+          <stringProp name="HTTPSampler.path">/api/load/goods-receipts/pending-ids</stringProp>
+          <stringProp name="HTTPSampler.method">GET</stringProp>
+          <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
+          <stringProp name="HTTPSampler.connect_timeout">10000</stringProp>
+          <stringProp name="HTTPSampler.response_timeout">30000</stringProp>
+        </HTTPSamplerProxy>
+        <hashTree>
+          <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion"
+                             testname="HTTP 200" enabled="true">
+            <collectionProp name="Asserion.test_strings">
+              <stringProp name="49586">200</stringProp>
+            </collectionProp>
+            <stringProp name="Assertion.test_field">Assertion.response_code</stringProp>
+            <boolProp name="Assertion.assume_success">false</boolProp>
+            <intProp name="Assertion.test_type">8</intProp>
+          </ResponseAssertion>
+          <hashTree/>
+          <!-- JSON-Array [1,2,3,...] parsen und IDs in vars speichern -->
+          <JSR223PostProcessor guiclass="TestBeanGUI" testclass="JSR223PostProcessor"
+                               testname="Pending IDs parsen" enabled="true">
+            <stringProp name="scriptLanguage">groovy</stringProp>
+            <stringProp name="script">
+import groovy.json.JsonSlurper
+def body = prev.getResponseDataAsString()
+def ids = new JsonSlurper().parseText(body)
+if (ids == null || ids.isEmpty()) {
+    vars.put("pendingCount", "0")
+} else {
+    vars.put("pendingCount", String.valueOf(ids.size()))
+    ids.eachWithIndex { id, i ->
+        vars.put("pendingId_" + i, String.valueOf(id))
+    }
+}
+vars.put("pendingIndex", "0")
+            </stringProp>
+            <boolProp name="cacheKey">true</boolProp>
+          </JSR223PostProcessor>
+          <hashTree/>
+        </hashTree>
+
+        <!-- Jeden IN_PRUEFUNG-Wareneingang abarbeiten -->
+        <WhileController guiclass="WhileControllerGui" testclass="WhileController"
+                         testname="Alle pending Wareneingaenge abschliessen" enabled="true">
+          <stringProp name="WhileController.condition">${__groovy(vars.get("pendingIndex") != null &amp;&amp; vars.get("pendingCount") != null &amp;&amp; Integer.parseInt(vars.get("pendingIndex")) &lt; Integer.parseInt(vars.get("pendingCount")),)}</stringProp>
+        </WhileController>
+        <hashTree>
+
+          <!-- Naechste ID holen und Index vorruecken -->
+          <JSR223Sampler guiclass="TestBeanGUI" testclass="JSR223Sampler"
+                         testname="Naechste Receipt ID setzen" enabled="true">
+            <stringProp name="scriptLanguage">groovy</stringProp>
+            <stringProp name="script">
+def idx = Integer.parseInt(vars.get("pendingIndex"))
+vars.put("currentReceiptId", vars.get("pendingId_" + idx))
+vars.put("pendingIndex", String.valueOf(idx + 1))
+            </stringProp>
+            <stringProp name="filename"></stringProp>
+            <stringProp name="parameters"></stringProp>
+            <boolProp name="cacheKey">true</boolProp>
+          </JSR223Sampler>
+          <hashTree/>
+
+          <!-- Detailansicht oeffnen -->
+          <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy"
+                            testname="Nav - Wareneingang Detailansicht" enabled="true">
+            <boolProp name="HTTPSampler.postBodyRaw">false</boolProp>
+            <elementProp name="HTTPsampler.Arguments" elementType="Arguments">
+              <collectionProp name="Arguments.arguments"/>
+            </elementProp>
+            <stringProp name="HTTPSampler.domain">${host}</stringProp>
+            <stringProp name="HTTPSampler.port">${port}</stringProp>
+            <stringProp name="HTTPSampler.protocol">http</stringProp>
+            <stringProp name="HTTPSampler.path">/api/load/goods-receipts/${currentReceiptId}</stringProp>
+            <stringProp name="HTTPSampler.method">GET</stringProp>
+            <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
+            <stringProp name="HTTPSampler.connect_timeout">10000</stringProp>
+            <stringProp name="HTTPSampler.response_timeout">30000</stringProp>
+          </HTTPSamplerProxy>
           <hashTree>
+            <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion"
+                               testname="HTTP 200" enabled="true">
+              <collectionProp name="Asserion.test_strings">
+                <stringProp name="49586">200</stringProp>
+              </collectionProp>
+              <stringProp name="Assertion.test_field">Assertion.response_code</stringProp>
+              <boolProp name="Assertion.assume_success">false</boolProp>
+              <intProp name="Assertion.test_type">8</intProp>
+            </ResponseAssertion>
+            <hashTree/>
+          </hashTree>
 
-            <!-- Schritt 11: Detailansicht des Wareneingangs oeffnen -->
-            <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy"
-                              testname="Nav - Wareneingang Detailansicht" enabled="true">
-              <boolProp name="HTTPSampler.postBodyRaw">false</boolProp>
-              <elementProp name="HTTPsampler.Arguments" elementType="Arguments">
-                <collectionProp name="Arguments.arguments"/>
-              </elementProp>
-              <stringProp name="HTTPSampler.domain">${__P(host,localhost)}</stringProp>
-              <stringProp name="HTTPSampler.port">${__P(port,8081)}</stringProp>
-              <stringProp name="HTTPSampler.protocol">http</stringProp>
-              <stringProp name="HTTPSampler.path">/api/load/goods-receipts/${receiptId}</stringProp>
-              <stringProp name="HTTPSampler.method">GET</stringProp>
-              <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
-              <stringProp name="HTTPSampler.connect_timeout">10000</stringProp>
-              <stringProp name="HTTPSampler.response_timeout">30000</stringProp>
-            </HTTPSamplerProxy>
-            <hashTree>
-              <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion"
-                                 testname="HTTP 200" enabled="true">
-                <collectionProp name="Asserion.test_strings">
-                  <stringProp name="49586">200</stringProp>
-                </collectionProp>
-                <stringProp name="Assertion.test_field">Assertion.response_code</stringProp>
-                <boolProp name="Assertion.assume_success">false</boolProp>
-                <intProp name="Assertion.test_type">8</intProp>
-              </ResponseAssertion>
-              <hashTree/>
-            </hashTree>
+          <!-- Alle Positionen freigeben -->
+          <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy"
+                            testname="Workflow - Alle Positionen freigeben" enabled="true">
+            <boolProp name="HTTPSampler.postBodyRaw">false</boolProp>
+            <elementProp name="HTTPsampler.Arguments" elementType="Arguments">
+              <collectionProp name="Arguments.arguments"/>
+            </elementProp>
+            <stringProp name="HTTPSampler.domain">${host}</stringProp>
+            <stringProp name="HTTPSampler.port">${port}</stringProp>
+            <stringProp name="HTTPSampler.protocol">http</stringProp>
+            <stringProp name="HTTPSampler.path">/api/load/goods-receipts/${currentReceiptId}/approve-all-items</stringProp>
+            <stringProp name="HTTPSampler.method">POST</stringProp>
+            <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
+            <stringProp name="HTTPSampler.connect_timeout">10000</stringProp>
+            <stringProp name="HTTPSampler.response_timeout">30000</stringProp>
+          </HTTPSamplerProxy>
+          <hashTree>
+            <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion"
+                               testname="HTTP 200" enabled="true">
+              <collectionProp name="Asserion.test_strings">
+                <stringProp name="49586">200</stringProp>
+              </collectionProp>
+              <stringProp name="Assertion.test_field">Assertion.response_code</stringProp>
+              <boolProp name="Assertion.assume_success">false</boolProp>
+              <intProp name="Assertion.test_type">8</intProp>
+            </ResponseAssertion>
+            <hashTree/>
+            <ConstantTimer guiclass="ConstantTimerGui" testclass="ConstantTimer"
+                           testname="Think Time 1000ms" enabled="true">
+              <stringProp name="ConstantTimer.delay">1000</stringProp>
+            </ConstantTimer>
+            <hashTree/>
+          </hashTree>
 
-            <!-- Schritt 12: Alle Positionen auf einmal freigeben (robuster als ForeachController) -->
-            <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy"
-                              testname="Workflow - Alle Positionen freigeben" enabled="true">
-              <boolProp name="HTTPSampler.postBodyRaw">false</boolProp>
-              <elementProp name="HTTPsampler.Arguments" elementType="Arguments">
-                <collectionProp name="Arguments.arguments"/>
-              </elementProp>
-              <stringProp name="HTTPSampler.domain">${__P(host,localhost)}</stringProp>
-              <stringProp name="HTTPSampler.port">${__P(port,8081)}</stringProp>
-              <stringProp name="HTTPSampler.protocol">http</stringProp>
-              <stringProp name="HTTPSampler.path">/api/load/goods-receipts/${receiptId}/approve-all-items</stringProp>
-              <stringProp name="HTTPSampler.method">POST</stringProp>
-              <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
-              <stringProp name="HTTPSampler.connect_timeout">10000</stringProp>
-              <stringProp name="HTTPSampler.response_timeout">30000</stringProp>
-            </HTTPSamplerProxy>
-            <hashTree>
-              <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion"
-                                 testname="HTTP 200" enabled="true">
-                <collectionProp name="Asserion.test_strings">
-                  <stringProp name="49586">200</stringProp>
-                </collectionProp>
-                <stringProp name="Assertion.test_field">Assertion.response_code</stringProp>
-                <boolProp name="Assertion.assume_success">false</boolProp>
-                <intProp name="Assertion.test_type">8</intProp>
-              </ResponseAssertion>
-              <hashTree/>
-              <ConstantTimer guiclass="ConstantTimerGui" testclass="ConstantTimer"
-                             testname="Think Time 1000ms - Positionen freigegeben" enabled="true">
-                <stringProp name="ConstantTimer.delay">1000</stringProp>
-              </ConstantTimer>
-              <hashTree/>
-            </hashTree>
-
-            <!-- Schritt 13: Pruefung abschliessen -->
-            <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy"
-                              testname="Workflow - Pruefung abschliessen" enabled="true">
-              <boolProp name="HTTPSampler.postBodyRaw">false</boolProp>
-              <elementProp name="HTTPsampler.Arguments" elementType="Arguments">
-                <collectionProp name="Arguments.arguments"/>
-              </elementProp>
-              <stringProp name="HTTPSampler.domain">${__P(host,localhost)}</stringProp>
-              <stringProp name="HTTPSampler.port">${__P(port,8081)}</stringProp>
-              <stringProp name="HTTPSampler.protocol">http</stringProp>
-              <stringProp name="HTTPSampler.path">/api/load/goods-receipts/${receiptId}/complete</stringProp>
-              <stringProp name="HTTPSampler.method">POST</stringProp>
-              <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
-              <stringProp name="HTTPSampler.connect_timeout">10000</stringProp>
-              <stringProp name="HTTPSampler.response_timeout">30000</stringProp>
-            </HTTPSamplerProxy>
-            <hashTree>
-              <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion"
-                                 testname="HTTP 200" enabled="true">
-                <collectionProp name="Asserion.test_strings">
-                  <stringProp name="49586">200</stringProp>
-                </collectionProp>
-                <stringProp name="Assertion.test_field">Assertion.response_code</stringProp>
-                <boolProp name="Assertion.assume_success">false</boolProp>
-                <intProp name="Assertion.test_type">8</intProp>
-              </ResponseAssertion>
-              <hashTree/>
-              <ConstantTimer guiclass="ConstantTimerGui" testclass="ConstantTimer"
-                             testname="Think Time 500ms - Abschluss" enabled="true">
-                <stringProp name="ConstantTimer.delay">500</stringProp>
-              </ConstantTimer>
-              <hashTree/>
-            </hashTree>
-
+          <!-- Pruefung abschliessen -->
+          <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy"
+                            testname="Workflow - Pruefung abschliessen" enabled="true">
+            <boolProp name="HTTPSampler.postBodyRaw">false</boolProp>
+            <elementProp name="HTTPsampler.Arguments" elementType="Arguments">
+              <collectionProp name="Arguments.arguments"/>
+            </elementProp>
+            <stringProp name="HTTPSampler.domain">${host}</stringProp>
+            <stringProp name="HTTPSampler.port">${port}</stringProp>
+            <stringProp name="HTTPSampler.protocol">http</stringProp>
+            <stringProp name="HTTPSampler.path">/api/load/goods-receipts/${currentReceiptId}/complete</stringProp>
+            <stringProp name="HTTPSampler.method">POST</stringProp>
+            <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
+            <stringProp name="HTTPSampler.connect_timeout">10000</stringProp>
+            <stringProp name="HTTPSampler.response_timeout">30000</stringProp>
+          </HTTPSamplerProxy>
+          <hashTree>
+            <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion"
+                               testname="HTTP 200" enabled="true">
+              <collectionProp name="Asserion.test_strings">
+                <stringProp name="49586">200</stringProp>
+              </collectionProp>
+              <stringProp name="Assertion.test_field">Assertion.response_code</stringProp>
+              <boolProp name="Assertion.assume_success">false</boolProp>
+              <intProp name="Assertion.test_type">8</intProp>
+            </ResponseAssertion>
+            <hashTree/>
+            <ConstantTimer guiclass="ConstantTimerGui" testclass="ConstantTimer"
+                           testname="Think Time 500ms" enabled="true">
+              <stringProp name="ConstantTimer.delay">500</stringProp>
+            </ConstantTimer>
+            <hashTree/>
           </hashTree>
 
         </hashTree>
 
-        <!-- ══════════════════════════════════════════════════════════════════
-             PHASE 4: Kommissionierung
-             Simuliert Filial-Bestellungen, erstellt Kommissionen und schliesst
-             sie ab – komplettiert den End-to-End-Workflow.
-             ══════════════════════════════════════════════════════════════════ -->
+      </hashTree>
 
-        <!-- Schritt 14: Zur Order-Picking-View navigieren -->
+
+      <!-- ══════════════════════════════════════════════════════════════════════
+           PHASE 5: Kommissionierung
+           Kommissionierer: Loest Kommissionen aus und schliesst alle ab.
+           ══════════════════════════════════════════════════════════════════════ -->
+      <ThreadGroup guiclass="ThreadGroupGui" testclass="ThreadGroup"
+                   testname="Phase 5 - Kommissionierung (${threads_p5} User)" enabled="true">
+        <stringProp name="ThreadGroup.on_sample_error">continue</stringProp>
+        <elementProp name="ThreadGroup.main_controller" elementType="LoopController"
+                     guiclass="LoopControlPanel" testclass="LoopController">
+          <boolProp name="LoopController.continue_forever">true</boolProp>
+          <stringProp name="LoopController.loops">-1</stringProp>
+        </elementProp>
+        <stringProp name="ThreadGroup.num_threads">${threads_p5}</stringProp>
+        <stringProp name="ThreadGroup.ramp_time">${rampup}</stringProp>
+        <boolProp name="ThreadGroup.scheduler">false</boolProp>
+        <stringProp name="ThreadGroup.duration"></stringProp>
+        <stringProp name="ThreadGroup.delay"></stringProp>
+      </ThreadGroup>
+      <hashTree>
+
         <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy"
                           testname="Nav - Order Picking oeffnen" enabled="true">
           <boolProp name="HTTPSampler.postBodyRaw">false</boolProp>
           <elementProp name="HTTPsampler.Arguments" elementType="Arguments">
             <collectionProp name="Arguments.arguments"/>
           </elementProp>
-          <stringProp name="HTTPSampler.domain">${__P(host,localhost)}</stringProp>
-          <stringProp name="HTTPSampler.port">${__P(port,8081)}</stringProp>
+          <stringProp name="HTTPSampler.domain">${host}</stringProp>
+          <stringProp name="HTTPSampler.port">${port}</stringProp>
           <stringProp name="HTTPSampler.protocol">http</stringProp>
           <stringProp name="HTTPSampler.path">/api/load/kommissionen</stringProp>
           <stringProp name="HTTPSampler.method">GET</stringProp>
@@ -661,21 +811,20 @@ if (code == "201") {
           </ResponseAssertion>
           <hashTree/>
           <ConstantTimer guiclass="ConstantTimerGui" testclass="ConstantTimer"
-                         testname="Think Time 1500ms - Seite laden" enabled="true">
+                         testname="Think Time 1500ms" enabled="true">
             <stringProp name="ConstantTimer.delay">1500</stringProp>
           </ConstantTimer>
           <hashTree/>
         </hashTree>
 
-        <!-- Schritt 15: Kommissionierung ausloesen -->
         <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy"
                           testname="Workflow - Kommissionen triggern" enabled="true">
           <boolProp name="HTTPSampler.postBodyRaw">false</boolProp>
           <elementProp name="HTTPsampler.Arguments" elementType="Arguments">
             <collectionProp name="Arguments.arguments"/>
           </elementProp>
-          <stringProp name="HTTPSampler.domain">${__P(host,localhost)}</stringProp>
-          <stringProp name="HTTPSampler.port">${__P(port,8081)}</stringProp>
+          <stringProp name="HTTPSampler.domain">${host}</stringProp>
+          <stringProp name="HTTPSampler.port">${port}</stringProp>
           <stringProp name="HTTPSampler.protocol">http</stringProp>
           <stringProp name="HTTPSampler.path">/api/load/kommissionen/trigger</stringProp>
           <stringProp name="HTTPSampler.method">POST</stringProp>
@@ -695,21 +844,20 @@ if (code == "201") {
           </ResponseAssertion>
           <hashTree/>
           <ConstantTimer guiclass="ConstantTimerGui" testclass="ConstantTimer"
-                         testname="Think Time 1000ms - Kommissionen erstellt" enabled="true">
+                         testname="Think Time 1000ms" enabled="true">
             <stringProp name="ConstantTimer.delay">1000</stringProp>
           </ConstantTimer>
           <hashTree/>
         </hashTree>
 
-        <!-- Schritt 16: Alle Kommissionen abschliessen (Finish-Checkbox) -->
         <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy"
                           testname="Workflow - Alle Kommissionen abschliessen" enabled="true">
           <boolProp name="HTTPSampler.postBodyRaw">false</boolProp>
           <elementProp name="HTTPsampler.Arguments" elementType="Arguments">
             <collectionProp name="Arguments.arguments"/>
           </elementProp>
-          <stringProp name="HTTPSampler.domain">${__P(host,localhost)}</stringProp>
-          <stringProp name="HTTPSampler.port">${__P(port,8081)}</stringProp>
+          <stringProp name="HTTPSampler.domain">${host}</stringProp>
+          <stringProp name="HTTPSampler.port">${port}</stringProp>
           <stringProp name="HTTPSampler.protocol">http</stringProp>
           <stringProp name="HTTPSampler.path">/api/load/kommissionen/finish-all</stringProp>
           <stringProp name="HTTPSampler.method">POST</stringProp>
@@ -730,61 +878,56 @@ if (code == "201") {
           <hashTree/>
         </hashTree>
 
-        <!-- Polling-Pause: kurze Wartezeit bevor naechste Runde startet -->
-        <ConstantTimer guiclass="ConstantTimerGui" testclass="ConstantTimer"
-                       testname="Polling-Pause 2s - Warten auf neue Arbeit" enabled="true">
-          <stringProp name="ConstantTimer.delay">2000</stringProp>
-        </ConstantTimer>
-        <hashTree/>
-
-        <!-- ── InfluxDB Backend Listener ─────────────────────────────────── -->
-        <BackendListener guiclass="BackendListenerGui" testclass="BackendListener"
-                         testname="InfluxDB – Grafana" enabled="true">
-          <elementProp name="arguments" elementType="Arguments" guiclass="ArgumentsPanel" testclass="Arguments">
-            <collectionProp name="Arguments.arguments">
-              <elementProp name="influxdbMetricsSender" elementType="Argument">
-                <stringProp name="Argument.name">influxdbMetricsSender</stringProp>
-                <stringProp name="Argument.value">org.apache.jmeter.visualizers.backend.influxdb.HttpMetricsSender</stringProp>
-              </elementProp>
-              <elementProp name="influxdbUrl" elementType="Argument">
-                <stringProp name="Argument.name">influxdbUrl</stringProp>
-                <stringProp name="Argument.value">http://localhost:8086/write?db=jmeter</stringProp>
-              </elementProp>
-              <elementProp name="application" elementType="Argument">
-                <stringProp name="Argument.name">application</stringProp>
-                <stringProp name="Argument.value">logistik</stringProp>
-              </elementProp>
-              <elementProp name="measurement" elementType="Argument">
-                <stringProp name="Argument.name">measurement</stringProp>
-                <stringProp name="Argument.value">jmeter</stringProp>
-              </elementProp>
-              <elementProp name="summaryOnly" elementType="Argument">
-                <stringProp name="Argument.name">summaryOnly</stringProp>
-                <stringProp name="Argument.value">false</stringProp>
-              </elementProp>
-              <elementProp name="samplersRegex" elementType="Argument">
-                <stringProp name="Argument.name">samplersRegex</stringProp>
-                <stringProp name="Argument.value">.*</stringProp>
-              </elementProp>
-              <elementProp name="percentiles" elementType="Argument">
-                <stringProp name="Argument.name">percentiles</stringProp>
-                <stringProp name="Argument.value">90;95;99</stringProp>
-              </elementProp>
-              <elementProp name="testTitle" elementType="Argument">
-                <stringProp name="Argument.name">testTitle</stringProp>
-                <stringProp name="Argument.value">${__P(testname,Artikel-Workflow)}</stringProp>
-              </elementProp>
-              <elementProp name="eventTags" elementType="Argument">
-                <stringProp name="Argument.name">eventTags</stringProp>
-                <stringProp name="Argument.value"></stringProp>
-              </elementProp>
-            </collectionProp>
-          </elementProp>
-          <stringProp name="classname">org.apache.jmeter.visualizers.backend.influxdb.InfluxdbBackendListenerClient</stringProp>
-        </BackendListener>
-        <hashTree/>
-
       </hashTree>
+
+
+      <!-- ── InfluxDB Backend Listener (TestPlan-Ebene: erfasst alle 5 Phasen) ── -->
+      <BackendListener guiclass="BackendListenerGui" testclass="BackendListener"
+                       testname="InfluxDB - Grafana" enabled="true">
+        <elementProp name="arguments" elementType="Arguments" guiclass="ArgumentsPanel" testclass="Arguments">
+          <collectionProp name="Arguments.arguments">
+            <elementProp name="influxdbMetricsSender" elementType="Argument">
+              <stringProp name="Argument.name">influxdbMetricsSender</stringProp>
+              <stringProp name="Argument.value">org.apache.jmeter.visualizers.backend.influxdb.HttpMetricsSender</stringProp>
+            </elementProp>
+            <elementProp name="influxdbUrl" elementType="Argument">
+              <stringProp name="Argument.name">influxdbUrl</stringProp>
+              <stringProp name="Argument.value">http://localhost:8086/write?db=jmeter</stringProp>
+            </elementProp>
+            <elementProp name="application" elementType="Argument">
+              <stringProp name="Argument.name">application</stringProp>
+              <stringProp name="Argument.value">logistik</stringProp>
+            </elementProp>
+            <elementProp name="measurement" elementType="Argument">
+              <stringProp name="Argument.name">measurement</stringProp>
+              <stringProp name="Argument.value">jmeter</stringProp>
+            </elementProp>
+            <elementProp name="summaryOnly" elementType="Argument">
+              <stringProp name="Argument.name">summaryOnly</stringProp>
+              <stringProp name="Argument.value">false</stringProp>
+            </elementProp>
+            <elementProp name="samplersRegex" elementType="Argument">
+              <stringProp name="Argument.name">samplersRegex</stringProp>
+              <stringProp name="Argument.value">.*</stringProp>
+            </elementProp>
+            <elementProp name="percentiles" elementType="Argument">
+              <stringProp name="Argument.name">percentiles</stringProp>
+              <stringProp name="Argument.value">90;95;99</stringProp>
+            </elementProp>
+            <elementProp name="testTitle" elementType="Argument">
+              <stringProp name="Argument.name">testTitle</stringProp>
+              <stringProp name="Argument.value">${testname}</stringProp>
+            </elementProp>
+            <elementProp name="eventTags" elementType="Argument">
+              <stringProp name="Argument.name">eventTags</stringProp>
+              <stringProp name="Argument.value"></stringProp>
+            </elementProp>
+          </collectionProp>
+        </elementProp>
+        <stringProp name="classname">org.apache.jmeter.visualizers.backend.influxdb.InfluxdbBackendListenerClient</stringProp>
+      </BackendListener>
+      <hashTree/>
+
     </hashTree>
   </hashTree>
 </jmeterTestPlan>

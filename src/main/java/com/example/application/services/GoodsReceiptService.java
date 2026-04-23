@@ -324,6 +324,11 @@ public class GoodsReceiptService {
         GoodsReceiptItem item = itemRepo.findById(itemId)
                 .orElseThrow(() -> new IllegalArgumentException("Item " + itemId + " nicht gefunden"));
 
+        // Idempotent: bereits im Zielstatus -> kein Update noetig
+        if (item.getStatus() == status) {
+            return item;
+        }
+
         System.out.println("[setItemStatus] itemId=" + itemId + " status=" + status + " receiptId=" + item.getGoodsReceipt().getId());
         item.setStatus(status);
         GoodsReceiptItem saved = itemRepo.save(item);
@@ -355,8 +360,7 @@ public class GoodsReceiptService {
         System.out.println("[completeInspection] receiptId=" + receiptId + " currentStatus=" + gr.getStatus());
 
         if (gr.getStatus() == GoodsReceiptStatus.FREIGEGEBEN) {
-            throw new IllegalStateException(
-                    "Prüfung wurde bereits abgeschlossen (Status: FREIGEGEBEN)");
+            return gr; // idempotent: bereits vollstaendig abgeschlossen
         }
 
         List<GoodsReceiptItem> items = getItemsForReceipt(receiptId);
@@ -393,24 +397,27 @@ public class GoodsReceiptService {
 
     private void recomputeReceiptStatus(GoodsReceipt receipt) {
         List<GoodsReceiptItem> items = itemRepo.findByGoodsReceiptId(receipt.getId());
+
+        GoodsReceiptStatus newStatus;
         if (items.isEmpty()) {
-            receipt.setStatus(GoodsReceiptStatus.IN_PRUEFUNG);
-            receiptRepo.save(receipt);
+            newStatus = GoodsReceiptStatus.IN_PRUEFUNG;
+        } else {
+            boolean anyInPruefung = items.stream()
+                    .anyMatch(i -> i.getStatus() == GoodsReceiptItemStatus.IN_PRUEFUNG);
+            // FREIGEGEBEN wird ausschliesslich durch completeInspection gesetzt,
+            // weil dort auch applyApprovedItemsToReserve ausgefuehrt wird.
+            // Hier nur: noch offen (IN_PRUEFUNG) oder alle entschieden (GEPRUEFT).
+            newStatus = anyInPruefung ? GoodsReceiptStatus.IN_PRUEFUNG : GoodsReceiptStatus.GEPRUEFT;
+        }
+
+        // Kein Save wenn sich der Status nicht geaendert hat: verhindert
+        // unnoetige version-Bumps und reduziert Optimistic-Locking-Konflikte
+        // bei parallelen setItemStatus-Aufrufen auf demselben Wareneingang.
+        if (receipt.getStatus() == newStatus) {
             return;
         }
 
-        boolean anyInPruefung = items.stream()
-                .anyMatch(i -> i.getStatus() == GoodsReceiptItemStatus.IN_PRUEFUNG);
-
-        // FREIGEGEBEN wird ausschliesslich durch completeInspection gesetzt,
-        // weil dort auch applyApprovedItemsToReserve ausgefuehrt wird.
-        // Hier nur: noch offen (IN_PRUEFUNG) oder alle entschieden (GEPRUEFT).
-        if (anyInPruefung) {
-            receipt.setStatus(GoodsReceiptStatus.IN_PRUEFUNG);
-        } else {
-            receipt.setStatus(GoodsReceiptStatus.GEPRUEFT);
-        }
-
+        receipt.setStatus(newStatus);
         receiptRepo.save(receipt);
     }
 

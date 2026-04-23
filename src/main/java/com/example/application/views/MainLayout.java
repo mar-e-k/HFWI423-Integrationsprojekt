@@ -187,7 +187,7 @@ public class MainLayout extends AppLayout implements AfterNavigationObserver {
 
         List<MenuEntry> menuEntries = MenuConfiguration.getMenuEntries();
         for (MenuEntry entry : menuEntries) {
-            if ("Stock Changes".equals(entry.title())) {
+            if ("Stock Changes".equals(entry.title()) || "Messaging".equals(entry.title())) {
                 archivNav.addItem(createNavItem(entry));
             } else {
                 operativNav.addItem(createNavItem(entry));
