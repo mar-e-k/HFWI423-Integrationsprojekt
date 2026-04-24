@@ -9,7 +9,6 @@ import org.springframework.context.annotation.PropertySource;
 public class DatabasePropertiesAutoConfiguration {
 
     @Configuration
-    @Profile("default")
     @PropertySource("classpath:config/database/defaults.properties")
     static class DatabaseDefaultConfig {}
 

@@ -19,7 +19,7 @@ echo "Stopping testing stack..."
 docker compose \
   --env-file "$BASE_DIR/.env" \
   -f "$BASE_DIR/testing/docker-compose.yaml" \
-  down
+  down -v
 
 # -------------------------
 # 3. Stop monitoring stack
@@ -28,7 +28,7 @@ echo "Stopping monitoring stack..."
 docker compose \
   --env-file "$BASE_DIR/.env" \
   -f "$BASE_DIR/monitor/docker-compose.yaml" \
-  down
+  down -v
 
 # -------------------------
 # 4. Stop app stack
@@ -37,6 +37,6 @@ echo "Stopping app stack..."
 docker compose \
   --env-file "$BASE_DIR/.env" \
   -f "$BASE_DIR/app/docker-compose.yaml" \
-  down
+  down -v
 
 echo "All stacks stopped."

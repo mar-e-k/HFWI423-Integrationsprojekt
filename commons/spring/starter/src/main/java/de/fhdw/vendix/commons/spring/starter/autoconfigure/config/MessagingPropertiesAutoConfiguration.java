@@ -9,7 +9,6 @@ import org.springframework.context.annotation.PropertySource;
 public class MessagingPropertiesAutoConfiguration {
 
     @Configuration
-    @Profile("default")
     @PropertySource("classpath:config/messaging/defaults.properties")
     static class MessagingDefaultConfig {}
 

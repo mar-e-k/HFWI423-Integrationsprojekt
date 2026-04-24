@@ -5,6 +5,7 @@ import de.fhdw.vendix.commons.spring.app.lifecycle.authentication.DefaultAuthent
 import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.core.annotation.Order;
+import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
@@ -52,6 +53,9 @@ public class SecurityWebAutoconfiguration {
                 .authorizeHttpRequests(auth -> auth
                         .anyRequest().authenticated()
                 )
+                .oauth2ResourceServer(oauth2 ->
+                        oauth2.jwt(Customizer.withDefaults())
+                )
                 .sessionManagement(session ->
                         session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 )
@@ -60,14 +64,14 @@ public class SecurityWebAutoconfiguration {
 
     @Bean
     @Order(3)
-    public SecurityFilterChain vaadinSecurity(HttpSecurity http, AuthenticationFailureHandler vendixAuthenticationFailureHandler) {
+    public SecurityFilterChain vaadinSecurity(HttpSecurity http) {
         return http
                 .with(VaadinSecurityConfigurer.vaadin(), configurer -> configurer
-                        .loginView("/login")
+                        .oauth2LoginPage(
+                                "/oauth2/authorization/keycloak",
+                                "{baseUrl}/session-ended"
+                        )
                 )
-                .formLogin(form -> form
-                        .loginPage("/login")
-                        .failureHandler(vendixAuthenticationFailureHandler))
                 .build();
     }
 }

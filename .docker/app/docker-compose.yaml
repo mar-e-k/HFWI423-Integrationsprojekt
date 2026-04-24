@@ -34,7 +34,7 @@ services:
     image: keycloak/keycloak:26.6
     container_name: keycloak
     restart: unless-stopped
-    command: start-dev
+    command: start-dev --import-realm
     environment:
       KC_DB: postgres
       KC_DB_URL: jdbc:postgresql://postgres:5432/${POSTGRES_DB}
@@ -45,6 +45,8 @@ services:
       KC_HTTP_PORT: ${KEYCLOAK_PORT}
     ports:
       - "${KEYCLOAK_PORT}:8090"
+    volumes:
+      - ./keycloak:/opt/keycloak/data/import:ro
     depends_on:
       - postgres
     networks:

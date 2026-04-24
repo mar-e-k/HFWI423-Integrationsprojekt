@@ -9,7 +9,6 @@ import org.springframework.context.annotation.PropertySource;
 public class SecurityPropertiesAutoConfiguration {
 
     @Configuration
-    @Profile("default")
     @PropertySource("classpath:config/security/defaults.properties")
     static class SecurityDefaultConfig {}
 

@@ -9,7 +9,6 @@ import org.springframework.context.annotation.PropertySource;
 public class AppPropertiesAutoConfiguration {
 
     @Configuration
-    @Profile("default")
     @PropertySource("classpath:config/app/defaults.properties")
     static class AppDefaultConfig {}
 
