@@ -31,12 +31,12 @@
             <!-- commons-spring -->
             <dependency>
                 <groupId>de.fhdw.vendix</groupId>
-                <artifactId>commons-spring-security</artifactId>
+                <artifactId>commons-spring-data</artifactId>
                 <version>${commons.version}</version>
             </dependency>
             <dependency>
                 <groupId>de.fhdw.vendix</groupId>
-                <artifactId>commons-spring-data</artifactId>
+                <artifactId>commons-spring-security</artifactId>
                 <version>${commons.version}</version>
             </dependency>
             <dependency>

@@ -1,9 +1,10 @@
 package de.fhdw.vendix.pos.core.register;
 
 import de.fhdw.vendix.commons.api.domain.register.RegisterDTO;
-import de.fhdw.vendix.commons.spring.app.lifecycle.app.AppContext;
-import de.fhdw.vendix.commons.spring.security.context.ContextAlreadySetException;
-import de.fhdw.vendix.commons.spring.security.context.ContextIllegalSourceException;
+import de.fhdw.vendix.commons.spring.app.context.ContextAlreadySetException;
+import de.fhdw.vendix.commons.spring.app.context.ContextException;
+import de.fhdw.vendix.commons.spring.app.context.ContextIllegalSourceException;
+import de.fhdw.vendix.commons.spring.app.context.app.AppContext;
 import org.jspecify.annotations.Nullable;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Component;
@@ -22,7 +23,7 @@ public class DefaultRegisterContext implements RegisterContext {
     }
 
     @Override
-    public synchronized void setRegister(RegisterDTO register) throws ContextAlreadySetException {
+    public synchronized void setRegister(RegisterDTO register) throws ContextException {
         if (register == null) {
             throw new IllegalArgumentException("Parameter 'register' cannot be null");
         }

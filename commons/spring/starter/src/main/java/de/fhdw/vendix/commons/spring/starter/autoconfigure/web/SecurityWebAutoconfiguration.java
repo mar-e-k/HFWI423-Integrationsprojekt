@@ -1,8 +1,6 @@
 package de.fhdw.vendix.commons.spring.starter.autoconfigure.web;
 
 import com.vaadin.flow.spring.security.VaadinSecurityConfigurer;
-import de.fhdw.vendix.commons.spring.web.filter.JwtAuthenticationFilter;
-import de.fhdw.vendix.commons.spring.starter.autoconfigure.security.SecurityAutoConfiguration;
 import de.fhdw.vendix.commons.spring.app.lifecycle.authentication.DefaultAuthenticationFailureHandler;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.context.annotation.Bean;
@@ -12,9 +10,8 @@ import org.springframework.security.config.annotation.web.configurers.AbstractHt
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.AuthenticationFailureHandler;
-import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
-@AutoConfiguration(after = SecurityAutoConfiguration.class)
+@AutoConfiguration
 public class SecurityWebAutoconfiguration {
 
     @Bean
@@ -48,7 +45,7 @@ public class SecurityWebAutoconfiguration {
 
     @Bean
     @Order(2)
-    public SecurityFilterChain apiSecurity(HttpSecurity http, JwtAuthenticationFilter jwtAuthenticationFilter) {
+    public SecurityFilterChain apiSecurity(HttpSecurity http) {
         return http
                 .securityMatcher("/api/**")
                 .csrf(AbstractHttpConfigurer::disable)
@@ -58,7 +55,6 @@ public class SecurityWebAutoconfiguration {
                 .sessionManagement(session ->
                         session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 )
-                .addFilterAt(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
                 .build();
     }
 

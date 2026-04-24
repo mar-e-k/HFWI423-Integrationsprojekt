@@ -15,11 +15,11 @@
     <description>commons-spring</description>
 
     <modules>
-        <module>security</module>
         <module>data</module>
         <module>web</module>
         <module>vaadin</module>
         <module>app</module>
         <module>starter</module>
+        <module>security</module>
     </modules>
 </project>

@@ -1,9 +1,10 @@
 package de.fhdw.vendix.store.core.store;
 
 import de.fhdw.vendix.commons.api.domain.store.StoreDTO;
-import de.fhdw.vendix.commons.spring.app.lifecycle.app.AppContext;
-import de.fhdw.vendix.commons.spring.security.context.ContextAlreadySetException;
-import de.fhdw.vendix.commons.spring.security.context.ContextIllegalSourceException;
+import de.fhdw.vendix.commons.spring.app.context.ContextAlreadySetException;
+import de.fhdw.vendix.commons.spring.app.context.ContextException;
+import de.fhdw.vendix.commons.spring.app.context.ContextIllegalSourceException;
+import de.fhdw.vendix.commons.spring.app.context.app.AppContext;
 import org.jspecify.annotations.Nullable;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Component;
@@ -22,7 +23,7 @@ public class DefaultStoreContext implements StoreContext {
     }
 
     @Override
-    public synchronized void setStore(StoreDTO store) throws ContextAlreadySetException {
+    public synchronized void setStore(StoreDTO store) throws ContextException {
         if (store == null) {
             throw new IllegalArgumentException("Parameter 'store' cannot be null");
         }

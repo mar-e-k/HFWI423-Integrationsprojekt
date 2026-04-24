@@ -1,6 +1,5 @@
 package de.fhdw.vendix.commons.spring.starter.autoconfigure.web;
 
-import de.fhdw.vendix.commons.spring.security.jwt.JwtService;
 import de.fhdw.vendix.commons.spring.web.client.orchestrator.api.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -21,11 +20,10 @@ public class OrchestratorClientAutoConfiguration {
 
     @Bean
     @ConditionalOnMissingBean
-    public HttpServiceProxyFactory orchestratorClientFactory(JwtService jwtService) {
+    public HttpServiceProxyFactory orchestratorClientFactory() {
         RestClient restClient = RestClient.builder()
                 .baseUrl("http://localhost:8080")
                 .requestInterceptor((request, body, execution) -> {
-                    request.getHeaders().setBearerAuth(jwtService.generateToken());
                     request.getHeaders().setAccept(List.of(MediaType.APPLICATION_JSON));
                     return execution.execute(request, body);
                 })
@@ -54,12 +52,6 @@ public class OrchestratorClientAutoConfiguration {
     @ConditionalOnMissingBean
     public ConnectionProxyService connectionProxyService(HttpServiceProxyFactory orchestratorClientFactory) {
         return orchestratorClientFactory.createClient(ConnectionProxyService.class);
-    }
-
-    @Bean
-    @ConditionalOnMissingBean
-    public AccountProxyService accountProxyService(HttpServiceProxyFactory orchestratorClientFactory) {
-        return orchestratorClientFactory.createClient(AccountProxyService.class);
     }
 
     @Bean

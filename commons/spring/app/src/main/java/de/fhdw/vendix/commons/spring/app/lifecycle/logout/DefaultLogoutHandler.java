@@ -1,7 +1,6 @@
 package de.fhdw.vendix.commons.spring.app.lifecycle.logout;
 
 import de.fhdw.vendix.commons.api.embeddable.TargetType;
-import de.fhdw.vendix.commons.spring.security.context.auth.DefaultUser;
 import de.fhdw.vendix.commons.spring.web.client.orchestrator.api.DistributedLockProxyService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -21,18 +20,20 @@ public final class DefaultLogoutHandler implements LogoutHandler {
     }
 
 
+    // TODO
+
     @EventListener
     @Override
     public void onLogoutSuccess(LogoutSuccessEvent event) {
         try {
             log.atInfo().log("Deleting lock for logged out account...");
-            if (!(event.getAuthentication().getPrincipal() instanceof DefaultUser defaultUser)) {
-                throw new IllegalStateException("Authentication principal is not an instance of DefaultUser");
-            }
-            distributedLockProxyService.deleteDistributedLockByTarget(
-                    TargetType.ACCOUNT,
-                    Objects.requireNonNull(defaultUser.authContext().account().id())
-            );
+//            if (!(event.getAuthentication().getPrincipal() instanceof DefaultUser defaultUser)) {
+//                throw new IllegalStateException("Authentication principal is not an instance of DefaultUser");
+//            }
+//            distributedLockProxyService.deleteDistributedLockByTarget(
+//                    TargetType.ACCOUNT,
+//                    Objects.requireNonNull(defaultUser.authContext().account().id())
+//            );
             log.atInfo().log("Successfully deleted lock for logged out account");
         } catch (Exception ex) {
             log.atError().log("Failed to delete distributed lock", ex);

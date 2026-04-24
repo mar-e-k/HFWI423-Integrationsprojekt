@@ -14,9 +14,9 @@ import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.theme.aura.Aura;
-import de.fhdw.vendix.commons.api.domain.account_role.Role;
 import de.fhdw.vendix.commons.api.domain.register.RegisterDTO;
 import de.fhdw.vendix.commons.api.domain.store.StoreDTO;
+import de.fhdw.vendix.commons.spring.security.Role;
 import de.fhdw.vendix.pos.core.register.RegisterContext;
 import de.fhdw.vendix.commons.spring.web.client.orchestrator.api.RegisterProxyService;
 import de.fhdw.vendix.commons.spring.web.client.orchestrator.api.StoreProxyService;
@@ -32,7 +32,7 @@ import java.util.List;
 import java.util.Objects;
 
 @Route(value = "context", layout = PosAppLayout.class)
-@RolesAllowed(Role.ROLE_CASHIER)
+@RolesAllowed(Role.Constants.CASHIER)
 @StyleSheet(Aura.STYLESHEET)
 public class PosContextView extends VerticalLayout {
 

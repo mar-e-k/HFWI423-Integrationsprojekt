@@ -4,9 +4,6 @@ import com.vaadin.flow.component.login.LoginForm;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.BeforeEnterEvent;
 import com.vaadin.flow.router.BeforeEnterObserver;
-import com.vaadin.flow.server.VaadinSession;
-import com.vaadin.flow.server.WrappedSession;
-import de.fhdw.vendix.commons.spring.web.SessionAttribute;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -30,18 +27,20 @@ public abstract class AbstractLoginView extends VerticalLayout implements Before
         super.add(loginForm);
     }
 
+    //TODO
+
     @Override
     public void beforeEnter(BeforeEnterEvent beforeEnterEvent) {
-        WrappedSession session = VaadinSession.getCurrent().getSession();
-        String errorCode = (String) session.getAttribute(SessionAttribute.LOGIN_ERROR.name());
-
-        if (errorCode != null) {
-            String errorTitle = resolveErrorCodeTitle(errorCode);
-            String errorMessage = resolveErrorCodeMessage(errorCode);
-            loginForm.setError(true);
-            loginForm.showErrorMessage(errorTitle, errorMessage);
-            session.setAttribute(SessionAttribute.LOGIN_ERROR.name(), null);
-        }
+//        WrappedSession session = VaadinSession.getCurrent().getSession();
+//        String errorCode = (String) session.getAttribute(SessionAttribute.LOGIN_ERROR.name());
+//
+//        if (errorCode != null) {
+//            String errorTitle = resolveErrorCodeTitle(errorCode);
+//            String errorMessage = resolveErrorCodeMessage(errorCode);
+//            loginForm.setError(true);
+//            loginForm.showErrorMessage(errorTitle, errorMessage);
+//            session.setAttribute(SessionAttribute.LOGIN_ERROR.name(), null);
+//        }
     }
 
     private String resolveErrorCodeTitle(String errorCode) {

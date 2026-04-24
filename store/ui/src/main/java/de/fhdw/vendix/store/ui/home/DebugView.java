@@ -6,7 +6,7 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.tabs.TabSheet;
 import com.vaadin.flow.component.textfield.IntegerField;
 import com.vaadin.flow.router.Route;
-import de.fhdw.vendix.commons.api.domain.account_role.Role;
+import de.fhdw.vendix.commons.spring.security.Role;
 import de.fhdw.vendix.store.ui.StoreAppLayout;
 import io.github.plaguv.amqp.api.envelope.EventEnvelope;
 import io.github.plaguv.amqp.api.envelope.EventEnvelopeBuilder;
@@ -16,7 +16,7 @@ import io.github.plaguv.amqp.core.publisher.EventPublisher;
 import jakarta.annotation.security.RolesAllowed;
 
 @Route(value = "debug", layout = StoreAppLayout.class)
-@RolesAllowed(Role.ROLE_ADMIN)
+@RolesAllowed(Role.Constants.ADMIN)
 public class DebugView extends VerticalLayout {
 
     private final EventPublisher publisher;

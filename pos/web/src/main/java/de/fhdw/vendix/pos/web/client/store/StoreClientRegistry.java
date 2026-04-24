@@ -1,7 +1,7 @@
 package de.fhdw.vendix.pos.web.client.store;
 
-import de.fhdw.vendix.commons.spring.security.context.ContextAlreadySetException;
-import de.fhdw.vendix.commons.spring.security.context.ContextNotSetException;
+import de.fhdw.vendix.commons.spring.app.context.ContextAlreadySetException;
+import de.fhdw.vendix.commons.spring.app.context.ContextNotSetException;
 import de.fhdw.vendix.commons.spring.web.client.store.api.ArticleProxyService;
 import de.fhdw.vendix.commons.spring.web.client.store.api.ReceiptProxyService;
 import jakarta.annotation.Nullable;

@@ -1,6 +1,5 @@
 package de.fhdw.vendix.orchestrator.core.domain.performance;
 
-import de.fhdw.vendix.commons.spring.security.jwt.JwtService;
 import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -12,10 +11,7 @@ import java.nio.file.Path;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicReference;
@@ -55,15 +51,12 @@ public class PerformanceTestService {
     private static final DateTimeFormatter REPORT_FMT =
             DateTimeFormatter.ofPattern("yyyy-MM-dd_HH-mm").withZone(ZoneId.systemDefault());
 
-    private final JwtService jwtService;
     private final AtomicBoolean                       running    = new AtomicBoolean(false);
     private final AtomicReference<@Nullable Process>     process    = new AtomicReference<>(null);
     private final AtomicReference<@Nullable TestType>    activeTest = new AtomicReference<>(null);
     private final AtomicLong                          startedAt  = new AtomicLong(0);
 
-    public PerformanceTestService(JwtService jwtService) {
-        this.jwtService = jwtService;
-    }
+    public PerformanceTestService() {}
 
     // ─── Starten ──────────────────────────────────────────────────────────────
 
@@ -124,7 +117,7 @@ public class PerformanceTestService {
                 "k6", "run",
                 "-o", PROMETHEUS_RW,
                 k6Script,
-                "-e", "K6_MASTER_TOKEN=" + jwtService.generateToken(),
+                "-e", "K6_MASTER_TOKEN=" + UUID.randomUUID(), //TODO: grab from Keycloak Resource Server instead
                 "-e", "SCENARIO=" + testType.getScenarioKey()
         ));
 

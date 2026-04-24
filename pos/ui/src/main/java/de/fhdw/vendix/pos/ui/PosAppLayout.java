@@ -7,7 +7,7 @@ import com.vaadin.flow.component.sidenav.SideNavItem;
 import com.vaadin.flow.router.Layout;
 import com.vaadin.flow.spring.annotation.VaadinSessionScope;
 import com.vaadin.flow.spring.security.AuthenticationContext;
-import de.fhdw.vendix.commons.api.domain.account_role.Role;
+import de.fhdw.vendix.commons.spring.security.Role;
 import de.fhdw.vendix.commons.spring.vaadin.layout.AbstractApplicationLayout;
 import de.fhdw.vendix.pos.ui.home.ConnectionsView;
 import de.fhdw.vendix.pos.ui.home.DebugView;
@@ -16,7 +16,7 @@ import de.fhdw.vendix.pos.ui.home.RootView;
 import de.fhdw.vendix.pos.ui.register.RegisterView;
 import jakarta.annotation.security.RolesAllowed;
 
-@RolesAllowed({Role.ROLE_CASHIER})
+@RolesAllowed({Role.Constants.ADMIN})
 @Layout
 @VaadinSessionScope
 public class PosAppLayout extends AbstractApplicationLayout {

@@ -6,16 +6,18 @@ import de.fhdw.vendix.commons.api.domain.receipt.PaymentMethod;
 import de.fhdw.vendix.commons.api.domain.receipt.ReceiptDTO;
 import de.fhdw.vendix.commons.api.domain.receipt.ReceiptStatus;
 import de.fhdw.vendix.commons.api.domain.receipt_line.ReceiptLineDTO;
-import de.fhdw.vendix.commons.spring.security.context.auth.DefaultUser;
+import de.fhdw.vendix.commons.spring.security.SecurityService;
 import de.fhdw.vendix.pos.core.register.RegisterContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 import org.springframework.web.context.annotation.SessionScope;
 
+import javax.security.auth.login.CredentialException;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Objects;
+import java.util.UUID;
 
 @Component
 @SessionScope
@@ -24,12 +26,12 @@ public class CartService {
     private static final Logger log = LoggerFactory.getLogger(CartService.class);
 
     private final RegisterContext registerContext;
-    private final AuthenticationContext authenticationContext;
+    private final SecurityService securityService;
     private final List<CartLine> cartLines = new LinkedList<>();
 
-    public CartService(RegisterContext registerContext, AuthenticationContext authenticationContext) {
+    public CartService(RegisterContext registerContext, SecurityService securityService) {
         this.registerContext = registerContext;
-        this.authenticationContext = authenticationContext;
+        this.securityService = securityService;
     }
 
     public void addLine(ArticleDTO article, int amount) {
@@ -87,16 +89,18 @@ public class CartService {
             if (cartLines.isEmpty()) {
                 throw new IllegalArgumentException("Cannot create a Receipt for an empty list");
             }
-            DefaultUser cashier = authenticationContext.getAuthenticatedUser(DefaultUser.class)
+
+            UUID cashierUUID = securityService.getAuthenticatedUserUuid()
                     .orElseThrow(IllegalStateException::new);
+
             Objects.requireNonNull(registerContext.getRegister());
             Objects.requireNonNull(registerContext.getRegister().id());
-            Objects.requireNonNull(cashier.authContext().account().id());
+
             ReceiptDTO receipt = new ReceiptDTO(
                     null,
                     registerContext.getRegister().id(),
                     registerContext.getRegister().storeId(),
-                    cashier.authContext().account().id(),
+                    5L, // TODO: change field to accept uuid instead
                     PaymentMethod.CARD,
                     ReceiptStatus.OPEN
             );

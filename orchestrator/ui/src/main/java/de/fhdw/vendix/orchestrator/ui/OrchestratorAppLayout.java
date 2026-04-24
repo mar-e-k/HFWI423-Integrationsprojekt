@@ -8,18 +8,17 @@ import com.vaadin.flow.component.sidenav.SideNavItem;
 import com.vaadin.flow.router.Layout;
 import com.vaadin.flow.spring.annotation.VaadinSessionScope;
 import com.vaadin.flow.spring.security.AuthenticationContext;
-import de.fhdw.vendix.commons.api.domain.account_role.Role;
+import de.fhdw.vendix.commons.spring.security.Role;
 import de.fhdw.vendix.commons.spring.vaadin.layout.AbstractApplicationLayout;
 import de.fhdw.vendix.orchestrator.ui.application.DebugView;
 import de.fhdw.vendix.orchestrator.ui.application.PerformanceTestView;
 import de.fhdw.vendix.orchestrator.ui.application.RootView;
 import de.fhdw.vendix.orchestrator.ui.management.*;
-import de.fhdw.vendix.orchestrator.ui.management.account.AccountView;
 import de.fhdw.vendix.orchestrator.ui.orchestrator.ConnectionView;
 import de.fhdw.vendix.orchestrator.ui.orchestrator.LockView;
 import jakarta.annotation.security.RolesAllowed;
 
-@RolesAllowed({Role.ROLE_ADMIN})
+@RolesAllowed({Role.Constants.ADMIN})
 @Layout
 @VaadinSessionScope
 public class OrchestratorAppLayout extends AbstractApplicationLayout {
@@ -49,9 +48,6 @@ public class OrchestratorAppLayout extends AbstractApplicationLayout {
 
         SideNav managementHeader = new SideNav("Management");
         managementHeader.addItem(
-                new SideNavItem("Accounts",  AccountView.class,    VaadinIcon.USERS.create()),
-                new SideNavItem("Roles",     RoleView.class,       VaadinIcon.USER_CARD.create()),
-                new SideNavItem("Permissions", PermissionView.class, VaadinIcon.KEY.create()),
                 new SideNavItem("Stores",    StoreView.class,      VaadinIcon.SHOP.create()),
                 new SideNavItem("Registers", RegisterView.class,   VaadinIcon.DESKTOP.create())
         );

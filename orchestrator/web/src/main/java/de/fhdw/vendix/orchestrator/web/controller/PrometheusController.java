@@ -1,7 +1,7 @@
 package de.fhdw.vendix.orchestrator.web.controller;
 
 import de.fhdw.vendix.commons.api.embeddable.TargetType;
-import de.fhdw.vendix.commons.spring.app.lifecycle.app.AppContext;
+import de.fhdw.vendix.commons.spring.app.context.app.AppContext;
 import de.fhdw.vendix.commons.spring.web.server.prometheus.api.PrometheusApi;
 import de.fhdw.vendix.commons.spring.web.server.prometheus.model.TargetGroup;
 import de.fhdw.vendix.orchestrator.core.domain.connection.Connection;

@@ -6,7 +6,7 @@ import de.fhdw.vendix.commons.api.domain.distributed_lock.DistributedLockDTO;
 import de.fhdw.vendix.commons.api.embeddable.EntityTargetDTO;
 import de.fhdw.vendix.commons.api.embeddable.InstanceDetailsDTO;
 import de.fhdw.vendix.commons.api.embeddable.TargetType;
-import de.fhdw.vendix.commons.spring.app.lifecycle.app.AppContext;
+import de.fhdw.vendix.commons.spring.app.context.app.AppContext;
 import de.fhdw.vendix.commons.spring.web.client.orchestrator.api.ConnectionProxyService;
 import de.fhdw.vendix.commons.spring.web.client.orchestrator.api.DistributedLockProxyService;
 import org.slf4j.Logger;
