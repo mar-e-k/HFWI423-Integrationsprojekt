@@ -63,7 +63,16 @@ public class NewArticlesView extends Div {
         });
 
         Button refreshButton = new Button("Aktualisieren", e -> refresh());
-        HorizontalLayout toolbar = new HorizontalLayout(sourceTabs, refreshButton);
+
+        Button clearButton = new Button("Lasttest-Tabelle leeren", e -> {
+            articleSyncService.clearLasttestContingents();
+            refresh();
+            Notification n = Notification.show("Lasttest-Tabelle wurde geleert", 3000, Notification.Position.MIDDLE);
+            n.addThemeVariants(NotificationVariant.LUMO_SUCCESS);
+        });
+        clearButton.addThemeVariants(ButtonVariant.LUMO_ERROR, ButtonVariant.LUMO_TERTIARY);
+
+        HorizontalLayout toolbar = new HorizontalLayout(sourceTabs, refreshButton, clearButton);
         toolbar.setWidthFull();
         toolbar.setAlignItems(FlexComponent.Alignment.CENTER);
         toolbar.addClassName("view-toolbar");

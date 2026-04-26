@@ -279,6 +279,11 @@ public class ArticleSyncService {
     }
 
     @Transactional
+    public void clearLasttestContingents() {
+        contingentLasttestRepository.deleteAllBulk();
+    }
+
+    @Transactional
     public ArticleInfo createArticleInfoForSingleContingentArticle(Long articleId) {
 
         if (articleId == null) {

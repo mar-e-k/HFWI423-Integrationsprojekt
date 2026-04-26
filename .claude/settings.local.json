@@ -73,7 +73,8 @@
       "Bash(find:*)",
       "Bash(grep -rl \"Workflow\\\\|Lasttest\\\\|jmeter\\\\|JMeter\" C:/Users/jason/IdeaProjects/HFWI423-Integrationsprojekt/src --include=*.java)",
       "Bash(\"C:/Users/jason/IdeaProjects/HFWI423-Integrationsprojekt/jmeter.log\")",
-      "Skill(update-config)"
+      "Skill(update-config)",
+      "Bash(find . -maxdepth 3 -type f \\\\\\(-name *.sh -o -name *.py -o -name README* \\\\\\))"
     ]
   }
 }
