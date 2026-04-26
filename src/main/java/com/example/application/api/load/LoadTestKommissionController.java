@@ -8,7 +8,9 @@ import com.example.application.data.orderPicking.KommissionRepository;
 import com.example.application.data.orderPicking.MessageLogistic;
 import com.example.application.data.orderPicking.MessageLogisticRepository;
 import com.example.application.services.ArticleInfoService;
+import com.example.application.services.ArticleSyncService;
 import com.example.application.services.KommissionService;
+import com.example.application.services.NewArticleCandidate;
 import com.example.application.services.WeeklyKommissionScheduler;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -16,6 +18,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
@@ -33,6 +36,7 @@ public class LoadTestKommissionController {
     private final MessageLogisticRepository messageLogisticRepository;
     private final ArticleInfoService articleInfoService;
     private final ArticleInfoRepository articleInfoRepository;
+    private final ArticleSyncService articleSyncService;
     private final WeeklyKommissionScheduler weeklyKommissionScheduler;
     private final LogisticEventPublisher logisticEventPublisher;
 
@@ -41,6 +45,7 @@ public class LoadTestKommissionController {
                                          MessageLogisticRepository messageLogisticRepository,
                                          ArticleInfoService articleInfoService,
                                          ArticleInfoRepository articleInfoRepository,
+                                         ArticleSyncService articleSyncService,
                                          WeeklyKommissionScheduler weeklyKommissionScheduler,
                                          LogisticEventPublisher logisticEventPublisher) {
         this.kommissionService = kommissionService;
@@ -48,6 +53,7 @@ public class LoadTestKommissionController {
         this.messageLogisticRepository = messageLogisticRepository;
         this.articleInfoService = articleInfoService;
         this.articleInfoRepository = articleInfoRepository;
+        this.articleSyncService = articleSyncService;
         this.weeklyKommissionScheduler = weeklyKommissionScheduler;
         this.logisticEventPublisher = logisticEventPublisher;
     }
@@ -122,29 +128,45 @@ public class LoadTestKommissionController {
                 .filter(a -> a.getTotalStock() != null && a.getTotalStock() > 0 && a.getArticleId() != null)
                 .toList();
 
-        int created = 0;
+        List<NewArticleCandidate> newCandidates = articleSyncService.findNewArticlesFromLasttestContingents();
+
         Random random = new Random();
+        List<MessageLogistic> batch = new ArrayList<>();
 
         for (int s = 1; s <= stores; s++) {
             String storeId = "Lasttest-Store-" + s;
+            // Ein Bulk-Delete pro Store statt N einzelne Deletes
             messageLogisticRepository.deleteProcessedByStore(storeId);
+            messageLogisticRepository.deleteAllUnprocessedByStore(storeId);
 
             for (ArticleInfo article : articlesWithStock) {
-                messageLogisticRepository.deleteUnprocessedByStoreAndArticleId(storeId, article.getArticleId());
-
                 MessageLogistic msg = new MessageLogistic();
                 msg.setStoreId(storeId);
                 msg.setArticleNumber(article.getArticleNumber());
                 msg.setArticleId(article.getArticleId());
                 msg.setQuantity(1 + random.nextInt(5));
                 msg.setProcessed(false);
-                messageLogisticRepository.save(msg);
-                created++;
+                batch.add(msg);
+            }
+
+            for (NewArticleCandidate candidate : newCandidates) {
+                MessageLogistic msg = new MessageLogistic();
+                msg.setStoreId(storeId);
+                msg.setArticleNumber(candidate.getArticleNumber());
+                msg.setArticleId(candidate.getArticleId());
+                msg.setQuantity(1 + random.nextInt(5));
+                msg.setProcessed(false);
+                batch.add(msg);
             }
         }
 
-        System.out.println("[simulate-store-orders] stores=" + stores + " created=" + created);
-        return ResponseEntity.ok(Map.of("createdOrders", created, "stores", stores));
+        messageLogisticRepository.saveAll(batch);
+
+        int created = batch.size();
+        System.out.println("[simulate-store-orders] stores=" + stores + " articlesWithStock=" + articlesWithStock.size()
+                + " newCandidates=" + newCandidates.size() + " created=" + created);
+        return ResponseEntity.ok(Map.of("createdOrders", created, "stores", stores,
+                "fromArticleInfo", articlesWithStock.size(), "fromNewArticles", newCandidates.size()));
     }
 
     /**
