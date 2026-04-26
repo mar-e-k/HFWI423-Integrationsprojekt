@@ -9,7 +9,7 @@
 //   lasttest     – Normalbetrieb:    6 VUs, 180 Trans/h, GTIN-Scans, Voucher
 //   stresstest   – Belastungsgrenze: 10→200 VUs, kein Sleep, GTIN-Scans
 //   spiketest    – Lastspitze:       Baseline→80 Trans/min→Recovery
-//   soaktest     – Memory-Drift:     12–30 VUs, kein Sleep, 16h
+//   soaktest     – Memory-Drift:     6–30 VUs, kein Sleep, 17h
 //   capacitytest – Kipppunkt:        5→50 VUs, 100→600 Artikel/Bon
 // ═══════════════════════════════════════════════════════════════════════════
 
@@ -106,18 +106,29 @@ const scenarios = {
     // ──────────────────────────────────────────────────────────────────────
     // 4. SOAK-TEST – Memory-Drift (kein Sleep)
     // ──────────────────────────────────────────────────────────────────────
+    soaktest_warmup: {
+        executor:        'constant-arrival-rate',
+        rate:            180,
+        timeUnit:        '1h',
+        duration:        '1h',
+        preAllocatedVUs: 6,
+        maxVUs:          10,
+        exec:            'soaktest',
+    },
+
     soaktest: {
         executor:         'ramping-vus',
-        startVUs:         4,
+        startVUs:         6,
+        startTime:        '1h',
         stages: [
-            { duration: '3h', target: 5 },
-            { duration: '3h', target: 5 },
-            { duration: '2h', target: 5 },
-            { duration: '4h', target: 6 },
-            { duration: '4h', target: 6 },
+            { duration: '3h', target: 6 },
+            { duration: '3h', target: 20 },
+            { duration: '2h', target: 30 },
+            { duration: '4h', target: 20 },
+            { duration: '4h', target: 25 },
         ],
         gracefulRampDown: '30s',
-        exec: 'soaktest',
+        exec:             'soaktest',
     },
 
     // ──────────────────────────────────────────────────────────────────────
@@ -151,9 +162,10 @@ if (!scenarios[CURRENT_SCENARIO]) {
 // ─── Options ─────────────────────────────────────────────────────────────────
 
 export const options = {
-    scenarios: {
-        [CURRENT_SCENARIO]: scenarios[CURRENT_SCENARIO],
-    },
+    scenarios: CURRENT_SCENARIO === 'soaktest'
+        ? { soaktest_warmup: scenarios.soaktest_warmup, soaktest: scenarios.soaktest }
+        : { [CURRENT_SCENARIO]: scenarios[CURRENT_SCENARIO]
+        },
     thresholds: {
         'http_req_duration':                            ['p(95)<2000'],
         'http_req_failed':                              ['rate<0.05'],
