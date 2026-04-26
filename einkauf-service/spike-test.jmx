@@ -1,101 +1,437 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<jmeterTestPlan version="1.2" properties="5.0" jmeter="5.6.3">
-  <hashTree>
-    <TestPlan guiclass="TestPlanGui" testclass="TestPlan" testname="Article + Cart + Order Test" enabled="true">
-      <boolProp name="TestPlan.functional_mode">false</boolProp>
-      <boolProp name="TestPlan.serialize_threadgroups">false</boolProp>
-    </TestPlan>
-    <hashTree>
+<?xml version="1.0" encoding="UTF-8"?><?xml version="1.0" encoding="UTF-8"?>
+
+<jmeterTestPlan version="1.2" properties="5.0" jmeter="5.6.3"><jmeterTestPlan version="1.2" properties="5.0" jmeter="5.6.3">
+
+  <hashTree>  <hashTree>
+
+    <TestPlan guiclass="TestPlanGui" testclass="TestPlan" testname="Spike Test (Baseline -&gt; Spike -&gt; Recovery)" enabled="true">    <TestPlan guiclass="TestPlanGui" testclass="TestPlan" testname="Article + Cart + Order Test" enabled="true">
+
+      <boolProp name="TestPlan.functional_mode">false</boolProp>      <boolProp name="TestPlan.functional_mode">false</boolProp>
+
+      <boolProp name="TestPlan.serialize_threadgroups">true</boolProp>      <boolProp name="TestPlan.serialize_threadgroups">false</boolProp>
+
+    </TestPlan>    </TestPlan>
+
+    <hashTree>    <hashTree>
+
       <ThreadGroup guiclass="ThreadGroupGui" testclass="ThreadGroup" testname="Spike Test Users" enabled="true">
-	<stringProp name="ThreadGroup.num_threads">${__P(users,200)}</stringProp>
-	<stringProp name="ThreadGroup.ramp_time">${__P(rampup,5)}</stringProp>
 
-	<elementProp name="ThreadGroup.main_controller"
-               elementType="LoopController"
-               guiclass="LoopControlPanel"
-               testclass="LoopController">
-		<stringProp name="LoopController.loops">-1</stringProp>
-		<boolProp name="LoopController.continue_forever">true</boolProp>
-	</elementProp>
+      <!-- Shared config: cookies, headers, think time, counter -->	<stringProp name="ThreadGroup.num_threads">${__P(users,200)}</stringProp>
 
-	<boolProp name="ThreadGroup.scheduler">true</boolProp>
-	<stringProp name="ThreadGroup.duration">${__P(duration,180)}</stringProp>
+      <CookieManager guiclass="CookiePanel" testclass="CookieManager" testname="Cookies" enabled="true">	<stringProp name="ThreadGroup.ramp_time">${__P(rampup,5)}</stringProp>
 
-	<boolProp name="ThreadGroup.same_user_on_next_iteration">true</boolProp>
-	<stringProp name="ThreadGroup.on_sample_error">continue</stringProp>
-		</ThreadGroup>
-      <hashTree>
-        <CookieManager guiclass="CookiePanel" testclass="CookieManager" testname="Cookies" enabled="true">
-          <collectionProp name="CookieManager.cookies"/>
-          <boolProp name="CookieManager.clearEachIteration">false</boolProp>
-          <boolProp name="CookieManager.controlledByThreadGroup">false</boolProp>
-        </CookieManager>
-        <hashTree/>
-        <HeaderManager guiclass="HeaderPanel" testclass="HeaderManager" testname="HTTP Header Manager" enabled="true">
-          <collectionProp name="HeaderManager.headers">
-            <elementProp name="" elementType="Header">
-              <stringProp name="Header.name">Content-Type</stringProp>
-              <stringProp name="Header.value">application/json</stringProp>
+        <collectionProp name="CookieManager.cookies"/>
+
+        <boolProp name="CookieManager.clearEachIteration">false</boolProp>	<elementProp name="ThreadGroup.main_controller"
+
+        <boolProp name="CookieManager.controlledByThreadGroup">false</boolProp>               elementType="LoopController"
+
+      </CookieManager>               guiclass="LoopControlPanel"
+
+      <hashTree/>               testclass="LoopController">
+
+      <HeaderManager guiclass="HeaderPanel" testclass="HeaderManager" testname="HTTP Header Manager" enabled="true">		<stringProp name="LoopController.loops">-1</stringProp>
+
+        <collectionProp name="HeaderManager.headers">		<boolProp name="LoopController.continue_forever">true</boolProp>
+
+          <elementProp name="" elementType="Header">	</elementProp>
+
+            <stringProp name="Header.name">Content-Type</stringProp>
+
+            <stringProp name="Header.value">application/json</stringProp>	<boolProp name="ThreadGroup.scheduler">true</boolProp>
+
+          </elementProp>	<stringProp name="ThreadGroup.duration">${__P(duration,180)}</stringProp>
+
+        </collectionProp>
+
+      </HeaderManager>	<boolProp name="ThreadGroup.same_user_on_next_iteration">true</boolProp>
+
+      <hashTree/>	<stringProp name="ThreadGroup.on_sample_error">continue</stringProp>
+
+      <ConstantTimer guiclass="ConstantTimerGui" testclass="ConstantTimer" testname="Think Time" enabled="true">		</ThreadGroup>
+
+        <stringProp name="ConstantTimer.delay">200</stringProp>      <hashTree>
+
+      </ConstantTimer>        <CookieManager guiclass="CookiePanel" testclass="CookieManager" testname="Cookies" enabled="true">
+
+      <hashTree/>          <collectionProp name="CookieManager.cookies"/>
+
+      <CounterConfig guiclass="CounterConfigGui" testclass="CounterConfig" testname="Counter" enabled="true">          <boolProp name="CookieManager.clearEachIteration">false</boolProp>
+
+        <stringProp name="CounterConfig.start">1</stringProp>          <boolProp name="CookieManager.controlledByThreadGroup">false</boolProp>
+
+        <stringProp name="CounterConfig.incr">1</stringProp>        </CookieManager>
+
+        <stringProp name="CounterConfig.name">counter</stringProp>        <hashTree/>
+
+        <boolProp name="CounterConfig.per_user">true</boolProp>        <HeaderManager guiclass="HeaderPanel" testclass="HeaderManager" testname="HTTP Header Manager" enabled="true">
+
+        <stringProp name="CounterConfig.end"></stringProp>          <collectionProp name="HeaderManager.headers">
+
+        <stringProp name="CounterConfig.format"></stringProp>            <elementProp name="" elementType="Header">
+
+      </CounterConfig>              <stringProp name="Header.name">Content-Type</stringProp>
+
+      <hashTree/>              <stringProp name="Header.value">application/json</stringProp>
+
             </elementProp>
-          </collectionProp>
-        </HeaderManager>
-        <hashTree/>
-        <ConstantTimer guiclass="ConstantTimerGui" testclass="ConstantTimer" testname="Think Time" enabled="true">
-          <stringProp name="ConstantTimer.delay">200</stringProp>
-        </ConstantTimer>
-        <hashTree/>
-        <CounterConfig guiclass="CounterConfigGui" testclass="CounterConfig" testname="Counter" enabled="true">
-          <stringProp name="CounterConfig.start">1</stringProp>
-          <stringProp name="CounterConfig.incr">1</stringProp>
-          <stringProp name="CounterConfig.name">counter</stringProp>
-          <boolProp name="CounterConfig.per_user">true</boolProp>
-          <stringProp name="CounterConfig.end"></stringProp>
-          <stringProp name="CounterConfig.format"></stringProp>
-        </CounterConfig>
-        <hashTree/>
-        <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="Create Article">
-          <stringProp name="HTTPSampler.domain">${__P(host,localhost)}</stringProp>
-          <stringProp name="HTTPSampler.port">${__P(port,8080)}</stringProp>
-          <stringProp name="HTTPSampler.protocol">http</stringProp>
-          <stringProp name="HTTPSampler.path">/api/v1/articles</stringProp>
-          <stringProp name="HTTPSampler.method">POST</stringProp>
-          <boolProp name="HTTPSampler.postBodyRaw">true</boolProp>
-          <elementProp name="HTTPsampler.Arguments" elementType="Arguments">
-            <collectionProp name="Arguments.arguments">
-              <elementProp name="" elementType="HTTPArgument">
-                <boolProp name="HTTPArgument.always_encode">false</boolProp>
-                <stringProp name="Argument.value">&#xd;
-{&#xd;
-  &quot;name&quot;: &quot;Test${__threadNum}-${counter}&quot;,&#xd;
-  &quot;manufacturer&quot;: &quot;JMeter&quot;,&#xd;
-&#xd;
-  &quot;articleNumber&quot;: &quot;${__Random(10000000,999999999)}&quot;,&#xd;
-&#xd;
-  &quot;purchasePrice&quot;: 10.0,&#xd;
-  &quot;sellingPrice&quot;: 15.0,&#xd;
+
+      <!-- ===== STAGE 1: BASELINE (low load) ===== -->          </collectionProp>
+
+      <ThreadGroup guiclass="ThreadGroupGui" testclass="ThreadGroup" testname="1 - Baseline (low)" enabled="true">        </HeaderManager>
+
+        <stringProp name="ThreadGroup.num_threads">${__P(baseline_users,10)}</stringProp>        <hashTree/>
+
+        <stringProp name="ThreadGroup.ramp_time">${__P(baseline_rampup,10)}</stringProp>        <ConstantTimer guiclass="ConstantTimerGui" testclass="ConstantTimer" testname="Think Time" enabled="true">
+
+        <elementProp name="ThreadGroup.main_controller" elementType="LoopController" guiclass="LoopControlPanel" testclass="LoopController">          <stringProp name="ConstantTimer.delay">200</stringProp>
+
+          <stringProp name="LoopController.loops">-1</stringProp>        </ConstantTimer>
+
+          <boolProp name="LoopController.continue_forever">true</boolProp>        <hashTree/>
+
+        </elementProp>        <CounterConfig guiclass="CounterConfigGui" testclass="CounterConfig" testname="Counter" enabled="true">
+
+        <boolProp name="ThreadGroup.scheduler">true</boolProp>          <stringProp name="CounterConfig.start">1</stringProp>
+
+        <stringProp name="ThreadGroup.duration">${__P(baseline_duration,60)}</stringProp>          <stringProp name="CounterConfig.incr">1</stringProp>
+
+        <boolProp name="ThreadGroup.same_user_on_next_iteration">true</boolProp>          <stringProp name="CounterConfig.name">counter</stringProp>
+
+        <stringProp name="ThreadGroup.on_sample_error">continue</stringProp>          <boolProp name="CounterConfig.per_user">true</boolProp>
+
+      </ThreadGroup>          <stringProp name="CounterConfig.end"></stringProp>
+
+      <hashTree>          <stringProp name="CounterConfig.format"></stringProp>
+
+        <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="Create Article">        </CounterConfig>
+
+          <stringProp name="HTTPSampler.domain">${__P(host,localhost)}</stringProp>        <hashTree/>
+
+          <stringProp name="HTTPSampler.port">${__P(port,8080)}</stringProp>        <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="Create Article">
+
+          <stringProp name="HTTPSampler.protocol">http</stringProp>          <stringProp name="HTTPSampler.domain">${__P(host,localhost)}</stringProp>
+
+          <stringProp name="HTTPSampler.path">/api/v1/articles</stringProp>          <stringProp name="HTTPSampler.port">${__P(port,8080)}</stringProp>
+
+          <stringProp name="HTTPSampler.method">POST</stringProp>          <stringProp name="HTTPSampler.protocol">http</stringProp>
+
+          <boolProp name="HTTPSampler.postBodyRaw">true</boolProp>          <stringProp name="HTTPSampler.path">/api/v1/articles</stringProp>
+
+          <elementProp name="HTTPsampler.Arguments" elementType="Arguments">          <stringProp name="HTTPSampler.method">POST</stringProp>
+
+            <collectionProp name="Arguments.arguments">          <boolProp name="HTTPSampler.postBodyRaw">true</boolProp>
+
+              <elementProp name="" elementType="HTTPArgument">          <elementProp name="HTTPsampler.Arguments" elementType="Arguments">
+
+                <boolProp name="HTTPArgument.always_encode">false</boolProp>            <collectionProp name="Arguments.arguments">
+
+                <stringProp name="Argument.value">{              <elementProp name="" elementType="HTTPArgument">
+
+  &quot;name&quot;: &quot;Test${__threadNum}-${counter}&quot;,                <boolProp name="HTTPArgument.always_encode">false</boolProp>
+
+  &quot;manufacturer&quot;: &quot;JMeter&quot;,                <stringProp name="Argument.value">&#xd;
+
+  &quot;articleNumber&quot;: &quot;${__Random(10000000,999999999)}&quot;,{&#xd;
+
+  &quot;purchasePrice&quot;: 10.0,  &quot;name&quot;: &quot;Test${__threadNum}-${counter}&quot;,&#xd;
+
+  &quot;sellingPrice&quot;: 15.0,  &quot;manufacturer&quot;: &quot;JMeter&quot;,&#xd;
+
   &quot;stockLevel&quot;: 100,&#xd;
-  &quot;taxRatePercent&quot;: 19.0,&#xd;
-&#xd;
+
+  &quot;taxRatePercent&quot;: 19.0,  &quot;articleNumber&quot;: &quot;${__Random(10000000,999999999)}&quot;,&#xd;
+
   &quot;heightCm&quot;: 10.0,&#xd;
-  &quot;widthCm&quot;: 5.0,&#xd;
-  &quot;depthCm&quot;: 2.0,&#xd;
-&#xd;
-  &quot;isAvailable&quot;: true,&#xd;
-  &quot;hasDeposit&quot;: false,&#xd;
-&#xd;
+
+  &quot;widthCm&quot;: 5.0,  &quot;purchasePrice&quot;: 10.0,&#xd;
+
+  &quot;depthCm&quot;: 2.0,  &quot;sellingPrice&quot;: 15.0,&#xd;
+
+  &quot;isAvailable&quot;: true,  &quot;stockLevel&quot;: 100,&#xd;
+
+  &quot;hasDeposit&quot;: false,  &quot;taxRatePercent&quot;: 19.0,&#xd;
+
   &quot;categoryIds&quot;: [1],&#xd;
-  &quot;supplierIds&quot;: [1],&#xd;
-&#xd;
-  &quot;mainSupplierId&quot;: 1&#xd;
-}&#xd;
-                </stringProp>
-                <stringProp name="Argument.metadata">=</stringProp>
-              </elementProp>
-            </collectionProp>
-          </elementProp>
-        </HTTPSamplerProxy>
-        <hashTree>
-          <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="Assert Create Article OK">
+
+  &quot;supplierIds&quot;: [1],  &quot;heightCm&quot;: 10.0,&#xd;
+
+  &quot;mainSupplierId&quot;: 1  &quot;widthCm&quot;: 5.0,&#xd;
+
+}</stringProp>  &quot;depthCm&quot;: 2.0,&#xd;
+
+                <stringProp name="Argument.metadata">=</stringProp>&#xd;
+
+              </elementProp>  &quot;isAvailable&quot;: true,&#xd;
+
+            </collectionProp>  &quot;hasDeposit&quot;: false,&#xd;
+
+          </elementProp>&#xd;
+
+        </HTTPSamplerProxy>  &quot;categoryIds&quot;: [1],&#xd;
+
+        <hashTree>  &quot;supplierIds&quot;: [1],&#xd;
+
+          <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="Assert Create Article OK">&#xd;
+
+            <collectionProp name="Asserion.test_strings"/>  &quot;mainSupplierId&quot;: 1&#xd;
+
+            <stringProp name="Assertion.test_field">Assertion.response_code</stringProp>}&#xd;
+
+            <collectionProp name="Assertion.test_strings">                </stringProp>
+
+              <stringProp name="0">200</stringProp>                <stringProp name="Argument.metadata">=</stringProp>
+
+              <stringProp name="1">201</stringProp>              </elementProp>
+
+            </collectionProp>            </collectionProp>
+
+            <stringProp name="Assertion.custom_message"></stringProp>          </elementProp>
+
+            <boolProp name="Assertion.assume_success">false</boolProp>        </HTTPSamplerProxy>
+
+            <intProp name="Assertion.test_type">2</intProp>        <hashTree>
+
+          </ResponseAssertion>          <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="Assert Create Article OK">
+
+          <hashTree/>            <collectionProp name="Asserion.test_strings"/>
+
+          <JSONPostProcessor guiclass="JSONPostProcessorGui" testclass="JSONPostProcessor" testname="Extract Article ID">            <stringProp name="Assertion.test_field">Assertion.response_code</stringProp>
+
+            <stringProp name="JSONPostProcessor.referenceNames">articleId</stringProp>            <collectionProp name="Assertion.test_strings">
+
+            <stringProp name="JSONPostProcessor.jsonPathExprs">$.id</stringProp>              <stringProp name="0">200</stringProp>
+
+            <stringProp name="JSONPostProcessor.match_numbers"></stringProp>              <stringProp name="1">201</stringProp>
+
+          </JSONPostProcessor>            </collectionProp>
+
+          <hashTree/>            <stringProp name="Assertion.custom_message"></stringProp>
+
+        </hashTree>            <boolProp name="Assertion.assume_success">false</boolProp>
+
+        <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="Add to Cart" enabled="true">            <intProp name="Assertion.test_type">2</intProp>
+
+          <stringProp name="HTTPSampler.domain">${__P(host,localhost)}</stringProp>          </ResponseAssertion>
+
+          <stringProp name="HTTPSampler.port">${__P(port,8080)}</stringProp>          <hashTree/>
+
+          <stringProp name="HTTPSampler.protocol">http</stringProp>          <JSONPostProcessor guiclass="JSONPostProcessorGui" testclass="JSONPostProcessor" testname="Extract Article ID">
+
+          <stringProp name="HTTPSampler.path">/api/v1/cart/add?articleId=${articleId}&amp;quantity=5</stringProp>            <stringProp name="JSONPostProcessor.referenceNames">articleId</stringProp>
+
+          <stringProp name="HTTPSampler.method">POST</stringProp>            <stringProp name="JSONPostProcessor.jsonPathExprs">$.id</stringProp>
+
+          <boolProp name="HTTPSampler.postBodyRaw">false</boolProp>            <stringProp name="JSONPostProcessor.match_numbers"></stringProp>
+
+          <elementProp name="HTTPsampler.Arguments" elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" testname="User Defined Variables">          </JSONPostProcessor>
+
+            <collectionProp name="Arguments.arguments"/>          <hashTree/>
+
+          </elementProp>          <ResultCollector guiclass="ViewResultsFullVisualizer" testclass="ResultCollector" testname="View Results Tree">
+
+        </HTTPSamplerProxy>            <boolProp name="ResultCollector.error_logging">false</boolProp>
+
+        <hashTree>            <objProp>
+
+          <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="Assert Add To Cart OK" enabled="true">              <name>saveConfig</name>
+
+            <collectionProp name="Asserion.test_strings"/>              <value class="SampleSaveConfiguration">
+
+            <stringProp name="Assertion.test_field">Assertion.response_code</stringProp>                <time>true</time>
+
+            <collectionProp name="Assertion.test_strings">                <latency>true</latency>
+
+              <stringProp name="0">200</stringProp>                <timestamp>true</timestamp>
+
+            </collectionProp>                <success>true</success>
+
+            <stringProp name="Assertion.custom_message"></stringProp>                <label>true</label>
+
+            <boolProp name="Assertion.assume_success">false</boolProp>                <code>true</code>
+
+            <intProp name="Assertion.test_type">2</intProp>                <message>true</message>
+
+          </ResponseAssertion>                <threadName>true</threadName>
+
+          <hashTree/>                <dataType>true</dataType>
+
+        </hashTree>                <encoding>false</encoding>
+
+        <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="Get Cart" enabled="true">                <assertions>true</assertions>
+
+          <stringProp name="HTTPSampler.domain">${__P(host,localhost)}</stringProp>                <subresults>true</subresults>
+
+          <stringProp name="HTTPSampler.port">${__P(port,8080)}</stringProp>                <responseData>false</responseData>
+
+          <stringProp name="HTTPSampler.protocol">http</stringProp>                <samplerData>false</samplerData>
+
+          <stringProp name="HTTPSampler.path">/api/v1/cart</stringProp>                <xml>false</xml>
+
+          <stringProp name="HTTPSampler.method">GET</stringProp>                <fieldNames>true</fieldNames>
+
+          <boolProp name="HTTPSampler.postBodyRaw">false</boolProp>                <responseHeaders>false</responseHeaders>
+
+          <elementProp name="HTTPsampler.Arguments" elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" testname="User Defined Variables">                <requestHeaders>false</requestHeaders>
+
+            <collectionProp name="Arguments.arguments"/>                <responseDataOnError>false</responseDataOnError>
+
+          </elementProp>                <saveAssertionResultsFailureMessage>true</saveAssertionResultsFailureMessage>
+
+        </HTTPSamplerProxy>                <assertionsResultsToSave>0</assertionsResultsToSave>
+
+        <hashTree/>                <bytes>true</bytes>
+
+        <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="Submit Order" enabled="true">                <sentBytes>true</sentBytes>
+
+          <stringProp name="HTTPSampler.domain">${__P(host,localhost)}</stringProp>                <url>true</url>
+
+          <stringProp name="HTTPSampler.port">${__P(port,8080)}</stringProp>                <threadCounts>true</threadCounts>
+
+          <stringProp name="HTTPSampler.protocol">http</stringProp>                <idleTime>true</idleTime>
+
+          <stringProp name="HTTPSampler.path">/api/v1/orders/submit</stringProp>                <connectTime>true</connectTime>
+
+          <stringProp name="HTTPSampler.method">POST</stringProp>              </value>
+
+          <boolProp name="HTTPSampler.postBodyRaw">false</boolProp>            </objProp>
+
+          <elementProp name="HTTPsampler.Arguments" elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" testname="User Defined Variables">            <stringProp name="filename"></stringProp>
+
+            <collectionProp name="Arguments.arguments"/>          </ResultCollector>
+
+          </elementProp>          <hashTree/>
+
+        </HTTPSamplerProxy>        </hashTree>
+
+        <hashTree>        <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="Add to Cart" enabled="true">
+
+          <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="Assert Order Created" enabled="true">          <stringProp name="HTTPSampler.domain">${__P(host,localhost)}</stringProp>
+
+            <collectionProp name="Asserion.test_strings"/>          <stringProp name="HTTPSampler.port">${__P(port,8080)}</stringProp>
+
+            <stringProp name="Assertion.test_field">Assertion.response_code</stringProp>          <stringProp name="HTTPSampler.protocol">http</stringProp>
+
+            <collectionProp name="Assertion.test_strings">          <stringProp name="HTTPSampler.path">/api/v1/cart/add?articleId=${articleId}&amp;quantity=5</stringProp>
+
+              <stringProp name="0">201</stringProp>          <stringProp name="HTTPSampler.method">POST</stringProp>
+
+            </collectionProp>          <boolProp name="HTTPSampler.postBodyRaw">false</boolProp>
+
+            <stringProp name="Assertion.custom_message"></stringProp>          <elementProp name="HTTPsampler.Arguments" elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" testname="User Defined Variables">
+
+            <boolProp name="Assertion.assume_success">false</boolProp>            <collectionProp name="Arguments.arguments"/>
+
+            <intProp name="Assertion.test_type">2</intProp>          </elementProp>
+
+          </ResponseAssertion>        </HTTPSamplerProxy>
+
+          <hashTree/>        <hashTree>
+
+        </hashTree>          <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="Assert Add To Cart OK" enabled="true">
+
+      </hashTree>            <collectionProp name="Asserion.test_strings"/>
+
+            <stringProp name="Assertion.test_field">Assertion.response_code</stringProp>
+
+      <!-- ===== STAGE 2: SPIKE (sudden burst) ===== -->            <collectionProp name="Assertion.test_strings">
+
+      <ThreadGroup guiclass="ThreadGroupGui" testclass="ThreadGroup" testname="2 - Spike (sudden burst)" enabled="true">              <stringProp name="0">200</stringProp>
+
+        <stringProp name="ThreadGroup.num_threads">${__P(spike_users,300)}</stringProp>            </collectionProp>
+
+        <stringProp name="ThreadGroup.ramp_time">${__P(spike_rampup,5)}</stringProp>            <stringProp name="Assertion.custom_message"></stringProp>
+
+        <elementProp name="ThreadGroup.main_controller" elementType="LoopController" guiclass="LoopControlPanel" testclass="LoopController">            <boolProp name="Assertion.assume_success">false</boolProp>
+
+          <stringProp name="LoopController.loops">-1</stringProp>            <intProp name="Assertion.test_type">2</intProp>
+
+          <boolProp name="LoopController.continue_forever">true</boolProp>          </ResponseAssertion>
+
+        </elementProp>          <hashTree/>
+
+        <boolProp name="ThreadGroup.scheduler">true</boolProp>        </hashTree>
+
+        <stringProp name="ThreadGroup.duration">${__P(spike_duration,60)}</stringProp>        <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="Get Cart" enabled="true">
+
+        <boolProp name="ThreadGroup.same_user_on_next_iteration">true</boolProp>          <stringProp name="HTTPSampler.domain">${__P(host,localhost)}</stringProp>
+
+        <stringProp name="ThreadGroup.on_sample_error">continue</stringProp>          <stringProp name="HTTPSampler.port">${__P(port,8080)}</stringProp>
+
+      </ThreadGroup>          <stringProp name="HTTPSampler.protocol">http</stringProp>
+
+      <hashTree>          <stringProp name="HTTPSampler.path">/api/v1/cart</stringProp>
+
+        <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="Create Article">          <stringProp name="HTTPSampler.method">GET</stringProp>
+
+          <stringProp name="HTTPSampler.domain">${__P(host,localhost)}</stringProp>          <boolProp name="HTTPSampler.postBodyRaw">false</boolProp>
+
+          <stringProp name="HTTPSampler.port">${__P(port,8080)}</stringProp>          <elementProp name="HTTPsampler.Arguments" elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" testname="User Defined Variables">
+
+          <stringProp name="HTTPSampler.protocol">http</stringProp>            <collectionProp name="Arguments.arguments"/>
+
+          <stringProp name="HTTPSampler.path">/api/v1/articles</stringProp>          </elementProp>
+
+          <stringProp name="HTTPSampler.method">POST</stringProp>        </HTTPSamplerProxy>
+
+          <boolProp name="HTTPSampler.postBodyRaw">true</boolProp>        <hashTree/>
+
+          <elementProp name="HTTPsampler.Arguments" elementType="Arguments">        <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="Submit Order" enabled="true">
+
+            <collectionProp name="Arguments.arguments">          <stringProp name="HTTPSampler.domain">${__P(host,localhost)}</stringProp>
+
+              <elementProp name="" elementType="HTTPArgument">          <stringProp name="HTTPSampler.port">${__P(port,8080)}</stringProp>
+
+                <boolProp name="HTTPArgument.always_encode">false</boolProp>          <stringProp name="HTTPSampler.protocol">http</stringProp>
+
+                <stringProp name="Argument.value">{          <stringProp name="HTTPSampler.path">/api/v1/orders/submit</stringProp>
+
+  &quot;name&quot;: &quot;Test${__threadNum}-${counter}&quot;,          <stringProp name="HTTPSampler.method">POST</stringProp>
+
+  &quot;manufacturer&quot;: &quot;JMeter&quot;,          <boolProp name="HTTPSampler.postBodyRaw">false</boolProp>
+
+  &quot;articleNumber&quot;: &quot;${__Random(10000000,999999999)}&quot;,          <elementProp name="HTTPsampler.Arguments" elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" testname="User Defined Variables">
+
+  &quot;purchasePrice&quot;: 10.0,            <collectionProp name="Arguments.arguments"/>
+
+  &quot;sellingPrice&quot;: 15.0,          </elementProp>
+
+  &quot;stockLevel&quot;: 100,        </HTTPSamplerProxy>
+
+  &quot;taxRatePercent&quot;: 19.0,        <hashTree>
+
+  &quot;heightCm&quot;: 10.0,          <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="Assert Order Created" enabled="true">
+
+  &quot;widthCm&quot;: 5.0,            <collectionProp name="Asserion.test_strings"/>
+
+  &quot;depthCm&quot;: 2.0,            <stringProp name="Assertion.test_field">Assertion.response_code</stringProp>
+
+  &quot;isAvailable&quot;: true,            <collectionProp name="Assertion.test_strings">
+
+  &quot;hasDeposit&quot;: false,              <stringProp name="0">201</stringProp>
+
+  &quot;categoryIds&quot;: [1],            </collectionProp>
+
+  &quot;supplierIds&quot;: [1],            <stringProp name="Assertion.custom_message"></stringProp>
+
+  &quot;mainSupplierId&quot;: 1            <boolProp name="Assertion.assume_success">false</boolProp>
+
+}</stringProp>            <intProp name="Assertion.test_type">2</intProp>
+
+                <stringProp name="Argument.metadata">=</stringProp>          </ResponseAssertion>
+
+              </elementProp>          <hashTree/>
+
+            </collectionProp>        </hashTree>
+
+          </elementProp>      </hashTree>
+
+        </HTTPSamplerProxy>    </hashTree>
+
+        <hashTree>  </hashTree>
+
+          <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="Assert Create Article OK"></jmeterTestPlan>
+
             <collectionProp name="Asserion.test_strings"/>
             <stringProp name="Assertion.test_field">Assertion.response_code</stringProp>
             <collectionProp name="Assertion.test_strings">
@@ -112,43 +448,6 @@
             <stringProp name="JSONPostProcessor.jsonPathExprs">$.id</stringProp>
             <stringProp name="JSONPostProcessor.match_numbers"></stringProp>
           </JSONPostProcessor>
-          <hashTree/>
-          <ResultCollector guiclass="ViewResultsFullVisualizer" testclass="ResultCollector" testname="View Results Tree">
-            <boolProp name="ResultCollector.error_logging">false</boolProp>
-            <objProp>
-              <name>saveConfig</name>
-              <value class="SampleSaveConfiguration">
-                <time>true</time>
-                <latency>true</latency>
-                <timestamp>true</timestamp>
-                <success>true</success>
-                <label>true</label>
-                <code>true</code>
-                <message>true</message>
-                <threadName>true</threadName>
-                <dataType>true</dataType>
-                <encoding>false</encoding>
-                <assertions>true</assertions>
-                <subresults>true</subresults>
-                <responseData>false</responseData>
-                <samplerData>false</samplerData>
-                <xml>false</xml>
-                <fieldNames>true</fieldNames>
-                <responseHeaders>false</responseHeaders>
-                <requestHeaders>false</requestHeaders>
-                <responseDataOnError>false</responseDataOnError>
-                <saveAssertionResultsFailureMessage>true</saveAssertionResultsFailureMessage>
-                <assertionsResultsToSave>0</assertionsResultsToSave>
-                <bytes>true</bytes>
-                <sentBytes>true</sentBytes>
-                <url>true</url>
-                <threadCounts>true</threadCounts>
-                <idleTime>true</idleTime>
-                <connectTime>true</connectTime>
-              </value>
-            </objProp>
-            <stringProp name="filename"></stringProp>
-          </ResultCollector>
           <hashTree/>
         </hashTree>
         <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="Add to Cart" enabled="true">
@@ -212,6 +511,175 @@
           <hashTree/>
         </hashTree>
       </hashTree>
+
+      <!-- ===== STAGE 3: RECOVERY (back to low) ===== -->
+      <ThreadGroup guiclass="ThreadGroupGui" testclass="ThreadGroup" testname="3 - Recovery (low again)" enabled="true">
+        <stringProp name="ThreadGroup.num_threads">${__P(recovery_users,10)}</stringProp>
+        <stringProp name="ThreadGroup.ramp_time">${__P(recovery_rampup,5)}</stringProp>
+        <elementProp name="ThreadGroup.main_controller" elementType="LoopController" guiclass="LoopControlPanel" testclass="LoopController">
+          <stringProp name="LoopController.loops">-1</stringProp>
+          <boolProp name="LoopController.continue_forever">true</boolProp>
+        </elementProp>
+        <boolProp name="ThreadGroup.scheduler">true</boolProp>
+        <stringProp name="ThreadGroup.duration">${__P(recovery_duration,120)}</stringProp>
+        <boolProp name="ThreadGroup.same_user_on_next_iteration">true</boolProp>
+        <stringProp name="ThreadGroup.on_sample_error">continue</stringProp>
+      </ThreadGroup>
+      <hashTree>
+        <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="Create Article">
+          <stringProp name="HTTPSampler.domain">${__P(host,localhost)}</stringProp>
+          <stringProp name="HTTPSampler.port">${__P(port,8080)}</stringProp>
+          <stringProp name="HTTPSampler.protocol">http</stringProp>
+          <stringProp name="HTTPSampler.path">/api/v1/articles</stringProp>
+          <stringProp name="HTTPSampler.method">POST</stringProp>
+          <boolProp name="HTTPSampler.postBodyRaw">true</boolProp>
+          <elementProp name="HTTPsampler.Arguments" elementType="Arguments">
+            <collectionProp name="Arguments.arguments">
+              <elementProp name="" elementType="HTTPArgument">
+                <boolProp name="HTTPArgument.always_encode">false</boolProp>
+                <stringProp name="Argument.value">{
+  &quot;name&quot;: &quot;Test${__threadNum}-${counter}&quot;,
+  &quot;manufacturer&quot;: &quot;JMeter&quot;,
+  &quot;articleNumber&quot;: &quot;${__Random(10000000,999999999)}&quot;,
+  &quot;purchasePrice&quot;: 10.0,
+  &quot;sellingPrice&quot;: 15.0,
+  &quot;stockLevel&quot;: 100,
+  &quot;taxRatePercent&quot;: 19.0,
+  &quot;heightCm&quot;: 10.0,
+  &quot;widthCm&quot;: 5.0,
+  &quot;depthCm&quot;: 2.0,
+  &quot;isAvailable&quot;: true,
+  &quot;hasDeposit&quot;: false,
+  &quot;categoryIds&quot;: [1],
+  &quot;supplierIds&quot;: [1],
+  &quot;mainSupplierId&quot;: 1
+}</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+              </elementProp>
+            </collectionProp>
+          </elementProp>
+        </HTTPSamplerProxy>
+        <hashTree>
+          <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="Assert Create Article OK">
+            <collectionProp name="Asserion.test_strings"/>
+            <stringProp name="Assertion.test_field">Assertion.response_code</stringProp>
+            <collectionProp name="Assertion.test_strings">
+              <stringProp name="0">200</stringProp>
+              <stringProp name="1">201</stringProp>
+            </collectionProp>
+            <stringProp name="Assertion.custom_message"></stringProp>
+            <boolProp name="Assertion.assume_success">false</boolProp>
+            <intProp name="Assertion.test_type">2</intProp>
+          </ResponseAssertion>
+          <hashTree/>
+          <JSONPostProcessor guiclass="JSONPostProcessorGui" testclass="JSONPostProcessor" testname="Extract Article ID">
+            <stringProp name="JSONPostProcessor.referenceNames">articleId</stringProp>
+            <stringProp name="JSONPostProcessor.jsonPathExprs">$.id</stringProp>
+            <stringProp name="JSONPostProcessor.match_numbers"></stringProp>
+          </JSONPostProcessor>
+          <hashTree/>
+        </hashTree>
+        <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="Add to Cart" enabled="true">
+          <stringProp name="HTTPSampler.domain">${__P(host,localhost)}</stringProp>
+          <stringProp name="HTTPSampler.port">${__P(port,8080)}</stringProp>
+          <stringProp name="HTTPSampler.protocol">http</stringProp>
+          <stringProp name="HTTPSampler.path">/api/v1/cart/add?articleId=${articleId}&amp;quantity=5</stringProp>
+          <stringProp name="HTTPSampler.method">POST</stringProp>
+          <boolProp name="HTTPSampler.postBodyRaw">false</boolProp>
+          <elementProp name="HTTPsampler.Arguments" elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" testname="User Defined Variables">
+            <collectionProp name="Arguments.arguments"/>
+          </elementProp>
+        </HTTPSamplerProxy>
+        <hashTree>
+          <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="Assert Add To Cart OK" enabled="true">
+            <collectionProp name="Asserion.test_strings"/>
+            <stringProp name="Assertion.test_field">Assertion.response_code</stringProp>
+            <collectionProp name="Assertion.test_strings">
+              <stringProp name="0">200</stringProp>
+            </collectionProp>
+            <stringProp name="Assertion.custom_message"></stringProp>
+            <boolProp name="Assertion.assume_success">false</boolProp>
+            <intProp name="Assertion.test_type">2</intProp>
+          </ResponseAssertion>
+          <hashTree/>
+        </hashTree>
+        <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="Get Cart" enabled="true">
+          <stringProp name="HTTPSampler.domain">${__P(host,localhost)}</stringProp>
+          <stringProp name="HTTPSampler.port">${__P(port,8080)}</stringProp>
+          <stringProp name="HTTPSampler.protocol">http</stringProp>
+          <stringProp name="HTTPSampler.path">/api/v1/cart</stringProp>
+          <stringProp name="HTTPSampler.method">GET</stringProp>
+          <boolProp name="HTTPSampler.postBodyRaw">false</boolProp>
+          <elementProp name="HTTPsampler.Arguments" elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" testname="User Defined Variables">
+            <collectionProp name="Arguments.arguments"/>
+          </elementProp>
+        </HTTPSamplerProxy>
+        <hashTree/>
+        <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="Submit Order" enabled="true">
+          <stringProp name="HTTPSampler.domain">${__P(host,localhost)}</stringProp>
+          <stringProp name="HTTPSampler.port">${__P(port,8080)}</stringProp>
+          <stringProp name="HTTPSampler.protocol">http</stringProp>
+          <stringProp name="HTTPSampler.path">/api/v1/orders/submit</stringProp>
+          <stringProp name="HTTPSampler.method">POST</stringProp>
+          <boolProp name="HTTPSampler.postBodyRaw">false</boolProp>
+          <elementProp name="HTTPsampler.Arguments" elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" testname="User Defined Variables">
+            <collectionProp name="Arguments.arguments"/>
+          </elementProp>
+        </HTTPSamplerProxy>
+        <hashTree>
+          <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="Assert Order Created" enabled="true">
+            <collectionProp name="Asserion.test_strings"/>
+            <stringProp name="Assertion.test_field">Assertion.response_code</stringProp>
+            <collectionProp name="Assertion.test_strings">
+              <stringProp name="0">201</stringProp>
+            </collectionProp>
+            <stringProp name="Assertion.custom_message"></stringProp>
+            <boolProp name="Assertion.assume_success">false</boolProp>
+            <intProp name="Assertion.test_type">2</intProp>
+          </ResponseAssertion>
+          <hashTree/>
+        </hashTree>
+      </hashTree>
+
+      <!-- Single results collector -->
+      <ResultCollector guiclass="ViewResultsFullVisualizer" testclass="ResultCollector" testname="View Results Tree">
+        <boolProp name="ResultCollector.error_logging">false</boolProp>
+        <objProp>
+          <name>saveConfig</name>
+          <value class="SampleSaveConfiguration">
+            <time>true</time>
+            <latency>true</latency>
+            <timestamp>true</timestamp>
+            <success>true</success>
+            <label>true</label>
+            <code>true</code>
+            <message>true</message>
+            <threadName>true</threadName>
+            <dataType>true</dataType>
+            <encoding>false</encoding>
+            <assertions>true</assertions>
+            <subresults>true</subresults>
+            <responseData>false</responseData>
+            <samplerData>false</samplerData>
+            <xml>false</xml>
+            <fieldNames>true</fieldNames>
+            <responseHeaders>false</responseHeaders>
+            <requestHeaders>false</requestHeaders>
+            <responseDataOnError>false</responseDataOnError>
+            <saveAssertionResultsFailureMessage>true</saveAssertionResultsFailureMessage>
+            <assertionsResultsToSave>0</assertionsResultsToSave>
+            <bytes>true</bytes>
+            <sentBytes>true</sentBytes>
+            <url>true</url>
+            <threadCounts>true</threadCounts>
+            <idleTime>true</idleTime>
+            <connectTime>true</connectTime>
+          </value>
+        </objProp>
+        <stringProp name="filename"></stringProp>
+      </ResultCollector>
+      <hashTree/>
+
     </hashTree>
   </hashTree>
 </jmeterTestPlan>

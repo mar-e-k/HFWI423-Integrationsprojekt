@@ -14,9 +14,14 @@ if exist jmeter-results (
 )
 
 echo.
-echo Starte Spike-Test...
+echo Starte Spike-Test (Baseline -^> Spike -^> Recovery)...
 echo.
 
+REM === Spike-Test Profil (Defaults im JMX) ===
+REM Stage 1: Baseline   ->  10 User,  10s ramp-up,  60s Dauer
+REM Stage 2: Spike      -> 300 User,   5s ramp-up,  60s Dauer
+REM Stage 3: Recovery   ->  10 User,   5s ramp-up, 120s Dauer
+REM Gesamtlaufzeit: ca. 4 Minuten
 set TESTPLAN=spike-test.jmx
 
 docker compose --profile test run --rm jmeter
