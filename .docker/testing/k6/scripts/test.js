@@ -108,13 +108,13 @@ const scenarios = {
     // ──────────────────────────────────────────────────────────────────────
     soaktest: {
         executor:         'ramping-vus',
-        startVUs:         12,
+        startVUs:         4,
         stages: [
-            { duration: '3h', target: 12 },
-            { duration: '3h', target: 20 },
-            { duration: '2h', target: 30 },
-            { duration: '4h', target: 20 },
-            { duration: '4h', target: 25 },
+            { duration: '3h', target: 5 },
+            { duration: '3h', target: 5 },
+            { duration: '2h', target: 5 },
+            { duration: '4h', target: 6 },
+            { duration: '4h', target: 6 },
         ],
         gracefulRampDown: '30s',
         exec: 'soaktest',

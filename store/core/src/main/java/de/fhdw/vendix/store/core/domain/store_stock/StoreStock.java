@@ -25,7 +25,7 @@ public class StoreStock extends AbstractSpringDataAuditingEntity<Long> {
     private Long articleId;
 
     @NotNull(message = "Current amount cannot be null")
-    @Min(value = 1, message = "Current amount must be at least 1")
+    @Min(value = 0, message = "Current amount must be at least 1")
     @Column(nullable = false)
     private Long currentAmount;
 

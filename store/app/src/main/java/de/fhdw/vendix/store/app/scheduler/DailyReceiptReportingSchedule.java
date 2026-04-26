@@ -13,6 +13,7 @@ import jakarta.persistence.EntityNotFoundException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 
 import java.util.HashSet;
@@ -29,7 +30,7 @@ import java.util.Set;
  * referenced here directly, and the same logic can be reused by the test
  * controller.
  */
-@Service
+@Component
 public class DailyReceiptReportingSchedule {
 
     private static final Logger log = LoggerFactory.getLogger(DailyReceiptReportingSchedule.class);
