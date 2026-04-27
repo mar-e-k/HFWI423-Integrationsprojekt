@@ -1,0 +1,28 @@
+type: object
+description: Response after a successful checkout.
+properties:
+  receiptId:
+    type: integer
+    format: int64
+    description: ID of the created receipt.
+    example: 42
+  storeId:
+    type: integer
+    format: int64
+  registerId:
+    type: integer
+    format: int64
+  cashierId:
+    type: integer
+    format: int64
+  lineCount:
+    type: integer
+    description: Number of line items created.
+    example: 3
+  lineIds:
+    type: array
+    items:
+      type: integer
+      format: int64
+    description: IDs of the created ReceiptLine entries.
+    example: [101, 102, 103]

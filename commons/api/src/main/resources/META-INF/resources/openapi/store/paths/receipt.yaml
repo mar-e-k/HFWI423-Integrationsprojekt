@@ -1,0 +1,22 @@
+post:
+  operationId: postReceipt
+  summary: Create a new receipt (header only)
+  description: Creates a new receipt record without any line items.
+  tags:
+    - Receipt
+  requestBody:
+    description: The receipt object to be created.
+    required: true
+    content:
+      application/json:
+        schema:
+          $ref: "../components/schemas/ReceiptDTO.yaml"
+  responses:
+    '201':
+      description: The receipt was successfully created.
+      content:
+        application/json:
+          schema:
+            $ref: "../components/schemas/ReceiptDTO.yaml"
+    '400':
+      description: Invalid request body.

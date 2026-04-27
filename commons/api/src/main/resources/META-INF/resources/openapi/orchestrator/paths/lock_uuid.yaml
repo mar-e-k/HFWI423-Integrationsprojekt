@@ -1,0 +1,40 @@
+get:
+  operationId: getAllDistributedLocksByInstanceUUID
+  summary: Get all distributed locks by instance UUID
+  description: Retrieves all locks held by a specific service instance.
+  tags:
+    - DistributedLock
+  parameters:
+    - in: path
+      name: uuid
+      description: The UUID of the service instance.
+      required: true
+      schema:
+        type: string
+        format: uuid
+  responses:
+    '200':
+      description: A list of locks was successfully retrieved.
+      content:
+        application/json:
+          schema:
+            type: array
+            items:
+              $ref: "../components/schemas/DistributedLockDTO.yaml"
+delete:
+  operationId: deleteAllDistributedLocksByInstanceUUID
+  summary: Delete all distributed locks by instance UUID
+  description: Deletes all locks held by a specific service instance.
+  tags:
+    - DistributedLock
+  parameters:
+    - in: path
+      name: uuid
+      description: The UUID of the service instance.
+      required: true
+      schema:
+        type: string
+        format: uuid
+  responses:
+    '204':
+      description: All locks for the specified instance were successfully deleted.

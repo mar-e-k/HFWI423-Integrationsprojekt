@@ -22,4 +22,4 @@ paths:
 components:
   schemas:
     TargetGroup:
-      $ref: './schemas/target-group.yaml#/TargetGroup'
+      $ref: './components/schemas/target-group.yaml#/TargetGroup'

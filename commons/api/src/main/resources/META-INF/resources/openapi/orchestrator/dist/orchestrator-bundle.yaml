@@ -1,172 +1,55 @@
 openapi: 3.0.0
-
 info:
   title: Orchestrator API
-  description: This API provides operations for managing connections, locks, accounts, and stores.
+  description: This API provides operations for managing service registry, locks, accounts, and stores.
   version: 1.0.0
-
+servers:
+  - url: http://localhost:8080
+    description: Local development server.
+security:
+  - bearerAuth: []
 tags:
-  - name: Connection
-    description: Operations related to service connections.
+  - name: Registry
+    description: Operations related to service registry.
   - name: DistributedLock
     description: Operations related to resource locking.
   - name: Store
     description: Operations related to stores.
   - name: Register
     description: Operations related to registers.
-
-servers:
-  - url: http://localhost:8080
-    description: Local development server.
-
-security:
-  - bearerAuth: [ ]
-
 paths:
-  /api/connection:
+  /api/registry/register:
     post:
-      operationId: postConnection
-      summary: Create a new connection
-      description: Creates a new connection for a service instance.
+      summary: Register a new instance
+      operationId: registerInstance
+      description: d
       tags:
-        - Connection
+        - Registry
       requestBody:
-        description: The connection object to be created.
         required: true
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/ConnectionDTO"
-      responses:
-        '201':
-          description: The connection was successfully created.
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ConnectionDTO"
-        '409':
-          description: A connection for this service instance already exists.
-
-  /api/connection/type/{type}:
-    get:
-      operationId: getConnectionsByType
-      summary: Get connections by target type
-      description: Retrieves a list of all connections with the specified target type.
-      tags:
-        - Connection
-      parameters:
-        - in: path
-          name: type
-          description: The type of the target resource.
-          required: true
-          schema:
-            $ref: "#/components/schemas/TargetType"
+              $ref: '#/components/schemas/RegistrationRequest'
       responses:
         '200':
-          description: A list of connections was successfully retrieved.
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: "#/components/schemas/ConnectionDTO"
-
-  /api/connection/type/{type}/id/{id}:
-    get:
-      operationId: getConnectionByTarget
-      summary: Get connection by target
-      description: Retrieves a connection by its target resource.
+          description: Instance registered
+  /api/registry/heartbeat/{instanceId}:
+    put:
+      summary: Send keep-alive heartbeat
+      operationId: sendHeartbeat
+      description: d
       tags:
-        - Connection
+        - Registry
       parameters:
-        - in: path
-          name: type
-          description: The type of the target resource.
-          required: true
-          schema:
-            $ref: "#/components/schemas/TargetType"
-        - in: path
-          name: id
-          description: The ID of the target resource.
-          required: true
-          schema:
-            type: integer
-            format: int64
-      responses:
-        '200':
-          description: The requested connection.
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ConnectionDTO"
-        '404':
-          description: A connection for the specified target was not found.
-    delete:
-      operationId: deleteConnectionByTarget
-      summary: Delete connection by target
-      description: Deletes a connection by its target resource.
-      tags:
-        - Connection
-      parameters:
-        - in: path
-          name: type
-          description: The type of the target resource.
-          required: true
-          schema:
-            $ref: "#/components/schemas/TargetType"
-        - in: path
-          name: id
-          description: The ID of the target resource.
-          required: true
-          schema:
-            type: integer
-            format: int64
-      responses:
-        '204':
-          description: The connection was successfully deleted.
-
-  /api/connection/uuid/{uuid}:
-    get:
-      operationId: getConnectionByInstanceUUID
-      summary: Get connection by instance UUID
-      description: Retrieves a connection by the UUID of the service instance.
-      tags:
-        - Connection
-      parameters:
-        - in: path
-          name: uuid
-          description: The UUID of the service instance.
+        - name: instanceId
+          in: path
           required: true
           schema:
             type: string
-            format: uuid
-      responses:
-        '200':
-          description: The requested connection.
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ConnectionDTO"
-        '404':
-          description: A connection with the specified UUID was not found.
-    delete:
-      operationId: deleteConnectionByInstanceUuid
-      summary: Delete connection by instance UUID
-      description: Deletes a connection by the UUID of the service instance.
-      tags:
-        - Connection
-      parameters:
-        - in: path
-          name: uuid
-          description: The UUID of the service instance.
-          required: true
-          schema:
-            type: string
-            format: uuid
       responses:
         '204':
-          description: The connection was successfully deleted.
-
+          description: Heartbeat received
   /api/lock:
     post:
       operationId: postDistributedLock
@@ -180,17 +63,16 @@ paths:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/DistributedLockDTO"
+              $ref: '#/components/schemas/DistributedLockDTO'
       responses:
         '201':
           description: The lock was successfully created.
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/DistributedLockDTO"
+                $ref: '#/components/schemas/DistributedLockDTO'
         '409':
           description: The resource is already locked.
-
   /api/lock/type/{type}:
     get:
       operationId: getDistributedLocksByType
@@ -204,7 +86,7 @@ paths:
           description: The type of the target resource.
           required: true
           schema:
-            $ref: "#/components/schemas/TargetType"
+            $ref: '#/components/schemas/TargetType'
       responses:
         '200':
           description: A list of locks was successfully retrieved.
@@ -213,8 +95,7 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: "#/components/schemas/DistributedLockDTO"
-
+                  $ref: '#/components/schemas/DistributedLockDTO'
   /api/lock/type/{type}/id/{id}:
     get:
       operationId: getDistributedLockByTarget
@@ -228,7 +109,7 @@ paths:
           description: The type of the locked resource.
           required: true
           schema:
-            $ref: "#/components/schemas/TargetType"
+            $ref: '#/components/schemas/TargetType'
         - in: path
           name: id
           description: The ID of the locked resource.
@@ -242,7 +123,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/DistributedLockDTO"
+                $ref: '#/components/schemas/DistributedLockDTO'
         '404':
           description: A lock for the specified target was not found.
     delete:
@@ -257,7 +138,7 @@ paths:
           description: The type of the locked resource.
           required: true
           schema:
-            $ref: "#/components/schemas/TargetType"
+            $ref: '#/components/schemas/TargetType'
         - in: path
           name: id
           description: The ID of the locked resource.
@@ -268,7 +149,6 @@ paths:
       responses:
         '204':
           description: The lock was successfully deleted.
-
   /api/lock/uuid/{uuid}:
     get:
       operationId: getAllDistributedLocksByInstanceUUID
@@ -292,7 +172,7 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: "#/components/schemas/DistributedLockDTO"
+                  $ref: '#/components/schemas/DistributedLockDTO'
     delete:
       operationId: deleteAllDistributedLocksByInstanceUUID
       summary: Delete all distributed locks by instance UUID
@@ -310,7 +190,6 @@ paths:
       responses:
         '204':
           description: All locks for the specified instance were successfully deleted.
-
   /api/store/locked:
     get:
       operationId: getLockedStores
@@ -326,8 +205,7 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: "#/components/schemas/StoreDTO"
-
+                  $ref: '#/components/schemas/StoreDTO'
   /api/store/unlocked:
     get:
       operationId: getUnlockedStores
@@ -343,8 +221,7 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: "#/components/schemas/StoreDTO"
-
+                  $ref: '#/components/schemas/StoreDTO'
   /api/store/id/{id}:
     get:
       operationId: getStoreById
@@ -366,10 +243,9 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/StoreDTO"
+                $ref: '#/components/schemas/StoreDTO'
         '404':
           description: A store with the specified ID was not found.
-
   /api/store/{storeId}/register:
     get:
       operationId: getRegistersByStoreId
@@ -393,8 +269,7 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: "#/components/schemas/RegisterDTO"
-
+                  $ref: '#/components/schemas/RegisterDTO'
   /api/store/{storeId}/register/locked:
     get:
       operationId: getLockedRegistersByStoreId
@@ -418,8 +293,7 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: "#/components/schemas/RegisterDTO"
-
+                  $ref: '#/components/schemas/RegisterDTO'
   /api/store/{storeId}/register/unlocked:
     get:
       operationId: getUnlockedRegistersByStoreId
@@ -443,8 +317,7 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: "#/components/schemas/RegisterDTO"
-
+                  $ref: '#/components/schemas/RegisterDTO'
   /api/register/id/{id}:
     get:
       operationId: getRegisterById
@@ -466,10 +339,9 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/RegisterDTO"
+                $ref: '#/components/schemas/RegisterDTO'
         '404':
           description: A register with the specified ID was not found.
-
   /api/register/locked:
     get:
       operationId: getLockedRegisters
@@ -485,8 +357,7 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: "#/components/schemas/RegisterDTO"
-
+                  $ref: '#/components/schemas/RegisterDTO'
   /api/register/unlocked:
     get:
       operationId: getUnlockedRegisters
@@ -502,60 +373,42 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: "#/components/schemas/RegisterDTO"
-
+                  $ref: '#/components/schemas/RegisterDTO'
 components:
   securitySchemes:
     bearerAuth:
       type: http
       scheme: bearer
       bearerFormat: JWT
-      description: "Bearer token for authentication. Example: 'Bearer {token}'"
-
+      description: 'Bearer token for authentication. Example: ''Bearer {token}'''
   schemas:
-    ConnectionDTO:
+    RegistrationRequest:
       type: object
-      description: Represents a connection from a service instance to a target resource.
+      required:
+        - instanceId
+        - appType
+        - port
       properties:
-        id:
-          type: integer
-          format: int64
-        target:
-          $ref: "#/components/schemas/EntityTargetDTO"
-        instance:
-          $ref: "#/components/schemas/InstanceDetailsDTO"
-        acquiredAt:
+        instanceId:
           type: string
-          format: date-time
-        heartbeatAt:
+          example: uuid-123
+        appType:
           type: string
-          format: date-time
-        failedAttempts:
+          enum:
+            - store
+            - pos
+        port:
           type: integer
-          format: int64
-        connectionState:
-          $ref: "#/components/schemas/ConnectionState"
-      example:
-        id: 1
-        target:
-          id: 101
-          type: "STORE"
-        instance:
-          uuid: "a1b2c3d4-e5f6-7890-1234-567890abcdef"
-          host: "localhost"
-          server: "store-service-1"
-          port: 8080
-        acquiredAt: "2023-10-27T10:00:00Z"
-        heartbeatAt: "2023-10-27T10:05:00Z"
-        failedAttempts: 0
-        connectionState: UP
-
+          example: 54321
+        context:
+          type: string
+          description: 'Optional: Store ID or POS ID if already known'
     DistributedLockDTO:
       type: object
       description: Represents a distributed lock on a resource.
       properties:
         target:
-          $ref: "#/components/schemas/EntityTargetDTO"
+          $ref: '#/components/schemas/EntityTargetDTO'
         instanceUUID:
           type: string
           format: uuid
@@ -568,11 +421,10 @@ components:
       example:
         target:
           id: 101
-          type: "STORE"
-        instanceUUID: "a1b2c3d4-e5f6-7890-1234-567890abcdef"
-        acquiredAt: "2023-10-27T10:00:00Z"
-        expiresAt: "2023-10-27T11:00:00Z"
-
+          type: STORE
+        instanceUUID: a1b2c3d4-e5f6-7890-1234-567890abcdef
+        acquiredAt: '2023-10-27T10:00:00Z'
+        expiresAt: '2023-10-27T11:00:00Z'
     EntityTargetDTO:
       type: object
       description: Represents a target resource.
@@ -581,11 +433,10 @@ components:
           type: integer
           format: int64
         type:
-          $ref: "#/components/schemas/TargetType"
+          $ref: '#/components/schemas/TargetType'
       example:
         id: 101
-        type: "STORE"
-
+        type: STORE
     TargetType:
       type: string
       description: The type of a target resource.
@@ -594,34 +445,6 @@ components:
         - REGISTER
         - ACCOUNT
         - ORCHESTRATOR
-
-    ConnectionState:
-      type: string
-      description: The state of the connection.
-      enum:
-        - UP
-        - DOWN
-
-    InstanceDetailsDTO:
-      type: object
-      description: Represents the details of a service instance.
-      properties:
-        uuid:
-          type: string
-          format: uuid
-        host:
-          type: string
-        server:
-          type: string
-        port:
-          type: integer
-          format: int64
-      example:
-        uuid: "a1b2c3d4-e5f6-7890-1234-567890abcdef"
-        host: "DESKTOP-AH8CD"
-        server: "localhost"
-        port: 8080
-
     StoreDTO:
       type: object
       description: Represents a store location.
@@ -641,12 +464,11 @@ components:
           type: string
       example:
         id: 101
-        name: "Main Store"
-        country: "Germany"
-        city: "Berlin"
-        street: "Musterstrasse"
-        streetNumber: "1"
-
+        name: Main Store
+        country: Germany
+        city: Berlin
+        street: Musterstrasse
+        streetNumber: '1'
     RegisterDTO:
       type: object
       description: Represents a cash register in a store.

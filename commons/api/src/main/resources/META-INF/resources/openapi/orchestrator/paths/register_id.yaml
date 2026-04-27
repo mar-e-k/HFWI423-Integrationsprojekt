@@ -1,0 +1,23 @@
+get:
+  operationId: getRegisterById
+  summary: Get register by ID
+  description: Retrieves a single register by its ID.
+  tags:
+    - Register
+  parameters:
+    - in: path
+      name: id
+      required: true
+      description: The ID of the register.
+      schema:
+        type: integer
+        format: int64
+  responses:
+    '200':
+      description: The requested register.
+      content:
+        application/json:
+          schema:
+            $ref: "../components/schemas/RegisterDTO.yaml"
+    '404':
+      description: A register with the specified ID was not found.

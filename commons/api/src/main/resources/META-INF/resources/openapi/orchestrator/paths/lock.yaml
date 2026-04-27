@@ -1,0 +1,22 @@
+post:
+  operationId: postDistributedLock
+  summary: Create a new distributed lock
+  description: Creates a new lock on a resource.
+  tags:
+    - DistributedLock
+  requestBody:
+    description: The lock object to be created.
+    required: true
+    content:
+      application/json:
+        schema:
+          $ref: "../components/schemas/DistributedLockDTO.yaml"
+  responses:
+    '201':
+      description: The lock was successfully created.
+      content:
+        application/json:
+          schema:
+            $ref: "../components/schemas/DistributedLockDTO.yaml"
+    '409':
+      description: The resource is already locked.

@@ -1,0 +1,15 @@
+post:
+  summary: Register a new instance
+  operationId: registerInstance
+  description: d
+  tags:
+    - Registry
+  requestBody:
+    required: true
+    content:
+      application/json:
+        schema:
+          $ref: '../components/schemas/RegistrationRequest.yaml'
+  responses:
+    '200':
+      description: Instance registered

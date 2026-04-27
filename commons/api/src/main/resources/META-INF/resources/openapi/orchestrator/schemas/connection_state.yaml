@@ -1,6 +1,0 @@
-ConnectionState:
-  type: string
-  description: The state of the connection.
-  enum:
-    - UP
-    - DOWN

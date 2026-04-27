@@ -1,0 +1,29 @@
+post:
+  operationId: printReceipt
+  summary: Print (close) a receipt
+  description: >
+    Transitions the receipt from OPEN to PRINTED. This represents the
+    cashier printing the receipt and handing it to the customer. A printed
+    receipt cannot be cancelled or printed again.
+  tags:
+    - Checkout
+  parameters:
+    - in: path
+      name: id
+      required: true
+      description: The unique identifier of the receipt to print.
+      schema:
+        type: integer
+        format: int64
+        example: 42
+  responses:
+    '200':
+      description: Receipt successfully printed. Returns the updated receipt.
+      content:
+        application/json:
+          schema:
+            $ref: "../components/schemas/ReceiptDTO.yaml"
+    '404':
+      description: Receipt not found.
+    '409':
+      description: Receipt is already printed or cancelled.

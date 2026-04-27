@@ -1,0 +1,22 @@
+get:
+  operationId: getDistributedLocksByType
+  summary: Get distributed locks by target type
+  description: Retrieves a list of all locks with the specified target type.
+  tags:
+    - DistributedLock
+  parameters:
+    - in: path
+      name: type
+      description: The type of the target resource.
+      required: true
+      schema:
+        $ref: "../components/schemas/TargetType.yaml"
+  responses:
+    '200':
+      description: A list of locks was successfully retrieved.
+      content:
+        application/json:
+          schema:
+            type: array
+            items:
+              $ref: "../components/schemas/DistributedLockDTO.yaml"

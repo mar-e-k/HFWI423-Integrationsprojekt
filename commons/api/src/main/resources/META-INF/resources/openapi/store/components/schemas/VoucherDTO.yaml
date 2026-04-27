@@ -1,0 +1,20 @@
+type: object
+description: Represents a voucher that can be redeemed within the store system.
+properties:
+  id:
+    type: integer
+    format: int64
+    example: 1
+  code:
+    type: string
+    format: uuid
+    example: "550e8400-e29b-41d4-a716-446655440000"
+  expiresAt:
+    type: string
+    format: date-time
+    example: "2026-12-31T23:59:59Z"
+  redeemedAt:
+    type: string
+    format: date-time
+    nullable: true
+    example: null

@@ -16,7 +16,7 @@ get:
           schema:
             type: array
             items:
-              $ref: '../schemas/target-group.yaml#/TargetGroup'
+              $ref: '../components/schemas/target-group.yaml#/TargetGroup'
           examples:
             default:
               summary: Example target groups

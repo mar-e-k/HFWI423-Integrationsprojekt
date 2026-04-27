@@ -1,0 +1,22 @@
+type: object
+description: A single article line within a checkout request.
+required:
+  - articleId
+  - articleAmount
+properties:
+  articleId:
+    type: integer
+    format: int64
+    description: ID of the article to add.
+    example: 5
+  articleAmount:
+    type: integer
+    format: int64
+    description: Quantity (minimum 1).
+    example: 2
+  discountPercent:
+    type: number
+    format: double
+    nullable: true
+    description: Optional discount in percent (0–100). Null means no discount.
+    example: 10.00

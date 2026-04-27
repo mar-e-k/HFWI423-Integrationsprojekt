@@ -1,0 +1,24 @@
+get:
+  operationId: getVoucherByCode
+  summary: Get a voucher by code
+  description: Retrieves a single voucher using its unique code.
+  tags:
+    - Voucher
+  parameters:
+    - in: path
+      name: code
+      required: true
+      description: The unique voucher code (UUID format).
+      schema:
+        type: string
+        format: uuid
+        example: "550e8400-e29b-41d4-a716-446655440000"
+  responses:
+    '200':
+      description: The requested voucher.
+      content:
+        application/json:
+          schema:
+            $ref: "../components/schemas/VoucherDTO.yaml"
+    '404':
+      description: A voucher with the specified code was not found.

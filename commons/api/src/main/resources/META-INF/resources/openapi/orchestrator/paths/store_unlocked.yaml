@@ -1,0 +1,15 @@
+get:
+  operationId: getUnlockedStores
+  summary: Get all unlocked stores
+  description: Retrieves a list of all stores that are not currently locked.
+  tags:
+    - Store
+  responses:
+    '200':
+      description: A list of unlocked stores was successfully retrieved.
+      content:
+        application/json:
+          schema:
+            type: array
+            items:
+              $ref: "../components/schemas/StoreDTO.yaml"

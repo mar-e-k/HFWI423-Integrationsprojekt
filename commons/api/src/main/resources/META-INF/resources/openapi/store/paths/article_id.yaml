@@ -1,0 +1,24 @@
+get:
+  operationId: getArticleById
+  summary: Get an article by ID
+  description: Retrieves a single article by its unique identifier.
+  tags:
+    - Article
+  parameters:
+    - in: path
+      name: id
+      required: true
+      description: The unique identifier of the article.
+      schema:
+        type: integer
+        format: int64
+        example: 123
+  responses:
+    '200':
+      description: The requested article.
+      content:
+        application/json:
+          schema:
+            $ref: "../components/schemas/ArticleDTO.yaml"
+    '404':
+      description: An article with the specified ID was not found.

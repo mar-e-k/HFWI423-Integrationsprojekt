@@ -1,0 +1,28 @@
+post:
+  operationId: cancelReceipt
+  summary: Cancel a receipt
+  description: >
+    Transitions the receipt from OPEN to CANCELLED. Only receipts with
+    status OPEN can be cancelled. A printed receipt cannot be cancelled.
+  tags:
+    - Checkout
+  parameters:
+    - in: path
+      name: id
+      required: true
+      description: The unique identifier of the receipt to cancel.
+      schema:
+        type: integer
+        format: int64
+        example: 42
+  responses:
+    '200':
+      description: Receipt successfully cancelled. Returns the updated receipt.
+      content:
+        application/json:
+          schema:
+            $ref: "../components/schemas/ReceiptDTO.yaml"
+    '404':
+      description: Receipt not found.
+    '409':
+      description: Receipt is already cancelled or already printed.

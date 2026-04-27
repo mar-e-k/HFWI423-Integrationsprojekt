@@ -1,0 +1,15 @@
+put:
+  summary: Send keep-alive heartbeat
+  operationId: sendHeartbeat
+  description: d
+  tags:
+    - Registry
+  parameters:
+    - name: instanceId
+      in: path
+      required: true
+      schema:
+        type: string
+  responses:
+    204:
+      description: Heartbeat received

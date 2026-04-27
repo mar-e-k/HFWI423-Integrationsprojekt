@@ -1,0 +1,23 @@
+get:
+  operationId: getStoreById
+  summary: Get store by ID
+  description: Retrieves a single store by its ID.
+  tags:
+    - Store
+  parameters:
+    - in: path
+      name: id
+      required: true
+      description: The ID of the store.
+      schema:
+        type: integer
+        format: int64
+  responses:
+    '200':
+      description: The requested store.
+      content:
+        application/json:
+          schema:
+            $ref: "../components/schemas/StoreDTO.yaml"
+    '404':
+      description: A store with the specified ID was not found.
