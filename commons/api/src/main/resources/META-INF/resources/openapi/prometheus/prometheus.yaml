@@ -1,0 +1,25 @@
+openapi: 3.0.3
+
+info:
+  title: Prometheus Target Discovery API
+  description: |
+    Provides Prometheus-compatible target groups for file-based or HTTP service discovery.
+    The response format strictly follows Prometheus file_sd_config expectations.
+  version: 1.0.0
+
+tags:
+  - name: Prometheus
+    description: Prometheus service discovery endpoints
+
+servers:
+  - url: http://localhost:8080
+    description: Local development server
+
+paths:
+  /prometheus/targets:
+    $ref: './paths/targets.yaml'
+
+components:
+  schemas:
+    TargetGroup:
+      $ref: './schemas/target-group.yaml#/TargetGroup'

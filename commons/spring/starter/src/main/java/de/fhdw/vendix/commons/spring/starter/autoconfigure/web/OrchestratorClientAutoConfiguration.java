@@ -50,12 +50,6 @@ public class OrchestratorClientAutoConfiguration {
 
     @Bean
     @ConditionalOnMissingBean
-    public ConnectionProxyService connectionProxyService(HttpServiceProxyFactory orchestratorClientFactory) {
-        return orchestratorClientFactory.createClient(ConnectionProxyService.class);
-    }
-
-    @Bean
-    @ConditionalOnMissingBean
     public StoreProxyService storeProxyService(HttpServiceProxyFactory storeClientFactory) {
         return storeClientFactory.createClient(StoreProxyService.class);
     }

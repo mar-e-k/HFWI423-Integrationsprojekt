@@ -1,0 +1,31 @@
+get:
+  operationId: getPrometheusTargets
+  summary: Get Prometheus scrape targets
+  description: |
+    Returns a list of target groups in Prometheus file-based service discovery format.
+    This endpoint can be used for:
+    - file_sd_configs (via generated file)
+    - http_sd_configs (direct integration)
+  tags:
+    - Prometheus
+  responses:
+    '200':
+      description: List of Prometheus target groups
+      content:
+        application/json:
+          schema:
+            type: array
+            items:
+              $ref: '../schemas/target-group.yaml#/TargetGroup'
+          examples:
+            default:
+              summary: Example target groups
+              value:
+                - targets: ["localhost:8081", "localhost:8082"]
+                  labels:
+                    app: store
+                    environment: local
+                - targets: ["localhost:8091"]
+                  labels:
+                    app: register
+                    environment: local

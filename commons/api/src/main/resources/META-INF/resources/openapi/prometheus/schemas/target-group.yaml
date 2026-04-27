@@ -1,0 +1,29 @@
+TargetGroup:
+  type: object
+  description: |
+    A group of scrape targets as expected by Prometheus.
+  required:
+    - targets
+  properties:
+    targets:
+      type: array
+      description: List of scrape targets in host:port format
+      items:
+        type: string
+        pattern: '^[^:]+:\d+$'
+        example: localhost:8081
+
+    labels:
+      type: object
+      description: |
+        Key-value pairs attached to all targets in this group.
+        Common labels include:
+        - app
+        - instance
+        - environment
+      additionalProperties:
+        type: string
+      example:
+        app: store
+        instance: store-1
+        environment: local
