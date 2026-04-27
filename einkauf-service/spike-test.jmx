@@ -4,6 +4,26 @@
     <TestPlan guiclass="TestPlanGui" testclass="TestPlan" testname="Spike Test (Baseline -&gt; Spike -&gt; Recovery)" enabled="true">
       <boolProp name="TestPlan.functional_mode">false</boolProp>
       <boolProp name="TestPlan.serialize_threadgroups">true</boolProp>
+      <!--
+        ==========================================================
+        Spike-Test Profil (3 serialisierte Stages, ~2.5 min total)
+        ==========================================================
+        Stage 1 - Baseline (low)      :  10 User,  30s
+        Stage 2 - Spike (sudden burst): 300 User,  60s, ramp-up 5s
+        Stage 3 - Recovery (low again):  10 User,  60s
+
+        User Journey (jeder User durchlaeuft diesen Loop wiederholt
+        in jeder Stage, getrennt durch 200ms Think Time):
+          1) POST /api/v1/articles            (Create Article)
+             -> extract articleId aus JSON-Response
+          2) POST /api/v1/cart/add?articleId=...&quantity=5
+                                              (Add to Cart)
+          3) GET  /api/v1/cart                (Get Cart)
+          4) POST /api/v1/orders/submit       (Submit Order)
+        Alle 3 Stages benutzen identische Sampler - nur die Anzahl
+        der gleichzeitigen User unterscheidet sich.
+        ==========================================================
+      -->
     </TestPlan>
     <hashTree>
       <CookieManager guiclass="CookiePanel" testclass="CookieManager" testname="Cookies" enabled="true">
@@ -42,7 +62,7 @@
           <boolProp name="LoopController.continue_forever">true</boolProp>
         </elementProp>
         <boolProp name="ThreadGroup.scheduler">true</boolProp>
-        <stringProp name="ThreadGroup.duration">${__P(baseline_duration,60)}</stringProp>
+        <stringProp name="ThreadGroup.duration">${__P(baseline_duration,30)}</stringProp>
         <boolProp name="ThreadGroup.same_user_on_next_iteration">true</boolProp>
         <stringProp name="ThreadGroup.on_sample_error">continue</stringProp>
       </ThreadGroup>
@@ -264,7 +284,7 @@
           <boolProp name="LoopController.continue_forever">true</boolProp>
         </elementProp>
         <boolProp name="ThreadGroup.scheduler">true</boolProp>
-        <stringProp name="ThreadGroup.duration">${__P(recovery_duration,120)}</stringProp>
+        <stringProp name="ThreadGroup.duration">${__P(recovery_duration,60)}</stringProp>
         <boolProp name="ThreadGroup.same_user_on_next_iteration">true</boolProp>
         <stringProp name="ThreadGroup.on_sample_error">continue</stringProp>
       </ThreadGroup>
