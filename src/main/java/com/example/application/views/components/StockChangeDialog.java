@@ -1,10 +1,8 @@
 package com.example.application.views.components;
 
 import com.example.application.data.articleInfo.ArticleInfo;
-import com.example.application.data.stockChangeLog.ChangeType;
 import com.example.application.services.ArticleInfoService;
 import com.vaadin.flow.component.button.Button;
-import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.notification.Notification;
@@ -39,18 +37,8 @@ public class StockChangeDialog extends Dialog {
         IntegerField change = new IntegerField("Change (+/-)");
         change.setValue(0);
 
-        // Angabe der Änderungsart mithilfe eines Drop down menüs -> Combo Box. Nur vorgefertigte eingaben
-        ComboBox<ChangeType> changeType = new ComboBox<>("Type of Change");
-        changeType.setItems(ChangeType.values());
-        changeType.setItemLabelGenerator(ct -> switch (ct) {
-            case ISSUE -> "Issue";
-            case TRANSFER -> "Transfer";
-            case ADJUSTMENT -> "Correction";
-            case RECEIPT -> "Receipt";
-        });
-        changeType.setRequired(true);
         // Layout des Dialogs
-        FormLayout form = new FormLayout(name, number, current, change, changeType);
+        FormLayout form = new FormLayout(name, number, current, change);
         add(form);
 
         Button cancel = new Button("Cancel", e -> close());
@@ -65,11 +53,6 @@ public class StockChangeDialog extends Dialog {
             if (article.getName() == null || article.getName().isBlank()) {
                 article.setName("Unnamed");
             }
-            if (changeType.isEmpty()) {
-                Notification.show("Please select a type of change");
-                return;
-            }
-
             // Sinnvolle Plausibilitätsprüfung statt "newStock < 0":
             // Wie viele Stück sind insgesamt vorhanden (offen + alle Paletten)?
             int piecesPerPallet = article.getPiecesPerPallet() != null ? article.getPiecesPerPallet() : 0;
@@ -82,13 +65,7 @@ public class StockChangeDialog extends Dialog {
             }
 
             // Service aufrufen → HIER läuft die Palettenlogik
-            ArticleInfo updated = articleInfoService.applyStockChange(
-                    article,
-                    delta,
-                    changeType.getValue(),
-                    null,
-                    null
-            );
+            ArticleInfo updated = articleInfoService.applyStockChange(article, delta);
 
             int finalStock = updated.getStockLevel() != null ? updated.getStockLevel() : 0;
 

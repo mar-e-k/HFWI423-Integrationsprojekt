@@ -4,7 +4,6 @@ import com.example.application.data.articleInfo.ArticleInfo;
 import com.example.application.data.articleInfo.RestockItem;
 import com.example.application.data.messagingEvent.MessagingEvent;
 import com.example.application.data.restockorder.RestockOrder;
-import com.example.application.data.stockChangeLog.StockChangeLog;
 import com.example.application.data.storageLocation.StorageLocation;
 import com.example.application.data.restockorder.RestockOrderRepository;
 import com.example.application.services.ArticleSyncService;
@@ -12,9 +11,7 @@ import com.example.application.services.MessagingEventService;
 import com.example.application.services.NewArticleCandidate;
 import com.example.application.services.RestockOrderService;
 import com.example.application.services.RestockService;
-import com.example.application.services.StockChangeLogService;
 import com.example.application.services.StorageLocationService;
-import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.orm.ObjectOptimisticLockingFailureException;
@@ -38,7 +35,6 @@ public class LoadTestMiscController {
     private final RestockService restockService;
     private final RestockOrderService restockOrderService;
     private final RestockOrderRepository restockOrderRepository;
-    private final StockChangeLogService stockChangeLogService;
     private final ArticleSyncService articleSyncService;
     private final MessagingEventService messagingEventService;
     private final StorageLocationService storageLocationService;
@@ -46,14 +42,12 @@ public class LoadTestMiscController {
     public LoadTestMiscController(RestockService restockService,
                                    RestockOrderService restockOrderService,
                                    RestockOrderRepository restockOrderRepository,
-                                   StockChangeLogService stockChangeLogService,
                                    ArticleSyncService articleSyncService,
                                    MessagingEventService messagingEventService,
                                    StorageLocationService storageLocationService) {
         this.restockService = restockService;
         this.restockOrderService = restockOrderService;
         this.restockOrderRepository = restockOrderRepository;
-        this.stockChangeLogService = stockChangeLogService;
         this.articleSyncService = articleSyncService;
         this.messagingEventService = messagingEventService;
         this.storageLocationService = storageLocationService;
@@ -128,12 +122,6 @@ public class LoadTestMiscController {
         }
         System.out.println("[approve-all] approved=" + approved);
         return ResponseEntity.ok(approved);
-    }
-
-    /** GET /api/load/stock-changes – Lagerbestand-Aenderungshistorie */
-    @GetMapping("/stock-changes")
-    public List<StockChangeLog> stockChanges() {
-        return stockChangeLogService.findAll(Sort.by(Sort.Direction.DESC, "changedAt"));
     }
 
     /**

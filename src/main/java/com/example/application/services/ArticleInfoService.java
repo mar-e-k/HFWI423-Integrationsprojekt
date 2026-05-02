@@ -4,28 +4,22 @@ import com.example.application.data.articleInfo.ArticleInfo;
 import com.example.application.data.articleInfo.ArticleInfoRepository;
 import org.springframework.jdbc.core.JdbcTemplate;
 import com.example.application.data.storageLocation.StorageLocation;
-import com.vaadin.flow.component.html.Article;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 import java.util.Optional;
-import com.example.application.data.stockChangeLog.StockChangeLogRepository;
 import com.vaadin.flow.data.provider.ListDataProvider;
 import jakarta.persistence.EntityNotFoundException;
-import com.example.application.data.stockChangeLog.StockChangeLog;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
-import com.example.application.data.stockChangeLog.ChangeType;
 import com.example.application.services.StorageLocationService;
-import com.example.application.data.storageLocation.StorageLocation;
 
 @Service
 public class ArticleInfoService {
 
     private final ArticleInfoRepository articleInfoRepository;
     private final JdbcTemplate jdbc;
-
     private final StorageLocationService storageLocationService;
 
     public Optional<ArticleInfo> get(Long id) {
@@ -64,42 +58,32 @@ public class ArticleInfoService {
 
     public ArticleInfoService(ArticleInfoRepository repository,
                               StorageLocationService storageLocationService,
-                              StockChangeLogRepository logRepository,
                               JdbcTemplate jdbc) {
         this.articleInfoRepository = repository;
         this.storageLocationService = storageLocationService;
-        this.logRepository = logRepository;
         this.jdbc = jdbc;
     }
 
-    private final StockChangeLogRepository logRepository;
-
     @Transactional
-    public ArticleInfo applyStockChange(ArticleInfo article,
-                                        int delta,
-                                        ChangeType type,
-                                        String reason,
-                                        String changedBy) {
+    public ArticleInfo applyStockChange(ArticleInfo article, int delta) {
 
         ArticleInfo managed = articleInfoRepository.findByIdForUpdate(article.getId())
                 .orElseThrow(() -> new IllegalArgumentException("Article not found: " + article.getId()));
 
         int oldStock = managed.getStockLevel() == null ? 0 : managed.getStockLevel();
-        int newStock = oldStock + delta; // "rohes" Ergebnis
+        int newStock = oldStock + delta;
 
         int piecesPerPallet = managed.getPiecesPerPallet() != null ? managed.getPiecesPerPallet() : 0;
         int reservePallets  = managed.getReservePallets()   != null ? managed.getReservePallets()   : 0;
 
-        // -------- Palettenlogik: so viele Paletten öffnen wie nötig --------
+        // Palettenlogik: so viele Paletten oeffnen wie noetig
         if (piecesPerPallet > 0) {
-            // solange Bestand <= 0 UND noch Paletten da sind → Palette(n) öffnen
             while (newStock <= 0 && reservePallets > 0) {
-                newStock += piecesPerPallet; // Palette aufreißen
-                reservePallets--;            // eine Palette weniger in Reserve
+                newStock += piecesPerPallet;
+                reservePallets--;
             }
         }
 
-        // Falls trotz aller Paletten negativ → bei 0 stoppen
         if (newStock < 0) {
             newStock = 0;
         }
@@ -107,21 +91,7 @@ public class ArticleInfoService {
         managed.setStockLevel(newStock);
         managed.setReservePallets(reservePallets);
 
-        ArticleInfo saved = articleInfoRepository.save(managed);
-
-        StockChangeLog log = new StockChangeLog();
-        log.setArticleId(saved.getId());
-        log.setArticleNumber(saved.getArticleNumber());
-        log.setArticleName(saved.getName());
-        log.setOldStock(oldStock);
-        log.setDelta(delta);
-        log.setNewStock(saved.getStockLevel()); // finaler Bestand nach Palettenlogik
-        log.setChangeType(type);
-        log.setReason(reason);
-        log.setChangedBy(changedBy);
-        logRepository.save(log);
-
-        return saved;
+        return articleInfoRepository.save(managed);
     }
 
     public ListDataProvider<String> findAllStorageLocations() {
@@ -158,7 +128,7 @@ public class ArticleInfoService {
             return false;
         }
 
-        applyStockChange(article, -change, ChangeType.ISSUE, "Kommissionierung", "system");
+        applyStockChange(article, -change);
         System.out.println("erfolgreich geupdated");
         return true;
     }

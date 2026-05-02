@@ -5,6 +5,10 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 
 @Entity
+@Table(name = "message_logistic", indexes = {
+    @Index(name = "idx_msglogistic_kommission_id",   columnList = "kommission_id"),
+    @Index(name = "idx_msglogistic_store_processed", columnList = "store_id, processed")
+})
 public class MessageLogistic extends AbstractEntity {
     //Artikelnummer
     @NotNull

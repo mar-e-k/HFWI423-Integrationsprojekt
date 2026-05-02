@@ -6,7 +6,6 @@ import com.example.application.data.contingent.ContingentRepository;
 import com.example.application.data.goodsreceipts.GoodsReceiptItemRepository;
 import com.example.application.data.goodsreceipts.GoodsReceiptRepository;
 import com.example.application.data.restockorder.RestockOrderRepository;
-import com.example.application.data.stockChangeLog.ChangeType;
 import com.example.application.services.ArticleInfoService;
 import jakarta.persistence.criteria.Predicate;
 import org.springframework.data.domain.Page;
@@ -82,7 +81,7 @@ public class LoadTestArticleController {
         try {
             ArticleInfo article = articleInfoService.findById(id);
             String reason = req.reason() != null ? req.reason() : "Lasttest";
-            return articleInfoService.applyStockChange(article, req.delta(), ChangeType.ADJUSTMENT, reason, "loadtest");
+            return articleInfoService.applyStockChange(article, req.delta());
         } catch (IllegalArgumentException e) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage());
         }

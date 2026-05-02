@@ -3,7 +3,9 @@ package com.example.application.data.contingent;
 import jakarta.persistence.*;
 
 @Entity
-@Table(name = "contingent")
+@Table(name = "contingent", indexes = {
+    @Index(name = "idx_contingent_article_id", columnList = "article_id")
+})
 public class Contingent {
 
     @Id

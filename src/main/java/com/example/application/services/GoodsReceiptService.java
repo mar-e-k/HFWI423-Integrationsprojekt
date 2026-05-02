@@ -16,6 +16,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.time.Year;
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -445,18 +446,19 @@ public class GoodsReceiptService {
     protected void applyApprovedItemsToReserve(Long receiptId) {
         List<GoodsReceiptItem> items = itemRepo.findByGoodsReceiptId(receiptId);
 
+        List<ArticleInfo> articlesToSave = new ArrayList<>();
         for (GoodsReceiptItem item : items) {
             if (item.getStatus() == GoodsReceiptItemStatus.FREIGEGEBEN) {
                 ArticleInfo article = item.getArticle();
                 if (article != null) {
                     int addQty = item.getActualQuantity() != null ? item.getActualQuantity() : 0;
                     int oldReserve = article.getReservePallets() != null ? article.getReservePallets() : 0;
-
                     article.setReservePallets(oldReserve + addQty);
-                    articleRepo.save(article);
+                    articlesToSave.add(article);
                 }
             }
         }
+        articleRepo.saveAll(articlesToSave);
     }
 }
 
