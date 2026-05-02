@@ -1,213 +1,96 @@
-2026-04-26 17:15:19,561 INFO o.a.j.u.JMeterUtils: Setting Locale to de_DE
-2026-04-26 17:15:19,597 INFO o.a.j.u.JMeterUtils: Could not find resources for 'de_DE', using 'de'
-2026-04-26 17:15:19,601 INFO o.a.j.JMeter: Loading user properties from: C:\tools\apache-jmeter-5.6.3\bin\user.properties
-2026-04-26 17:15:19,603 INFO o.a.j.JMeter: Loading system properties from: C:\tools\apache-jmeter-5.6.3\bin\system.properties
-2026-04-26 17:15:19,605 INFO o.a.j.JMeter: Setting JMeter property: threads_p1=2
-2026-04-26 17:15:19,605 INFO o.a.j.JMeter: Setting JMeter property: threads_p2=1
-2026-04-26 17:15:19,605 INFO o.a.j.JMeter: Setting JMeter property: threads_p3=4
-2026-04-26 17:15:19,605 INFO o.a.j.JMeter: Setting JMeter property: threads_p4=2
-2026-04-26 17:15:19,605 INFO o.a.j.JMeter: Setting JMeter property: threads_p5=2
-2026-04-26 17:15:19,605 INFO o.a.j.JMeter: Setting JMeter property: rampup=30
-2026-04-26 17:15:19,605 INFO o.a.j.JMeter: Setting JMeter property: host=localhost
-2026-04-26 17:15:19,605 INFO o.a.j.JMeter: Setting JMeter property: port=8081
-2026-04-26 17:15:19,605 INFO o.a.j.JMeter: Setting JMeter property: testname=Artikel-Workflow-11T
-2026-04-26 17:15:19,619 INFO o.a.j.JMeter: Copyright (c) 1998-2024 The Apache Software Foundation
-2026-04-26 17:15:19,619 INFO o.a.j.JMeter: Version 5.6.3
-2026-04-26 17:15:19,619 INFO o.a.j.JMeter: java.version=21.0.8
-2026-04-26 17:15:19,619 INFO o.a.j.JMeter: java.vm.name=OpenJDK 64-Bit Server VM
-2026-04-26 17:15:19,619 INFO o.a.j.JMeter: os.name=Windows 11
-2026-04-26 17:15:19,619 INFO o.a.j.JMeter: os.arch=amd64
-2026-04-26 17:15:19,619 INFO o.a.j.JMeter: os.version=10.0
-2026-04-26 17:15:19,621 INFO o.a.j.JMeter: file.encoding=UTF-8
-2026-04-26 17:15:19,621 INFO o.a.j.JMeter: java.awt.headless=true
-2026-04-26 17:15:19,621 INFO o.a.j.JMeter: Max memory     =4213178368
-2026-04-26 17:15:19,621 INFO o.a.j.JMeter: Available Processors =12
-2026-04-26 17:15:19,628 INFO o.a.j.JMeter: Default Locale=Deutsch (Deutschland)
-2026-04-26 17:15:19,631 INFO o.a.j.JMeter: JMeter  Locale=Deutsch (Deutschland)
-2026-04-26 17:15:19,631 INFO o.a.j.JMeter: JMeterHome=C:\tools\apache-jmeter-5.6.3
-2026-04-26 17:15:19,631 INFO o.a.j.JMeter: user.dir  =C:\Users\admin\Downloads\logistik\logistik
-2026-04-26 17:15:19,631 INFO o.a.j.JMeter: PWD       =C:\Users\admin\Downloads\logistik\logistik
-2026-04-26 17:15:19,635 INFO o.a.j.JMeter: IP: 192.168.178.74 Name: NB23-767 FullName: NB23-767.ha.bib.de
-2026-04-26 17:15:19,664 INFO o.a.j.s.FileServer: Default base='C:\Users\admin\Downloads\logistik\logistik'
-2026-04-26 17:15:19,666 INFO o.a.j.s.FileServer: Set new base='C:\Users\admin\Downloads\logistik\logistik\monitoring\jmeter'
-2026-04-26 17:15:20,119 INFO o.a.j.s.SaveService: Testplan (JMX) version: 2.2. Testlog (JTL) version: 2.2
-2026-04-26 17:15:20,169 INFO o.a.j.s.SaveService: Using SaveService properties version 5.0
-2026-04-26 17:15:20,169 INFO o.a.j.s.SaveService: Using SaveService properties file encoding UTF-8
-2026-04-26 17:15:20,180 INFO o.a.j.s.SaveService: Loading file: C:\Users\admin\Downloads\logistik\logistik\monitoring\jmeter\logistik-artikel-workflow.jmx
-2026-04-26 17:15:20,277 INFO o.a.j.p.h.s.HTTPSamplerBase: Parser for text/html is org.apache.jmeter.protocol.http.parser.LagartoBasedHtmlParser
-2026-04-26 17:15:20,277 INFO o.a.j.p.h.s.HTTPSamplerBase: Parser for application/xhtml+xml is org.apache.jmeter.protocol.http.parser.LagartoBasedHtmlParser
-2026-04-26 17:15:20,277 INFO o.a.j.p.h.s.HTTPSamplerBase: Parser for application/xml is org.apache.jmeter.protocol.http.parser.LagartoBasedHtmlParser
-2026-04-26 17:15:20,277 INFO o.a.j.p.h.s.HTTPSamplerBase: Parser for text/xml is org.apache.jmeter.protocol.http.parser.LagartoBasedHtmlParser
-2026-04-26 17:15:20,281 INFO o.a.j.p.h.s.HTTPSamplerBase: Parser for text/vnd.wap.wml is org.apache.jmeter.protocol.http.parser.RegexpHTMLParser
-2026-04-26 17:15:20,281 INFO o.a.j.p.h.s.HTTPSamplerBase: Parser for text/css is org.apache.jmeter.protocol.http.parser.CssParser
-2026-04-26 17:15:20,486 INFO o.a.j.s.SampleResult: Note: Sample TimeStamps are START times
-2026-04-26 17:15:20,488 INFO o.a.j.s.SampleResult: sampleresult.default.encoding is set to UTF-8
-2026-04-26 17:15:20,488 INFO o.a.j.s.SampleResult: sampleresult.useNanoTime=true
-2026-04-26 17:15:20,488 INFO o.a.j.s.SampleResult: sampleresult.nanoThreadSleep=5000
-2026-04-26 17:15:20,510 INFO o.a.j.JMeter: Creating summariser <summary>
-2026-04-26 17:15:20,533 INFO o.a.j.e.StandardJMeterEngine: Running the test!
-2026-04-26 17:15:20,533 INFO o.a.j.s.SampleEvent: List of sample_variables: []
-2026-04-26 17:15:20,533 INFO o.a.j.s.SampleEvent: List of sample_variables: []
-2026-04-26 17:15:20,541 INFO o.a.j.e.u.CompoundVariable: Note: Function class names must contain the string: '.functions.'
-2026-04-26 17:15:20,541 INFO o.a.j.e.u.CompoundVariable: Note: Function class names must not contain the string: '.gui.'
-2026-04-26 17:15:20,890 INFO o.a.j.v.b.BackendListener: InfluxDB - Grafana: Starting worker with class: class org.apache.jmeter.visualizers.backend.influxdb.InfluxdbBackendListenerClient and queue capacity: 5000
-2026-04-26 17:15:20,890 INFO o.a.j.v.b.BackendListener: InfluxDB - Grafana: Started  worker with class: class org.apache.jmeter.visualizers.backend.influxdb.InfluxdbBackendListenerClient
-2026-04-26 17:15:21,197 INFO o.a.j.JMeter: Test starten (1777216521197)
-2026-04-26 17:15:21,252 INFO o.a.j.e.StandardJMeterEngine: Starting ThreadGroup: 1 : Phase 1 - Neue Artikel anlegen (2 User)
-2026-04-26 17:15:21,252 INFO o.a.j.e.StandardJMeterEngine: Starting 2 threads for group Phase 1 - Neue Artikel anlegen (2 User).
-2026-04-26 17:15:21,252 INFO o.a.j.e.StandardJMeterEngine: Thread will continue on error
-2026-04-26 17:15:21,252 INFO o.a.j.t.ThreadGroup: Starting thread group... number=1 threads=2 ramp-up=30 delayedStart=false
-2026-04-26 17:15:21,264 INFO o.a.j.t.ThreadGroup: Started thread group number 1
-2026-04-26 17:15:21,264 INFO o.a.j.e.StandardJMeterEngine: Starting ThreadGroup: 2 : Phase 2 - Nachbestellungen genehmigen (1 User)
-2026-04-26 17:15:21,264 INFO o.a.j.e.StandardJMeterEngine: Starting 1 threads for group Phase 2 - Nachbestellungen genehmigen (1 User).
-2026-04-26 17:15:21,264 INFO o.a.j.e.StandardJMeterEngine: Thread will continue on error
-2026-04-26 17:15:21,264 INFO o.a.j.t.ThreadGroup: Starting thread group... number=2 threads=1 ramp-up=30 delayedStart=false
-2026-04-26 17:15:21,264 INFO o.a.j.t.ThreadGroup: Started thread group number 2
-2026-04-26 17:15:21,264 INFO o.a.j.e.StandardJMeterEngine: Starting ThreadGroup: 3 : Phase 3 - Wareneingaenge anlegen (4 User)
-2026-04-26 17:15:21,264 INFO o.a.j.e.StandardJMeterEngine: Starting 4 threads for group Phase 3 - Wareneingaenge anlegen (4 User).
-2026-04-26 17:15:21,264 INFO o.a.j.e.StandardJMeterEngine: Thread will continue on error
-2026-04-26 17:15:21,264 INFO o.a.j.t.ThreadGroup: Starting thread group... number=3 threads=4 ramp-up=30 delayedStart=false
-2026-04-26 17:15:21,270 INFO o.a.j.t.ThreadGroup: Started thread group number 3
-2026-04-26 17:15:21,270 INFO o.a.j.e.StandardJMeterEngine: Starting ThreadGroup: 4 : Phase 4 - Wareneingaenge abschliessen (2 User)
-2026-04-26 17:15:21,270 INFO o.a.j.e.StandardJMeterEngine: Starting 2 threads for group Phase 4 - Wareneingaenge abschliessen (2 User).
-2026-04-26 17:15:21,270 INFO o.a.j.e.StandardJMeterEngine: Thread will continue on error
-2026-04-26 17:15:21,270 INFO o.a.j.t.ThreadGroup: Starting thread group... number=4 threads=2 ramp-up=30 delayedStart=false
-2026-04-26 17:15:21,270 INFO o.a.j.t.ThreadGroup: Started thread group number 4
-2026-04-26 17:15:21,270 INFO o.a.j.e.StandardJMeterEngine: Starting ThreadGroup: 5 : Phase 5 - Kommissionierung (2 User)
-2026-04-26 17:15:21,270 INFO o.a.j.e.StandardJMeterEngine: Starting 2 threads for group Phase 5 - Kommissionierung (2 User).
-2026-04-26 17:15:21,270 INFO o.a.j.e.StandardJMeterEngine: Thread will continue on error
-2026-04-26 17:15:21,270 INFO o.a.j.t.ThreadGroup: Starting thread group... number=5 threads=2 ramp-up=30 delayedStart=false
-2026-04-26 17:15:21,270 INFO o.a.j.t.JMeterThread: Thread started: Phase 2 - Nachbestellungen genehmigen (1 User) 2-1
-2026-04-26 17:15:21,277 INFO o.a.j.t.JMeterThread: Thread started: Phase 1 - Neue Artikel anlegen (2 User) 1-1
-2026-04-26 17:15:21,278 INFO o.a.j.t.ThreadGroup: Started thread group number 5
-2026-04-26 17:15:21,277 INFO o.a.j.t.JMeterThread: Thread started: Phase 3 - Wareneingaenge anlegen (4 User) 3-1
-2026-04-26 17:15:21,278 INFO o.a.j.e.StandardJMeterEngine: All thread groups have been started
-2026-04-26 17:15:21,278 INFO o.a.j.t.JMeterThread: Thread started: Phase 4 - Wareneingaenge abschliessen (2 User) 4-1
-2026-04-26 17:15:21,280 INFO o.a.j.t.JMeterThread: Thread started: Phase 5 - Kommissionierung (2 User) 5-1
-2026-04-26 17:15:21,829 INFO o.a.j.p.h.s.HTTPHCAbstractImpl: Local host = NB23-767
-2026-04-26 17:15:21,860 INFO o.a.j.p.h.s.HTTPHC4Impl: HTTP request retry count = 0
-2026-04-26 17:15:28,771 INFO o.a.j.t.JMeterThread: Thread started: Phase 3 - Wareneingaenge anlegen (4 User) 3-2
-2026-04-26 17:15:30,307 INFO o.a.j.r.Summariser: summary +     49 in 00:00:09 =    5,4/s Avg:   110 Min:     2 Max:  2112 Err:     3 (6,12%) Active: 6 Started: 6 Finished: 0
-2026-04-26 17:15:36,277 INFO o.a.j.t.JMeterThread: Thread started: Phase 1 - Neue Artikel anlegen (2 User) 1-2
-2026-04-26 17:15:36,277 INFO o.a.j.t.JMeterThread: Thread started: Phase 3 - Wareneingaenge anlegen (4 User) 3-3
-2026-04-26 17:15:36,277 INFO o.a.j.t.JMeterThread: Thread started: Phase 5 - Kommissionierung (2 User) 5-2
-2026-04-26 17:15:36,292 INFO o.a.j.t.JMeterThread: Thread started: Phase 4 - Wareneingaenge abschliessen (2 User) 4-2
-2026-04-26 17:15:43,787 INFO o.a.j.t.JMeterThread: Thread started: Phase 3 - Wareneingaenge anlegen (4 User) 3-4
-2026-04-26 17:16:00,087 INFO o.a.j.r.Summariser: summary +    330 in 00:00:30 =   11,1/s Avg:    32 Min:     0 Max:   262 Err:    20 (6,06%) Active: 11 Started: 11 Finished: 0
-2026-04-26 17:16:00,088 INFO o.a.j.r.Summariser: summary =    379 in 00:00:39 =    9,7/s Avg:    42 Min:     0 Max:  2112 Err:    23 (6,07%)
-2026-04-26 17:16:30,250 INFO o.a.j.r.Summariser: summary +    365 in 00:00:30 =   12,1/s Avg:   215 Min:     0 Max: 60006 Err:    22 (6,03%) Active: 11 Started: 11 Finished: 0
-2026-04-26 17:16:30,251 INFO o.a.j.r.Summariser: summary =    744 in 00:01:09 =   10,8/s Avg:   127 Min:     0 Max: 60006 Err:    45 (6,05%)
-2026-04-26 17:17:00,050 INFO o.a.j.r.Summariser: summary +    348 in 00:00:30 =   11,7/s Avg:   233 Min:     0 Max: 60003 Err:    22 (6,32%) Active: 11 Started: 11 Finished: 0
-2026-04-26 17:17:00,051 INFO o.a.j.r.Summariser: summary =   1092 in 00:01:39 =   11,0/s Avg:   161 Min:     0 Max: 60006 Err:    67 (6,14%)
-2026-04-26 17:17:30,004 INFO o.a.j.r.Summariser: summary +    339 in 00:00:30 =   11,3/s Avg:   262 Min:     1 Max: 60007 Err:    23 (6,78%) Active: 11 Started: 11 Finished: 0
-2026-04-26 17:17:30,005 INFO o.a.j.r.Summariser: summary =   1431 in 00:02:09 =   11,1/s Avg:   185 Min:     0 Max: 60007 Err:    90 (6,29%)
-2026-04-26 17:18:00,316 INFO o.a.j.r.Summariser: summary +    359 in 00:00:30 =   11,8/s Avg:   219 Min:     0 Max: 60007 Err:    23 (6,41%) Active: 11 Started: 11 Finished: 0
-2026-04-26 17:18:00,318 INFO o.a.j.r.Summariser: summary =   1790 in 00:02:39 =   11,2/s Avg:   192 Min:     0 Max: 60007 Err:   113 (6,31%)
-2026-04-26 17:18:30,011 INFO o.a.j.r.Summariser: summary +    348 in 00:00:30 =   11,7/s Avg:    56 Min:     0 Max:   393 Err:    22 (6,32%) Active: 11 Started: 11 Finished: 0
-2026-04-26 17:18:30,011 INFO o.a.j.r.Summariser: summary =   2138 in 00:03:09 =   11,3/s Avg:   170 Min:     0 Max: 60007 Err:   135 (6,31%)
-2026-04-26 17:19:00,035 INFO o.a.j.r.Summariser: summary +    359 in 00:00:30 =   12,0/s Avg:   383 Min:     0 Max: 60004 Err:    24 (6,69%) Active: 11 Started: 11 Finished: 0
-2026-04-26 17:19:00,036 INFO o.a.j.r.Summariser: summary =   2497 in 00:03:39 =   11,4/s Avg:   200 Min:     0 Max: 60007 Err:   159 (6,37%)
-2026-04-26 17:19:30,031 INFO o.a.j.r.Summariser: summary +    358 in 00:00:30 =   11,9/s Avg:   189 Min:     0 Max: 50069 Err:    23 (6,42%) Active: 11 Started: 11 Finished: 0
-2026-04-26 17:19:30,032 INFO o.a.j.r.Summariser: summary =   2855 in 00:04:09 =   11,5/s Avg:   199 Min:     0 Max: 60007 Err:   182 (6,37%)
-2026-04-26 17:20:00,077 INFO o.a.j.r.Summariser: summary +    352 in 00:00:30 =   11,7/s Avg:   191 Min:     0 Max: 47644 Err:    22 (6,25%) Active: 11 Started: 11 Finished: 0
-2026-04-26 17:20:00,079 INFO o.a.j.r.Summariser: summary =   3207 in 00:04:39 =   11,5/s Avg:   198 Min:     0 Max: 60007 Err:   204 (6,36%)
-2026-04-26 17:20:30,028 INFO o.a.j.r.Summariser: summary +    341 in 00:00:30 =   11,4/s Avg:   251 Min:     0 Max: 60003 Err:    23 (6,74%) Active: 11 Started: 11 Finished: 0
-2026-04-26 17:20:30,028 INFO o.a.j.r.Summariser: summary =   3548 in 00:05:09 =   11,5/s Avg:   203 Min:     0 Max: 60007 Err:   227 (6,40%)
-2026-04-26 17:21:00,022 INFO o.a.j.r.Summariser: summary +    347 in 00:00:30 =   11,6/s Avg:   241 Min:     0 Max: 60012 Err:    23 (6,63%) Active: 11 Started: 11 Finished: 0
-2026-04-26 17:21:00,026 INFO o.a.j.r.Summariser: summary =   3895 in 00:05:39 =   11,5/s Avg:   207 Min:     0 Max: 60012 Err:   250 (6,42%)
-2026-04-26 17:21:30,063 INFO o.a.j.r.Summariser: summary +    342 in 00:00:30 =   11,4/s Avg:   250 Min:     0 Max: 60004 Err:    23 (6,73%) Active: 11 Started: 11 Finished: 0
-2026-04-26 17:21:30,064 INFO o.a.j.r.Summariser: summary =   4237 in 00:06:09 =   11,5/s Avg:   210 Min:     0 Max: 60012 Err:   273 (6,44%)
-2026-04-26 17:22:00,228 INFO o.a.j.r.Summariser: summary +    339 in 00:00:30 =   11,2/s Avg:   258 Min:     0 Max: 60014 Err:    23 (6,78%) Active: 11 Started: 11 Finished: 0
-2026-04-26 17:22:00,228 INFO o.a.j.r.Summariser: summary =   4576 in 00:06:39 =   11,5/s Avg:   214 Min:     0 Max: 60014 Err:   296 (6,47%)
-2026-04-26 17:22:30,184 INFO o.a.j.r.Summariser: summary +    337 in 00:00:30 =   11,2/s Avg:    74 Min:     0 Max:   734 Err:    22 (6,53%) Active: 11 Started: 11 Finished: 0
-2026-04-26 17:22:30,185 INFO o.a.j.r.Summariser: summary =   4913 in 00:07:09 =   11,5/s Avg:   204 Min:     0 Max: 60014 Err:   318 (6,47%)
-2026-04-26 17:23:00,028 INFO o.a.j.r.Summariser: summary +    348 in 00:00:30 =   11,7/s Avg:   419 Min:     0 Max: 60006 Err:    25 (7,18%) Active: 11 Started: 11 Finished: 0
-2026-04-26 17:23:00,028 INFO o.a.j.r.Summariser: summary =   5261 in 00:07:39 =   11,5/s Avg:   218 Min:     0 Max: 60014 Err:   343 (6,52%)
-2026-04-26 17:23:30,034 INFO o.a.j.r.Summariser: summary +    338 in 00:00:30 =   11,3/s Avg:    77 Min:     0 Max:   763 Err:    22 (6,51%) Active: 11 Started: 11 Finished: 0
-2026-04-26 17:23:30,035 INFO o.a.j.r.Summariser: summary =   5599 in 00:08:09 =   11,5/s Avg:   210 Min:     0 Max: 60014 Err:   365 (6,52%)
-2026-04-26 17:24:00,019 INFO o.a.j.r.Summariser: summary +    339 in 00:00:30 =   11,3/s Avg:   432 Min:     0 Max: 60008 Err:    24 (7,08%) Active: 11 Started: 11 Finished: 0
-2026-04-26 17:24:00,020 INFO o.a.j.r.Summariser: summary =   5938 in 00:08:39 =   11,4/s Avg:   222 Min:     0 Max: 60014 Err:   389 (6,55%)
-2026-04-26 17:24:30,005 INFO o.a.j.r.Summariser: summary +    335 in 00:00:30 =   11,2/s Avg:    86 Min:     0 Max:   844 Err:    22 (6,57%) Active: 11 Started: 11 Finished: 0
-2026-04-26 17:24:30,005 INFO o.a.j.r.Summariser: summary =   6273 in 00:09:09 =   11,4/s Avg:   215 Min:     0 Max: 60014 Err:   411 (6,55%)
-2026-04-26 17:25:00,167 INFO o.a.j.r.Summariser: summary +    341 in 00:00:30 =   11,3/s Avg:   436 Min:     0 Max: 60005 Err:    24 (7,04%) Active: 11 Started: 11 Finished: 0
-2026-04-26 17:25:00,168 INFO o.a.j.r.Summariser: summary =   6614 in 00:09:39 =   11,4/s Avg:   226 Min:     0 Max: 60014 Err:   435 (6,58%)
-2026-04-26 17:25:30,063 INFO o.a.j.r.Summariser: summary +    329 in 00:00:30 =   11,0/s Avg:    87 Min:     0 Max:  1034 Err:    22 (6,69%) Active: 11 Started: 11 Finished: 0
-2026-04-26 17:25:30,063 INFO o.a.j.r.Summariser: summary =   6943 in 00:10:09 =   11,4/s Avg:   220 Min:     0 Max: 60014 Err:   457 (6,58%)
-2026-04-26 17:26:00,370 INFO o.a.j.r.Summariser: summary +    340 in 00:00:30 =   11,2/s Avg:   441 Min:     0 Max: 60015 Err:    24 (7,06%) Active: 11 Started: 11 Finished: 0
-2026-04-26 17:26:00,371 INFO o.a.j.r.Summariser: summary =   7283 in 00:10:39 =   11,4/s Avg:   230 Min:     0 Max: 60015 Err:   481 (6,60%)
-2026-04-26 17:26:30,166 INFO o.a.j.r.Summariser: summary +    329 in 00:00:30 =   11,0/s Avg:    91 Min:     0 Max:  1107 Err:    22 (6,69%) Active: 11 Started: 11 Finished: 0
-2026-04-26 17:26:30,167 INFO o.a.j.r.Summariser: summary =   7612 in 00:11:09 =   11,4/s Avg:   224 Min:     0 Max: 60015 Err:   503 (6,61%)
-2026-04-26 17:27:00,102 INFO o.a.j.r.Summariser: summary +    337 in 00:00:30 =   11,3/s Avg:   443 Min:     0 Max: 60013 Err:    24 (7,12%) Active: 11 Started: 11 Finished: 0
-2026-04-26 17:27:00,102 INFO o.a.j.r.Summariser: summary =   7949 in 00:11:39 =   11,4/s Avg:   233 Min:     0 Max: 60015 Err:   527 (6,63%)
-2026-04-26 17:27:30,017 INFO o.a.j.r.Summariser: summary +    326 in 00:00:30 =   10,9/s Avg:   101 Min:     0 Max:  1448 Err:    22 (6,75%) Active: 11 Started: 11 Finished: 0
-2026-04-26 17:27:30,018 INFO o.a.j.r.Summariser: summary =   8275 in 00:12:09 =   11,4/s Avg:   228 Min:     0 Max: 60015 Err:   549 (6,63%)
-2026-04-26 17:28:00,016 INFO o.a.j.r.Summariser: summary +    324 in 00:00:30 =   10,8/s Avg:   296 Min:     0 Max: 60009 Err:    23 (7,10%) Active: 11 Started: 11 Finished: 0
-2026-04-26 17:28:00,017 INFO o.a.j.r.Summariser: summary =   8599 in 00:12:39 =   11,3/s Avg:   231 Min:     0 Max: 60015 Err:   572 (6,65%)
-2026-04-26 17:28:30,086 INFO o.a.j.r.Summariser: summary +    329 in 00:00:30 =   10,9/s Avg:   280 Min:     0 Max: 60007 Err:    23 (6,99%) Active: 11 Started: 11 Finished: 0
-2026-04-26 17:28:30,087 INFO o.a.j.r.Summariser: summary =   8928 in 00:13:09 =   11,3/s Avg:   233 Min:     0 Max: 60015 Err:   595 (6,66%)
-2026-04-26 17:29:00,189 INFO o.a.j.r.Summariser: summary +    329 in 00:00:30 =   10,9/s Avg:   282 Min:     0 Max: 60011 Err:    23 (6,99%) Active: 11 Started: 11 Finished: 0
-2026-04-26 17:29:00,190 INFO o.a.j.r.Summariser: summary =   9257 in 00:13:39 =   11,3/s Avg:   234 Min:     0 Max: 60015 Err:   618 (6,68%)
-2026-04-26 17:29:30,177 INFO o.a.j.r.Summariser: summary +    330 in 00:00:30 =   11,0/s Avg:   275 Min:     0 Max: 60014 Err:    23 (6,97%) Active: 11 Started: 11 Finished: 0
-2026-04-26 17:29:30,178 INFO o.a.j.r.Summariser: summary =   9587 in 00:14:09 =   11,3/s Avg:   236 Min:     0 Max: 60015 Err:   641 (6,69%)
-2026-04-26 17:30:00,254 INFO o.a.j.r.Summariser: summary +    327 in 00:00:30 =   10,9/s Avg:   289 Min:     0 Max: 60013 Err:    24 (7,34%) Active: 11 Started: 11 Finished: 0
-2026-04-26 17:30:00,255 INFO o.a.j.r.Summariser: summary =   9914 in 00:14:39 =   11,3/s Avg:   237 Min:     0 Max: 60015 Err:   665 (6,71%)
-2026-04-26 17:30:30,015 INFO o.a.j.r.Summariser: summary +    327 in 00:00:30 =   11,0/s Avg:   282 Min:     0 Max: 60009 Err:    23 (7,03%) Active: 11 Started: 11 Finished: 0
-2026-04-26 17:30:30,015 INFO o.a.j.r.Summariser: summary =  10241 in 00:15:09 =   11,3/s Avg:   239 Min:     0 Max: 60015 Err:   688 (6,72%)
-2026-04-26 17:31:00,025 INFO o.a.j.r.Summariser: summary +    329 in 00:00:30 =   11,0/s Avg:   279 Min:     0 Max: 60005 Err:    24 (7,29%) Active: 11 Started: 11 Finished: 0
-2026-04-26 17:31:00,026 INFO o.a.j.r.Summariser: summary =  10570 in 00:15:39 =   11,3/s Avg:   240 Min:     0 Max: 60015 Err:   712 (6,74%)
-2026-04-26 17:31:30,065 INFO o.a.j.r.Summariser: summary +    328 in 00:00:30 =   10,9/s Avg:   280 Min:     0 Max: 60014 Err:    23 (7,01%) Active: 11 Started: 11 Finished: 0
-2026-04-26 17:31:30,066 INFO o.a.j.r.Summariser: summary =  10898 in 00:16:09 =   11,2/s Avg:   241 Min:     0 Max: 60015 Err:   735 (6,74%)
-2026-04-26 17:32:00,233 INFO o.a.j.r.Summariser: summary +    328 in 00:00:30 =   10,9/s Avg:   290 Min:     0 Max: 60003 Err:    23 (7,01%) Active: 11 Started: 11 Finished: 0
-2026-04-26 17:32:00,234 INFO o.a.j.r.Summariser: summary =  11226 in 00:16:39 =   11,2/s Avg:   243 Min:     0 Max: 60015 Err:   758 (6,75%)
-2026-04-26 17:32:30,065 INFO o.a.j.r.Summariser: summary +    322 in 00:00:30 =   10,8/s Avg:   296 Min:     0 Max: 60016 Err:    23 (7,14%) Active: 11 Started: 11 Finished: 0
-2026-04-26 17:32:30,065 INFO o.a.j.r.Summariser: summary =  11548 in 00:17:09 =   11,2/s Avg:   244 Min:     0 Max: 60016 Err:   781 (6,76%)
-2026-04-26 17:33:00,195 INFO o.a.j.r.Summariser: summary +    321 in 00:00:30 =   10,7/s Avg:   114 Min:     0 Max:  2115 Err:    22 (6,85%) Active: 11 Started: 11 Finished: 0
-2026-04-26 17:33:00,195 INFO o.a.j.r.Summariser: summary =  11869 in 00:17:39 =   11,2/s Avg:   241 Min:     0 Max: 60016 Err:   803 (6,77%)
-2026-04-26 17:33:30,051 INFO o.a.j.r.Summariser: summary +    329 in 00:00:30 =   11,0/s Avg:   468 Min:     0 Max: 60013 Err:    24 (7,29%) Active: 11 Started: 11 Finished: 0
-2026-04-26 17:33:30,051 INFO o.a.j.r.Summariser: summary =  12198 in 00:18:09 =   11,2/s Avg:   247 Min:     0 Max: 60016 Err:   827 (6,78%)
-2026-04-26 17:34:00,068 INFO o.a.j.r.Summariser: summary +    317 in 00:00:30 =   10,6/s Avg:   114 Min:     0 Max:  2131 Err:    22 (6,94%) Active: 11 Started: 11 Finished: 0
-2026-04-26 17:34:00,069 INFO o.a.j.r.Summariser: summary =  12515 in 00:18:39 =   11,2/s Avg:   243 Min:     0 Max: 60016 Err:   849 (6,78%)
-2026-04-26 17:34:30,025 INFO o.a.j.r.Summariser: summary +    327 in 00:00:30 =   10,9/s Avg:   468 Min:     0 Max: 60014 Err:    24 (7,34%) Active: 11 Started: 11 Finished: 0
-2026-04-26 17:34:30,025 INFO o.a.j.r.Summariser: summary =  12842 in 00:19:09 =   11,2/s Avg:   249 Min:     0 Max: 60016 Err:   873 (6,80%)
-2026-04-26 17:35:00,055 INFO o.a.j.r.Summariser: summary +    324 in 00:00:30 =   10,8/s Avg:   108 Min:     0 Max:  2031 Err:    22 (6,79%) Active: 11 Started: 11 Finished: 0
-2026-04-26 17:35:00,056 INFO o.a.j.r.Summariser: summary =  13166 in 00:19:39 =   11,2/s Avg:   246 Min:     0 Max: 60016 Err:   895 (6,80%)
-2026-04-26 17:35:30,059 INFO o.a.j.r.Summariser: summary +    329 in 00:00:30 =   11,0/s Avg:   468 Min:     0 Max: 60016 Err:    24 (7,29%) Active: 11 Started: 11 Finished: 0
-2026-04-26 17:35:30,060 INFO o.a.j.r.Summariser: summary =  13495 in 00:20:09 =   11,2/s Avg:   251 Min:     0 Max: 60016 Err:   919 (6,81%)
-2026-04-26 17:36:00,029 INFO o.a.j.r.Summariser: summary +    316 in 00:00:30 =   10,5/s Avg:   113 Min:     0 Max:  2192 Err:    22 (6,96%) Active: 11 Started: 11 Finished: 0
-2026-04-26 17:36:00,029 INFO o.a.j.r.Summariser: summary =  13811 in 00:20:39 =   11,1/s Avg:   248 Min:     0 Max: 60016 Err:   941 (6,81%)
-2026-04-26 17:36:30,090 INFO o.a.j.r.Summariser: summary +    323 in 00:00:30 =   10,7/s Avg:   483 Min:     0 Max: 60011 Err:    24 (7,43%) Active: 11 Started: 11 Finished: 0
-2026-04-26 17:36:30,091 INFO o.a.j.r.Summariser: summary =  14134 in 00:21:09 =   11,1/s Avg:   253 Min:     0 Max: 60016 Err:   965 (6,83%)
-2026-04-26 17:37:00,059 INFO o.a.j.r.Summariser: summary +    317 in 00:00:30 =   10,6/s Avg:   127 Min:     0 Max:  2794 Err:    22 (6,94%) Active: 11 Started: 11 Finished: 0
-2026-04-26 17:37:00,060 INFO o.a.j.r.Summariser: summary =  14451 in 00:21:39 =   11,1/s Avg:   251 Min:     0 Max: 60016 Err:   987 (6,83%)
-2026-04-26 17:37:30,063 INFO o.a.j.r.Summariser: summary +    319 in 00:00:30 =   10,6/s Avg:   494 Min:     0 Max: 60005 Err:    24 (7,52%) Active: 11 Started: 11 Finished: 0
-2026-04-26 17:37:30,063 INFO o.a.j.r.Summariser: summary =  14770 in 00:22:09 =   11,1/s Avg:   256 Min:     0 Max: 60016 Err:  1011 (6,84%)
-2026-04-26 17:38:00,078 INFO o.a.j.r.Summariser: summary +    320 in 00:00:30 =   10,7/s Avg:   109 Min:     0 Max:  2407 Err:    22 (6,88%) Active: 11 Started: 11 Finished: 0
-2026-04-26 17:38:00,078 INFO o.a.j.r.Summariser: summary =  15090 in 00:22:39 =   11,1/s Avg:   253 Min:     0 Max: 60016 Err:  1033 (6,85%)
-2026-04-26 17:38:30,207 INFO o.a.j.r.Summariser: summary +    322 in 00:00:30 =   10,7/s Avg:   309 Min:     0 Max: 60006 Err:    23 (7,14%) Active: 11 Started: 11 Finished: 0
-2026-04-26 17:38:30,208 INFO o.a.j.r.Summariser: summary =  15412 in 00:23:09 =   11,1/s Avg:   254 Min:     0 Max: 60016 Err:  1056 (6,85%)
-2026-04-26 17:39:00,022 INFO o.a.j.r.Summariser: summary +    319 in 00:00:30 =   10,7/s Avg:   294 Min:     0 Max: 60013 Err:    23 (7,21%) Active: 11 Started: 11 Finished: 0
-2026-04-26 17:39:00,025 INFO o.a.j.r.Summariser: summary =  15731 in 00:23:39 =   11,1/s Avg:   255 Min:     0 Max: 60016 Err:  1079 (6,86%)
-2026-04-26 17:39:30,235 INFO o.a.j.r.Summariser: summary +    321 in 00:00:30 =   10,6/s Avg:   301 Min:     0 Max: 60003 Err:    23 (7,17%) Active: 11 Started: 11 Finished: 0
-2026-04-26 17:39:30,235 INFO o.a.j.r.Summariser: summary =  16052 in 00:24:09 =   11,1/s Avg:   256 Min:     0 Max: 60016 Err:  1102 (6,87%)
-2026-04-26 17:40:00,001 INFO o.a.j.r.Summariser: summary +    323 in 00:00:30 =   10,9/s Avg:   299 Min:     0 Max: 60005 Err:    23 (7,12%) Active: 11 Started: 11 Finished: 0
-2026-04-26 17:40:00,001 INFO o.a.j.r.Summariser: summary =  16375 in 00:24:39 =   11,1/s Avg:   257 Min:     0 Max: 60016 Err:  1125 (6,87%)
-2026-04-26 17:40:30,138 INFO o.a.j.r.Summariser: summary +    322 in 00:00:30 =   10,7/s Avg:   307 Min:     0 Max: 60009 Err:    23 (7,14%) Active: 11 Started: 11 Finished: 0
-2026-04-26 17:40:30,139 INFO o.a.j.r.Summariser: summary =  16697 in 00:25:09 =   11,1/s Avg:   257 Min:     0 Max: 60016 Err:  1148 (6,88%)
-2026-04-26 17:41:00,477 INFO o.a.j.r.Summariser: summary +    318 in 00:00:30 =   10,5/s Avg:   305 Min:     0 Max: 60007 Err:    24 (7,55%) Active: 11 Started: 11 Finished: 0
-2026-04-26 17:41:00,477 INFO o.a.j.r.Summariser: summary =  17015 in 00:25:39 =   11,1/s Avg:   258 Min:     0 Max: 60016 Err:  1172 (6,89%)
-2026-04-26 17:41:30,364 INFO o.a.j.r.Summariser: summary +    316 in 00:00:30 =   10,6/s Avg:   311 Min:     0 Max: 60014 Err:    22 (6,96%) Active: 11 Started: 11 Finished: 0
-2026-04-26 17:41:30,365 INFO o.a.j.r.Summariser: summary =  17331 in 00:26:09 =   11,0/s Avg:   259 Min:     0 Max: 60016 Err:  1194 (6,89%)
-2026-04-26 17:42:00,127 INFO o.a.j.r.Summariser: summary +    322 in 00:00:30 =   10,8/s Avg:   298 Min:     0 Max: 60015 Err:    23 (7,14%) Active: 11 Started: 11 Finished: 0
-2026-04-26 17:42:00,128 INFO o.a.j.r.Summariser: summary =  17653 in 00:26:39 =   11,0/s Avg:   260 Min:     0 Max: 60016 Err:  1217 (6,89%)
-2026-04-26 17:42:30,191 INFO o.a.j.r.Summariser: summary +    305 in 00:00:30 =   10,1/s Avg:   340 Min:     0 Max: 60009 Err:    23 (7,54%) Active: 11 Started: 11 Finished: 0
-2026-04-26 17:42:30,192 INFO o.a.j.r.Summariser: summary =  17958 in 00:27:09 =   11,0/s Avg:   261 Min:     0 Max: 60016 Err:  1240 (6,91%)
-2026-04-26 17:43:00,442 INFO o.a.j.r.Summariser: summary +    319 in 00:00:30 =   10,5/s Avg:   318 Min:     0 Max: 60011 Err:    23 (7,21%) Active: 11 Started: 11 Finished: 0
-2026-04-26 17:43:00,442 INFO o.a.j.r.Summariser: summary =  18277 in 00:27:39 =   11,0/s Avg:   262 Min:     0 Max: 60016 Err:  1263 (6,91%)
-2026-04-26 17:43:30,021 INFO o.a.j.r.Summariser: summary +    307 in 00:00:30 =   10,4/s Avg:   122 Min:     0 Max:  3672 Err:    22 (7,17%) Active: 11 Started: 11 Finished: 0
-2026-04-26 17:43:30,022 INFO o.a.j.r.Summariser: summary =  18584 in 00:28:09 =   11,0/s Avg:   260 Min:     0 Max: 60016 Err:  1285 (6,91%)
-2026-04-26 17:44:00,062 INFO o.a.j.r.Summariser: summary +    319 in 00:00:30 =   10,6/s Avg:   508 Min:     0 Max: 60013 Err:    24 (7,52%) Active: 11 Started: 11 Finished: 0
-2026-04-26 17:44:00,062 INFO o.a.j.r.Summariser: summary =  18903 in 00:28:39 =   11,0/s Avg:   264 Min:     0 Max: 60016 Err:  1309 (6,92%)
-2026-04-26 17:44:30,026 INFO o.a.j.r.Summariser: summary +    311 in 00:00:30 =   10,4/s Avg:   143 Min:     0 Max:  4150 Err:    22 (7,07%) Active: 11 Started: 11 Finished: 0
-2026-04-26 17:44:30,026 INFO o.a.j.r.Summariser: summary =  19214 in 00:29:09 =   11,0/s Avg:   262 Min:     0 Max: 60016 Err:  1331 (6,93%)
-2026-04-26 17:45:00,192 INFO o.a.j.r.Summariser: summary +    306 in 00:00:30 =   10,1/s Avg:   546 Min:     0 Max: 60012 Err:    24 (7,84%) Active: 11 Started: 11 Finished: 0
-2026-04-26 17:45:00,193 INFO o.a.j.r.Summariser: summary =  19520 in 00:29:39 =   11,0/s Avg:   267 Min:     0 Max: 60016 Err:  1355 (6,94%)
+2026-05-02 14:46:39,545 INFO o.a.j.u.JMeterUtils: Setting Locale to de_DE
+2026-05-02 14:46:39,561 INFO o.a.j.u.JMeterUtils: Could not find resources for 'de_DE', using 'de'
+2026-05-02 14:46:39,562 INFO o.a.j.JMeter: Loading user properties from: C:\tools\apache-jmeter-5.6.3\bin\user.properties
+2026-05-02 14:46:39,562 INFO o.a.j.JMeter: Loading system properties from: C:\tools\apache-jmeter-5.6.3\bin\system.properties
+2026-05-02 14:46:39,563 INFO o.a.j.JMeter: Setting JMeter property: threads_p1=2
+2026-05-02 14:46:39,563 INFO o.a.j.JMeter: Setting JMeter property: threads_p2=1
+2026-05-02 14:46:39,563 INFO o.a.j.JMeter: Setting JMeter property: threads_p3=3
+2026-05-02 14:46:39,563 INFO o.a.j.JMeter: Setting JMeter property: threads_p4=2
+2026-05-02 14:46:39,563 INFO o.a.j.JMeter: Setting JMeter property: threads_p5=2
+2026-05-02 14:46:39,563 INFO o.a.j.JMeter: Setting JMeter property: rampup=2
+2026-05-02 14:46:39,563 INFO o.a.j.JMeter: Setting JMeter property: host=localhost
+2026-05-02 14:46:39,563 INFO o.a.j.JMeter: Setting JMeter property: port=8081
+2026-05-02 14:46:39,563 INFO o.a.j.JMeter: Setting JMeter property: testname=Artikel-Workflow-10T
+2026-05-02 14:46:39,576 INFO o.a.j.JMeter: Copyright (c) 1998-2024 The Apache Software Foundation
+2026-05-02 14:46:39,577 INFO o.a.j.JMeter: Version 5.6.3
+2026-05-02 14:46:39,577 INFO o.a.j.JMeter: java.version=24
+2026-05-02 14:46:39,577 INFO o.a.j.JMeter: java.vm.name=OpenJDK 64-Bit Server VM
+2026-05-02 14:46:39,577 INFO o.a.j.JMeter: os.name=Windows 11
+2026-05-02 14:46:39,577 INFO o.a.j.JMeter: os.arch=amd64
+2026-05-02 14:46:39,577 INFO o.a.j.JMeter: os.version=10.0
+2026-05-02 14:46:39,577 INFO o.a.j.JMeter: file.encoding=UTF-8
+2026-05-02 14:46:39,577 INFO o.a.j.JMeter: java.awt.headless=true
+2026-05-02 14:46:39,577 INFO o.a.j.JMeter: Max memory     =8547991552
+2026-05-02 14:46:39,577 INFO o.a.j.JMeter: Available Processors =16
+2026-05-02 14:46:39,587 INFO o.a.j.JMeter: Default Locale=Deutsch (Deutschland)
+2026-05-02 14:46:39,587 INFO o.a.j.JMeter: JMeter  Locale=Deutsch (Deutschland)
+2026-05-02 14:46:39,587 INFO o.a.j.JMeter: JMeterHome=C:\tools\apache-jmeter-5.6.3
+2026-05-02 14:46:39,587 INFO o.a.j.JMeter: user.dir  =C:\Users\jason\IdeaProjects\HFWI423-Integrationsprojekt
+2026-05-02 14:46:39,588 INFO o.a.j.JMeter: PWD       =C:\Users\jason\IdeaProjects\HFWI423-Integrationsprojekt
+2026-05-02 14:46:49,051 INFO o.a.j.JMeter: IP: 169.254.123.70 Name: JasonPC FullName: JasonPC
+2026-05-02 14:46:49,061 INFO o.a.j.s.FileServer: Default base='C:\Users\jason\IdeaProjects\HFWI423-Integrationsprojekt'
+2026-05-02 14:46:49,062 INFO o.a.j.s.FileServer: Set new base='C:\Users\jason\IdeaProjects\HFWI423-Integrationsprojekt\monitoring\jmeter'
+2026-05-02 14:46:49,316 INFO o.a.j.s.SaveService: Testplan (JMX) version: 2.2. Testlog (JTL) version: 2.2
+2026-05-02 14:46:49,342 INFO o.a.j.s.SaveService: Using SaveService properties version 5.0
+2026-05-02 14:46:49,345 INFO o.a.j.s.SaveService: Using SaveService properties file encoding UTF-8
+2026-05-02 14:46:49,348 INFO o.a.j.s.SaveService: Loading file: C:\Users\jason\IdeaProjects\HFWI423-Integrationsprojekt\monitoring\jmeter\logistik-artikel-workflow.jmx
+2026-05-02 14:46:49,399 INFO o.a.j.p.h.s.HTTPSamplerBase: Parser for text/html is org.apache.jmeter.protocol.http.parser.LagartoBasedHtmlParser
+2026-05-02 14:46:49,399 INFO o.a.j.p.h.s.HTTPSamplerBase: Parser for application/xhtml+xml is org.apache.jmeter.protocol.http.parser.LagartoBasedHtmlParser
+2026-05-02 14:46:49,399 INFO o.a.j.p.h.s.HTTPSamplerBase: Parser for application/xml is org.apache.jmeter.protocol.http.parser.LagartoBasedHtmlParser
+2026-05-02 14:46:49,399 INFO o.a.j.p.h.s.HTTPSamplerBase: Parser for text/xml is org.apache.jmeter.protocol.http.parser.LagartoBasedHtmlParser
+2026-05-02 14:46:49,399 INFO o.a.j.p.h.s.HTTPSamplerBase: Parser for text/vnd.wap.wml is org.apache.jmeter.protocol.http.parser.RegexpHTMLParser
+2026-05-02 14:46:49,399 INFO o.a.j.p.h.s.HTTPSamplerBase: Parser for text/css is org.apache.jmeter.protocol.http.parser.CssParser
+2026-05-02 14:46:49,445 INFO o.a.j.s.SampleResult: Note: Sample TimeStamps are START times
+2026-05-02 14:46:49,445 INFO o.a.j.s.SampleResult: sampleresult.default.encoding is set to UTF-8
+2026-05-02 14:46:49,445 INFO o.a.j.s.SampleResult: sampleresult.useNanoTime=true
+2026-05-02 14:46:49,445 INFO o.a.j.s.SampleResult: sampleresult.nanoThreadSleep=5000
+2026-05-02 14:46:49,457 INFO o.a.j.JMeter: Creating summariser <summary>
+2026-05-02 14:46:49,471 INFO o.a.j.e.StandardJMeterEngine: Running the test!
+2026-05-02 14:46:49,472 INFO o.a.j.s.SampleEvent: List of sample_variables: []
+2026-05-02 14:46:49,472 INFO o.a.j.s.SampleEvent: List of sample_variables: []
+2026-05-02 14:46:49,475 INFO o.a.j.e.u.CompoundVariable: Note: Function class names must contain the string: '.functions.'
+2026-05-02 14:46:49,476 INFO o.a.j.e.u.CompoundVariable: Note: Function class names must not contain the string: '.gui.'
+2026-05-02 14:46:49,733 INFO o.a.j.v.b.BackendListener: InfluxDB - Grafana: Starting worker with class: class org.apache.jmeter.visualizers.backend.influxdb.InfluxdbBackendListenerClient and queue capacity: 5000
+2026-05-02 14:46:49,734 INFO o.a.j.v.b.BackendListener: InfluxDB - Grafana: Started  worker with class: class org.apache.jmeter.visualizers.backend.influxdb.InfluxdbBackendListenerClient
+2026-05-02 14:46:49,942 INFO o.a.j.JMeter: Test starten (1777726009942)
+2026-05-02 14:46:49,978 INFO o.a.j.e.StandardJMeterEngine: Starting ThreadGroup: 1 : Phase 1 - Neue Artikel anlegen (2 User)
+2026-05-02 14:46:49,978 INFO o.a.j.e.StandardJMeterEngine: Starting 2 threads for group Phase 1 - Neue Artikel anlegen (2 User).
+2026-05-02 14:46:49,978 INFO o.a.j.e.StandardJMeterEngine: Thread will continue on error
+2026-05-02 14:46:49,978 INFO o.a.j.t.ThreadGroup: Starting thread group... number=1 threads=2 ramp-up=2 delayedStart=false
+2026-05-02 14:46:49,986 INFO o.a.j.t.ThreadGroup: Started thread group number 1
+2026-05-02 14:46:49,986 INFO o.a.j.e.StandardJMeterEngine: Starting ThreadGroup: 2 : Phase 2 - Nachbestellungen genehmigen (1 User)
+2026-05-02 14:46:49,986 INFO o.a.j.e.StandardJMeterEngine: Starting 1 threads for group Phase 2 - Nachbestellungen genehmigen (1 User).
+2026-05-02 14:46:49,986 INFO o.a.j.e.StandardJMeterEngine: Thread will continue on error
+2026-05-02 14:46:49,986 INFO o.a.j.t.ThreadGroup: Starting thread group... number=2 threads=1 ramp-up=2 delayedStart=false
+2026-05-02 14:46:49,987 INFO o.a.j.t.ThreadGroup: Started thread group number 2
+2026-05-02 14:46:49,987 INFO o.a.j.e.StandardJMeterEngine: Starting ThreadGroup: 3 : Phase 3 - Wareneingaenge anlegen (3 User)
+2026-05-02 14:46:49,987 INFO o.a.j.e.StandardJMeterEngine: Starting 3 threads for group Phase 3 - Wareneingaenge anlegen (3 User).
+2026-05-02 14:46:49,987 INFO o.a.j.e.StandardJMeterEngine: Thread will continue on error
+2026-05-02 14:46:49,987 INFO o.a.j.t.ThreadGroup: Starting thread group... number=3 threads=3 ramp-up=2 delayedStart=false
+2026-05-02 14:46:49,990 INFO o.a.j.t.ThreadGroup: Started thread group number 3
+2026-05-02 14:46:49,990 INFO o.a.j.e.StandardJMeterEngine: Starting ThreadGroup: 4 : Phase 4 - Wareneingaenge abschliessen (2 User)
+2026-05-02 14:46:49,990 INFO o.a.j.e.StandardJMeterEngine: Starting 2 threads for group Phase 4 - Wareneingaenge abschliessen (2 User).
+2026-05-02 14:46:49,990 INFO o.a.j.e.StandardJMeterEngine: Thread will continue on error
+2026-05-02 14:46:49,990 INFO o.a.j.t.ThreadGroup: Starting thread group... number=4 threads=2 ramp-up=2 delayedStart=false
+2026-05-02 14:46:49,992 INFO o.a.j.t.ThreadGroup: Started thread group number 4
+2026-05-02 14:46:49,992 INFO o.a.j.e.StandardJMeterEngine: Starting ThreadGroup: 5 : Phase 5 - Kommissionierung (2 User)
+2026-05-02 14:46:49,992 INFO o.a.j.e.StandardJMeterEngine: Starting 2 threads for group Phase 5 - Kommissionierung (2 User).
+2026-05-02 14:46:49,992 INFO o.a.j.e.StandardJMeterEngine: Thread will continue on error
+2026-05-02 14:46:49,992 INFO o.a.j.t.ThreadGroup: Starting thread group... number=5 threads=2 ramp-up=2 delayedStart=false
+2026-05-02 14:46:49,993 INFO o.a.j.t.JMeterThread: Thread started: Phase 2 - Nachbestellungen genehmigen (1 User) 2-1
+2026-05-02 14:46:49,993 INFO o.a.j.t.ThreadGroup: Started thread group number 5
+2026-05-02 14:46:49,993 INFO o.a.j.e.StandardJMeterEngine: All thread groups have been started
+2026-05-02 14:46:49,993 INFO o.a.j.t.JMeterThread: Thread started: Phase 1 - Neue Artikel anlegen (2 User) 1-1
+2026-05-02 14:46:49,994 INFO o.a.j.t.JMeterThread: Thread started: Phase 4 - Wareneingaenge abschliessen (2 User) 4-1
+2026-05-02 14:46:49,994 INFO o.a.j.t.JMeterThread: Thread started: Phase 5 - Kommissionierung (2 User) 5-1
+2026-05-02 14:46:49,993 INFO o.a.j.t.JMeterThread: Thread started: Phase 3 - Wareneingaenge anlegen (3 User) 3-1
+2026-05-02 14:46:50,517 INFO o.a.j.p.h.s.HTTPHCAbstractImpl: Local host = JasonPC
+2026-05-02 14:46:50,527 INFO o.a.j.p.h.s.HTTPHC4Impl: HTTP request retry count = 0
+2026-05-02 14:46:50,660 INFO o.a.j.t.JMeterThread: Thread started: Phase 3 - Wareneingaenge anlegen (3 User) 3-2
+2026-05-02 14:46:50,990 INFO o.a.j.t.JMeterThread: Thread started: Phase 1 - Neue Artikel anlegen (2 User) 1-2
+2026-05-02 14:46:50,993 INFO o.a.j.t.JMeterThread: Thread started: Phase 5 - Kommissionierung (2 User) 5-2
+2026-05-02 14:46:50,993 INFO o.a.j.t.JMeterThread: Thread started: Phase 4 - Wareneingaenge abschliessen (2 User) 4-2
+2026-05-02 14:46:51,331 INFO o.a.j.t.JMeterThread: Thread started: Phase 3 - Wareneingaenge anlegen (3 User) 3-3
+2026-05-02 14:47:00,145 INFO o.a.j.r.Summariser: summary +    104 in 00:00:10 =   10,2/s Avg:    84 Min:     0 Max:  1347 Err:     8 (7,69%) Active: 10 Started: 10 Finished: 0
+2026-05-02 14:47:30,066 INFO o.a.j.r.Summariser: summary +    296 in 00:00:30 =    9,9/s Avg:   238 Min:     0 Max: 16946 Err:    23 (7,77%) Active: 10 Started: 10 Finished: 0
+2026-05-02 14:47:30,067 INFO o.a.j.r.Summariser: summary =    400 in 00:00:40 =   10,0/s Avg:   197 Min:     0 Max: 16946 Err:    31 (7,75%)

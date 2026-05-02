@@ -5,12 +5,17 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Lock;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 
 public interface RestockOrderRepository extends JpaRepository<RestockOrder, Long> {
 
     boolean existsByArticleNumberAndDeliveredFalse(String articleNumber);
+
+    @Query("SELECT r.articleNumber FROM RestockOrder r WHERE r.articleNumber IN :articleNumbers AND r.delivered = false")
+    List<String> findOpenOrderArticleNumbers(@Param("articleNumbers") Collection<String> articleNumbers);
 
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     @Query("select r from RestockOrder r where r.id = :id")

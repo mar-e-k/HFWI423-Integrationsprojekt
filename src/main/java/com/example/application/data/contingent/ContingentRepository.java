@@ -12,6 +12,8 @@ public interface ContingentRepository extends JpaRepository<Contingent, Long> {
 
     List<Contingent> findAllByArticleId(Long articleId);
 
+    List<Contingent> findAllByArticleIdIn(Collection<Long> articleIds);
+
     boolean existsByArticleId(Long articleId);
 
     @Query("SELECT COALESCE(SUM(c.availableQuantity), 0) FROM Contingent c WHERE c.articleId = :articleId")

@@ -179,12 +179,6 @@ public class RestockView extends Div {
 
     private void approveAllOrders() {
         List<RestockItem> items = restockService.getArticlesToRestock();
-        for (RestockItem item : items) {
-            boolean validAmount = item.getOrderAmount() != null && item.getOrderAmount() > 0;
-            boolean hasOpenOrder = restockOrderService.hasOpenOrderForArticle(item.getArticle());
-            if (validAmount && !hasOpenOrder) {
-                restockOrderService.approveOrder(item);
-            }
-        }
+        restockOrderService.approveAllOrders(items);
     }
 }
