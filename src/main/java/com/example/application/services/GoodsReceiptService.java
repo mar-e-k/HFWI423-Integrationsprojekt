@@ -339,6 +339,22 @@ public class GoodsReceiptService {
         return saved;
     }
 
+    /**
+     * Bulk-Freigabe aller IN_PRUEFUNG-Items eines Wareneingangs in 2 Queries.
+     * Query 1: UPDATE goods_receipt_item SET status=FREIGEGEBEN WHERE receipt_id=? AND status=IN_PRUEFUNG
+     * Query 2: findByGoodsReceiptId + bedingtes receiptRepo.save in recomputeReceiptStatus
+     */
+    @Transactional
+    public int approveAllItemsForReceipt(Long receiptId) {
+        int updated = itemRepo.updateStatusByReceiptId(
+                receiptId,
+                GoodsReceiptItemStatus.FREIGEGEBEN,
+                GoodsReceiptItemStatus.IN_PRUEFUNG);
+        GoodsReceipt receipt = getById(receiptId);
+        recomputeReceiptStatus(receipt);
+        return updated;
+    }
+
     // ------------------------------------------------------------------------
     // Abschluss der Prüfung
     // ------------------------------------------------------------------------

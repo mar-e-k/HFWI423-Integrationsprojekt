@@ -222,14 +222,7 @@ public class LoadTestGoodsReceiptController {
     @PostMapping("/{id}/approve-all-items")
     public ResponseEntity<Integer> approveAllItems(@PathVariable Long id) {
         try {
-            List<GoodsReceiptItem> items = goodsReceiptService.getItemsForReceipt(id);
-            int approved = 0;
-            for (GoodsReceiptItem item : items) {
-                if (item.getStatus() == GoodsReceiptItemStatus.IN_PRUEFUNG) {
-                    goodsReceiptService.setItemStatus(item.getId(), GoodsReceiptItemStatus.FREIGEGEBEN);
-                    approved++;
-                }
-            }
+            int approved = goodsReceiptService.approveAllItemsForReceipt(id);
             System.out.println("[approve-all-items] receiptId=" + id + " approved=" + approved);
             return ResponseEntity.ok(approved);
         } catch (ObjectOptimisticLockingFailureException e) {
