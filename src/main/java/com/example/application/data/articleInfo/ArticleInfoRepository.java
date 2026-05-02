@@ -76,4 +76,7 @@ public interface ArticleInfoRepository
     @Query("SELECT a FROM ArticleInfo a WHERE a.articleNumber IN :articleNumbers")
     List<ArticleInfo> findAllByArticleNumberIn(@Param("articleNumbers") Collection<String> articleNumbers);
 
+    @Query("SELECT a FROM ArticleInfo a WHERE a.minStock IS NULL OR a.reservePallets < a.minStock")
+    List<ArticleInfo> findAllRequiringRestock();
+
 }
