@@ -20,6 +20,11 @@ public interface MessageLogisticRepository extends JpaRepository<MessageLogistic
 
     List<MessageLogistic> findByStoreIdAndQuantityGreaterThanAndProcessedFalse(String storeId, long quantity);
 
+    @Lock(LockModeType.PESSIMISTIC_WRITE)
+    @Query("SELECT m FROM MessageLogistic m WHERE m.storeId = :storeId AND m.quantity > :quantity AND m.processed = false")
+    List<MessageLogistic> findByStoreIdAndQuantityGreaterThanAndProcessedFalseForUpdate(
+            @Param("storeId") String storeId, @Param("quantity") long quantity);
+
     List<MessageLogistic> findByStoreIdAndQuantityGreaterThan(String storeId, long quantity);
 
     List<MessageLogistic> findByStoreId(String storeId);

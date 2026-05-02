@@ -201,7 +201,6 @@ public class KommissionService {
     }
 
     public int generateNextOrderPickingNumber() {
-        Integer last = komRepo.findMaxOrderNumber();
-        return (last == null ? 1 : last + 1);
+        return komRepo.nextOrderNumber();
     }
 }

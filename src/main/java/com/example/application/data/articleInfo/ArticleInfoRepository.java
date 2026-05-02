@@ -9,6 +9,7 @@ import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -68,5 +69,11 @@ public interface ArticleInfoRepository
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     @Query("select a from ArticleInfo a where a.id = :id")
     Optional<ArticleInfo> findByIdForUpdate(@Param("id") Long id);
+
+    @Query("SELECT a FROM ArticleInfo a WHERE a.articleId IN :articleIds")
+    List<ArticleInfo> findAllByArticleIdIn(@Param("articleIds") Collection<Long> articleIds);
+
+    @Query("SELECT a FROM ArticleInfo a WHERE a.articleNumber IN :articleNumbers")
+    List<ArticleInfo> findAllByArticleNumberIn(@Param("articleNumbers") Collection<String> articleNumbers);
 
 }
