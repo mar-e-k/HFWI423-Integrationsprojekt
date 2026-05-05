@@ -1,8 +1,7 @@
 package de.fhdw.vendix.commons.spring.app.context.app;
 
-import de.fhdw.vendix.commons.api.embeddable.TargetType;
-import org.slf4j.MDC;
 import org.springframework.boot.web.server.context.WebServerInitializedEvent;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.event.EventListener;
 import org.springframework.core.env.Environment;
 
@@ -13,13 +12,16 @@ import java.util.UUID;
 
 public final class DefaultAppContext implements AppContext {
 
+    private final ApplicationEventPublisher publisher;
+
     private final String applicationName;
     private final UUID instanceUUID;
     private final String hostname;
     private final String serverName;
     private int serverPort;
 
-    public DefaultAppContext(Environment environment) {
+    public DefaultAppContext(Environment environment, ApplicationEventPublisher publisher) {
+        this.publisher = publisher;
         this.applicationName = Objects.requireNonNull(environment.getProperty("spring.application.name"), "Property 'spring.application.name' is not set");
         this.instanceUUID = UUID.randomUUID();
         this.hostname = resolveHostname();
@@ -45,15 +47,9 @@ public final class DefaultAppContext implements AppContext {
     }
 
     @EventListener
-    public void onApplicationEvent(WebServerInitializedEvent event) {
+    public void onWebServerInitializedEvent(WebServerInitializedEvent event) {
         serverPort = event.getWebServer().getPort();
-        // At this point, everything should be loaded
-        MDC.put("__host__", "%s:%d".formatted(serverName, serverPort));
-        MDC.put("__instance__", instanceUUID.toString());
-        if (applicationName.equalsIgnoreCase("orchestrator")) {
-            MDC.put("__target_type__", TargetType.ORCHESTRATOR.name());
-            MDC.put("__target_id__", "N/A");
-        }
+        publisher.publishEvent(new AppContextInitializedEvent(this, this));
     }
 
     @Override
@@ -62,7 +58,7 @@ public final class DefaultAppContext implements AppContext {
     }
 
     @Override
-    public UUID getInstanceUUID() {
+    public UUID getInstanceUuid() {
         return instanceUUID;
     }
 
@@ -79,12 +75,5 @@ public final class DefaultAppContext implements AppContext {
     @Override
     public int getServerPort() {
         return serverPort;
-    }
-
-    public String getBaseUrl() {
-        return "http://%s:%s".formatted(
-                serverName,
-                serverPort
-        );
     }
 }

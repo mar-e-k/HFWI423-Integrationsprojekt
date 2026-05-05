@@ -1,6 +1,0 @@
-type: string
-description: Payment method used for the transaction.
-enum:
-  - CASH
-  - CARD
-  - ONLINE

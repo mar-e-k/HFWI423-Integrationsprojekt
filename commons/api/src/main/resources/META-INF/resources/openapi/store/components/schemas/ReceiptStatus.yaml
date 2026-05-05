@@ -1,6 +1,0 @@
-type: string
-description: Lifecycle status of a receipt.
-enum:
-  - OPEN
-  - PRINTED
-  - CANCELLED

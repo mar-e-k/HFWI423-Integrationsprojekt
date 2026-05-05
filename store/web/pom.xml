@@ -32,69 +32,6 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
             </plugin>
-            <plugin>
-                <groupId>org.openapitools</groupId>
-                <artifactId>openapi-generator-maven-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <id>store-server</id>
-                        <goals>
-                            <goal>generate</goal>
-                        </goals>
-                        <configuration>
-                            <inputSpec>${maven.multiModuleProjectDirectory}/commons/api/src/main/resources/META-INF/resources/openapi/store.yaml</inputSpec>
-                            <output>${project.build.directory}/generated-sources/openapi</output>
-
-                            <ignoreFileOverride>
-                                ${maven.multiModuleProjectDirectory}/commons/api/src/main/resources/openapi/.openapi-generator-ignore
-                            </ignoreFileOverride>
-                            <generatorName>spring</generatorName>
-
-                            <apiPackage>${project.groupId}.commons.spring.web.server.store.api</apiPackage>
-                            <modelPackage>${project.groupId}.commons.spring.web.server.store.model</modelPackage>
-
-                            <configOptions>
-                                <library>spring-boot</library>
-                                <interfaceOnly>true</interfaceOnly>
-                                <openApiNullable>false</openApiNullable>
-                                <useSpringBoot4>true</useSpringBoot4>
-                                <useJackson3>true</useJackson3>
-                                <useJakartaEe>true</useJakartaEe>
-                                <useTags>true</useTags>
-                            </configOptions>
-
-                            <importMappings>
-                                <!-- Bestehende DTOs -->
-                                <importMapping>ArticleDTO=de.fhdw.vendix.commons.api.domain.article.ArticleDTO</importMapping>
-                                <importMapping>ReceiptDTO=de.fhdw.vendix.commons.api.domain.receipt.ReceiptDTO</importMapping>
-                                <importMapping>VoucherDTO=de.fhdw.vendix.commons.api.domain.voucher.VoucherDTO</importMapping>
-                                <!-- Checkout-DTOs: damit der Generator diese nicht neu generiert -->
-                                <importMapping>CheckoutRequestDTO=de.fhdw.vendix.commons.api.domain.receipt.CheckoutRequestDTO</importMapping>
-                                <importMapping>CheckoutResponseDTO=de.fhdw.vendix.commons.api.domain.receipt.CheckoutResponseDTO</importMapping>
-                                <importMapping>CheckoutLineDTO=de.fhdw.vendix.commons.api.domain.receipt.CheckoutLineDTO</importMapping>
-                            </importMappings>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
-            <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>build-helper-maven-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <id>add-openapi-sources</id>
-                        <phase>generate-sources</phase>
-                        <goals>
-                            <goal>add-source</goal>
-                        </goals>
-                        <configuration>
-                            <sources>
-                                <source>${project.build.directory}/generated-sources/openapi/src/main/java</source>
-                            </sources>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
         </plugins>
     </build>
 </project>

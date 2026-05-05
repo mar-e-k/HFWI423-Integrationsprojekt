@@ -1,19 +1,17 @@
 package de.fhdw.vendix.pos.ui.register;
 
-import com.vaadin.flow.spring.security.AuthenticationContext;
 import de.fhdw.vendix.commons.api.domain.article.ArticleDTO;
-import de.fhdw.vendix.commons.api.domain.receipt.PaymentMethod;
+import de.fhdw.vendix.commons.api.domain.receipt.ReceiptPaymentMethod;
 import de.fhdw.vendix.commons.api.domain.receipt.ReceiptDTO;
 import de.fhdw.vendix.commons.api.domain.receipt.ReceiptStatus;
 import de.fhdw.vendix.commons.api.domain.receipt_line.ReceiptLineDTO;
 import de.fhdw.vendix.commons.spring.security.SecurityService;
-import de.fhdw.vendix.pos.core.register.RegisterContext;
+import de.fhdw.vendix.commons.spring.app.context.register.RegisterContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 import org.springframework.web.context.annotation.SessionScope;
 
-import javax.security.auth.login.CredentialException;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Objects;
@@ -101,7 +99,7 @@ public class CartService {
                     registerContext.getRegister().id(),
                     registerContext.getRegister().storeId(),
                     5L, // TODO: change field to accept uuid instead
-                    PaymentMethod.CARD,
+                    ReceiptPaymentMethod.CARD,
                     ReceiptStatus.OPEN
             );
             log.atDebug().log("Successfully generated receipt");

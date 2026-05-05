@@ -1,6 +1,6 @@
 package de.fhdw.vendix.store.core.domain.receipt;
 
-import de.fhdw.vendix.commons.api.domain.receipt.PaymentMethod;
+import de.fhdw.vendix.commons.api.domain.receipt.ReceiptPaymentMethod;
 import de.fhdw.vendix.commons.api.domain.receipt.ReceiptStatus;
 import de.fhdw.vendix.commons.api.structure.mapper.Default;
 import de.fhdw.vendix.commons.spring.data.entity.AbstractSpringDataAuditingEntity;
@@ -33,7 +33,7 @@ public class Receipt extends AbstractSpringDataAuditingEntity<Long> {
     @Enumerated(EnumType.STRING)
     @NotNull(message = "Payment method cannot be null")
     @Column(nullable = false)
-    private PaymentMethod paymentMethod;
+    private ReceiptPaymentMethod receiptPaymentMethod;
 
     @Enumerated(EnumType.STRING)
     @NotNull(message = "Status cannot be null")
@@ -42,22 +42,22 @@ public class Receipt extends AbstractSpringDataAuditingEntity<Long> {
 
     protected Receipt() {}
 
-    public Receipt(Long storeId, Long registerId, Long cashierId, PaymentMethod paymentMethod) {
+    public Receipt(Long storeId, Long registerId, Long cashierId, ReceiptPaymentMethod receiptPaymentMethod) {
         this.storeId        = storeId;
         this.registerId     = registerId;
         this.cashierId      = cashierId;
-        this.paymentMethod  = paymentMethod;
+        this.receiptPaymentMethod = receiptPaymentMethod;
         this.status         = ReceiptStatus.OPEN;
     }
 
     @Default
     protected Receipt(@Nullable Long id, Long storeId, Long registerId,
-                      Long cashierId, PaymentMethod paymentMethod, ReceiptStatus status) {
+                      Long cashierId, ReceiptPaymentMethod receiptPaymentMethod, ReceiptStatus status) {
         super(id);
         this.storeId       = storeId;
         this.registerId    = registerId;
         this.cashierId     = cashierId;
-        this.paymentMethod = paymentMethod;
+        this.receiptPaymentMethod = receiptPaymentMethod;
         this.status        = status != null ? status : ReceiptStatus.OPEN;
     }
 
@@ -106,6 +106,6 @@ public class Receipt extends AbstractSpringDataAuditingEntity<Long> {
     public Long getStoreId()              { return storeId; }
     public Long getRegisterId()           { return registerId; }
     public Long getCashierId()            { return cashierId; }
-    public PaymentMethod getPaymentMethod() { return paymentMethod; }
+    public ReceiptPaymentMethod getPaymentMethod() { return receiptPaymentMethod; }
     public ReceiptStatus getStatus()      { return status; }
 }

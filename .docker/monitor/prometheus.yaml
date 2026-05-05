@@ -3,9 +3,33 @@ global:
   evaluation_interval: 5s
 
 scrape_configs:
-  - job_name: 'spring-apps'
+
+  - job_name: 'vendix-apps'
+
     metrics_path: /actuator/prometheus
 
-    http_sd_configs:
-      - url: http://host:8080/prometheus/targets
-        refresh_interval: 5s
+    consul_sd_configs:
+      - server: 'consul:8500'
+        services: [ ]   # empty = all services OR specify list
+
+    relabel_configs:
+      # Only keep services explicitly marked for Prometheus scraping
+      - source_labels: [ __meta_consul_service_metadata_prometheus_scrape ]
+        regex: true
+        action: keep
+
+      # Use service address from Consul
+      - source_labels: [ __meta_consul_service_address ]
+        target_label: __address__
+
+      # Use service port from Consul
+      - source_labels: [ __meta_consul_service_port ]
+        target_label: __metrics_path__
+
+      # Override metrics path correctly (Spring Boot actuator)
+      - target_label: __metrics_path__
+        replacement: /actuator/prometheus
+
+      # Add service name as a label
+      - source_labels: [ __meta_consul_service_name ]
+        target_label: service

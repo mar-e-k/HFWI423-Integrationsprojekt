@@ -5,7 +5,7 @@ import java.util.UUID;
 public interface AppContext {
     String getApplicationName();
 
-    UUID getInstanceUUID();
+    UUID getInstanceUuid();
 
     String getHostname();
 

@@ -26,8 +26,8 @@
         </dependency>
 
         <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-actuator</artifactId>
+            <groupId>de.fhdw.vendix</groupId>
+            <artifactId>commons-spring-data-caching</artifactId>
         </dependency>
 
         <dependency>
@@ -36,8 +36,8 @@
         </dependency>
 
         <dependency>
-            <groupId>io.micrometer</groupId>
-            <artifactId>micrometer-registry-prometheus</artifactId>
+            <groupId>org.springdoc</groupId>
+            <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
         </dependency>
     </dependencies>
 
@@ -46,66 +46,6 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
-            </plugin>
-            <plugin>
-                <groupId>org.openapitools</groupId>
-                <artifactId>openapi-generator-maven-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <id>orchestrator-client</id>
-                        <goals>
-                            <goal>generate</goal>
-                        </goals>
-                        <configuration>
-                            <inputSpec>${maven.multiModuleProjectDirectory}/commons/api/src/main/resources/META-INF/resources/openapi/orchestrator.yaml</inputSpec>
-                            <output>${project.build.directory}/generated-sources/openapi</output>
-
-                            <ignoreFileOverride>${maven.multiModuleProjectDirectory}/commons/api/src/main/resources/openapi/.openapi-generator-ignore</ignoreFileOverride>
-                            <generatorName>spring</generatorName>
-
-                            <apiNameSuffix>ProxyService</apiNameSuffix>
-                            <apiPackage>${project.groupId}.commons.spring.web.client.orchestrator.api</apiPackage>
-                            <modelPackage>${project.groupId}.commons.spring.web.client.orchestrator.model</modelPackage>
-
-                            <configOptions>
-                                <library>spring-http-interface</library>
-                                <openApiNullable>false</openApiNullable>
-                                <useSpringBoot4>true</useSpringBoot4>
-                                <useJakartaEe>true</useJakartaEe>
-                                <useTags>true</useTags>
-                            </configOptions>
-
-                            <importMappings>
-                                <importMapping>ConnectionDTO=de.fhdw.vendix.commons.api.domain.connection.ConnectionDTO</importMapping>
-                                <importMapping>DistributedLockDTO=de.fhdw.vendix.commons.api.domain.distributed_lock.DistributedLockDTO</importMapping>
-                                <importMapping>EntityTargetDTO=de.fhdw.vendix.commons.api.embeddable.EntityTargetDTO</importMapping>
-                                <importMapping>TargetType=de.fhdw.vendix.commons.api.embeddable.TargetType</importMapping>
-                                <importMapping>ConnectionState=de.fhdw.vendix.commons.api.domain.connection.ConnectionState</importMapping>
-                                <importMapping>InstanceDetailsDTO=de.fhdw.vendix.commons.api.embeddable.InstanceDetailsDTO</importMapping>
-                                <importMapping>StoreDTO=de.fhdw.vendix.commons.api.domain.store.StoreDTO</importMapping>
-                                <importMapping>RegisterDTO=de.fhdw.vendix.commons.api.domain.register.RegisterDTO</importMapping>
-                            </importMappings>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
-            <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>build-helper-maven-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <id>add-openapi-sources</id>
-                        <phase>generate-sources</phase>
-                        <goals>
-                            <goal>add-source</goal>
-                        </goals>
-                        <configuration>
-                            <sources>
-                                <source>${project.build.directory}/generated-sources/openapi/src/main/java</source>
-                            </sources>
-                        </configuration>
-                    </execution>
-                </executions>
             </plugin>
         </plugins>
     </build>

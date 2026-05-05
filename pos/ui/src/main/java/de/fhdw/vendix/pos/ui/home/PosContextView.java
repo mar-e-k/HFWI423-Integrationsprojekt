@@ -17,9 +17,9 @@ import com.vaadin.flow.theme.aura.Aura;
 import de.fhdw.vendix.commons.api.domain.register.RegisterDTO;
 import de.fhdw.vendix.commons.api.domain.store.StoreDTO;
 import de.fhdw.vendix.commons.spring.security.Role;
-import de.fhdw.vendix.pos.core.register.RegisterContext;
-import de.fhdw.vendix.commons.spring.web.client.orchestrator.api.RegisterProxyService;
-import de.fhdw.vendix.commons.spring.web.client.orchestrator.api.StoreProxyService;
+import de.fhdw.vendix.commons.spring.app.context.register.RegisterContext;
+import de.fhdw.vendix.commons.spring.web.api.orchestrator.RegisterApi;
+import de.fhdw.vendix.commons.spring.web.api.orchestrator.StoreApi;
 import de.fhdw.vendix.pos.ui.PosAppLayout;
 import jakarta.annotation.security.RolesAllowed;
 import org.slf4j.Logger;
@@ -38,8 +38,8 @@ public class PosContextView extends VerticalLayout {
 
     private static final Logger log = LoggerFactory.getLogger(PosContextView.class);
 
-    private final StoreProxyService storeProxyService;
-    private final RegisterProxyService registerProxyService;
+    private final StoreApi storeApi;
+    private final RegisterApi registerApi;
     private final RegisterContext registerContext;
 
     private final FlexLayout storeLayout = new FlexLayout();
@@ -47,9 +47,9 @@ public class PosContextView extends VerticalLayout {
     private final List<StoreDTO> activeStores = new ArrayList<>();
     private final Dialog registerDialog = new Dialog();
 
-    public PosContextView(StoreProxyService storeProxyService, RegisterProxyService registerProxyService, RegisterContext registerContext) {
-        this.storeProxyService = storeProxyService;
-        this.registerProxyService = registerProxyService;
+    public PosContextView(StoreApi storeApi, RegisterApi registerApi, RegisterContext registerContext) {
+        this.storeApi = storeApi;
+        this.registerApi = registerApi;
         this.registerContext = registerContext;
 
         setSizeFull();
@@ -79,7 +79,7 @@ public class PosContextView extends VerticalLayout {
     }
 
     private void loadUnlockedStores() {
-        ResponseEntity<List<StoreDTO>> stores = storeProxyService.getUnlockedStores();
+        ResponseEntity<List<StoreDTO>> stores = storeApi.getUnlockedStores();
         if (stores.getStatusCode() == HttpStatus.OK && stores.getBody() != null) {
             inactiveStores.addAll(stores.getBody());
         }
@@ -90,7 +90,7 @@ public class PosContextView extends VerticalLayout {
     }
 
     private void loadLockedStores() {
-        ResponseEntity<List<StoreDTO>> stores = storeProxyService.getLockedStores();
+        ResponseEntity<List<StoreDTO>> stores = storeApi.getLockedStores();
         if (stores.getStatusCode() == HttpStatus.OK && stores.getBody() != null) {
             activeStores.addAll(stores.getBody());
         }
@@ -186,7 +186,7 @@ public class PosContextView extends VerticalLayout {
         registerLayout.setJustifyContentMode(JustifyContentMode.START);
 
         // Load and display active registers
-        ResponseEntity<List<RegisterDTO>> activeRegistersResponse = registerProxyService.getLockedRegistersByStoreId(Objects.requireNonNull(store.id()));
+        ResponseEntity<List<RegisterDTO>> activeRegistersResponse = registerApi.getLockedRegistersByStoreId(Objects.requireNonNull(store.id()));
         if (activeRegistersResponse.getStatusCode() == HttpStatus.OK && activeRegistersResponse.getBody() != null) {
             activeRegistersResponse.getBody().forEach(register -> {
                 Component registerCard = createRegisterCard(register, true);
@@ -195,7 +195,7 @@ public class PosContextView extends VerticalLayout {
         }
 
         // Load and display inactive registers
-        ResponseEntity<List<RegisterDTO>> inactiveRegistersResponse = registerProxyService.getUnlockedRegistersByStoreId(Objects.requireNonNull(store.id()));
+        ResponseEntity<List<RegisterDTO>> inactiveRegistersResponse = registerApi.getUnlockedRegistersByStoreId(Objects.requireNonNull(store.id()));
         if (inactiveRegistersResponse.getStatusCode() == HttpStatus.OK && inactiveRegistersResponse.getBody() != null) {
             inactiveRegistersResponse.getBody().forEach(register -> {
                 Component registerCard = createRegisterCard(register, false);

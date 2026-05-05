@@ -31,7 +31,12 @@
             <!-- commons-spring -->
             <dependency>
                 <groupId>de.fhdw.vendix</groupId>
-                <artifactId>commons-spring-data</artifactId>
+                <artifactId>commons-spring-data-caching</artifactId>
+                <version>${commons.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>de.fhdw.vendix</groupId>
+                <artifactId>commons-spring-data-persistance</artifactId>
                 <version>${commons.version}</version>
             </dependency>
             <dependency>
@@ -57,17 +62,6 @@
             <dependency>
                 <groupId>de.fhdw.vendix</groupId>
                 <artifactId>commons-spring-starter</artifactId>
-                <version>${commons.version}</version>
-            </dependency>
-            <!-- commons-ui -->
-            <dependency>
-                <groupId>de.fhdw.vendix</groupId>
-                <artifactId>commons-ui-core</artifactId>
-                <version>${commons.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>de.fhdw.vendix</groupId>
-                <artifactId>commons-ui-vaadin</artifactId>
                 <version>${commons.version}</version>
             </dependency>
         </dependencies>

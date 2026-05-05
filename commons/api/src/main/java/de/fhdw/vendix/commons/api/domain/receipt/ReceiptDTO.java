@@ -8,7 +8,7 @@ public record ReceiptDTO(
         Long storeId,
         Long registerId,
         Long cashierId,
-        PaymentMethod paymentMethod,
+        ReceiptPaymentMethod receiptPaymentMethod,
         ReceiptStatus status
 ) implements DomainDTO {
     public ReceiptDTO {
@@ -24,7 +24,7 @@ public record ReceiptDTO(
         if (cashierId == null || cashierId < 0) {
             throw new IllegalArgumentException("ReceiptDTO parameter 'cashierId' must not be null or negative");
         }
-        if (paymentMethod == null) {
+        if (receiptPaymentMethod == null) {
             throw new IllegalArgumentException("ReceiptDTO parameter 'paymentMethod' must not be null");
         }
         if (status == null) {

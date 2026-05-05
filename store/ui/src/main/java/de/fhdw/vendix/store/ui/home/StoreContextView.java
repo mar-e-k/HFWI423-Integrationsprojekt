@@ -14,7 +14,8 @@ import com.vaadin.flow.router.Route;
 import com.vaadin.flow.theme.aura.Aura;
 import de.fhdw.vendix.commons.api.domain.store.StoreDTO;
 import de.fhdw.vendix.commons.spring.security.Role;
-import de.fhdw.vendix.store.core.store.StoreContext;
+import de.fhdw.vendix.commons.spring.app.context.store.StoreContext;
+import de.fhdw.vendix.commons.spring.web.api.orchestrator.StoreApi;
 import de.fhdw.vendix.commons.spring.web.client.orchestrator.api.StoreProxyService;
 import de.fhdw.vendix.store.ui.StoreAppLayout;
 import jakarta.annotation.security.RolesAllowed;
@@ -39,8 +40,9 @@ public class StoreContextView extends VerticalLayout {
     private final FlexLayout storeLayout = new FlexLayout();
     private final List<StoreDTO> inactiveStores = new ArrayList<>();
     private final List<StoreDTO> activeStores = new ArrayList<>();
+    private final StoreApi storeApi;
 
-    public StoreContextView(StoreProxyService storeProxyService, StoreContext storeContext) {
+    public StoreContextView(StoreProxyService storeProxyService, StoreContext storeContext, StoreApi storeApi) {
         this.storeProxyService = storeProxyService;
         this.storeContext = storeContext;
 
@@ -53,6 +55,7 @@ public class StoreContextView extends VerticalLayout {
 
         loadInactiveStores();
         loadActiveStores();
+        this.storeApi = storeApi;
     }
 
     private void createFilterMethods() {
@@ -82,7 +85,7 @@ public class StoreContextView extends VerticalLayout {
     }
 
     private void loadActiveStores() {
-        ResponseEntity<List<StoreDTO>> stores = storeProxyService.getLockedStores();
+        ResponseEntity<List<StoreDTO>> stores = storeApi.getLockedStores();
         if (stores.getStatusCode() == HttpStatus.OK && stores.getBody() != null) {
             activeStores.addAll(stores.getBody());
         }

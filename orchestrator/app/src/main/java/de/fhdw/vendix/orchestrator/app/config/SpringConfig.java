@@ -16,7 +16,7 @@ import java.util.UUID;
 @EnableAsync
 @EnableJpaAuditing
 @EnableScheduling
-public class SpringConfig {
+class SpringConfig {
 
     public SpringConfig() {}
 

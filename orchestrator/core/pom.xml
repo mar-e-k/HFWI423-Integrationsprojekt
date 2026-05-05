@@ -22,7 +22,7 @@
 
         <dependency>
             <groupId>de.fhdw.vendix</groupId>
-            <artifactId>commons-spring-data</artifactId>
+            <artifactId>commons-spring-data-persistance</artifactId>
         </dependency>
 
         <dependency>

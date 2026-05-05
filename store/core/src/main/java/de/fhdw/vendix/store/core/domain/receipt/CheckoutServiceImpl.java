@@ -1,8 +1,8 @@
 package de.fhdw.vendix.store.core.domain.receipt;
 
-import de.fhdw.vendix.commons.api.domain.receipt.CheckoutLineDTO;
-import de.fhdw.vendix.commons.api.domain.receipt.CheckoutRequestDTO;
-import de.fhdw.vendix.commons.api.domain.receipt.CheckoutResponseDTO;
+import de.fhdw.vendix.commons.api.utility.checkout.CheckoutLineDTO;
+import de.fhdw.vendix.commons.api.utility.checkout.CheckoutRequestDTO;
+import de.fhdw.vendix.commons.api.utility.checkout.CheckoutResponseDTO;
 import de.fhdw.vendix.commons.api.embeddable.DiscountOverrideDTO;
 import de.fhdw.vendix.commons.api.embeddable.OverrideReason;
 import de.fhdw.vendix.store.core.domain.receipt_line.ReceiptLine;
@@ -40,7 +40,7 @@ class CheckoutServiceImpl implements CheckoutService {
                 request.storeId(),
                 request.registerId(),
                 request.cashierId(),
-                request.paymentMethod()
+                request.receiptPaymentMethod()
         );
         Long receiptId = Objects.requireNonNull(
                 receiptService.create(receipt).getId(),
