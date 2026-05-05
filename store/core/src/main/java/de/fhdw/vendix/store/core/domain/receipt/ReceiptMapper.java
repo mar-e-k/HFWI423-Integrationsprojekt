@@ -2,7 +2,7 @@ package de.fhdw.vendix.store.core.domain.receipt;
 
 import de.fhdw.vendix.commons.api.domain.receipt.ReceiptDTO;
 import de.fhdw.vendix.commons.api.structure.mapper.EntityMapper;
-import de.fhdw.vendix.commons.spring.data.mapper.SpringMapperConfig;
+import de.fhdw.vendix.commons.spring.data.persistance.mapper.SpringMapperConfig;
 import org.mapstruct.Mapper;
 
 import java.util.List;

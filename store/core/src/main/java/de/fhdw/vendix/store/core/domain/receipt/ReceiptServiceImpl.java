@@ -1,6 +1,6 @@
 package de.fhdw.vendix.store.core.domain.receipt;
 
-import de.fhdw.vendix.commons.spring.data.crud.AbstractCrudService;
+import de.fhdw.vendix.commons.spring.data.persistance.crud.AbstractCrudService;
 import de.fhdw.vendix.store.core.domain.receipt_line.ReceiptLine;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.stereotype.Service;

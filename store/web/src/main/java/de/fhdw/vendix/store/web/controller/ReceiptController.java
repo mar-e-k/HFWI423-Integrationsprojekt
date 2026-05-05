@@ -1,7 +1,7 @@
 package de.fhdw.vendix.store.web.controller;
 
 import de.fhdw.vendix.commons.api.domain.receipt.ReceiptDTO;
-import de.fhdw.vendix.commons.spring.web.server.store.api.ReceiptApi;
+import de.fhdw.vendix.commons.spring.web.api.store.ReceiptApi;
 import de.fhdw.vendix.store.core.domain.receipt.Receipt;
 import de.fhdw.vendix.store.core.domain.receipt.ReceiptMapper;
 import de.fhdw.vendix.store.core.domain.receipt.ReceiptService;

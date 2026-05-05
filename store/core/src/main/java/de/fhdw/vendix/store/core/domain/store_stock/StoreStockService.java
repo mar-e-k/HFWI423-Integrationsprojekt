@@ -1,6 +1,6 @@
 package de.fhdw.vendix.store.core.domain.store_stock;
 
-import de.fhdw.vendix.commons.spring.data.service.CrudService;
+import de.fhdw.vendix.commons.spring.data.persistance.service.CrudService;
 
 import java.util.Optional;
 

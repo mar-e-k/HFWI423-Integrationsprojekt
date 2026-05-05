@@ -15,8 +15,8 @@ import com.vaadin.flow.theme.aura.Aura;
 import de.fhdw.vendix.commons.api.domain.store.StoreDTO;
 import de.fhdw.vendix.commons.spring.security.Role;
 import de.fhdw.vendix.commons.spring.app.context.store.StoreContext;
+import de.fhdw.vendix.commons.spring.web.api.ResponseUtils;
 import de.fhdw.vendix.commons.spring.web.api.orchestrator.StoreApi;
-import de.fhdw.vendix.commons.spring.web.client.orchestrator.api.StoreProxyService;
 import de.fhdw.vendix.store.ui.StoreAppLayout;
 import jakarta.annotation.security.RolesAllowed;
 import org.slf4j.Logger;
@@ -24,7 +24,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @Route(value = "context", layout = StoreAppLayout.class)
@@ -34,16 +33,13 @@ public class StoreContextView extends VerticalLayout {
 
     private static final Logger log = LoggerFactory.getLogger(StoreContextView.class);
 
-    private final StoreProxyService storeProxyService;
+    private final StoreApi storeApi;
     private final StoreContext storeContext;
 
     private final FlexLayout storeLayout = new FlexLayout();
-    private final List<StoreDTO> inactiveStores = new ArrayList<>();
-    private final List<StoreDTO> activeStores = new ArrayList<>();
-    private final StoreApi storeApi;
 
-    public StoreContextView(StoreProxyService storeProxyService, StoreContext storeContext, StoreApi storeApi) {
-        this.storeProxyService = storeProxyService;
+    public StoreContextView(StoreApi storeApi, StoreContext storeContext) {
+        this.storeApi = storeApi;
         this.storeContext = storeContext;
 
         setSizeFull();
@@ -53,9 +49,8 @@ public class StoreContextView extends VerticalLayout {
         createFilterMethods();
         createStoreLayout();
 
-        loadInactiveStores();
-        loadActiveStores();
-        this.storeApi = storeApi;
+        loadNonLockedStores();
+        loadLockedStores();
     }
 
     private void createFilterMethods() {
@@ -73,23 +68,17 @@ public class StoreContextView extends VerticalLayout {
         add(storeLayout);
     }
 
-    private void loadInactiveStores() {
-        ResponseEntity<List<StoreDTO>> stores = storeProxyService.getUnlockedStores();
-        if (stores.getStatusCode() == HttpStatus.OK && stores.getBody() != null) {
-            inactiveStores.addAll(stores.getBody());
-        }
-        inactiveStores.forEach(store -> {
+    private void loadNonLockedStores() {
+        List<StoreDTO> nonLockedStores = ResponseUtils.extractList(storeApi.getNonLockedStores());
+        nonLockedStores.forEach(store -> {
             Component storeCard = createStoreCard(store, false);
             storeLayout.add(storeCard);
         });
     }
 
-    private void loadActiveStores() {
-        ResponseEntity<List<StoreDTO>> stores = storeApi.getLockedStores();
-        if (stores.getStatusCode() == HttpStatus.OK && stores.getBody() != null) {
-            activeStores.addAll(stores.getBody());
-        }
-        activeStores.forEach(store -> {
+    private void loadLockedStores() {
+        List<StoreDTO> lockedStores = ResponseUtils.extractList(storeApi.getLockedStores());
+        lockedStores.forEach(store -> {
             Component storeCard = createStoreCard(store, true);
             storeLayout.add(storeCard);
         });

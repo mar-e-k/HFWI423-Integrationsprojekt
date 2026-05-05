@@ -4,7 +4,7 @@ import de.fhdw.vendix.commons.api.domain.receipt_line.ReceiptLineDTO;
 import de.fhdw.vendix.commons.api.domain.receipt_line.ReceiptLineRequestDTO;
 import de.fhdw.vendix.commons.api.domain.receipt_line.ReceiptLineResponseDTO;
 import de.fhdw.vendix.commons.api.structure.mapper.DTOMapper;
-import de.fhdw.vendix.commons.spring.data.mapper.SpringMapperConfig;
+import de.fhdw.vendix.commons.spring.data.persistance.mapper.SpringMapperConfig;
 import de.fhdw.vendix.store.core.domain.article.ArticleDTOMapper;
 import de.fhdw.vendix.store.core.domain.receipt.ReceiptDTOMapper;
 import org.mapstruct.Mapper;

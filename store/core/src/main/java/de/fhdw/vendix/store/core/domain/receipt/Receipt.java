@@ -3,7 +3,7 @@ package de.fhdw.vendix.store.core.domain.receipt;
 import de.fhdw.vendix.commons.api.domain.receipt.ReceiptPaymentMethod;
 import de.fhdw.vendix.commons.api.domain.receipt.ReceiptStatus;
 import de.fhdw.vendix.commons.api.structure.mapper.Default;
-import de.fhdw.vendix.commons.spring.data.entity.AbstractSpringDataAuditingEntity;
+import de.fhdw.vendix.commons.spring.data.persistance.entity.AbstractSpringDataAuditingEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;

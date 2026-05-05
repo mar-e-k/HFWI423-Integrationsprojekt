@@ -1,6 +1,6 @@
 package de.fhdw.vendix.store.core.domain.article;
 
-import de.fhdw.vendix.commons.spring.data.crud.AbstractCrudService;
+import de.fhdw.vendix.commons.spring.data.persistance.crud.AbstractCrudService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 

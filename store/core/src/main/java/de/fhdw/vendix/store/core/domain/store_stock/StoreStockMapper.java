@@ -2,7 +2,7 @@ package de.fhdw.vendix.store.core.domain.store_stock;
 
 import de.fhdw.vendix.commons.api.domain.store_stock.StoreStockDTO;
 import de.fhdw.vendix.commons.api.structure.mapper.EntityMapper;
-import de.fhdw.vendix.commons.spring.data.mapper.SpringMapperConfig;
+import de.fhdw.vendix.commons.spring.data.persistance.mapper.SpringMapperConfig;
 import de.fhdw.vendix.store.core.embeddable.preference_amount.PreferenceAmountMapper;
 import org.mapstruct.Mapper;
 

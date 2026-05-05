@@ -1,7 +1,7 @@
 package de.fhdw.vendix.store.web.controller;
 
 import de.fhdw.vendix.commons.api.domain.voucher.VoucherDTO;
-import de.fhdw.vendix.commons.spring.web.server.store.api.VoucherApi;
+import de.fhdw.vendix.commons.spring.web.api.store.VoucherApi;
 import de.fhdw.vendix.store.core.domain.voucher.*;
 import jakarta.persistence.OptimisticLockException;
 import org.springframework.http.HttpStatus;

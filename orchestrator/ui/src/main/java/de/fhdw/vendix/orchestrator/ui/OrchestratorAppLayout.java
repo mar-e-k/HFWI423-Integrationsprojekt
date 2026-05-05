@@ -15,7 +15,6 @@ import de.fhdw.vendix.orchestrator.ui.application.PerformanceTestView;
 import de.fhdw.vendix.orchestrator.ui.application.RootView;
 import de.fhdw.vendix.orchestrator.ui.management.*;
 import de.fhdw.vendix.orchestrator.ui.orchestrator.ConnectionView;
-import de.fhdw.vendix.orchestrator.ui.orchestrator.LockView;
 import jakarta.annotation.security.RolesAllowed;
 
 @RolesAllowed({Role.Constants.ADMIN})
@@ -42,8 +41,7 @@ public class OrchestratorAppLayout extends AbstractApplicationLayout {
 
         SideNav orchestratorHeader = new SideNav("Orchestrator");
         orchestratorHeader.addItem(
-                new SideNavItem("Connections", ConnectionView.class,     VaadinIcon.CONNECT.create()),
-                new SideNavItem("Locks",       LockView.class,           VaadinIcon.LOCK.create())
+                new SideNavItem("Connections", ConnectionView.class,     VaadinIcon.CONNECT.create())
         );
 
         SideNav managementHeader = new SideNav("Management");

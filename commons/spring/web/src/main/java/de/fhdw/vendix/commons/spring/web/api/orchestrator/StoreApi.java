@@ -25,6 +25,13 @@ public interface StoreApi {
     ResponseEntity<List<StoreDTO>> getStores();
 
     @Operation(
+            summary = "Get store by ID",
+            description = "Retrieves a single store by its ID."
+    )
+    @GetExchange("/id/{id}")
+    ResponseEntity<StoreDTO> getStoreById(@PathVariable Long id);
+
+    @Operation(
             summary = "TODO",
             description = "TODO"
     )
@@ -37,13 +44,6 @@ public interface StoreApi {
     )
     @GetExchange("/non-locked")
     ResponseEntity<List<StoreDTO>> getNonLockedStores();
-
-    @Operation(
-            summary = "Get store by ID",
-            description = "Retrieves a single store by its ID."
-    )
-    @GetExchange("/id/{id}")
-    ResponseEntity<StoreDTO> getStoreById(@PathVariable Long id);
 
     @Operation(
             summary = "Get all registers for a store",

@@ -1,7 +1,7 @@
 package de.fhdw.vendix.orchestrator.web.controller;
 
 import de.fhdw.vendix.commons.api.domain.register.RegisterDTO;
-import de.fhdw.vendix.commons.spring.web.server.orchestrator.api.RegisterApi;
+import de.fhdw.vendix.commons.spring.web.api.orchestrator.RegisterApi;
 import de.fhdw.vendix.orchestrator.core.domain.register.RegisterMapper;
 import de.fhdw.vendix.orchestrator.core.domain.register.RegisterService;
 import org.springframework.http.ResponseEntity;
@@ -23,47 +23,6 @@ class RegisterController implements RegisterApi {
 
     @Override
     public ResponseEntity<RegisterDTO> getRegisterById(Long id) {
-        Optional<RegisterDTO> dto = registerService.findById(id).map(registerMapper::toDTO);
-        return ResponseEntity.of(dto);
-    }
-
-    @Override
-    public ResponseEntity<List<RegisterDTO>> getRegistersByStoreId(Long storeId) {
-        List<RegisterDTO> registers = registerService.findAllByStoreId(storeId).stream()
-                .map(registerMapper::toDTO)
-                .toList();
-        return ResponseEntity.ok(registers);
-    }
-
-    @Override
-    public ResponseEntity<List<RegisterDTO>> getLockedRegisters() {
-        List<RegisterDTO> registers = registerService.findAllLockedRegisters().stream()
-                .map(registerMapper::toDTO)
-                .toList();
-        return ResponseEntity.ok(registers);
-    }
-
-    @Override
-    public ResponseEntity<List<RegisterDTO>> getUnlockedRegisters() {
-        List<RegisterDTO> registers = registerService.findAllNonLockedRegisters().stream()
-                .map(registerMapper::toDTO)
-                .toList();
-        return ResponseEntity.ok(registers);
-    }
-
-    @Override
-    public ResponseEntity<List<RegisterDTO>> getLockedRegistersByStoreId(Long storeId) {
-        List<RegisterDTO> registers = registerService.findAllLockedRegistersByStoreId(storeId).stream()
-                .map(registerMapper::toDTO)
-                .toList();
-        return ResponseEntity.ok(registers);
-    }
-
-    @Override
-    public ResponseEntity<List<RegisterDTO>> getUnlockedRegistersByStoreId(Long storeId) {
-        List<RegisterDTO> registers = registerService.findAllNonLockedRegistersByStoreId(storeId).stream()
-                .map(registerMapper::toDTO)
-                .toList();
-        return ResponseEntity.ok(registers);
+        return registerService;
     }
 }
