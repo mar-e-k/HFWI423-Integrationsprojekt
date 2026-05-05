@@ -22,6 +22,20 @@ services:
     volumes:
       - ./init:/docker-entrypoint-initdb.d
       - postgres_data:/var/lib/postgresql/data
+      
+    command:
+      - postgres
+      - -c
+      - log_connections=off
+      - -c
+      - log_disconnections=off
+      - -c
+      - max_connections=200
+      - -c
+      - log_min_duration_statement=50
+      - -c
+      - log_statement=none
+    
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U appuser -d appdb"]
       interval: 5s
