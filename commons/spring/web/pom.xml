@@ -35,9 +35,15 @@
             <artifactId>spring-boot-starter-web</artifactId>
         </dependency>
 
+        <!--        TODO: Disabled until swagger-core team merges: https://github.com/swagger-api/swagger-core/pull/5031 -->
+        <!--        <dependency>-->
+        <!--            <groupId>org.springdoc</groupId>-->
+        <!--            <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>-->
+        <!--        </dependency>-->
+        <!--         We use the below dependency instead so we can atleast keep the annotations-->
         <dependency>
-            <groupId>org.springdoc</groupId>
-            <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
+            <groupId>io.swagger.core.v3</groupId>
+            <artifactId>swagger-annotations</artifactId>
         </dependency>
     </dependencies>
 

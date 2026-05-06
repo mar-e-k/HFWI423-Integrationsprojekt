@@ -3,7 +3,7 @@ package de.fhdw.vendix.pos.ui.register;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.Route;
-import de.fhdw.vendix.commons.spring.security.Role;
+import de.fhdw.vendix.commons.spring.security.keycloak.KeycloakRole;
 import de.fhdw.vendix.commons.spring.web.api.orchestrator.StoreApi;
 import de.fhdw.vendix.pos.ui.PosAppLayout;
 import de.fhdw.vendix.pos.ui.register.action_pad.ActionPad;
@@ -14,7 +14,7 @@ import de.fhdw.vendix.pos.ui.register.receipt_view.ReceiptList;
 import jakarta.annotation.security.RolesAllowed;
 
 @Route(value = "register", layout = PosAppLayout.class)
-@RolesAllowed(Role.Constants.CASHIER)
+@RolesAllowed(KeycloakRole.Constants.CASHIER)
 public class RegisterView extends HorizontalLayout {
 
     public RegisterView(

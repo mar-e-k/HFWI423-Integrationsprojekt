@@ -1,6 +1,5 @@
 package de.fhdw.vendix.commons.spring.web.api.orchestrator;
 
-import de.fhdw.vendix.commons.api.domain.register.RegisterDTO;
 import de.fhdw.vendix.commons.api.domain.store.StoreDTO;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
@@ -28,8 +27,8 @@ public interface StoreApi {
             summary = "Get store by ID",
             description = "Retrieves a single store by its ID."
     )
-    @GetExchange("/id/{id}")
-    ResponseEntity<StoreDTO> getStoreById(@PathVariable Long id);
+    @GetExchange("/{storeId}")
+    ResponseEntity<StoreDTO> getStoreById(@PathVariable Long storeId);
 
     @Operation(
             summary = "TODO",
@@ -44,25 +43,4 @@ public interface StoreApi {
     )
     @GetExchange("/non-locked")
     ResponseEntity<List<StoreDTO>> getNonLockedStores();
-
-    @Operation(
-            summary = "Get all registers for a store",
-            description = "Retrieves a list of all registers for a given store."
-    )
-    @GetExchange("/id/{id}/register")
-    ResponseEntity<List<RegisterDTO>> getStoreRegisters(@PathVariable Long id);
-
-    @Operation(
-            summary = "TODO",
-            description = "TODO"
-    )
-    @GetExchange("/id/{id}/register/locked")
-    ResponseEntity<List<RegisterDTO>> getLockedStoreRegisters(@PathVariable Long id);
-
-    @Operation(
-            summary = "TODO",
-            description = "TODO"
-    )
-    @GetExchange("/id/{id}/register/non-locked")
-    ResponseEntity<List<RegisterDTO>> getNonLockedStoreRegisters(@PathVariable Long id);
 }

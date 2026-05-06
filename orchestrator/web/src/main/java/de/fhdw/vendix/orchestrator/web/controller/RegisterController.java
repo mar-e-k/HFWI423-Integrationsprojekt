@@ -22,7 +22,56 @@ class RegisterController implements RegisterApi {
     }
 
     @Override
-    public ResponseEntity<RegisterDTO> getRegisterById(Long id) {
-        return registerService;
+    public ResponseEntity<List<RegisterDTO>> getRegisters() {
+        List<RegisterDTO> registers = registerService.findAll().stream()
+                .map(registerMapper::toDTO)
+                .toList();
+        return ResponseEntity.ok(registers);
+    }
+
+    @Override
+    public ResponseEntity<RegisterDTO> getRegisterById(Long registerId) {
+        Optional<RegisterDTO> register = registerService.findById(registerId).map(registerMapper::toDTO);
+        return ResponseEntity.of(register);
+    }
+
+    @Override
+    public ResponseEntity<List<RegisterDTO>> getLockedRegisters() {
+        List<RegisterDTO> registers = registerService.findAllLockedRegisters().stream()
+                .map(registerMapper::toDTO)
+                .toList();
+        return ResponseEntity.ok(registers);
+    }
+
+    @Override
+    public ResponseEntity<List<RegisterDTO>> getNonLockedRegisters() {
+        List<RegisterDTO> registers = registerService.findAllNonLockedRegisters().stream()
+                .map(registerMapper::toDTO)
+                .toList();
+        return ResponseEntity.ok(registers);
+    }
+
+    @Override
+    public ResponseEntity<List<RegisterDTO>> getStoreRegisters(Long storeId) {
+        List<RegisterDTO> registers = registerService.findAllByStoreId(storeId).stream()
+                .map(registerMapper::toDTO)
+                .toList();
+        return ResponseEntity.ok(registers);
+    }
+
+    @Override
+    public ResponseEntity<List<RegisterDTO>> getLockedStoreRegisters(Long storeId) {
+        List<RegisterDTO> registers = registerService.findAllLockedRegistersByStoreId(storeId).stream()
+                .map(registerMapper::toDTO)
+                .toList();
+        return ResponseEntity.ok(registers);
+    }
+
+    @Override
+    public ResponseEntity<List<RegisterDTO>> getNonLockedStoreRegisters(Long storeId) {
+        List<RegisterDTO> registers = registerService.findAllNonLockedRegistersByStoreId(storeId).stream()
+                .map(registerMapper::toDTO)
+                .toList();
+        return ResponseEntity.ok(registers);
     }
 }

@@ -13,7 +13,7 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.theme.aura.Aura;
 import de.fhdw.vendix.commons.api.domain.store.StoreDTO;
-import de.fhdw.vendix.commons.spring.security.Role;
+import de.fhdw.vendix.commons.spring.security.keycloak.KeycloakRole;
 import de.fhdw.vendix.commons.spring.app.context.store.StoreContext;
 import de.fhdw.vendix.commons.spring.web.api.ResponseUtils;
 import de.fhdw.vendix.commons.spring.web.api.orchestrator.StoreApi;
@@ -21,13 +21,11 @@ import de.fhdw.vendix.store.ui.StoreAppLayout;
 import jakarta.annotation.security.RolesAllowed;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 
 import java.util.List;
 
 @Route(value = "context", layout = StoreAppLayout.class)
-@RolesAllowed(Role.Constants.ADMIN)
+@RolesAllowed(KeycloakRole.Constants.ADMIN)
 @StyleSheet(Aura.STYLESHEET)
 public class StoreContextView extends VerticalLayout {
 

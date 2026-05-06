@@ -16,7 +16,7 @@ import com.vaadin.flow.router.Route;
 import com.vaadin.flow.theme.aura.Aura;
 import de.fhdw.vendix.commons.api.domain.register.RegisterDTO;
 import de.fhdw.vendix.commons.api.domain.store.StoreDTO;
-import de.fhdw.vendix.commons.spring.security.Role;
+import de.fhdw.vendix.commons.spring.security.keycloak.KeycloakRole;
 import de.fhdw.vendix.commons.spring.app.context.register.RegisterContext;
 import de.fhdw.vendix.commons.spring.web.api.ResponseUtils;
 import de.fhdw.vendix.commons.spring.web.api.orchestrator.RegisterApi;
@@ -30,7 +30,7 @@ import org.springframework.util.Assert;
 import java.util.List;
 
 @Route(value = "context", layout = PosAppLayout.class)
-@RolesAllowed(Role.Constants.CASHIER)
+@RolesAllowed(KeycloakRole.Constants.CASHIER)
 @StyleSheet(Aura.STYLESHEET)
 public class PosContextView extends VerticalLayout {
 
@@ -178,13 +178,13 @@ public class PosContextView extends VerticalLayout {
         Long storeId = store.id();
         Assert.notNull(storeId, "storeId cannot be null");
 
-        List<RegisterDTO> lockedRegisters = ResponseUtils.extractList(storeApi.getLockedStoreRegisters(storeId));
+        List<RegisterDTO> lockedRegisters = ResponseUtils.extractList(registerApi.getLockedStoreRegisters(storeId));
         lockedRegisters.forEach(register -> {
             Component registerCard = createRegisterCard(register, true);
             registerLayout.add(registerCard);
         });
 
-        List<RegisterDTO> nonLockedRegisters = ResponseUtils.extractList(storeApi.getLockedStoreRegisters(storeId));
+        List<RegisterDTO> nonLockedRegisters = ResponseUtils.extractList(registerApi.getNonLockedStoreRegisters(storeId));
         nonLockedRegisters.forEach(register -> {
             Component registerCard = createRegisterCard(register, false);
             registerLayout.add(registerCard);

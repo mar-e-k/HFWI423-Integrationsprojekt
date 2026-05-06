@@ -1,17 +1,33 @@
 package de.fhdw.vendix.commons.spring.data.caching;
 
+import org.jspecify.annotations.Nullable;
+
+import java.util.IllegalFormatException;
+
 public enum RedissonKey {
 
-    STORE_LOCK("store-id:%d"),
-    REGISTER_LOCK("register-id:%d");
+    REGISTER_LOCK("register-id:%d", "locks:register"),
+    STORE_LOCK("store-id:%d", "locks:store"),
+    RATE_LIMIT("rate-limit:%s", null);
 
-    private final String pattern;
+    private final String lockPattern;
 
-    RedissonKey(String pattern) {
-        this.pattern = pattern;
+    @Nullable
+    private final String setKey;
+
+    RedissonKey(String lockPattern, @Nullable String setKey) {
+        this.lockPattern = lockPattern;
+        this.setKey = setKey;
     }
 
-    public String format(Object... args) {
-        return String.format(this.pattern, args);
+    public String lockKey(Object... args) throws IllegalFormatException {
+        return String.format(lockPattern, args);
+    }
+
+    public String setKey() {
+        if (setKey == null) {
+            throw new IllegalStateException("No set defined for " + this.name());
+        }
+        return setKey;
     }
 }

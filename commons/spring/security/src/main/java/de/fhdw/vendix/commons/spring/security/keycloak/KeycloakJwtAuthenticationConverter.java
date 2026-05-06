@@ -1,4 +1,4 @@
-package de.fhdw.vendix.commons.spring.security;
+package de.fhdw.vendix.commons.spring.security.keycloak;
 
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;

@@ -1,7 +1,7 @@
 package de.fhdw.vendix.commons.spring.starter.autoconfigure.web;
 
 import com.vaadin.flow.spring.security.VaadinSecurityConfigurer;
-import de.fhdw.vendix.commons.spring.security.KeycloakJwtAuthenticationConverter;
+import de.fhdw.vendix.commons.spring.security.keycloak.KeycloakJwtAuthenticationConverter;
 import de.fhdw.vendix.commons.spring.web.filter.RequestRateFilter;
 import org.redisson.api.RedissonClient;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
@@ -10,6 +10,7 @@ import org.springframework.core.annotation.Order;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.oauth2.server.resource.web.authentication.BearerTokenAuthenticationFilter;
 import org.springframework.security.web.SecurityFilterChain;
 
 @AutoConfiguration
@@ -42,7 +43,7 @@ public class SecurityWebAutoconfiguration {
                 .sessionManagement(session ->
                         session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 )
-                .addFilter(new RequestRateFilter(redissonClient))
+                .addFilterAfter(new RequestRateFilter(redissonClient), BearerTokenAuthenticationFilter.class)
                 .build();
     }
 

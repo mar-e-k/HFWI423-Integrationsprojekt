@@ -6,7 +6,7 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.tabs.TabSheet;
 import com.vaadin.flow.component.textfield.IntegerField;
 import com.vaadin.flow.router.Route;
-import de.fhdw.vendix.commons.spring.security.Role;
+import de.fhdw.vendix.commons.spring.security.keycloak.KeycloakRole;
 import de.fhdw.vendix.orchestrator.ui.OrchestratorAppLayout;
 import io.github.plaguv.amqp.api.envelope.EventEnvelope;
 import io.github.plaguv.amqp.api.envelope.EventEnvelopeBuilder;
@@ -16,7 +16,7 @@ import io.github.plaguv.amqp.core.publisher.EventPublisher;
 import jakarta.annotation.security.RolesAllowed;
 
 @Route(value = "debug", layout = OrchestratorAppLayout.class)
-@RolesAllowed(Role.Constants.ADMIN)
+@RolesAllowed(KeycloakRole.Constants.ADMIN)
 public class DebugView extends VerticalLayout {
 
     private final EventPublisher publisher;

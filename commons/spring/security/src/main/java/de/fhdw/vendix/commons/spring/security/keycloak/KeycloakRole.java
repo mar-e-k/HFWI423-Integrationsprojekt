@@ -1,12 +1,12 @@
-package de.fhdw.vendix.commons.spring.security;
+package de.fhdw.vendix.commons.spring.security.keycloak;
 
-public enum Role {
+public enum KeycloakRole {
     CASHIER(Constants.CASHIER),
     ADMIN(Constants.ADMIN);
 
     private final String name;
 
-    Role(String name) {
+    KeycloakRole(String name) {
         this.name = name;
     }
 

@@ -1,6 +1,5 @@
 package de.fhdw.vendix.orchestrator.web.controller;
 
-import de.fhdw.vendix.commons.api.domain.register.RegisterDTO;
 import de.fhdw.vendix.commons.api.domain.store.StoreDTO;
 import de.fhdw.vendix.commons.spring.web.api.orchestrator.StoreApi;
 import de.fhdw.vendix.orchestrator.core.domain.store.StoreMapper;
@@ -31,8 +30,8 @@ class StoreController implements StoreApi {
     }
 
     @Override
-    public ResponseEntity<StoreDTO> getStoreById(Long id) {
-        Optional<StoreDTO> store = storeService.findById(id).map(storeMapper::toDTO);
+    public ResponseEntity<StoreDTO> getStoreById(Long storeId) {
+        Optional<StoreDTO> store = storeService.findById(storeId).map(storeMapper::toDTO);
         return ResponseEntity.of(store);
     }
 
@@ -50,20 +49,5 @@ class StoreController implements StoreApi {
                 .map(storeMapper::toDTO)
                 .toList();
         return ResponseEntity.ok(stores);
-    }
-
-    @Override
-    public ResponseEntity<List<RegisterDTO>> getStoreRegisters(Long id) {
-        return null;
-    }
-
-    @Override
-    public ResponseEntity<List<RegisterDTO>> getLockedStoreRegisters(Long id) {
-        return null;
-    }
-
-    @Override
-    public ResponseEntity<List<RegisterDTO>> getNonLockedStoreRegisters(Long id) {
-        return null;
     }
 }

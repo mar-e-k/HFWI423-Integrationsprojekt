@@ -8,7 +8,7 @@ import com.vaadin.flow.component.sidenav.SideNavItem;
 import com.vaadin.flow.router.Layout;
 import com.vaadin.flow.spring.annotation.VaadinSessionScope;
 import com.vaadin.flow.spring.security.AuthenticationContext;
-import de.fhdw.vendix.commons.spring.security.Role;
+import de.fhdw.vendix.commons.spring.security.keycloak.KeycloakRole;
 import de.fhdw.vendix.commons.spring.vaadin.layout.AbstractApplicationLayout;
 import de.fhdw.vendix.orchestrator.ui.application.DebugView;
 import de.fhdw.vendix.orchestrator.ui.application.PerformanceTestView;
@@ -17,7 +17,7 @@ import de.fhdw.vendix.orchestrator.ui.management.*;
 import de.fhdw.vendix.orchestrator.ui.orchestrator.ConnectionView;
 import jakarta.annotation.security.RolesAllowed;
 
-@RolesAllowed({Role.Constants.ADMIN})
+@RolesAllowed({KeycloakRole.Constants.ADMIN})
 @Layout
 @VaadinSessionScope
 public class OrchestratorAppLayout extends AbstractApplicationLayout {
