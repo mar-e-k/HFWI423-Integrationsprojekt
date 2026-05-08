@@ -16,13 +16,13 @@ import org.springframework.core.annotation.Order;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
-public final class InstanceLockManager {
+public final class DefaultRedisInstanceContextListener implements RedisInstanceContextListener {
 
-    private static final Logger log = LoggerFactory.getLogger(InstanceLockManager.class);
+    private static final Logger log = LoggerFactory.getLogger(DefaultRedisInstanceContextListener.class);
 
     private final RedissonClient redissonClient;
 
-    public InstanceLockManager(RedissonClient redissonClient) {
+    public DefaultRedisInstanceContextListener(RedissonClient redissonClient) {
         this.redissonClient = redissonClient;
     }
 

@@ -8,7 +8,8 @@ de.fhdw.vendix.commons.spring.starter.autoconfigure.app.ContextAutoConfiguration
 de.fhdw.vendix.commons.spring.starter.autoconfigure.app.RedisAutoConfiguration
 
 de.fhdw.vendix.commons.spring.starter.autoconfigure.web.OrchestratorClientAutoConfiguration
-de.fhdw.vendix.commons.spring.starter.autoconfigure.web.SecurityWebAutoconfiguration
-de.fhdw.vendix.commons.spring.starter.autoconfigure.web.StoreClientAutoconfiguration
+de.fhdw.vendix.commons.spring.starter.autoconfigure.web.RegisterClientAutoConfiguration
+de.fhdw.vendix.commons.spring.starter.autoconfigure.web.SecurityWebAutoConfiguration
+de.fhdw.vendix.commons.spring.starter.autoconfigure.web.StoreClientAutoConfiguration
 
 de.fhdw.vendix.commons.spring.starter.autoconfigure.CommonsAutoConfiguration

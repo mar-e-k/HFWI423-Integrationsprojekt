@@ -1,23 +1,22 @@
 package de.fhdw.vendix.commons.spring.starter.autoconfigure.web;
 
-import de.fhdw.vendix.commons.spring.security.keycloak.KeycloakRegistration;
-import de.fhdw.vendix.commons.spring.security.keycloak.KeycloakServicePrincipal;
 import de.fhdw.vendix.commons.spring.web.api.store.ArticleApi;
 import de.fhdw.vendix.commons.spring.web.api.store.CheckoutApi;
 import de.fhdw.vendix.commons.spring.web.api.store.ReceiptApi;
 import de.fhdw.vendix.commons.spring.web.api.store.VoucherApi;
-import de.fhdw.vendix.commons.spring.web.client.KeycloakAuthInterceptor;
 import de.fhdw.vendix.commons.spring.web.client.LoggingHandler;
+import de.fhdw.vendix.commons.spring.web.client.StoreHeaderInjectorInterceptor;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClientManager;
+import org.springframework.security.oauth2.client.web.client.OAuth2ClientHttpRequestInterceptor;
 import org.springframework.web.client.RestClient;
 import org.springframework.web.client.support.RestClientAdapter;
 import org.springframework.web.service.invoker.HttpServiceProxyFactory;
 
 @AutoConfiguration
-public class StoreClientAutoconfiguration {
+public class StoreClientAutoConfiguration {
 
     @Bean
     @ConditionalOnMissingBean
@@ -25,17 +24,16 @@ public class StoreClientAutoconfiguration {
         RestClient restClient = RestClient.builder()
                 .baseUrl("http://localhost:8080")
                 .requestInterceptor(
-                        new KeycloakAuthInterceptor(
-                                authorizedClientManager,
-                                KeycloakRegistration.INVENTORY,
-                                KeycloakServicePrincipal.ORCHESTRATOR_SERVICE
-                        )
+                        new OAuth2ClientHttpRequestInterceptor(authorizedClientManager)
                 )
-                .defaultStatusHandler(s -> s.is2xxSuccessful() || s.is4xxClientError(),
+                .requestInterceptor(
+                        new StoreHeaderInjectorInterceptor()
+                )
+                .defaultStatusHandler(
+                        s -> s.is2xxSuccessful() || s.is4xxClientError(),
                         new LoggingHandler()
                 )
                 .build();
-
         return HttpServiceProxyFactory
                 .builderFor(RestClientAdapter.create(restClient))
                 .build();

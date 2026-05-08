@@ -27,8 +27,8 @@ import com.vaadin.flow.component.textfield.TextArea;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.router.Route;
 import de.fhdw.vendix.commons.spring.security.keycloak.KeycloakRole;
-import de.fhdw.vendix.orchestrator.core.domain.performance.PerformanceTestService;
-import de.fhdw.vendix.orchestrator.core.domain.performance.TestType;
+import de.fhdw.vendix.orchestrator.core.other.performance.PerformanceTestService;
+import de.fhdw.vendix.orchestrator.core.other.performance.TestType;
 import de.fhdw.vendix.orchestrator.ui.OrchestratorAppLayout;
 import jakarta.annotation.security.RolesAllowed;
 

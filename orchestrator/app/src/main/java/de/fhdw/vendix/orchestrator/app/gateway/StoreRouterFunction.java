@@ -1,22 +1,21 @@
 package de.fhdw.vendix.orchestrator.app.gateway;
 
-import org.jspecify.annotations.NullMarked;
 import org.springframework.cloud.client.ServiceInstance;
 import org.springframework.cloud.client.discovery.DiscoveryClient;
 import org.springframework.cloud.gateway.server.mvc.common.MvcUtils;
+import org.springframework.cloud.gateway.server.mvc.filter.TokenRelayFilterFunctions;
 import org.springframework.cloud.gateway.server.mvc.handler.HandlerFunctions;
 import org.springframework.cloud.gateway.server.mvc.predicate.GatewayRequestPredicates;
+import org.springframework.context.annotation.Bean;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.function.*;
 
 import java.net.URI;
-import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 
 @Component
-class StoreRouterFunction implements RouterFunction<ServerResponse> {
+public class StoreRouterFunction {
 
     private final DiscoveryClient discoveryClient;
 
@@ -24,50 +23,39 @@ class StoreRouterFunction implements RouterFunction<ServerResponse> {
         this.discoveryClient = discoveryClient;
     }
 
-    @Override
-    @NullMarked
-    public Optional<HandlerFunction<ServerResponse>> route(ServerRequest request) {
+    @Bean
+    public RouterFunction<ServerResponse> storeRoutes() {
         return RouterFunctions.route()
-                .nest(GatewayRequestPredicates.path("/api/receipt/**", "/api/voucher/**"), builder -> builder
+                .nest(GatewayRequestPredicates.path("/api/receipt/**").or(GatewayRequestPredicates.path("/api/voucher/**")), builder -> builder
+                        .filter(TokenRelayFilterFunctions.tokenRelay())
                         .filter(this::storeRoutingFilter)
+                        .build()
                 )
-                .build()
-                .route(request);
+                .build();
     }
 
     private ServerResponse storeRoutingFilter(ServerRequest clientRequest, HandlerFunction<ServerResponse> next) throws Exception {
-        // 1. Extract Routing Key
-        String storeId = clientRequest.headers().firstHeader("X-Store-Id");
+        String storeId = clientRequest.headers().firstHeader("X-Vendix-Store-Id");
+
         if (storeId == null) {
-            return ServerResponse.status(HttpStatus.BAD_REQUEST)
-                    .body("Header 'X-Store-Id' is required for this endpoint.");
+            return ServerResponse.status(HttpStatus.BAD_REQUEST).body("Missing Store-Id");
         }
 
-        // 2. Discover Target Instance
-        Optional<URI> targetUri = findTargetInstanceUri(storeId);
-        if (targetUri.isEmpty()) {
-            return ServerResponse.status(HttpStatus.NOT_FOUND)
-                    .body("No active store-service found for Store-Id: " + storeId);
-        }
-
-        // 3. Mutate Request for Proxying
-        // We attach the discovered URI to the internal Gateway attributes
-        ServerRequest mutatedRequest = ServerRequest.from(clientRequest)
-                .attribute(MvcUtils.GATEWAY_REQUEST_URL_ATTR, targetUri.get())
-                .build();
-
-        // 4. Delegate to the Proxy Handler
-        return HandlerFunctions.http().handle(mutatedRequest);
+        return findTargetInstanceUri(storeId)
+                .map(targetUri -> {
+                    clientRequest.attributes().put(MvcUtils.GATEWAY_REQUEST_URL_ATTR, targetUri);
+                    try {
+                        return HandlerFunctions.http().handle(clientRequest);
+                    } catch (Exception e) {
+                        return ServerResponse.status(500).build();
+                    }
+                })
+                .orElseGet(() -> ServerResponse.status(404).body("No instance for " + storeId));
     }
 
     private Optional<URI> findTargetInstanceUri(String storeId) {
-        List<ServiceInstance> instances = discoveryClient.getInstances("store-service");
-
-        return instances.stream()
-                .filter(instance -> {
-                    Map<String, String> metadata = instance.getMetadata();
-                    return metadata != null && storeId.equals(metadata.get("storeId"));
-                })
+        return discoveryClient.getInstances("store-app").stream()
+                .filter(instance -> storeId.equals(instance.getMetadata().get("storeId")))
                 .map(ServiceInstance::getUri)
                 .findFirst();
     }

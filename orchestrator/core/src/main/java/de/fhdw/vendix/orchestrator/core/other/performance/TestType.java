@@ -1,4 +1,4 @@
-package de.fhdw.vendix.orchestrator.core.domain.performance;
+package de.fhdw.vendix.orchestrator.core.other.performance;
 
 /**
  * Alle k6-Lasttest-Szenarien für das Vendix Kassensystem.

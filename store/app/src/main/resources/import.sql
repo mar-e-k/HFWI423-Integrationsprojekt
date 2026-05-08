@@ -13,12 +13,14 @@ INSERT INTO article (article_number, description, manufacturer, name, purchase_p
 INSERT INTO article (article_number, description, manufacturer, name, purchase_price, selling_price, stock_level, supplier, tax_rate_percent, unit, is_available, has_deposit) VALUES ('10000013', 'zitrone', 'CitrusCo', 'Zitrone', 0.60, 1.00, 70, 'Mediterranean Supply', 7.7, 'kg', true, false) ON CONFLICT DO NOTHING;
 INSERT INTO article (article_number, description, manufacturer, name, purchase_price, selling_price, stock_level, supplier, tax_rate_percent, unit, is_available, has_deposit) VALUES ('10000014', 'limette', 'CitrusCo', 'Limette', 0.75, 1.20, 65, 'Mediterranean Supply', 7.7, 'kg', true, false) ON CONFLICT DO NOTHING;
 INSERT INTO article (article_number, description, manufacturer, name, purchase_price, selling_price, stock_level, supplier, tax_rate_percent, unit, is_available, has_deposit) VALUES ('10000015', 'wassermelone', 'SummerFresh', 'Wassermelone', 4.00, 6.50, 15, 'GlobalFruit AG', 7.7, 'pcs', true, false) ON CONFLICT DO NOTHING;
+
 INSERT INTO voucher (code, expires_at, redeemed_at, version) VALUES ('aaaaaaaa-0000-0000-0000-000000000001', '2099-12-31T23:59:59Z', NULL, 1) ON CONFLICT DO NOTHING;
 INSERT INTO voucher (code, expires_at, redeemed_at, version) VALUES ('bbbbbbbb-0000-0000-0000-000000000001', '2099-12-31T23:59:59Z', NULL, 1) ON CONFLICT DO NOTHING;
 INSERT INTO voucher (code, expires_at, redeemed_at, version) VALUES ('bbbbbbbb-0000-0000-0000-000000000002', '2099-12-31T23:59:59Z', NULL, 1) ON CONFLICT DO NOTHING;
 INSERT INTO voucher (code, expires_at, redeemed_at, version) VALUES ('bbbbbbbb-0000-0000-0000-000000000003', '2099-12-31T23:59:59Z', NULL, 1) ON CONFLICT DO NOTHING;
 INSERT INTO voucher (code, expires_at, redeemed_at, version) VALUES ('bbbbbbbb-0000-0000-0000-000000000004', '2099-12-31T23:59:59Z', NULL, 1) ON CONFLICT DO NOTHING;
 INSERT INTO voucher (code, expires_at, redeemed_at, version) VALUES ('bbbbbbbb-0000-0000-0000-000000000005', '2099-12-31T23:59:59Z', NULL, 1) ON CONFLICT DO NOTHING;
+
 INSERT INTO store_stock (store_id, article_id, current_amount, pref_amount_min, pref_amount_avg, pref_amount_max) VALUES (1,  1, 50, 10, 30, 60) ON CONFLICT DO NOTHING;
 INSERT INTO store_stock (store_id, article_id, current_amount, pref_amount_min, pref_amount_avg, pref_amount_max) VALUES (1,  2, 40, 10, 30, 60) ON CONFLICT DO NOTHING;
 INSERT INTO store_stock (store_id, article_id, current_amount, pref_amount_min, pref_amount_avg, pref_amount_max) VALUES (1,  3, 60, 10, 30, 60) ON CONFLICT DO NOTHING;

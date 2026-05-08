@@ -1,4 +1,4 @@
-package de.fhdw.vendix.orchestrator.core.domain.performance;
+package de.fhdw.vendix.orchestrator.core.other.performance;
 
 import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;

@@ -3,7 +3,6 @@ package de.fhdw.vendix.commons.api.domain.store;
 import de.fhdw.vendix.commons.api.structure.dto.DomainDTO;
 import org.jspecify.annotations.Nullable;
 
-// Should we include phone-number and or email?
 public record StoreDTO(
         @Nullable Long id,
         String country, // should we have an enum for this?

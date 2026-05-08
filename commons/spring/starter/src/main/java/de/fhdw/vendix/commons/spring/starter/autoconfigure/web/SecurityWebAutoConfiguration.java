@@ -14,7 +14,7 @@ import org.springframework.security.oauth2.server.resource.web.authentication.Be
 import org.springframework.security.web.SecurityFilterChain;
 
 @AutoConfiguration
-public class SecurityWebAutoconfiguration {
+public class SecurityWebAutoConfiguration {
 
     @Bean
     @Order(1)
