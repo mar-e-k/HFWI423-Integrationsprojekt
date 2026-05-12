@@ -26,7 +26,8 @@
 9. [Geplante Aufgaben (Scheduler)](#9-geplante-aufgaben-scheduler)
 10. [Performance & Qualität](#10-performance--qualität)
 11. [Reflexion: Domain Driven Design](#11-reflexion-domain-driven-design)
-12. [Quellenverzeichnis](#12-quellenverzeichnis)
+12. [Lose Kopplung: Ist & Soll](#12-lose-kopplung-ist--soll)
+13. [Quellenverzeichnis](#13-quellenverzeichnis)
 
 ---
 
@@ -1040,7 +1041,108 @@ Außerdem gibt es mehrere `@Autowired`-Injektionen (Feldinjektion) statt Konstru
 
 ---
 
-## 12. Quellenverzeichnis
+## 12. Lose Kopplung: Ist & Soll
+
+Dieses Kapitel bewertet das System anhand der Frage, wie stark seine Bausteine voneinander abhängen. Lose Kopplung ist kein Selbstzweck, sondern dient drei konkreten Zielen: **Änderbarkeit** (eine Änderung pflanzt sich nicht durch das System fort), **Testbarkeit** (Bausteine sind isoliert prüfbar) und **Verstehbarkeit** (man versteht einen Service, ohne fünf andere Klassen zu kennen). Die Analyse betrachtet den Ist-Zustand und beschreibt für jeden Punkt einen Soll-Zustand mit konkreter Maßnahme — ohne Änderungen am Code.
+
+---
+
+### 12.1 Bewertungsskala
+
+| Stufe | Bedeutung |
+|---|---|
+| 🟢 **lose / gut** | Bausteine kennen voneinander nur das Nötigste. Änderung an A erzwingt keine Änderung an B. |
+| 🟡 **mittel** | Funktioniert, mit Reibung. Einzelne Stellen durchbrechen die Trennung, aber kein systematisches Problem. |
+| 🔴 **eng** | Bausteine wissen viel voneinander. Eine Änderung pflanzt sich fort. Isoliertes Testen ist schwierig. |
+| 🔴 **schwach** | Spezialfall für Abstraktion: Es fehlt der Trenn-Mechanismus (z.B. Interface) zwischen Vertrag und Implementierung. |
+
+„Eng" und „schwach" sind nicht dasselbe: *eng* beschreibt eine starke Kopplung zwischen zwei Bausteinen, *schwach* eine fehlende Abstraktionsschicht. Letztere führt typischerweise zu Ersterer.
+
+---
+
+### 12.2 Bewertungsdimensionen
+
+#### 12.2.1 Dependency Injection
+
+**Ist 🟡** — Konstruktorinjektion dominiert (`GoodsReceiptService.java:31–41`, `ArticleSyncService.java:34–42`, `RestockOrderService.java:33–41`). Ausreißer: `KommissionService.java:20–36` nutzt 6× Feldinjektion via `@Autowired`. Das versteckt Abhängigkeiten und erschwert Tests, weil Mocks nur über Reflection injizierbar sind.
+
+**Soll 🟢** — Feldinjektion in `KommissionService` durch finale Konstruktorparameter ersetzen. Abhängigkeiten werden dann im Signaturkopf sichtbar; zirkuläre Bindungen würden bereits beim Starten der Anwendung sichtbar.
+
+#### 12.2.2 Service-zu-Service-Kopplung
+
+**Ist 🔴** — `KommissionService` hat hohen Fan-Out: 5 Repositories, `ArticleInfoService` und `LogisticEventPublisher` werden direkt aufgerufen. `WeeklyKommissionScheduler.java:112,114` ruft `KommissionService` und parallel Repositories an. `LogisticOrderListener.java:77` ruft `SonderkommissionSchedueler` synchron auf — der AMQP-Listener blockiert bis die Geschäftslogik fertig ist.
+
+**Soll 🟡** — Interne Domain Events (z.B. `KommissionAbgeschlossenEvent` über Spring `ApplicationEventPublisher`) statt direkter Service-Aufrufe. Der Scheduler arbeitet nur noch über `KommissionService`, nicht zusätzlich über Repositories. Die Bewertung bleibt 🟡, weil Kommissionierung *strukturell* zentral ist — der Fan-Out lässt sich abfedern, aber nicht vollständig auflösen.
+
+#### 12.2.3 Interfaces & Abstraktion
+
+**Ist 🔴 (schwach)** — Keine eigenen Service-Interfaces im Projekt. Alle Services werden als konkrete Klassen injiziert. Spring Data Repositories sind zwar Interfaces, aber Framework-bedingt — keine bewusste Domänen-Abstraktion.
+
+**Soll 🟡** — Interfaces für die Kern-Services (`KommissionService`, `GoodsReceiptService`, `ArticleInfoService`) mit Implementierungen als `*Impl`. Konsumenten injizieren das Interface. Mocking wird trivial, Vertrag und Implementierung sind getrennt. Die Bewertung bleibt 🟡, weil Interfaces ohne weitere Modularisierung nur das *Tauschen* ermöglichen — die zentrale Rolle der Services bleibt bestehen.
+
+#### 12.2.4 AMQP-/Event-Kopplung
+
+**Ist 🟡** — Publisher sauber abstrahiert über die plaguv-Bibliothek (`EinkaufEventPublisher.java`, `LogisticEventPublisher.java:26,28`). Aber: Listener enthalten Geschäftslogik. `EinkaufEventListener` ruft `deleteComissionEntrys()`, `deleteStocks()`, `freeStorageLocations()` direkt im Event-Handler auf. `LogisticOrderListener.java:87` greift direkt auf `articleRepo` und `msgRepo` zu.
+
+**Soll 🟢** — Listener nur noch als „Übersetzer" zwischen AMQP-Event und Service-Aufruf. Keine Repository-Zugriffe und keine Geschäftslogik im Listener. Klare Trennung: AMQP-Schicht weiß nichts über Persistenz, Service-Schicht weiß nichts über AMQP.
+
+#### 12.2.5 Controller- & View-Kopplung
+
+**Ist 🔴** — Views umgehen die Service-Schicht und greifen direkt auf Repositories zu: `GoodsReceiptView.java:231,477` (`articleInfoRepository.findByArticleNumber(...)`, `findAll()`) und `orderPickingMainView.java:380,387` (`findByArticleId(...)`, `findByArticleNumber(...)`). LoadTest-Controller injizieren bis zu 8 Services/Repositories und kennen Domäneninterna im Detail.
+
+**Soll 🟢** — Repository-Aufrufe in den Views durch Service-Methoden ersetzen (z.B. `articleInfoService.findByNumber(...)`). Damit gilt durchgängig: View → Service → Repository. Die UI kann die Persistenztechnik nicht mehr umgehen, und Validierung/Invariantenschutz im Service greift auch bei UI-Zugriffen.
+
+#### 12.2.6 Repository-Kopplung
+
+**Ist 🔴** — `ArticleInfoRepository` wird in **16 Klassen** injiziert (Services, Listener, Views, Controller). Es gibt keinen „Türsteher" für den Artikel — jede Klasse darf direkt zugreifen. Symptom fehlender Aggregatgrenzen (siehe auch Kapitel 11.3).
+
+**Soll 🟡** — Lesende Repository-Zugriffe von Views und peripheren Services über `ArticleInfoService` lenken. Das Repository bleibt dort direkt verfügbar, wo Performance-Pfade es brauchen (`KommissionService`, `WeeklyKommissionScheduler`). Realistisch lässt sich die Streuung damit deutlich reduzieren, aber nicht auf wenige Klassen schrumpfen — daher 🟡, nicht 🟢.
+
+#### 12.2.7 Konfiguration & Magic Strings
+
+**Ist 🟡** — AMQP-Konfiguration nutzt Library-Konventionen, keine hartcodierten Queue-Strings. Einzelne Magic Strings in Geschäftslogik (z.B. `"UNGESETZT"` in `ArticleInfoService.java:221`), aber begrenzt.
+
+**Soll 🟢** — Magic Strings als Konstanten oder Enums extrahieren. Kleiner, lokaler Eingriff ohne Risiko.
+
+#### 12.2.8 Vaadin-/UI-Kopplung
+
+**Ist 🔴** — Vaadin-Views injizieren sowohl Services als auch Repositories. `NewArticleNotificationService` mischt UI-Notifications mit Service-Logik — UI-Belange leben damit in der Service-Schicht.
+
+**Soll 🟡** — Repository-Zugriffe aus den Views entfernen (siehe 12.2.5). UI-Notification-Logik aus dem Service in eine UI-nahe Komponente verschieben. Vaadin bleibt strukturell ein Sonderfall (UI und Backend im selben Prozess, kein REST-Layer dazwischen). Ein vollständiges 🟢 würde eine API-Schicht erfordern — Aufwand steht nicht im Verhältnis zum Nutzen.
+
+---
+
+### 12.3 Gesamtbild
+
+| Kriterium | Ist | Soll | Aufwand |
+|---|---|---|---|
+| AMQP-Publisher | 🟢 | 🟢 | — |
+| Konfiguration / Magic Strings | 🟡 | 🟢 | sehr klein |
+| Dependency Injection | 🟡 | 🟢 | klein |
+| AMQP-Listener | 🟡 | 🟢 | mittel |
+| Service-zu-Service | 🔴 | 🟡 | mittel–groß |
+| Interfaces | 🔴 | 🟡 | mittel |
+| Views/Controller | 🔴 | 🟢 | mittel |
+| Repository-Streuung | 🔴 | 🟡 | groß (verteilt) |
+| Vaadin/UI | 🔴 | 🟡 | mittel |
+
+**Ampel-Saldo:**
+- Ist: 1× 🟢 · 3× 🟡 · 5× 🔴
+- Soll: 5× 🟢 · 4× 🟡 · 0× 🔴
+
+---
+
+### 12.4 Priorisierung & Fazit
+
+Die größten Effekte erzielen drei Quick-Wins: Konstruktorinjektion in `KommissionService`, Reinigung der AMQP-Listener und Umlenkung der direkten Repository-Zugriffe aus den Views. Das sind lokale, gut abgegrenzte Eingriffe mit hoher Wirkung — sie heben fünf Bewertungen um eine Stufe und kosten zusammen weniger als ein vollständiges Interface-Refactoring.
+
+Drei Befunde bleiben strukturell bedingt auf 🟡 stehen (Service-zu-Service-Kopplung, fehlende Interfaces, Repository-Streuung), weil `KommissionService` zentral *ist* und das ohne Zerschneiden des Bounded Context nicht vollständig auflösbar wäre. Hier geht es darum, die Symptome zu entschärfen, nicht die Topologie umzubauen.
+
+**Fazit:** Das System ist heute in zentralen Pfaden enger gekoppelt, als für seine Größe nötig wäre. Die identifizierten Maßnahmen sind durchweg evolutionärer Natur — sie erfordern keine architektonischen Umstürze, sondern konsequente Anwendung etablierter Patterns (Konstruktorinjektion, Schichtdisziplin, Listener als Übersetzer). Damit wird das System nicht „perfekt" lose gekoppelt, aber es bewegt sich aus der roten Zone in einen Zustand, der bei weiterem Wachstum nicht spröde wird.
+
+---
+
+## 13. Quellenverzeichnis
 
 Alle referenzierten Dateien, geordnet nach Paket. Basispfad: `src/main/java/com/example/application/`
 
