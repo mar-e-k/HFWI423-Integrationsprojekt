@@ -1,3 +1,5 @@
+name: vendix
+
 services:
 
   postgres:
@@ -13,7 +15,7 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql
     networks:
-      - app
+      - vendix-network
 
   redis:
     image: redis:8.6.2
@@ -29,7 +31,7 @@ services:
     ports:
       - "${REDIS_PORT}:6379"
     networks:
-      - app
+      - vendix-network
 
   rabbitmq:
     image: rabbitmq:4.2.4-management
@@ -44,7 +46,7 @@ services:
     volumes:
       - rabbitmq_data:/var/lib/rabbitmq
     networks:
-      - app
+      - vendix-network
 
   keycloak:
     image: keycloak/keycloak:26.6
@@ -66,7 +68,7 @@ services:
     depends_on:
       - postgres
     networks:
-      - app
+      - vendix-network
 
   consul:
     image: hashicorp/consul:1.15.4
@@ -82,7 +84,7 @@ services:
     volumes:
       - consul_data:/consul/data
     networks:
-      - app
+      - vendix-network
 
 volumes:
   postgres_data:
@@ -90,5 +92,5 @@ volumes:
   consul_data:
 
 networks:
-  app:
+  vendix-network:
     external: true

@@ -15,30 +15,15 @@ if not exist "%BASE_DIR%\.env" (
 )
 
 REM -------------------------
-REM 2. Stop testing stack first
+REM 2. Stop all stacks
 REM -------------------------
-echo Stopping testing stack...
+echo Stopping all stacks...
 docker compose ^
-  --env-file "%BASE_DIR%\.env" ^
-  -f "%BASE_DIR%\testing\docker-compose.yaml" ^
-  down -v
-
-REM -------------------------
-REM 3. Stop monitoring stack
-REM -------------------------
-echo Stopping monitoring stack...
-docker compose ^
-  --env-file "%BASE_DIR%\.env" ^
-  -f "%BASE_DIR%\monitor\docker-compose.yaml" ^
-  down -v
-
-REM -------------------------
-REM 4. Stop app stack
-REM -------------------------
-echo Stopping app stack...
-docker compose ^
+  --project-name vendix ^
   --env-file "%BASE_DIR%\.env" ^
   -f "%BASE_DIR%\app\docker-compose.yaml" ^
+  -f "%BASE_DIR%\monitor\docker-compose.yaml" ^
+  -f "%BASE_DIR%\testing\docker-compose.yaml" ^
   down -v
 
 echo All stacks stopped.

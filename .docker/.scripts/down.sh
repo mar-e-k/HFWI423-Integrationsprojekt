@@ -13,30 +13,15 @@ if [ ! -f "$BASE_DIR/.env" ]; then
 fi
 
 # -------------------------
-# 2. Stop testing stack first
+# 2. Stop all stacks
 # -------------------------
-echo "Stopping testing stack..."
+echo "Stopping all stacks..."
 docker compose \
-  --env-file "$BASE_DIR/.env" \
-  -f "$BASE_DIR/testing/docker-compose.yaml" \
-  down -v
-
-# -------------------------
-# 3. Stop monitoring stack
-# -------------------------
-echo "Stopping monitoring stack..."
-docker compose \
-  --env-file "$BASE_DIR/.env" \
-  -f "$BASE_DIR/monitor/docker-compose.yaml" \
-  down -v
-
-# -------------------------
-# 4. Stop app stack
-# -------------------------
-echo "Stopping app stack..."
-docker compose \
+  --project-name vendix \
   --env-file "$BASE_DIR/.env" \
   -f "$BASE_DIR/app/docker-compose.yaml" \
+  -f "$BASE_DIR/monitor/docker-compose.yaml" \
+  -f "$BASE_DIR/testing/docker-compose.yaml" \
   down -v
 
 echo "All stacks stopped."

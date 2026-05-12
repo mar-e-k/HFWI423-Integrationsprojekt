@@ -14,38 +14,23 @@ if [ ! -f "$BASE_DIR/.env" ]; then
 fi
 
 # -------------------------
-# 2. Ensure networks exist
+# 2. Ensure network exists
 # -------------------------
-echo "Ensuring Docker networks exist..."
+echo "Ensuring Docker network exists..."
 
-docker network create app 2>/dev/null || echo "app network already exists"
-docker network create monitor-net 2>/dev/null || echo "monitor-net network already exists"
+docker network create vendix-network 2>/dev/null || echo "vendix-network network already exists"
 
 # -------------------------
-# 3. Start app stack
+# 3. Start all stacks
 # -------------------------
-echo "Starting app stack..."
+echo "Starting core stacks..."
 docker compose \
+  --project-name vendix \
   --env-file "$BASE_DIR/.env" \
   -f "$BASE_DIR/app/docker-compose.yaml" \
-  up -d
-
-# -------------------------
-# 4. Start monitoring stack
-# -------------------------
-echo "Starting monitoring stack..."
-docker compose \
-  --env-file "$BASE_DIR/.env" \
   -f "$BASE_DIR/monitor/docker-compose.yaml" \
-  up -d
-
-# -------------------------
-# 5. Start testing stack
-# -------------------------
-echo "Starting testing stack..."
-docker compose \
-  --env-file "$BASE_DIR/.env" \
   -f "$BASE_DIR/testing/docker-compose.yaml" \
   up -d
 
-echo "All stacks started."
+echo "Core stacks started."
+echo "To start the optional testing stack, run 'docker compose --project-name vendix --profile testing up -d'"

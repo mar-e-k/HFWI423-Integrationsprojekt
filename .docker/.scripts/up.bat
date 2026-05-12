@@ -16,40 +16,25 @@ if not exist "%BASE_DIR%\.env" (
 )
 
 REM -------------------------
-REM 2. Ensure networks exist
+REM 2. Ensure network exists
 REM -------------------------
-echo Ensuring Docker networks exist...
+echo Ensuring Docker network exists...
 
-docker network create app 2>nul || echo app network already exists
-docker network create monitor-net 2>nul || echo monitor-net network already exists
+docker network create vendix-network 2>nul || echo vendix-network network already exists
 
 REM -------------------------
-REM 3. Start app stack
+REM 3. Start all stacks
 REM -------------------------
-echo Starting app stack...
+echo Starting core stacks...
 docker compose ^
+  --project-name vendix ^
   --env-file "%BASE_DIR%\.env" ^
   -f "%BASE_DIR%\app\docker-compose.yaml" ^
-  up -d
-
-REM -------------------------
-REM 4. Start monitoring stack
-REM -------------------------
-echo Starting monitoring stack...
-docker compose ^
-  --env-file "%BASE_DIR%\.env" ^
   -f "%BASE_DIR%\monitor\docker-compose.yaml" ^
-  up -d
-
-REM -------------------------
-REM 5. Start testing stack
-REM -------------------------
-echo Starting testing stack...
-docker compose ^
-  --env-file "%BASE_DIR%\.env" ^
   -f "%BASE_DIR%\testing\docker-compose.yaml" ^
   up -d
 
-echo All stacks started.
+echo Core stacks started.
+echo To start the optional testing stack, run: docker compose --project-name vendix --profile testing up -d
 
 endlocal

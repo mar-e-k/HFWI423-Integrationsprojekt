@@ -1,3 +1,5 @@
+name: vendix
+
 services:
 
   grafana:
@@ -16,17 +18,17 @@ services:
       - loki
       - prometheus
     networks:
-      - monitor-net
+      - vendix-network
 
   loki:
     image: grafana/loki:3.7.1
     command: -config.file=/etc/loki/loki.yaml
     volumes:
-      - ./loki.yaml:/etc/loki/loki.yaml
+      - ./loki/loki.yaml:/etc/loki/loki.yaml
     ports:
       - "${LOKI_PORT}:3100"
     networks:
-      - monitor-net
+      - vendix-network
 
   prometheus:
     image: prom/prometheus:v3.11.2
@@ -34,17 +36,15 @@ services:
       - --config.file=/etc/prometheus/prometheus.yaml
       - --web.enable-remote-write-receiver
     volumes:
-      - ./prometheus.yaml:/etc/prometheus/prometheus.yaml
+      - ./prometheus/prometheus.yaml:/etc/prometheus/prometheus.yaml
     ports:
       - "${PROMETHEUS_PORT}:9090"
     networks:
-      - monitor-net
-    extra_hosts:
-      - "host:host-gateway"
+      - vendix-network
 
 volumes:
   grafana-storage:
 
 networks:
-  monitor-net:
+  vendix-network:
     external: true
