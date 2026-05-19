@@ -15,10 +15,26 @@ import java.util.Optional;
 @Repository
 public interface ArticleRepository extends JpaRepository<Article, Long>, JpaSpecificationExecutor<Article> {
 
-    @EntityGraph(attributePaths = {"suppliers", "mainSupplier", "categories"})
+    @EntityGraph(attributePaths = {
+        "suppliers",
+        "suppliers.contactPeople",
+        "suppliers.paymentTerm",
+        "mainSupplier",
+        "mainSupplier.contactPeople",
+        "mainSupplier.paymentTerm",
+        "categories"
+    })
     List<Article> findAll(Specification<Article> spec);
 
-    @EntityGraph(attributePaths = {"suppliers", "mainSupplier", "categories"})
+    @EntityGraph(attributePaths = {
+        "suppliers",
+        "suppliers.contactPeople",
+        "suppliers.paymentTerm",
+        "mainSupplier",
+        "mainSupplier.contactPeople",
+        "mainSupplier.paymentTerm",
+        "categories"
+    })
     Optional<Article> findById(Long id);
 
     @Query("SELECT a.articleNumber FROM Article a WHERE a.id = :id")
