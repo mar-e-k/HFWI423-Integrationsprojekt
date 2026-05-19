@@ -26,10 +26,14 @@ public class StoreRouterFunction {
     @Bean
     public RouterFunction<ServerResponse> storeRoutes() {
         return RouterFunctions.route()
-                .nest(GatewayRequestPredicates.path("/api/receipt/**").or(GatewayRequestPredicates.path("/api/voucher/**")), builder -> builder
-                        .filter(TokenRelayFilterFunctions.tokenRelay())
-                        .filter(this::storeRoutingFilter)
-                        .build()
+                .nest(
+                        GatewayRequestPredicates.path("/api/receipt/**")
+                                .or(GatewayRequestPredicates.path("/api/voucher/**")),
+                        builder -> builder
+//                                .route(RequestPredicates.all())
+                                .filter(TokenRelayFilterFunctions.tokenRelay())
+                                .filter(this::storeRoutingFilter)
+                                .build()
                 )
                 .build();
     }

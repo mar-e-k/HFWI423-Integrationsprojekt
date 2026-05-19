@@ -14,6 +14,7 @@ services:
       - "${POSTGRES_PORT}:5432"
     volumes:
       - postgres_data:/var/lib/postgresql
+      - ./app/postgres/init:/docker-entrypoint-initdb.d:ro
     networks:
       - vendix-network
 
@@ -64,7 +65,7 @@ services:
     ports:
       - "${KEYCLOAK_PORT}:8090"
     volumes:
-      - ./keycloak:/opt/keycloak/data/import:ro
+      - ./app/keycloak:/opt/keycloak/data/import:ro
     depends_on:
       - postgres
     networks:
