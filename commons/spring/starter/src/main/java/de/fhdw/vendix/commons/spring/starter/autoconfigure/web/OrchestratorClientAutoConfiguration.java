@@ -2,7 +2,7 @@ package de.fhdw.vendix.commons.spring.starter.autoconfigure.web;
 
 import de.fhdw.vendix.commons.spring.web.api.orchestrator.RegisterApi;
 import de.fhdw.vendix.commons.spring.web.api.orchestrator.StoreApi;
-import de.fhdw.vendix.commons.spring.web.client.LoggingHandler;
+import de.fhdw.vendix.commons.spring.web.core.client.LoggingHandler;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

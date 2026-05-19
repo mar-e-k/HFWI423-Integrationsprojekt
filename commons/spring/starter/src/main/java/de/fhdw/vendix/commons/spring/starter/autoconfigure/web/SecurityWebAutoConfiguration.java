@@ -2,7 +2,7 @@ package de.fhdw.vendix.commons.spring.starter.autoconfigure.web;
 
 import com.vaadin.flow.spring.security.VaadinSecurityConfigurer;
 import de.fhdw.vendix.commons.spring.security.keycloak.KeycloakJwtAuthenticationConverter;
-import de.fhdw.vendix.commons.spring.web.filter.RequestRateFilter;
+import de.fhdw.vendix.commons.spring.web.core.filter.RequestRateFilter;
 import org.redisson.api.RedissonClient;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.context.annotation.Bean;

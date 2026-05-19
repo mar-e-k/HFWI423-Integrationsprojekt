@@ -28,6 +28,7 @@ REM -------------------------
 echo Starting core stacks...
 docker compose ^
   --project-name vendix ^
+  --project-directory "%BASE_DIR%" ^
   --env-file "%BASE_DIR%\.env" ^
   -f "%BASE_DIR%\app\docker-compose.yaml" ^
   -f "%BASE_DIR%\monitor\docker-compose.yaml" ^

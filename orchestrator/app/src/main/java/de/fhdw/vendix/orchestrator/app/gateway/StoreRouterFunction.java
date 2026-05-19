@@ -55,7 +55,12 @@ public class StoreRouterFunction {
 
     private Optional<URI> findTargetInstanceUri(String storeId) {
         return discoveryClient.getInstances("store-app").stream()
-                .filter(instance -> storeId.equals(instance.getMetadata().get("storeId")))
+                .filter(instance ->
+                        Optional.ofNullable(instance.getMetadata())
+                                .map(metadata -> metadata.get("storeId"))
+                                .filter(storeId::equals)
+                                .isPresent()
+                )
                 .map(ServiceInstance::getUri)
                 .findFirst();
     }

@@ -14,10 +14,19 @@
     <name>commons-spring-web-docs</name>
     <description>commons-spring-web-docs</description>
 
+    <properties>
+        <spring-boot.repackage.skip>true</spring-boot.repackage.skip>
+    </properties>
+
     <dependencies>
         <dependency>
             <groupId>de.fhdw.vendix</groupId>
             <artifactId>commons-spring-web-api</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-web</artifactId>
         </dependency>
 
         <dependency>
@@ -59,7 +68,7 @@
                         <configuration>
                             <apiDocsUrl>http://localhost:8080/v3/api-docs/orchestrator-api</apiDocsUrl>
                             <outputFileName>orchestrator-api.yaml</outputFileName>
-                            <outputDir>${maven.multiModuleProjectDirectory}/commons/spring/web/api/src/main/resources/static/docs</outputDir>
+                            <outputDir>${maven.multiModuleProjectDirectory}/commons/spring/web/api/src/main/resources/static/docs/openapi</outputDir>
                         </configuration>
                     </execution>
 
@@ -70,7 +79,7 @@
                         <configuration>
                             <apiDocsUrl>http://localhost:8080/v3/api-docs/register-api</apiDocsUrl>
                             <outputFileName>register-api.yaml</outputFileName>
-                            <outputDir>${maven.multiModuleProjectDirectory}/commons/spring/web/api/src/main/resources/static/docs</outputDir>
+                            <outputDir>${maven.multiModuleProjectDirectory}/commons/spring/web/api/src/main/resources/static/docs/openapi</outputDir>
                         </configuration>
                     </execution>
 
@@ -81,7 +90,7 @@
                         <configuration>
                             <apiDocsUrl>http://localhost:8080/v3/api-docs/store-api</apiDocsUrl>
                             <outputFileName>store-api.yaml</outputFileName>
-                            <outputDir>${maven.multiModuleProjectDirectory}/commons/spring/web/api/src/main/resources/static/docs</outputDir>
+                            <outputDir>${maven.multiModuleProjectDirectory}/commons/spring/web/api/src/main/resources/static/docs/openapi</outputDir>
                         </configuration>
                     </execution>
                 </executions>

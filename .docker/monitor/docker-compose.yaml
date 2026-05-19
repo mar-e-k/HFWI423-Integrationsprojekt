@@ -13,7 +13,7 @@ services:
       - GF_AUTH_DISABLE_LOGIN_FORM=true
     volumes:
       - grafana-storage:/var/lib/grafana
-      - ./grafana/provisioning:/etc/grafana/provisioning
+      - ./monitor/grafana/provisioning:/etc/grafana/provisioning
     depends_on:
       - loki
       - prometheus
@@ -24,7 +24,7 @@ services:
     image: grafana/loki:3.7.1
     command: -config.file=/etc/loki/loki.yaml
     volumes:
-      - ./loki/loki.yaml:/etc/loki/loki.yaml
+      - ./monitor/loki/loki.yaml:/etc/loki/loki.yaml
     ports:
       - "${LOKI_PORT}:3100"
     networks:
@@ -36,7 +36,7 @@ services:
       - --config.file=/etc/prometheus/prometheus.yaml
       - --web.enable-remote-write-receiver
     volumes:
-      - ./prometheus/prometheus.yaml:/etc/prometheus/prometheus.yaml
+      - ./monitor/prometheus/prometheus.yaml:/etc/prometheus/prometheus.yaml
     ports:
       - "${PROMETHEUS_PORT}:9090"
     networks:

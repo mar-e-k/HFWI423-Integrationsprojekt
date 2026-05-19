@@ -6,14 +6,13 @@ import de.fhdw.vendix.store.core.domain.voucher.*;
 import jakarta.persistence.OptimisticLockException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.orm.ObjectOptimisticLockingFailureException;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.Optional;
 import java.util.UUID;
 
 @RestController
-public class VoucherController implements VoucherApi {
+class VoucherController implements VoucherApi {
 
     private final VoucherService voucherService;
     private final VoucherMapper  voucherMapper;
@@ -41,7 +40,7 @@ public class VoucherController implements VoucherApi {
             Voucher redeemed = voucher.redeem();
             Voucher saved = voucherService.update(redeemed);
             return ResponseEntity.ok(voucherMapper.toDTO(saved));
-        } catch (VoucherExpiredException | VoucherAlreadyRedeemedException | OptimisticLockException | ObjectOptimisticLockingFailureException e) {
+        } catch (VoucherExpiredException | VoucherAlreadyRedeemedException | OptimisticLockException e) {
             return ResponseEntity.status(HttpStatus.CONFLICT).build();
         }
     }

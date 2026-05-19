@@ -1,7 +1,10 @@
 package de.fhdw.vendix.commons.spring.web.api.store;
 
 import de.fhdw.vendix.commons.api.domain.article.ArticleDTO;
-import de.fhdw.vendix.commons.spring.web.api.scheme.KeycloakOpenApiScheme;import de.fhdw.vendix.commons.spring.web.api.scheme.StoreRoutingOpenApiScheme;import io.swagger.v3.oas.annotations.Operation;
+import de.fhdw.vendix.commons.spring.web.api.scheme.KeycloakOpenApiScheme;
+import de.fhdw.vendix.commons.spring.web.api.scheme.StoreRoutingOpenApiScheme;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;

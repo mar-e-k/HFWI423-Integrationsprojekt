@@ -1,7 +1,7 @@
 package de.fhdw.vendix.commons.spring.starter.autoconfigure.web;
 
-import de.fhdw.vendix.commons.spring.web.client.LoggingHandler;
-import de.fhdw.vendix.commons.spring.web.client.RegisterHeaderInjectorInterceptor;
+import de.fhdw.vendix.commons.spring.web.core.client.LoggingHandler;
+import de.fhdw.vendix.commons.spring.web.core.client.RegisterHeaderInjectorInterceptor;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.annotation.Bean;

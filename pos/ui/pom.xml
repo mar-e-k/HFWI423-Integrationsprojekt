@@ -22,17 +22,12 @@
 
         <dependency>
             <groupId>de.fhdw.vendix</groupId>
-            <artifactId>pos-web</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>de.fhdw.vendix</groupId>
             <artifactId>commons-core</artifactId>
         </dependency>
 
         <dependency>
             <groupId>de.fhdw.vendix</groupId>
-            <artifactId>commons-spring-web-core</artifactId>
+            <artifactId>commons-spring-web-api</artifactId>
         </dependency>
 
         <dependency>

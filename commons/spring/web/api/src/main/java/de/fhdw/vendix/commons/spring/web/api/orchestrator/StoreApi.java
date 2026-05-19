@@ -2,6 +2,7 @@ package de.fhdw.vendix.commons.spring.web.api.orchestrator;
 
 import de.fhdw.vendix.commons.api.domain.store.StoreDTO;
 import de.fhdw.vendix.commons.spring.web.api.scheme.KeycloakOpenApiScheme;
+import de.fhdw.vendix.commons.spring.web.api.scheme.StoreRoutingOpenApiScheme;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -21,8 +22,8 @@ import java.util.List;
 public interface StoreApi {
 
     @Operation(
-            summary = "TODO",
-            description = "TODO"
+            summary = "Get all stores",
+            description = "Retrieves a list of all stores."
     )
     @GetExchange()
     ResponseEntity<List<StoreDTO>> getStores();
@@ -35,15 +36,15 @@ public interface StoreApi {
     ResponseEntity<StoreDTO> getStoreById(@PathVariable Long storeId);
 
     @Operation(
-            summary = "TODO",
-            description = "TODO"
+            summary = "Get all locked stores",
+            description = "Retrieves a list of all locked stores."
     )
     @GetExchange("/locked")
     ResponseEntity<List<StoreDTO>> getLockedStores();
 
     @Operation(
-            summary = "TODO",
-            description = "TODO"
+            summary = "Get all non-locked stores",
+            description = "Retrieves a list of all non-locked stores."
     )
     @GetExchange("/non-locked")
     ResponseEntity<List<StoreDTO>> getNonLockedStores();
