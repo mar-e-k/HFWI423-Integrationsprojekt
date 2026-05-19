@@ -22,7 +22,7 @@
 
         <dependency>
             <groupId>de.fhdw.vendix</groupId>
-            <artifactId>commons-spring-web</artifactId>
+            <artifactId>commons-spring-web-core</artifactId>
         </dependency>
     </dependencies>
 

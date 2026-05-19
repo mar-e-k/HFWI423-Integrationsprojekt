@@ -38,12 +38,14 @@
         <vaadin.version>25.1.4</vaadin.version>
         <spring-cloud.version>2025.1.1</spring-cloud.version>
         <swagger.version>2.2.49</swagger.version>
+        <springdoc.version>3.0.3</springdoc.version>
         <redison.version>4.3.1</redison.version>
         <plaguv-amqp.version>1.3.0</plaguv-amqp.version>
         <mapstruct.version>1.6.3</mapstruct.version>
         <loki-logback.version>2.0.3</loki-logback.version>
         <pdfbox.version>3.0.6</pdfbox.version>
         <!-- Plugin Versions -->
+        <springdoc-maven.version>1.5</springdoc-maven.version>
         <error-prone.version>2.49.0</error-prone.version>
         <error-prone-support.version>0.29.0</error-prone-support.version>
         <nullaway.version>0.13.4</nullaway.version>
@@ -72,6 +74,14 @@
                 <groupId>io.swagger.core.v3</groupId>
                 <artifactId>swagger-bom</artifactId>
                 <version>${swagger.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+            <!-- Source: https://mvnrepository.com/artifact/org.springdoc/springdoc-openapi-bom -->
+            <dependency>
+                <groupId>org.springdoc</groupId>
+                <artifactId>springdoc-openapi-bom</artifactId>
+                <version>${springdoc.version}</version>
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
@@ -112,13 +122,18 @@
     <build>
         <pluginManagement>
             <plugins>
+                <!-- Source: https://mvnrepository.com/artifact/org.springdoc/springdoc-openapi-maven-plugin -->
+                <plugin>
+                    <groupId>org.springdoc</groupId>
+                    <artifactId>springdoc-openapi-maven-plugin</artifactId>
+                    <version>${springdoc-maven.version}</version>
+                </plugin>
                 <!-- Source: https://mvnrepository.com/artifact/org.apache.maven.plugins/maven-compiler-plugin -->
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-compiler-plugin</artifactId>
                     <version>${maven-compiler-plugin.version}</version>
                     <configuration>
-                        <excludes>**pos/*.java</excludes>
                         <release>${java.version}</release>
                         <encoding>${project.build.sourceEncoding}</encoding>
                         <compilerArgs>

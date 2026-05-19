@@ -8,51 +8,15 @@
         <version>1.0.0</version>
     </parent>
 
-    <artifactId>commons-spring-web</artifactId>
-    <packaging>jar</packaging>
+    <artifactId>commons-spring-web-parent</artifactId>
+    <packaging>pom</packaging>
 
     <name>commons-spring-web</name>
     <description>commons-spring-web</description>
 
-    <dependencies>
-        <dependency>
-            <groupId>de.fhdw.vendix</groupId>
-            <artifactId>commons-api</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>de.fhdw.vendix</groupId>
-            <artifactId>commons-spring-security</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>de.fhdw.vendix</groupId>
-            <artifactId>commons-spring-data-caching</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-web</artifactId>
-        </dependency>
-
-        <!--        TODO: Disabled until swagger-core team merges: https://github.com/swagger-api/swagger-core/pull/5031 -->
-        <!--        <dependency>-->
-        <!--            <groupId>org.springdoc</groupId>-->
-        <!--            <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>-->
-        <!--        </dependency>-->
-        <!--         We use the below dependency instead so we can atleast keep the annotations-->
-        <dependency>
-            <groupId>io.swagger.core.v3</groupId>
-            <artifactId>swagger-annotations</artifactId>
-        </dependency>
-    </dependencies>
-
-    <build>
-        <plugins>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-compiler-plugin</artifactId>
-            </plugin>
-        </plugins>
-    </build>
+    <modules>
+        <module>api</module>
+        <module>core</module>
+        <module>docs</module>
+    </modules>
 </project>

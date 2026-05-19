@@ -1,0 +1,91 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>de.fhdw.vendix</groupId>
+        <artifactId>commons-spring-web-parent</artifactId>
+        <version>1.0.0</version>
+    </parent>
+
+    <artifactId>commons-spring-web-docs</artifactId>
+    <packaging>jar</packaging>
+
+    <name>commons-spring-web-docs</name>
+    <description>commons-spring-web-docs</description>
+
+    <dependencies>
+        <dependency>
+            <groupId>de.fhdw.vendix</groupId>
+            <artifactId>commons-spring-web-api</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springdoc</groupId>
+            <artifactId>springdoc-openapi-starter-webmvc-api</artifactId>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+            </plugin>
+
+            <plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>pre-integration-test</id>
+                        <goals><goal>start</goal></goals>
+                    </execution>
+                    <execution>
+                        <id>post-integration-test</id>
+                        <goals><goal>stop</goal></goals>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <plugin>
+                <groupId>org.springdoc</groupId>
+                <artifactId>springdoc-openapi-maven-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>generate-orchestrator-openapi-spec</id>
+                        <phase>integration-test</phase>
+                        <goals><goal>generate</goal></goals>
+                        <configuration>
+                            <apiDocsUrl>http://localhost:8080/v3/api-docs/orchestrator-api</apiDocsUrl>
+                            <outputFileName>orchestrator-api.yaml</outputFileName>
+                            <outputDir>${maven.multiModuleProjectDirectory}/commons/spring/web/api/src/main/resources/static/docs</outputDir>
+                        </configuration>
+                    </execution>
+
+                    <execution>
+                        <id>generate-register-openapi-spec</id>
+                        <phase>integration-test</phase>
+                        <goals><goal>generate</goal></goals>
+                        <configuration>
+                            <apiDocsUrl>http://localhost:8080/v3/api-docs/register-api</apiDocsUrl>
+                            <outputFileName>register-api.yaml</outputFileName>
+                            <outputDir>${maven.multiModuleProjectDirectory}/commons/spring/web/api/src/main/resources/static/docs</outputDir>
+                        </configuration>
+                    </execution>
+
+                    <execution>
+                        <id>generate-store-openapi-spec</id>
+                        <phase>integration-test</phase>
+                        <goals><goal>generate</goal></goals>
+                        <configuration>
+                            <apiDocsUrl>http://localhost:8080/v3/api-docs/store-api</apiDocsUrl>
+                            <outputFileName>store-api.yaml</outputFileName>
+                            <outputDir>${maven.multiModuleProjectDirectory}/commons/spring/web/api/src/main/resources/static/docs</outputDir>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+</project>

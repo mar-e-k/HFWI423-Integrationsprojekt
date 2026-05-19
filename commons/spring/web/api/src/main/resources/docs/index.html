@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <title>Vendix API Reference</title>
+        <meta charset="utf-8"/>
+        <meta name="viewport" content="width=device-width, initial-scale=1"/>
+        <style>
+            body {margin: 0;}
+        </style>
+    </head>
+    <body>
+        <!--    Generates the following inputs:                         -->
+        <!--    http://localhost:8080/docs/index.html?api=orchestrator  -->
+        <!--    http://localhost:8080/docs/index.html?api=register      -->
+        <!--    http://localhost:8080/docs/index.html?api=store         -->
+        <script>
+            // Parse the URL query parameter (e.g., ?api=orchestrator)
+            const urlParams = new URLSearchParams(window.location.search);
+            const apiType = urlParams.get('api') || 'store'; // 'store' is the fallback default
+
+            // Map the keyword parameters to your generated YAML paths
+            const specFiles = {
+                'orchestrator': '/docs/orchestrator-api.yaml',
+                'register': '/docs/register-api.yaml',
+                'store': '/docs/store-api.yaml'
+            };
+
+            const selectedSpec = specFiles[apiType] || specFiles['store'];
+
+            // Dynamically inject the configuration script block Scalar looks for
+            const configScript = document.createElement('script');
+            configScript.id = 'api-reference';
+            configScript.setAttribute('data-url', selectedSpec);
+            document.body.appendChild(configScript);
+
+            // Programmatically load Scalar after the config element exists
+            const scalarScript = document.createElement('script');
+            scalarScript.src = 'scalar-standalone.js';
+            document.body.appendChild(scalarScript);
+        </script>
+    </body>
+</html>
