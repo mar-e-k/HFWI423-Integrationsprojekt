@@ -1,6 +1,6 @@
 package fhdw.de.einkauf_service.serviceImpl;
 
-import fhdw.de.einkauf_service.amqp.EinkaufEventPublisher;
+import fhdw.de.einkauf_service.amqp.EventPublisherPort;
 import fhdw.de.einkauf_service.config.ShoppingCartSession;
 import fhdw.de.einkauf_service.dto.OrderFilterDTO;
 import fhdw.de.einkauf_service.dto.OrderItemRequestDTO;
@@ -34,10 +34,10 @@ public class PurchaseOrderServiceImpl implements PurchaseOrderService {
     private final ShoppingCartSession cartSession;
     private final ContingentRepository contingentRepository;
     private final SupplierRepository supplierRepository;
-    private final EinkaufEventPublisher einkaufEventPublisher;
+    private final EventPublisherPort einkaufEventPublisher;
     private final MetricsRegistry metrics;
 
-    public PurchaseOrderServiceImpl(OrderRepository orderRepository, OrderItemRepository orderItemRepository, ArticleRepository articleRepository, EntityManager entityManager, ShoppingCartSession cartSession, ContingentRepository contingentRepository, SupplierRepository supplierRepository, EinkaufEventPublisher einkaufEventPublisher, MetricsRegistry metrics) {
+    public PurchaseOrderServiceImpl(OrderRepository orderRepository, OrderItemRepository orderItemRepository, ArticleRepository articleRepository, EntityManager entityManager, ShoppingCartSession cartSession, ContingentRepository contingentRepository, SupplierRepository supplierRepository, EventPublisherPort einkaufEventPublisher, MetricsRegistry metrics) {
         this.orderRepository = orderRepository;
         this.orderItemRepository = orderItemRepository;
         this.articleRepository = articleRepository;

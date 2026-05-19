@@ -14,4 +14,6 @@ public interface ReceivedDealNotificationRepository extends JpaRepository<Receiv
     List<ReceivedDealNotification> findAllByReadFalse();
 
     long countByReadFalse();
+
+    boolean existsByExternalEventId(String externalEventId);
 }

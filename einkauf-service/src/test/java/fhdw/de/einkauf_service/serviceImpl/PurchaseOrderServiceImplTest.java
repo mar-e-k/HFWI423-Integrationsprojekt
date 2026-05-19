@@ -1,6 +1,6 @@
 package fhdw.de.einkauf_service.serviceImpl;
 
-import fhdw.de.einkauf_service.amqp.EinkaufEventPublisher;
+import fhdw.de.einkauf_service.amqp.EventPublisherPort;
 import fhdw.de.einkauf_service.config.ShoppingCartSession;
 import fhdw.de.einkauf_service.dto.OrderFilterDTO;
 import fhdw.de.einkauf_service.dto.OrderItemRequestDTO;
@@ -58,7 +58,7 @@ class PurchaseOrderServiceImplTest {
     private SupplierRepository supplierRepository;
 
     @Mock
-    private EinkaufEventPublisher einkaufEventPublisher;
+    private EventPublisherPort einkaufEventPublisher;
 
     @InjectMocks
     private PurchaseOrderServiceImpl service;

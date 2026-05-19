@@ -1,10 +1,12 @@
 package fhdw.de.einkauf_service.dto;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import java.util.List;
 
+@Schema(description = "Eingabe-DTO zum Anlegen oder Aktualisieren eines Lieferanten")
 public class SupplierRequestDTO {
 
     public SupplierRequestDTO() {
@@ -112,19 +114,28 @@ public class SupplierRequestDTO {
         isActive = active;
     }
 
+    @Schema(description = "Firmenname des Lieferanten", example = "Mustermann GmbH", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank
     private String name;
 
+    @Schema(description = "Straße", example = "Musterweg")
     private String street;
+    @Schema(description = "Hausnummer", example = "12a")
     private String houseNumber;
+    @Schema(description = "PLZ", example = "33100")
     private String zip;
+    @Schema(description = "Ort", example = "Paderborn")
     private String city;
 
+    @Schema(description = "Land", example = "Deutschland")
     private String country;
+    @Schema(description = "E-Mail-Kontakt", example = "kontakt@mustermann.de")
     @Email
     private String email;
+    @Schema(description = "Telefonnummer", example = "+49 5251 123456")
     private String phone;
 
+    @Schema(description = "ID der zugeordneten Zahlungsbedingung", example = "1", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotNull
     private Long paymentTermId;
 

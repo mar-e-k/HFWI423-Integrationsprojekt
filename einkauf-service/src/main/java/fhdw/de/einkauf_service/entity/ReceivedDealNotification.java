@@ -4,7 +4,13 @@ import jakarta.persistence.*;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "received_deal_notification")
+@Table(
+        name = "received_deal_notification",
+        uniqueConstraints = @UniqueConstraint(
+                name = "uk_received_deal_notification_external_event_id",
+                columnNames = "external_event_id"
+        )
+)
 public class ReceivedDealNotification {
 
     @Id
@@ -26,6 +32,9 @@ public class ReceivedDealNotification {
     @Column(nullable = false)
     private boolean read = false;
 
+    @Column(name = "external_event_id", length = 128)
+    private String externalEventId;
+
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
 
@@ -43,4 +52,7 @@ public class ReceivedDealNotification {
 
     public boolean isRead() { return read; }
     public void setRead(boolean read) { this.read = read; }
+
+    public String getExternalEventId() { return externalEventId; }
+    public void setExternalEventId(String externalEventId) { this.externalEventId = externalEventId; }
 }

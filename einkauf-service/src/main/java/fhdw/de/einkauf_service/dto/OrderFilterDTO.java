@@ -1,9 +1,11 @@
 package fhdw.de.einkauf_service.dto;
 
 import fhdw.de.einkauf_service.enums.OrderStatus;
+import io.swagger.v3.oas.annotations.media.Schema;
 
 import java.time.LocalDate;
 
+@Schema(description = "Filterkriterien für die Bestellhistorie (Query-Parameter)")
 public class OrderFilterDTO {
     public String getOrderNumber() {
         return orderNumber;

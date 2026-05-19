@@ -10,13 +10,18 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.junit.jupiter.MockitoSettings;
+import org.mockito.quality.Strictness;
 
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
+@MockitoSettings(strictness = Strictness.LENIENT)
 class EinkaufEventListenerTest {
 
     @Mock
@@ -28,10 +33,9 @@ class EinkaufEventListenerTest {
     @InjectMocks
     private EinkaufEventListener listener;
 
-    // --- onNewDealEvent — happy path (article found) ---
-
     @Test
     void onNewDealEvent_articleFound_savesNotificationWithRealData() {
+        when(notificationRepository.existsByExternalEventId(anyString())).thenReturn(false);
         when(articleRepository.findArticleNumberById(5L)).thenReturn(Optional.of("12345678"));
         when(articleRepository.findNameById(5L)).thenReturn(Optional.of("TestArtikel"));
 
@@ -46,12 +50,12 @@ class EinkaufEventListenerTest {
         assertThat(saved.getArticleNumber()).isEqualTo("12345678");
         assertThat(saved.getArticleName()).isEqualTo("TestArtikel");
         assertThat(saved.getReceivedAt()).isNotNull();
+        assertThat(saved.getExternalEventId()).isNotBlank();
     }
-
-    // --- onNewDealEvent — fallback when article data missing ---
 
     @Test
     void onNewDealEvent_articleNumberNotFound_usesFallbackGtinPrefix() {
+        when(notificationRepository.existsByExternalEventId(anyString())).thenReturn(false);
         when(articleRepository.findArticleNumberById(7L)).thenReturn(Optional.empty());
         when(articleRepository.findNameById(7L)).thenReturn(Optional.of("Bier"));
 
@@ -65,6 +69,7 @@ class EinkaufEventListenerTest {
 
     @Test
     void onNewDealEvent_articleNameNotFound_usesFallbackArtikelPrefix() {
+        when(notificationRepository.existsByExternalEventId(anyString())).thenReturn(false);
         when(articleRepository.findArticleNumberById(7L)).thenReturn(Optional.of("12345678"));
         when(articleRepository.findNameById(7L)).thenReturn(Optional.empty());
 
@@ -78,6 +83,7 @@ class EinkaufEventListenerTest {
 
     @Test
     void onNewDealEvent_bothFallbacks_correctFallbackStrings() {
+        when(notificationRepository.existsByExternalEventId(anyString())).thenReturn(false);
         when(articleRepository.findArticleNumberById(9L)).thenReturn(Optional.empty());
         when(articleRepository.findNameById(9L)).thenReturn(Optional.empty());
 
@@ -90,24 +96,33 @@ class EinkaufEventListenerTest {
         assertThat(captor.getValue().getArticleName()).isEqualTo("Artikel #9");
     }
 
-    // --- onNewDealEvent — null safety ---
-
     @Test
     void onNewDealEvent_nullEvent_doesNotCallSave() {
         listener.onNewDealEvent(null);
 
         verify(notificationRepository, never()).save(any());
+        verify(notificationRepository, never()).existsByExternalEventId(anyString());
     }
-
-    // --- onNewDealEvent — save is called exactly once ---
 
     @Test
     void onNewDealEvent_happyPath_saveCalledOnce() {
+        when(notificationRepository.existsByExternalEventId(anyString())).thenReturn(false);
         when(articleRepository.findArticleNumberById(1L)).thenReturn(Optional.of("11111111"));
         when(articleRepository.findNameById(1L)).thenReturn(Optional.of("Artikel"));
 
         listener.onNewDealEvent(new NewDealEvent(1L));
 
         verify(notificationRepository, times(1)).save(any(ReceivedDealNotification.class));
+    }
+
+    @Test
+    void onNewDealEvent_duplicateExternalEventId_skipsSave() {
+        when(notificationRepository.existsByExternalEventId(anyString())).thenReturn(true);
+
+        listener.onNewDealEvent(new NewDealEvent(42L));
+
+        verify(notificationRepository, never()).save(any(ReceivedDealNotification.class));
+        verify(articleRepository, never()).findArticleNumberById(anyLong());
+        verify(articleRepository, never()).findNameById(anyLong());
     }
 }

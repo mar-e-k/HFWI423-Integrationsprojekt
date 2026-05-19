@@ -32,7 +32,19 @@ INSERT INTO category (id, name, description) VALUES
                                                  (5, 'Bürobedarf', 'Büroartikel'),
                                                  (6, 'Elektronik', 'Kleinelektronik'),
                                                  (7, 'Tierbedarf', 'Produkte für Haustiere'),
-                                                 (8, 'Lebensmittel', 'Allgemeine Lebensmittel');
+                                                 (8, 'Lebensmittel', 'Allgemeine Lebensmittel'),
+                                                 (9, 'Tiefkühl', 'Tiefkühlprodukte'),
+                                                 (10, 'Bio', 'Bio-Lebensmittel'),
+                                                 (11, 'Drogerie', 'Drogerieartikel'),
+                                                 (12, 'Garten', 'Gartenbedarf'),
+                                                 (13, 'Werkzeug', 'Werkzeuge und Zubehör'),
+                                                 (14, 'Spielwaren', 'Spielzeug und Games'),
+                                                 (15, 'Bekleidung', 'Textilien'),
+                                                 (16, 'Auto', 'Auto-Zubehör'),
+                                                 (17, 'Sport', 'Sportartikel'),
+                                                 (18, 'Wein', 'Weine und Spirituosen'),
+                                                 (19, 'Backwaren', 'Brot und Backwaren'),
+                                                 (20, 'Saisonal', 'Saisonale Produkte');
 
 
 
@@ -71,7 +83,17 @@ INSERT INTO supplier (
       (7, 'Electro Base GmbH', 'Tech Park', '7', '70173', 'Stuttgart', 'Deutschland', 'info@electro.de', '0711-7777', 5, true),
       (8, 'Pet World GmbH', 'Tierweg', '15', '01067', 'Dresden', 'Deutschland', 'info@petworld.de', '0351-8888', 3, true),
       (9, 'Food Import GmbH', 'Hafenstr.', '31', '20457', 'Hamburg', 'Deutschland', 'food@import.de', '040-9999', 4, true),
-      (10, 'Regional Markt GmbH', 'Dorfstr.', '5', '30159', 'Hannover', 'Deutschland', 'regional@markt.de', '0511-1010', 2, true);
+      (10, 'Regional Markt GmbH', 'Dorfstr.', '5', '30159', 'Hannover', 'Deutschland', 'regional@markt.de', '0511-1010', 2, true),
+      (11, 'Globus Trade GmbH', 'Zollstr.', '1', '10115', 'Berlin', 'Deutschland', 'info@globus.de', '030-1011', 3, true),
+      (12, 'BavariaSupply KG', 'Bergweg', '12', '80331', 'München', 'Deutschland', 'kontakt@bavaria.de', '089-1212', 3, true),
+      (13, 'NorthPort Handel', 'Kaistr.', '3', '24103', 'Kiel', 'Deutschland', 'info@northport.de', '0431-1313', 4, true),
+      (14, 'RuhrLogistik GmbH', 'Industrieweg', '8', '45127', 'Essen', 'Deutschland', 'info@ruhrlog.de', '0201-1414', 2, true),
+      (15, 'Saar Versand', 'Talstr.', '5', '66111', 'Saarbrücken', 'Deutschland', 'info@saar.de', '0681-1515', 1, true),
+      (16, 'Alpenwaren GmbH', 'Bergstr.', '2', '83022', 'Rosenheim', 'Deutschland', 'info@alpen.de', '08031-1616', 3, true),
+      (17, 'Hansa Trade KG', 'Speicherstr.', '7', '23552', 'Lübeck', 'Deutschland', 'mail@hansa.de', '0451-1717', 2, true),
+      (18, 'OstSupply UG', 'Plattenweg', '4', '04109', 'Leipzig', 'Deutschland', 'info@ost.de', '0341-1818', 3, true),
+      (19, 'WestExpress GmbH', 'Rheinstr.', '11', '40213', 'Düsseldorf', 'Deutschland', 'info@west.de', '0211-1919', 4, true),
+      (20, 'CityFresh GmbH', 'Hauptstr.', '20', '90402', 'Nürnberg', 'Deutschland', 'info@cityfresh.de', '0911-2020', 3, true);
 
 
 

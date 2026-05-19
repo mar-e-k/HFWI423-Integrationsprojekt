@@ -1,7 +1,9 @@
 package fhdw.de.einkauf_service.dto;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.*;
 
+@Schema(description = "Ansprechpartner eines Lieferanten")
 public class ContactPersonRequestDTO {
     public ContactPersonRequestDTO(Long id, String firstName, String lastName, String role, String phone, String email) {
         this.id = id;

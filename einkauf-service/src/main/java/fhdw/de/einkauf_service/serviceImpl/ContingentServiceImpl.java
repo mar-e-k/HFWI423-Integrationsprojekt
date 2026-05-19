@@ -1,6 +1,6 @@
 package fhdw.de.einkauf_service.serviceImpl;
 
-import fhdw.de.einkauf_service.amqp.EinkaufEventPublisher;
+import fhdw.de.einkauf_service.amqp.EventPublisherPort;
 import fhdw.de.einkauf_service.dto.ContingentResponseDTO;
 import fhdw.de.einkauf_service.entity.Article;
 import fhdw.de.einkauf_service.entity.Contingent;
@@ -28,10 +28,10 @@ public class ContingentServiceImpl implements ContingentService {
     private final ArticleRepository articleRepository;
     private final SupplierRepository supplierRepository;
     private final OrderItemRepository orderItemRepository;
-    private final EinkaufEventPublisher eventPublisher;
+    private final EventPublisherPort eventPublisher;
     private final MetricsRegistry metrics;
 
-    public ContingentServiceImpl(ContingentRepository contingentRepository, ArticleRepository articleRepository, SupplierRepository supplierRepository, OrderItemRepository orderItemRepository, EinkaufEventPublisher eventPublisher, MetricsRegistry metrics) {
+    public ContingentServiceImpl(ContingentRepository contingentRepository, ArticleRepository articleRepository, SupplierRepository supplierRepository, OrderItemRepository orderItemRepository, EventPublisherPort eventPublisher, MetricsRegistry metrics) {
         this.contingentRepository = contingentRepository;
         this.articleRepository = articleRepository;
         this.supplierRepository = supplierRepository;

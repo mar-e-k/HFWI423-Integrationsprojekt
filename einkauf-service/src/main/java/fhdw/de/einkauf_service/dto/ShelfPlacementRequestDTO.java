@@ -1,8 +1,10 @@
 package fhdw.de.einkauf_service.dto;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
 
+@Schema(description = "Eingabe-DTO zum Anlegen einer Artikel-Platzierung auf einer Regalebene")
 public class ShelfPlacementRequestDTO {
 
     public ShelfPlacementRequestDTO() {
@@ -65,9 +67,11 @@ public class ShelfPlacementRequestDTO {
         this.heightCm = heightCm;
     }
 
+    @Schema(description = "ID der Regalebene", example = "10", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotNull(message = "Regal-Level-ID ist erforderlich")
     private Long shelfLevelId;
 
+    @Schema(description = "ID des Artikels", example = "42", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotNull(message = "Artikel-ID ist erforderlich")
     private Long articleId;
 

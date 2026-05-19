@@ -1,9 +1,11 @@
 package fhdw.de.einkauf_service.dto;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.*;
 import java.time.LocalDate;
 import java.util.Set;
 
+@Schema(description = "Eingabe-DTO zum Anlegen oder Aktualisieren eines Artikels")
 public class ArticleRequestDTO {
     public ArticleRequestDTO(String articleNumber, String name, Double purchasePrice, Double taxRatePercent, Double sellingPrice, String manufacturer, Set<Long> supplierIds, Long mainSupplierId, Integer stockLevel, String description, Boolean isAvailable, Boolean hasDeposit, Set<Long> categoryIds, String productImage, LocalDate expirationDate, Double widthCm, Double heightCm, Double depthCm) {
 
@@ -174,11 +176,12 @@ public class ArticleRequestDTO {
         this.depthCm = depthCm;
     }
 
-    // Required Field Validation & Unique Constraint (GTIN)
+    @Schema(description = "GTIN/EAN — eindeutige Artikelnummer", example = "4006381333931", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank(message = "Article number (GTIN) is mandatory.")
     @Size(min = 8, max = 18, message = "GTIN must be between 8 and 18 characters.")
     private String articleNumber;
 
+    @Schema(description = "Anzeigename des Artikels", example = "Mineralwasser 0,7l", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank(message = "Article name is mandatory.")
     private String name;
 

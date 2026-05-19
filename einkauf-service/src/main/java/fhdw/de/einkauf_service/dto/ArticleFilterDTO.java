@@ -1,13 +1,11 @@
 package fhdw.de.einkauf_service.dto;
 
+import io.swagger.v3.oas.annotations.media.Schema;
+
 import java.util.List;
 import java.util.Objects;
 
-/**
- * Data Transfer Object zum Halten der dynamischen Such- und Filterkriterien
- * für Artikel.
- */
-// Generiert automatisch Getter, Setter, toString, equals und hashCode
+@Schema(description = "Filterkriterien für die Artikelsuche (Query-Parameter)")
 public class ArticleFilterDTO {
 
     // Suchfelder

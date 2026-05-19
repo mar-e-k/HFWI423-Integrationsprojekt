@@ -4,6 +4,10 @@ import fhdw.de.einkauf_service.dto.ArticleFilterDTO;
 import fhdw.de.einkauf_service.dto.ArticleRequestDTO;
 import fhdw.de.einkauf_service.dto.ArticleResponseDTO;
 import fhdw.de.einkauf_service.service.ArticleService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -14,6 +18,7 @@ import java.util.NoSuchElementException;
 
 @RestController
 @RequestMapping("/api/v1/articles")
+@Tag(name = "Articles", description = "Verwaltung der Artikel im Sortiment")
 public class ArticleController {
 
     private final ArticleService articleService;
@@ -22,78 +27,76 @@ public class ArticleController {
         this.articleService = articleService;
     }
 
-    // ==================================================================================
-    // 1. CREATE (POST)
-    // Erwartet ArticleRequest, gibt ArticleResponse zurück
-    // ==================================================================================
     @PostMapping
+    @Operation(summary = "Neuen Artikel anlegen")
+    @ApiResponses({
+            @ApiResponse(responseCode = "201", description = "Artikel angelegt"),
+            @ApiResponse(responseCode = "400", description = "Ungültige Eingabe (ProblemDetail)"),
+            @ApiResponse(responseCode = "409", description = "Artikelnummer/GTIN existiert bereits")
+    })
     public ResponseEntity<ArticleResponseDTO> createArticle(@Valid @RequestBody ArticleRequestDTO articleRequestDto) {
         try {
             ArticleResponseDTO createdArticle = articleService.createNewArticle(articleRequestDto);
-            // HTTP 201 Created ist Standard für erfolgreiches Anlegen
             return new ResponseEntity<>(createdArticle, HttpStatus.CREATED);
         } catch (IllegalArgumentException e) {
-            // Fängt die Duplikat-Prüfung aus dem Service ab
-            return ResponseEntity.status(HttpStatus.CONFLICT).build(); // 409 Conflict
+            return ResponseEntity.status(HttpStatus.CONFLICT).build();
         }
     }
 
-    // ==================================================================================
-    // 2. READ by filter (GET)
-    // Gibt eine Liste von ArticleResponse zurück
-    // ==================================================================================
     @GetMapping
+    @Operation(summary = "Artikel suchen / filtern",
+            description = "Liefert Artikel anhand der übergebenen Filterkriterien (Query-Parameter aus ArticleFilterDTO).")
+    @ApiResponse(responseCode = "200", description = "Trefferliste (ggf. leer)")
     public ResponseEntity<List<ArticleResponseDTO>> searchArticles(ArticleFilterDTO filter) {
-
-        // 1. Service aufrufen: Der Service liefert bereits die gemappten DTOs
         List<ArticleResponseDTO> responseDTOs = articleService.findFilteredArticles(filter);
-
-        // 2. Antwort zurückgeben (direkt)
         return ResponseEntity.ok(responseDTOs);
     }
 
-    // ==================================================================================
-    // 3. READ BY ID (GET /{id})
-    // Gibt ArticleResponse zurück
-    // ==================================================================================
     @GetMapping("/{id}")
+    @Operation(summary = "Artikel per ID abrufen")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Artikel gefunden"),
+            @ApiResponse(responseCode = "404", description = "Artikel nicht gefunden")
+    })
     public ResponseEntity<ArticleResponseDTO> getArticleById(@PathVariable Long id) {
         try {
             ArticleResponseDTO article = articleService.findArticleById(id);
-            return ResponseEntity.ok(article); // 200 OK
+            return ResponseEntity.ok(article);
         } catch (NoSuchElementException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).build(); // 409 Conflict
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
         }
     }
 
-    // ==================================================================================
-    // 4. UPDATE (PUT /{id})
-    // Erwartet ArticleRequest, gibt ArticleResponse zurück
-    // ==================================================================================
     @PutMapping("/{id}")
+    @Operation(summary = "Artikel aktualisieren")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Artikel aktualisiert"),
+            @ApiResponse(responseCode = "400", description = "Ungültige Eingabe (ProblemDetail)"),
+            @ApiResponse(responseCode = "404", description = "Artikel nicht gefunden")
+    })
     public ResponseEntity<ArticleResponseDTO> updateArticle(
             @PathVariable Long id,
             @Valid @RequestBody ArticleRequestDTO articleDetails) {
         try {
             ArticleResponseDTO updatedArticle = articleService.updateArticle(id, articleDetails);
-            return ResponseEntity.ok(updatedArticle); // 200 OK
+            return ResponseEntity.ok(updatedArticle);
         } catch (NoSuchElementException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).build(); // 409 Conflict
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
         }
     }
 
-    // ==================================================================================
-    // 5. DELETE (DELETE /{id})
-    // Gibt 204 No Content zurück
-    // ==================================================================================
     @DeleteMapping("/{id}")
+    @Operation(summary = "Artikel löschen")
+    @ApiResponses({
+            @ApiResponse(responseCode = "204", description = "Artikel gelöscht"),
+            @ApiResponse(responseCode = "404", description = "Artikel nicht gefunden")
+    })
     public ResponseEntity<Void> deleteArticle(@PathVariable Long id) {
         try {
             articleService.deleteArticle(id);
-            // HTTP 204 No Content ist Standard für erfolgreiches Löschen ohne Rückgabe-Body
             return new ResponseEntity<>(HttpStatus.NO_CONTENT);
         } catch (NoSuchElementException e) {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND); // 404 Not Found
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
     }
 }

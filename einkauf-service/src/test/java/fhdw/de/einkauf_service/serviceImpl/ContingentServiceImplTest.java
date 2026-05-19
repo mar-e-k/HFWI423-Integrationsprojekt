@@ -1,6 +1,6 @@
 package fhdw.de.einkauf_service.serviceImpl;
 
-import fhdw.de.einkauf_service.amqp.EinkaufEventPublisher;
+import fhdw.de.einkauf_service.amqp.EventPublisherPort;
 import fhdw.de.einkauf_service.dto.ContingentResponseDTO;
 import fhdw.de.einkauf_service.entity.*;
 import fhdw.de.einkauf_service.repository.*;
@@ -35,7 +35,7 @@ class ContingentServiceImplTest {
     private OrderItemRepository orderItemRepository;
 
     @Mock
-    private EinkaufEventPublisher eventPublisher;
+    private EventPublisherPort eventPublisher;
 
     @InjectMocks
     private ContingentServiceImpl service;

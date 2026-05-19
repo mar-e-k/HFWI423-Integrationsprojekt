@@ -7,10 +7,12 @@ import io.github.plaguv.amqp.api.event.logistic.NewDealEvent;
 import io.github.plaguv.amqp.core.listener.AmqpEventListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 
 @Component
 public class EinkaufEventListener {
@@ -31,7 +33,16 @@ public class EinkaufEventListener {
     public void onNewDealEvent(NewDealEvent event) {
         if (event == null) return;
 
-        log.warn("[AMQP] Received NewDealEvent for articleId={}", event.articleId());
+        LocalDateTime now = LocalDateTime.now();
+        String externalEventId = buildExternalEventId(event.articleId(), now);
+
+        if (notificationRepository.existsByExternalEventId(externalEventId)) {
+            log.info("[AMQP] Duplicate NewDealEvent ignored (externalEventId={})", externalEventId);
+            return;
+        }
+
+        log.warn("[AMQP] Received NewDealEvent for articleId={} (externalEventId={})",
+                event.articleId(), externalEventId);
 
         String articleNumber = articleRepository.findArticleNumberById(event.articleId())
                 .orElse("GTIN-" + event.articleId());
@@ -42,8 +53,23 @@ public class EinkaufEventListener {
         notification.setArticleId(event.articleId());
         notification.setArticleNumber(articleNumber);
         notification.setArticleName(articleName);
-        notification.setReceivedAt(LocalDateTime.now());
+        notification.setReceivedAt(now);
+        notification.setExternalEventId(externalEventId);
 
-        notificationRepository.save(notification);
+        try {
+            notificationRepository.save(notification);
+        } catch (DataIntegrityViolationException race) {
+            log.info("[AMQP] Concurrent duplicate NewDealEvent rejected by DB (externalEventId={})", externalEventId);
+        }
+    }
+
+    /**
+     * Stabiler Schlüssel für Duplikat-Erkennung. plaguv-amqp 1.3.0 reicht die
+     * Envelope-eventId nicht zum Listener durch — daher Schlüssel aus
+     * (articleId, auf Sekunde gerundeter Eingang). Eine Redelivery innerhalb
+     * derselben Sekunde wird als Duplikat erkannt.
+     */
+    private static String buildExternalEventId(long articleId, LocalDateTime receivedAt) {
+        return "new-deal:" + articleId + "@" + receivedAt.truncatedTo(ChronoUnit.SECONDS);
     }
 }
