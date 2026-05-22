@@ -30,10 +30,9 @@ public class StoreRouterFunction {
                         GatewayRequestPredicates.path("/api/receipt/**")
                                 .or(GatewayRequestPredicates.path("/api/voucher/**")),
                         builder -> builder
-//                                .route(RequestPredicates.all())
                                 .filter(TokenRelayFilterFunctions.tokenRelay())
                                 .filter(this::storeRoutingFilter)
-                                .build()
+                                .route(RequestPredicates.all(), HandlerFunctions.http())
                 )
                 .build();
     }
@@ -42,19 +41,17 @@ public class StoreRouterFunction {
         String storeId = clientRequest.headers().firstHeader("X-Vendix-Store-Id");
 
         if (storeId == null) {
-            return ServerResponse.status(HttpStatus.BAD_REQUEST).body("Missing Store-Id");
+            return ServerResponse.status(HttpStatus.BAD_REQUEST)
+                    .body("Missing Store-Id");
         }
 
-        return findTargetInstanceUri(storeId)
-                .map(targetUri -> {
-                    clientRequest.attributes().put(MvcUtils.GATEWAY_REQUEST_URL_ATTR, targetUri);
-                    try {
-                        return HandlerFunctions.http().handle(clientRequest);
-                    } catch (Exception e) {
-                        return ServerResponse.status(500).build();
-                    }
-                })
-                .orElseGet(() -> ServerResponse.status(404).body("No instance for " + storeId));
+        Optional<URI> targetUri = findTargetInstanceUri(storeId);
+        if (targetUri.isEmpty()) {
+            return ServerResponse.status(HttpStatus.NOT_FOUND)
+                    .body("No instance for " + storeId);
+        }
+        clientRequest.attributes().put(MvcUtils.GATEWAY_REQUEST_URL_ATTR, targetUri.get());
+        return next.handle(clientRequest);
     }
 
     private Optional<URI> findTargetInstanceUri(String storeId) {
