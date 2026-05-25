@@ -47,7 +47,9 @@ public class ArtikelController {
         this.goodsReceiptRepository = goodsReceiptRepository;
     }
 
-    record StockChangeRequest(int delta, String reason) {}
+    record StockChangeRequest(int delta, String reason) {
+        // reason is accepted for API compatibility but not processed internally
+    }
     record StorageLocationUpdateRequest(String storageLocation) {}
 
     @Operation(summary = "Artikelliste paginiert abrufen")
@@ -71,7 +73,7 @@ public class ArtikelController {
         return articleInfoService.list(PageRequest.of(page, size), spec);
     }
 
-    @Operation(summary = "Bestand eines Artikels aendern")
+    @Operation(summary = "Bestand eines Artikels ändern")
     @PostMapping("/{id}/stock")
     public ArticleInfo changeStock(@PathVariable Long id, @RequestBody StockChangeRequest req) {
         try {
@@ -93,7 +95,7 @@ public class ArtikelController {
         }
     }
 
-    @Operation(summary = "Alle SIM-Artikel und abhaengige Daten loeschen")
+    @Operation(summary = "Alle SIM-Artikel und abhängige Daten löschen")
     @DeleteMapping("/sim")
     @Transactional
     public java.util.Map<String, Object> deleteSimArticles() {
@@ -102,8 +104,11 @@ public class ArtikelController {
                 .map(ArticleInfo::getId)
                 .toList();
         if (!simIds.isEmpty()) {
+            // 1. Wareneingang-Positionen fuer SIM-Artikel loeschen
             goodsReceiptItemRepository.deleteByArticleIdIn(simIds);
+            // 2. Wareneingaenge ohne Positionen loeschen
             goodsReceiptRepository.deleteReceiptsWithNoItems();
+            // 3. Kontingente loeschen
             contingentRepository.deleteByArticleIdIn(simIds);
         }
         restockOrderRepository.deleteAllSimOrders();
