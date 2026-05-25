@@ -1,0 +1,3 @@
+com\example\gateway\GatewayApplication.class
+com\example\gateway\filter\RateLimitingFilter.class
+com\example\gateway\filter\LoggingFilter.class

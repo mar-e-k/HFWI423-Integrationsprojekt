@@ -1,0 +1,25 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: logistik-gateway
+  cloud:
+    gateway:
+      routes:
+        - id: logistik-api
+          uri: http://localhost:8081
+          predicates:
+            - Path=/api/**
+          filters:
+            - AddRequestHeader=X-Gateway-Source, logistik-gateway
+        - id: swagger-ui
+          uri: http://localhost:8081
+          predicates:
+            - Path=/swagger-ui/**, /api-docs/**
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
