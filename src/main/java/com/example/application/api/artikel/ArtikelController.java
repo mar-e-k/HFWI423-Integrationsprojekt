@@ -1,4 +1,4 @@
-package com.example.application.api.load;
+package com.example.application.api.artikel;
 
 import com.example.application.data.articleInfo.ArticleInfo;
 import com.example.application.data.articleInfo.ArticleInfoRepository;
@@ -7,6 +7,8 @@ import com.example.application.data.goodsreceipts.GoodsReceiptItemRepository;
 import com.example.application.data.goodsreceipts.GoodsReceiptRepository;
 import com.example.application.data.restockorder.RestockOrderRepository;
 import com.example.application.services.ArticleInfoService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.persistence.criteria.Predicate;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -19,13 +21,10 @@ import org.springframework.web.server.ResponseStatusException;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Lasttest-Endpunkte für LogisticMainView.
- * Basis-URL: /api/load/articles
- */
 @RestController
-@RequestMapping("/api/load/articles")
-public class LoadTestArticleController {
+@RequestMapping("/api/artikels")
+@Tag(name = "Artikels", description = "Artikel-Stammdaten und Bestandsverwaltung")
+public class ArtikelController {
 
     private final ArticleInfoService articleInfoService;
     private final ArticleInfoRepository articleInfoRepository;
@@ -34,12 +33,12 @@ public class LoadTestArticleController {
     private final GoodsReceiptItemRepository goodsReceiptItemRepository;
     private final GoodsReceiptRepository goodsReceiptRepository;
 
-    public LoadTestArticleController(ArticleInfoService articleInfoService,
-                                     ArticleInfoRepository articleInfoRepository,
-                                     ContingentRepository contingentRepository,
-                                     RestockOrderRepository restockOrderRepository,
-                                     GoodsReceiptItemRepository goodsReceiptItemRepository,
-                                     GoodsReceiptRepository goodsReceiptRepository) {
+    public ArtikelController(ArticleInfoService articleInfoService,
+                             ArticleInfoRepository articleInfoRepository,
+                             ContingentRepository contingentRepository,
+                             RestockOrderRepository restockOrderRepository,
+                             GoodsReceiptItemRepository goodsReceiptItemRepository,
+                             GoodsReceiptRepository goodsReceiptRepository) {
         this.articleInfoService = articleInfoService;
         this.articleInfoRepository = articleInfoRepository;
         this.contingentRepository = contingentRepository;
@@ -51,47 +50,42 @@ public class LoadTestArticleController {
     record StockChangeRequest(int delta, String reason) {}
     record StorageLocationUpdateRequest(String storageLocation) {}
 
-    /** GET /api/load/articles?page=0&size=20 – Artikelliste paginiert */
+    @Operation(summary = "Artikelliste paginiert abrufen")
     @GetMapping
     public Page<ArticleInfo> articles(
-            @RequestParam(defaultValue = "0")  int page,
+            @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "20") int size) {
         return articleInfoService.list(PageRequest.of(page, size), null);
     }
 
-    /** GET /api/load/articles/filter – Artikel mit Filterparametern */
+    @Operation(summary = "Artikel mit Filterparametern abrufen")
     @GetMapping("/filter")
     public Page<ArticleInfo> articlesFiltered(
-            @RequestParam(defaultValue = "0")  int page,
+            @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "20") int size,
             @RequestParam(required = false) String name,
             @RequestParam(required = false) String articleNumber,
             @RequestParam(required = false) Integer minStock,
             @RequestParam(required = false) String storageLocation) {
-
         Specification<ArticleInfo> spec = buildFilterSpec(name, articleNumber, minStock, storageLocation);
         return articleInfoService.list(PageRequest.of(page, size), spec);
     }
 
-    /** POST /api/load/articles/{id}/stock – Bestand ändern */
+    @Operation(summary = "Bestand eines Artikels aendern")
     @PostMapping("/{id}/stock")
-    public ArticleInfo changeStock(
-            @PathVariable Long id,
-            @RequestBody StockChangeRequest req) {
+    public ArticleInfo changeStock(@PathVariable Long id, @RequestBody StockChangeRequest req) {
         try {
             ArticleInfo article = articleInfoService.findById(id);
-            String reason = req.reason() != null ? req.reason() : "Lasttest";
             return articleInfoService.applyStockChange(article, req.delta());
         } catch (IllegalArgumentException e) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage());
         }
     }
 
-    /** PUT /api/load/articles/{id}/storage-location – Lagerplatz zuweisen */
+    @Operation(summary = "Lagerplatz eines Artikels aktualisieren")
     @PutMapping("/{id}/storage-location")
-    public ArticleInfo updateStorageLocation(
-            @PathVariable Long id,
-            @RequestBody StorageLocationUpdateRequest req) {
+    public ArticleInfo updateStorageLocation(@PathVariable Long id,
+                                              @RequestBody StorageLocationUpdateRequest req) {
         try {
             return articleInfoService.updateStorageLocation(id, req.storageLocation());
         } catch (IllegalArgumentException e) {
@@ -99,7 +93,7 @@ public class LoadTestArticleController {
         }
     }
 
-    /** DELETE /api/load/articles/sim – alle SIM-Artikel und alle abhaengigen Daten loeschen */
+    @Operation(summary = "Alle SIM-Artikel und abhaengige Daten loeschen")
     @DeleteMapping("/sim")
     @Transactional
     public java.util.Map<String, Object> deleteSimArticles() {
@@ -108,16 +102,11 @@ public class LoadTestArticleController {
                 .map(ArticleInfo::getId)
                 .toList();
         if (!simIds.isEmpty()) {
-            // 1. Wareneingang-Positionen fuer SIM-Artikel loeschen
             goodsReceiptItemRepository.deleteByArticleIdIn(simIds);
-            // 2. Wareneingaenge ohne Positionen loeschen
             goodsReceiptRepository.deleteReceiptsWithNoItems();
-            // 3. Kontingente loeschen
             contingentRepository.deleteByArticleIdIn(simIds);
         }
-        // 4. Offene Bestellungen loeschen
         restockOrderRepository.deleteAllSimOrders();
-        // 5. Artikel loeschen
         int deleted = articleInfoRepository.deleteAllSimArticles();
         return java.util.Map.of("deleted", deleted);
     }
