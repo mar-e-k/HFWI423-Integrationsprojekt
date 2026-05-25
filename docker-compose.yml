@@ -7,7 +7,7 @@ services:
       POSTGRES_PASSWORD: secret
       POSTGRES_DB: appdb
     ports:
-      - "5432:5432"      # wenn 5432 belegt ist, ändere links auf 5433
+      - "5432:5432"
     volumes:
       - pgdata:/var/lib/postgresql/data
       - ./docker/init.sql:/docker-entrypoint-initdb.d/init.sql
@@ -16,6 +16,15 @@ services:
       interval: 5s
       timeout: 3s
       retries: 20
+
+  gateway:
+    build:
+      context: ./gateway
+      dockerfile: Dockerfile
+    ports:
+      - "8080:8080"
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
 
 volumes:
   pgdata:
