@@ -10,6 +10,8 @@ import com.example.application.data.goodsreceipts.GoodsReceiptRepository;
 import com.example.application.data.goodsreceipts.GoodsReceiptStatus;
 import com.example.application.data.restockorder.RestockOrder;
 import com.example.application.data.restockorder.RestockOrderRepository;
+import com.example.application.events.GoodsReceiptApprovedEvent;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -27,17 +29,20 @@ public class GoodsReceiptService {
     private final ArticleInfoRepository articleRepo;
     private final RestockOrderRepository restockOrderRepo;
     private final JdbcTemplate jdbc;
+    private final ApplicationEventPublisher eventPublisher;
 
     public GoodsReceiptService(GoodsReceiptRepository receiptRepo,
                                GoodsReceiptItemRepository itemRepo,
                                ArticleInfoRepository articleRepo,
                                RestockOrderRepository restockOrderRepo,
-                               JdbcTemplate jdbc) {
+                               JdbcTemplate jdbc,
+                               ApplicationEventPublisher eventPublisher) {
         this.receiptRepo = receiptRepo;
         this.itemRepo = itemRepo;
         this.articleRepo = articleRepo;
         this.restockOrderRepo = restockOrderRepo;
         this.jdbc = jdbc;
+        this.eventPublisher = eventPublisher;
     }
 
     // ------------------------------------------------------------------------
@@ -405,7 +410,9 @@ public class GoodsReceiptService {
             gr.setStatus(GoodsReceiptStatus.GEPRUEFT);
         }
 
-        return receiptRepo.save(gr);
+        GoodsReceipt saved = receiptRepo.save(gr);
+        eventPublisher.publishEvent(new GoodsReceiptApprovedEvent(this, receiptId));
+        return saved;
     }
 
     // ------------------------------------------------------------------------
