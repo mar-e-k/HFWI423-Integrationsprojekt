@@ -31,6 +31,18 @@ public class SecurityWebAutoConfiguration {
 
     @Bean
     @Order(2)
+    public SecurityFilterChain docsSecurity(HttpSecurity http) {
+        return http
+                .securityMatcher("/docs/**")
+                .csrf(AbstractHttpConfigurer::disable)
+                .authorizeHttpRequests(auth -> auth
+                        .anyRequest().permitAll()
+                )
+                .build();
+    }
+
+    @Bean
+    @Order(3)
     public SecurityFilterChain apiSecurity(
             HttpSecurity http,
             RedissonClient redissonClient,
@@ -53,7 +65,7 @@ public class SecurityWebAutoConfiguration {
     }
 
     @Bean
-    @Order(3)
+    @Order(4)
     public SecurityFilterChain vaadinSecurity(
             HttpSecurity http,
             KeycloakOidcUserService oidcUserService
