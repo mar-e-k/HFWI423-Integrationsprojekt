@@ -1,6 +1,6 @@
 # Logistik-System — Technische Dokumentation
 
-**Version:** 1.0
+**Version:** 2.0
 **Stand:** Mai 2026
 **Zielgruppe:** Entwickler & Stakeholder
 
@@ -61,9 +61,29 @@ Das System ist **eine von mehreren Anwendungen** in einem verteilten Verbund. Di
 
 ## 2. Architektur
 
-### Schichtenmodell
+### Überblick (inkl. API Gateway)
 
-Die Anwendung folgt einem klassischen Drei-Schichten-Modell:
+```
+[JMeter / Browser]
+        |
+        v
+[API Gateway :8080]           <- Spring Cloud Gateway (gateway/, Spring Boot 3.4.5)
+   LoggingFilter               Logging, Routing, Rate-Limiting (10 req/s)
+   RateLimitingFilter
+        |
+        v
+[Logistik-Service :8081]      <- Spring Boot 4.0.0, Vaadin 25
+   Domain-Controller-Schicht   /api/artikels, /api/kommissionen, ...
+   Service-Schicht             GoodsReceiptService, KommissionService, ...
+   Repository-Schicht          Spring Data JPA
+        |          |
+        v          v
+  [PostgreSQL]  [RabbitMQ]
+```
+
+Der Gateway ist der **einzige externe Einstiegspunkt**. Er zentralisiert Querschnittsbelange (Logging, Rate-Limiting) vollständig getrennt vom Business-Code.
+
+### Schichtenmodell (Logistik-Service)
 
 ```
 ┌────────────────────────────────────────────┐
@@ -71,9 +91,14 @@ Die Anwendung folgt einem klassischen Drei-Schichten-Modell:
 │    Vaadin Views (Server-Side Rendering)    │
 │    + React-Komponenten (Vaadin Pro)        │
 ├────────────────────────────────────────────┤
+│         REST-API / Controller-Schicht      │
+│  Domain-Controller (api/<domain>/*)        │
+│  OpenAPI-Dokumentation (Swagger UI)        │
+├────────────────────────────────────────────┤
 │             Geschäftslogik                 │
 │     Services (Spring @Service Beans)       │
 │     Scheduler (@Scheduled)                 │
+│     Spring ApplicationEvents (Observer)    │
 ├────────────────────────────────────────────┤
 │              Datenschicht                  │
 │  Spring Data JPA Repositories              │
@@ -89,8 +114,14 @@ Die Anwendung folgt einem klassischen Drei-Schichten-Modell:
 
 ### Wichtige Architekturentscheidungen
 
+**API Gateway als einziger Einstiegspunkt**
+Der Spring Cloud Gateway (Port 8080) leitet alle Anfragen an den Logistik-Service (Port 8081) weiter. Querschnittsbelange wie Request-Logging und Rate-Limiting (10 req/s pro IP) sind ausschließlich im Gateway implementiert — vollständig getrennt vom Business-Code.
+
+**Domain-sliced REST-Controller**
+Die REST-API ist in fachliche Domänen unterteilt. Jede Domäne hat ihren eigenen Controller und sein eigenes Package (`api/<domain>/`). Änderungen an einem Endpoint betreffen keine anderen Domänen.
+
 **Event-Driven statt direkter API-Aufrufe**
-Die Kommunikation zwischen den Systemen (Einkauf, Logistik, Filialen) erfolgt über RabbitMQ. Damit sind die Systeme entkoppelt und können unabhängig voneinander skaliert oder deployed werden.
+Die Kommunikation zwischen den Systemen (Einkauf, Logistik, Filialen) erfolgt über RabbitMQ. Intern werden Spring ApplicationEvents für den Observer-Pattern genutzt (z.B. `GoodsReceiptApprovedEvent`). Damit sind Komponenten entkoppelt und können unabhängig voneinander skaliert oder deployed werden.
 
 **Transaktionsatomarität bei der Kommissionierung**
 Jede Filialkommission wird in einer eigenen Datenbanktransaktion (`REQUIRES_NEW`) verarbeitet. Schlägt eine Kommission fehl, wird nur diese zurückgerollt — alle anderen laufen weiter.
@@ -112,7 +143,7 @@ Beim Picken werden zuerst die offenen Einheiten verbraucht. Fällt der Bestand u
 
 ## 3. Tech-Stack
 
-### Backend
+### Backend (Logistik-Service)
 
 | Technologie | Version | Zweck |
 |---|---|---|
@@ -124,10 +155,23 @@ Beim Picken werden zuerst die offenen Einheiten verbraucht. Fällt der Bestand u
 | HikariCP | (via Boot) | Connection Pool |
 | RabbitMQ (CloudAMQP) | — | Message Broker |
 | Spring AMQP | (via Boot) | AMQP-Client |
-| plaguv-amqp | — | Eigene AMQP-Event-Bibliothek |
+| plaguv-amqp | 1.3.0 | Eigene AMQP-Event-Bibliothek |
+| springdoc-openapi | 3.0.3 | OpenAPI / Swagger UI (Spring Boot 4.x kompatibel) |
 | Spring Actuator + Micrometer | (via Boot) | Metriken & Health-Checks |
 | Maven | 3.x | Build-Tool |
-| Spotless (Eclipse-Formatter) | — | Code-Formatierung |
+| Spotless (Eclipse-Formatter) | 2.43.0 | Code-Formatierung |
+
+> **Hinweis springdoc:** Version 3.0.3 ist zwingend für Spring Boot 4.0 erforderlich. springdoc 2.x ist mit Spring Framework 7 (Boot 4.x) inkompatibel.
+
+### API Gateway (gateway/)
+
+| Technologie | Version | Zweck |
+|---|---|---|
+| Spring Boot | 3.4.5 | Gateway-Framework |
+| Spring Cloud Gateway | 2024.0.1 | Routing, Filter |
+| Spring Boot Actuator | (via Boot) | Health-Endpoint |
+
+> **Warum Boot 3.4.5?** Spring Cloud unterstützt Spring Boot 4.0 noch nicht (Stand Mai 2026). Das Gateway läuft daher als separates Projekt auf Boot 3.4.5 — vollständig isoliert vom Logistik-Service.
 
 ### Frontend
 
@@ -163,6 +207,8 @@ Beim Picken werden zuerst die offenen Einheiten verbraucht. Fällt der Bestand u
 `src/main/java/com/example/application/services/ArticleInfoService.java`
 **Entität:** `ArticleInfo`
 `src/main/java/com/example/application/data/articleInfo/ArticleInfo.java`
+**REST-Controller:** `ArtikelController` → `/api/artikels`
+`src/main/java/com/example/application/api/artikel/ArtikelController.java`
 **View:** Artikelstammdaten sind in mehrere Views eingebettet (Restock, Wareneingang, Kommission)
 
 Die Artikelverwaltung ist das zentrale Stammdaten-Modul. Jeder Artikel besitzt:
@@ -201,10 +247,24 @@ Neue, noch nicht im System vorhandene Artikel werden als `NewArticleCandidate` e
 `src/main/java/com/example/application/data/goodsreceipts/GoodsReceipt.java`
 `src/main/java/com/example/application/data/goodsreceipts/GoodsReceiptItem.java`
 **Enums:** `GoodsReceiptStatus.java`, `GoodsReceiptItemStatus.java` (selbes Package)
+**REST-Controller:** `WareneingangController` → `/api/wareneingaenge`
+`src/main/java/com/example/application/api/wareneingang/WareneingangController.java`
 **View:** `GoodsReceiptView`
 `src/main/java/com/example/application/views/goodsreceipt/`
 
 Der Wareneingang bildet den gesamten Prozess vom Eingang einer Lieferung bis zur Einbuchung in den Reservebestand ab.
+
+#### Observer Pattern bei Wareneingang-Abschluss
+
+Beim Abschluss der Prüfung (`completeInspection()`) wird ein `GoodsReceiptApprovedEvent` über den Spring `ApplicationEventPublisher` ausgelöst. Der `RestockCheckListener` reagiert darauf und kann eine Nachbestellprüfung anstoßen — ohne dass `GoodsReceiptService` weiß, wer zuhört.
+
+```
+GoodsReceiptService.completeInspection()
+    └── eventPublisher.publishEvent(new GoodsReceiptApprovedEvent(this, id))
+            └── RestockCheckListener.onGoodsReceiptApproved()   [@EventListener]
+```
+
+> Quellen: `events/GoodsReceiptApprovedEvent.java`, `events/RestockCheckListener.java`
 
 #### Statusmodell
 
@@ -255,6 +315,7 @@ Dabei wird jede Restock-Order **atomar** per `UPDATE ... WHERE delivered = false
 1. Prüfung ob noch Positionen `IN_PRUEFUNG` sind → falls ja, Fehler
 2. Freigegebene Mengen (in Paletten) werden auf `ArticleInfo.reservePallets` addiert
 3. Gesamtstatus: `FREIGEGEBEN` (alle ok) oder `GEPRUEFT` (mind. eine abgelehnt)
+4. `GoodsReceiptApprovedEvent` wird ausgelöst (Observer Pattern)
 
 > Quelle: `GoodsReceiptService.java:374` — `completeInspection()`
 > Reserveeinbuchung: `GoodsReceiptService.java:446` — `applyApprovedItemsToReserve()`
@@ -273,6 +334,8 @@ Dabei wird jede Restock-Order **atomar** per `UPDATE ... WHERE delivered = false
 - `KommissionPosition` — `src/main/java/com/example/application/data/orderPicking/KommissionPosition.java`
 - `MessageLogistic` — `src/main/java/com/example/application/data/orderPicking/MessageLogistic.java`
 
+**REST-Controller:** `KommissionController` → `/api/kommissionen`
+`src/main/java/com/example/application/api/kommission/KommissionController.java`
 **View:** `src/main/java/com/example/application/views/orderPickingView/`
 
 Die Kommissionierung erstellt Picking-Aufträge für Filialen. Jede Kommission (`Kommission`) fasst alle zu liefernden Artikel für eine Filiale zusammen.
@@ -331,6 +394,8 @@ if neuerBestand < 0: neuerBestand = 0
 - `RestockOrderService` — `src/main/java/com/example/application/services/RestockOrderService.java`
 
 **Entität:** `RestockOrder` — `src/main/java/com/example/application/data/restockorder/RestockOrder.java`
+**REST-Controller:** `NachbestellungController` → `/api/nachbestellungen`
+`src/main/java/com/example/application/api/nachbestellung/NachbestellungController.java`
 **View:** `src/main/java/com/example/application/views/restockView/`
 
 Das Restock-Modul erkennt Artikel, deren Lagerbestand unter den Mindestbestand gefallen ist, und ermöglicht die Auslösung von Nachbestellungen.
@@ -354,6 +419,8 @@ Das Restock-Modul erkennt Artikel, deren Lagerbestand unter den Mindestbestand g
 `src/main/java/com/example/application/services/StorageLocationService.java`
 **Entität:** `StorageLocation`
 `src/main/java/com/example/application/data/storageLocation/`
+**REST-Controller:** `LagerplatzController` → `/api/lagerplaetze`
+`src/main/java/com/example/application/api/lagerplatz/LagerplatzController.java`
 **View:** `src/main/java/com/example/application/views/storageLocationView/`
 **Dialog:** `src/main/java/com/example/application/views/components/StorageLocationPickerDialog.java`
 
@@ -381,6 +448,10 @@ Lagerplätze können in der UI ausgewählt und Artikeln zugewiesen werden (über
 - `EinkaufEventPublisher` — `src/main/java/com/example/application/amqp/einkaufEvents/EinkaufEventPublisher.java`
 - `LogisticEventPublisher` — `src/main/java/com/example/application/amqp/einkaufEvents/LogisticEventPublisher.java`
 
+**Interne Events (Observer Pattern):**
+- `GoodsReceiptApprovedEvent` — `src/main/java/com/example/application/events/GoodsReceiptApprovedEvent.java`
+- `RestockCheckListener` — `src/main/java/com/example/application/events/RestockCheckListener.java`
+
 Das System kommuniziert über einen zentralen RabbitMQ-Exchange (`central`) mit anderen Systemen.
 
 #### Eingehende Events
@@ -399,6 +470,12 @@ Das System kommuniziert über einen zentralen RabbitMQ-Exchange (`central`) mit 
 | Einkauf-bezogene Events | Einkauf | Bestellvorgänge |
 
 > Quelle: `LogisticEventPublisher.java` — `publishArticleDelivery()`, aufgerufen in `KommissionService.java:182`
+
+#### Interner Observer (Spring ApplicationEvent)
+
+Neben AMQP werden intern Spring ApplicationEvents genutzt. `GoodsReceiptService` veröffentlicht nach `completeInspection()` ein `GoodsReceiptApprovedEvent`. `RestockCheckListener` reagiert via `@EventListener` — ohne dass der Service seinen Listener kennt.
+
+> Quellen: `events/GoodsReceiptApprovedEvent.java`, `events/RestockCheckListener.java`
 
 #### Event-Persistenz
 
@@ -593,69 +670,127 @@ Eingehende Bestellanforderungen von Filialen. Werden durch den Scheduler zu Komm
 
 ## 6. REST-API
 
-> Quellen: `src/main/java/com/example/application/api/load/`
-> - `LoadTestHealthController.java`
-> - `LoadTestArticleController.java`
-> - `LoadTestGoodsReceiptController.java`
-> - `LoadTestKommissionController.java`
-> - `LoadTestContingentController.java`
-> - `LoadTestStorageController.java`
-> - `LoadTestMiscController.java`
+> **Swagger UI:** `http://localhost:8080/swagger-ui.html` (via Gateway) oder `http://localhost:8081/swagger-ui.html` (direkt)
+> **OpenAPI JSON:** `http://localhost:8081/api-docs`
 
-Die REST-API ist unter dem Pfad `/api/load/` erreichbar. Sie dient primär der **Lasttest-Integration** mit JMeter und kann auch für Systemintegrationstests genutzt werden.
+Die REST-API ist in **8 Domain-Controller** gegliedert. Jede Domäne hat ihren eigenen Package und eigene Pfad-Prefix. Alle Anfragen laufen über den API-Gateway auf Port 8080.
 
-> **Hinweis:** Die API ist nicht für den produktiven Endbetrieb als externe Schnittstelle vorgesehen. Sie bietet keine Authentifizierung.
+### Übersicht aller Endpoints
 
-### Health
+#### Health — `/api/health`
+> `src/main/java/com/example/application/api/health/HealthController.java`
 
 | Methode | Pfad | Beschreibung |
 |---|---|---|
-| `GET` | `/api/load/health` | Einfacher Verfügbarkeitscheck |
+| `GET` | `/api/health` | Service-Status (`{"status":"UP","service":"logistik"}`) |
 
-### Artikel
+---
+
+#### Artikel — `/api/artikels`
+> `src/main/java/com/example/application/api/artikel/ArtikelController.java`
 
 | Methode | Pfad | Parameter | Beschreibung |
 |---|---|---|---|
-| `GET` | `/api/load/articles` | `page`, `size` | Paginierte Artikelliste |
-| `GET` | `/api/load/articles/filter` | Filter-Parameter | Gefilterte Artikelsuche |
-| `POST` | `/api/load/articles/{id}/stock` | Body: `{change}` | Bestand ändern |
-| `PUT` | `/api/load/articles/{id}/storage-location` | Body: Location | Lagerort ändern |
-| `DELETE` | `/api/load/articles/sim` | — | Simulationsdaten löschen |
+| `GET` | `/api/artikels` | `page`, `size` | Paginierte Artikelliste |
+| `GET` | `/api/artikels/filter` | `name`, `articleNumber`, `minStock`, `storageLocation` | Gefilterte Artikelsuche |
+| `POST` | `/api/artikels/{id}/stock` | Body: `{delta, reason}` | Bestand ändern |
+| `PUT` | `/api/artikels/{id}/storage-location` | Body: `{storageLocation}` | Lagerort ändern |
+| `DELETE` | `/api/artikels/sim` | — | Alle SIM-Artikel und abhängige Daten löschen |
 
-### Wareneingang
+---
 
-| Methode | Pfad | Beschreibung |
-|---|---|---|
-| `GET` | `/api/load/goods-receipts` | Alle Wareneingänge |
-| `GET` | `/api/load/goods-receipts/{id}` | Einzelner Wareneingang |
-| `POST` | `/api/load/goods-receipts` | Wareneingang anlegen |
-| `POST` | `/api/load/goods-receipts/{id}/items` | Position hinzufügen |
-| `GET` | `/api/load/goods-receipts/{id}/item-summaries` | Positionsübersicht |
-| `GET` | `/api/load/goods-receipts/pending-ids` | IDs offener Wareneingänge |
-| `GET` | `/api/load/goods-receipts/open-orders` | Offene Restock-Orders |
-| `POST` | `/api/load/goods-receipts/from-orders` | WE aus Bestellungen anlegen |
-| `POST` | `/api/load/goods-receipts/from-next-batch` | WE aus nächstem Batch |
-| `POST` | `/api/load/goods-receipts/from-next-order` | WE aus nächster Order |
-
-### Kommission
+#### Wareneingänge — `/api/wareneingaenge`
+> `src/main/java/com/example/application/api/wareneingang/WareneingangController.java`
 
 | Methode | Pfad | Beschreibung |
 |---|---|---|
-| `POST` | `/api/load/kommission/simulate` | Kommission simulieren |
-| `DELETE` | `/api/load/kommission/simulate` | Simulation zurücksetzen |
+| `GET` | `/api/wareneingaenge` | Alle Wareneingänge |
+| `GET` | `/api/wareneingaenge/{id}` | Einzelner Wareneingang |
+| `GET` | `/api/wareneingaenge/pending-ids` | IDs aller Wareneingänge im Status IN_PRUEFUNG |
+| `GET` | `/api/wareneingaenge/{id}/item-summaries` | Positionsübersicht |
+| `GET` | `/api/wareneingaenge/open-orders` | Offene Restock-Orders |
+| `POST` | `/api/wareneingaenge` | Neuen Wareneingang anlegen |
+| `POST` | `/api/wareneingaenge/from-orders` | WE aus ausgewählten Bestellungen anlegen |
+| `POST` | `/api/wareneingaenge/from-next-batch` | WE aus den nächsten 10 offenen Bestellungen |
+| `POST` | `/api/wareneingaenge/from-next-order` | WE aus der nächsten einzelnen Bestellung |
+| `POST` | `/api/wareneingaenge/{id}/items` | Position hinzufügen |
+| `PUT` | `/api/wareneingaenge/{id}/items/{itemId}` | Position aktualisieren |
+| `PUT` | `/api/wareneingaenge/{id}/items/{itemId}/status` | Status einer Position setzen |
+| `POST` | `/api/wareneingaenge/{id}/approve-all-items` | Alle Positionen freigeben |
+| `POST` | `/api/wareneingaenge/{id}/complete` | Prüfung abschließen (löst Observer-Event aus) |
+| `DELETE` | `/api/wareneingaenge/{id}` | Wareneingang löschen |
 
-### Kontingent
+---
+
+#### Kommissionen — `/api/kommissionen`
+> `src/main/java/com/example/application/api/kommission/KommissionController.java`
 
 | Methode | Pfad | Beschreibung |
 |---|---|---|
-| `POST` | `/api/load/contingent/simulate` | Kontingent simulieren |
-| `DELETE` | `/api/load/contingent/simulate` | Simulation zurücksetzen |
+| `GET` | `/api/kommissionen` | Alle Kommissionen |
+| `POST` | `/api/kommissionen/trigger` | Wöchentliche Kommissionierung auslösen |
+| `POST` | `/api/kommissionen/simulate-store-orders` | Simulierte Filialbestellungen erstellen |
+| `PUT` | `/api/kommissionen/{id}/finish` | Kommission abschließen |
+| `POST` | `/api/kommissionen/finish-all` | Alle offenen Kommissionen abschließen |
+| `PUT` | `/api/kommissionen/{id}/items/{articleId}/quantity` | Menge einer Position setzen |
 
-### Lagerplatz
+---
+
+#### Lagerplätze — `/api/lagerplaetze`
+> `src/main/java/com/example/application/api/lagerplatz/LagerplatzController.java`
 
 | Methode | Pfad | Beschreibung |
 |---|---|---|
-| *(siehe Controller)* | `/api/load/storage/...` | Lagerplatz-Operationen |
+| `GET` | `/api/lagerplaetze` | Alle Lagerplätze |
+| `POST` | `/api/lagerplaetze` | Neuen Lagerplatz anlegen |
+| `DELETE` | `/api/lagerplaetze/{id}` | Lagerplatz löschen |
+| `POST` | `/api/lagerplaetze/sync` | Status mit Artikeln synchronisieren |
+
+---
+
+#### Kontingente — `/api/kontingente`
+> `src/main/java/com/example/application/api/kontingent/KontingentController.java`
+
+| Methode | Pfad | Parameter | Beschreibung |
+|---|---|---|---|
+| `POST` | `/api/kontingente/simulate` | `count` (default 5000) | Simulierte Kontingente generieren |
+| `DELETE` | `/api/kontingente/simulate` | — | Alle simulierten Kontingente löschen |
+
+---
+
+#### Nachbestellungen — `/api/nachbestellungen`
+> `src/main/java/com/example/application/api/nachbestellung/NachbestellungController.java`
+
+| Methode | Pfad | Beschreibung |
+|---|---|---|
+| `GET` | `/api/nachbestellungen` | Artikel unter Mindestbestand |
+| `POST` | `/api/nachbestellungen/approve-next` | Nächsten bestellbaren Artikel bestellen |
+| `POST` | `/api/nachbestellungen/approve-all` | Alle Nachbestellkandidaten genehmigen |
+
+---
+
+#### Neue Artikel — `/api/neue-artikel`
+> `src/main/java/com/example/application/api/neueartikel/NeueArtikelController.java`
+
+| Methode | Pfad | Parameter | Beschreibung |
+|---|---|---|---|
+| `GET` | `/api/neue-artikel` | `lasttest` (bool) | Neue Artikel aus Kontingenten abrufen |
+| `POST` | `/api/neue-artikel/create-next` | — | Nächsten neuen Artikel anlegen |
+| `POST` | `/api/neue-artikel/create-next-with-storage` | — | Nächsten Artikel anlegen und Lagerplatz zuweisen |
+| `GET` | `/api/neue-artikel/messaging-events` | — | Alle Messaging-Events abrufen |
+
+---
+
+### API Gateway — Filterverhalten
+
+Jede Anfrage über den Gateway (Port 8080) durchläuft zwei Filter:
+
+| Filter | Verhalten |
+|---|---|
+| `LoggingFilter` | Loggt `>> METHOD PATH` und `<< METHOD PATH STATUS DURATIONms` |
+| `RateLimitingFilter` | Max. 10 Anfragen/Sekunde pro IP → HTTP 429 bei Überschreitung |
+
+Der Header `X-Gateway-Source: logistik-gateway` wird allen weitergeleiteten Anfragen hinzugefügt.
 
 ---
 
@@ -666,6 +801,7 @@ Die REST-API ist unter dem Pfad `/api/load/` erreichbar. Sie dient primär der *
 > - `src/main/resources/application-local.properties` (lokales Profil)
 > - `src/main/resources/application-neon.properties` (Cloud-Profil)
 > - `docker-compose.yml` (lokale Infrastruktur)
+> - `gateway/src/main/resources/application.yml` (Gateway-Konfiguration)
 > - `monitoring/docker-compose.yml` (Monitoring-Stack)
 
 ### Profile
@@ -696,6 +832,11 @@ spring.jpa.properties.hibernate.jdbc.batch_size=50  # Batch-Inserts/-Updates
 
 # Monitoring
 management.endpoints.web.exposure.include=health,info,prometheus,metrics
+
+# OpenAPI / Swagger
+springdoc.api-docs.path=/api-docs
+springdoc.swagger-ui.path=/swagger-ui.html
+springdoc.swagger-ui.operationsSorter=alpha
 ```
 
 ### Sicherheitshinweis
@@ -732,24 +873,35 @@ App-Name:     logistik
 ### Voraussetzungen
 
 - Java 21 (JDK)
-- Maven 3.x (oder `./mvnw` nutzen)
+- Maven 3.x (oder `./mvnw` / `gateway/mvnw` nutzen)
 - Docker & Docker Compose
 - Node.js (wird von Vaadin automatisch verwaltet)
 
-### Lokale Entwicklung
+### Lokale Entwicklung (Standard)
 
 **1. Infrastruktur starten (PostgreSQL via Docker):**
 ```bash
-docker-compose up -d
+docker-compose up -d db
 ```
 
-**2. Anwendung starten (Entwicklungsmodus):**
+**2. Logistik-Service starten (Port 8081):**
 ```bash
+./mvnw spring-boot:run -Dspring-boot.run.profiles=local
+```
+Oder in IntelliJ: Run Configuration mit Active Profile `local`.
+
+**3. API Gateway starten (Port 8080):**
+```bash
+cd gateway
 ./mvnw spring-boot:run
 ```
-Die Anwendung ist dann unter `http://localhost:8081` erreichbar. Vaadin öffnet den Browser automatisch.
 
-**3. Monitoring-Stack starten (optional):**
+Die Anwendung ist dann erreichbar:
+- **UI:** `http://localhost:8081` (direkt) oder via Gateway `http://localhost:8080`
+- **Swagger UI:** `http://localhost:8080/swagger-ui.html`
+- **Health:** `http://localhost:8080/api/health`
+
+**4. Monitoring-Stack starten (optional):**
 ```bash
 cd monitoring
 docker-compose up -d
@@ -758,14 +910,33 @@ docker-compose up -d
 - Grafana: `http://localhost:3000`
 - InfluxDB: `http://localhost:8086`
 
+### Gateway im Docker-Betrieb
+
+```bash
+docker-compose up -d db gateway
+```
+
+Wenn der Logistik-Service lokal läuft (nicht im Docker), muss die Gateway-Route auf `host.docker.internal` zeigen:
+```bash
+docker-compose up -d db
+# Gateway mit Host-Routing starten:
+SPRING_CLOUD_GATEWAY_ROUTES_0_URI=http://host.docker.internal:8081 docker-compose up -d gateway
+```
+
 ### Production-Build
 
 ```bash
+# Logistik-Service
 ./mvnw clean package -Pproduction
 java -jar target/logistik-*.jar
+
+# Gateway
+cd gateway
+./mvnw clean package
+java -jar target/logistik-gateway-*.jar
 ```
 
-Der Production-Build kompiliert und bündelt das Frontend (Vaadin + React) in das JAR.
+Der Production-Build des Logistik-Service kompiliert und bündelt das Frontend (Vaadin + React) in das JAR.
 
 ### Datenbankschema
 
@@ -827,8 +998,6 @@ Alle häufig abgefragten Spalten sind durch Indizes abgedeckt:
 
 ---
 
----
-
 ## 11. Reflexion: Domain Driven Design
 
 Dieses Kapitel analysiert den Ist-Zustand des Systems aus der Perspektive von Domain Driven Design (DDD). Es werden keine Änderungen am Code vorgeschlagen — die Analyse ist bewusst reflektierend und soll die Entscheidungsfindung bei Weiterentwicklungen unterstützen.
@@ -886,12 +1055,11 @@ Im Code existieren sprachliche Brüche, die in einem konsequenten DDD-Modell ver
 |---|---|---|
 | Deutsch/Englisch gemischt | `menge_picked`, `store_id` vs. `stockLevel`, `articleNumber` | Unterschiedliche Konventionen innerhalb derselben Entität |
 | Technischer statt fachlicher Begriff | `MessageLogistic` | Der Name beschreibt den Transportweg, nicht die Domäne — fachlich wäre „Filialbestellung" treffender |
-| Irreführendes Prefix | `LoadTest*` bei den Controllern | Klingt nach Testinfrastruktur, ist aber produktiver API-Code |
 | Tippfehler im Namen | `SonderkommissionSchedueler` | Schreibfehler (`Schedueler`) im produktiven Service-Namen |
 
-> Quelle: `data/orderPicking/MessageLogistic.java`, `services/SonderkommissionSchedueler.java`, `api/load/LoadTest*.java`
+> Quelle: `data/orderPicking/MessageLogistic.java`, `services/SonderkommissionSchedueler.java`
 
-**Fazit:** Die Kerndomäne (Kommission, Wareneingang, Restock) ist sprachlich gut getroffen. Die Ränder des Systems — insbesondere Messaging und API — weichen davon ab.
+**Fazit:** Die Kerndomäne (Kommission, Wareneingang, Restock) ist sprachlich gut getroffen. Die Ränder des Systems — insbesondere Messaging — weichen davon ab.
 
 ---
 
@@ -971,17 +1139,13 @@ Das System nutzt AMQP-Events konsequent für die Kommunikation zwischen den Boun
 
 Das Muster entspricht dem DDD-Konzept von **Published Language** — einer formalen Sprache für die Kommunikation zwischen Kontexten.
 
-#### Schwächen
+Intern wird der Observer Pattern via Spring ApplicationEvents genutzt (`GoodsReceiptApprovedEvent`): Services reagieren auf Events, ohne direkt voneinander zu wissen.
 
-Innerhalb des Logistik-Kontexts werden keine internen Domain Events genutzt. Stattdessen rufen Services direkt andere Services auf:
+> Quellen: `events/GoodsReceiptApprovedEvent.java`, `events/RestockCheckListener.java`
 
-```
-// KommissionService.finishAtomar() ruft direkt auf:
-logisticEventPublisher.publishArticleDelivery(storeId, articleId, qty)   // AMQP → OK
-articleRepo.saveAll(articles)                                             // direkt  → OK
-```
+#### Potential
 
-In einem konsequenten DDD-Modell würde das Abschließen einer Kommission ein internes Event auslösen (z.B. `KommissionAbgeschlossenEvent`), auf das andere Teile des Systems reagieren — statt direkter Methodenaufrufe. Das würde die Kopplung innerhalb des Kontexts weiter reduzieren.
+In einem vollständigen DDD-Modell würde das Abschließen einer Kommission ein internes Event auslösen (z.B. `KommissionAbgeschlossenEvent`), auf das andere Teile des Systems reagieren — statt direkter Methodenaufrufe. Das würde die Kopplung innerhalb des Kontexts weiter reduzieren.
 
 ---
 
@@ -1033,17 +1197,32 @@ Außerdem gibt es mehrere `@Autowired`-Injektionen (Feldinjektion) statt Konstru
 | Ubiquitous Language | Im Kern konsistent, an den Rändern gebrochen | **mittel** |
 | Aggregate Roots | `GoodsReceipt` vorbildlich, `Kommission` teilweise | **mittel** |
 | Value Objects | Kaum genutzt, Potential bei `StorageLocation` und `Stock` | **schwach** |
-| Domain Events | Extern (AMQP) gut, intern nicht vorhanden | **mittel** |
+| Domain Events | Extern (AMQP) gut, intern via ApplicationEvent eingeführt | **mittel** |
 | Domain vs. Application Services | Implizit getrennt, nicht explizit | **mittel** |
 | Repository-Pattern | Grundsätzlich korrekt, eine Grenzüberschreitung | **gut** |
 
-**Zusammenfassung:** Das System ist kein explizit DDD-entwickeltes System, zeigt aber in seinen stärksten Bereichen — insbesondere `GoodsReceipt`/`GoodsReceiptService` und der Event-getriebenen Kontextkommunikation — ein natürliches Alignment mit DDD-Prinzipien. Die größten Abweichungen sind pragmatischer Natur (Performance bei Batch-Queries, fehlende Value Objects) und kein Anzeichen für schlechtes Design. Bei einer Weiterentwicklung wäre das Einführen von Value Objects für `Stock` und `StorageLocation` der wirkungsvollste erste Schritt in Richtung eines saubereren DDD-Modells.
+**Zusammenfassung:** Das System zeigt in seinen stärksten Bereichen — insbesondere `GoodsReceipt`/`GoodsReceiptService` und der Event-getriebenen Kontextkommunikation — ein natürliches Alignment mit DDD-Prinzipien. Die größten Abweichungen sind pragmatischer Natur und kein Anzeichen für schlechtes Design. Bei einer Weiterentwicklung wäre das Einführen von Value Objects für `Stock` und `StorageLocation` der wirkungsvollste erste Schritt in Richtung eines saubereren DDD-Modells.
 
 ---
 
 ## 12. Lose Kopplung: Ist & Soll
 
-Dieses Kapitel bewertet das System anhand der Frage, wie stark seine Bausteine voneinander abhängen. Lose Kopplung ist kein Selbstzweck, sondern dient drei konkreten Zielen: **Änderbarkeit** (eine Änderung pflanzt sich nicht durch das System fort), **Testbarkeit** (Bausteine sind isoliert prüfbar) und **Verstehbarkeit** (man versteht einen Service, ohne fünf andere Klassen zu kennen). Die Analyse betrachtet den Ist-Zustand und beschreibt für jeden Punkt einen Soll-Zustand mit konkreter Maßnahme — ohne Änderungen am Code.
+Dieses Kapitel bewertet das System anhand der Frage, wie stark seine Bausteine voneinander abhängen. Lose Kopplung ist kein Selbstzweck, sondern dient drei konkreten Zielen: **Änderbarkeit**, **Testbarkeit** und **Verstehbarkeit**.
+
+---
+
+### 12.0 Implementierte Loose-Coupling-Maßnahmen (Mai 2026)
+
+Im Rahmen des Integrationsprojekts wurden folgende Loose-Coupling-Prinzipien konkret umgesetzt:
+
+| Prinzip | Maßnahme | Ergebnis |
+|---|---|---|
+| **Abstraktion durch Schnittstellen** | OpenAPI via springdoc-openapi 3.0.3 — maschinenlesbare API-Verträge, Swagger UI | Konsumenten können unabhängig vom Backend entwickeln |
+| **SOA / Microservices** | API Gateway (Spring Cloud) als einziger Einstiegspunkt | Querschnittsbelange zentralisiert, Business-Code unberührt |
+| **Web Service Slicing** | 8 domain-sliced Controller statt 7 monolithischer LoadTest-Controller | Änderungen in einer Domäne betreffen keine andere |
+| **Observer / Pub-Sub** | Spring ApplicationEvent (`GoodsReceiptApprovedEvent`) intern; RabbitMQ extern | Services kennen ihre Reaktionspartner nicht |
+| **Dependency Injection** | Konstruktorinjektion in allen neuen Controllern und Services | Abhängigkeiten sichtbar und testbar |
+| **Asynchrone Kommunikation** | RabbitMQ (bereits vorhanden) | Services müssen nicht auf Antworten warten |
 
 ---
 
@@ -1056,59 +1235,57 @@ Dieses Kapitel bewertet das System anhand der Frage, wie stark seine Bausteine v
 | 🔴 **eng** | Bausteine wissen viel voneinander. Eine Änderung pflanzt sich fort. Isoliertes Testen ist schwierig. |
 | 🔴 **schwach** | Spezialfall für Abstraktion: Es fehlt der Trenn-Mechanismus (z.B. Interface) zwischen Vertrag und Implementierung. |
 
-„Eng" und „schwach" sind nicht dasselbe: *eng* beschreibt eine starke Kopplung zwischen zwei Bausteinen, *schwach* eine fehlende Abstraktionsschicht. Letztere führt typischerweise zu Ersterer.
-
 ---
 
 ### 12.2 Bewertungsdimensionen
 
 #### 12.2.1 Dependency Injection
 
-**Ist 🟡** — Konstruktorinjektion dominiert (`GoodsReceiptService.java:31–41`, `ArticleSyncService.java:34–42`, `RestockOrderService.java:33–41`). Ausreißer: `KommissionService.java:20–36` nutzt 6× Feldinjektion via `@Autowired`. Das versteckt Abhängigkeiten und erschwert Tests, weil Mocks nur über Reflection injizierbar sind.
+**Ist 🟡** — Konstruktorinjektion dominiert (`GoodsReceiptService.java:31–41`, `ArticleSyncService.java:34–42`, alle neuen Controller). Ausreißer: `KommissionService.java:20–36` nutzt 6× Feldinjektion via `@Autowired`. Das versteckt Abhängigkeiten und erschwert Tests, weil Mocks nur über Reflection injizierbar sind.
 
-**Soll 🟢** — Feldinjektion in `KommissionService` durch finale Konstruktorparameter ersetzen. Abhängigkeiten werden dann im Signaturkopf sichtbar; zirkuläre Bindungen würden bereits beim Starten der Anwendung sichtbar.
+**Soll 🟢** — Feldinjektion in `KommissionService` durch finale Konstruktorparameter ersetzen.
 
 #### 12.2.2 Service-zu-Service-Kopplung
 
-**Ist 🔴** — `KommissionService` hat hohen Fan-Out: 5 Repositories, `ArticleInfoService` und `LogisticEventPublisher` werden direkt aufgerufen. `WeeklyKommissionScheduler.java:112,114` ruft `KommissionService` und parallel Repositories an. `LogisticOrderListener.java:77` ruft `SonderkommissionSchedueler` synchron auf — der AMQP-Listener blockiert bis die Geschäftslogik fertig ist.
+**Ist 🔴** — `KommissionService` hat hohen Fan-Out: 5 Repositories, `ArticleInfoService` und `LogisticEventPublisher` werden direkt aufgerufen. `LogisticOrderListener.java:77` ruft `SonderkommissionSchedueler` synchron auf — der AMQP-Listener blockiert bis die Geschäftslogik fertig ist.
 
-**Soll 🟡** — Interne Domain Events (z.B. `KommissionAbgeschlossenEvent` über Spring `ApplicationEventPublisher`) statt direkter Service-Aufrufe. Der Scheduler arbeitet nur noch über `KommissionService`, nicht zusätzlich über Repositories. Die Bewertung bleibt 🟡, weil Kommissionierung *strukturell* zentral ist — der Fan-Out lässt sich abfedern, aber nicht vollständig auflösen.
+**Soll 🟡** — Interne Domain Events (z.B. `KommissionAbgeschlossenEvent` über Spring `ApplicationEventPublisher`) statt direkter Service-Aufrufe. Analog zu `GoodsReceiptApprovedEvent` (bereits umgesetzt).
 
 #### 12.2.3 Interfaces & Abstraktion
 
-**Ist 🔴 (schwach)** — Keine eigenen Service-Interfaces im Projekt. Alle Services werden als konkrete Klassen injiziert. Spring Data Repositories sind zwar Interfaces, aber Framework-bedingt — keine bewusste Domänen-Abstraktion.
+**Ist 🟡** — Keine eigenen Service-Interfaces im Projekt. Alle Services werden als konkrete Klassen injiziert. Jedoch: Die REST-API ist jetzt vollständig durch OpenAPI (Swagger UI) dokumentiert — ein maschinenlesbarer API-Vertrag trennt den API-Konsumenten von der Implementierung.
 
-**Soll 🟡** — Interfaces für die Kern-Services (`KommissionService`, `GoodsReceiptService`, `ArticleInfoService`) mit Implementierungen als `*Impl`. Konsumenten injizieren das Interface. Mocking wird trivial, Vertrag und Implementierung sind getrennt. Die Bewertung bleibt 🟡, weil Interfaces ohne weitere Modularisierung nur das *Tauschen* ermöglichen — die zentrale Rolle der Services bleibt bestehen.
+**Soll 🟢** — Interfaces für die Kern-Services (`KommissionService`, `GoodsReceiptService`, `ArticleInfoService`) mit Implementierungen als `*Impl`. Konsumenten injizieren das Interface.
 
 #### 12.2.4 AMQP-/Event-Kopplung
 
-**Ist 🟡** — Publisher sauber abstrahiert über die plaguv-Bibliothek (`EinkaufEventPublisher.java`, `LogisticEventPublisher.java:26,28`). Aber: Listener enthalten Geschäftslogik. `EinkaufEventListener` ruft `deleteComissionEntrys()`, `deleteStocks()`, `freeStorageLocations()` direkt im Event-Handler auf. `LogisticOrderListener.java:87` greift direkt auf `articleRepo` und `msgRepo` zu.
+**Ist 🟡** — Publisher sauber abstrahiert über die plaguv-Bibliothek. Aber: Listener enthalten Geschäftslogik. `EinkaufEventListener` ruft `deleteComissionEntrys()`, `deleteStocks()`, `freeStorageLocations()` direkt im Event-Handler auf. `LogisticOrderListener.java:87` greift direkt auf `articleRepo` und `msgRepo` zu.
 
-**Soll 🟢** — Listener nur noch als „Übersetzer" zwischen AMQP-Event und Service-Aufruf. Keine Repository-Zugriffe und keine Geschäftslogik im Listener. Klare Trennung: AMQP-Schicht weiß nichts über Persistenz, Service-Schicht weiß nichts über AMQP.
+**Soll 🟢** — Listener nur noch als „Übersetzer" zwischen AMQP-Event und Service-Aufruf. Keine Repository-Zugriffe im Listener.
 
 #### 12.2.5 Controller- & View-Kopplung
 
-**Ist 🔴** — Views umgehen die Service-Schicht und greifen direkt auf Repositories zu: `GoodsReceiptView.java:231,477` (`articleInfoRepository.findByArticleNumber(...)`, `findAll()`) und `orderPickingMainView.java:380,387` (`findByArticleId(...)`, `findByArticleNumber(...)`). LoadTest-Controller injizieren bis zu 8 Services/Repositories und kennen Domäneninterna im Detail.
+**Ist 🟡** — Die neuen Domain-Controller verwenden ausschließlich Services und keine direkten Repository-Injektionen. Views umgehen die Service-Schicht weiterhin an einzelnen Stellen: `GoodsReceiptView.java:231,477` (`articleInfoRepository.findByArticleNumber(...)`, `findAll()`).
 
-**Soll 🟢** — Repository-Aufrufe in den Views durch Service-Methoden ersetzen (z.B. `articleInfoService.findByNumber(...)`). Damit gilt durchgängig: View → Service → Repository. Die UI kann die Persistenztechnik nicht mehr umgehen, und Validierung/Invariantenschutz im Service greift auch bei UI-Zugriffen.
+**Soll 🟢** — Repository-Aufrufe in den Views durch Service-Methoden ersetzen. Damit gilt durchgängig: View → Service → Repository.
 
 #### 12.2.6 Repository-Kopplung
 
-**Ist 🔴** — `ArticleInfoRepository` wird in **16 Klassen** injiziert (Services, Listener, Views, Controller). Es gibt keinen „Türsteher" für den Artikel — jede Klasse darf direkt zugreifen. Symptom fehlender Aggregatgrenzen (siehe auch Kapitel 11.3).
+**Ist 🔴** — `ArticleInfoRepository` wird in **16 Klassen** injiziert. Es gibt keinen „Türsteher" für den Artikel.
 
-**Soll 🟡** — Lesende Repository-Zugriffe von Views und peripheren Services über `ArticleInfoService` lenken. Das Repository bleibt dort direkt verfügbar, wo Performance-Pfade es brauchen (`KommissionService`, `WeeklyKommissionScheduler`). Realistisch lässt sich die Streuung damit deutlich reduzieren, aber nicht auf wenige Klassen schrumpfen — daher 🟡, nicht 🟢.
+**Soll 🟡** — Lesende Repository-Zugriffe von Views und peripheren Services über `ArticleInfoService` lenken.
 
 #### 12.2.7 Konfiguration & Magic Strings
 
-**Ist 🟡** — AMQP-Konfiguration nutzt Library-Konventionen, keine hartcodierten Queue-Strings. Einzelne Magic Strings in Geschäftslogik (z.B. `"UNGESETZT"` in `ArticleInfoService.java:221`), aber begrenzt.
+**Ist 🟡** — AMQP-Konfiguration nutzt Library-Konventionen. Einzelne Magic Strings in Geschäftslogik (z.B. `"UNGESETZT"` in `ArticleInfoService.java:221`), aber begrenzt.
 
-**Soll 🟢** — Magic Strings als Konstanten oder Enums extrahieren. Kleiner, lokaler Eingriff ohne Risiko.
+**Soll 🟢** — Magic Strings als Konstanten oder Enums extrahieren.
 
 #### 12.2.8 Vaadin-/UI-Kopplung
 
-**Ist 🔴** — Vaadin-Views injizieren sowohl Services als auch Repositories. `NewArticleNotificationService` mischt UI-Notifications mit Service-Logik — UI-Belange leben damit in der Service-Schicht.
+**Ist 🔴** — Vaadin-Views injizieren sowohl Services als auch Repositories. `NewArticleNotificationService` mischt UI-Notifications mit Service-Logik.
 
-**Soll 🟡** — Repository-Zugriffe aus den Views entfernen (siehe 12.2.5). UI-Notification-Logik aus dem Service in eine UI-nahe Komponente verschieben. Vaadin bleibt strukturell ein Sonderfall (UI und Backend im selben Prozess, kein REST-Layer dazwischen). Ein vollständiges 🟢 würde eine API-Schicht erfordern — Aufwand steht nicht im Verhältnis zum Nutzen.
+**Soll 🟡** — Repository-Zugriffe aus den Views entfernen. UI-Notification-Logik in eine UI-nahe Komponente verschieben.
 
 ---
 
@@ -1117,28 +1294,30 @@ Dieses Kapitel bewertet das System anhand der Frage, wie stark seine Bausteine v
 | Kriterium | Ist | Soll | Aufwand |
 |---|---|---|---|
 | AMQP-Publisher | 🟢 | 🟢 | — |
+| OpenAPI / API-Vertrag | 🟢 | 🟢 | done |
+| API Gateway | 🟢 | 🟢 | done |
+| Web Service Slicing | 🟢 | 🟢 | done |
+| Observer / ApplicationEvent | 🟢 | 🟢 | done |
 | Konfiguration / Magic Strings | 🟡 | 🟢 | sehr klein |
 | Dependency Injection | 🟡 | 🟢 | klein |
 | AMQP-Listener | 🟡 | 🟢 | mittel |
+| Interfaces & Abstraktion | 🟡 | 🟢 | mittel |
+| Controller- & View-Kopplung | 🟡 | 🟢 | mittel |
 | Service-zu-Service | 🔴 | 🟡 | mittel–groß |
-| Interfaces | 🔴 | 🟡 | mittel |
-| Views/Controller | 🔴 | 🟢 | mittel |
 | Repository-Streuung | 🔴 | 🟡 | groß (verteilt) |
 | Vaadin/UI | 🔴 | 🟡 | mittel |
 
 **Ampel-Saldo:**
-- Ist: 1× 🟢 · 3× 🟡 · 5× 🔴
-- Soll: 5× 🟢 · 4× 🟡 · 0× 🔴
+- Ist: 5× 🟢 · 5× 🟡 · 3× 🔴
+- Soll: 9× 🟢 · 4× 🟡 · 0× 🔴
 
 ---
 
 ### 12.4 Priorisierung & Fazit
 
-Die größten Effekte erzielen drei Quick-Wins: Konstruktorinjektion in `KommissionService`, Reinigung der AMQP-Listener und Umlenkung der direkten Repository-Zugriffe aus den Views. Das sind lokale, gut abgegrenzte Eingriffe mit hoher Wirkung — sie heben fünf Bewertungen um eine Stufe und kosten zusammen weniger als ein vollständiges Interface-Refactoring.
+Die implementierten Maßnahmen (OpenAPI, API Gateway, domain-sliced Controller, Observer Pattern) haben fünf Kriterien auf 🟢 gehoben. Die verbleibenden roten Punkte (Service-zu-Service-Kopplung, Repository-Streuung, Vaadin-UI) sind strukturell tiefer verankert und erfordern größere Eingriffe.
 
-Drei Befunde bleiben strukturell bedingt auf 🟡 stehen (Service-zu-Service-Kopplung, fehlende Interfaces, Repository-Streuung), weil `KommissionService` zentral *ist* und das ohne Zerschneiden des Bounded Context nicht vollständig auflösbar wäre. Hier geht es darum, die Symptome zu entschärfen, nicht die Topologie umzubauen.
-
-**Fazit:** Das System ist heute in zentralen Pfaden enger gekoppelt, als für seine Größe nötig wäre. Die identifizierten Maßnahmen sind durchweg evolutionärer Natur — sie erfordern keine architektonischen Umstürze, sondern konsequente Anwendung etablierter Patterns (Konstruktorinjektion, Schichtdisziplin, Listener als Übersetzer). Damit wird das System nicht „perfekt" lose gekoppelt, aber es bewegt sich aus der roten Zone in einen Zustand, der bei weiterem Wachstum nicht spröde wird.
+Die nächsten Quick-Wins: Konstruktorinjektion in `KommissionService`, Reinigung der AMQP-Listener, Umlenkung direkter Repository-Zugriffe aus den Views.
 
 ---
 
@@ -1182,7 +1361,7 @@ Alle referenzierten Dateien, geordnet nach Paket. Basispfad: `src/main/java/com/
 |---|---|
 | `ArticleInfoService.java` | Artikelstammdaten-Verwaltung |
 | `ArticleSyncService.java` | Artikeldaten-Synchronisation |
-| `GoodsReceiptService.java` | Wareneingangs-Geschäftslogik |
+| `GoodsReceiptService.java` | Wareneingangs-Geschäftslogik (publishes `GoodsReceiptApprovedEvent`) |
 | `KommissionService.java` | Kommissions-Geschäftslogik inkl. `finishAtomar()` |
 | `WeeklyKommissionScheduler.java` | Wöchentlicher Kommissions-Scheduler (Montag 10:00) |
 | `SonderkommissionSchedueler.java` | Ad-hoc Kommissions-Scheduler |
@@ -1195,6 +1374,12 @@ Alle referenzierten Dateien, geordnet nach Paket. Basispfad: `src/main/java/com/
 | `NewArticleCountService.java` | Zähler für neue Artikel (Badge) |
 | `NewArticleNotificationService.java` | Benachrichtigung bei neuen Artikeln |
 
+### Events (`events/`)
+| Datei | Beschreibung |
+|---|---|
+| `events/GoodsReceiptApprovedEvent.java` | Spring ApplicationEvent: Wareneingang abgeschlossen |
+| `events/RestockCheckListener.java` | `@EventListener`: reagiert auf `GoodsReceiptApprovedEvent` |
+
 ### AMQP (`amqp/`)
 | Datei | Beschreibung |
 |---|---|
@@ -1204,16 +1389,22 @@ Alle referenzierten Dateien, geordnet nach Paket. Basispfad: `src/main/java/com/
 | `einkaufEvents/LogisticOrderListener.java` | Listener für Filialbestellungen |
 | `einkaufEvents/LogisticEventPublisher.java` | Publisher für Lieferbestätigungen (`publishArticleDelivery`) |
 
-### REST-API (`api/load/`)
+### REST-API (`api/`)
+| Datei | Pfad-Prefix | Beschreibung |
+|---|---|---|
+| `api/health/HealthController.java` | `/api/health` | Service-Status |
+| `api/artikel/ArtikelController.java` | `/api/artikels` | Artikel-Stammdaten und Bestandsverwaltung |
+| `api/wareneingang/WareneingangController.java` | `/api/wareneingaenge` | Wareneingänge prüfen und verwalten |
+| `api/kommission/KommissionController.java` | `/api/kommissionen` | Kommissionierung und Filialbestellungen |
+| `api/lagerplatz/LagerplatzController.java` | `/api/lagerplaetze` | Lagerplatzverwaltung |
+| `api/kontingent/KontingentController.java` | `/api/kontingente` | Kontingent-Simulation für Lasttests |
+| `api/nachbestellung/NachbestellungController.java` | `/api/nachbestellungen` | Nachbestellung und Restock-Verwaltung |
+| `api/neueartikel/NeueArtikelController.java` | `/api/neue-artikel` | Neue Artikel aus Kontingenten anlegen |
+
+### Konfiguration (`config/`)
 | Datei | Beschreibung |
 |---|---|
-| `LoadTestHealthController.java` | `GET /api/load/health` |
-| `LoadTestArticleController.java` | Artikel-Endpunkte |
-| `LoadTestGoodsReceiptController.java` | Wareneingangs-Endpunkte |
-| `LoadTestKommissionController.java` | Kommissions-Endpunkte |
-| `LoadTestContingentController.java` | Kontingent-Endpunkte |
-| `LoadTestStorageController.java` | Lagerplatz-Endpunkte |
-| `LoadTestMiscController.java` | Sonstige Endpunkte |
+| `config/OpenApiConfig.java` | OpenAPI-Metadaten (Titel, Version, Beschreibung) |
 
 ### Views (`views/`)
 | Verzeichnis/Datei | Beschreibung |
@@ -1230,14 +1421,24 @@ Alle referenzierten Dateien, geordnet nach Paket. Basispfad: `src/main/java/com/
 | `components/StockChangeDialog.java` | Dialog: Bestandsänderung |
 | `components/StorageLocationPickerDialog.java` | Dialog: Lagerplatzauswahl |
 
+### Gateway (`gateway/`)
+| Datei | Beschreibung |
+|---|---|
+| `gateway/pom.xml` | Spring Boot 3.4.5 + Spring Cloud 2024.0.1 |
+| `gateway/src/main/resources/application.yml` | Routing-Konfiguration (Port 8080 → 8081) |
+| `gateway/.../GatewayApplication.java` | Spring Boot Einstiegspunkt |
+| `gateway/.../filter/LoggingFilter.java` | GlobalFilter: Request-/Response-Logging |
+| `gateway/.../filter/RateLimitingFilter.java` | GlobalFilter: 10 req/s pro IP, HTTP 429 |
+| `gateway/Dockerfile` | 2-Stage Build: eclipse-temurin:21-jdk → jre |
+
 ### Konfiguration & Infrastruktur
 | Datei | Beschreibung |
 |---|---|
-| `src/main/resources/application.properties` | Hauptkonfiguration |
+| `src/main/resources/application.properties` | Hauptkonfiguration (inkl. OpenAPI-Pfade) |
 | `src/main/resources/application-local.properties` | Lokales Profil (Docker-DB) |
 | `src/main/resources/application-neon.properties` | Cloud-Profil (Neon-DB) |
-| `pom.xml` | Maven Build, Abhängigkeiten, Plugins |
-| `docker-compose.yml` | PostgreSQL lokal |
+| `pom.xml` | Maven Build, Abhängigkeiten (springdoc-openapi 3.0.3) |
+| `docker-compose.yml` | PostgreSQL + Gateway (Docker) |
 | `docker/init.sql` | Initiales Datenbankschema |
 | `monitoring/docker-compose.yml` | Prometheus, Grafana, InfluxDB |
 | `monitoring/prometheus.yml` | Prometheus Scrape-Konfiguration |
