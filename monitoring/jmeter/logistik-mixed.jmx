@@ -63,7 +63,7 @@
 
             <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy"
                               testname="Mixed - Artikel abrufen (80pct)">
-              <stringProp name="HTTPSampler.path">/api/load/articles?page=0&amp;size=10</stringProp>
+              <stringProp name="HTTPSampler.path">/api/artikels?page=0&amp;size=10</stringProp>
               <stringProp name="HTTPSampler.method">GET</stringProp>
               <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
               <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
@@ -72,7 +72,7 @@
 
             <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy"
                               testname="Mixed - Lagerplätze abrufen">
-              <stringProp name="HTTPSampler.path">/api/load/storage-locations</stringProp>
+              <stringProp name="HTTPSampler.path">/api/lagerplaetze</stringProp>
               <stringProp name="HTTPSampler.method">GET</stringProp>
               <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
               <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
@@ -81,7 +81,7 @@
 
             <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy"
                               testname="Mixed - Wareneingänge abrufen">
-              <stringProp name="HTTPSampler.path">/api/load/goods-receipts</stringProp>
+              <stringProp name="HTTPSampler.path">/api/wareneingaenge</stringProp>
               <stringProp name="HTTPSampler.method">GET</stringProp>
               <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
               <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
@@ -90,7 +90,7 @@
 
             <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy"
                               testname="Mixed - Kommissionen abrufen">
-              <stringProp name="HTTPSampler.path">/api/load/kommissionen</stringProp>
+              <stringProp name="HTTPSampler.path">/api/kommissionen</stringProp>
               <stringProp name="HTTPSampler.method">GET</stringProp>
               <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
               <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
@@ -121,7 +121,7 @@
                 </elementProp>
               </collectionProp>
             </elementProp>
-            <stringProp name="HTTPSampler.path">/api/load/articles/${__Random(1,20,articleId)}/stock</stringProp>
+            <stringProp name="HTTPSampler.path">/api/artikels/${__Random(1,20,articleId)}/stock</stringProp>
             <stringProp name="HTTPSampler.method">POST</stringProp>
             <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
             <boolProp name="HTTPSampler.use_keepalive">true</boolProp>

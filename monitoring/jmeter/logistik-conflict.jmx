@@ -66,7 +66,7 @@
               </elementProp>
             </collectionProp>
           </elementProp>
-          <stringProp name="HTTPSampler.path">/api/load/articles/${__P(conflict_article_id,1)}/stock</stringProp>
+          <stringProp name="HTTPSampler.path">/api/artikels/${__P(conflict_article_id,1)}/stock</stringProp>
           <stringProp name="HTTPSampler.method">POST</stringProp>
           <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
           <boolProp name="HTTPSampler.use_keepalive">true</boolProp>

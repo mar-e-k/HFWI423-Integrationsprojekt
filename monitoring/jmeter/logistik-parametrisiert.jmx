@@ -45,7 +45,7 @@
 
           <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy"
                             testname="Param - Artikel abrufen">
-            <stringProp name="HTTPSampler.path">/api/load/articles?page=0&amp;size=20</stringProp>
+            <stringProp name="HTTPSampler.path">/api/artikels?page=0&amp;size=20</stringProp>
             <stringProp name="HTTPSampler.method">GET</stringProp>
             <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
             <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
@@ -54,7 +54,7 @@
 
           <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy"
                             testname="Param - Lagerplätze abrufen">
-            <stringProp name="HTTPSampler.path">/api/load/storage-locations</stringProp>
+            <stringProp name="HTTPSampler.path">/api/lagerplaetze</stringProp>
             <stringProp name="HTTPSampler.method">GET</stringProp>
             <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
             <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
@@ -63,7 +63,7 @@
 
           <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy"
                             testname="Param - Wareneingänge abrufen">
-            <stringProp name="HTTPSampler.path">/api/load/goods-receipts</stringProp>
+            <stringProp name="HTTPSampler.path">/api/wareneingaenge</stringProp>
             <stringProp name="HTTPSampler.method">GET</stringProp>
             <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
             <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
@@ -72,7 +72,7 @@
 
           <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy"
                             testname="Param - Kommissionen abrufen">
-            <stringProp name="HTTPSampler.path">/api/load/kommissionen</stringProp>
+            <stringProp name="HTTPSampler.path">/api/kommissionen</stringProp>
             <stringProp name="HTTPSampler.method">GET</stringProp>
             <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
             <boolProp name="HTTPSampler.use_keepalive">true</boolProp>

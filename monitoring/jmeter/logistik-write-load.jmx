@@ -53,7 +53,7 @@
         <!-- Schritt 1: Artikel laden und ID extrahieren -->
         <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy"
                           testname="Write - Artikel abrufen">
-          <stringProp name="HTTPSampler.path">/api/load/articles?page=0&amp;size=5</stringProp>
+          <stringProp name="HTTPSampler.path">/api/artikels?page=0&amp;size=5</stringProp>
           <stringProp name="HTTPSampler.method">GET</stringProp>
           <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
           <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
@@ -84,7 +84,7 @@
               </elementProp>
             </collectionProp>
           </elementProp>
-          <stringProp name="HTTPSampler.path">/api/load/articles/${articleId}/stock</stringProp>
+          <stringProp name="HTTPSampler.path">/api/artikels/${articleId}/stock</stringProp>
           <stringProp name="HTTPSampler.method">POST</stringProp>
           <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
           <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
@@ -104,7 +104,7 @@
               </elementProp>
             </collectionProp>
           </elementProp>
-          <stringProp name="HTTPSampler.path">/api/load/goods-receipts</stringProp>
+          <stringProp name="HTTPSampler.path">/api/wareneingaenge</stringProp>
           <stringProp name="HTTPSampler.method">POST</stringProp>
           <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
           <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
@@ -128,7 +128,7 @@
           <elementProp name="HTTPsampler.Arguments" elementType="Arguments">
             <collectionProp name="Arguments.arguments"/>
           </elementProp>
-          <stringProp name="HTTPSampler.path">/api/load/goods-receipts/${receiptId}</stringProp>
+          <stringProp name="HTTPSampler.path">/api/wareneingaenge/${receiptId}</stringProp>
           <stringProp name="HTTPSampler.method">DELETE</stringProp>
           <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
           <boolProp name="HTTPSampler.use_keepalive">true</boolProp>

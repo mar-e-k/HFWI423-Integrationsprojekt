@@ -51,7 +51,7 @@
         </ConfigTestElement>
         <hashTree/>
         <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="Health - Systemstatus prüfen" enabled="true">
-          <stringProp name="HTTPSampler.path">/api/load/health</stringProp>
+          <stringProp name="HTTPSampler.path">/api/health</stringProp>
           <stringProp name="HTTPSampler.method">GET</stringProp>
           <boolProp name="HTTPSampler.postBodyRaw">false</boolProp>
           <elementProp name="HTTPsampler.Arguments" elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" testname="User Defined Variables">
@@ -71,7 +71,7 @@
           <hashTree/>
         </hashTree>
         <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="Articles - Artikelliste abrufen" enabled="true">
-          <stringProp name="HTTPSampler.path">/api/load/articles?page=0&amp;size=20</stringProp>
+          <stringProp name="HTTPSampler.path">/api/artikels?page=0&amp;size=20</stringProp>
           <stringProp name="HTTPSampler.method">GET</stringProp>
           <boolProp name="HTTPSampler.postBodyRaw">false</boolProp>
           <elementProp name="HTTPsampler.Arguments" elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" testname="User Defined Variables">
@@ -80,7 +80,7 @@
         </HTTPSamplerProxy>
         <hashTree/>
         <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="StorageLocation - Lagerplätze abrufen" enabled="true">
-          <stringProp name="HTTPSampler.path">/api/load/storage-locations</stringProp>
+          <stringProp name="HTTPSampler.path">/api/lagerplaetze</stringProp>
           <stringProp name="HTTPSampler.method">GET</stringProp>
           <boolProp name="HTTPSampler.postBodyRaw">false</boolProp>
           <elementProp name="HTTPsampler.Arguments" elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" testname="User Defined Variables">
@@ -89,7 +89,7 @@
         </HTTPSamplerProxy>
         <hashTree/>
         <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="GoodsReceipt - Wareneingänge abrufen" enabled="true">
-          <stringProp name="HTTPSampler.path">/api/load/goods-receipts</stringProp>
+          <stringProp name="HTTPSampler.path">/api/wareneingaenge</stringProp>
           <stringProp name="HTTPSampler.method">GET</stringProp>
           <boolProp name="HTTPSampler.postBodyRaw">false</boolProp>
           <elementProp name="HTTPsampler.Arguments" elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" testname="User Defined Variables">
@@ -98,7 +98,7 @@
         </HTTPSamplerProxy>
         <hashTree/>
         <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="Kommission - Aufträge abrufen" enabled="true">
-          <stringProp name="HTTPSampler.path">/api/load/kommissionen</stringProp>
+          <stringProp name="HTTPSampler.path">/api/kommissionen</stringProp>
           <stringProp name="HTTPSampler.method">GET</stringProp>
           <boolProp name="HTTPSampler.postBodyRaw">false</boolProp>
           <elementProp name="HTTPsampler.Arguments" elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" testname="User Defined Variables">
@@ -170,7 +170,7 @@
         </ConfigTestElement>
         <hashTree/>
         <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="Articles - Spitzenlast abrufen" enabled="true">
-          <stringProp name="HTTPSampler.path">/api/load/articles?page=0&amp;size=20</stringProp>
+          <stringProp name="HTTPSampler.path">/api/artikels?page=0&amp;size=20</stringProp>
           <stringProp name="HTTPSampler.method">GET</stringProp>
           <boolProp name="HTTPSampler.postBodyRaw">false</boolProp>
           <elementProp name="HTTPsampler.Arguments" elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" testname="User Defined Variables">
@@ -233,7 +233,7 @@
         </ConfigTestElement>
         <hashTree/>
         <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="Workflow - Nächsten Artikel anlegen" enabled="true">
-          <stringProp name="HTTPSampler.path">/api/load/new-articles/create-next</stringProp>
+          <stringProp name="HTTPSampler.path">/api/neue-artikel/create-next</stringProp>
           <stringProp name="HTTPSampler.method">POST</stringProp>
           <boolProp name="HTTPSampler.postBodyRaw">false</boolProp>
           <elementProp name="HTTPsampler.Arguments" elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" testname="User Defined Variables">
@@ -258,7 +258,7 @@
         </ConstantTimer>
         <hashTree/>
         <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="Workflow - Nachbestellung auslösen" enabled="true">
-          <stringProp name="HTTPSampler.path">/api/load/restock/approve-next</stringProp>
+          <stringProp name="HTTPSampler.path">/api/nachbestellungen/approve-next</stringProp>
           <stringProp name="HTTPSampler.method">POST</stringProp>
           <boolProp name="HTTPSampler.postBodyRaw">false</boolProp>
           <elementProp name="HTTPsampler.Arguments" elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" testname="User Defined Variables">
@@ -339,7 +339,7 @@
         </ConfigTestElement>
         <hashTree/>
         <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="StorageLocation - Lagerplatz anlegen" enabled="true">
-          <stringProp name="HTTPSampler.path">/api/load/storage-locations</stringProp>
+          <stringProp name="HTTPSampler.path">/api/lagerplaetze</stringProp>
           <stringProp name="HTTPSampler.method">POST</stringProp>
           <boolProp name="HTTPSampler.postBodyRaw">true</boolProp>
           <elementProp name="HTTPsampler.Arguments" elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" testname="User Defined Variables">
@@ -351,7 +351,7 @@
               </elementProp>
             </collectionProp>
           </elementProp>
-          <stringProp name="HTTPSampler.path">/api/load/storage-locations</stringProp>
+          <stringProp name="HTTPSampler.path">/api/lagerplaetze</stringProp>
           <stringProp name="HTTPSampler.method">POST</stringProp>
           <elementProp name="HTTPSampler.header_manager" elementType="HeaderManager" guiclass="HeaderPanel" testclass="HeaderManager" testname="HTTP Header Manager">
             <collectionProp name="HeaderManager.headers">

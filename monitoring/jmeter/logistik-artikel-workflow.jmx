@@ -139,7 +139,7 @@
           <stringProp name="HTTPSampler.domain">${host}</stringProp>
           <stringProp name="HTTPSampler.port">${port}</stringProp>
           <stringProp name="HTTPSampler.protocol">http</stringProp>
-          <stringProp name="HTTPSampler.path">/api/load/new-articles</stringProp>
+          <stringProp name="HTTPSampler.path">/api/neue-artikel</stringProp>
           <stringProp name="HTTPSampler.method">GET</stringProp>
           <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
           <boolProp name="HTTPSampler.auto_redirects">false</boolProp>
@@ -191,7 +191,7 @@
             <stringProp name="HTTPSampler.domain">${host}</stringProp>
             <stringProp name="HTTPSampler.port">${port}</stringProp>
             <stringProp name="HTTPSampler.protocol">http</stringProp>
-            <stringProp name="HTTPSampler.path">/api/load/new-articles/create-next-with-storage</stringProp>
+            <stringProp name="HTTPSampler.path">/api/neue-artikel/create-next-with-storage</stringProp>
             <stringProp name="HTTPSampler.method">POST</stringProp>
             <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
             <boolProp name="HTTPSampler.auto_redirects">false</boolProp>
@@ -248,7 +248,7 @@
               <stringProp name="HTTPSampler.domain">${host}</stringProp>
               <stringProp name="HTTPSampler.port">${port}</stringProp>
               <stringProp name="HTTPSampler.protocol">http</stringProp>
-              <stringProp name="HTTPSampler.path">/api/load/storage-locations</stringProp>
+              <stringProp name="HTTPSampler.path">/api/lagerplaetze</stringProp>
               <stringProp name="HTTPSampler.method">GET</stringProp>
               <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
               <boolProp name="HTTPSampler.auto_redirects">false</boolProp>
@@ -290,7 +290,7 @@
               <stringProp name="HTTPSampler.domain">${host}</stringProp>
               <stringProp name="HTTPSampler.port">${port}</stringProp>
               <stringProp name="HTTPSampler.protocol">http</stringProp>
-              <stringProp name="HTTPSampler.path">/api/load/storage-locations</stringProp>
+              <stringProp name="HTTPSampler.path">/api/lagerplaetze</stringProp>
               <stringProp name="HTTPSampler.method">POST</stringProp>
               <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
               <boolProp name="HTTPSampler.auto_redirects">false</boolProp>
@@ -334,7 +334,7 @@
               <stringProp name="HTTPSampler.domain">${host}</stringProp>
               <stringProp name="HTTPSampler.port">${port}</stringProp>
               <stringProp name="HTTPSampler.protocol">http</stringProp>
-              <stringProp name="HTTPSampler.path">/api/load/new-articles</stringProp>
+              <stringProp name="HTTPSampler.path">/api/neue-artikel</stringProp>
               <stringProp name="HTTPSampler.method">GET</stringProp>
               <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
               <boolProp name="HTTPSampler.auto_redirects">false</boolProp>
@@ -397,7 +397,7 @@
           <stringProp name="HTTPSampler.domain">${host}</stringProp>
           <stringProp name="HTTPSampler.port">${port}</stringProp>
           <stringProp name="HTTPSampler.protocol">http</stringProp>
-          <stringProp name="HTTPSampler.path">/api/load/restock/approve-all</stringProp>
+          <stringProp name="HTTPSampler.path">/api/nachbestellungen/approve-all</stringProp>
           <stringProp name="HTTPSampler.method">POST</stringProp>
           <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
           <stringProp name="HTTPSampler.connect_timeout">10000</stringProp>
@@ -483,7 +483,7 @@
             <stringProp name="HTTPSampler.domain">${host}</stringProp>
             <stringProp name="HTTPSampler.port">${port}</stringProp>
             <stringProp name="HTTPSampler.protocol">http</stringProp>
-            <stringProp name="HTTPSampler.path">/api/load/goods-receipts</stringProp>
+            <stringProp name="HTTPSampler.path">/api/wareneingaenge</stringProp>
             <stringProp name="HTTPSampler.method">GET</stringProp>
             <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
             <stringProp name="HTTPSampler.connect_timeout">10000</stringProp>
@@ -516,7 +516,7 @@
             <stringProp name="HTTPSampler.domain">${host}</stringProp>
             <stringProp name="HTTPSampler.port">${port}</stringProp>
             <stringProp name="HTTPSampler.protocol">http</stringProp>
-            <stringProp name="HTTPSampler.path">/api/load/goods-receipts/open-orders</stringProp>
+            <stringProp name="HTTPSampler.path">/api/wareneingaenge/open-orders</stringProp>
             <stringProp name="HTTPSampler.method">GET</stringProp>
             <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
             <stringProp name="HTTPSampler.connect_timeout">10000</stringProp>
@@ -556,7 +556,7 @@
             <stringProp name="HTTPSampler.domain">${host}</stringProp>
             <stringProp name="HTTPSampler.port">${port}</stringProp>
             <stringProp name="HTTPSampler.protocol">http</stringProp>
-            <stringProp name="HTTPSampler.path">/api/load/goods-receipts/from-next-batch</stringProp>
+            <stringProp name="HTTPSampler.path">/api/wareneingaenge/from-next-batch</stringProp>
             <stringProp name="HTTPSampler.method">POST</stringProp>
             <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
             <stringProp name="HTTPSampler.connect_timeout">10000</stringProp>
@@ -630,7 +630,7 @@
           <stringProp name="HTTPSampler.domain">${host}</stringProp>
           <stringProp name="HTTPSampler.port">${port}</stringProp>
           <stringProp name="HTTPSampler.protocol">http</stringProp>
-          <stringProp name="HTTPSampler.path">/api/load/goods-receipts/pending-ids</stringProp>
+          <stringProp name="HTTPSampler.path">/api/wareneingaenge/pending-ids</stringProp>
           <stringProp name="HTTPSampler.method">GET</stringProp>
           <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
           <stringProp name="HTTPSampler.connect_timeout">10000</stringProp>
@@ -707,7 +707,7 @@ vars.put("pendingIndex", String.valueOf(idx + 1))
             <stringProp name="HTTPSampler.domain">${host}</stringProp>
             <stringProp name="HTTPSampler.port">${port}</stringProp>
             <stringProp name="HTTPSampler.protocol">http</stringProp>
-            <stringProp name="HTTPSampler.path">/api/load/goods-receipts/${currentReceiptId}</stringProp>
+            <stringProp name="HTTPSampler.path">/api/wareneingaenge/${currentReceiptId}</stringProp>
             <stringProp name="HTTPSampler.method">GET</stringProp>
             <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
             <stringProp name="HTTPSampler.connect_timeout">10000</stringProp>
@@ -741,7 +741,7 @@ vars.put("pendingIndex", String.valueOf(idx + 1))
             <stringProp name="HTTPSampler.domain">${host}</stringProp>
             <stringProp name="HTTPSampler.port">${port}</stringProp>
             <stringProp name="HTTPSampler.protocol">http</stringProp>
-            <stringProp name="HTTPSampler.path">/api/load/goods-receipts/${currentReceiptId}/approve-all-items</stringProp>
+            <stringProp name="HTTPSampler.path">/api/wareneingaenge/${currentReceiptId}/approve-all-items</stringProp>
             <stringProp name="HTTPSampler.method">POST</stringProp>
             <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
             <stringProp name="HTTPSampler.connect_timeout">10000</stringProp>
@@ -775,7 +775,7 @@ vars.put("pendingIndex", String.valueOf(idx + 1))
             <stringProp name="HTTPSampler.domain">${host}</stringProp>
             <stringProp name="HTTPSampler.port">${port}</stringProp>
             <stringProp name="HTTPSampler.protocol">http</stringProp>
-            <stringProp name="HTTPSampler.path">/api/load/goods-receipts/${currentReceiptId}/complete</stringProp>
+            <stringProp name="HTTPSampler.path">/api/wareneingaenge/${currentReceiptId}/complete</stringProp>
             <stringProp name="HTTPSampler.method">POST</stringProp>
             <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
             <stringProp name="HTTPSampler.connect_timeout">10000</stringProp>
@@ -833,7 +833,7 @@ vars.put("pendingIndex", String.valueOf(idx + 1))
           <stringProp name="HTTPSampler.domain">${host}</stringProp>
           <stringProp name="HTTPSampler.port">${port}</stringProp>
           <stringProp name="HTTPSampler.protocol">http</stringProp>
-          <stringProp name="HTTPSampler.path">/api/load/kommissionen</stringProp>
+          <stringProp name="HTTPSampler.path">/api/kommissionen</stringProp>
           <stringProp name="HTTPSampler.method">GET</stringProp>
           <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
           <stringProp name="HTTPSampler.connect_timeout">10000</stringProp>
@@ -866,7 +866,7 @@ vars.put("pendingIndex", String.valueOf(idx + 1))
           <stringProp name="HTTPSampler.domain">${host}</stringProp>
           <stringProp name="HTTPSampler.port">${port}</stringProp>
           <stringProp name="HTTPSampler.protocol">http</stringProp>
-          <stringProp name="HTTPSampler.path">/api/load/kommissionen/trigger</stringProp>
+          <stringProp name="HTTPSampler.path">/api/kommissionen/trigger</stringProp>
           <stringProp name="HTTPSampler.method">POST</stringProp>
           <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
           <stringProp name="HTTPSampler.connect_timeout">10000</stringProp>
@@ -899,7 +899,7 @@ vars.put("pendingIndex", String.valueOf(idx + 1))
           <stringProp name="HTTPSampler.domain">${host}</stringProp>
           <stringProp name="HTTPSampler.port">${port}</stringProp>
           <stringProp name="HTTPSampler.protocol">http</stringProp>
-          <stringProp name="HTTPSampler.path">/api/load/kommissionen/finish-all</stringProp>
+          <stringProp name="HTTPSampler.path">/api/kommissionen/finish-all</stringProp>
           <stringProp name="HTTPSampler.method">POST</stringProp>
           <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
           <stringProp name="HTTPSampler.connect_timeout">10000</stringProp>

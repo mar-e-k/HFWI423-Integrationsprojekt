@@ -71,7 +71,7 @@
                 </elementProp>
               </collectionProp>
             </elementProp>
-            <stringProp name="HTTPSampler.path">/api/load/goods-receipts</stringProp>
+            <stringProp name="HTTPSampler.path">/api/wareneingaenge</stringProp>
             <stringProp name="HTTPSampler.method">POST</stringProp>
             <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
             <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
@@ -92,7 +92,7 @@
           <!-- Schritt 2: Artikel laden und ID extrahieren -->
           <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy"
                             testname="Workflow - Artikel prüfen">
-            <stringProp name="HTTPSampler.path">/api/load/articles?page=0&amp;size=5</stringProp>
+            <stringProp name="HTTPSampler.path">/api/artikels?page=0&amp;size=5</stringProp>
             <stringProp name="HTTPSampler.method">GET</stringProp>
             <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
             <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
@@ -123,7 +123,7 @@
                 </elementProp>
               </collectionProp>
             </elementProp>
-            <stringProp name="HTTPSampler.path">/api/load/goods-receipts/${receiptId}/items</stringProp>
+            <stringProp name="HTTPSampler.path">/api/wareneingaenge/${receiptId}/items</stringProp>
             <stringProp name="HTTPSampler.method">POST</stringProp>
             <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
             <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
@@ -154,7 +154,7 @@
                 </elementProp>
               </collectionProp>
             </elementProp>
-            <stringProp name="HTTPSampler.path">/api/load/goods-receipts/${receiptId}/items/${itemId}/status</stringProp>
+            <stringProp name="HTTPSampler.path">/api/wareneingaenge/${receiptId}/items/${itemId}/status</stringProp>
             <stringProp name="HTTPSampler.method">PUT</stringProp>
             <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
             <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
@@ -164,7 +164,7 @@
           <!-- Schritt 5: Wareneingang abschließen -->
           <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy"
                             testname="Workflow - Wareneingang abschließen">
-            <stringProp name="HTTPSampler.path">/api/load/goods-receipts/${receiptId}/complete</stringProp>
+            <stringProp name="HTTPSampler.path">/api/wareneingaenge/${receiptId}/complete</stringProp>
             <stringProp name="HTTPSampler.method">POST</stringProp>
             <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
             <boolProp name="HTTPSampler.use_keepalive">true</boolProp>

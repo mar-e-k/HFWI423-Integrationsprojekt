@@ -42,13 +42,13 @@
         <hashTree/>
 
         <!--
-          POST /api/load/contingents/simulate?count=X
+          POST /api/kontingente/simulate?count=X
           Jeder Thread schickt einen Request → Server simuliert count Nachrichten.
           Timeout hoch (120 s) weil bei großem count die DB-Inserts Zeit brauchen.
         -->
         <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy"
                           testname="Kontingent - Simulation starten">
-          <stringProp name="HTTPSampler.path">/api/load/contingents/simulate?count=${__P(count,1000)}</stringProp>
+          <stringProp name="HTTPSampler.path">/api/kontingente/simulate?count=${__P(count,1000)}</stringProp>
           <stringProp name="HTTPSampler.method">POST</stringProp>
           <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
           <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
