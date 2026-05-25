@@ -1,4 +1,4 @@
-package com.example.application.api.load;
+package com.example.application.api.wareneingang;
 
 import com.example.application.data.articleInfo.ArticleInfo;
 import com.example.application.data.goodsreceipts.GoodsReceipt;
@@ -8,6 +8,8 @@ import com.example.application.data.goodsreceipts.GoodsReceiptStatus;
 import com.example.application.data.restockorder.RestockOrder;
 import com.example.application.services.ArticleInfoService;
 import com.example.application.services.GoodsReceiptService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.orm.ObjectOptimisticLockingFailureException;
@@ -17,19 +19,16 @@ import org.springframework.web.server.ResponseStatusException;
 import java.time.LocalDate;
 import java.util.List;
 
-/**
- * Lasttest-Endpunkte für GoodsReceiptView.
- * Basis-URL: /api/load/goods-receipts
- */
 @RestController
-@RequestMapping("/api/load/goods-receipts")
-public class LoadTestGoodsReceiptController {
+@RequestMapping("/api/wareneingaenge")
+@Tag(name = "Wareneingaenge", description = "Wareneingaenge pruefen und verwalten")
+public class WareneingangController {
 
     private final GoodsReceiptService goodsReceiptService;
     private final ArticleInfoService articleInfoService;
 
-    public LoadTestGoodsReceiptController(GoodsReceiptService goodsReceiptService,
-                                           ArticleInfoService articleInfoService) {
+    public WareneingangController(GoodsReceiptService goodsReceiptService,
+                                   ArticleInfoService articleInfoService) {
         this.goodsReceiptService = goodsReceiptService;
         this.articleInfoService = articleInfoService;
     }
@@ -41,13 +40,13 @@ public class LoadTestGoodsReceiptController {
     record SetItemStatusRequest(String status) {}
     record ItemSummary(Long itemId, Integer qty) {}
 
-    /** GET /api/load/goods-receipts – alle Wareneingaenge */
+    @Operation(summary = "Alle Wareneingaenge abrufen")
     @GetMapping
     public List<GoodsReceipt> goodsReceipts() {
         return goodsReceiptService.findAll();
     }
 
-    /** GET /api/load/goods-receipts/{id} – einzelnen Wareneingang laden (Detailansicht) */
+    @Operation(summary = "Einzelnen Wareneingang laden")
     @GetMapping("/{id}")
     public GoodsReceipt getById(@PathVariable Long id) {
         try {
@@ -57,7 +56,7 @@ public class LoadTestGoodsReceiptController {
         }
     }
 
-    /** GET /api/load/goods-receipts/pending-ids – IDs aller Wareneingaenge im Status IN_PRUEFUNG */
+    @Operation(summary = "IDs aller Wareneingaenge im Status IN_PRUEFUNG")
     @GetMapping("/pending-ids")
     public List<Long> pendingIds() {
         return goodsReceiptService.findAll().stream()
@@ -66,7 +65,7 @@ public class LoadTestGoodsReceiptController {
                 .toList();
     }
 
-    /** GET /api/load/goods-receipts/{id}/item-summaries – itemId + qty jeder Position (fuer JMeter RegexExtractor) */
+    @Operation(summary = "Item-Zusammenfassung eines Wareneingangs")
     @GetMapping("/{id}/item-summaries")
     public List<ItemSummary> itemSummaries(@PathVariable Long id) {
         return goodsReceiptService.getItemsForReceipt(id).stream()
@@ -74,16 +73,13 @@ public class LoadTestGoodsReceiptController {
                 .toList();
     }
 
-    /** GET /api/load/goods-receipts/open-orders – offene Bestellungen fuer Wareneingang-Dialog */
+    @Operation(summary = "Offene Bestellungen fuer Wareneingang-Dialog")
     @GetMapping("/open-orders")
     public List<RestockOrder> openOrders() {
         return goodsReceiptService.findOpenRestockOrders();
     }
 
-    /**
-     * POST /api/load/goods-receipts/from-orders – Wareneingang aus ausgewaehlten Bestellungen anlegen.
-     * Simuliert: User waehlt einen Artikel im Dialog aus und klickt Anlegen.
-     */
+    @Operation(summary = "Wareneingang aus ausgewaehlten Bestellungen anlegen")
     @PostMapping("/from-orders")
     @ResponseStatus(HttpStatus.CREATED)
     public GoodsReceipt createFromOrders(@RequestBody CreateFromOrdersRequest req) {
@@ -102,13 +98,7 @@ public class LoadTestGoodsReceiptController {
         }
     }
 
-    /**
-     * POST /api/load/goods-receipts/from-next-batch
-     * Legt einen Wareneingang aus den naechsten 10 offenen Bestellungen an.
-     * Simuliert: User waehlt 10 Artikel im Dialog aus und klickt Anlegen.
-     * 201 + GoodsReceipt -> Wareneingang angelegt
-     * 204 No Content    -> keine offene Bestellung vorhanden
-     */
+    @Operation(summary = "Wareneingang aus naechsten 10 offenen Bestellungen anlegen")
     @PostMapping("/from-next-batch")
     public ResponseEntity<GoodsReceipt> createFromNextBatch(@RequestBody CreateReceiptRequest req) {
         LocalDate date = req.deliveryDate() != null ? req.deliveryDate() : LocalDate.now();
@@ -116,26 +106,16 @@ public class LoadTestGoodsReceiptController {
         String note = req.deliveryNoteNumber() != null ? req.deliveryNoteNumber() : "LT-" + System.currentTimeMillis();
         GoodsReceipt receipt = goodsReceiptService.createFromNextBatch(10, supplier, note, date);
         if (receipt == null) {
-            System.out.println("[from-next-batch] 204 - keine Bestellung verfuegbar");
             return ResponseEntity.noContent().build();
         }
-        System.out.println("[from-next-batch] 201 receiptId=" + receipt.getId() + " items=" + receipt.getId());
         return ResponseEntity.status(HttpStatus.CREATED).body(receipt);
     }
 
-    /**
-     * POST /api/load/goods-receipts/from-next-order
-     * Legt einen Wareneingang aus der naechsten offenen Bestellung an.
-     * Simuliert: User oeffnet Dialog, klickt ersten Artikel an, klickt Anlegen.
-     * 201 + GoodsReceipt  -> Wareneingang angelegt
-     * 204 No Content      -> keine offene Bestellung vorhanden
-     */
+    @Operation(summary = "Wareneingang aus naechster einzelner offener Bestellung anlegen")
     @PostMapping("/from-next-order")
     public ResponseEntity<GoodsReceipt> createFromNextOrder(@RequestBody CreateReceiptRequest req) {
         List<RestockOrder> open = goodsReceiptService.findOpenRestockOrders();
-        System.out.println("[from-next-order] offeneBestellungen=" + open.size());
         if (open.isEmpty()) {
-            System.out.println("[from-next-order] 204 – keine offene Bestellung");
             return ResponseEntity.noContent().build();
         }
         LocalDate date = req.deliveryDate() != null ? req.deliveryDate() : LocalDate.now();
@@ -145,17 +125,15 @@ public class LoadTestGoodsReceiptController {
             try {
                 GoodsReceipt receipt = goodsReceiptService.createFromRestockOrders(
                         List.of(order.getId()), supplier, note, date);
-                System.out.println("[from-next-order] 201 orderId=" + order.getId() + " article=" + order.getArticleNumber());
                 return ResponseEntity.status(HttpStatus.CREATED).body(receipt);
             } catch (Exception e) {
-                System.out.println("[from-next-order] SKIP orderId=" + order.getId() + ": " + e.getClass().getSimpleName() + ": " + e.getMessage());
+                System.out.println("[from-next-order] SKIP orderId=" + order.getId() + ": " + e.getMessage());
             }
         }
-        System.out.println("[from-next-order] 204 – alle Bestellungen fehlgeschlagen");
         return ResponseEntity.noContent().build();
     }
 
-    /** POST /api/load/goods-receipts – neuen Wareneingang anlegen */
+    @Operation(summary = "Neuen Wareneingang anlegen")
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public GoodsReceipt createGoodsReceipt(@RequestBody CreateReceiptRequest req) {
@@ -165,12 +143,10 @@ public class LoadTestGoodsReceiptController {
         return goodsReceiptService.create(supplier, note, date);
     }
 
-    /** POST /api/load/goods-receipts/{id}/items – Position hinzufügen */
+    @Operation(summary = "Position zu Wareneingang hinzufuegen")
     @PostMapping("/{id}/items")
     @ResponseStatus(HttpStatus.CREATED)
-    public GoodsReceiptItem addItem(
-            @PathVariable Long id,
-            @RequestBody AddItemRequest req) {
+    public GoodsReceiptItem addItem(@PathVariable Long id, @RequestBody AddItemRequest req) {
         try {
             ArticleInfo article = articleInfoService.findById(req.articleId());
             return goodsReceiptService.addItemToReceipt(id, article, req.expectedQty(), req.actualQty(), req.defectNotes());
@@ -179,12 +155,10 @@ public class LoadTestGoodsReceiptController {
         }
     }
 
-    /** PUT /api/load/goods-receipts/{id}/items/{itemId} – Position aktualisieren */
+    @Operation(summary = "Position aktualisieren")
     @PutMapping("/{id}/items/{itemId}")
-    public GoodsReceiptItem updateItem(
-            @PathVariable Long id,
-            @PathVariable Long itemId,
-            @RequestBody UpdateItemRequest req) {
+    public GoodsReceiptItem updateItem(@PathVariable Long id, @PathVariable Long itemId,
+                                        @RequestBody UpdateItemRequest req) {
         try {
             return goodsReceiptService.updateItem(itemId, req.actualQty(), req.defectNotes());
         } catch (IllegalArgumentException e) {
@@ -192,12 +166,10 @@ public class LoadTestGoodsReceiptController {
         }
     }
 
-    /** PUT /api/load/goods-receipts/{id}/items/{itemId}/status – Position freigeben oder sperren */
+    @Operation(summary = "Status einer Position setzen (FREIGEGEBEN / GESPERRT)")
     @PutMapping("/{id}/items/{itemId}/status")
-    public GoodsReceiptItem setItemStatus(
-            @PathVariable Long id,
-            @PathVariable Long itemId,
-            @RequestBody SetItemStatusRequest req) {
+    public GoodsReceiptItem setItemStatus(@PathVariable Long id, @PathVariable Long itemId,
+                                           @RequestBody SetItemStatusRequest req) {
         GoodsReceiptItemStatus status;
         try {
             status = GoodsReceiptItemStatus.valueOf(req.status().toUpperCase());
@@ -213,26 +185,18 @@ public class LoadTestGoodsReceiptController {
         }
     }
 
-    /**
-     * POST /api/load/goods-receipts/{id}/approve-all-items
-     * Setzt alle Items eines Wareneingangs auf FREIGEGEBEN.
-     * Ersetzt den fehleranfaelligen JMeter-ForeachController fuer den Lasttest.
-     * 200 + Anzahl freigegebener Items
-     */
+    @Operation(summary = "Alle Positionen eines Wareneingangs freigeben")
     @PostMapping("/{id}/approve-all-items")
     public ResponseEntity<Integer> approveAllItems(@PathVariable Long id) {
         try {
             int approved = goodsReceiptService.approveAllItemsForReceipt(id);
-            System.out.println("[approve-all-items] receiptId=" + id + " approved=" + approved);
             return ResponseEntity.ok(approved);
         } catch (ObjectOptimisticLockingFailureException e) {
-            // Race condition: anderer Thread hat denselben Wareneingang gleichzeitig
-            // bearbeitet. Items sind bereits freigegeben -> 200 zurueckgeben.
             return ResponseEntity.ok(0);
         }
     }
 
-    /** POST /api/load/goods-receipts/{id}/complete – Prüfung abschließen */
+    @Operation(summary = "Pruefung abschliessen")
     @PostMapping("/{id}/complete")
     public GoodsReceipt completeInspection(@PathVariable Long id) {
         try {
@@ -242,13 +206,11 @@ public class LoadTestGoodsReceiptController {
         } catch (IllegalStateException e) {
             throw new ResponseStatusException(HttpStatus.CONFLICT, e.getMessage());
         } catch (ObjectOptimisticLockingFailureException e) {
-            // Race condition: anderer Thread hat denselben Wareneingang gleichzeitig
-            // abgeschlossen. version-Konflikt -> Receipt ist bereits im Endzustand.
             return goodsReceiptService.getById(id);
         }
     }
 
-    /** DELETE /api/load/goods-receipts/{id} – Wareneingang löschen */
+    @Operation(summary = "Wareneingang loeschen")
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deleteGoodsReceipt(@PathVariable Long id) {
