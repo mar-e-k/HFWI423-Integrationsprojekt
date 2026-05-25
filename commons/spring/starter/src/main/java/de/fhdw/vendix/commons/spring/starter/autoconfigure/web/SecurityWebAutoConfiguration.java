@@ -2,6 +2,7 @@ package de.fhdw.vendix.commons.spring.starter.autoconfigure.web;
 
 import com.vaadin.flow.spring.security.VaadinSecurityConfigurer;
 import de.fhdw.vendix.commons.spring.security.keycloak.KeycloakJwtAuthenticationConverter;
+import de.fhdw.vendix.commons.spring.security.keycloak.KeycloakOidcUserService;
 import de.fhdw.vendix.commons.spring.web.core.filter.RequestRateFilter;
 import org.redisson.api.RedissonClient;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
@@ -13,7 +14,7 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.oauth2.server.resource.web.authentication.BearerTokenAuthenticationFilter;
 import org.springframework.security.web.SecurityFilterChain;
 
-@AutoConfiguration
+@AutoConfiguration(after = KeycloakWebAutoConfiguration.class)
 public class SecurityWebAutoConfiguration {
 
     @Bean
@@ -30,7 +31,11 @@ public class SecurityWebAutoConfiguration {
 
     @Bean
     @Order(2)
-    public SecurityFilterChain apiSecurity(HttpSecurity http, RedissonClient redissonClient) {
+    public SecurityFilterChain apiSecurity(
+            HttpSecurity http,
+            RedissonClient redissonClient,
+            KeycloakJwtAuthenticationConverter jwtConverter
+    ) {
         return http
                 .securityMatcher("/api/**")
                 .csrf(AbstractHttpConfigurer::disable)
@@ -38,7 +43,7 @@ public class SecurityWebAutoConfiguration {
                         .anyRequest().authenticated()
                 )
                 .oauth2ResourceServer(oauth2 ->
-                        oauth2.jwt(jwt -> jwt.jwtAuthenticationConverter(new KeycloakJwtAuthenticationConverter()))
+                        oauth2.jwt(jwt -> jwt.jwtAuthenticationConverter(jwtConverter))
                 )
                 .sessionManagement(session ->
                         session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
@@ -49,12 +54,22 @@ public class SecurityWebAutoConfiguration {
 
     @Bean
     @Order(3)
-    public SecurityFilterChain vaadinSecurity(HttpSecurity http) {
+    public SecurityFilterChain vaadinSecurity(
+            HttpSecurity http,
+            KeycloakOidcUserService oidcUserService
+    ) {
         return http
                 .with(VaadinSecurityConfigurer.vaadin(), configurer -> configurer
                         .oauth2LoginPage(
                                 "/oauth2/authorization/keycloak",
                                 "{baseUrl}/session-ended"
+                        )
+                )
+                .oauth2Login(oauth2 ->
+                        oauth2.userInfoEndpoint(userInfo ->
+                                userInfo.oidcUserService(
+                                        oidcUserService
+                                )
                         )
                 )
                 .build();

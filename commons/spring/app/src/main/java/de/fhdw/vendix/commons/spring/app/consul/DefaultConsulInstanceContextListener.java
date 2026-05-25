@@ -6,6 +6,7 @@ import de.fhdw.vendix.commons.api.structure.dto.DomainDTO;
 import de.fhdw.vendix.commons.spring.app.context.ContextException;
 import de.fhdw.vendix.commons.spring.app.context.DomainContextEvent;
 import de.fhdw.vendix.commons.spring.app.context.app.AppContext;
+import de.fhdw.vendix.commons.spring.web.core.RoutingHeader;
 import jakarta.annotation.Nullable;
 import jakarta.annotation.PreDestroy;
 import org.slf4j.Logger;
@@ -78,8 +79,8 @@ public final class DefaultConsulInstanceContextListener implements ConsulInstanc
 
     private String resolveDomainTypeName(DomainDTO domain) {
         return switch (domain) {
-            case StoreDTO _ -> "store-id";
-            case RegisterDTO _ -> "register-id";
+            case StoreDTO _ -> RoutingHeader.STORE_ROUTING.name();
+            case RegisterDTO _ -> RoutingHeader.REGISTER_ROUTING.name();
             default -> throw new ContextException("Invalid domain type: " + domain);
         };
     }

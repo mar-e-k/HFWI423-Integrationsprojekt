@@ -1,4 +1,4 @@
-package de.fhdw.vendix.commons.spring.starter.autoconfigure.web;
+package de.fhdw.vendix.commons.spring.starter.autoconfigure.web.client;
 
 import de.fhdw.vendix.commons.spring.web.api.orchestrator.RegisterApi;
 import de.fhdw.vendix.commons.spring.web.api.orchestrator.StoreApi;

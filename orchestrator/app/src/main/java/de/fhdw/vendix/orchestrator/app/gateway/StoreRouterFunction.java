@@ -1,5 +1,6 @@
 package de.fhdw.vendix.orchestrator.app.gateway;
 
+import de.fhdw.vendix.commons.spring.web.core.RoutingHeader;
 import org.springframework.cloud.client.ServiceInstance;
 import org.springframework.cloud.client.discovery.DiscoveryClient;
 import org.springframework.cloud.gateway.server.mvc.common.MvcUtils;
@@ -38,28 +39,27 @@ public class StoreRouterFunction {
     }
 
     private ServerResponse storeRoutingFilter(ServerRequest clientRequest, HandlerFunction<ServerResponse> next) throws Exception {
-        String storeId = clientRequest.headers().firstHeader("X-Vendix-Store-Id");
-
-        if (storeId == null) {
+        String storeUuid = clientRequest.headers().firstHeader(RoutingHeader.STORE_ROUTING.getHeader());
+        if (storeUuid == null) {
             return ServerResponse.status(HttpStatus.BAD_REQUEST)
-                    .body("Missing Store-Id");
+                    .body("Missing Header: " + RoutingHeader.STORE_ROUTING.name());
         }
 
-        Optional<URI> targetUri = findTargetInstanceUri(storeId);
+        Optional<URI> targetUri = findTargetInstanceUri(storeUuid);
         if (targetUri.isEmpty()) {
             return ServerResponse.status(HttpStatus.NOT_FOUND)
-                    .body("No instance for " + storeId);
+                    .body("No instance for " + storeUuid);
         }
         clientRequest.attributes().put(MvcUtils.GATEWAY_REQUEST_URL_ATTR, targetUri.get());
         return next.handle(clientRequest);
     }
 
-    private Optional<URI> findTargetInstanceUri(String storeId) {
+    private Optional<URI> findTargetInstanceUri(String storeUuid) {
         return discoveryClient.getInstances("store-app").stream()
                 .filter(instance ->
                         Optional.ofNullable(instance.getMetadata())
-                                .map(metadata -> metadata.get("storeId"))
-                                .filter(storeId::equals)
+                                .map(metadata -> metadata.get("storeUuid"))
+                                .filter(storeUuid::equals)
                                 .isPresent()
                 )
                 .map(ServiceInstance::getUri)

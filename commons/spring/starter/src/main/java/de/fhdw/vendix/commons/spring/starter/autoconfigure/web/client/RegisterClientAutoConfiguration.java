@@ -1,11 +1,7 @@
-package de.fhdw.vendix.commons.spring.starter.autoconfigure.web;
+package de.fhdw.vendix.commons.spring.starter.autoconfigure.web.client;
 
-import de.fhdw.vendix.commons.spring.web.api.store.ArticleApi;
-import de.fhdw.vendix.commons.spring.web.api.store.CheckoutApi;
-import de.fhdw.vendix.commons.spring.web.api.store.ReceiptApi;
-import de.fhdw.vendix.commons.spring.web.api.store.VoucherApi;
 import de.fhdw.vendix.commons.spring.web.core.client.LoggingHandler;
-import de.fhdw.vendix.commons.spring.web.core.client.StoreHeaderInjectorInterceptor;
+import de.fhdw.vendix.commons.spring.web.core.client.RegisterHeaderInjectorInterceptor;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.annotation.Bean;
@@ -16,7 +12,7 @@ import org.springframework.web.client.support.RestClientAdapter;
 import org.springframework.web.service.invoker.HttpServiceProxyFactory;
 
 @AutoConfiguration
-public class StoreClientAutoConfiguration {
+public class RegisterClientAutoConfiguration {
 
     @Bean
     @ConditionalOnMissingBean
@@ -27,7 +23,7 @@ public class StoreClientAutoConfiguration {
                         new OAuth2ClientHttpRequestInterceptor(authorizedClientManager)
                 )
                 .requestInterceptor(
-                        new StoreHeaderInjectorInterceptor()
+                        new RegisterHeaderInjectorInterceptor()
                 )
                 .defaultStatusHandler(
                         s -> s.is2xxSuccessful() || s.is4xxClientError(),
@@ -37,29 +33,5 @@ public class StoreClientAutoConfiguration {
         return HttpServiceProxyFactory
                 .builderFor(RestClientAdapter.create(restClient))
                 .build();
-    }
-
-    @Bean
-    @ConditionalOnMissingBean
-    public ArticleApi articleApi(HttpServiceProxyFactory storeClientFactory) {
-        return storeClientFactory.createClient(ArticleApi.class);
-    }
-
-    @Bean
-    @ConditionalOnMissingBean
-    public CheckoutApi checkoutApi(HttpServiceProxyFactory storeClientFactory) {
-        return storeClientFactory.createClient(CheckoutApi.class);
-    }
-
-    @Bean
-    @ConditionalOnMissingBean
-    public ReceiptApi receiptApi(HttpServiceProxyFactory storeClientFactory) {
-        return storeClientFactory.createClient(ReceiptApi.class);
-    }
-
-    @Bean
-    @ConditionalOnMissingBean
-    public VoucherApi voucherApi(HttpServiceProxyFactory storeClientFactory) {
-        return storeClientFactory.createClient(VoucherApi.class);
     }
 }
