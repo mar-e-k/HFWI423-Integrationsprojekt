@@ -1,8 +1,10 @@
-package com.example.application.api.load;
+package com.example.application.api.lagerplatz;
 
 import com.example.application.data.storageLocation.StorageLocation;
 import com.example.application.data.storageLocation.StorageLocationRepository;
 import com.example.application.services.StorageLocationService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
@@ -10,30 +12,27 @@ import org.springframework.web.server.ResponseStatusException;
 import java.util.List;
 import java.util.Map;
 
-/**
- * Lasttest-Endpunkte für StorageLocationView.
- * Basis-URL: /api/load/storage-locations
- */
 @RestController
-@RequestMapping("/api/load/storage-locations")
-public class LoadTestStorageController {
+@RequestMapping("/api/lagerplaetze")
+@Tag(name = "Lagerplaetze", description = "Lagerplatzverwaltung")
+public class LagerplatzController {
 
     private final StorageLocationService storageLocationService;
     private final StorageLocationRepository storageLocationRepository;
 
-    public LoadTestStorageController(StorageLocationService storageLocationService,
-                                     StorageLocationRepository storageLocationRepository) {
+    public LagerplatzController(StorageLocationService storageLocationService,
+                                StorageLocationRepository storageLocationRepository) {
         this.storageLocationService = storageLocationService;
         this.storageLocationRepository = storageLocationRepository;
     }
 
-    /** GET /api/load/storage-locations – alle Lagerplaetze */
+    @Operation(summary = "Alle Lagerplaetze abrufen")
     @GetMapping
     public List<StorageLocation> storageLocations() {
         return storageLocationService.findAll();
     }
 
-    /** POST /api/load/storage-locations – neuen Lagerplatz anlegen */
+    @Operation(summary = "Neuen Lagerplatz anlegen")
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public StorageLocation createStorageLocation(@RequestBody StorageLocation storageLocation) {
@@ -45,7 +44,7 @@ public class LoadTestStorageController {
         }
     }
 
-    /** DELETE /api/load/storage-locations/{id} – Lagerplatz löschen */
+    @Operation(summary = "Lagerplatz loeschen")
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deleteStorageLocation(@PathVariable Long id) {
@@ -59,7 +58,7 @@ public class LoadTestStorageController {
         }
     }
 
-    /** POST /api/load/storage-locations/sync – Status mit Artikeln synchronisieren */
+    @Operation(summary = "Lagerplatz-Status mit Artikeln synchronisieren")
     @PostMapping("/sync")
     public Map<String, Integer> syncStorageLocations() {
         int changed = storageLocationService.syncStatusesWithArticles();
