@@ -31,13 +31,13 @@ import de.fhdw.vendix.orchestrator.core.domain.performance.PerformanceTestServic
 import de.fhdw.vendix.orchestrator.core.domain.performance.TestType;
 import de.fhdw.vendix.orchestrator.ui.OrchestratorAppLayout;
 import jakarta.annotation.security.RolesAllowed;
+import org.jspecify.annotations.Nullable;
 
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.stream.Collectors;
-import org.jspecify.annotations.Nullable;
 
 @Route(value = "performance", layout = OrchestratorAppLayout.class)
 @RolesAllowed(Role.ROLE_ADMIN)
@@ -328,10 +328,10 @@ public class PerformanceTestView extends VerticalLayout {
         String preview = String.format(
                 "STORE_URL=%s   STORE_ID=%d   ORDER_RATE=%d/min   URGENT_RATIO=%.1f   VERIFY_WAIT_MS=%d ms   VERIFY_STOCK=true",
                 msgStoreUrlField.getValue(),
-                msgStoreIdField.getValue() != null ? msgStoreIdField.getValue() : 1,
-                msgOrderRateField.getValue() != null ? msgOrderRateField.getValue() : 30,
-                msgUrgentRatioField.getValue() != null ? msgUrgentRatioField.getValue() : 0.3,
-                msgVerifyWaitField.getValue() != null ? msgVerifyWaitField.getValue() : 2000
+                intValueOrDefault(msgStoreIdField.getValue(), 1),
+                intValueOrDefault(msgOrderRateField.getValue(), 30),
+                doubleValueOrDefault(msgUrgentRatioField.getValue(), 0.3),
+                intValueOrDefault(msgVerifyWaitField.getValue(), 2000)
         );
         target.add(new Span("k6-Env: " + preview));
     }
@@ -419,7 +419,10 @@ public class PerformanceTestView extends VerticalLayout {
             return;
         }
 
-        UI ui = UI.getCurrent();
+        @Nullable UI ui = UI.getCurrent();
+        if (ui == null) {
+            return;
+        }
         logArea.clear();
         appendLog(logArea, "╔" + "═".repeat(58) + "╗");
         appendLog(logArea, "║  k6 LASTTEST GESTARTET");
@@ -444,7 +447,7 @@ public class PerformanceTestView extends VerticalLayout {
             setTestRunning(selected);
 
         } catch (IOException | IllegalStateException e) {
-            String msg = e.getMessage() != null ? e.getMessage() : e.getClass().getSimpleName();
+            String msg = exceptionMessage(e);
             showError(msg);
             appendLog(logArea, "[ERROR] " + msg);
         }
@@ -452,15 +455,18 @@ public class PerformanceTestView extends VerticalLayout {
 
     /** Startet den Messaging-E2E-Test (Tab 2) mit den konfigurierten Parametern. */
     private void startMessagingE2ETest(HorizontalLayout progressRow) {
-        UI ui = UI.getCurrent();
+        @Nullable UI ui = UI.getCurrent();
+        if (ui == null) {
+            return;
+        }
         msgLogArea.clear();
 
         // Konfiguration aus den Feldern lesen
         String  storeUrl    = msgStoreUrlField.getValue();
-        int     storeId     = msgStoreIdField.getValue() != null ? msgStoreIdField.getValue() : 1;
-        int     orderRate   = msgOrderRateField.getValue() != null ? msgOrderRateField.getValue() : 30;
-        double  urgentRatio = msgUrgentRatioField.getValue() != null ? msgUrgentRatioField.getValue() : 0.3;
-        int     verifyWait  = msgVerifyWaitField.getValue() != null ? msgVerifyWaitField.getValue() : 2000;
+        int     storeId     = intValueOrDefault(msgStoreIdField.getValue(), 1);
+        int     orderRate   = intValueOrDefault(msgOrderRateField.getValue(), 30);
+        double  urgentRatio = doubleValueOrDefault(msgUrgentRatioField.getValue(), 0.3);
+        int     verifyWait  = intValueOrDefault(msgVerifyWaitField.getValue(), 2000);
 
         Map<String, String> extraEnv = new HashMap<>();
         extraEnv.put("STORE_URL",       storeUrl);
@@ -499,7 +505,7 @@ public class PerformanceTestView extends VerticalLayout {
             setMessagingTestRunning(progressRow);
 
         } catch (IOException | IllegalStateException e) {
-            String msg = e.getMessage() != null ? e.getMessage() : e.getClass().getSimpleName();
+            String msg = exceptionMessage(e);
             showError(msg);
             appendLog(msgLogArea, "[ERROR] " + msg);
         }
@@ -544,7 +550,7 @@ public class PerformanceTestView extends VerticalLayout {
         remainingLabel.setText("–");
         progressRow.setVisible(false);
 
-        UI ui = UI.getCurrent();
+        @Nullable UI ui = UI.getCurrent();
         if (ui != null) ui.setPollInterval(-1);
     }
 
@@ -575,7 +581,7 @@ public class PerformanceTestView extends VerticalLayout {
         msgRemainingLabel.setText("–");
         if (progressRow != null) progressRow.setVisible(false);
 
-        UI ui = UI.getCurrent();
+        @Nullable UI ui = UI.getCurrent();
         if (ui != null) ui.setPollInterval(-1);
     }
 
@@ -615,7 +621,7 @@ public class PerformanceTestView extends VerticalLayout {
 
             double   progress  = testService.getProgress();
             long     elapsed   = testService.getElapsedSeconds();
-            TestType test      = testService.getActiveTest().orElse(null);
+            @Nullable TestType test = testService.getActiveTest().orElse(null);
             if (test == null) return;
 
             long remaining = Math.max(0, test.getDurationSeconds() - elapsed);
@@ -667,5 +673,18 @@ public class PerformanceTestView extends VerticalLayout {
         int h = seconds / 3600;
         int m = (seconds % 3600) / 60;
         return h + "h " + m + "min";
+    }
+
+    private static int intValueOrDefault(@Nullable Integer value, int defaultValue) {
+        return value == null ? defaultValue : value;
+    }
+
+    private static double doubleValueOrDefault(@Nullable Double value, double defaultValue) {
+        return value == null ? defaultValue : value;
+    }
+
+    private static String exceptionMessage(Exception exception) {
+        @Nullable String message = exception.getMessage();
+        return message == null ? exception.getClass().getSimpleName() : message;
     }
 }

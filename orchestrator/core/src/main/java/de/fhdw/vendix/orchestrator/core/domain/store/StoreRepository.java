@@ -15,7 +15,7 @@ interface StoreRepository extends JpaRepository<Store, Long> {
                 SELECT 1
                 FROM DistributedLock l
                 WHERE l.target.id = s.id
-                    AND l.target.type = STORE
+                    AND l.target.type = de.fhdw.vendix.commons.api.embeddable.TargetType.STORE
             )
             """
     )
@@ -29,7 +29,7 @@ interface StoreRepository extends JpaRepository<Store, Long> {
                 SELECT 1
                 FROM DistributedLock l
                 WHERE l.target.id = s.id
-                    AND l.target.type = STORE
+                    AND l.target.type = de.fhdw.vendix.commons.api.embeddable.TargetType.STORE
             )
             """
     )

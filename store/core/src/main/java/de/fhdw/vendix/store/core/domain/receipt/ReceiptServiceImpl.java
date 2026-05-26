@@ -2,20 +2,25 @@ package de.fhdw.vendix.store.core.domain.receipt;
 
 import de.fhdw.vendix.commons.spring.data.crud.AbstractCrudService;
 import de.fhdw.vendix.store.core.domain.receipt_line.ReceiptLine;
+import de.fhdw.vendix.store.core.domain.store_stock.StoreStockService;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 @Service
 class ReceiptServiceImpl extends AbstractCrudService<Receipt, Long> implements ReceiptService {
 
     private final ReceiptRepository receiptRepository;
+    private final StoreStockService storeStockService;
 
-    ReceiptServiceImpl(ReceiptRepository receiptRepository) {
+    ReceiptServiceImpl(ReceiptRepository receiptRepository, StoreStockService storeStockService) {
         super(receiptRepository);
         this.receiptRepository = receiptRepository;
+        this.storeStockService = storeStockService;
     }
 
     // ─── Bestehende Methoden ───────────────────────────────────────────────────
@@ -50,6 +55,13 @@ class ReceiptServiceImpl extends AbstractCrudService<Receipt, Long> implements R
 
     @Override
     @Transactional(readOnly = true)
+    public List<Long> findDistinctArticleIdsSoldTodayByStoreId(Long storeId) {
+        if (storeId == null || storeId <= 0) return List.of();
+        return receiptRepository.findDistinctArticleIdsSoldTodayByStoreId(storeId);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
     public List<ReceiptLine> findAllReceiptLinesByReceiptId(Long id) {
         if (id == null || id <= 0) return List.of();
         return receiptRepository.findAllReceiptLinesByReceiptId(id);
@@ -67,6 +79,9 @@ class ReceiptServiceImpl extends AbstractCrudService<Receipt, Long> implements R
                         "Bon mit ID " + id + " nicht gefunden."));
 
         Receipt cancelled = receipt.cancel();
+        storeStockService.incrementArticles(receipt.getStoreId(), aggregateArticleAmounts(
+                receiptRepository.findAllReceiptLinesByReceiptId(id)
+        ));
         return receiptRepository.save(cancelled);
     }
 
@@ -83,5 +98,13 @@ class ReceiptServiceImpl extends AbstractCrudService<Receipt, Long> implements R
 
         Receipt printed = receipt.print();
         return receiptRepository.save(printed);
+    }
+
+    private static Map<Long, Long> aggregateArticleAmounts(List<ReceiptLine> lines) {
+        Map<Long, Long> amountByArticle = new LinkedHashMap<>();
+        for (ReceiptLine line : lines) {
+            amountByArticle.merge(line.getArticleId(), line.getArticleAmount(), Long::sum);
+        }
+        return amountByArticle;
     }
 }

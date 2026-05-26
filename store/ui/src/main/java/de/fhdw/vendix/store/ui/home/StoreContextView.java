@@ -18,6 +18,7 @@ import de.fhdw.vendix.store.core.store.StoreContext;
 import de.fhdw.vendix.commons.spring.web.client.orchestrator.api.StoreProxyService;
 import de.fhdw.vendix.store.ui.StoreAppLayout;
 import jakarta.annotation.security.RolesAllowed;
+import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
@@ -72,8 +73,9 @@ public class StoreContextView extends VerticalLayout {
 
     private void loadInactiveStores() {
         ResponseEntity<List<StoreDTO>> stores = storeProxyService.getUnlockedStores();
-        if (stores.getStatusCode() == HttpStatus.OK && stores.getBody() != null) {
-            inactiveStores.addAll(stores.getBody());
+        @Nullable List<StoreDTO> body = stores.getBody();
+        if (stores.getStatusCode() == HttpStatus.OK && body != null) {
+            inactiveStores.addAll(body);
         }
         inactiveStores.forEach(store -> {
             Component storeCard = createStoreCard(store, false);
@@ -83,8 +85,9 @@ public class StoreContextView extends VerticalLayout {
 
     private void loadActiveStores() {
         ResponseEntity<List<StoreDTO>> stores = storeProxyService.getLockedStores();
-        if (stores.getStatusCode() == HttpStatus.OK && stores.getBody() != null) {
-            activeStores.addAll(stores.getBody());
+        @Nullable List<StoreDTO> body = stores.getBody();
+        if (stores.getStatusCode() == HttpStatus.OK && body != null) {
+            activeStores.addAll(body);
         }
         activeStores.forEach(store -> {
             Component storeCard = createStoreCard(store, true);
@@ -159,6 +162,9 @@ public class StoreContextView extends VerticalLayout {
 
     private void handleStoreClickEvent(StoreDTO store) {
         storeContext.setStore(store);
-        UI.getCurrent().navigate(RootView.class);
+        @Nullable UI ui = UI.getCurrent();
+        if (ui != null) {
+            ui.navigate(RootView.class);
+        }
     }
 }

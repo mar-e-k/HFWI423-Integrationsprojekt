@@ -1,10 +1,12 @@
 package de.fhdw.vendix.commons.spring.starter.autoconfigure.web;
 
 import de.fhdw.vendix.commons.spring.security.jwt.JwtService;
+import de.fhdw.vendix.commons.spring.starter.properties.OrchestratorClientPropertiesConfiguration;
 import de.fhdw.vendix.commons.spring.web.client.orchestrator.api.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.MediaType;
@@ -15,15 +17,19 @@ import org.springframework.web.service.invoker.HttpServiceProxyFactory;
 import java.util.List;
 
 @Configuration
+@EnableConfigurationProperties(OrchestratorClientPropertiesConfiguration.class)
 public class OrchestratorClientAutoConfiguration {
 
     private static final Logger log = LoggerFactory.getLogger(OrchestratorClientAutoConfiguration.class);
 
     @Bean
     @ConditionalOnMissingBean
-    public HttpServiceProxyFactory orchestratorClientFactory(JwtService jwtService) {
+    public HttpServiceProxyFactory orchestratorClientFactory(
+            JwtService jwtService,
+            OrchestratorClientPropertiesConfiguration properties
+    ) {
         RestClient restClient = RestClient.builder()
-                .baseUrl("http://localhost:8080")
+                .baseUrl(properties.baseUrl())
                 .requestInterceptor((request, body, execution) -> {
                     request.getHeaders().setBearerAuth(jwtService.generateToken());
                     request.getHeaders().setAccept(List.of(MediaType.APPLICATION_JSON));
@@ -64,13 +70,13 @@ public class OrchestratorClientAutoConfiguration {
 
     @Bean
     @ConditionalOnMissingBean
-    public StoreProxyService storeProxyService(HttpServiceProxyFactory storeClientFactory) {
-        return storeClientFactory.createClient(StoreProxyService.class);
+    public StoreProxyService storeProxyService(HttpServiceProxyFactory orchestratorClientFactory) {
+        return orchestratorClientFactory.createClient(StoreProxyService.class);
     }
 
     @Bean
     @ConditionalOnMissingBean
-    public RegisterProxyService registerProxyService(HttpServiceProxyFactory storeClientFactory) {
-        return storeClientFactory.createClient(RegisterProxyService.class);
+    public RegisterProxyService registerProxyService(HttpServiceProxyFactory orchestratorClientFactory) {
+        return orchestratorClientFactory.createClient(RegisterProxyService.class);
     }
 }

@@ -49,7 +49,7 @@ public final class Table {
         if (column < 0) {
             throw new IllegalArgumentException("Parameter 'column' cannot be negative");
         }
-        // TODO
+        rows.get(row).set(column, cell);
     }
 
     public void appendRow() {

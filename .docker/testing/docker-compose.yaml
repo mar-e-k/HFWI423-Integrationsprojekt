@@ -25,6 +25,8 @@ services:
       - K6_WEB_DASHBOARD_OPEN=false
       # K6_WEB_DASHBOARD_EXPORT wird pro Test vom PerformanceTestService gesetzt
       # und enthält den Pfad zur HTML-Report-Datei im Container.
+      - ORCHESTRATOR_URL=${K6_ORCHESTRATOR_URL}
+      - STORE_URL=${K6_STORE_URL}
     extra_hosts:
       - "host.docker.internal:host-gateway"
     networks:

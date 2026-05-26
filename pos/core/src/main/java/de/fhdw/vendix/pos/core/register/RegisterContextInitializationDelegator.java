@@ -44,8 +44,9 @@ public class RegisterContextInitializationDelegator {
     @EventListener
     @Order(Ordered.HIGHEST_PRECEDENCE)
     public void onRegisterContextInitializedEvent(RegisterContextInitializedEvent event) {
+        Long registerId = Objects.requireNonNull(event.getRegister().id());
         EntityTargetDTO entityTarget = new EntityTargetDTO(
-                Objects.requireNonNull(event.getRegister().id()),
+                registerId,
                 TargetType.REGISTER
         );
         registerConnectionAndLock(entityTarget);

@@ -18,7 +18,7 @@ interface RegisterRepository extends JpaRepository<Register, Long> {
                 SELECT 1
                 FROM DistributedLock l
                 WHERE l.target.id = r.id
-                    AND l.target.type = REGISTER
+                    AND l.target.type = de.fhdw.vendix.commons.api.embeddable.TargetType.REGISTER
             )
             """
     )
@@ -32,7 +32,7 @@ interface RegisterRepository extends JpaRepository<Register, Long> {
                 SELECT 1
                 FROM DistributedLock l
                 WHERE l.target.id = r.id
-                    AND l.target.type = REGISTER
+                    AND l.target.type = de.fhdw.vendix.commons.api.embeddable.TargetType.REGISTER
             )
             """
     )
@@ -47,7 +47,7 @@ interface RegisterRepository extends JpaRepository<Register, Long> {
                     SELECT 1
                     FROM DistributedLock l
                     WHERE l.target.id = r.id
-                        AND l.target.type = REGISTER
+                        AND l.target.type = de.fhdw.vendix.commons.api.embeddable.TargetType.REGISTER
             )
             """
     )
@@ -62,7 +62,7 @@ interface RegisterRepository extends JpaRepository<Register, Long> {
                     SELECT 1
                     FROM DistributedLock l
                     WHERE l.target.id = r.id
-                        AND l.target.type = REGISTER
+                        AND l.target.type = de.fhdw.vendix.commons.api.embeddable.TargetType.REGISTER
             )
             """
     )

@@ -6,27 +6,37 @@ import de.fhdw.vendix.store.core.embeddable.preference_amount.PreferenceAmount;
 import jakarta.persistence.Column;
 import jakarta.persistence.Embedded;
 import jakarta.persistence.Entity;
+import jakarta.persistence.Index;
+import jakarta.persistence.Table;
+import jakarta.persistence.UniqueConstraint;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
 import org.jspecify.annotations.Nullable;
 
 @Entity
-
+@Table(
+        uniqueConstraints = {
+                @UniqueConstraint(name = "uk_store_stock_store_article", columnNames = {"store_id", "article_id"})
+        },
+        indexes = {
+                @Index(name = "idx_store_stock_store_article", columnList = "store_id, article_id")
+        }
+)
 public class StoreStock extends AbstractSpringDataAuditingEntity<Long> {
 
     @NotNull(message = "Store ID cannot be null")
     @Min(value = 1, message = "Store ID must be at least 1")
-    @Column(nullable = false)
+    @Column(name = "store_id", nullable = false)
     private Long storeId;
 
     @NotNull(message = "Article ID cannot be null")
     @Min(value = 1, message = "Article ID must be at least 1")
-    @Column(nullable = false)
+    @Column(name = "article_id", nullable = false)
     private Long articleId;
 
     @NotNull(message = "Current amount cannot be null")
     @Min(value = 0, message = "Current amount must be at least 1")
-    @Column(nullable = false)
+    @Column(name = "current_amount", nullable = false)
     private Long currentAmount;
 
     @NotNull(message = "Preference amount cannot be null")

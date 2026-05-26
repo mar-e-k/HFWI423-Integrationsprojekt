@@ -100,7 +100,7 @@ public class PerformanceTestService {
     public void startTest(TestType testType, Consumer<String> logConsumer,
                           Map<String, String> extraEnv) throws IOException {
         if (running.get()) {
-            TestType current = activeTest.get();
+            @Nullable TestType current = activeTest.get();
             String name = current != null ? current.getDisplayName() : "Unbekannt";
             throw new IllegalStateException("Ein Test läuft bereits: " + name);
         }
@@ -155,8 +155,9 @@ public class PerformanceTestService {
         try {
             proc = pb.start();
         } catch (IOException e) {
+            @Nullable String message = e.getMessage();
             throw new IOException(
-                    "docker exec fehlgeschlagen: " + e.getMessage() +
+                    "docker exec fehlgeschlagen: " + (message == null ? e.getClass().getSimpleName() : message) +
                             "  –  Läuft der k6-Container? (docker ps | grep vendix-k6)", e
             );
         }
@@ -174,7 +175,8 @@ public class PerformanceTestService {
                     logConsumer.accept(line);
                 }
             } catch (IOException e) {
-                String msg = e.getMessage() != null ? e.getMessage() : "Stream-Fehler";
+                @Nullable String message = e.getMessage();
+                String msg = message == null ? "Stream-Fehler" : message;
                 logConsumer.accept("[ERROR] Log-Stream unterbrochen: " + msg);
                 log.error("[Performance] Log-Stream unterbrochen: {}", msg);
             }
@@ -185,7 +187,7 @@ public class PerformanceTestService {
             }
 
             long elapsed = Instant.now().getEpochSecond() - startedAt.get();
-            TestType finished = activeTest.get();
+            @Nullable TestType finished = activeTest.get();
             String finishedName = finished != null ? finished.getDisplayName() : "Unbekannt";
 
             log.info("");
@@ -223,7 +225,7 @@ public class PerformanceTestService {
     // ─── Stoppen ──────────────────────────────────────────────────────────────
 
     public void stopTest() {
-        Process proc = process.get();
+        @Nullable Process proc = process.get();
         if (proc != null && proc.isAlive()) {
             proc.destroyForcibly();
             log.info("[Performance] k6-Prozess manuell gestoppt.");
@@ -249,7 +251,7 @@ public class PerformanceTestService {
     }
 
     public double getProgress() {
-        TestType test = activeTest.get();
+        @Nullable TestType test = activeTest.get();
         if (test == null || !running.get()) return 0.0;
         return Math.min(1.0, (double) getElapsedSeconds() / test.getDurationSeconds());
     }
@@ -258,7 +260,7 @@ public class PerformanceTestService {
 
     private Path resolveRepositoryRoot() throws IOException {
         Path startPath = Path.of(System.getProperty("user.dir", ".")).toAbsolutePath().normalize();
-        for (Path current = startPath; current != null; current = current.getParent()) {
+        for (@Nullable Path current = startPath; current != null; current = current.getParent()) {
             if (Files.exists(current.resolve(K6_COMPOSE))) return current;
         }
         throw new IOException(

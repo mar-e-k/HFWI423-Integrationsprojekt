@@ -33,6 +33,10 @@ public class RegisterView extends HorizontalLayout {
                 () -> {
                     controller.addToCart();
                     receiptList.refresh();
+                },
+                () -> {
+                    controller.checkout();
+                    receiptList.refresh();
                 }
         );
 

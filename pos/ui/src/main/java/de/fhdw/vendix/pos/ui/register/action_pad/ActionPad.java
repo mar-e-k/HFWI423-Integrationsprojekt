@@ -10,7 +10,7 @@ public final class ActionPad extends VerticalLayout {
     private final RegisterState state;
     private final ArticleAmountDisplay display = new ArticleAmountDisplay();
 
-    public ActionPad(RegisterState state, Runnable onAdd) {
+    public ActionPad(RegisterState state, Runnable onAdd, Runnable onCheckout) {
         this.state = state;
 
         setWidthFull();
@@ -34,9 +34,12 @@ public final class ActionPad extends VerticalLayout {
         Button addButton = new Button("Add", e -> onAdd.run());
         addButton.setWidthFull();
 
+        Button checkoutButton = new Button("Checkout", e -> onCheckout.run());
+        checkoutButton.setWidthFull();
+
         HorizontalLayout buttonsLayout = new HorizontalLayout(colorGrid, numpad);
 
-        add(display, buttonsLayout, addButton);
+        add(display, buttonsLayout, addButton, checkoutButton);
 
         state.addListener(this::refresh);
 

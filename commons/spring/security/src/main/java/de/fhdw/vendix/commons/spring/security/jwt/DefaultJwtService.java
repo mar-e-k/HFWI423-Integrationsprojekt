@@ -7,7 +7,9 @@ import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.SignedJWT;
 import de.fhdw.vendix.commons.api.domain.account_role.Role;
 import de.fhdw.vendix.commons.spring.security.context.auth.DefaultUser;
+import org.jspecify.annotations.Nullable;
 import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 
 import java.nio.charset.StandardCharsets;
@@ -21,51 +23,84 @@ public final class DefaultJwtService implements JwtService {
 
     private final byte[] secret;
     private final Duration expiration;
+    private final Object systemTokenMonitor = new Object();
+
+    private volatile @Nullable String cachedSystemToken;
+    private volatile long cachedSystemTokenRefreshAtMillis;
 
     public DefaultJwtService(JwtProperties jwtProperties) {
         this.secret = jwtProperties.privateKey().getBytes(StandardCharsets.UTF_8);
         this.expiration = jwtProperties.expiration();
     }
 
-    // TODO: Cache this to make it less expensive
-    // centralize this to orchestrator with api/login or similar
     @Override
     public String generateToken() {
-        try {
+        DefaultUser defaultUser = currentUser();
+        if (defaultUser != null) {
             Date now = new Date();
             Date exp = new Date(now.getTime() + expiration.toMillis());
+            return createToken(
+                    defaultUser.authContext().account().uuid().toString(),
+                    defaultUser.authContext().roles(),
+                    now,
+                    exp
+            );
+        }
 
-//            Long storeId = storeContext.getStore() == null ? null : storeContext.getStore().id();
-//            Long registerId = registerContext.getRegister() == null ? null : registerContext.getRegister().id();
+        return generateSystemToken();
+    }
 
-            String subject;
-            Set<Role> roles;
+    private @Nullable DefaultUser currentUser() {
+        @Nullable Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication != null && authentication.getPrincipal() instanceof DefaultUser defaultUser) {
+            return defaultUser;
+        }
+        return null;
+    }
 
-            if (SecurityContextHolder.getContext().getAuthentication() != null && SecurityContextHolder.getContext().getAuthentication().getPrincipal() instanceof DefaultUser defaultUser) {
-                subject = defaultUser.authContext().account().uuid().toString();
-                roles = defaultUser.authContext().roles();
-            } else {
-                subject = UUID.randomUUID().toString();
-                roles = Set.of(Role.SYSTEM);
+    private String generateSystemToken() {
+        long nowMillis = System.currentTimeMillis();
+        @Nullable String token = cachedSystemToken;
+        if (token != null && nowMillis < cachedSystemTokenRefreshAtMillis) {
+            return token;
+        }
+
+        synchronized (systemTokenMonitor) {
+            nowMillis = System.currentTimeMillis();
+            token = cachedSystemToken;
+            if (token != null && nowMillis < cachedSystemTokenRefreshAtMillis) {
+                return token;
             }
 
+            Date now = new Date(nowMillis);
+            Date exp = new Date(nowMillis + expiration.toMillis());
+            String newToken = createToken(UUID.randomUUID().toString(), Set.of(Role.SYSTEM), now, exp);
+            cachedSystemToken = newToken;
+            cachedSystemTokenRefreshAtMillis = nextSystemTokenRefreshAt(nowMillis);
+            return newToken;
+        }
+    }
+
+    private long nextSystemTokenRefreshAt(long issuedAtMillis) {
+        long ttlMillis = expiration.toMillis();
+        if (ttlMillis <= 1_000L) {
+            return issuedAtMillis;
+        }
+        return issuedAtMillis + Math.max(1_000L, ttlMillis * 9 / 10);
+    }
+
+    private String createToken(String subject, Set<Role> roles, Date now, Date exp) {
+        try {
             JWTClaimsSet claimsSet = new JWTClaimsSet.Builder()
                     .jwtID(UUID.randomUUID().toString())
-//                    .issuer(appContext.getApplicationName())
-//                    .audience(List.of("orchestrator", "pos", "store"))
                     .issueTime(now)
                     .expirationTime(exp)
                     .subject(subject)
                     .claim(JwtClaims.ROLES.claim(), roles)
-//                    .claim(JwtClaims.STORE.claim(), storeId)
-//                    .claim(JwtClaims.REGISTER.claim(), registerId)
                     .build();
 
-            JWSHeader header = new JWSHeader(JWSAlgorithm.HS256);
-            SignedJWT signedJWT = new SignedJWT(header, claimsSet);
-            JWSSigner signer = new MACSigner(secret);
-            signedJWT.sign(signer);
-
+            SignedJWT signedJWT = new SignedJWT(new JWSHeader(JWSAlgorithm.HS256), claimsSet);
+            signedJWT.sign(new MACSigner(secret));
             return signedJWT.serialize();
         } catch (JOSEException e) {
             throw new IllegalStateException("Failed to generate JWT", e);
@@ -82,7 +117,11 @@ public final class DefaultJwtService implements JwtService {
                 throw new BadCredentialsException("Invalid JWT signature");
             }
 
-            return signedJWT.getJWTClaimsSet();
+            @Nullable JWTClaimsSet claimsSet = signedJWT.getJWTClaimsSet();
+            if (claimsSet == null) {
+                throw new BadCredentialsException("JWT claims missing");
+            }
+            return claimsSet;
 
         } catch (ParseException e) {
             throw new BadCredentialsException("Invalid JWT format", e);

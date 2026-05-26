@@ -1,5 +1,7 @@
 package de.fhdw.vendix.store.app.listener;
 
+import de.fhdw.vendix.commons.api.domain.store.StoreDTO;
+import de.fhdw.vendix.store.core.domain.replenishment.ReplenishmentOrderService;
 import de.fhdw.vendix.store.core.store.StoreContext;
 import de.fhdw.vendix.store.core.domain.store_stock.StoreStockService;
 import io.github.plaguv.amqp.api.event.logistic.ArticleSentEvent;
@@ -7,9 +9,12 @@ import io.github.plaguv.amqp.core.listener.AmqpEventListener;
 import io.github.plaguv.amqp.core.listener.MessageRejectedException;
 import io.micrometer.core.instrument.Counter;
 import io.micrometer.core.instrument.MeterRegistry;
+import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
+
+import java.util.Objects;
 
 /**
  * Consumes {@link ArticleSentEvent}s from the logistics application and
@@ -32,6 +37,7 @@ public class ArticleSentEventListener {
 
     private final StoreContext storeContext;
     private final StoreStockService storeStockService;
+    private final ReplenishmentOrderService replenishmentOrderService;
 
     private final Counter consumedCounter;
     private final Counter rejectedCounter;
@@ -40,10 +46,12 @@ public class ArticleSentEventListener {
     public ArticleSentEventListener(
             StoreContext storeContext,
             StoreStockService storeStockService,
+            ReplenishmentOrderService replenishmentOrderService,
             MeterRegistry meterRegistry
     ) {
         this.storeContext = storeContext;
         this.storeStockService = storeStockService;
+        this.replenishmentOrderService = replenishmentOrderService;
 
         this.consumedCounter = Counter.builder("vendix_article_sent_consumed_total")
                 .description("Total number of ArticleSentEvents successfully processed")
@@ -66,23 +74,21 @@ public class ArticleSentEventListener {
 
         log.atInfo().log("onArticleSentEvent: {}", event);
 
-//        if (storeContext.getStore() == null || storeContext.getStore().id() == null) {
-//            throw new IllegalStateException("Cannot handle event, as storeContext is not set properly");
-//        }
-
-//        Should probably be rewritten, but we skip this for now since it causes more errors than function
-//        if (event.storeId() != storeContext.getStore().id()) {
-//            log.atDebug().log("Rejecting ArticleSentEvent — wrong storeId: expected={}, got={}",
-//                    storeContext.getStore().id(), event.storeId());
-//            rejectedCounter.increment();
-//            throw new MessageRejectedException("Cannot handle event, wrong store received it");
-//        }
+        @Nullable StoreDTO currentStore = storeContext.getStore();
+        @Nullable Long currentStoreId = currentStore == null ? null : currentStore.id();
+        if (currentStoreId != null && !Objects.equals(event.storeId(), currentStoreId)) {
+            log.atDebug().log("Ignoring ArticleSentEvent - wrong storeId: expected={}, got={}",
+                    currentStoreId, event.storeId());
+            rejectedCounter.increment();
+            return;
+        }
 
         storeStockService.restockArticle(
                 event.storeId(),
                 event.articleId(),
                 event.articleAmount()
         );
+        replenishmentOrderService.markReceived(event.storeId(), event.articleId(), event.articleAmount());
 
         consumedCounter.increment();
         restockAmountCounter.increment(event.articleAmount());

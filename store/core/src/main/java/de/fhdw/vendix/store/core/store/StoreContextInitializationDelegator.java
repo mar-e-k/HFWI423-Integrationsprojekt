@@ -40,8 +40,9 @@ public class StoreContextInitializationDelegator {
 
     @EventListener
     public void onStoreContextInitializedEvent(StoreContextInitializedEvent event) {
+        Long storeId = Objects.requireNonNull(event.getStore().id());
         EntityTargetDTO entityTarget = new EntityTargetDTO(
-                Objects.requireNonNull(event.getStore().id()),
+                storeId,
                 TargetType.STORE
         );
         registerConnectionAndLock(entityTarget);

@@ -12,6 +12,7 @@ import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import org.jspecify.annotations.Nullable;
 import org.springframework.http.HttpHeaders;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -25,6 +26,7 @@ import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
 import java.text.ParseException;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
@@ -48,7 +50,7 @@ public final class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     @Override
     protected void doFilterInternal(@Nonnull HttpServletRequest request, @Nonnull HttpServletResponse response, @Nonnull FilterChain filterChain) throws IOException, ServletException {
-        String header = request.getHeader(HttpHeaders.AUTHORIZATION);
+        @Nullable String header = request.getHeader(HttpHeaders.AUTHORIZATION);
 
         if (header != null && header.startsWith("Bearer ")) {
             try {
@@ -71,11 +73,19 @@ public final class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         jwtValidator.validate(claims);
 
-        UUID subject = UUID.fromString(claims.getSubject());
+        @Nullable String subjectClaim = claims.getSubject();
+        if (subjectClaim == null) {
+            throw new BadCredentialsException("JWT subject missing");
+        }
+        UUID subject = UUID.fromString(subjectClaim);
         Set<Role> roles;
 
         try {
-            roles = claims.getStringListClaim(JwtClaims.ROLES.claim()).stream()
+            @Nullable List<String> roleClaims = claims.getStringListClaim(JwtClaims.ROLES.claim());
+            if (roleClaims == null) {
+                throw new BadCredentialsException("JWT roles missing");
+            }
+            roles = roleClaims.stream()
                     .map(Role::valueOf)
                     .collect(Collectors.toSet());
         } catch (ParseException e) {

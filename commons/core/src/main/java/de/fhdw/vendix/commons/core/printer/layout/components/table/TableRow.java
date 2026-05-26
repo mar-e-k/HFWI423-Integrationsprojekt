@@ -19,6 +19,10 @@ public final class TableRow {
         cells.add(cell);
     }
 
+    public void set(int column, TableCell cell) {
+        cells.set(column, cell);
+    }
+
     public int size() {
         return cells.size();
     }

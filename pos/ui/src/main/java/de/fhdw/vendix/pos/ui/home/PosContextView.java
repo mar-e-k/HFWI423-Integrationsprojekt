@@ -22,6 +22,7 @@ import de.fhdw.vendix.commons.spring.web.client.orchestrator.api.RegisterProxySe
 import de.fhdw.vendix.commons.spring.web.client.orchestrator.api.StoreProxyService;
 import de.fhdw.vendix.pos.ui.PosAppLayout;
 import jakarta.annotation.security.RolesAllowed;
+import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
@@ -80,8 +81,9 @@ public class PosContextView extends VerticalLayout {
 
     private void loadUnlockedStores() {
         ResponseEntity<List<StoreDTO>> stores = storeProxyService.getUnlockedStores();
-        if (stores.getStatusCode() == HttpStatus.OK && stores.getBody() != null) {
-            inactiveStores.addAll(stores.getBody());
+        @Nullable List<StoreDTO> body = stores.getBody();
+        if (stores.getStatusCode() == HttpStatus.OK && body != null) {
+            inactiveStores.addAll(body);
         }
         inactiveStores.forEach(store -> {
             Component storeCard = createStoreCard(store, true);
@@ -91,8 +93,9 @@ public class PosContextView extends VerticalLayout {
 
     private void loadLockedStores() {
         ResponseEntity<List<StoreDTO>> stores = storeProxyService.getLockedStores();
-        if (stores.getStatusCode() == HttpStatus.OK && stores.getBody() != null) {
-            activeStores.addAll(stores.getBody());
+        @Nullable List<StoreDTO> body = stores.getBody();
+        if (stores.getStatusCode() == HttpStatus.OK && body != null) {
+            activeStores.addAll(body);
         }
         activeStores.forEach(store -> {
             Component storeCard = createStoreCard(store, false);
@@ -185,19 +188,23 @@ public class PosContextView extends VerticalLayout {
         registerLayout.setFlexWrap(FlexLayout.FlexWrap.WRAP);
         registerLayout.setJustifyContentMode(JustifyContentMode.START);
 
+        Long storeId = Objects.requireNonNull(store.id());
+
         // Load and display active registers
-        ResponseEntity<List<RegisterDTO>> activeRegistersResponse = registerProxyService.getLockedRegistersByStoreId(Objects.requireNonNull(store.id()));
-        if (activeRegistersResponse.getStatusCode() == HttpStatus.OK && activeRegistersResponse.getBody() != null) {
-            activeRegistersResponse.getBody().forEach(register -> {
+        ResponseEntity<List<RegisterDTO>> activeRegistersResponse = registerProxyService.getLockedRegistersByStoreId(storeId);
+        @Nullable List<RegisterDTO> activeRegisters = activeRegistersResponse.getBody();
+        if (activeRegistersResponse.getStatusCode() == HttpStatus.OK && activeRegisters != null) {
+            activeRegisters.forEach(register -> {
                 Component registerCard = createRegisterCard(register, true);
                 registerLayout.add(registerCard);
             });
         }
 
         // Load and display inactive registers
-        ResponseEntity<List<RegisterDTO>> inactiveRegistersResponse = registerProxyService.getUnlockedRegistersByStoreId(Objects.requireNonNull(store.id()));
-        if (inactiveRegistersResponse.getStatusCode() == HttpStatus.OK && inactiveRegistersResponse.getBody() != null) {
-            inactiveRegistersResponse.getBody().forEach(register -> {
+        ResponseEntity<List<RegisterDTO>> inactiveRegistersResponse = registerProxyService.getUnlockedRegistersByStoreId(storeId);
+        @Nullable List<RegisterDTO> inactiveRegisters = inactiveRegistersResponse.getBody();
+        if (inactiveRegistersResponse.getStatusCode() == HttpStatus.OK && inactiveRegisters != null) {
+            inactiveRegisters.forEach(register -> {
                 Component registerCard = createRegisterCard(register, false);
                 registerLayout.add(registerCard);
             });
@@ -261,7 +268,10 @@ public class PosContextView extends VerticalLayout {
 
     private void handleRegisterClickEvent(RegisterDTO register) {
         registerContext.setRegister(register);
-        UI.getCurrent().navigate(RootView.class);
+        @Nullable UI ui = UI.getCurrent();
+        if (ui != null) {
+            ui.navigate(RootView.class);
+        }
         registerDialog.close();
     }
 }

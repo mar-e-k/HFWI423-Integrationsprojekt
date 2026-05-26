@@ -7,6 +7,7 @@ import com.vaadin.flow.router.BeforeEnterObserver;
 import com.vaadin.flow.server.VaadinSession;
 import com.vaadin.flow.server.WrappedSession;
 import de.fhdw.vendix.commons.spring.web.SessionAttribute;
+import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -32,10 +33,14 @@ public abstract class AbstractLoginView extends VerticalLayout implements Before
 
     @Override
     public void beforeEnter(BeforeEnterEvent beforeEnterEvent) {
-        WrappedSession session = VaadinSession.getCurrent().getSession();
-        String errorCode = (String) session.getAttribute(SessionAttribute.LOGIN_ERROR.name());
+        @Nullable VaadinSession currentSession = VaadinSession.getCurrent();
+        if (currentSession == null) {
+            return;
+        }
+        WrappedSession session = currentSession.getSession();
+        @Nullable Object errorCodeAttribute = session.getAttribute(SessionAttribute.LOGIN_ERROR.name());
 
-        if (errorCode != null) {
+        if (errorCodeAttribute instanceof String errorCode) {
             String errorTitle = resolveErrorCodeTitle(errorCode);
             String errorMessage = resolveErrorCodeMessage(errorCode);
             loginForm.setError(true);

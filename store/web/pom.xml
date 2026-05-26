@@ -72,6 +72,10 @@
                                 <importMapping>CheckoutRequestDTO=de.fhdw.vendix.commons.api.domain.receipt.CheckoutRequestDTO</importMapping>
                                 <importMapping>CheckoutResponseDTO=de.fhdw.vendix.commons.api.domain.receipt.CheckoutResponseDTO</importMapping>
                                 <importMapping>CheckoutLineDTO=de.fhdw.vendix.commons.api.domain.receipt.CheckoutLineDTO</importMapping>
+                                <importMapping>ReplenishmentOrderRequestDTO=de.fhdw.vendix.commons.api.domain.replenishment.ReplenishmentOrderRequestDTO</importMapping>
+                                <importMapping>ReplenishmentOrderResponseDTO=de.fhdw.vendix.commons.api.domain.replenishment.ReplenishmentOrderResponseDTO</importMapping>
+                                <importMapping>ReplenishmentOrderStatusDTO=de.fhdw.vendix.commons.api.domain.replenishment.ReplenishmentOrderStatusDTO</importMapping>
+                                <importMapping>ReplenishmentOrderStatus=de.fhdw.vendix.commons.api.domain.replenishment.ReplenishmentOrderStatus</importMapping>
                             </importMappings>
                         </configuration>
                     </execution>

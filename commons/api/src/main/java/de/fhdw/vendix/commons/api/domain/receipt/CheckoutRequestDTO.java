@@ -15,13 +15,15 @@ import java.util.List;
  * @param cashierId     ID des Kassierers
  * @param paymentMethod Zahlungsmethode (CASH, CARD, ONLINE)
  * @param lines         Bon-Positionen (min. 1 Artikel)
+ * @param returnLineIds optional; false keeps the response small for load tests
  */
 public record CheckoutRequestDTO(
         Long storeId,
         Long registerId,
         Long cashierId,
         PaymentMethod paymentMethod,
-        List<CheckoutLineDTO> lines
+        List<CheckoutLineDTO> lines,
+        Boolean returnLineIds
 ) implements RequestDTO {
 
     public CheckoutRequestDTO {
@@ -40,5 +42,6 @@ public record CheckoutRequestDTO(
         if (lines == null || lines.isEmpty()) {
             throw new IllegalArgumentException("CheckoutRequestDTO: 'lines' darf nicht leer sein");
         }
+        returnLineIds = returnLineIds == null || returnLineIds;
     }
 }

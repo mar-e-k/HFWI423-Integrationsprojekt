@@ -10,6 +10,7 @@ import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.shared.Registration;
 import de.fhdw.vendix.commons.spring.data.entity.AbstractSpringDataAuditingEntity;
+import org.jspecify.annotations.Nullable;
 
 public class AuditingDetailsForm extends VerticalLayout {
 
@@ -49,16 +50,20 @@ public class AuditingDetailsForm extends VerticalLayout {
         binder.forField(version)
                 .bind(e -> String.valueOf(e.getVersion()), null);
         binder.forField(createdAt)
-                .bind(e -> String.valueOf(e.getChangedAt()), null);
+                .bind(e -> nullableToString(e.getCreatedAt()), null);
 
         binder.forField(createdBy)
-                .bind(AbstractSpringDataAuditingEntity::getCreatedBy, null);
+                .bind(e -> nullableToString(e.getCreatedBy()), null);
 
         binder.forField(changedAt)
-                .bind(e -> String.valueOf(e.getChangedAt()), null);
+                .bind(e -> nullableToString(e.getChangedAt()), null);
 
         binder.forField(changedBy)
-                .bind(AbstractSpringDataAuditingEntity::getChangedBy, null);
+                .bind(e -> nullableToString(e.getChangedBy()), null);
+    }
+
+    private static String nullableToString(@Nullable Object value) {
+        return value == null ? "" : value.toString();
     }
 
     private void configureLayout() {

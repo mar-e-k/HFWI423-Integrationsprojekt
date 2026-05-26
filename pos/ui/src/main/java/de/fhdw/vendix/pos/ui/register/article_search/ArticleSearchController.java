@@ -1,9 +1,11 @@
 package de.fhdw.vendix.pos.ui.register.article_search;
 
 import com.vaadin.flow.spring.annotation.UIScope;
+import de.fhdw.vendix.commons.api.domain.article.ArticleDTO;
 import de.fhdw.vendix.commons.spring.web.client.store.api.ArticleProxyService;
 import de.fhdw.vendix.pos.ui.register.RegisterState;
 import de.fhdw.vendix.pos.web.client.store.StoreClients;
+import org.jspecify.annotations.Nullable;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -21,12 +23,12 @@ public class ArticleSearchController {
     public void search(String gtin) {
         try {
             var response = articleProxyService.getArticleByGtin(gtin);
+            @Nullable ArticleDTO article = response.getBody();
 
             if (response.getStatusCode().is2xxSuccessful()
-                    && response.getBody() != null) {
+                    && article != null) {
 
-                state.setSelectedArticle(response.getBody());
-
+                state.setSelectedArticle(article);
             } else {
                 state.setSelectedArticle(null);
             }

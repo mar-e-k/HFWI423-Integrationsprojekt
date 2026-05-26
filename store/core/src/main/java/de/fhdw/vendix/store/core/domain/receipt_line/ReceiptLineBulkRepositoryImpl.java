@@ -1,5 +1,6 @@
 package de.fhdw.vendix.store.core.domain.receipt_line;
 
+import org.jspecify.annotations.Nullable;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -110,9 +111,10 @@ class ReceiptLineBulkRepositoryImpl implements ReceiptLineBulkRepository {
     }
 
     private static String resolveAuditor() {
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        if (auth != null && auth.isAuthenticated() && auth.getName() != null) {
-            return auth.getName();
+        @Nullable Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        @Nullable String name = auth == null ? null : auth.getName();
+        if (auth != null && auth.isAuthenticated() && name != null) {
+            return name;
         }
         return "system";
     }

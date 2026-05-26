@@ -15,14 +15,15 @@
 //   URGENT_RATIO       – Anteil dringend (default: 0.3 → 30 % urgent)
 //   VERIFY_STOCK       – Bestand prüfen  (default: true)
 //   VERIFY_WAIT_MS     – Wartezeit vor Verifikation in ms (default: 2000)
+//   POLL_STATUS        – Async-Status abfragen (default: true)
 // ═══════════════════════════════════════════════════════════════════════════
 
 import { sleep, check } from 'k6';
 import { setupAuth } from './lib/auth.js';
 import { STORE_ID, NORMAL_ARTICLE_IDS } from './lib/config.js';
 import {
-    triggerOrder,
-    triggerUrgentOrder,
+    createReplenishmentOrder,
+    getReplenishmentOrderStatus,
     getStoreStock,
 } from './lib/messaging.js';
 
@@ -33,6 +34,7 @@ const ORDER_DURATION = __ENV.ORDER_DURATION         || '5m';
 const URGENT_RATIO   = Number(__ENV.URGENT_RATIO   || 0.3);
 const VERIFY_STOCK   = (__ENV.VERIFY_STOCK         || 'true') === 'true';
 const VERIFY_WAIT_MS = Number(__ENV.VERIFY_WAIT_MS || 2000);
+const POLL_STATUS    = (__ENV.POLL_STATUS          || 'true') === 'true';
 
 // ── Schwellwerte ─────────────────────────────────────────────────────────────
 
@@ -50,9 +52,9 @@ export const options = {
     },
 
     thresholds: {
-        'vendix_messaging_order_errors':       ['count<10'],
-        'vendix_messaging_order_latency_ms':   ['p(95)<500'],
         'vendix_messaging_stock_check_failed': ['count<5'],
+        'vendix_replenishment_ack_ms':          ['p(95)<500'],
+        'vendix_replenishment_orders_failed':   ['count<10'],
         http_req_failed:                       ['rate<0.02'],
     },
 };
@@ -100,14 +102,18 @@ export function messagingE2E({ token }) {
         stockBefore = getStoreStock(token, articleId);
     }
 
-    if (isUrgent) {
-        triggerUrgentOrder(token, articleId, amount);
-    } else {
-        triggerOrder(token, articleId, amount);
-    }
+    const order = createReplenishmentOrder(token, articleId, amount, isUrgent);
+    if (!order?.correlationId) return;
 
     if (VERIFY_STOCK && stockBefore !== null) {
         sleep(VERIFY_WAIT_MS / 1000);
+
+        if (POLL_STATUS) {
+            const status = getReplenishmentOrderStatus(token, order.correlationId);
+            check(status, {
+                '[Verify] Async-Status nicht FAILED': (s) => s === null || s.status !== 'FAILED',
+            });
+        }
 
         const stockAfter = getStoreStock(token, articleId);
         if (stockAfter !== null) {

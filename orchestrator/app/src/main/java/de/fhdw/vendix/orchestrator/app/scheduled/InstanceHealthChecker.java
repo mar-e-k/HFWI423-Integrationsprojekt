@@ -1,8 +1,11 @@
 package de.fhdw.vendix.orchestrator.app.scheduled;
 
+import de.fhdw.vendix.commons.api.domain.connection.ConnectionState;
 import de.fhdw.vendix.orchestrator.core.domain.connection.Connection;
 import de.fhdw.vendix.orchestrator.core.domain.connection.ConnectionService;
+import de.fhdw.vendix.orchestrator.core.domain.distributed_lock.DistributedLockService;
 import jakarta.annotation.PreDestroy;
+import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
@@ -27,19 +30,24 @@ class InstanceHealthChecker {
     private static final Logger log = LoggerFactory.getLogger(InstanceHealthChecker.class);
 
     private final ConnectionService connectionService;
+    private final DistributedLockService distributedLockService;
     private final RestTemplate restTemplate;
     private final ExecutorService executorService;
 
     private static final int FAILURE_THRESHOLD = 3;
     private static final int TIMEOUT_MS = 3000;
 
-    public InstanceHealthChecker(ConnectionService connectionService) {
+    public InstanceHealthChecker(
+            ConnectionService connectionService,
+            DistributedLockService distributedLockService
+    ) {
         SimpleClientHttpRequestFactory factory = new SimpleClientHttpRequestFactory();
         factory.setConnectTimeout(TIMEOUT_MS);
         factory.setReadTimeout(TIMEOUT_MS);
         this.restTemplate = new RestTemplate(factory);
         this.executorService = Executors.newFixedThreadPool(10);
         this.connectionService = connectionService;
+        this.distributedLockService = distributedLockService;
     }
 
     @Scheduled(fixedDelay = 60_000)
@@ -60,7 +68,15 @@ class InstanceHealthChecker {
         CompletableFuture.allOf(futures.toArray(new CompletableFuture[0])).join();
 
         connectionService.updateAll(successfulPings);
-        connectionService.deleteAll(failedPings); // TODO: We might want to mark them instead of just deleting them
+        Set<Connection> failedConnections = failedPings.stream()
+                .map(Connection::incrementFailedAttempts)
+                .collect(Collectors.toUnmodifiableSet());
+        connectionService.updateAll(failedConnections);
+        failedConnections.stream()
+                .filter(connection -> connection.getConnectionState() == ConnectionState.DOWN)
+                .forEach(connection ->
+                        distributedLockService.deleteAllByInstanceUUID(connection.getInstance().getUuid())
+                );
 
         log.debug("Completed health check cycle");
     }
@@ -71,10 +87,11 @@ class InstanceHealthChecker {
         for (int attempt = 1; attempt <= FAILURE_THRESHOLD; attempt++) {
             try {
                 ResponseEntity<Map> response = restTemplate.getForEntity(url, Map.class);
+                @Nullable Map body = response.getBody();
 
                 if (response.getStatusCode().is2xxSuccessful()
-                        && response.getBody() != null
-                        && "UP".equalsIgnoreCase(String.valueOf(response.getBody().get("status")))) {
+                        && body != null
+                        && "UP".equalsIgnoreCase(String.valueOf(body.get("status")))) {
 
                     handleSuccess(connection, success);
                     return;
@@ -100,7 +117,7 @@ class InstanceHealthChecker {
 
     private void handleSuccess(Connection connection, Set<Connection> success) {
         log.atDebug().log("Successfully reached Instance {}", connection);
-        success.add(connection.withHeartbeatAt(Instant.now()));
+        success.add(connection.withHeartbeatAt(Instant.now()).resetFailedAttempts());
     }
 
     private void handleFailure(Connection connection, Set<Connection> failure) {

@@ -1,13 +1,14 @@
 package de.fhdw.vendix.pos.web.client.store;
 
 import de.fhdw.vendix.commons.api.domain.connection.ConnectionDTO;
-import de.fhdw.vendix.commons.api.domain.register.RegisterDTO;
 import de.fhdw.vendix.commons.api.embeddable.InstanceDetailsDTO;
 import de.fhdw.vendix.commons.api.embeddable.TargetType;
 import de.fhdw.vendix.commons.spring.web.client.orchestrator.api.ConnectionProxyService;
 import de.fhdw.vendix.commons.spring.web.client.store.api.ArticleProxyService;
+import de.fhdw.vendix.commons.spring.web.client.store.api.CheckoutProxyService;
 import de.fhdw.vendix.commons.spring.web.client.store.api.ReceiptProxyService;
 import de.fhdw.vendix.pos.core.register.RegisterContextInitializedEvent;
+import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.event.EventListener;
@@ -15,8 +16,6 @@ import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
-
-import java.util.Objects;
 
 @Component
 class StoreClientBindingListener {
@@ -52,20 +51,22 @@ class StoreClientBindingListener {
                         storeId
                 );
 
-        if (!response.getStatusCode().is2xxSuccessful() || response.getBody() == null) {
+        @Nullable ConnectionDTO connection = response.getBody();
+        if (!response.getStatusCode().is2xxSuccessful() || connection == null) {
             throw new IllegalStateException(
                     "No connection available for store " + storeId
             );
         }
 
-        InstanceDetailsDTO instance = response.getBody().instance();
+        InstanceDetailsDTO instance = connection.instance();
 
         log.atInfo().log("Binding store clients to {}:{}", instance.server(), instance.port());
 
         ArticleProxyService articleClient = factory.createClient(ArticleProxyService.class, instance);
         ReceiptProxyService receiptClient = factory.createClient(ReceiptProxyService.class, instance);
+        CheckoutProxyService checkoutClient = factory.createClient(CheckoutProxyService.class, instance);
 
-        registry.initialize(articleClient, receiptClient);
+        registry.initialize(articleClient, receiptClient, checkoutClient);
 
         log.atInfo().log("Store clients initialized successfully");
     }

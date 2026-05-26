@@ -11,14 +11,21 @@ function parseIdList(envValue, fallback) {
     return parsed.length > 0 ? parsed : fallback;
 }
 
+function parseNumberList(envValue, fallback) {
+    const parsed = parseIdList(envValue, fallback.map(String))
+        .map((value) => Number(value))
+        .filter((value) => Number.isFinite(value));
+    return parsed.length > 0 ? parsed : fallback;
+}
+
 // Auth
 export const ADMIN_USERNAME = __ENV.ADMIN_USERNAME || 'admin.three';
 export const ADMIN_PASSWORD = __ENV.ADMIN_PASSWORD || 'admin';
 
 // Store-Konfiguration
 export const STORE_ID     = Number(__ENV.STORE_ID || 1);
-export const REGISTER_IDS = [1, 2, 3];
-export const CASHIER_IDS  = [4, 5, 6]; // cashier.one/two/three
+export const REGISTER_IDS = parseNumberList(__ENV.REGISTER_IDS, [1, 2, 3]);
+export const CASHIER_IDS  = parseNumberList(__ENV.CASHIER_IDS, [4, 5, 6]); // cashier.one/two/three
 
 // ── Artikel-GTINs (aus import.sql) ──────────────────────────────────────────
 export const ARTICLE_GTINS = [
@@ -41,7 +48,7 @@ export const ARTICLE_GTINS = [
 
 // Artikel-IDs — Fallback wenn GTIN-Scan fehlschlägt
 export let NORMAL_ARTICLE_IDS   = Array.from({ length: 15 }, (_, i) => i + 1);
-export const DEPOSIT_ARTICLE_IDS = parseIdList(__ENV.DEPOSIT_ARTICLE_IDS, []);
+export const DEPOSIT_ARTICLE_IDS = parseNumberList(__ENV.DEPOSIT_ARTICLE_IDS, []);
 
 // ── Voucher-Codes (aus import.sql geseedet) ──────────────────────────────────
 // 100 Codes damit unter paralleler Last (200 VUs) keine Kollisionen entstehen

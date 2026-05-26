@@ -7,6 +7,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Map;
 import java.util.Optional;
 
 @Service
@@ -15,10 +16,15 @@ class StoreStockServiceImpl extends AbstractCrudService<StoreStock, Long> implem
     private static final Logger log = LoggerFactory.getLogger(StoreStockServiceImpl.class);
 
     private final StoreStockRepository storeStockRepository;
+    private final StoreStockBulkRepository storeStockBulkRepository;
 
-    StoreStockServiceImpl(StoreStockRepository storeStockRepository) {
+    StoreStockServiceImpl(
+            StoreStockRepository storeStockRepository,
+            StoreStockBulkRepository storeStockBulkRepository
+    ) {
         super(storeStockRepository);
         this.storeStockRepository = storeStockRepository;
+        this.storeStockBulkRepository = storeStockBulkRepository;
     }
 
     @Override
@@ -54,6 +60,37 @@ class StoreStockServiceImpl extends AbstractCrudService<StoreStock, Long> implem
         }
 
         return storeStockRepository.findByStoreIdAndArticleId(storeId, articleId);
+    }
+
+    @Override
+    @Transactional
+    public void decrementArticles(Long storeId, Map<Long, Long> amountByArticleId) {
+        validateArticleAmounts(storeId, amountByArticleId);
+        storeStockBulkRepository.decrementArticles(storeId, amountByArticleId);
+    }
+
+    @Override
+    @Transactional
+    public void incrementArticles(Long storeId, Map<Long, Long> amountByArticleId) {
+        validateArticleAmounts(storeId, amountByArticleId);
+        storeStockBulkRepository.incrementArticles(storeId, amountByArticleId);
+    }
+
+    private void validateArticleAmounts(Long storeId, Map<Long, Long> amountByArticleId) {
+        if (storeId == null || storeId < 1) {
+            throw new IllegalArgumentException("Parameter 'storeId' cannot be null or less than 1");
+        }
+        if (amountByArticleId == null || amountByArticleId.isEmpty()) {
+            return;
+        }
+        amountByArticleId.forEach((articleId, amount) -> {
+            if (articleId == null || articleId < 1) {
+                throw new IllegalArgumentException("Parameter 'articleId' cannot be null or less than 1");
+            }
+            if (amount == null || amount < 1) {
+                throw new IllegalArgumentException("Parameter 'amount' cannot be null or less than 1");
+            }
+        });
     }
 
     private StoreStock createMissingArticle(Long storeId, Long articleId) {

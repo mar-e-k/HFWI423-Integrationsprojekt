@@ -11,13 +11,14 @@ import org.slf4j.LoggerFactory;
 import org.springframework.context.event.EventListener;
 import org.springframework.security.authentication.event.InteractiveAuthenticationSuccessEvent;
 
+import java.time.Duration;
 import java.time.Instant;
-import java.time.temporal.ChronoUnit;
 import java.util.Objects;
 
 public final class DefaultLoginHandler implements LoginHandler {
 
     private static final Logger log = LoggerFactory.getLogger(DefaultLoginHandler.class);
+    private static final Duration ACCOUNT_LOCK_TTL = Duration.ofHours(1);
 
     private final AppContext appContext;
     private final DistributedLockProxyService distributedLockProxyService;
@@ -36,18 +37,20 @@ public final class DefaultLoginHandler implements LoginHandler {
             if (!(event.getAuthentication().getPrincipal() instanceof DefaultUser defaultUser)) {
                 throw new IllegalStateException("Authentication principal is not an instance of DefaultUser");
             }
+            Long accountId = Objects.requireNonNull(defaultUser.authContext().account().id());
 
             EntityTargetDTO entityTargetDTO = new EntityTargetDTO(
-                    Objects.requireNonNull(defaultUser.authContext().account().id()),
+                    accountId,
                     TargetType.ACCOUNT
             );
 
+            Instant acquiredAt = Instant.now();
             DistributedLockDTO lock = new DistributedLockDTO(
                     null,
                     entityTargetDTO,
                     appContext.getInstanceUUID(),
-                    Instant.now(),
-                    Instant.now().plus(1, ChronoUnit.HOURS) // TODO Settings
+                    acquiredAt,
+                    acquiredAt.plus(ACCOUNT_LOCK_TTL)
             );
 
             distributedLockProxyService.postDistributedLock(lock);

@@ -7,26 +7,32 @@ import de.fhdw.vendix.store.core.embeddable.price_override.PriceOverride;
 import jakarta.persistence.Column;
 import jakarta.persistence.Embedded;
 import jakarta.persistence.Entity;
+import jakarta.persistence.Index;
+import jakarta.persistence.Table;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
 import org.jspecify.annotations.Nullable;
 
 @Entity
+@Table(indexes = {
+        @Index(name = "idx_receipt_line_receipt_id", columnList = "receipt_id"),
+        @Index(name = "idx_receipt_line_article_id", columnList = "article_id")
+})
 public class ReceiptLine extends AbstractSpringDataAuditingEntity<Long> {
 
     @NotNull(message = "Receipt ID cannot be null")
     @Min(value = 1, message = "Receipt ID must be at least 1")
-    @Column(nullable = false)
+    @Column(name = "receipt_id", nullable = false)
     private Long receiptId;
 
     @NotNull(message = "Article ID cannot be null")
     @Min(value = 1, message = "Article ID must be at least 1")
-    @Column(nullable = false)
+    @Column(name = "article_id", nullable = false)
     private Long articleId;
 
     @NotNull(message = "Article amount cannot be null")
     @Min(value = 1, message = "Article amount must be at least 1")
-    @Column(nullable = false)
+    @Column(name = "article_amount", nullable = false)
     private Long articleAmount;
 
     @Embedded

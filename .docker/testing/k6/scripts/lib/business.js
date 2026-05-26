@@ -118,6 +118,7 @@ export function checkout(token, registerId, cashierId, articlePool, opts = {}) {
 
     const res = http.post(`${STORE_URL}/api/receipt/checkout`, JSON.stringify({
         storeId: STORE_ID, registerId, cashierId, paymentMethod, lines,
+        returnLineIds: false,
     }), { ...authHeaders(token), tags: { endpoint: 'checkout' } });
 
     const ok = check(res, {
@@ -236,6 +237,7 @@ export function depositReturn(token, registerId, cashierId, depositPool) {
     const res = http.post(`${STORE_URL}/api/receipt/checkout`, JSON.stringify({
         storeId: STORE_ID, registerId, cashierId,
         paymentMethod: pickPaymentMethod(),
+        returnLineIds: false,
         lines: [{ articleId: pickRandom(pool), articleAmount: 1, discountPercent: null }],
     }), { ...authHeaders(token), tags: { endpoint: 'deposit_return' } });
 

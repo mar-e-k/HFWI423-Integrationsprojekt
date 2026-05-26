@@ -3,6 +3,7 @@ package de.fhdw.vendix.commons.spring.data.entity;
 import jakarta.persistence.Column;
 import jakarta.persistence.EntityListeners;
 import jakarta.persistence.MappedSuperclass;
+import org.jspecify.annotations.Nullable;
 import org.springframework.data.annotation.CreatedBy;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedBy;
@@ -17,17 +18,17 @@ public abstract class AbstractSpringDataAuditingEntity<ID> extends AbstractSprin
 
     @Column(updatable = false)
     @CreatedDate
-    private Instant createdAt;
+    private @Nullable Instant createdAt;
 
     @Column(updatable = false)
     @CreatedBy
-    private String createdBy;
+    private @Nullable String createdBy;
 
     @LastModifiedDate
-    private Instant changedAt;
+    private @Nullable Instant changedAt;
 
     @LastModifiedBy
-    private String changedBy;
+    private @Nullable String changedBy;
 
     protected AbstractSpringDataAuditingEntity() {}
 
@@ -35,19 +36,19 @@ public abstract class AbstractSpringDataAuditingEntity<ID> extends AbstractSprin
         super(id);
     }
 
-    public Instant getCreatedAt() {
+    public @Nullable Instant getCreatedAt() {
         return createdAt;
     }
 
-    public String getCreatedBy() {
+    public @Nullable String getCreatedBy() {
         return createdBy;
     }
 
-    public Instant getChangedAt() {
+    public @Nullable Instant getChangedAt() {
         return changedAt;
     }
 
-    public String getChangedBy() {
+    public @Nullable String getChangedBy() {
         return changedBy;
     }
 }

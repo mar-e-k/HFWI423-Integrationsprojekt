@@ -10,10 +10,12 @@ import de.fhdw.vendix.commons.spring.security.context.auth.DefaultUser;
 import de.fhdw.vendix.commons.spring.web.client.orchestrator.api.AccountProxyService;
 import de.fhdw.vendix.commons.spring.web.client.orchestrator.api.DistributedLockProxyService;
 import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 
+import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
@@ -36,15 +38,16 @@ public final class DefaultUserDetailsService implements UserDetailsService {
         AccountDTO account = resolveAccount(username)
                 .orElseThrow(() -> new UsernameNotFoundException("Identifier doesnt reference an account"));
 
-        Objects.requireNonNull(account.id());
+        Long accountId = Objects.requireNonNull(account.id());
 
-        Set<Role> roles = Objects.requireNonNull(accountProxyService.getAccountRolesById(account.id()).getBody()).stream()
+        @Nullable List<AccountRoleDTO> accountRoles = accountProxyService.getAccountRolesById(accountId).getBody();
+        Set<Role> roles = Objects.requireNonNull(accountRoles).stream()
                 .map(AccountRoleDTO::role)
                 .collect(Collectors.toUnmodifiableSet());
 
         boolean isAccountNonLocked = distributedLockProxyService.getDistributedLockByTarget(
                 TargetType.ACCOUNT,
-                account.id()
+                accountId
         ).getStatusCode().is4xxClientError();
 
         AuthContext authContext = new DefaultAuthContext(

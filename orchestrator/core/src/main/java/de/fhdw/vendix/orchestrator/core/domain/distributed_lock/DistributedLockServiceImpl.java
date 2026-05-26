@@ -51,8 +51,6 @@ class DistributedLockServiceImpl extends AbstractCrudService<DistributedLock, Lo
         return distributedLockRepository.findAllByInstanceUuid(instanceUUID);
     }
 
-    // TODO: might need more proper logging, where you grab each instance beforehand
-
     @Override
     @Transactional
     public void deleteAllExpiredLocks() {

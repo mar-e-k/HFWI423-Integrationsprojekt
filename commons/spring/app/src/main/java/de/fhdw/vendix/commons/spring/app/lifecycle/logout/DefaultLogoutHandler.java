@@ -29,9 +29,10 @@ public final class DefaultLogoutHandler implements LogoutHandler {
             if (!(event.getAuthentication().getPrincipal() instanceof DefaultUser defaultUser)) {
                 throw new IllegalStateException("Authentication principal is not an instance of DefaultUser");
             }
+            Long accountId = Objects.requireNonNull(defaultUser.authContext().account().id());
             distributedLockProxyService.deleteDistributedLockByTarget(
                     TargetType.ACCOUNT,
-                    Objects.requireNonNull(defaultUser.authContext().account().id())
+                    accountId
             );
             log.atInfo().log("Successfully deleted lock for logged out account");
         } catch (Exception ex) {

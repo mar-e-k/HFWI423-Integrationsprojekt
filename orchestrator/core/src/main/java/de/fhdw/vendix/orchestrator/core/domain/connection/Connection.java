@@ -15,6 +15,11 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 import java.time.Instant;
 
 @Entity
+@Table(uniqueConstraints = {
+        @UniqueConstraint(name = "uk_connection_target", columnNames = {"target_id", "target_type"}),
+        @UniqueConstraint(name = "uk_connection_instance", columnNames = {"instance_server", "instance_port"}),
+        @UniqueConstraint(name = "uk_connection_instance_uuid", columnNames = {"instance_uuid"})
+})
 @EntityListeners(AuditingEntityListener.class)
 public class Connection extends AbstractSpringDataAuditingEntity<Long> {
 
@@ -121,6 +126,7 @@ public class Connection extends AbstractSpringDataAuditingEntity<Long> {
      */
     public Connection resetFailedAttempts() {
         failedAttempts = 0L;
+        connectionState = ConnectionState.UP;
         return this;
     }
 

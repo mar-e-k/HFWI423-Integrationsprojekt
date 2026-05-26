@@ -3,6 +3,7 @@ package de.fhdw.vendix.commons.spring.starter.autoconfigure.security;
 import de.fhdw.vendix.commons.spring.app.user_details.DefaultUserDetailsService;
 import de.fhdw.vendix.commons.spring.web.client.orchestrator.api.AccountProxyService;
 import de.fhdw.vendix.commons.spring.web.client.orchestrator.api.DistributedLockProxyService;
+import org.jspecify.annotations.Nullable;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.annotation.Bean;
@@ -35,7 +36,7 @@ public class SecurityAutoConfiguration {
     @ConditionalOnMissingBean
     public AuditorAware<String> auditorAware() {
         return () -> {
-            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+            @Nullable Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
             if (authentication != null) {
                 Object principal = authentication.getPrincipal();
                 if (principal instanceof String username) {  // your JWT filter sets account.username()

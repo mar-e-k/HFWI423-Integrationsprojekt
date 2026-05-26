@@ -5,7 +5,6 @@ public enum Role {
     ADMIN,
     SYSTEM;
 
-    // TODO: added proper logic
     public static final String ROLE_CASHIER = "ROLE_CASHIER";
     public static final String ROLE_ADMIN = "ROLE_ADMIN";
     public static final String ROLE_SYSTEM = "ROLE_SYSTEM";
