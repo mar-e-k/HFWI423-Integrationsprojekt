@@ -6,10 +6,12 @@ set SCRIPT_DIR=%~dp0
 for %%I in ("%SCRIPT_DIR%..") do set BASE_DIR=%%~fI
 set APP_PROFILE_ARGS=
 set APP_UP_ARGS=up -d
+set START_APPS=false
 
 :parse_args
 if "%~1"=="" goto args_done
 if "%~1"=="--apps" (
+    set START_APPS=true
     set APP_PROFILE_ARGS=!APP_PROFILE_ARGS! --profile apps
     set APP_UP_ARGS=up -d --build
     set K6_ORCHESTRATOR_URL=http://orchestrator:8080
@@ -25,6 +27,14 @@ if "%~1"=="--auth" (
 echo ERROR: Unknown option "%~1". Supported: --apps, --auth
 exit /b 1
 :args_done
+
+if "%START_APPS%"=="false" (
+    set K6_ORCHESTRATOR_URL=http://host.docker.internal:8080
+    set K6_STORE_URL=http://host.docker.internal:8081
+    set TESTING_UP_ARGS=up -d
+) else (
+    set TESTING_UP_ARGS=up -d --force-recreate k6
+)
 
 echo Starting Vendix platform...
 
@@ -70,7 +80,7 @@ echo Starting testing stack...
 docker compose ^
   --env-file "%BASE_DIR%\.env" ^
   -f "%BASE_DIR%\testing\docker-compose.yaml" ^
-  up -d
+  %TESTING_UP_ARGS%
 
 echo All stacks started.
 

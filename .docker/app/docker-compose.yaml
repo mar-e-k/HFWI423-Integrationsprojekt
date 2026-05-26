@@ -99,6 +99,8 @@ services:
       <<: *vendix-app-environment
       SERVER_PORT: 8080
       SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/${POSTGRES_DB}?currentSchema=orchestrator
+      VENDIX_LOADTESTS_ORCHESTRATOR_BASE_URL: http://orchestrator:8080
+      VENDIX_LOADTESTS_STORE_BASE_URL: http://store:8081
     ports:
       - "${ORCHESTRATOR_PORT}:8080"
     expose:

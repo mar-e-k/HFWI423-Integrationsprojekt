@@ -15,9 +15,16 @@
 
 import exec from 'k6/execution';
 
-import { CURRENT_SCENARIO, LASTTEST_DISCOUNTS, DISCOUNT_RATES } from './lib/config.js';
+import {
+    CURRENT_SCENARIO,
+    LASTTEST_DISCOUNTS,
+    DISCOUNT_RATES,
+    ORCHESTRATOR_URL,
+    STORE_URL,
+} from './lib/config.js';
 import { setupAuth } from './lib/auth.js';
 import {
+    assertStoreReachable,
     preloadArticlePool,
     runFullBon,
     checkout,
@@ -36,6 +43,9 @@ export function setup() {
     console.log('═'.repeat(70));
 
     const token = setupAuth();
+    console.log(`[Setup] Orchestrator URL: ${ORCHESTRATOR_URL}`);
+    console.log(`[Setup] Store URL       : ${STORE_URL}`);
+    assertStoreReachable(token);
     const { articlePool, depositPool } = preloadArticlePool(token);
 
     console.log(`[Setup] Bereit. Token: OK | Artikel: ${articlePool.length} | Pfand: ${depositPool.length}`);

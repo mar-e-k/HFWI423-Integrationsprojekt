@@ -51,6 +51,10 @@ if [ "$START_APPS" = true ]; then
   export K6_ORCHESTRATOR_URL="http://orchestrator:8080"
   export K6_STORE_URL="http://store:8081"
   echo "App services enabled. k6 will target Docker service names."
+else
+  export K6_ORCHESTRATOR_URL="http://host.docker.internal:8080"
+  export K6_STORE_URL="http://host.docker.internal:8081"
+  echo "App services disabled. k6 will target locally running apps via host.docker.internal."
 fi
 
 if [ "$START_AUTH" = true ]; then
@@ -76,9 +80,14 @@ docker compose \
 # 5. Start testing stack
 # -------------------------
 echo "Starting testing stack..."
+TESTING_UP_ARGS=(up -d)
+if [ "$START_APPS" = true ]; then
+  TESTING_UP_ARGS+=(--force-recreate k6)
+fi
+
 docker compose \
   --env-file "$BASE_DIR/.env" \
   -f "$BASE_DIR/testing/docker-compose.yaml" \
-  up -d
+  "${TESTING_UP_ARGS[@]}"
 
 echo "All stacks started."

@@ -20,7 +20,8 @@
 
 import { sleep, check } from 'k6';
 import { setupAuth } from './lib/auth.js';
-import { STORE_ID, NORMAL_ARTICLE_IDS } from './lib/config.js';
+import { STORE_ID, NORMAL_ARTICLE_IDS, STORE_URL } from './lib/config.js';
+import { assertStoreReachable } from './lib/business.js';
 import {
     createReplenishmentOrder,
     getReplenishmentOrderStatus,
@@ -64,6 +65,7 @@ export const options = {
 export function setup() {
     console.log('═'.repeat(70));
     console.log('  VENDIX MESSAGING E2E-TEST');
+    console.log(`  Store-URL   : ${STORE_URL}`);
     console.log(`  Store-ID    : ${STORE_ID}`);
     console.log(`  Rate        : ${ORDER_RATE} Orders/min`);
     console.log(`  Dauer       : ${ORDER_DURATION}`);
@@ -72,6 +74,7 @@ export function setup() {
     console.log('═'.repeat(70));
 
     const token = setupAuth();
+    assertStoreReachable(token);
 
     const stock = getStoreStock(token, NORMAL_ARTICLE_IDS[0]);
     if (stock === null) {

@@ -2,6 +2,7 @@ package de.fhdw.vendix.orchestrator.core.domain.performance;
 
 import de.fhdw.vendix.commons.spring.security.jwt.JwtService;
 import org.jspecify.annotations.Nullable;
+import org.springframework.beans.factory.annotation.Value;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -13,6 +14,7 @@ import java.time.Instant;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -56,13 +58,30 @@ public class PerformanceTestService {
             DateTimeFormatter.ofPattern("yyyy-MM-dd_HH-mm").withZone(ZoneId.systemDefault());
 
     private final JwtService jwtService;
+    private final String orchestratorBaseUrl;
+    private final String storeBaseUrl;
+    private final long storeId;
+    private final String registerIds;
+    private final String cashierIds;
     private final AtomicBoolean                       running    = new AtomicBoolean(false);
     private final AtomicReference<@Nullable Process>     process    = new AtomicReference<>(null);
     private final AtomicReference<@Nullable TestType>    activeTest = new AtomicReference<>(null);
     private final AtomicLong                          startedAt  = new AtomicLong(0);
 
-    public PerformanceTestService(JwtService jwtService) {
+    public PerformanceTestService(
+            JwtService jwtService,
+            @Value("${vendix.loadtests.orchestrator-base-url:http://host.docker.internal:8080}") String orchestratorBaseUrl,
+            @Value("${vendix.loadtests.store-base-url:http://host.docker.internal:8081}") String storeBaseUrl,
+            @Value("${vendix.loadtests.store-id:1}") long storeId,
+            @Value("${vendix.loadtests.register-ids:1,2,3}") String registerIds,
+            @Value("${vendix.loadtests.cashier-ids:4,5,6}") String cashierIds
+    ) {
         this.jwtService = jwtService;
+        this.orchestratorBaseUrl = orchestratorBaseUrl;
+        this.storeBaseUrl = storeBaseUrl;
+        this.storeId = storeId;
+        this.registerIds = registerIds;
+        this.cashierIds = cashierIds;
     }
 
     // ─── Starten ──────────────────────────────────────────────────────────────
@@ -83,7 +102,7 @@ public class PerformanceTestService {
      *
      * <p>Typische Zusatzvariablen für den Messaging-E2E-Test:
      * <pre>
-     *   STORE_URL       – z.B. http://host.docker.internal:8081
+     *   STORE_URL       – z.B. http://host.docker.internal:8081 lokal oder http://store:8081 im Docker-Netzwerk
      *   STORE_ID        – z.B. 1
      *   ORDER_RATE      – Orders/Minute, z.B. 30
      *   URGENT_RATIO    – Anteil dringend, z.B. 0.3
@@ -116,6 +135,14 @@ public class PerformanceTestService {
         // k6-Skript aus dem TestType bestimmen (test.js oder messaging-e2e-test.js)
         String k6Script = K6_SCRIPT_DIR + testType.getScript();
 
+        Map<String, String> effectiveEnv = new LinkedHashMap<>();
+        effectiveEnv.put("ORCHESTRATOR_URL", orchestratorBaseUrl);
+        effectiveEnv.put("STORE_URL", storeBaseUrl);
+        effectiveEnv.put("STORE_ID", String.valueOf(storeId));
+        effectiveEnv.put("REGISTER_IDS", registerIds);
+        effectiveEnv.put("CASHIER_IDS", cashierIds);
+        effectiveEnv.putAll(extraEnv);
+
         // Basis-Kommando zusammenbauen
         List<String> command = new ArrayList<>(List.of(
                 "docker", "exec",
@@ -129,7 +156,7 @@ public class PerformanceTestService {
         ));
 
         // Zusätzliche Umgebungsvariablen anhängen (z.B. STORE_ID, ORDER_RATE, …)
-        for (Map.Entry<String, String> entry : extraEnv.entrySet()) {
+        for (Map.Entry<String, String> entry : effectiveEnv.entrySet()) {
             command.add("-e");
             command.add(entry.getKey() + "=" + entry.getValue());
         }
@@ -140,7 +167,7 @@ public class PerformanceTestService {
         log.info("  Szenario  : {}", testType.getDisplayName());
         log.info("  Skript    : {}", k6Script);
         log.info("  Parameter : {}", testType.getParameters());
-        log.info("  Extra-Env : {}", extraEnv.isEmpty() ? "–" : extraEnv.keySet());
+        log.info("  Extra-Env : {}", effectiveEnv.keySet());
         log.info("  Dauer     : {} Sekunden", testType.getDurationSeconds());
         log.info("  Container : {}", K6_CONTAINER);
         log.info("  Report    : {}", reportFile);

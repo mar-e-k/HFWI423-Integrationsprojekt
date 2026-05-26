@@ -32,6 +32,7 @@ import de.fhdw.vendix.orchestrator.core.domain.performance.TestType;
 import de.fhdw.vendix.orchestrator.ui.OrchestratorAppLayout;
 import jakarta.annotation.security.RolesAllowed;
 import org.jspecify.annotations.Nullable;
+import org.springframework.beans.factory.annotation.Value;
 
 import java.io.IOException;
 import java.util.Arrays;
@@ -47,10 +48,8 @@ public class PerformanceTestView extends VerticalLayout {
     private static final String GRAFANA_LOGS_URL     = "http://localhost:3000/d/vendix-logs?orgId=1&refresh=10s&kiosk=tv";
     private static final String K6_WEB_DASHBOARD_URL = "http://localhost:5665";
 
-    // Standard Store-URL, die k6 im Docker-Netzwerk nutzt
-    private static final String DEFAULT_STORE_URL = "http://host.docker.internal:8081";
-
     private final PerformanceTestService testService;
+    private final String defaultStoreUrl;
 
     // ── Klassische Lasttest-Tab-Felder ───────────────────────────────────────
     private final RadioButtonGroup<TestType> testSelector   = new RadioButtonGroup<>();
@@ -77,8 +76,12 @@ public class PerformanceTestView extends VerticalLayout {
     private final Span         msgProgressLabel    = new Span("–");
     private final Span         msgRemainingLabel   = new Span("–");
 
-    public PerformanceTestView(PerformanceTestService testService) {
+    public PerformanceTestView(
+            PerformanceTestService testService,
+            @Value("${vendix.loadtests.store-base-url:http://host.docker.internal:8081}") String defaultStoreUrl
+    ) {
         this.testService = testService;
+        this.defaultStoreUrl = defaultStoreUrl;
         setSizeFull();
         setPadding(false);
         setSpacing(false);
@@ -217,9 +220,9 @@ public class PerformanceTestView extends VerticalLayout {
 
         H3 configTitle = new H3("Konfiguration");
 
-        msgStoreUrlField.setValue(DEFAULT_STORE_URL);
+        msgStoreUrlField.setValue(defaultStoreUrl);
         msgStoreUrlField.setWidth("340px");
-        msgStoreUrlField.setHelperText("URL des Stores, die k6 im Docker-Netzwerk erreicht");
+        msgStoreUrlField.setHelperText("URL des Stores, die k6 erreicht: lokal host.docker.internal, im Docker-Stack store");
 
         msgStoreIdField.setValue(1);
         msgStoreIdField.setMin(1);
