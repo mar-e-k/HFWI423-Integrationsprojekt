@@ -1,13 +1,12 @@
 package de.fhdw.vendix.commons.spring.starter.autoconfigure.web;
 
-import de.fhdw.vendix.commons.spring.security.keycloak.KeycloakAuthoritiesExtractor;
-import de.fhdw.vendix.commons.spring.security.keycloak.KeycloakGrantedAuthoritiesConverter;
-import de.fhdw.vendix.commons.spring.security.keycloak.KeycloakJwtAuthenticationConverter;
-import de.fhdw.vendix.commons.spring.security.keycloak.KeycloakOidcUserService;
+import de.fhdw.vendix.commons.spring.security.keycloak.*;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 
 @AutoConfiguration(before = SecurityWebAutoConfiguration.class)
+@EnableConfigurationProperties(KeycloakClientProperties.class)
 public class KeycloakWebAutoConfiguration {
 
     @Bean

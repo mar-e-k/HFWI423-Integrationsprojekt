@@ -1,6 +1,6 @@
 package de.fhdw.vendix.pos;
 
-import de.fhdw.vendix.commons.spring.app.context.app.AppContext;
+import de.fhdw.vendix.commons.spring.app.context.system.SystemContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.SpringApplication;
@@ -13,10 +13,10 @@ public class PosApplication {
 
     private static final Logger log = LoggerFactory.getLogger(PosApplication.class);
 
-    private final AppContext appContext;
+    private final SystemContext systemContext;
 
-    public PosApplication(AppContext appContext) {
-        this.appContext = appContext;
+    public PosApplication(SystemContext systemContext) {
+        this.systemContext = systemContext;
     }
 
     public static void main(String[] args) {
@@ -25,6 +25,9 @@ public class PosApplication {
 
     @EventListener
     public void onApplicationEvent(ApplicationStartedEvent event) {
-        log.atInfo().log("Application running at http://{}:{}/", appContext.getServerName(), appContext.getServerPort());
+        log.atInfo().log("Application running at http://{}:{}/",
+                systemContext.getServerName(),
+                systemContext.getServerPort()
+        );
     }
 }

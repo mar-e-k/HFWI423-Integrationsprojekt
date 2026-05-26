@@ -27,7 +27,17 @@
 
         <dependency>
             <groupId>de.fhdw.vendix</groupId>
-            <artifactId>commons-spring-app</artifactId>
+            <artifactId>commons-spring-data-caching</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>de.fhdw.vendix</groupId>
+            <artifactId>commons-spring-app-context</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>de.fhdw.vendix</groupId>
+            <artifactId>commons-spring-web-core</artifactId>
         </dependency>
 
         <dependency>

@@ -13,9 +13,10 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 @SecurityScheme(
         name = "keycloakAuth",
-        type = SecuritySchemeType.OPENIDCONNECT,
-        openIdConnectUrl = "/realms/vendix/.well-known/openid-configuration",
-        description = "Authentication with Keycloak using OpenID Connect Discovery. The UI will use this endpoint to automatically configure authentication flows."
+        type = SecuritySchemeType.HTTP,
+        scheme = "bearer",
+        bearerFormat = "JWT",
+        description = "Enter Keycloak access token (Bearer JWT). Issued by Keycloak realm 'vendix'."
 )
 @SecurityRequirement(name = "keycloakAuth")
 public @interface KeycloakOpenApiScheme { }

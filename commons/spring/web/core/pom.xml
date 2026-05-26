@@ -18,6 +18,11 @@
     <dependencies>
         <dependency>
             <groupId>de.fhdw.vendix</groupId>
+            <artifactId>commons-spring-app-context</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>de.fhdw.vendix</groupId>
             <artifactId>commons-spring-security</artifactId>
         </dependency>
 

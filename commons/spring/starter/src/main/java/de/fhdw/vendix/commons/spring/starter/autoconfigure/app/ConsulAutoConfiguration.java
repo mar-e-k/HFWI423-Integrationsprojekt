@@ -1,8 +1,8 @@
 package de.fhdw.vendix.commons.spring.starter.autoconfigure.app;
 
-import de.fhdw.vendix.commons.spring.app.consul.ConsulInstanceContextListener;
-import de.fhdw.vendix.commons.spring.app.consul.DefaultConsulInstanceContextListener;
-import de.fhdw.vendix.commons.spring.app.context.app.AppContext;
+import de.fhdw.vendix.commons.spring.app.bundle.consul.ConsulInstanceContextListener;
+import de.fhdw.vendix.commons.spring.app.bundle.consul.DefaultConsulInstanceContextListener;
+import de.fhdw.vendix.commons.spring.app.context.system.SystemContext;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.cloud.consul.discovery.ConsulDiscoveryProperties;
@@ -17,8 +17,8 @@ public class ConsulAutoConfiguration {
     public ConsulInstanceContextListener consulClientUpdater(
             ConsulServiceRegistry registry,
             ConsulDiscoveryProperties properties,
-            AppContext appContext
+            SystemContext systemContext
     ) {
-        return new DefaultConsulInstanceContextListener(registry, properties, appContext);
+        return new DefaultConsulInstanceContextListener(registry, properties, systemContext);
     }
 }

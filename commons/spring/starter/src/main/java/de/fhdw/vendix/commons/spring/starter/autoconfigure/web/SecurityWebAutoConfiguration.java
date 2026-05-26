@@ -1,6 +1,7 @@
 package de.fhdw.vendix.commons.spring.starter.autoconfigure.web;
 
 import com.vaadin.flow.spring.security.VaadinSecurityConfigurer;
+import de.fhdw.vendix.commons.spring.security.keycloak.KeycloakClientProperties;
 import de.fhdw.vendix.commons.spring.security.keycloak.KeycloakJwtAuthenticationConverter;
 import de.fhdw.vendix.commons.spring.security.keycloak.KeycloakOidcUserService;
 import de.fhdw.vendix.commons.spring.web.core.filter.RequestRateFilter;
@@ -68,12 +69,13 @@ public class SecurityWebAutoConfiguration {
     @Order(4)
     public SecurityFilterChain vaadinSecurity(
             HttpSecurity http,
-            KeycloakOidcUserService oidcUserService
+            KeycloakOidcUserService oidcUserService,
+            KeycloakClientProperties clientProperties
     ) {
         return http
                 .with(VaadinSecurityConfigurer.vaadin(), configurer -> configurer
                         .oauth2LoginPage(
-                                "/oauth2/authorization/keycloak",
+                                "/oauth2/authorization/" + clientProperties.webName(),
                                 "{baseUrl}/session-ended"
                         )
                 )

@@ -6,7 +6,7 @@ BASE_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 echo "Starting Vendix platform..."
 
 # -------------------------
-# 1. Validate .env
+# 1. Validate docker.env
 # -------------------------
 if [ ! -f "$BASE_DIR/.env" ]; then
   echo "ERROR: .env file missing at $BASE_DIR/.env"

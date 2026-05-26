@@ -1,12 +1,12 @@
 package de.fhdw.vendix.commons.spring.starter.autoconfigure.app;
 
 
-import de.fhdw.vendix.commons.spring.app.context.app.AppContext;
-import de.fhdw.vendix.commons.spring.app.context.app.DefaultAppContext;
 import de.fhdw.vendix.commons.spring.app.context.register.DefaultRegisterContext;
 import de.fhdw.vendix.commons.spring.app.context.register.RegisterContext;
 import de.fhdw.vendix.commons.spring.app.context.store.DefaultStoreContext;
 import de.fhdw.vendix.commons.spring.app.context.store.StoreContext;
+import de.fhdw.vendix.commons.spring.app.context.system.DefaultSystemContext;
+import de.fhdw.vendix.commons.spring.app.context.system.SystemContext;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.ApplicationEventPublisher;
@@ -18,19 +18,19 @@ public class ContextAutoConfiguration {
 
     @Bean
     @ConditionalOnMissingBean
-    public AppContext appContext(Environment environment, ApplicationEventPublisher publisher) {
-        return new DefaultAppContext(environment, publisher);
+    public SystemContext systemContext(Environment environment, ApplicationEventPublisher publisher) {
+        return new DefaultSystemContext(environment, publisher);
     }
 
     @Bean
     @ConditionalOnMissingBean
-    public RegisterContext registerContext(AppContext appContext, ApplicationEventPublisher publisher) {
-        return new DefaultRegisterContext(appContext, publisher);
+    public RegisterContext registerContext(SystemContext systemContext, ApplicationEventPublisher publisher) {
+        return new DefaultRegisterContext(systemContext, publisher);
     }
 
     @Bean
     @ConditionalOnMissingBean
-    public StoreContext storeContext(AppContext appContext, ApplicationEventPublisher publisher) {
-        return new DefaultStoreContext(appContext, publisher);
+    public StoreContext storeContext(SystemContext systemContext, ApplicationEventPublisher publisher) {
+        return new DefaultStoreContext(systemContext, publisher);
     }
 }

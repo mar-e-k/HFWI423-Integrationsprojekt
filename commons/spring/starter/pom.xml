@@ -42,7 +42,7 @@
 
         <dependency>
             <groupId>de.fhdw.vendix</groupId>
-            <artifactId>commons-spring-app</artifactId>
+            <artifactId>commons-spring-app-bundle</artifactId>
         </dependency>
 
         <dependency>

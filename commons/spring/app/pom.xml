@@ -8,45 +8,14 @@
         <version>1.0.0</version>
     </parent>
 
-    <artifactId>commons-spring-app</artifactId>
-    <packaging>jar</packaging>
+    <artifactId>commons-spring-app-parent</artifactId>
+    <packaging>pom</packaging>
 
     <name>commons-spring-app</name>
     <description>commons-spring-app</description>
 
-    <dependencies>
-        <dependency>
-            <groupId>de.fhdw.vendix</groupId>
-            <artifactId>commons-api</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>de.fhdw.vendix</groupId>
-            <artifactId>commons-spring-web-core</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>org.springframework.cloud</groupId>
-            <artifactId>spring-cloud-starter-consul-discovery</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-actuator</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>io.micrometer</groupId>
-            <artifactId>micrometer-registry-prometheus</artifactId>
-        </dependency>
-    </dependencies>
-
-    <build>
-        <plugins>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-compiler-plugin</artifactId>
-            </plugin>
-        </plugins>
-    </build>
+    <modules>
+        <module>context</module>
+        <module>bundle</module>
+    </modules>
 </project>

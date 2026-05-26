@@ -20,7 +20,7 @@ public final class KeycloakAuthoritiesExtractor {
         extractRealmRoles(claims, rawRoles);
 
         for (String role : rawRoles) {
-            KeycloakRole.from(role.toUpperCase()).ifPresentOrElse(
+            KeycloakRole.from(role.toUpperCase().replace('-', '_')).ifPresentOrElse(
                     authorities::add,
                     () -> log.atWarn().log("Ignoring unknown Keycloak role: {}", role)
             );
