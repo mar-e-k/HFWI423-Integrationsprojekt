@@ -118,6 +118,7 @@
       }
     ],
     "client": {
+      "vendix-testing": [],
       "realm-management": [
         {
           "id": "f5eb62f5-af73-4103-81d2-1db344197285",
@@ -330,11 +331,8 @@
           "attributes": {}
         }
       ],
-      "store-app": [],
       "orchestrator-web": [],
-      "register-app": [],
       "security-admin-console": [],
-      "admin-cli": [],
       "account-console": [],
       "broker": [
         {
@@ -348,6 +346,11 @@
         }
       ],
       "orchestrator-app": [],
+      "register-web": [],
+      "store-web": [],
+      "store-app": [],
+      "register-app": [],
+      "admin-cli": [],
       "account": [
         {
           "id": "b19d5433-1b69-46ba-8f2a-6741cd597b19",
@@ -435,9 +438,7 @@
           "containerId": "3ab246eb-0db1-4abf-bd67-f48eabc7361f",
           "attributes": {}
         }
-      ],
-      "register-web": [],
-      "store-web": []
+      ]
     }
   },
   "groups": [],
@@ -1254,6 +1255,68 @@
         "backchannel.logout.session.required": "true",
         "display.on.consent.screen": "false",
         "pkce.code.challenge.method": "S256",
+        "dpop.bound.access.tokens": "false"
+      },
+      "authenticationFlowBindingOverrides": {},
+      "fullScopeAllowed": true,
+      "nodeReRegistrationTimeout": -1,
+      "defaultClientScopes": [
+        "web-origins",
+        "acr",
+        "roles",
+        "profile",
+        "basic",
+        "email"
+      ],
+      "optionalClientScopes": [
+        "address",
+        "phone",
+        "offline_access",
+        "organization",
+        "microprofile-jwt"
+      ]
+    },
+    {
+      "id": "f2340b7a-47d6-4fb8-ac41-d14957531abc",
+      "clientId": "vendix-testing",
+      "name": "Vendix Testing",
+      "description": "Internal Client used for Testing Purposes, such as manually calling Endpoints or using it for Testing Tools like K6. Issues long-lived tokens.",
+      "rootUrl": "",
+      "adminUrl": "",
+      "baseUrl": "",
+      "surrogateAuthRequired": false,
+      "enabled": true,
+      "alwaysDisplayInConsole": false,
+      "clientAuthenticatorType": "client-secret",
+      "secret": "**********",
+      "redirectUris": [
+        "/*"
+      ],
+      "webOrigins": [
+        "/*"
+      ],
+      "notBefore": 0,
+      "bearerOnly": false,
+      "consentRequired": false,
+      "standardFlowEnabled": false,
+      "implicitFlowEnabled": false,
+      "directAccessGrantsEnabled": true,
+      "serviceAccountsEnabled": false,
+      "publicClient": false,
+      "frontchannelLogout": true,
+      "protocol": "openid-connect",
+      "attributes": {
+        "realm_client": "false",
+        "logout.confirmation.enabled": "false",
+        "oidc.ciba.grant.enabled": "false",
+        "client.secret.creation.time": "1779736062",
+        "backchannel.logout.session.required": "true",
+        "standard.token.exchange.enabled": "false",
+        "oauth2.jwt.authorization.grant.enabled": "false",
+        "frontchannel.logout.session.required": "true",
+        "oauth2.device.authorization.grant.enabled": "false",
+        "display.on.consent.screen": "false",
+        "backchannel.logout.revoke.offline.tokens": "false",
         "dpop.bound.access.tokens": "false"
       },
       "authenticationFlowBindingOverrides": {},
