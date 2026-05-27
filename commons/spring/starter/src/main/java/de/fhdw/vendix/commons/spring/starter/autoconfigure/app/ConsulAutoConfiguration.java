@@ -6,19 +6,23 @@ import de.fhdw.vendix.commons.spring.app.context.system.SystemContext;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.cloud.consul.discovery.ConsulDiscoveryProperties;
+import org.springframework.cloud.consul.serviceregistry.ConsulRegistration;
 import org.springframework.cloud.consul.serviceregistry.ConsulServiceRegistry;
 import org.springframework.context.annotation.Bean;
 
 @AutoConfiguration
 public class ConsulAutoConfiguration {
 
+    
+
     @Bean
     @ConditionalOnMissingBean
-    public ConsulInstanceContextListener consulClientUpdater(
+    public ConsulInstanceContextListener consulInstanceContextListener(
             ConsulServiceRegistry registry,
             ConsulDiscoveryProperties properties,
+            ConsulRegistration registration,
             SystemContext systemContext
     ) {
-        return new DefaultConsulInstanceContextListener(registry, properties, systemContext);
+        return new DefaultConsulInstanceContextListener(registry, properties, registration, systemContext);
     }
 }

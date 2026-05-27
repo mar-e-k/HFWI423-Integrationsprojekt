@@ -28,7 +28,9 @@ public class StoreRouterFunction {
     public RouterFunction<ServerResponse> storeRoutes() {
         return RouterFunctions.route()
                 .nest(
-                        GatewayRequestPredicates.path("/api/receipt/**")
+                        GatewayRequestPredicates.path("/api/article/**")
+                                .or(GatewayRequestPredicates.path("/api/checkout/**"))
+                                .or(GatewayRequestPredicates.path("/api/receipt/**"))
                                 .or(GatewayRequestPredicates.path("/api/voucher/**")),
                         builder -> builder
                                 .filter(TokenRelayFilterFunctions.tokenRelay())
@@ -39,27 +41,27 @@ public class StoreRouterFunction {
     }
 
     private ServerResponse storeRoutingFilter(ServerRequest clientRequest, HandlerFunction<ServerResponse> next) throws Exception {
-        String storeUuid = clientRequest.headers().firstHeader(RoutingHeader.STORE_ROUTING.getHeader());
-        if (storeUuid == null) {
+        String storeId = clientRequest.headers().firstHeader(RoutingHeader.STORE_ROUTING.getHeader());
+        if (storeId == null) {
             return ServerResponse.status(HttpStatus.BAD_REQUEST)
-                    .body("Missing Header: " + RoutingHeader.STORE_ROUTING.name());
+                    .body("Missing Header: " + RoutingHeader.STORE_ROUTING.getHeader());
         }
 
-        Optional<URI> targetUri = findTargetInstanceUri(storeUuid);
+        Optional<URI> targetUri = findTargetInstanceUri(storeId);
         if (targetUri.isEmpty()) {
             return ServerResponse.status(HttpStatus.NOT_FOUND)
-                    .body("No instance for " + storeUuid);
+                    .body("No store instance for found for id: " + storeId);
         }
         clientRequest.attributes().put(MvcUtils.GATEWAY_REQUEST_URL_ATTR, targetUri.get());
         return next.handle(clientRequest);
     }
 
-    private Optional<URI> findTargetInstanceUri(String storeUuid) {
-        return discoveryClient.getInstances("store-app").stream()
+    private Optional<URI> findTargetInstanceUri(String storeId) {
+        return discoveryClient.getInstances("store").stream()
                 .filter(instance ->
                         Optional.ofNullable(instance.getMetadata())
-                                .map(metadata -> metadata.get("storeUuid"))
-                                .filter(storeUuid::equals)
+                                .map(metadata -> metadata.get(RoutingHeader.STORE_ROUTING.getHeader()))
+                                .filter(storeId::equals)
                                 .isPresent()
                 )
                 .map(ServiceInstance::getUri)

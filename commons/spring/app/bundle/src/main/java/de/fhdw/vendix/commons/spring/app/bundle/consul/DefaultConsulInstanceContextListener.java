@@ -20,6 +20,7 @@ import org.springframework.util.Assert;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicReference;
 
 public final class DefaultConsulInstanceContextListener implements ConsulInstanceContextListener {
 
@@ -29,17 +30,21 @@ public final class DefaultConsulInstanceContextListener implements ConsulInstanc
     private final ConsulDiscoveryProperties properties;
     private final SystemContext systemContext;
 
+    private final AtomicReference<String> currentActiveServiceId = new AtomicReference<>();
+
     @Nullable
-    private ConsulRegistration registration;
+    private volatile ConsulRegistration registration;
 
     public DefaultConsulInstanceContextListener(
             ConsulServiceRegistry registry,
             ConsulDiscoveryProperties properties,
+            ConsulRegistration registration,
             SystemContext systemContext
     ) {
         this.registry = registry;
         this.properties = properties;
         this.systemContext = systemContext;
+        this.currentActiveServiceId.set(registration.getInstanceId());
     }
 
     @EventListener
@@ -50,52 +55,64 @@ public final class DefaultConsulInstanceContextListener implements ConsulInstanc
 
     private ConsulRegistration createRegistration(DomainDTO domain) {
         NewService newService = new NewService();
-        newService.setId(systemContext.getInstanceUuid().toString());
+
+        String targetServiceId = systemContext.getApplicationName() + "-" + domain.id().toString();
+        newService.setId(targetServiceId);
         newService.setName(systemContext.getApplicationName());
-        newService.setAddress(systemContext.getHostname());
+
+        String resolvedHost = properties.getHostname();
+        newService.setAddress(resolvedHost);
         newService.setPort(systemContext.getServerPort());
 
         Map<String, String> metadata = new HashMap<>(properties.getMetadata());
         String metadataKey = resolveDomainTypeName(domain);
         String metadataValue = domain.id().toString();
-        metadata.put(
-                metadataKey,
-                metadataValue
-        );
+        metadata.put(metadataKey, metadataValue);
         newService.setMeta(metadata);
 
         NewService.Check check = new NewService.Check();
-        check.setHttp(
-                String.format("http://%s:%d/actuator/health",
-                        systemContext.getHostname(),
-                        systemContext.getServerPort())
-        );
+        check.setHttp(String.format("http://%s:%d/actuator/health", resolvedHost, systemContext.getServerPort()));
         check.setInterval("10s");
         newService.setCheck(check);
 
-        registration = new ConsulRegistration(newService, properties);
-        return registration;
+        return new ConsulRegistration(newService, properties);
     }
 
     private String resolveDomainTypeName(DomainDTO domain) {
         return switch (domain) {
-            case StoreDTO _ -> RoutingHeader.STORE_ROUTING.name();
-            case RegisterDTO _ -> RoutingHeader.REGISTER_ROUTING.name();
+            case StoreDTO _ -> RoutingHeader.STORE_ROUTING.getHeader();
+            case RegisterDTO _ -> RoutingHeader.REGISTER_ROUTING.getHeader();
             default -> throw new ContextException("Invalid domain type: " + domain);
         };
     }
 
-    public void register(ConsulRegistration registration) throws IllegalStateException {
-        Assert.notNull(registration, "Parameter 'registration' cannot be null");
-        log.atInfo().log("Registering with Consul...");
-        if (this.registration != null) {
-            throw new IllegalStateException(
-                    "Application already specified a registration within Consul. Skipping registration."
-            );
+    public synchronized void register(ConsulRegistration newRegistration) {
+        Assert.notNull(newRegistration, "Parameter 'newRegistration' cannot be null");
+        String newServiceId = newRegistration.getInstanceId();
+
+        String oldServiceId = currentActiveServiceId.getAndSet(newServiceId);
+
+        if (oldServiceId != null && !oldServiceId.equals(newServiceId)) {
+            log.atInfo().log("Context shifted. Proactively deregistering previous ID [{}]...", oldServiceId);
+            deregisterServiceId(oldServiceId);
         }
-        this.registration = registration;
-        registry.register(registration);
-        log.atInfo().log("Successfully registered with Consul");
+
+        this.registration = newRegistration;
+
+        log.atInfo().log("Synchronizing instance [{}] with Consul...", newServiceId);
+        registry.register(newRegistration);
+        log.atInfo().log("Successfully synchronized registration state.");
+    }
+
+    private void deregisterServiceId(String serviceId) {
+        try {
+            NewService dummyService = new NewService();
+            dummyService.setId(serviceId);
+            ConsulRegistration dummyRegistration = new ConsulRegistration(dummyService, properties);
+            registry.deregister(dummyRegistration);
+        } catch (Exception e) {
+            log.atWarn().log("Could not cleanly clear out old ID [{}]: {}", serviceId, e.getMessage());
+        }
     }
 
     @PreDestroy
