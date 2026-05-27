@@ -17,11 +17,6 @@
     <dependencies>
         <dependency>
             <groupId>de.fhdw.vendix</groupId>
-            <artifactId>orchestrator-api</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>de.fhdw.vendix</groupId>
             <artifactId>commons-spring-data-persistance</artifactId>
         </dependency>
 

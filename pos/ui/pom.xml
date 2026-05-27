@@ -17,11 +17,6 @@
     <dependencies>
         <dependency>
             <groupId>de.fhdw.vendix</groupId>
-            <artifactId>pos-core</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>de.fhdw.vendix</groupId>
             <artifactId>commons-core</artifactId>
         </dependency>
 
