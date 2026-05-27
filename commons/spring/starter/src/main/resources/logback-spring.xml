@@ -12,8 +12,8 @@
             service_name = ${__service_name__}
             host = %X{__host__}
             instance = %X{__instance__}
-            target_type = %X{__target_type__}
-            target_id = %X{__target_id__}
+            domain_type = %X{__domain_type__}
+            domain_id = %X{__domain_id__}
         </labels>
 
         <structuredMetadata>

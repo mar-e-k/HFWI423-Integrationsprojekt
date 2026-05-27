@@ -11,7 +11,7 @@ public final class SystemContextInitializedEvent extends ApplicationEvent {
         this.systemContext = systemContext;
     }
 
-    public SystemContext getAppContext() {
+    public SystemContext getSystemContext() {
         return systemContext;
     }
 }

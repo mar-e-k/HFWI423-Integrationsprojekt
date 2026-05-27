@@ -1,6 +1,8 @@
 package de.fhdw.vendix.commons.spring.starter.autoconfigure.app;
 
 
+import de.fhdw.vendix.commons.spring.app.bundle.logging.AppContextInstantiatorListener;
+import de.fhdw.vendix.commons.spring.app.bundle.logging.DefaultAppContextInstantiatorListener;
 import de.fhdw.vendix.commons.spring.app.context.register.DefaultRegisterContext;
 import de.fhdw.vendix.commons.spring.app.context.register.RegisterContext;
 import de.fhdw.vendix.commons.spring.app.context.store.DefaultStoreContext;
@@ -32,5 +34,11 @@ public class ContextAutoConfiguration {
     @ConditionalOnMissingBean
     public StoreContext storeContext(SystemContext systemContext, ApplicationEventPublisher publisher) {
         return new DefaultStoreContext(systemContext, publisher);
+    }
+
+    @Bean
+    @ConditionalOnMissingBean
+    public AppContextInstantiatorListener appContextInstantiatorListener() {
+        return new DefaultAppContextInstantiatorListener();
     }
 }
