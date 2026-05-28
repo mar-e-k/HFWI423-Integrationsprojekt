@@ -11,6 +11,7 @@ public interface ReceiptService extends CrudService<Receipt, Long> {
     List<Receipt> findAllByRegisterId(Long registerId);
     List<Receipt> findAllByCashierId(Long cashierId);
     List<Receipt> findAllByStoreIdAndCreatedAtToday(Long storeId);
+    List<Long> findDistinctArticleIdsSoldTodayByStoreId(Long storeId);
     List<ReceiptLine> findAllReceiptLinesByReceiptId(Long id);
 
     /**

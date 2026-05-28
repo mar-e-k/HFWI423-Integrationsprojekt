@@ -4,6 +4,8 @@ import de.fhdw.vendix.commons.api.structure.mapper.Default;
 import de.fhdw.vendix.commons.spring.data.persistance.entity.AbstractSpringDataEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.Index;
+import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.PositiveOrZero;
@@ -16,6 +18,9 @@ import org.jspecify.annotations.Nullable;
  * External Read-Only import from DB
  */
 @Entity
+@Table(indexes = {
+        @Index(name = "idx_article_article_number", columnList = "article_number")
+})
 @Immutable
 public class Article extends AbstractSpringDataEntity<Long> {
 

@@ -1,24 +1,21 @@
 package de.fhdw.vendix.store.app.scheduler;
 
-import de.fhdw.vendix.commons.spring.app.context.store.StoreContext;
+import de.fhdw.vendix.commons.api.domain.store.StoreDTO;
+import de.fhdw.vendix.store.core.store.StoreContext;
 import de.fhdw.vendix.store.core.domain.article.Article;
 import de.fhdw.vendix.store.core.domain.article.ArticleService;
-import de.fhdw.vendix.store.core.domain.receipt.Receipt;
 import de.fhdw.vendix.store.core.domain.receipt.ReceiptService;
-import de.fhdw.vendix.store.core.domain.receipt_line.ReceiptLine;
 import de.fhdw.vendix.store.core.domain.store_stock.StoreStock;
 import de.fhdw.vendix.store.core.domain.store_stock.StoreStockService;
 import de.fhdw.vendix.store.core.messaging.ArticleOrderMessagingService;
 import jakarta.persistence.EntityNotFoundException;
+import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.scheduling.annotation.Scheduled;
-import org.springframework.stereotype.Service;
+import org.springframework.stereotype.Component;
 
-import java.util.HashSet;
 import java.util.List;
-import java.util.Objects;
-import java.util.Set;
 
 /**
  * Runs every evening at 22:00 and emits order events for articles that fell
@@ -29,7 +26,7 @@ import java.util.Set;
  * referenced here directly, and the same logic can be reused by the test
  * controller.
  */
-@Service
+@Component
 public class DailyReceiptReportingSchedule {
 
     private static final Logger log = LoggerFactory.getLogger(DailyReceiptReportingSchedule.class);
@@ -59,37 +56,29 @@ public class DailyReceiptReportingSchedule {
     public void sendDailyReceiptReport() {
         log.atInfo().log("[SCHEDULED] Sending daily receipt report...");
 
-        if (storeContext.getStore() == null || storeContext.getStore().id() == null) {
-            throw new IllegalStateException("Cannot sent daily report, as store authContext isn't set properly");
+        @Nullable StoreDTO currentStore = storeContext.getStore();
+        @Nullable Long currentStoreId = currentStore == null ? null : currentStore.id();
+        if (currentStoreId == null) {
+            log.atWarn().log("[SCHEDULED] Skipping daily receipt report because store context is not initialized");
+            return;
         }
 
-        Long storeId;
+        Long storeId = currentStoreId;
 
-        storeId = storeContext.getStore().id();
-
-        List<Receipt> receipts = receiptService.findAllByStoreIdAndCreatedAtToday(storeId);
-        Set<Article> articles = new HashSet<>();
-
-        // Get all articles of the day and record their count.
-        // This can probably also be a GROUP-BY in SQL, but native SQL is to generally be avoided
-        // TODO: actually do it. this is literal dogshit right now
-        for (Receipt receipt : receipts) {
-            receiptService.findAllReceiptLinesByReceiptId(Objects.requireNonNull(receipt.getId())).stream()
-                    .map(ReceiptLine::getArticleId)
-                    .map(articleId -> articleService.findById(articleId).orElseThrow(EntityNotFoundException::new))
-                    .forEach(articles::add);
-        }
+        List<Long> soldArticleIds = receiptService.findDistinctArticleIdsSoldTodayByStoreId(storeId);
 
         // Check the current articleAmount against the stores needed articleAmount and order accordingly
-        for (Article article : articles) {
-            StoreStock stock = storeStockService.findByStoreIdAndArticleId(storeId, Objects.requireNonNull(article.getId()))
+        for (Long articleId : soldArticleIds) {
+            Article article = articleService.findById(articleId)
+                    .orElseThrow(EntityNotFoundException::new);
+            StoreStock stock = storeStockService.findByStoreIdAndArticleId(storeId, articleId)
                     .orElseThrow(EntityNotFoundException::new);
 
             long currentAmount = stock.getCurrentAmount();
             long deltaAmount = Math.max(0, stock.getPreferenceAmount().getMax() - currentAmount);
 
             if (currentAmount < stock.getPreferenceAmount().getMin()) {
-                articleOrderMessagingService.sendUrgentOrder(storeId, article.getId(), deltaAmount);
+                articleOrderMessagingService.sendUrgentOrder(storeId, articleId, deltaAmount);
             } else if (currentAmount > stock.getPreferenceAmount().getAvg()) {
                 log.atInfo().log("Order ignored for article '{}' as current stock '{}' is higher than specified avg '{}'",
                         article,
@@ -97,7 +86,7 @@ public class DailyReceiptReportingSchedule {
                         stock.getPreferenceAmount().getAvg()
                         );
             } else {
-                articleOrderMessagingService.sendOrder(storeId, article.getId(), deltaAmount);
+                articleOrderMessagingService.sendOrder(storeId, articleId, deltaAmount);
             }
         }
 

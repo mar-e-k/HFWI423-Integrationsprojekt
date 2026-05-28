@@ -1,6 +1,5 @@
-package de.fhdw.vendix.commons.api.utility.checkout;
+package de.fhdw.vendix.commons.api.domain.receipt;
 
-import de.fhdw.vendix.commons.api.domain.receipt.ReceiptPaymentMethod;
 import de.fhdw.vendix.commons.api.structure.dto.RequestDTO;
 
 import java.util.List;
@@ -14,15 +13,17 @@ import java.util.List;
  * @param storeId       ID des Stores
  * @param registerId    ID der Kasse
  * @param cashierId     ID des Kassierers
- * @param receiptPaymentMethod Zahlungsmethode (CASH, CARD, ONLINE)
+ * @param paymentMethod Zahlungsmethode (CASH, CARD, ONLINE)
  * @param lines         Bon-Positionen (min. 1 Artikel)
+ * @param returnLineIds optional; false keeps the response small for load tests
  */
 public record CheckoutRequestDTO(
         Long storeId,
         Long registerId,
         Long cashierId,
-        ReceiptPaymentMethod receiptPaymentMethod,
-        List<CheckoutLineDTO> lines
+        PaymentMethod paymentMethod,
+        List<CheckoutLineDTO> lines,
+        Boolean returnLineIds
 ) implements RequestDTO {
 
     public CheckoutRequestDTO {
@@ -35,11 +36,12 @@ public record CheckoutRequestDTO(
         if (cashierId == null || cashierId < 1) {
             throw new IllegalArgumentException("CheckoutRequestDTO: 'cashierId' muss >= 1 sein");
         }
-        if (receiptPaymentMethod == null) {
+        if (paymentMethod == null) {
             throw new IllegalArgumentException("CheckoutRequestDTO: 'paymentMethod' darf nicht null sein");
         }
         if (lines == null || lines.isEmpty()) {
             throw new IllegalArgumentException("CheckoutRequestDTO: 'lines' darf nicht leer sein");
         }
+        returnLineIds = returnLineIds == null || returnLineIds;
     }
 }

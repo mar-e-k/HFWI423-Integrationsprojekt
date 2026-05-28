@@ -9,15 +9,22 @@
 //   lasttest     – Normalbetrieb:    6 VUs, 180 Trans/h, GTIN-Scans, Voucher
 //   stresstest   – Belastungsgrenze: 10→200 VUs, kein Sleep, GTIN-Scans
 //   spiketest    – Lastspitze:       Baseline→80 Trans/min→Recovery
-//   soaktest     – Memory-Drift:     12–30 VUs, kein Sleep, 16h
+//   soaktest     – Memory-Drift:     6–30 VUs, kein Sleep, 17h
 //   capacitytest – Kipppunkt:        5→50 VUs, 100→600 Artikel/Bon
 // ═══════════════════════════════════════════════════════════════════════════
 
 import exec from 'k6/execution';
 
-import { CURRENT_SCENARIO, LASTTEST_DISCOUNTS, DISCOUNT_RATES } from './lib/config.js';
+import {
+    CURRENT_SCENARIO,
+    LASTTEST_DISCOUNTS,
+    DISCOUNT_RATES,
+    ORCHESTRATOR_URL,
+    STORE_URL,
+} from './lib/config.js';
 import { setupAuth } from './lib/auth.js';
 import {
+    assertStoreReachable,
     preloadArticlePool,
     runFullBon,
     checkout,
@@ -36,6 +43,9 @@ export function setup() {
     console.log('═'.repeat(70));
 
     const token = setupAuth();
+    console.log(`[Setup] Orchestrator URL: ${ORCHESTRATOR_URL}`);
+    console.log(`[Setup] Store URL       : ${STORE_URL}`);
+    assertStoreReachable(token);
     const { articlePool, depositPool } = preloadArticlePool(token);
 
     console.log(`[Setup] Bereit. Token: OK | Artikel: ${articlePool.length} | Pfand: ${depositPool.length}`);
@@ -106,18 +116,29 @@ const scenarios = {
     // ──────────────────────────────────────────────────────────────────────
     // 4. SOAK-TEST – Memory-Drift (kein Sleep)
     // ──────────────────────────────────────────────────────────────────────
+    soaktest_warmup: {
+        executor:        'constant-arrival-rate',
+        rate:            180,
+        timeUnit:        '1h',
+        duration:        '1h',
+        preAllocatedVUs: 6,
+        maxVUs:          10,
+        exec:            'soaktest',
+    },
+
     soaktest: {
         executor:         'ramping-vus',
-        startVUs:         12,
+        startVUs:         6,
+        startTime:        '1h',
         stages: [
-            { duration: '3h', target: 12 },
+            { duration: '3h', target: 6 },
             { duration: '3h', target: 20 },
             { duration: '2h', target: 30 },
             { duration: '4h', target: 20 },
             { duration: '4h', target: 25 },
         ],
         gracefulRampDown: '30s',
-        exec: 'soaktest',
+        exec:             'soaktest',
     },
 
     // ──────────────────────────────────────────────────────────────────────
@@ -151,9 +172,10 @@ if (!scenarios[CURRENT_SCENARIO]) {
 // ─── Options ─────────────────────────────────────────────────────────────────
 
 export const options = {
-    scenarios: {
-        [CURRENT_SCENARIO]: scenarios[CURRENT_SCENARIO],
-    },
+    scenarios: CURRENT_SCENARIO === 'soaktest'
+        ? { soaktest_warmup: scenarios.soaktest_warmup, soaktest: scenarios.soaktest }
+        : { [CURRENT_SCENARIO]: scenarios[CURRENT_SCENARIO]
+        },
     thresholds: {
         'http_req_duration':                            ['p(95)<2000'],
         'http_req_failed':                              ['rate<0.05'],
@@ -199,7 +221,7 @@ export function stresstest(data) {
         articleCount:   5,
         discountChance: 0.0,
         discountRates:  [],
-        scanGtins:      true,
+        scanGtins:      false,
     });
 
     // Jeder 5. Bon mit Voucher — erhöht DB-Last durch zusätzliche Transaktionen

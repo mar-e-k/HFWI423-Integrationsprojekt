@@ -6,7 +6,7 @@ package de.fhdw.vendix.orchestrator.core.other.performance;
  * <p>Der {@code scenarioKey} wird als {@code -e SCENARIO=...} an k6 übergeben.
  * Das {@code script} steuert, welche k6-Skript-Datei ausgeführt wird:
  * <ul>
- *   <li>{@code test.js} – die fünf klassischen HTTP/POS-Lasttests</li>
+ *   <li>{@code test.js} – die klassischen HTTP/POS-Lasttests</li>
  *   <li>{@code messaging-e2e-test.js} – der AMQP-E2E-Kreislauf-Test</li>
  * </ul>
  */
@@ -75,8 +75,8 @@ public enum TestType {
     MESSAGING_E2E(
             "messaging-e2e-test.js",
             "messaging-e2e",
-            "6. Messaging E2E – AMQP-Kreislauf",
-            "k6 triggert über POST /api/test/order[/urgent] Bestellanforderungen im Store. " +
+            "Messaging E2E – AMQP-Kreislauf",
+            "k6 triggert über POST /api/replenishment-orders Bestellanforderungen im Store. " +
                     "Der Store publiziert ArticleOrderEvents an RabbitMQ. " +
                     "Die Logistikseite (JMeter) konsumiert die Orders und schickt ArticleSentEvents zurück. " +
                     "Der Store verarbeitet die Events und bucht den Bestand hoch. " +

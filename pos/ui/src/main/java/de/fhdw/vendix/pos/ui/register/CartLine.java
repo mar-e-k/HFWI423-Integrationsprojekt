@@ -2,7 +2,10 @@ package de.fhdw.vendix.pos.ui.register;
 
 import de.fhdw.vendix.commons.api.domain.article.ArticleDTO;
 import de.fhdw.vendix.commons.api.domain.receipt_line.ReceiptLineDTO;
+import de.fhdw.vendix.commons.api.embeddable.DiscountOverrideDTO;
+import de.fhdw.vendix.commons.api.embeddable.PriceOverrideDTO;
 import de.fhdw.vendix.pos.ui.register.receipt_view.PriceResult;
+import org.jspecify.annotations.Nullable;
 
 import java.math.BigDecimal;
 import java.util.Objects;
@@ -30,20 +33,23 @@ public record CartLine(
 
         BigDecimal originalTotal = baseUnitPrice.multiply(quantity);
 
-        boolean overridden = line.priceOverride() != null;
-        boolean discounted = line.discountOverride() != null;
+        @Nullable PriceOverrideDTO priceOverride = line.priceOverride();
+        @Nullable DiscountOverrideDTO discountOverride = line.discountOverride();
+
+        boolean overridden = priceOverride != null;
+        boolean discounted = discountOverride != null;
 
         BigDecimal finalUnitPrice = baseUnitPrice;
 
-        if (line.priceOverride() != null && line.priceOverride().amount() != null) {
-            finalUnitPrice = line.priceOverride().amount();
+        if (priceOverride != null) {
+            finalUnitPrice = priceOverride.amount();
         }
 
         BigDecimal total = finalUnitPrice.multiply(quantity);
 
-        if (line.discountOverride() != null) {
+        if (discountOverride != null) {
             BigDecimal discountFactor = BigDecimal.ONE
-                    .subtract(line.discountOverride().amount()
+                    .subtract(discountOverride.amount()
                             .divide(BigDecimal.valueOf(100)));
 
             total = total.multiply(discountFactor);

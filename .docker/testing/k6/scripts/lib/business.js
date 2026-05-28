@@ -28,6 +28,31 @@ import {
 
 // ─── Hilfsfunktionen ─────────────────────────────────────────────────────────
 
+export function assertStoreReachable(token) {
+    console.log(`[Preflight] Store URL: ${STORE_URL}`);
+
+    const res = http.get(`${STORE_URL}/actuator/health`, {
+        ...authHeaders(token),
+        tags: { endpoint: 'preflight_store' },
+        timeout: '5s',
+        responseCallback: http.expectedStatuses(200, 401, 403, 404),
+    });
+
+    if (res.error || res.status === 0) {
+        const reason = res.error || `HTTP ${res.status}`;
+        throw new Error(
+            `[Preflight] Store nicht erreichbar: ${reason}. ` +
+            `STORE_URL=${STORE_URL}. ` +
+            'Wenn Store/Orchestrator lokal laufen, nutze http://host.docker.internal:8081. ' +
+            'Wenn sie als Compose-Services laufen, starte .docker/.scripts/up.sh --apps.'
+        );
+    }
+
+    if (res.status >= 500) {
+        throw new Error(`[Preflight] Store antwortet mit HTTP ${res.status}. STORE_URL=${STORE_URL}`);
+    }
+}
+
 export function pickRandom(arr) {
     return arr[Math.floor(Math.random() * arr.length)];
 }
@@ -88,6 +113,12 @@ export function preloadArticlePool(token) {
     }
 
     console.log(`[Articles] Pool: ${pool.length} Artikel, ${depositPool.length} Pfand-Artikel`);
+    if (pool.length === 0) {
+        throw new Error(
+            `[Articles] Keine Artikel von ${STORE_URL} geladen. ` +
+            'Der Test wird abgebrochen, weil sonst nur Fehler gegen einen leeren Artikelpool gemessen werden.'
+        );
+    }
     return { articlePool: pool, depositPool };
 }
 
@@ -118,6 +149,7 @@ export function checkout(token, registerId, cashierId, articlePool, opts = {}) {
 
     const res = http.post(`${STORE_URL}/api/receipt/checkout`, JSON.stringify({
         storeId: STORE_ID, registerId, cashierId, paymentMethod, lines,
+        returnLineIds: false,
     }), { ...authHeaders(token), tags: { endpoint: 'checkout' } });
 
     const ok = check(res, {
@@ -143,6 +175,7 @@ export function printReceipt(token, receiptId) {
     const res = http.post(`${STORE_URL}/api/receipt/${receiptId}/print`, null, {
         ...authHeaders(token),
         tags: { endpoint: 'print_receipt' },
+        responseCallback: http.expectedStatuses(200, 409),
     });
 
     const ok = check(res, {
@@ -160,6 +193,7 @@ export function cancelReceipt(token, receiptId) {
     const res = http.post(`${STORE_URL}/api/receipt/${receiptId}/cancel`, null, {
         ...authHeaders(token),
         tags: { endpoint: 'cancel_receipt' },
+        responseCallback: http.expectedStatuses(200, 409),
     });
 
     check(res, {
@@ -187,6 +221,7 @@ export function redeemVoucher(token) {
     const res = http.post(`${STORE_URL}/api/voucher/${voucherCode}/redeem`, null, {
         ...authHeaders(token),
         tags: { endpoint: 'voucher_redeem' },
+        responseCallback: http.expectedStatuses(200, 404, 409),
     });
 
     check(res, {
@@ -214,7 +249,9 @@ export function checkAndRedeemVoucher(token, voucherCode) {
     } catch (_) {}
 
     const redeemRes = http.post(`${STORE_URL}/api/voucher/${voucherCode}/redeem`, null, {
-        ...authHeaders(token), tags: { endpoint: 'voucher_redeem' },
+        ...authHeaders(token),
+        tags: { endpoint: 'voucher_redeem' },
+        responseCallback: http.expectedStatuses(200, 409),
     });
     check(redeemRes, {
         '[Voucher] 200 oder 409': (r) => r.status === 200 || r.status === 409,
@@ -231,6 +268,7 @@ export function depositReturn(token, registerId, cashierId, depositPool) {
     const res = http.post(`${STORE_URL}/api/receipt/checkout`, JSON.stringify({
         storeId: STORE_ID, registerId, cashierId,
         paymentMethod: pickPaymentMethod(),
+        returnLineIds: false,
         lines: [{ articleId: pickRandom(pool), articleAmount: 1, discountPercent: null }],
     }), { ...authHeaders(token), tags: { endpoint: 'deposit_return' } });
 

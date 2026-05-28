@@ -1,6 +1,8 @@
-package de.fhdw.vendix.orchestrator.core.other.performance;
+package de.fhdw.vendix.orchestrator.core.domain.performance;
 
+import de.fhdw.vendix.commons.spring.security.jwt.JwtService;
 import org.jspecify.annotations.Nullable;
+import org.springframework.beans.factory.annotation.Value;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -11,7 +13,11 @@ import java.nio.file.Path;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicReference;
@@ -51,12 +57,32 @@ public class PerformanceTestService {
     private static final DateTimeFormatter REPORT_FMT =
             DateTimeFormatter.ofPattern("yyyy-MM-dd_HH-mm").withZone(ZoneId.systemDefault());
 
+    private final JwtService jwtService;
+    private final String orchestratorBaseUrl;
+    private final String storeBaseUrl;
+    private final long storeId;
+    private final String registerIds;
+    private final String cashierIds;
     private final AtomicBoolean                       running    = new AtomicBoolean(false);
     private final AtomicReference<@Nullable Process>     process    = new AtomicReference<>(null);
     private final AtomicReference<@Nullable TestType>    activeTest = new AtomicReference<>(null);
     private final AtomicLong                          startedAt  = new AtomicLong(0);
 
-    public PerformanceTestService() {}
+    public PerformanceTestService(
+            JwtService jwtService,
+            @Value("${vendix.loadtests.orchestrator-base-url:http://host.docker.internal:8080}") String orchestratorBaseUrl,
+            @Value("${vendix.loadtests.store-base-url:http://host.docker.internal:8081}") String storeBaseUrl,
+            @Value("${vendix.loadtests.store-id:1}") long storeId,
+            @Value("${vendix.loadtests.register-ids:1,2,3}") String registerIds,
+            @Value("${vendix.loadtests.cashier-ids:4,5,6}") String cashierIds
+    ) {
+        this.jwtService = jwtService;
+        this.orchestratorBaseUrl = orchestratorBaseUrl;
+        this.storeBaseUrl = storeBaseUrl;
+        this.storeId = storeId;
+        this.registerIds = registerIds;
+        this.cashierIds = cashierIds;
+    }
 
     // ─── Starten ──────────────────────────────────────────────────────────────
 
@@ -76,7 +102,7 @@ public class PerformanceTestService {
      *
      * <p>Typische Zusatzvariablen für den Messaging-E2E-Test:
      * <pre>
-     *   STORE_URL       – z.B. http://host.docker.internal:8081
+     *   STORE_URL       – z.B. http://host.docker.internal:8081 lokal oder http://store:8081 im Docker-Netzwerk
      *   STORE_ID        – z.B. 1
      *   ORDER_RATE      – Orders/Minute, z.B. 30
      *   URGENT_RATIO    – Anteil dringend, z.B. 0.3
@@ -93,7 +119,7 @@ public class PerformanceTestService {
     public void startTest(TestType testType, Consumer<String> logConsumer,
                           Map<String, String> extraEnv) throws IOException {
         if (running.get()) {
-            TestType current = activeTest.get();
+            @Nullable TestType current = activeTest.get();
             String name = current != null ? current.getDisplayName() : "Unbekannt";
             throw new IllegalStateException("Ein Test läuft bereits: " + name);
         }
@@ -109,6 +135,14 @@ public class PerformanceTestService {
         // k6-Skript aus dem TestType bestimmen (test.js oder messaging-e2e-test.js)
         String k6Script = K6_SCRIPT_DIR + testType.getScript();
 
+        Map<String, String> effectiveEnv = new LinkedHashMap<>();
+        effectiveEnv.put("ORCHESTRATOR_URL", orchestratorBaseUrl);
+        effectiveEnv.put("STORE_URL", storeBaseUrl);
+        effectiveEnv.put("STORE_ID", String.valueOf(storeId));
+        effectiveEnv.put("REGISTER_IDS", registerIds);
+        effectiveEnv.put("CASHIER_IDS", cashierIds);
+        effectiveEnv.putAll(extraEnv);
+
         // Basis-Kommando zusammenbauen
         List<String> command = new ArrayList<>(List.of(
                 "docker", "exec",
@@ -117,12 +151,12 @@ public class PerformanceTestService {
                 "k6", "run",
                 "-o", PROMETHEUS_RW,
                 k6Script,
-                "-e", "K6_MASTER_TOKEN=" + UUID.randomUUID(), //TODO: grab from Keycloak Resource Server instead
+                "-e", "K6_MASTER_TOKEN=" + jwtService.generateToken(),
                 "-e", "SCENARIO=" + testType.getScenarioKey()
         ));
 
         // Zusätzliche Umgebungsvariablen anhängen (z.B. STORE_ID, ORDER_RATE, …)
-        for (Map.Entry<String, String> entry : extraEnv.entrySet()) {
+        for (Map.Entry<String, String> entry : effectiveEnv.entrySet()) {
             command.add("-e");
             command.add(entry.getKey() + "=" + entry.getValue());
         }
@@ -133,7 +167,7 @@ public class PerformanceTestService {
         log.info("  Szenario  : {}", testType.getDisplayName());
         log.info("  Skript    : {}", k6Script);
         log.info("  Parameter : {}", testType.getParameters());
-        log.info("  Extra-Env : {}", extraEnv.isEmpty() ? "–" : extraEnv.keySet());
+        log.info("  Extra-Env : {}", effectiveEnv.keySet());
         log.info("  Dauer     : {} Sekunden", testType.getDurationSeconds());
         log.info("  Container : {}", K6_CONTAINER);
         log.info("  Report    : {}", reportFile);
@@ -148,8 +182,9 @@ public class PerformanceTestService {
         try {
             proc = pb.start();
         } catch (IOException e) {
+            @Nullable String message = e.getMessage();
             throw new IOException(
-                    "docker exec fehlgeschlagen: " + e.getMessage() +
+                    "docker exec fehlgeschlagen: " + (message == null ? e.getClass().getSimpleName() : message) +
                             "  –  Läuft der k6-Container? (docker ps | grep vendix-k6)", e
             );
         }
@@ -167,7 +202,8 @@ public class PerformanceTestService {
                     logConsumer.accept(line);
                 }
             } catch (IOException e) {
-                String msg = e.getMessage() != null ? e.getMessage() : "Stream-Fehler";
+                @Nullable String message = e.getMessage();
+                String msg = message == null ? "Stream-Fehler" : message;
                 logConsumer.accept("[ERROR] Log-Stream unterbrochen: " + msg);
                 log.error("[Performance] Log-Stream unterbrochen: {}", msg);
             }
@@ -178,7 +214,7 @@ public class PerformanceTestService {
             }
 
             long elapsed = Instant.now().getEpochSecond() - startedAt.get();
-            TestType finished = activeTest.get();
+            @Nullable TestType finished = activeTest.get();
             String finishedName = finished != null ? finished.getDisplayName() : "Unbekannt";
 
             log.info("");
@@ -216,7 +252,7 @@ public class PerformanceTestService {
     // ─── Stoppen ──────────────────────────────────────────────────────────────
 
     public void stopTest() {
-        Process proc = process.get();
+        @Nullable Process proc = process.get();
         if (proc != null && proc.isAlive()) {
             proc.destroyForcibly();
             log.info("[Performance] k6-Prozess manuell gestoppt.");
@@ -242,7 +278,7 @@ public class PerformanceTestService {
     }
 
     public double getProgress() {
-        TestType test = activeTest.get();
+        @Nullable TestType test = activeTest.get();
         if (test == null || !running.get()) return 0.0;
         return Math.min(1.0, (double) getElapsedSeconds() / test.getDurationSeconds());
     }
@@ -251,7 +287,7 @@ public class PerformanceTestService {
 
     private Path resolveRepositoryRoot() throws IOException {
         Path startPath = Path.of(System.getProperty("user.dir", ".")).toAbsolutePath().normalize();
-        for (Path current = startPath; current != null; current = current.getParent()) {
+        for (@Nullable Path current = startPath; current != null; current = current.getParent()) {
             if (Files.exists(current.resolve(K6_COMPOSE))) return current;
         }
         throw new IOException(

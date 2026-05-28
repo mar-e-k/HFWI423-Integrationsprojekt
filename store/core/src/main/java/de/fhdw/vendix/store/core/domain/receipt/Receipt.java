@@ -1,39 +1,45 @@
 package de.fhdw.vendix.store.core.domain.receipt;
 
-import de.fhdw.vendix.commons.api.domain.receipt.ReceiptPaymentMethod;
+import de.fhdw.vendix.commons.api.domain.receipt.PaymentMethod;
 import de.fhdw.vendix.commons.api.domain.receipt.ReceiptStatus;
 import de.fhdw.vendix.commons.api.structure.mapper.Default;
-import de.fhdw.vendix.commons.spring.data.persistance.entity.AbstractSpringDataAuditingEntity;
+import de.fhdw.vendix.commons.spring.data.entity.AbstractSpringDataAuditingEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
+import jakarta.persistence.Index;
+import jakarta.persistence.Table;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
 import org.jspecify.annotations.Nullable;
 
 @Entity
+@Table(indexes = {
+        @Index(name = "idx_receipt_store_created", columnList = "store_id, created_at"),
+        @Index(name = "idx_receipt_register_created", columnList = "register_id, created_at")
+})
 public class Receipt extends AbstractSpringDataAuditingEntity<Long> {
 
     @NotNull(message = "Store ID cannot be null")
     @Min(value = 1, message = "Store ID must be at least 1")
-    @Column(nullable = false)
+    @Column(name = "store_id", nullable = false)
     private Long storeId;
 
     @NotNull(message = "Register ID cannot be null")
     @Min(value = 1, message = "Register ID must be at least 1")
-    @Column(nullable = false)
+    @Column(name = "register_id", nullable = false)
     private Long registerId;
 
     @NotNull(message = "Cashier ID cannot be null")
     @Min(value = 1, message = "Cashier ID must be at least 1")
-    @Column(nullable = false)
+    @Column(name = "cashier_id", nullable = false)
     private Long cashierId;
 
     @Enumerated(EnumType.STRING)
     @NotNull(message = "Payment method cannot be null")
-    @Column(nullable = false)
-    private ReceiptPaymentMethod receiptPaymentMethod;
+    @Column(name = "payment_method", nullable = false)
+    private PaymentMethod paymentMethod;
 
     @Enumerated(EnumType.STRING)
     @NotNull(message = "Status cannot be null")
@@ -42,22 +48,22 @@ public class Receipt extends AbstractSpringDataAuditingEntity<Long> {
 
     protected Receipt() {}
 
-    public Receipt(Long storeId, Long registerId, Long cashierId, ReceiptPaymentMethod receiptPaymentMethod) {
+    public Receipt(Long storeId, Long registerId, Long cashierId, PaymentMethod paymentMethod) {
         this.storeId        = storeId;
         this.registerId     = registerId;
         this.cashierId      = cashierId;
-        this.receiptPaymentMethod = receiptPaymentMethod;
+        this.paymentMethod  = paymentMethod;
         this.status         = ReceiptStatus.OPEN;
     }
 
     @Default
     protected Receipt(@Nullable Long id, Long storeId, Long registerId,
-                      Long cashierId, ReceiptPaymentMethod receiptPaymentMethod, ReceiptStatus status) {
+                      Long cashierId, PaymentMethod paymentMethod, ReceiptStatus status) {
         super(id);
         this.storeId       = storeId;
         this.registerId    = registerId;
         this.cashierId     = cashierId;
-        this.receiptPaymentMethod = receiptPaymentMethod;
+        this.paymentMethod = paymentMethod;
         this.status        = status != null ? status : ReceiptStatus.OPEN;
     }
 
@@ -106,6 +112,6 @@ public class Receipt extends AbstractSpringDataAuditingEntity<Long> {
     public Long getStoreId()              { return storeId; }
     public Long getRegisterId()           { return registerId; }
     public Long getCashierId()            { return cashierId; }
-    public ReceiptPaymentMethod getPaymentMethod() { return receiptPaymentMethod; }
+    public PaymentMethod getPaymentMethod() { return paymentMethod; }
     public ReceiptStatus getStatus()      { return status; }
 }

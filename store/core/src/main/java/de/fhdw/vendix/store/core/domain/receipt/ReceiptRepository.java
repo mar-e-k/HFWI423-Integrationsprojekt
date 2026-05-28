@@ -27,6 +27,17 @@ interface ReceiptRepository extends JpaRepository<Receipt, Long> {
 
     @Query(
                     """
+                    SELECT DISTINCT rl.articleId
+                    FROM Receipt r, ReceiptLine rl
+                    WHERE rl.receiptId = r.id
+                      AND r.storeId = :storeId
+                      AND r.createdAt >= CURRENT_DATE
+                    """
+    )
+    List<Long> findDistinctArticleIdsSoldTodayByStoreId(@Param("storeId") Long storeId);
+
+    @Query(
+                    """
                     SELECT rl
                     FROM ReceiptLine rl
                     WHERE rl.receiptId = :receiptId
