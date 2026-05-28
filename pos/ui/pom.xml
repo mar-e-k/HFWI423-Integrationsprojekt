@@ -17,17 +17,27 @@
     <dependencies>
         <dependency>
             <groupId>de.fhdw.vendix</groupId>
-            <artifactId>pos-core</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>de.fhdw.vendix</groupId>
-            <artifactId>pos-web</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>de.fhdw.vendix</groupId>
             <artifactId>commons-core</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>de.fhdw.vendix</groupId>
+            <artifactId>commons-spring-web-api</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>de.fhdw.vendix</groupId>
+            <artifactId>commons-spring-web-core</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>de.fhdw.vendix</groupId>
+            <artifactId>commons-spring-security</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>de.fhdw.vendix</groupId>
+            <artifactId>commons-spring-app-context</artifactId>
         </dependency>
 
         <dependency>

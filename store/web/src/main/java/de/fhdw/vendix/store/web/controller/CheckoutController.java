@@ -1,9 +1,9 @@
 package de.fhdw.vendix.store.web.controller;
 
-import de.fhdw.vendix.commons.api.domain.receipt.CheckoutRequestDTO;
-import de.fhdw.vendix.commons.api.domain.receipt.CheckoutResponseDTO;
+import de.fhdw.vendix.commons.api.domain.checkout.CheckoutRequestDTO;
+import de.fhdw.vendix.commons.api.domain.checkout.CheckoutResponseDTO;
 import de.fhdw.vendix.commons.api.domain.receipt.ReceiptDTO;
-import de.fhdw.vendix.commons.spring.web.server.store.api.CheckoutApi;
+import de.fhdw.vendix.commons.spring.web.api.store.CheckoutApi;
 import de.fhdw.vendix.store.core.domain.receipt.CheckoutService;
 import de.fhdw.vendix.store.core.domain.receipt.ReceiptAlreadyCancelledException;
 import de.fhdw.vendix.store.core.domain.receipt.ReceiptAlreadyPrintedException;

@@ -1,7 +1,7 @@
 package de.fhdw.vendix.store.core.domain.article;
 
 import de.fhdw.vendix.commons.api.structure.mapper.Default;
-import de.fhdw.vendix.commons.spring.data.entity.AbstractSpringDataEntity;
+import de.fhdw.vendix.commons.spring.data.persistance.entity.AbstractSpringDataEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Index;

@@ -7,7 +7,7 @@ import com.vaadin.flow.component.sidenav.SideNavItem;
 import com.vaadin.flow.router.Layout;
 import com.vaadin.flow.spring.annotation.VaadinSessionScope;
 import com.vaadin.flow.spring.security.AuthenticationContext;
-import de.fhdw.vendix.commons.api.domain.account_role.Role;
+import de.fhdw.vendix.commons.spring.security.keycloak.KeycloakRole;
 import de.fhdw.vendix.commons.spring.vaadin.layout.AbstractApplicationLayout;
 import de.fhdw.vendix.store.ui.business.ReceiptView;
 import de.fhdw.vendix.store.ui.business.StockView;
@@ -18,7 +18,7 @@ import de.fhdw.vendix.store.ui.home.RootView;
 import de.fhdw.vendix.store.ui.home.StoreContextView;
 import jakarta.annotation.security.RolesAllowed;
 
-@RolesAllowed({Role.ROLE_ADMIN})
+@RolesAllowed({KeycloakRole.Constants.ADMIN})
 @Layout
 @VaadinSessionScope
 public class StoreAppLayout extends AbstractApplicationLayout {

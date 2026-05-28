@@ -4,7 +4,7 @@ import de.fhdw.vendix.commons.api.domain.article.ArticleDTO;
 import de.fhdw.vendix.commons.api.domain.article.ArticleRequestDTO;
 import de.fhdw.vendix.commons.api.domain.article.ArticleResponseDTO;
 import de.fhdw.vendix.commons.api.structure.mapper.DTOMapper;
-import de.fhdw.vendix.commons.spring.data.mapper.SpringMapperConfig;
+import de.fhdw.vendix.commons.spring.data.persistance.mapper.SpringMapperConfig;
 import org.mapstruct.Mapper;
 
 import java.util.List;

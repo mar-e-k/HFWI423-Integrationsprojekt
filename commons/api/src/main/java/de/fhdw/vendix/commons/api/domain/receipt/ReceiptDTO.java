@@ -3,11 +3,13 @@ package de.fhdw.vendix.commons.api.domain.receipt;
 import de.fhdw.vendix.commons.api.structure.dto.DomainDTO;
 import org.jspecify.annotations.Nullable;
 
+import java.util.UUID;
+
 public record ReceiptDTO(
         @Nullable Long id,
         Long storeId,
         Long registerId,
-        Long cashierId,
+        UUID cashierUuid,
         PaymentMethod paymentMethod,
         ReceiptStatus status
 ) implements DomainDTO {
@@ -21,8 +23,8 @@ public record ReceiptDTO(
         if (registerId == null || registerId < 0) {
             throw new IllegalArgumentException("ReceiptDTO parameter 'registerId' cannot be null or negative");
         }
-        if (cashierId == null || cashierId < 0) {
-            throw new IllegalArgumentException("ReceiptDTO parameter 'cashierId' must not be null or negative");
+        if (cashierUuid == null) {
+            throw new IllegalArgumentException("ReceiptDTO parameter 'cashierUUID' must not be null");
         }
         if (paymentMethod == null) {
             throw new IllegalArgumentException("ReceiptDTO parameter 'paymentMethod' must not be null");

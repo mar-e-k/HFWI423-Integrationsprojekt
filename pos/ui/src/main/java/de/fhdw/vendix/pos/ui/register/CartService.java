@@ -2,28 +2,25 @@ package de.fhdw.vendix.pos.ui.register;
 
 import com.vaadin.flow.spring.security.AuthenticationContext;
 import de.fhdw.vendix.commons.api.domain.article.ArticleDTO;
-import de.fhdw.vendix.commons.api.domain.receipt.CheckoutLineDTO;
-import de.fhdw.vendix.commons.api.domain.receipt.CheckoutRequestDTO;
-import de.fhdw.vendix.commons.api.domain.receipt.CheckoutResponseDTO;
 import de.fhdw.vendix.commons.api.domain.receipt.PaymentMethod;
 import de.fhdw.vendix.commons.api.domain.receipt.ReceiptDTO;
 import de.fhdw.vendix.commons.api.domain.receipt.ReceiptStatus;
 import de.fhdw.vendix.commons.api.domain.receipt_line.ReceiptLineDTO;
 import de.fhdw.vendix.commons.api.domain.register.RegisterDTO;
 import de.fhdw.vendix.commons.api.embeddable.DiscountOverrideDTO;
-import de.fhdw.vendix.commons.spring.security.context.auth.DefaultUser;
-import de.fhdw.vendix.pos.core.register.RegisterContext;
-import de.fhdw.vendix.pos.web.client.store.StoreClients;
-import org.jspecify.annotations.Nullable;
+import de.fhdw.vendix.commons.api.domain.checkout.CheckoutLineDTO;
+import de.fhdw.vendix.commons.api.domain.checkout.CheckoutRequestDTO;
+import de.fhdw.vendix.commons.api.domain.checkout.CheckoutResponseDTO;
+import de.fhdw.vendix.commons.spring.app.context.register.RegisterContext;
+import de.fhdw.vendix.commons.spring.web.api.store.CheckoutApi;
+import de.fhdw.vendix.commons.spring.web.core.ResponseUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.http.ResponseEntity;
+import org.springframework.security.oauth2.core.oidc.user.OidcUser;
 import org.springframework.stereotype.Component;
 import org.springframework.web.context.annotation.SessionScope;
 
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
 @Component
 @SessionScope
@@ -33,17 +30,17 @@ public class CartService {
 
     private final RegisterContext registerContext;
     private final AuthenticationContext authenticationContext;
-    private final StoreClients storeClients;
+    private final CheckoutApi checkoutApi;
+
     private final List<CartLine> cartLines = new LinkedList<>();
 
     public CartService(
             RegisterContext registerContext,
-            AuthenticationContext authenticationContext,
-            StoreClients storeClients
+            AuthenticationContext authenticationContext, CheckoutApi checkoutApi
     ) {
         this.registerContext = registerContext;
         this.authenticationContext = authenticationContext;
-        this.storeClients = storeClients;
+        this.checkoutApi = checkoutApi;
     }
 
     public void addLine(ArticleDTO article, int amount) {
@@ -102,12 +99,12 @@ public class CartService {
                 throw new IllegalArgumentException("Cannot checkout an empty cart");
             }
 
-            DefaultUser cashier = authenticationContext.getAuthenticatedUser(DefaultUser.class)
+            OidcUser cashier = authenticationContext.getAuthenticatedUser(OidcUser.class)
                     .orElseThrow(IllegalStateException::new);
             RegisterDTO register = Objects.requireNonNull(registerContext.getRegister());
             Long registerId = Objects.requireNonNull(register.id());
             Long storeId = Objects.requireNonNull(register.storeId());
-            Long cashierId = Objects.requireNonNull(cashier.authContext().account().id());
+            UUID cashierId = UUID.fromString(cashier.getSubject());
 
             CheckoutRequestDTO request = new CheckoutRequestDTO(
                     storeId,
@@ -120,15 +117,12 @@ public class CartService {
                     false
             );
 
-            ResponseEntity<CheckoutResponseDTO> response = storeClients.checkout().checkout(request);
-            @Nullable CheckoutResponseDTO body = response.getBody();
-            if (!response.getStatusCode().is2xxSuccessful() || body == null) {
-                throw new IllegalStateException("Store checkout failed with status " + response.getStatusCode());
-            }
-
+            CheckoutResponseDTO response = ResponseUtils.extractBody(checkoutApi.checkout(request))
+                    .orElseThrow(IllegalStateException::new);
             clearCart();
-            log.atInfo().log("Checkout completed with receiptId={}", body.receiptId());
-            return body;
+
+            log.atInfo().log("Checkout completed with receiptId={}", response.receiptId());
+            return response;
         } catch (Exception e) {
             log.atError().log("Failed to submit checkout", e);
             throw e;
@@ -141,17 +135,17 @@ public class CartService {
             if (cartLines.isEmpty()) {
                 throw new IllegalArgumentException("Cannot create a Receipt for an empty list");
             }
-            DefaultUser cashier = authenticationContext.getAuthenticatedUser(DefaultUser.class)
+            OidcUser cashier = authenticationContext.getAuthenticatedUser(OidcUser.class)
                     .orElseThrow(IllegalStateException::new);
             RegisterDTO register = Objects.requireNonNull(registerContext.getRegister());
             Long registerId = Objects.requireNonNull(register.id());
             Long storeId = Objects.requireNonNull(register.storeId());
-            Long cashierId = Objects.requireNonNull(cashier.authContext().account().id());
+            UUID cashierUUID = UUID.fromString(cashier.getSubject());
             ReceiptDTO receipt = new ReceiptDTO(
                     null,
                     registerId,
                     storeId,
-                    cashierId,
+                    cashierUUID,
                     PaymentMethod.CARD,
                     ReceiptStatus.OPEN
             );
@@ -171,7 +165,7 @@ public class CartService {
     }
 
     private CheckoutLineDTO toCheckoutLine(CartLine cartLine) {
-        @Nullable DiscountOverrideDTO discountOverride = cartLine.line().discountOverride();
+        DiscountOverrideDTO discountOverride = cartLine.line().discountOverride();
         return new CheckoutLineDTO(
                 cartLine.line().articleId(),
                 cartLine.line().articleAmount(),

@@ -31,17 +31,32 @@
             <!-- commons-spring -->
             <dependency>
                 <groupId>de.fhdw.vendix</groupId>
+                <artifactId>commons-spring-data-caching</artifactId>
+                <version>${commons.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>de.fhdw.vendix</groupId>
+                <artifactId>commons-spring-data-persistance</artifactId>
+                <version>${commons.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>de.fhdw.vendix</groupId>
                 <artifactId>commons-spring-security</artifactId>
                 <version>${commons.version}</version>
             </dependency>
             <dependency>
                 <groupId>de.fhdw.vendix</groupId>
-                <artifactId>commons-spring-data</artifactId>
+                <artifactId>commons-spring-web-api</artifactId>
                 <version>${commons.version}</version>
             </dependency>
             <dependency>
                 <groupId>de.fhdw.vendix</groupId>
-                <artifactId>commons-spring-web</artifactId>
+                <artifactId>commons-spring-web-core</artifactId>
+                <version>${commons.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>de.fhdw.vendix</groupId>
+                <artifactId>commons-spring-web-docs</artifactId>
                 <version>${commons.version}</version>
             </dependency>
             <dependency>
@@ -51,23 +66,17 @@
             </dependency>
             <dependency>
                 <groupId>de.fhdw.vendix</groupId>
-                <artifactId>commons-spring-app</artifactId>
+                <artifactId>commons-spring-app-context</artifactId>
+                <version>${commons.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>de.fhdw.vendix</groupId>
+                <artifactId>commons-spring-app-bundle</artifactId>
                 <version>${commons.version}</version>
             </dependency>
             <dependency>
                 <groupId>de.fhdw.vendix</groupId>
                 <artifactId>commons-spring-starter</artifactId>
-                <version>${commons.version}</version>
-            </dependency>
-            <!-- commons-ui -->
-            <dependency>
-                <groupId>de.fhdw.vendix</groupId>
-                <artifactId>commons-ui-core</artifactId>
-                <version>${commons.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>de.fhdw.vendix</groupId>
-                <artifactId>commons-ui-vaadin</artifactId>
                 <version>${commons.version}</version>
             </dependency>
         </dependencies>

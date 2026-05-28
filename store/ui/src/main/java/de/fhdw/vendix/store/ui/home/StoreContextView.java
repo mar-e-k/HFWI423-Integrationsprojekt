@@ -12,37 +12,32 @@ import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.theme.aura.Aura;
-import de.fhdw.vendix.commons.api.domain.account_role.Role;
 import de.fhdw.vendix.commons.api.domain.store.StoreDTO;
-import de.fhdw.vendix.store.core.store.StoreContext;
-import de.fhdw.vendix.commons.spring.web.client.orchestrator.api.StoreProxyService;
+import de.fhdw.vendix.commons.spring.security.keycloak.KeycloakRole;
+import de.fhdw.vendix.commons.spring.app.context.store.StoreContext;
+import de.fhdw.vendix.commons.spring.web.api.orchestrator.StoreApi;
+import de.fhdw.vendix.commons.spring.web.core.ResponseUtils;
 import de.fhdw.vendix.store.ui.StoreAppLayout;
 import jakarta.annotation.security.RolesAllowed;
-import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @Route(value = "context", layout = StoreAppLayout.class)
-@RolesAllowed(Role.ROLE_ADMIN)
+@RolesAllowed(KeycloakRole.Constants.ADMIN)
 @StyleSheet(Aura.STYLESHEET)
 public class StoreContextView extends VerticalLayout {
 
     private static final Logger log = LoggerFactory.getLogger(StoreContextView.class);
 
-    private final StoreProxyService storeProxyService;
+    private final StoreApi storeApi;
     private final StoreContext storeContext;
 
     private final FlexLayout storeLayout = new FlexLayout();
-    private final List<StoreDTO> inactiveStores = new ArrayList<>();
-    private final List<StoreDTO> activeStores = new ArrayList<>();
 
-    public StoreContextView(StoreProxyService storeProxyService, StoreContext storeContext) {
-        this.storeProxyService = storeProxyService;
+    public StoreContextView(StoreApi storeApi, StoreContext storeContext) {
+        this.storeApi = storeApi;
         this.storeContext = storeContext;
 
         setSizeFull();
@@ -52,8 +47,8 @@ public class StoreContextView extends VerticalLayout {
         createFilterMethods();
         createStoreLayout();
 
-        loadInactiveStores();
-        loadActiveStores();
+        loadNonLockedStores();
+        loadLockedStores();
     }
 
     private void createFilterMethods() {
@@ -71,25 +66,17 @@ public class StoreContextView extends VerticalLayout {
         add(storeLayout);
     }
 
-    private void loadInactiveStores() {
-        ResponseEntity<List<StoreDTO>> stores = storeProxyService.getUnlockedStores();
-        @Nullable List<StoreDTO> body = stores.getBody();
-        if (stores.getStatusCode() == HttpStatus.OK && body != null) {
-            inactiveStores.addAll(body);
-        }
-        inactiveStores.forEach(store -> {
+    private void loadNonLockedStores() {
+        List<StoreDTO> nonLockedStores = ResponseUtils.extractList(storeApi.getNonLockedStores());
+        nonLockedStores.forEach(store -> {
             Component storeCard = createStoreCard(store, false);
             storeLayout.add(storeCard);
         });
     }
 
-    private void loadActiveStores() {
-        ResponseEntity<List<StoreDTO>> stores = storeProxyService.getLockedStores();
-        @Nullable List<StoreDTO> body = stores.getBody();
-        if (stores.getStatusCode() == HttpStatus.OK && body != null) {
-            activeStores.addAll(body);
-        }
-        activeStores.forEach(store -> {
+    private void loadLockedStores() {
+        List<StoreDTO> lockedStores = ResponseUtils.extractList(storeApi.getLockedStores());
+        lockedStores.forEach(store -> {
             Component storeCard = createStoreCard(store, true);
             storeLayout.add(storeCard);
         });
@@ -162,9 +149,6 @@ public class StoreContextView extends VerticalLayout {
 
     private void handleStoreClickEvent(StoreDTO store) {
         storeContext.setStore(store);
-        @Nullable UI ui = UI.getCurrent();
-        if (ui != null) {
-            ui.navigate(RootView.class);
-        }
+        UI.getCurrent().navigate(RootView.class);
     }
 }

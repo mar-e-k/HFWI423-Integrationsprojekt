@@ -26,9 +26,9 @@ import com.vaadin.flow.component.textfield.NumberField;
 import com.vaadin.flow.component.textfield.TextArea;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.router.Route;
-import de.fhdw.vendix.commons.api.domain.account_role.Role;
-import de.fhdw.vendix.orchestrator.core.domain.performance.PerformanceTestService;
-import de.fhdw.vendix.orchestrator.core.domain.performance.TestType;
+import de.fhdw.vendix.commons.spring.security.keycloak.KeycloakRole;
+import de.fhdw.vendix.orchestrator.core.other.performance.PerformanceTestService;
+import de.fhdw.vendix.orchestrator.core.other.performance.TestType;
 import de.fhdw.vendix.orchestrator.ui.OrchestratorAppLayout;
 import jakarta.annotation.security.RolesAllowed;
 import org.jspecify.annotations.Nullable;
@@ -41,7 +41,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 @Route(value = "performance", layout = OrchestratorAppLayout.class)
-@RolesAllowed(Role.ROLE_ADMIN)
+@RolesAllowed(KeycloakRole.Constants.ADMIN)
 public class PerformanceTestView extends VerticalLayout {
 
     private static final String GRAFANA_K6_URL      = "http://localhost:3000/d/vendix-k6-lasttests?orgId=1&refresh=5s&kiosk=tv";

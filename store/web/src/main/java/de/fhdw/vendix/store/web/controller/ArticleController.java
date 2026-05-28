@@ -1,7 +1,7 @@
 package de.fhdw.vendix.store.web.controller;
 
 import de.fhdw.vendix.commons.api.domain.article.ArticleDTO;
-import de.fhdw.vendix.commons.spring.web.server.store.api.ArticleApi;
+import de.fhdw.vendix.commons.spring.web.api.store.ArticleApi;
 import de.fhdw.vendix.store.core.domain.article.ArticleMapper;
 import de.fhdw.vendix.store.core.domain.article.ArticleService;
 import org.springframework.http.ResponseEntity;

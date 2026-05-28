@@ -9,7 +9,7 @@
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>4.0.5</version>
+        <version>4.0.6</version>
         <relativePath/>
     </parent>
 
@@ -33,20 +33,22 @@
         <!-- Module Versions -->
         <commons.version>1.0.0</commons.version>
         <store.version>1.0.0</store.version>
+        <pos.version>1.0.0</pos.version>
         <!-- Dependency Versions -->
-        <vaadin.version>25.1.1</vaadin.version>
-        <swagger.version>2.2.45</swagger.version>
-        <pdfbox.version>3.0.6</pdfbox.version>
+        <vaadin.version>25.1.4</vaadin.version>
+        <spring-cloud.version>2025.1.1</spring-cloud.version>
+        <swagger.version>2.2.49</swagger.version>
+        <springdoc.version>3.0.3</springdoc.version>
+        <redison.version>4.3.1</redison.version>
         <plaguv-amqp.version>1.3.0</plaguv-amqp.version>
-        <nimbus.version>10.7</nimbus.version>
         <mapstruct.version>1.6.3</mapstruct.version>
-        <error-handling.version>5.1.0</error-handling.version>
         <loki-logback.version>2.0.3</loki-logback.version>
+        <pdfbox.version>3.0.6</pdfbox.version>
         <!-- Plugin Versions -->
-        <error-prone.version>2.47.0</error-prone.version>
-        <error-prone-support.version>0.28.0</error-prone-support.version>
-        <nullaway.version>0.13.1</nullaway.version>
-        <openapi-generator.version>7.21.0</openapi-generator.version>
+        <springdoc-maven.version>1.5</springdoc-maven.version>
+        <error-prone.version>2.49.0</error-prone.version>
+        <error-prone-support.version>0.29.0</error-prone-support.version>
+        <nullaway.version>0.13.4</nullaway.version>
     </properties>
 
     <dependencyManagement>
@@ -59,17 +61,36 @@
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
-            <!-- Source: https://mvnrepository.com/artifact/io.swagger.core.v3/swagger-annotations -->
+            <!-- Source: https://mvnrepository.com/artifact/org.springframework.cloud/spring-cloud-dependencies -->
+            <dependency>
+                <groupId>org.springframework.cloud</groupId>
+                <artifactId>spring-cloud-dependencies</artifactId>
+                <version>${spring-cloud.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+            <!-- Source: https://mvnrepository.com/artifact/io.swagger.core.v3/swagger-bom -->
             <dependency>
                 <groupId>io.swagger.core.v3</groupId>
-                <artifactId>swagger-annotations</artifactId>
+                <artifactId>swagger-bom</artifactId>
                 <version>${swagger.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
             </dependency>
-            <!-- Source: https://mvnrepository.com/artifact/org.apache.pdfbox/pdfbox -->
+            <!-- Source: https://mvnrepository.com/artifact/org.springdoc/springdoc-openapi-bom -->
             <dependency>
-                <groupId>org.apache.pdfbox</groupId>
-                <artifactId>pdfbox</artifactId>
-                <version>${pdfbox.version}</version>
+                <groupId>org.springdoc</groupId>
+                <artifactId>springdoc-openapi-bom</artifactId>
+                <version>${springdoc.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+            <!-- Source: https://mvnrepository.com/artifact/org.redisson/redisson-spring-boot-starter -->
+            <dependency>
+                <groupId>org.redisson</groupId>
+                <artifactId>redisson-spring-boot-starter</artifactId>
+                <version>${redison.version}</version>
+                <scope>compile</scope>
             </dependency>
             <!-- Source: https://mvnrepository.com/artifact/io.github.plaguv/plaguv-amqp-spring-boot-starter -->
             <dependency>
@@ -77,23 +98,11 @@
                 <artifactId>plaguv-amqp-spring-boot-starter</artifactId>
                 <version>${plaguv-amqp.version}</version>
             </dependency>
-            <!-- Source: https://mvnrepository.com/artifact/com.nimbusds/nimbus-jose-jwt -->
-            <dependency>
-                <groupId>com.nimbusds</groupId>
-                <artifactId>nimbus-jose-jwt</artifactId>
-                <version>${nimbus.version}</version>
-            </dependency>
             <!-- Source: https://mvnrepository.com/artifact/org.mapstruct/mapstruct -->
             <dependency>
                 <groupId>org.mapstruct</groupId>
                 <artifactId>mapstruct</artifactId>
                 <version>${mapstruct.version}</version>
-            </dependency>
-            <!-- Source: https://mvnrepository.com/artifact/io.github.wimdeblauwe/error-handling-spring-boot-starter -->
-            <dependency>
-                <groupId>io.github.wimdeblauwe</groupId>
-                <artifactId>error-handling-spring-boot-starter</artifactId>
-                <version>${error-handling.version}</version>
             </dependency>
             <!-- Source: https://mvnrepository.com/artifact/com.github.loki4j/loki-logback-appender -->
             <dependency>
@@ -101,19 +110,30 @@
                 <artifactId>loki-logback-appender</artifactId>
                 <version>${loki-logback.version}</version>
             </dependency>
+            <!-- Source: https://mvnrepository.com/artifact/org.apache.pdfbox/pdfbox -->
+            <dependency>
+                <groupId>org.apache.pdfbox</groupId>
+                <artifactId>pdfbox</artifactId>
+                <version>${pdfbox.version}</version>
+            </dependency>
         </dependencies>
     </dependencyManagement>
 
     <build>
         <pluginManagement>
             <plugins>
+                <!-- Source: https://mvnrepository.com/artifact/org.springdoc/springdoc-openapi-maven-plugin -->
+                <plugin>
+                    <groupId>org.springdoc</groupId>
+                    <artifactId>springdoc-openapi-maven-plugin</artifactId>
+                    <version>${springdoc-maven.version}</version>
+                </plugin>
                 <!-- Source: https://mvnrepository.com/artifact/org.apache.maven.plugins/maven-compiler-plugin -->
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-compiler-plugin</artifactId>
                     <version>${maven-compiler-plugin.version}</version>
                     <configuration>
-                        <excludes>**pos/*.java</excludes>
                         <release>${java.version}</release>
                         <encoding>${project.build.sourceEncoding}</encoding>
                         <compilerArgs>
@@ -157,12 +177,6 @@
                             </path>
                         </annotationProcessorPaths>
                     </configuration>
-                </plugin>
-                <!-- Source: https://mvnrepository.com/artifact/org.openapitools/openapi-generator-maven-plugin -->
-                <plugin>
-                    <groupId>org.openapitools</groupId>
-                    <artifactId>openapi-generator-maven-plugin</artifactId>
-                    <version>${openapi-generator.version}</version>
                 </plugin>
             </plugins>
         </pluginManagement>

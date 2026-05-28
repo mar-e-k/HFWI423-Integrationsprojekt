@@ -1,9 +1,17 @@
-de.fhdw.vendix.commons.spring.starter.autoconfigure.security.JwtAutoConfiguration
-de.fhdw.vendix.commons.spring.starter.autoconfigure.security.SecurityAutoConfiguration
-de.fhdw.vendix.commons.spring.starter.autoconfigure.security.SecurityContextAutoConfiguration
-de.fhdw.vendix.commons.spring.starter.autoconfigure.web.SecurityWebAutoconfiguration
+de.fhdw.vendix.commons.spring.starter.autoconfigure.config.AppPropertiesAutoConfiguration
+de.fhdw.vendix.commons.spring.starter.autoconfigure.config.DatabasePropertiesAutoConfiguration
+de.fhdw.vendix.commons.spring.starter.autoconfigure.config.MessagingPropertiesAutoConfiguration
+de.fhdw.vendix.commons.spring.starter.autoconfigure.config.SecurityPropertiesAutoConfiguration
 
-de.fhdw.vendix.commons.spring.starter.autoconfigure.web.OrchestratorClientAutoConfiguration
-de.fhdw.vendix.commons.spring.starter.autoconfigure.web.StoreClientAutoConfiguration
+de.fhdw.vendix.commons.spring.starter.autoconfigure.app.ConsulAutoConfiguration
+de.fhdw.vendix.commons.spring.starter.autoconfigure.app.ContextAutoConfiguration
+de.fhdw.vendix.commons.spring.starter.autoconfigure.app.RedisAutoConfiguration
+
+de.fhdw.vendix.commons.spring.starter.autoconfigure.web.client.OrchestratorClientAutoConfiguration
+de.fhdw.vendix.commons.spring.starter.autoconfigure.web.client.RegisterClientAutoConfiguration
+de.fhdw.vendix.commons.spring.starter.autoconfigure.web.client.StoreClientAutoConfiguration
+
+de.fhdw.vendix.commons.spring.starter.autoconfigure.web.KeycloakWebAutoConfiguration
+de.fhdw.vendix.commons.spring.starter.autoconfigure.web.SecurityWebAutoConfiguration
 
 de.fhdw.vendix.commons.spring.starter.autoconfigure.CommonsAutoConfiguration

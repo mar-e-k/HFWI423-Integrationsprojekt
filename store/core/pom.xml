@@ -17,17 +17,17 @@
     <dependencies>
         <dependency>
             <groupId>de.fhdw.vendix</groupId>
-            <artifactId>store-api</artifactId>
+            <artifactId>commons-spring-data-persistance</artifactId>
         </dependency>
 
         <dependency>
             <groupId>de.fhdw.vendix</groupId>
-            <artifactId>commons-spring-data</artifactId>
+            <artifactId>commons-spring-app-context</artifactId>
         </dependency>
 
         <dependency>
             <groupId>de.fhdw.vendix</groupId>
-            <artifactId>commons-spring-app</artifactId>
+            <artifactId>commons-spring-web-core</artifactId>
         </dependency>
     </dependencies>
 

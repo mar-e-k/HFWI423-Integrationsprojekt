@@ -4,7 +4,7 @@ import de.fhdw.vendix.commons.api.domain.register.RegisterDTO;
 import de.fhdw.vendix.commons.api.domain.register.RegisterRequestDTO;
 import de.fhdw.vendix.commons.api.domain.register.RegisterResponseDTO;
 import de.fhdw.vendix.commons.api.structure.mapper.DTOMapper;
-import de.fhdw.vendix.commons.spring.data.mapper.SpringMapperConfig;
+import de.fhdw.vendix.commons.spring.data.persistance.mapper.SpringMapperConfig;
 import de.fhdw.vendix.orchestrator.core.domain.store.StoreDTOMapper;
 import org.mapstruct.Mapper;
 

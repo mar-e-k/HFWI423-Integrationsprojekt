@@ -1,7 +1,7 @@
 package de.fhdw.vendix.orchestrator.core.domain.register;
 
 import de.fhdw.vendix.commons.api.structure.mapper.Default;
-import de.fhdw.vendix.commons.spring.data.entity.AbstractSpringDataAuditingEntity;
+import de.fhdw.vendix.commons.spring.data.persistance.entity.AbstractSpringDataAuditingEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.validation.constraints.Min;

@@ -1,6 +1,6 @@
 package de.fhdw.vendix.store.core.domain.voucher;
 
-import de.fhdw.vendix.commons.spring.data.crud.AbstractCrudService;
+import de.fhdw.vendix.commons.spring.data.persistance.crud.AbstractCrudService;
 import jakarta.persistence.EntityNotFoundException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

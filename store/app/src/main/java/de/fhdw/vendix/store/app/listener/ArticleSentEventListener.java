@@ -1,8 +1,8 @@
 package de.fhdw.vendix.store.app.listener;
 
 import de.fhdw.vendix.commons.api.domain.store.StoreDTO;
+import de.fhdw.vendix.commons.spring.app.context.store.StoreContext;
 import de.fhdw.vendix.store.core.domain.replenishment.ReplenishmentOrderService;
-import de.fhdw.vendix.store.core.store.StoreContext;
 import de.fhdw.vendix.store.core.domain.store_stock.StoreStockService;
 import io.github.plaguv.amqp.api.event.logistic.ArticleSentEvent;
 import io.github.plaguv.amqp.core.listener.AmqpEventListener;

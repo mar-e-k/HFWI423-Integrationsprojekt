@@ -16,9 +16,6 @@
 
     <modules>
         <module>bom</module>
-        <module>api</module>
-        <module>core</module>
-        <module>web</module>
         <module>ui</module>
         <module>app</module>
     </modules>

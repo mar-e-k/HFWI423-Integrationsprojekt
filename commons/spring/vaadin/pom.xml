@@ -15,26 +15,6 @@
 
     <dependencies>
         <dependency>
-            <groupId>de.fhdw.vendix</groupId>
-            <artifactId>commons-spring-data</artifactId>
-        </dependency>
-        
-        <dependency>
-            <groupId>de.fhdw.vendix</groupId>
-            <artifactId>commons-spring-security</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>de.fhdw.vendix</groupId>
-            <artifactId>commons-spring-web</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>de.fhdw.vendix</groupId>
-            <artifactId>commons-spring-app</artifactId>
-        </dependency>
-
-        <dependency>
             <groupId>com.vaadin</groupId>
             <artifactId>vaadin-dev</artifactId>
         </dependency>

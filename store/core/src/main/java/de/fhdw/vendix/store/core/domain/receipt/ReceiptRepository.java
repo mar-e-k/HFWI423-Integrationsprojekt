@@ -6,6 +6,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import java.util.List;
+import java.util.UUID;
 
 interface ReceiptRepository extends JpaRepository<Receipt, Long> {
 
@@ -13,7 +14,7 @@ interface ReceiptRepository extends JpaRepository<Receipt, Long> {
 
     List<Receipt> findAllByRegisterId(Long registerId);
 
-    List<Receipt> findAllByCashierId(Long cashierId);
+    List<Receipt> findAllByCashierUuid(UUID cashierUuid);
 
     @Query(
                     """

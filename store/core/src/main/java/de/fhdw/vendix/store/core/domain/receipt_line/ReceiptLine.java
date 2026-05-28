@@ -1,7 +1,7 @@
 package de.fhdw.vendix.store.core.domain.receipt_line;
 
 import de.fhdw.vendix.commons.api.structure.mapper.Default;
-import de.fhdw.vendix.commons.spring.data.entity.AbstractSpringDataAuditingEntity;
+import de.fhdw.vendix.commons.spring.data.persistance.entity.AbstractSpringDataAuditingEntity;
 import de.fhdw.vendix.store.core.embeddable.discount_override.DiscountOverride;
 import de.fhdw.vendix.store.core.embeddable.price_override.PriceOverride;
 import jakarta.persistence.Column;

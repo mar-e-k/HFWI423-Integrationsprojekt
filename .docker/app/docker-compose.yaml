@@ -1,33 +1,10 @@
-x-vendix-app-common: &vendix-app-common
-  build:
-    context: ../..
-    dockerfile: .docker/app/Dockerfile
-  restart: unless-stopped
-  profiles:
-    - apps
-  depends_on:
-    postgres:
-      condition: service_healthy
-    rabbitmq:
-      condition: service_healthy
-  networks:
-    - app
-
-x-vendix-app-environment: &vendix-app-environment
-  SPRING_PROFILES_ACTIVE: docker
-  SPRING_DATASOURCE_USERNAME: ${POSTGRES_USER}
-  SPRING_DATASOURCE_PASSWORD: ${POSTGRES_PASSWORD}
-  SPRING_RABBITMQ_HOST: rabbitmq
-  SPRING_RABBITMQ_PORT: 5672
-  SPRING_RABBITMQ_USERNAME: ${RABBITMQ_USER}
-  SPRING_RABBITMQ_PASSWORD: ${RABBITMQ_PASSWORD}
-  VENDIX_ORCHESTRATOR_BASE_URL: http://orchestrator:8080
-  VENDIX_SECURITY_JWT_EXPIRATION: 24h
+name: vendix
 
 services:
 
   postgres:
     image: postgres:18.3
+    container_name: postgres
     restart: unless-stopped
     environment:
       POSTGRES_DB: ${POSTGRES_DB}
@@ -37,17 +14,29 @@ services:
       - "${POSTGRES_PORT}:5432"
     volumes:
       - postgres_data:/var/lib/postgresql
-      - ./postgres/init:/docker-entrypoint-initdb.d:ro
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
-      interval: 5s
-      timeout: 5s
-      retries: 20
+      - ./app/postgres/init:/docker-entrypoint-initdb.d:ro
     networks:
-      - app
+      - vendix-network
+
+  redis:
+    image: redis:8.6.2
+    container_name: redis
+    restart: unless-stopped
+    command: >
+      redis-server
+      --requirepass ${REDIS_PASSWORD}
+      --save ""
+      --appendonly no
+      --maxmemory 512mb
+      --maxmemory-policy volatile-lru
+    ports:
+      - "${REDIS_PORT}:6379"
+    networks:
+      - vendix-network
 
   rabbitmq:
     image: rabbitmq:4.2.4-management
+    container_name: rabbitmq
     restart: unless-stopped
     environment:
       RABBITMQ_DEFAULT_USER: ${RABBITMQ_USER}
@@ -57,20 +46,14 @@ services:
       - "${RABBITMQ_UI_PORT}:15672"
     volumes:
       - rabbitmq_data:/var/lib/rabbitmq
-    healthcheck:
-      test: ["CMD", "rabbitmq-diagnostics", "-q", "ping"]
-      interval: 5s
-      timeout: 5s
-      retries: 20
     networks:
-      - app
+      - vendix-network
 
   keycloak:
     image: keycloak/keycloak:26.6
-    profiles:
-      - auth
+    container_name: keycloak
     restart: unless-stopped
-    command: start-dev
+    command: start-dev --import-realm
     environment:
       KC_DB: postgres
       KC_DB_URL: jdbc:postgresql://postgres:5432/${POSTGRES_DB}
@@ -81,75 +64,34 @@ services:
       KC_HTTP_PORT: ${KEYCLOAK_PORT}
     ports:
       - "${KEYCLOAK_PORT}:8090"
+    volumes:
+      - ./app/keycloak:/opt/keycloak/data/import:ro
     depends_on:
-      postgres:
-        condition: service_healthy
+      - postgres
     networks:
-      - app
+      - vendix-network
 
-  orchestrator:
-    <<: *vendix-app-common
-    image: vendix/orchestrator:local
-    build:
-      context: ../..
-      dockerfile: .docker/app/Dockerfile
-      args:
-        APP_MODULE: orchestrator
-    environment:
-      <<: *vendix-app-environment
-      SERVER_PORT: 8080
-      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/${POSTGRES_DB}?currentSchema=orchestrator
-      VENDIX_LOADTESTS_ORCHESTRATOR_BASE_URL: http://orchestrator:8080
-      VENDIX_LOADTESTS_STORE_BASE_URL: http://store:8081
+  consul:
+    image: hashicorp/consul:1.15.4
+    container_name: consul
+    restart: unless-stopped
+    command: >
+      agent -dev
+      -client=0.0.0.0
+      -ui
     ports:
-      - "${ORCHESTRATOR_PORT}:8080"
-    expose:
-      - "8080"
+      - "${CONSUL_HTTP_PORT}:8500"
+      - "${CONSUL_DNS_PORT}:8600/udp"
+    volumes:
+      - consul_data:/consul/data
     networks:
-      - app
-
-  store:
-    <<: *vendix-app-common
-    image: vendix/store:local
-    build:
-      context: ../..
-      dockerfile: .docker/app/Dockerfile
-      args:
-        APP_MODULE: store
-    environment:
-      <<: *vendix-app-environment
-      SERVER_PORT: 8081
-      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/${POSTGRES_DB}?currentSchema=store
-      SPRING_DATASOURCE_READ_URL: jdbc:postgresql://postgres:5432/${POSTGRES_DB}?currentSchema=store
-      SPRING_DATASOURCE_READ_USERNAME: ${POSTGRES_USER}
-      SPRING_DATASOURCE_READ_PASSWORD: ${POSTGRES_PASSWORD}
-      VENDIX_TESTING_SIMULATE_RANDOM_ARTICLE_ORDER: "false"
-    expose:
-      - "8081"
-    networks:
-      - app
-
-  pos:
-    <<: *vendix-app-common
-    image: vendix/pos:local
-    build:
-      context: ../..
-      dockerfile: .docker/app/Dockerfile
-      args:
-        APP_MODULE: pos
-    environment:
-      <<: *vendix-app-environment
-      SERVER_PORT: 8082
-      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/${POSTGRES_DB}?currentSchema=pos
-    expose:
-      - "8082"
-    networks:
-      - app
+      - vendix-network
 
 volumes:
   postgres_data:
   rabbitmq_data:
+  consul_data:
 
 networks:
-  app:
+  vendix-network:
     external: true

@@ -1,8 +1,12 @@
+name: vendix
+
 services:
 
   k6:
     image: grafana/k6:1.7.1-with-browser
     container_name: vendix-k6
+    profiles:
+      - testing
     volumes:
       - ./k6/scripts:/etc/k6/scripts
       # Reports-Ordner: HTML-Report nach jedem Test hier verfügbar
@@ -25,16 +29,9 @@ services:
       - K6_WEB_DASHBOARD_OPEN=false
       # K6_WEB_DASHBOARD_EXPORT wird pro Test vom PerformanceTestService gesetzt
       # und enthält den Pfad zur HTML-Report-Datei im Container.
-      - ORCHESTRATOR_URL=${K6_ORCHESTRATOR_URL}
-      - STORE_URL=${K6_STORE_URL}
-    extra_hosts:
-      - "host.docker.internal:host-gateway"
     networks:
-      - app
-      - monitor-net
+      - vendix-network
 
 networks:
-  app:
-    external: true
-  monitor-net:
+  vendix-network:
     external: true

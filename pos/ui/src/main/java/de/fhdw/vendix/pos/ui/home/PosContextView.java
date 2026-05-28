@@ -14,43 +14,38 @@ import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.theme.aura.Aura;
-import de.fhdw.vendix.commons.api.domain.account_role.Role;
 import de.fhdw.vendix.commons.api.domain.register.RegisterDTO;
 import de.fhdw.vendix.commons.api.domain.store.StoreDTO;
-import de.fhdw.vendix.pos.core.register.RegisterContext;
-import de.fhdw.vendix.commons.spring.web.client.orchestrator.api.RegisterProxyService;
-import de.fhdw.vendix.commons.spring.web.client.orchestrator.api.StoreProxyService;
+import de.fhdw.vendix.commons.spring.security.keycloak.KeycloakRole;
+import de.fhdw.vendix.commons.spring.app.context.register.RegisterContext;
+import de.fhdw.vendix.commons.spring.web.api.orchestrator.RegisterApi;
+import de.fhdw.vendix.commons.spring.web.api.orchestrator.StoreApi;
+import de.fhdw.vendix.commons.spring.web.core.ResponseUtils;
 import de.fhdw.vendix.pos.ui.PosAppLayout;
 import jakarta.annotation.security.RolesAllowed;
-import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
+import org.springframework.util.Assert;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 
 @Route(value = "context", layout = PosAppLayout.class)
-@RolesAllowed(Role.ROLE_CASHIER)
+@RolesAllowed({KeycloakRole.Constants.CASHIER, KeycloakRole.Constants.ADMIN})
 @StyleSheet(Aura.STYLESHEET)
 public class PosContextView extends VerticalLayout {
 
     private static final Logger log = LoggerFactory.getLogger(PosContextView.class);
 
-    private final StoreProxyService storeProxyService;
-    private final RegisterProxyService registerProxyService;
+    private final StoreApi storeApi;
+    private final RegisterApi registerApi;
     private final RegisterContext registerContext;
 
     private final FlexLayout storeLayout = new FlexLayout();
-    private final List<StoreDTO> inactiveStores = new ArrayList<>();
-    private final List<StoreDTO> activeStores = new ArrayList<>();
     private final Dialog registerDialog = new Dialog();
 
-    public PosContextView(StoreProxyService storeProxyService, RegisterProxyService registerProxyService, RegisterContext registerContext) {
-        this.storeProxyService = storeProxyService;
-        this.registerProxyService = registerProxyService;
+    public PosContextView(StoreApi storeApi, RegisterApi registerApi, RegisterContext registerContext) {
+        this.storeApi = storeApi;
+        this.registerApi = registerApi;
         this.registerContext = registerContext;
 
         setSizeFull();
@@ -61,7 +56,7 @@ public class PosContextView extends VerticalLayout {
         createStoreLayout();
 
         loadLockedStores();
-        loadUnlockedStores();
+        loadNonLockedStores();
     }
 
     private void createFilterMethods() {
@@ -79,25 +74,17 @@ public class PosContextView extends VerticalLayout {
         add(storeLayout);
     }
 
-    private void loadUnlockedStores() {
-        ResponseEntity<List<StoreDTO>> stores = storeProxyService.getUnlockedStores();
-        @Nullable List<StoreDTO> body = stores.getBody();
-        if (stores.getStatusCode() == HttpStatus.OK && body != null) {
-            inactiveStores.addAll(body);
-        }
-        inactiveStores.forEach(store -> {
+    private void loadNonLockedStores() {
+        List<StoreDTO> nonLockedStores = ResponseUtils.extractList(storeApi.getNonLockedStores());
+        nonLockedStores.forEach(store -> {
             Component storeCard = createStoreCard(store, true);
             storeLayout.add(storeCard);
         });
     }
 
     private void loadLockedStores() {
-        ResponseEntity<List<StoreDTO>> stores = storeProxyService.getLockedStores();
-        @Nullable List<StoreDTO> body = stores.getBody();
-        if (stores.getStatusCode() == HttpStatus.OK && body != null) {
-            activeStores.addAll(body);
-        }
-        activeStores.forEach(store -> {
+        List<StoreDTO> lockedStores = ResponseUtils.extractList(storeApi.getLockedStores());
+        lockedStores.forEach(store -> {
             Component storeCard = createStoreCard(store, false);
             storeLayout.add(storeCard);
         });
@@ -188,27 +175,20 @@ public class PosContextView extends VerticalLayout {
         registerLayout.setFlexWrap(FlexLayout.FlexWrap.WRAP);
         registerLayout.setJustifyContentMode(JustifyContentMode.START);
 
-        Long storeId = Objects.requireNonNull(store.id());
+        Long storeId = store.id();
+        Assert.notNull(storeId, "storeId cannot be null");
 
-        // Load and display active registers
-        ResponseEntity<List<RegisterDTO>> activeRegistersResponse = registerProxyService.getLockedRegistersByStoreId(storeId);
-        @Nullable List<RegisterDTO> activeRegisters = activeRegistersResponse.getBody();
-        if (activeRegistersResponse.getStatusCode() == HttpStatus.OK && activeRegisters != null) {
-            activeRegisters.forEach(register -> {
-                Component registerCard = createRegisterCard(register, true);
-                registerLayout.add(registerCard);
-            });
-        }
+        List<RegisterDTO> lockedRegisters = ResponseUtils.extractList(registerApi.getLockedStoreRegisters(storeId));
+        lockedRegisters.forEach(register -> {
+            Component registerCard = createRegisterCard(register, true);
+            registerLayout.add(registerCard);
+        });
 
-        // Load and display inactive registers
-        ResponseEntity<List<RegisterDTO>> inactiveRegistersResponse = registerProxyService.getUnlockedRegistersByStoreId(storeId);
-        @Nullable List<RegisterDTO> inactiveRegisters = inactiveRegistersResponse.getBody();
-        if (inactiveRegistersResponse.getStatusCode() == HttpStatus.OK && inactiveRegisters != null) {
-            inactiveRegisters.forEach(register -> {
-                Component registerCard = createRegisterCard(register, false);
-                registerLayout.add(registerCard);
-            });
-        }
+        List<RegisterDTO> nonLockedRegisters = ResponseUtils.extractList(registerApi.getNonLockedStoreRegisters(storeId));
+        nonLockedRegisters.forEach(register -> {
+            Component registerCard = createRegisterCard(register, false);
+            registerLayout.add(registerCard);
+        });
 
         dialogLayout.add(registerLayout);
         registerDialog.add(dialogLayout);
@@ -268,10 +248,7 @@ public class PosContextView extends VerticalLayout {
 
     private void handleRegisterClickEvent(RegisterDTO register) {
         registerContext.setRegister(register);
-        @Nullable UI ui = UI.getCurrent();
-        if (ui != null) {
-            ui.navigate(RootView.class);
-        }
+        UI.getCurrent().navigate(RootView.class);
         registerDialog.close();
     }
 }

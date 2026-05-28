@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <title>Vendix API Reference</title>
+        <meta charset="utf-8"/>
+        <meta name="viewport" content="width=device-width, initial-scale=1"/>
+        <style> body {margin: 0;} </style>
+    </head>
+    <body>
+        <script>
+            const urlParams = new URLSearchParams(window.location.search);
+            const apiType = urlParams.get('api') || 'orchestrator';
+            const specFiles = {
+                'orchestrator': 'openapi/orchestrator-api.yaml',
+                'register': 'openapi/register-api.yaml',
+                'store': 'openapi/store-api.yaml'
+            };
+            const selectedSpec = specFiles[apiType] || specFiles['orchestrator'];
+            const configScript = document.createElement('script');
+
+            configScript.id = 'api-reference';
+            configScript.setAttribute('data-url', selectedSpec);
+            document.body.appendChild(configScript);
+
+            const scalarScript = document.createElement('script');
+            scalarScript.src = 'scalar-standalone.js';
+            document.body.appendChild(scalarScript);
+        </script>
+    </body>
+</html>

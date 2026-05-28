@@ -18,11 +18,6 @@
         <dependencies>
             <dependency>
                 <groupId>de.fhdw.vendix</groupId>
-                <artifactId>orchestrator-api</artifactId>
-                <version>${orchestrator.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>de.fhdw.vendix</groupId>
                 <artifactId>orchestrator-core</artifactId>
                 <version>${orchestrator.version}</version>
             </dependency>
