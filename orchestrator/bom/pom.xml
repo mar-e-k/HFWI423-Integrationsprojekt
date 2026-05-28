@@ -1,0 +1,41 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>de.fhdw.vendix</groupId>
+    <artifactId>orchestrator-bom</artifactId>
+    <version>1.0.0</version>
+    <packaging>pom</packaging>
+
+    <name>orchestrator-bom</name>
+    <description>orchestrator-bom</description>
+
+    <properties>
+        <orchestrator.version>${project.version}</orchestrator.version>
+    </properties>
+
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>de.fhdw.vendix</groupId>
+                <artifactId>orchestrator-core</artifactId>
+                <version>${orchestrator.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>de.fhdw.vendix</groupId>
+                <artifactId>orchestrator-web</artifactId>
+                <version>${orchestrator.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>de.fhdw.vendix</groupId>
+                <artifactId>orchestrator-ui</artifactId>
+                <version>${orchestrator.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>de.fhdw.vendix</groupId>
+                <artifactId>orchestrator-app</artifactId>
+                <version>${orchestrator.version}</version>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+</project>

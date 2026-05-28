@@ -1,0 +1,50 @@
+name: vendix
+
+services:
+
+  grafana:
+    image: grafana/grafana:13.0
+    ports:
+      - "${GRAFANA_PORT}:3000"
+    environment:
+      - GF_SECURITY_ALLOW_EMBEDDING=true
+      - GF_AUTH_ANONYMOUS_ENABLED=true
+      - GF_AUTH_ANONYMOUS_ORG_ROLE=Admin
+      - GF_AUTH_DISABLE_LOGIN_FORM=true
+    volumes:
+      - grafana-storage:/var/lib/grafana
+      - ./monitor/grafana/provisioning:/etc/grafana/provisioning
+    depends_on:
+      - loki
+      - prometheus
+    networks:
+      - vendix-network
+
+  loki:
+    image: grafana/loki:3.7.1
+    command: -config.file=/etc/loki/loki.yaml
+    volumes:
+      - ./monitor/loki/loki.yaml:/etc/loki/loki.yaml
+    ports:
+      - "${LOKI_PORT}:3100"
+    networks:
+      - vendix-network
+
+  prometheus:
+    image: prom/prometheus:v3.11.2
+    command:
+      - --config.file=/etc/prometheus/prometheus.yaml
+      - --web.enable-remote-write-receiver
+    volumes:
+      - ./monitor/prometheus/prometheus.yaml:/etc/prometheus/prometheus.yaml
+    ports:
+      - "${PROMETHEUS_PORT}:9090"
+    networks:
+      - vendix-network
+
+volumes:
+  grafana-storage:
+
+networks:
+  vendix-network:
+    external: true

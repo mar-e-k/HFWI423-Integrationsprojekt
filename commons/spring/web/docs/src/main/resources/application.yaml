@@ -1,0 +1,8 @@
+springdoc:
+  group-configs:
+    - group: orchestrator-api
+      packages-to-scan: de.fhdw.vendix.commons.spring.web.docs.orchestrator
+    - group: register-api
+      packages-to-scan: de.fhdw.vendix.commons.spring.web.docs.register
+    - group: store-api
+      packages-to-scan: de.fhdw.vendix.commons.spring.web.docs.store

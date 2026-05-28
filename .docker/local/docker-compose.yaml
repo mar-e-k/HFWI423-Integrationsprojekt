@@ -1,0 +1,37 @@
+name: vendix
+
+services:
+  orchestrator:
+    build:
+      context: ../..
+      dockerfile: .docker/local/orchestrator.Dockerfile
+    container_name: orchestrator
+    ports:
+      - "8080:8080"
+    networks:
+      - vendix-network
+
+  store:
+    build:
+      context: ../..
+      dockerfile: .docker/local/store.Dockerfile
+    container_name: store
+    depends_on:
+      - orchestrator
+    networks:
+      - vendix-network
+
+  pos:
+    build:
+      context: ../..
+      dockerfile: .docker/local/pos.Dockerfile
+    container_name: pos
+    depends_on:
+      - orchestrator
+      - store
+    networks:
+      - vendix-network
+
+networks:
+  vendix-network:
+    external: true

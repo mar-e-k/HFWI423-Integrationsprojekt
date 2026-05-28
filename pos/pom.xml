@@ -1,0 +1,41 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>de.fhdw.vendix</groupId>
+        <artifactId>vendix-parent</artifactId>
+        <version>1.0.0</version>
+    </parent>
+
+    <artifactId>pos-parent</artifactId>
+    <packaging>pom</packaging>
+
+    <name>pos</name>
+    <description>pos</description>
+
+    <modules>
+        <module>bom</module>
+        <module>ui</module>
+        <module>app</module>
+    </modules>
+
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>de.fhdw.vendix</groupId>
+                <artifactId>commons-bom</artifactId>
+                <version>${project.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+            <dependency>
+                <groupId>de.fhdw.vendix</groupId>
+                <artifactId>pos-bom</artifactId>
+                <version>${project.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+</project>
