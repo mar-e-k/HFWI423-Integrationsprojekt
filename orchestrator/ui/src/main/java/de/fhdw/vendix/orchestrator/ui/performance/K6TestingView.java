@@ -13,7 +13,7 @@ import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.Route;
-import de.fhdw.vendix.commons.api.domain.account_role.Role;
+import de.fhdw.vendix.commons.spring.security.keycloak.KeycloakRole;
 import de.fhdw.vendix.orchestrator.ui.OrchestratorAppLayout;
 import jakarta.annotation.security.RolesAllowed;
 import org.jspecify.annotations.Nullable;
@@ -26,8 +26,8 @@ import java.util.EnumMap;
 import java.util.Map;
 
 @Route(value = "lasttests", layout = OrchestratorAppLayout.class)
-@RolesAllowed(Role.ROLE_ADMIN)
-public class LasttestsView extends VerticalLayout {
+@RolesAllowed(KeycloakRole.Constants.ADMIN)
+public class K6TestingView extends VerticalLayout {
 
     private static final DateTimeFormatter STATUS_TIME_FORMAT =
             DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm:ss").withZone(ZoneId.systemDefault());
@@ -36,7 +36,7 @@ public class LasttestsView extends VerticalLayout {
     private final Grid<PerformanceTestStatus> statusGrid = new Grid<>(PerformanceTestStatus.class, false);
     private final Map<PerformanceTestType, Button> buttons = new EnumMap<>(PerformanceTestType.class);
 
-    public LasttestsView(PerformanceTestLauncher launcher) {
+    public K6TestingView(PerformanceTestLauncher launcher) {
         this.launcher = launcher;
 
         setSizeFull();

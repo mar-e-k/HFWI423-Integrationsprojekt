@@ -40,7 +40,7 @@ public class ReceiptView extends VerticalLayout {
                 .setHeader("Register")
                 .setAutoWidth(true)
                 .setSortable(true);
-        receiptGrid.addColumn(Receipt::getCashierId)
+        receiptGrid.addColumn(Receipt::getCashierUuid)
                 .setHeader("Cashier")
                 .setAutoWidth(true)
                 .setSortable(true);

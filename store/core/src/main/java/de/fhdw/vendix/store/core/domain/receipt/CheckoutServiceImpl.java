@@ -1,8 +1,8 @@
 package de.fhdw.vendix.store.core.domain.receipt;
 
-import de.fhdw.vendix.commons.api.utility.checkout.CheckoutLineDTO;
-import de.fhdw.vendix.commons.api.utility.checkout.CheckoutRequestDTO;
-import de.fhdw.vendix.commons.api.utility.checkout.CheckoutResponseDTO;
+import de.fhdw.vendix.commons.api.domain.checkout.CheckoutLineDTO;
+import de.fhdw.vendix.commons.api.domain.checkout.CheckoutRequestDTO;
+import de.fhdw.vendix.commons.api.domain.checkout.CheckoutResponseDTO;
 import de.fhdw.vendix.commons.api.embeddable.DiscountOverrideDTO;
 import de.fhdw.vendix.commons.api.embeddable.OverrideReason;
 import de.fhdw.vendix.store.core.domain.receipt_line.ReceiptLine;
@@ -70,8 +70,8 @@ class CheckoutServiceImpl implements CheckoutService {
         Receipt receipt = new Receipt(
                 request.storeId(),
                 request.registerId(),
-                request.cashierId(),
-                request.receiptPaymentMethod()
+                request.cashierUUID(),
+                request.paymentMethod()
         );
         Long receiptId = Objects.requireNonNull(
                 receiptService.create(receipt).getId(),
@@ -84,8 +84,8 @@ class CheckoutServiceImpl implements CheckoutService {
         List<ReceiptLine> lines = new ArrayList<>(aggregatedRequestLines.size());
 
         for (CheckoutLineDTO line : aggregatedRequestLines) {
-            @Nullable DiscountOverrideDTO discount = null;
-            @Nullable BigDecimal discountPercent = line.discountPercent();
+            DiscountOverrideDTO discount = null;
+            BigDecimal discountPercent = line.discountPercent();
             if (discountPercent != null) {
                 discount = new DiscountOverrideDTO(
                         discountPercent,
@@ -119,7 +119,7 @@ class CheckoutServiceImpl implements CheckoutService {
                 receiptId,
                 request.storeId(),
                 request.registerId(),
-                request.cashierId(),
+                request.cashierUUID(),
                 savedLines.size(),
                 lineIds
         );

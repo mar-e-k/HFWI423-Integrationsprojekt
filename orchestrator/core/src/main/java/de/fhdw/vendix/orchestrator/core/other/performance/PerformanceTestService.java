@@ -1,6 +1,5 @@
-package de.fhdw.vendix.orchestrator.core.domain.performance;
+package de.fhdw.vendix.orchestrator.core.other.performance;
 
-import de.fhdw.vendix.commons.spring.security.jwt.JwtService;
 import org.jspecify.annotations.Nullable;
 import org.springframework.beans.factory.annotation.Value;
 import org.slf4j.Logger;
@@ -13,11 +12,7 @@ import java.nio.file.Path;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicReference;
@@ -57,7 +52,6 @@ public class PerformanceTestService {
     private static final DateTimeFormatter REPORT_FMT =
             DateTimeFormatter.ofPattern("yyyy-MM-dd_HH-mm").withZone(ZoneId.systemDefault());
 
-    private final JwtService jwtService;
     private final String orchestratorBaseUrl;
     private final String storeBaseUrl;
     private final long storeId;
@@ -69,14 +63,12 @@ public class PerformanceTestService {
     private final AtomicLong                          startedAt  = new AtomicLong(0);
 
     public PerformanceTestService(
-            JwtService jwtService,
             @Value("${vendix.loadtests.orchestrator-base-url:http://host.docker.internal:8080}") String orchestratorBaseUrl,
             @Value("${vendix.loadtests.store-base-url:http://host.docker.internal:8081}") String storeBaseUrl,
             @Value("${vendix.loadtests.store-id:1}") long storeId,
             @Value("${vendix.loadtests.register-ids:1,2,3}") String registerIds,
             @Value("${vendix.loadtests.cashier-ids:4,5,6}") String cashierIds
     ) {
-        this.jwtService = jwtService;
         this.orchestratorBaseUrl = orchestratorBaseUrl;
         this.storeBaseUrl = storeBaseUrl;
         this.storeId = storeId;
@@ -144,6 +136,7 @@ public class PerformanceTestService {
         effectiveEnv.putAll(extraEnv);
 
         // Basis-Kommando zusammenbauen
+        // TODO: keycloak
         List<String> command = new ArrayList<>(List.of(
                 "docker", "exec",
                 "-e", "K6_WEB_DASHBOARD_EXPORT=" + reportFile,
@@ -151,7 +144,7 @@ public class PerformanceTestService {
                 "k6", "run",
                 "-o", PROMETHEUS_RW,
                 k6Script,
-                "-e", "K6_MASTER_TOKEN=" + jwtService.generateToken(),
+                "-e", "K6_MASTER_TOKEN=" + UUID.randomUUID(),
                 "-e", "SCENARIO=" + testType.getScenarioKey()
         ));
 

@@ -3,7 +3,7 @@ package de.fhdw.vendix.store.core.domain.receipt;
 import de.fhdw.vendix.commons.api.domain.receipt.PaymentMethod;
 import de.fhdw.vendix.commons.api.domain.receipt.ReceiptStatus;
 import de.fhdw.vendix.commons.api.structure.mapper.Default;
-import de.fhdw.vendix.commons.spring.data.entity.AbstractSpringDataAuditingEntity;
+import de.fhdw.vendix.commons.spring.data.persistance.entity.AbstractSpringDataAuditingEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -13,6 +13,8 @@ import jakarta.persistence.Table;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
 import org.jspecify.annotations.Nullable;
+
+import java.util.UUID;
 
 @Entity
 @Table(indexes = {
@@ -32,9 +34,8 @@ public class Receipt extends AbstractSpringDataAuditingEntity<Long> {
     private Long registerId;
 
     @NotNull(message = "Cashier ID cannot be null")
-    @Min(value = 1, message = "Cashier ID must be at least 1")
-    @Column(name = "cashier_id", nullable = false)
-    private Long cashierId;
+    @Column(name = "cashier_uuid", nullable = false)
+    private UUID cashierUuid;
 
     @Enumerated(EnumType.STRING)
     @NotNull(message = "Payment method cannot be null")
@@ -48,23 +49,29 @@ public class Receipt extends AbstractSpringDataAuditingEntity<Long> {
 
     protected Receipt() {}
 
-    public Receipt(Long storeId, Long registerId, Long cashierId, PaymentMethod paymentMethod) {
-        this.storeId        = storeId;
-        this.registerId     = registerId;
-        this.cashierId      = cashierId;
-        this.paymentMethod  = paymentMethod;
-        this.status         = ReceiptStatus.OPEN;
+    public Receipt(Long storeId, Long registerId, UUID cashierUuid, PaymentMethod paymentMethod) {
+        this.storeId = storeId;
+        this.registerId = registerId;
+        this.cashierUuid = cashierUuid;
+        this.paymentMethod = paymentMethod;
+        this.status = ReceiptStatus.OPEN;
     }
 
     @Default
-    protected Receipt(@Nullable Long id, Long storeId, Long registerId,
-                      Long cashierId, PaymentMethod paymentMethod, ReceiptStatus status) {
+    protected Receipt(
+            @Nullable Long id,
+            Long storeId,
+            Long registerId,
+            UUID cashierUuid,
+            PaymentMethod paymentMethod,
+            ReceiptStatus status
+    ) {
         super(id);
-        this.storeId       = storeId;
-        this.registerId    = registerId;
-        this.cashierId     = cashierId;
+        this.storeId = storeId;
+        this.registerId = registerId;
+        this.cashierUuid = cashierUuid;
         this.paymentMethod = paymentMethod;
-        this.status        = status != null ? status : ReceiptStatus.OPEN;
+        this.status = status != null ? status : ReceiptStatus.OPEN;
     }
 
     // ─── Domain-Methoden ────────────────────────────────────────────────────────
@@ -109,9 +116,23 @@ public class Receipt extends AbstractSpringDataAuditingEntity<Long> {
 
     // ─── Getter ──────────────────────────────────────────────────────────────────
 
-    public Long getStoreId()              { return storeId; }
-    public Long getRegisterId()           { return registerId; }
-    public Long getCashierId()            { return cashierId; }
-    public PaymentMethod getPaymentMethod() { return paymentMethod; }
-    public ReceiptStatus getStatus()      { return status; }
+    public Long getStoreId() {
+        return storeId;
+    }
+
+    public Long getRegisterId() {
+        return registerId;
+    }
+
+    public UUID getCashierUuid() {
+        return cashierUuid;
+    }
+
+    public PaymentMethod getPaymentMethod() {
+        return paymentMethod;
+    }
+
+    public ReceiptStatus getStatus() {
+        return status;
+    }
 }

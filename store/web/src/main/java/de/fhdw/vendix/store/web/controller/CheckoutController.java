@@ -1,7 +1,7 @@
 package de.fhdw.vendix.store.web.controller;
 
-import de.fhdw.vendix.commons.api.utility.checkout.CheckoutRequestDTO;
-import de.fhdw.vendix.commons.api.utility.checkout.CheckoutResponseDTO;
+import de.fhdw.vendix.commons.api.domain.checkout.CheckoutRequestDTO;
+import de.fhdw.vendix.commons.api.domain.checkout.CheckoutResponseDTO;
 import de.fhdw.vendix.commons.api.domain.receipt.ReceiptDTO;
 import de.fhdw.vendix.commons.spring.web.api.store.CheckoutApi;
 import de.fhdw.vendix.store.core.domain.receipt.CheckoutService;

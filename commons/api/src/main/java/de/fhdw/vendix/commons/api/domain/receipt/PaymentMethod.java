@@ -1,6 +1,6 @@
 package de.fhdw.vendix.commons.api.domain.receipt;
 
-public enum ReceiptPaymentMethod {
+public enum PaymentMethod {
     ONLINE,
     CARD,
     CASH

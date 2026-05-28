@@ -1,4 +1,4 @@
-package de.fhdw.vendix.commons.api.utility.checkout;
+package de.fhdw.vendix.commons.api.domain.checkout;
 
 import de.fhdw.vendix.commons.api.structure.dto.EmbeddableDTO;
 import org.jspecify.annotations.Nullable;

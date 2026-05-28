@@ -1,7 +1,7 @@
 package de.fhdw.vendix.store.core.domain.receipt;
 
-import de.fhdw.vendix.commons.api.utility.checkout.CheckoutRequestDTO;
-import de.fhdw.vendix.commons.api.utility.checkout.CheckoutResponseDTO;
+import de.fhdw.vendix.commons.api.domain.checkout.CheckoutRequestDTO;
+import de.fhdw.vendix.commons.api.domain.checkout.CheckoutResponseDTO;
 
 /**
  * Koordiniert den vollständigen Kassenabschluss:

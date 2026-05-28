@@ -1,7 +1,7 @@
 package de.fhdw.vendix.store.app.scheduler;
 
 import de.fhdw.vendix.commons.api.domain.store.StoreDTO;
-import de.fhdw.vendix.store.core.store.StoreContext;
+import de.fhdw.vendix.commons.spring.app.context.store.StoreContext;
 import de.fhdw.vendix.store.core.domain.article.Article;
 import de.fhdw.vendix.store.core.domain.article.ArticleService;
 import de.fhdw.vendix.store.core.domain.receipt.ReceiptService;

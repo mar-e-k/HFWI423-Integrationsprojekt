@@ -1,7 +1,7 @@
 package de.fhdw.vendix.store.core.domain.replenishment;
 
 import de.fhdw.vendix.commons.api.domain.replenishment.ReplenishmentOrderStatus;
-import de.fhdw.vendix.commons.spring.data.entity.AbstractSpringDataAuditingEntity;
+import de.fhdw.vendix.commons.spring.data.persistance.entity.AbstractSpringDataAuditingEntity;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;

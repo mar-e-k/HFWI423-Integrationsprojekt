@@ -1,6 +1,6 @@
 package de.fhdw.vendix.orchestrator.ui.performance;
 
-import de.fhdw.vendix.commons.spring.security.jwt.JwtService;
+import de.fhdw.vendix.commons.spring.vaadin.utility.DateTimeFormat;
 import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -12,13 +12,7 @@ import java.lang.ProcessBuilder.Redirect;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.Instant;
-import java.time.ZoneOffset;
-import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -26,8 +20,6 @@ import java.util.concurrent.ConcurrentHashMap;
 public class PerformanceTestLauncher {
 
     private static final Logger LOG = LoggerFactory.getLogger(PerformanceTestLauncher.class);
-    private static final DateTimeFormatter LOG_TIMESTAMP_FORMAT =
-            DateTimeFormatter.ofPattern("yyyyMMdd-HHmmss").withZone(ZoneOffset.UTC);
 
     private final String configuredWorkingDirectory;
     private final String composeFile;
@@ -36,7 +28,6 @@ public class PerformanceTestLauncher {
     private final long storeId;
     private final String registerIds;
     private final String cashierIds;
-    private final JwtService jwtService;
 
     private final Map<PerformanceTestType, ProcessHandle> runningProcesses = new ConcurrentHashMap<>();
     private final Map<PerformanceTestType, PerformanceTestStatus> statuses = new ConcurrentHashMap<>();
@@ -48,8 +39,7 @@ public class PerformanceTestLauncher {
             @Value("${vendix.loadtests.store-base-url:http://host.docker.internal:8081}") String storeBaseUrl,
             @Value("${vendix.loadtests.store-id:1}") long storeId,
             @Value("${vendix.loadtests.register-ids:1,2,3}") String registerIds,
-            @Value("${vendix.loadtests.cashier-ids:1,2,3}") String cashierIds,
-            JwtService jwtService
+            @Value("${vendix.loadtests.cashier-ids:1,2,3}") String cashierIds
     ) {
         this.configuredWorkingDirectory = configuredWorkingDirectory;
         this.composeFile = composeFile;
@@ -58,7 +48,6 @@ public class PerformanceTestLauncher {
         this.storeId = storeId;
         this.registerIds = registerIds;
         this.cashierIds = cashierIds;
-        this.jwtService = jwtService;
 
         for (PerformanceTestType type : PerformanceTestType.values()) {
             statuses.put(type, new PerformanceTestStatus(type, false, "Bereit", null, null, null));
@@ -159,7 +148,7 @@ public class PerformanceTestLauncher {
         Path logDirectory = repositoryRoot.resolve("orchestrator/app/target/k6-logs");
         Files.createDirectories(logDirectory);
 
-        String timestamp = LOG_TIMESTAMP_FORMAT.format(Instant.now());
+        String timestamp = DateTimeFormat.UI_TIME.format(Instant.now());
         return logDirectory.resolve(type.name().toLowerCase(Locale.ROOT) + "-" + timestamp + ".log");
     }
 
@@ -175,7 +164,8 @@ public class PerformanceTestLauncher {
         command.add("-e");
         command.add("SCENARIO=" + type.scenarioKey());
         command.add("-e");
-        command.add("K6_MASTER_TOKEN=" + jwtService.generateToken());
+        // todo: keycloak
+        command.add("K6_MASTER_TOKEN=" + UUID.randomUUID().toString());
         command.add("-e");
         command.add("ORCHESTRATOR_URL=" + orchestratorBaseUrl);
         command.add("-e");

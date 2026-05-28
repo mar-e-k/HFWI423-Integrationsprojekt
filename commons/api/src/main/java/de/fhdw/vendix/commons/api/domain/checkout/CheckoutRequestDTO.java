@@ -1,8 +1,10 @@
-package de.fhdw.vendix.commons.api.domain.receipt;
+package de.fhdw.vendix.commons.api.domain.checkout;
 
+import de.fhdw.vendix.commons.api.domain.receipt.PaymentMethod;
 import de.fhdw.vendix.commons.api.structure.dto.RequestDTO;
 
 import java.util.List;
+import java.util.UUID;
 
 /**
  * Vollständige Checkout-Anfrage: Erstellt einen Bon mit allen Positionen in
@@ -12,7 +14,7 @@ import java.util.List;
  *
  * @param storeId       ID des Stores
  * @param registerId    ID der Kasse
- * @param cashierId     ID des Kassierers
+ * @param cashierUUID   UUID des Kassierers
  * @param paymentMethod Zahlungsmethode (CASH, CARD, ONLINE)
  * @param lines         Bon-Positionen (min. 1 Artikel)
  * @param returnLineIds optional; false keeps the response small for load tests
@@ -20,7 +22,7 @@ import java.util.List;
 public record CheckoutRequestDTO(
         Long storeId,
         Long registerId,
-        Long cashierId,
+        UUID cashierUUID,
         PaymentMethod paymentMethod,
         List<CheckoutLineDTO> lines,
         Boolean returnLineIds
@@ -33,8 +35,8 @@ public record CheckoutRequestDTO(
         if (registerId == null || registerId < 1) {
             throw new IllegalArgumentException("CheckoutRequestDTO: 'registerId' muss >= 1 sein");
         }
-        if (cashierId == null || cashierId < 1) {
-            throw new IllegalArgumentException("CheckoutRequestDTO: 'cashierId' muss >= 1 sein");
+        if (cashierUUID == null) {
+            throw new IllegalArgumentException("CheckoutRequestDTO: 'cashierUUId' cannot be null");
         }
         if (paymentMethod == null) {
             throw new IllegalArgumentException("CheckoutRequestDTO: 'paymentMethod' darf nicht null sein");

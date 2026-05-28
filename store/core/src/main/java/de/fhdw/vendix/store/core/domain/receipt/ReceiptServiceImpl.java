@@ -10,6 +10,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 @Service
 class ReceiptServiceImpl extends AbstractCrudService<Receipt, Long> implements ReceiptService {
@@ -23,60 +24,67 @@ class ReceiptServiceImpl extends AbstractCrudService<Receipt, Long> implements R
         this.storeStockService = storeStockService;
     }
 
-    // ─── Bestehende Methoden ───────────────────────────────────────────────────
-
     @Override
     @Transactional(readOnly = true)
     public List<Receipt> findAllByStoreId(Long storeId) {
-        if (storeId == null || storeId <= 0) return List.of();
+        if (storeId == null || storeId <= 0) {
+            return List.of();
+        }
         return receiptRepository.findAllByStoreId(storeId);
     }
 
     @Override
     @Transactional(readOnly = true)
     public List<Receipt> findAllByRegisterId(Long registerId) {
-        if (registerId == null || registerId <= 0) return List.of();
+        if (registerId == null || registerId <= 0) {
+            return List.of();
+        }
         return receiptRepository.findAllByRegisterId(registerId);
     }
 
     @Override
     @Transactional(readOnly = true)
-    public List<Receipt> findAllByCashierId(Long cashierId) {
-        if (cashierId == null || cashierId <= 0) return List.of();
-        return receiptRepository.findAllByCashierId(cashierId);
+    public List<Receipt> findAllByCashierUuid(UUID cashierUuid) {
+        if (cashierUuid == null) {
+            return List.of();
+        }
+        return receiptRepository.findAllByCashierUuid(cashierUuid);
     }
 
     @Override
     @Transactional(readOnly = true)
     public List<Receipt> findAllByStoreIdAndCreatedAtToday(Long storeId) {
-        if (storeId == null || storeId <= 0) return List.of();
+        if (storeId == null || storeId <= 0) {
+            return List.of();
+        }
         return receiptRepository.findAllByStoreIdAndCreatedAtToday(storeId);
     }
 
     @Override
     @Transactional(readOnly = true)
     public List<Long> findDistinctArticleIdsSoldTodayByStoreId(Long storeId) {
-        if (storeId == null || storeId <= 0) return List.of();
+        if (storeId == null || storeId <= 0) {
+            return List.of();
+        }
         return receiptRepository.findDistinctArticleIdsSoldTodayByStoreId(storeId);
     }
 
     @Override
     @Transactional(readOnly = true)
     public List<ReceiptLine> findAllReceiptLinesByReceiptId(Long id) {
-        if (id == null || id <= 0) return List.of();
+        if (id == null || id <= 0) {
+            return List.of();
+        }
         return receiptRepository.findAllReceiptLinesByReceiptId(id);
     }
 
-    // ─── Stornierung ──────────────────────────────────────────────────────────
-
     @Override
     @Transactional
-    public Receipt cancelReceipt(Long id)
-            throws ReceiptAlreadyCancelledException, ReceiptAlreadyPrintedException {
-
+    public Receipt cancelReceipt(Long id) throws ReceiptAlreadyCancelledException, ReceiptAlreadyPrintedException {
         Receipt receipt = receiptRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException(
-                        "Bon mit ID " + id + " nicht gefunden."));
+                        "Receipt with ID '%d' not found.".formatted(id)
+                ));
 
         Receipt cancelled = receipt.cancel();
         storeStockService.incrementArticles(receipt.getStoreId(), aggregateArticleAmounts(
@@ -85,16 +93,13 @@ class ReceiptServiceImpl extends AbstractCrudService<Receipt, Long> implements R
         return receiptRepository.save(cancelled);
     }
 
-    // ─── Bondruck ─────────────────────────────────────────────────────────────
-
     @Override
     @Transactional
-    public Receipt printReceipt(Long id)
-            throws ReceiptAlreadyPrintedException, ReceiptAlreadyCancelledException {
-
+    public Receipt printReceipt(Long id) throws ReceiptAlreadyPrintedException, ReceiptAlreadyCancelledException {
         Receipt receipt = receiptRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException(
-                        "Bon mit ID " + id + " nicht gefunden."));
+                        "Receipt with ID '%d' not found.".formatted(id)
+                ));
 
         Receipt printed = receipt.print();
         return receiptRepository.save(printed);
