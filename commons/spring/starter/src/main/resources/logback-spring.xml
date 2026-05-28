@@ -9,11 +9,7 @@
 
         <labels>
             app = vendix
-            service_name = ${__service_name__}
-            host = %X{__host__}
-            instance = %X{__instance__}
-            domain_type = %X{__domain_type__}
-            domain_id = %X{__domain_id__}
+            * = %%mdc{service_name, service_id, host, instance}
         </labels>
 
         <structuredMetadata>

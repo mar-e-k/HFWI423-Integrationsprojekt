@@ -19,7 +19,7 @@ public class StoreApplication {
         this.systemContext = systemContext;
     }
 
-    public static void main(String[] args) {
+    static void main(String[] args) {
         SpringApplication.run(StoreApplication.class, args);
     }
 

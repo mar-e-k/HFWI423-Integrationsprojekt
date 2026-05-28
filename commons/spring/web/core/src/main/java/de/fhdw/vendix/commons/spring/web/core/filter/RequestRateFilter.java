@@ -34,7 +34,7 @@ public final class RequestRateFilter extends OncePerRequestFilter {
             @NonNull FilterChain filterChain
     ) throws ServletException, IOException {
         String clientIp = resolveClientAddress(request);
-        String key = RedissonKey.RATE_LIMIT.lockKey(clientIp);
+        String key = RedissonKey.RATE_LIMIT.toIdentifier(clientIp);
         RRateLimiter limiter = redissonClient.getRateLimiter(key);
 
         if (!limiter.isExists()) {

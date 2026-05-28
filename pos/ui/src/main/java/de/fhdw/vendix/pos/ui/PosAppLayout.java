@@ -16,7 +16,7 @@ import de.fhdw.vendix.pos.ui.home.RootView;
 import de.fhdw.vendix.pos.ui.register.RegisterView;
 import jakarta.annotation.security.RolesAllowed;
 
-@RolesAllowed({KeycloakRole.Constants.ADMIN})
+@RolesAllowed({KeycloakRole.Constants.CASHIER, KeycloakRole.Constants.ADMIN})
 @Layout
 @VaadinSessionScope
 public class PosAppLayout extends AbstractApplicationLayout {

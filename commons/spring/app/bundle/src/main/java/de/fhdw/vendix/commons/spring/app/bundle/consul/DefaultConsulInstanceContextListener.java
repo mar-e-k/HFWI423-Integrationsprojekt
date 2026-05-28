@@ -5,6 +5,7 @@ import de.fhdw.vendix.commons.api.domain.store.StoreDTO;
 import de.fhdw.vendix.commons.api.structure.dto.DomainDTO;
 import de.fhdw.vendix.commons.spring.app.context.ContextException;
 import de.fhdw.vendix.commons.spring.app.context.DomainContextEvent;
+import de.fhdw.vendix.commons.spring.app.bundle.logging.ObservabilityLabel;
 import de.fhdw.vendix.commons.spring.app.context.system.SystemContext;
 import de.fhdw.vendix.commons.spring.web.core.RoutingHeader;
 import jakarta.annotation.Nullable;
@@ -33,7 +34,7 @@ public final class DefaultConsulInstanceContextListener implements ConsulInstanc
     private final AtomicReference<String> currentActiveServiceId = new AtomicReference<>();
 
     @Nullable
-    private volatile ConsulRegistration registration;
+    private ConsulRegistration registration;
 
     public DefaultConsulInstanceContextListener(
             ConsulServiceRegistry registry,
@@ -49,14 +50,20 @@ public final class DefaultConsulInstanceContextListener implements ConsulInstanc
 
     @EventListener
     public void onApplicationEvent(DomainContextEvent event) {
-        ConsulRegistration registration = createRegistration(event.getDomain());
-        register(registration);
+        ConsulRegistration newRegistration = createRegistration(event.getDomain());
+        register(newRegistration);
     }
 
     private ConsulRegistration createRegistration(DomainDTO domain) {
         NewService newService = new NewService();
+        String serviceIdValue = domain.id().toString();
 
-        String targetServiceId = systemContext.getApplicationName() + "-" + domain.id().toString();
+        // 1. Apply the new ID format: {application-name}-{service-id}-{instance-uuid}
+        String targetServiceId = String.format("%s-%s-%s",
+                systemContext.getApplicationName(),
+                serviceIdValue,
+                systemContext.getInstanceUuid().toString());
+
         newService.setId(targetServiceId);
         newService.setName(systemContext.getApplicationName());
 
@@ -65,9 +72,16 @@ public final class DefaultConsulInstanceContextListener implements ConsulInstanc
         newService.setPort(systemContext.getServerPort());
 
         Map<String, String> metadata = new HashMap<>(properties.getMetadata());
-        String metadataKey = resolveDomainTypeName(domain);
-        String metadataValue = domain.id().toString();
-        metadata.put(metadataKey, metadataValue);
+
+        metadata.put(ObservabilityLabel.APP.getLabel(), "vendix");
+        metadata.put(ObservabilityLabel.SERVICE_NAME.getLabel(), systemContext.getApplicationName());
+        metadata.put(ObservabilityLabel.SERVICE_ID.getLabel(), serviceIdValue);
+        metadata.put(ObservabilityLabel.HOST.getLabel(), resolvedHost);
+        metadata.put(ObservabilityLabel.INSTANCE.getLabel(), systemContext.getInstanceUuid().toString());
+
+        String routingKey = resolveDomainTypeName(domain);
+        metadata.put(routingKey, serviceIdValue);
+
         newService.setMeta(metadata);
 
         NewService.Check check = new NewService.Check();
@@ -86,7 +100,7 @@ public final class DefaultConsulInstanceContextListener implements ConsulInstanc
         };
     }
 
-    public synchronized void register(ConsulRegistration newRegistration) {
+    public void register(ConsulRegistration newRegistration) {
         Assert.notNull(newRegistration, "Parameter 'newRegistration' cannot be null");
         String newServiceId = newRegistration.getInstanceId();
 

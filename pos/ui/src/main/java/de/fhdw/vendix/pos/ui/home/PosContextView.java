@@ -30,7 +30,7 @@ import org.springframework.util.Assert;
 import java.util.List;
 
 @Route(value = "context", layout = PosAppLayout.class)
-@RolesAllowed(KeycloakRole.Constants.CASHIER)
+@RolesAllowed({KeycloakRole.Constants.CASHIER, KeycloakRole.Constants.ADMIN})
 @StyleSheet(Aura.STYLESHEET)
 public class PosContextView extends VerticalLayout {
 

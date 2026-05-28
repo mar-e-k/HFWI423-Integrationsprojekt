@@ -14,7 +14,7 @@ import de.fhdw.vendix.pos.ui.register.receipt_view.ReceiptList;
 import jakarta.annotation.security.RolesAllowed;
 
 @Route(value = "register", layout = PosAppLayout.class)
-@RolesAllowed(KeycloakRole.Constants.CASHIER)
+@RolesAllowed({KeycloakRole.Constants.CASHIER, KeycloakRole.Constants.ADMIN})
 public class RegisterView extends HorizontalLayout {
 
     public RegisterView(

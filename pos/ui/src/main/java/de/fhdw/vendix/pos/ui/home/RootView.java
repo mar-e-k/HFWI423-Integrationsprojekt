@@ -7,7 +7,7 @@ import de.fhdw.vendix.pos.ui.PosAppLayout;
 import jakarta.annotation.security.RolesAllowed;
 
 @Route(value = "", layout = PosAppLayout.class)
-@RolesAllowed(KeycloakRole.Constants.CASHIER)
+@RolesAllowed({KeycloakRole.Constants.CASHIER, KeycloakRole.Constants.ADMIN})
 public class RootView extends AbstractRootView {
 
     public RootView() {}

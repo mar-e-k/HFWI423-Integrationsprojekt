@@ -5,7 +5,6 @@ import de.fhdw.vendix.commons.api.domain.receipt.ReceiptPaymentMethod;
 import de.fhdw.vendix.commons.api.domain.receipt.ReceiptDTO;
 import de.fhdw.vendix.commons.api.domain.receipt.ReceiptStatus;
 import de.fhdw.vendix.commons.api.domain.receipt_line.ReceiptLineDTO;
-import de.fhdw.vendix.commons.spring.security.SecurityService;
 import de.fhdw.vendix.commons.spring.app.context.register.RegisterContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -24,12 +23,10 @@ public class CartService {
     private static final Logger log = LoggerFactory.getLogger(CartService.class);
 
     private final RegisterContext registerContext;
-    private final SecurityService securityService;
     private final List<CartLine> cartLines = new LinkedList<>();
 
-    public CartService(RegisterContext registerContext, SecurityService securityService) {
+    public CartService(RegisterContext registerContext) {
         this.registerContext = registerContext;
-        this.securityService = securityService;
     }
 
     public void addLine(ArticleDTO article, int amount) {
@@ -88,8 +85,8 @@ public class CartService {
                 throw new IllegalArgumentException("Cannot create a Receipt for an empty list");
             }
 
-            UUID cashierUUID = securityService.getAuthenticatedUserUuid()
-                    .orElseThrow(IllegalStateException::new);
+            // todo: fix
+            UUID cashierUUID = UUID.randomUUID();
 
             Objects.requireNonNull(registerContext.getRegister());
             Objects.requireNonNull(registerContext.getRegister().id());

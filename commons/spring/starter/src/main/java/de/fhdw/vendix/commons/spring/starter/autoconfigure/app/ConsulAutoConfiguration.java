@@ -7,13 +7,22 @@ import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.cloud.consul.discovery.ConsulDiscoveryProperties;
 import org.springframework.cloud.consul.serviceregistry.ConsulRegistration;
+import org.springframework.cloud.consul.serviceregistry.ConsulRegistrationCustomizer;
 import org.springframework.cloud.consul.serviceregistry.ConsulServiceRegistry;
 import org.springframework.context.annotation.Bean;
 
 @AutoConfiguration
 public class ConsulAutoConfiguration {
 
-    
+    @Bean
+    public ConsulRegistrationCustomizer initialConsulRegistrationCustomizer(SystemContext systemContext) {
+        return registration -> {
+            String initialId = String.format("%s-0-%s",
+                    systemContext.getApplicationName(),
+                    systemContext.getInstanceUuid().toString());
+            registration.getService().setId(initialId);
+        };
+    }
 
     @Bean
     @ConditionalOnMissingBean

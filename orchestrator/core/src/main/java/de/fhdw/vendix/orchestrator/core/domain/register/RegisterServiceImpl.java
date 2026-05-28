@@ -1,8 +1,8 @@
 package de.fhdw.vendix.orchestrator.core.domain.register;
 
 import de.fhdw.vendix.commons.spring.data.caching.RedissonKey;
+import de.fhdw.vendix.commons.spring.data.caching.RedissonLockUtils;
 import de.fhdw.vendix.commons.spring.data.persistance.crud.AbstractCrudService;
-import org.redisson.api.RedissonClient;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -13,12 +13,12 @@ import java.util.Set;
 class RegisterServiceImpl extends AbstractCrudService<Register, Long> implements RegisterService {
 
     private final RegisterRepository registerRepository;
-    private final RedissonClient redissonClient;
+    private final RedissonLockUtils redissonLockUtils;
 
-    RegisterServiceImpl(RegisterRepository registerRepository, RedissonClient redissonClient) {
+    RegisterServiceImpl(RegisterRepository registerRepository, RedissonLockUtils redissonLockUtils) {
         super(registerRepository);
         this.registerRepository = registerRepository;
-        this.redissonClient = redissonClient;
+        this.redissonLockUtils = redissonLockUtils;
     }
 
     @Override
@@ -31,14 +31,14 @@ class RegisterServiceImpl extends AbstractCrudService<Register, Long> implements
 
     @Override
     public List<Register> findAllLockedRegisters() {
-        Set<Long> lockedRegisterIds = redissonClient.getSet(RedissonKey.REGISTER_LOCK.setKey());
+        Set<Long> lockedRegisterIds = redissonLockUtils.getActiveLockedIds(RedissonKey.REGISTER_LOCK);
         return super.findAllById(lockedRegisterIds);
     }
 
     @Override
     public List<Register> findAllNonLockedRegisters() {
-        Set<Long> nonLockedRegisterIds = redissonClient.getSet(RedissonKey.REGISTER_LOCK.setKey());
-        return super.findAllByIdNotIn(nonLockedRegisterIds);
+        Set<Long> lockedRegisterIds = redissonLockUtils.getActiveLockedIds(RedissonKey.REGISTER_LOCK);
+        return super.findAllByIdNotIn(lockedRegisterIds);
     }
 
     @Override

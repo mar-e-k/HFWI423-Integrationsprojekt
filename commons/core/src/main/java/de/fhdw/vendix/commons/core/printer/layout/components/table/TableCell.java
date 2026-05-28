@@ -4,7 +4,7 @@ import de.fhdw.vendix.commons.core.printer.renderer.utility.TextBlock;
 
 public final class TableCell {
 
-    private TextBlock content;
+    private final TextBlock content;
 
     public TableCell() {
         content = TextBlock.empty();
