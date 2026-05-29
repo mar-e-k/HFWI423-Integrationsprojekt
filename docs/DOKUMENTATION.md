@@ -513,6 +513,29 @@ Badge-Notifier (`BadgeNotifier`) aktualisiert Zähler im Navigationsmenü in Ech
 
 ## 5. Datenmodell
 
+### PostgreSQL-Schemas (Bounded-Context-Trennung)
+
+Seit Mai 2026 sind alle Tabellen in domänenspezifische PostgreSQL-Schemas aufgeteilt. Jeder Bounded Context besitzt sein eigenes Schema — keine gemeinsame `public`-Ablage mehr.
+
+| Schema | Tabellen | Bounded Context |
+|---|---|---|
+| `artikel` | `article_info`, `article` | Artikelverwaltung |
+| `lager` | `storage_location` | Lagerplatzverwaltung |
+| `wareneingang` | `goods_receipt`, `goods_receipt_item` | Wareneingang |
+| `kommission` | `kommission`, `kommission_position`, `message_logistic` | Kommissionierung |
+| `kontingent` | `contingent`, `contingent_lasttest` | Kontingente |
+| `nachbestellung` | `restock_order` | Nachbestellung |
+| `messaging` | `messaging_event` | Messaging & Events |
+
+Die Schemas werden durch `docker/init.sql` beim ersten Start des PostgreSQL-Containers angelegt. Hibernate erstellt die Tabellen beim App-Start automatisch in den korrekten Schemas (`spring.jpa.hibernate.ddl-auto=update`).
+
+Die gemeinsame `idgenerator`-Sequence (aus `AbstractEntity`) verbleibt im `public`-Schema und ist über PostgreSQLs Standard-`search_path` für alle Schemas erreichbar.
+
+> Technische Umsetzung: `schema = "..."` in den `@Table`-Annotationen der Entitätsklassen.
+> Initialisierung: `docker/init.sql`
+
+---
+
 ### Übersicht der Entitäten
 
 ```
@@ -943,6 +966,25 @@ Der Production-Build des Logistik-Service kompiliert und bündelt das Frontend (
 
 Das Schema wird bei jedem Start automatisch über `spring.jpa.hibernate.ddl-auto=update` aktualisiert. Die initiale Initialisierung für Docker erfolgt über `docker/init.sql`.
 
+`docker/init.sql` erstellt beim ersten Start des PostgreSQL-Containers die 7 domänenspezifischen Schemas:
+
+```sql
+CREATE SCHEMA IF NOT EXISTS artikel;
+CREATE SCHEMA IF NOT EXISTS lager;
+CREATE SCHEMA IF NOT EXISTS wareneingang;
+CREATE SCHEMA IF NOT EXISTS kommission;
+CREATE SCHEMA IF NOT EXISTS kontingent;
+CREATE SCHEMA IF NOT EXISTS nachbestellung;
+CREATE SCHEMA IF NOT EXISTS messaging;
+```
+
+**Wichtig bei DB-Reset:** Nach `docker compose down -v` müssen die Schemas neu durch `init.sql` angelegt werden — das geschieht automatisch beim nächsten `docker compose up -d`. Hibernate erstellt beim App-Start dann alle Tabellen in den korrekten Schemas.
+
+Schemas verifizieren (nach App-Start):
+```bash
+docker exec pg psql -U app -d appdb -c "SELECT schemaname, tablename FROM pg_tables WHERE schemaname NOT IN ('pg_catalog','information_schema','public') ORDER BY schemaname, tablename;"
+```
+
 ---
 
 ## 9. Geplante Aufgaben (Scheduler)
@@ -1224,6 +1266,7 @@ Im Rahmen des Integrationsprojekts wurden folgende Loose-Coupling-Prinzipien kon
 | **Observer / Pub-Sub** | Spring ApplicationEvent (`GoodsReceiptApprovedEvent`) intern; RabbitMQ extern | Services kennen ihre Reaktionspartner nicht |
 | **Dependency Injection** | Konstruktorinjektion in allen neuen Controllern und Services | Abhängigkeiten sichtbar und testbar |
 | **Asynchrone Kommunikation** | RabbitMQ (bereits vorhanden) | Services müssen nicht auf Antworten warten |
+| **Lose gekoppelte Datenhaltung** | Schema-per-Bounded-Context: 7 PostgreSQL-Schemas, je eines pro Domäne (`artikel`, `lager`, `wareneingang`, `kommission`, `kontingent`, `nachbestellung`, `messaging`) | Jede Domäne besitzt ihre Tabellen — keine gemeinsame `public`-Ablage, keine domänenübergreifenden Tabellenabhängigkeiten |
 
 ---
 
@@ -1299,6 +1342,7 @@ Im Rahmen des Integrationsprojekts wurden folgende Loose-Coupling-Prinzipien kon
 | API Gateway | 🟢 | 🟢 | done |
 | Web Service Slicing | 🟢 | 🟢 | done |
 | Observer / ApplicationEvent | 🟢 | 🟢 | done |
+| Lose Datenhaltung (Schema-per-BC) | 🟢 | 🟢 | done |
 | Konfiguration / Magic Strings | 🟡 | 🟢 | sehr klein |
 | Dependency Injection | 🟡 | 🟢 | klein |
 | AMQP-Listener | 🟡 | 🟢 | mittel |
@@ -1309,8 +1353,8 @@ Im Rahmen des Integrationsprojekts wurden folgende Loose-Coupling-Prinzipien kon
 | Vaadin/UI | 🔴 | 🟡 | mittel |
 
 **Ampel-Saldo:**
-- Ist: 5× 🟢 · 5× 🟡 · 3× 🔴
-- Soll: 9× 🟢 · 4× 🟡 · 0× 🔴
+- Ist: 6× 🟢 · 5× 🟡 · 3× 🔴
+- Soll: 10× 🟢 · 4× 🟡 · 0× 🔴
 
 ---
 
