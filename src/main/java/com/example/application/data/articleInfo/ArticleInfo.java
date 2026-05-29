@@ -6,7 +6,7 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 
 @Entity
-@Table(name = "article_info", indexes = {
+@Table(name = "article_info", schema = "artikel", indexes = {
     @Index(name = "idx_article_info_number",   columnList = "article_number"),
     @Index(name = "idx_article_info_id",       columnList = "article_id"),
     @Index(name = "idx_article_info_location", columnList = "storage_location")

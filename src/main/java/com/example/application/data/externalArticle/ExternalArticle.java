@@ -3,7 +3,7 @@ package com.example.application.data.externalArticle;
 import jakarta.persistence.*;
 
 @Entity
-@Table(name = "article") // Tabellenname in Neon DB
+@Table(name = "article", schema = "artikel") // Tabellenname in Neon DB
 public class ExternalArticle {
 
     @Id
