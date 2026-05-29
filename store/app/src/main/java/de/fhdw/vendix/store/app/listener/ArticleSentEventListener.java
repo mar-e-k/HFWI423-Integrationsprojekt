@@ -2,7 +2,7 @@ package de.fhdw.vendix.store.app.listener;
 
 import de.fhdw.vendix.commons.api.domain.store.StoreDTO;
 import de.fhdw.vendix.commons.spring.app.context.store.StoreContext;
-import de.fhdw.vendix.store.core.domain.replenishment.ReplenishmentOrderService;
+import de.fhdw.vendix.store.core.domain.store_stock_order.StoreStockOrderService;
 import de.fhdw.vendix.store.core.domain.store_stock.StoreStockService;
 import io.github.plaguv.amqp.api.event.logistic.ArticleSentEvent;
 import io.github.plaguv.amqp.core.listener.AmqpEventListener;
@@ -37,7 +37,7 @@ public class ArticleSentEventListener {
 
     private final StoreContext storeContext;
     private final StoreStockService storeStockService;
-    private final ReplenishmentOrderService replenishmentOrderService;
+    private final StoreStockOrderService storeStockOrderService;
 
     private final Counter consumedCounter;
     private final Counter rejectedCounter;
@@ -46,12 +46,12 @@ public class ArticleSentEventListener {
     public ArticleSentEventListener(
             StoreContext storeContext,
             StoreStockService storeStockService,
-            ReplenishmentOrderService replenishmentOrderService,
+            StoreStockOrderService storeStockOrderService,
             MeterRegistry meterRegistry
     ) {
         this.storeContext = storeContext;
         this.storeStockService = storeStockService;
-        this.replenishmentOrderService = replenishmentOrderService;
+        this.storeStockOrderService = storeStockOrderService;
 
         this.consumedCounter = Counter.builder("vendix_article_sent_consumed_total")
                 .description("Total number of ArticleSentEvents successfully processed")
@@ -88,7 +88,7 @@ public class ArticleSentEventListener {
                 event.articleId(),
                 event.articleAmount()
         );
-        replenishmentOrderService.markReceived(event.storeId(), event.articleId(), event.articleAmount());
+        storeStockOrderService.markReceived(event.storeId(), event.articleId(), event.articleAmount());
 
         consumedCounter.increment();
         restockAmountCounter.increment(event.articleAmount());

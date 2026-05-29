@@ -1,15 +1,15 @@
-package de.fhdw.vendix.commons.api.domain.replenishment;
+package de.fhdw.vendix.commons.api.domain.store_stock_order;
 
 import de.fhdw.vendix.commons.api.structure.dto.RequestDTO;
 
-public record ReplenishmentOrderRequestDTO(
+public record StoreStockOrderRequestDTO(
         Long storeId,
         Long articleId,
         Long amount,
         Boolean urgent
 ) implements RequestDTO {
 
-    public ReplenishmentOrderRequestDTO {
+    public StoreStockOrderRequestDTO {
         if (storeId == null || storeId < 1) {
             throw new IllegalArgumentException("ReplenishmentOrderRequestDTO: 'storeId' must be >= 1");
         }

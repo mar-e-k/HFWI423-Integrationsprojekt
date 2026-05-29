@@ -1,9 +1,9 @@
 package de.fhdw.vendix.store.web.controller;
 
-import de.fhdw.vendix.commons.api.domain.replenishment.ReplenishmentOrderRequestDTO;
-import de.fhdw.vendix.commons.api.domain.replenishment.ReplenishmentOrderResponseDTO;
-import de.fhdw.vendix.commons.api.domain.replenishment.ReplenishmentOrderStatusDTO;
-import de.fhdw.vendix.store.core.domain.replenishment.ReplenishmentOrderService;
+import de.fhdw.vendix.commons.api.domain.store_stock_order.StoreStockOrderRequestDTO;
+import de.fhdw.vendix.commons.api.domain.store_stock_order.StoreStockOrderResponseDTO;
+import de.fhdw.vendix.commons.api.domain.store_stock_order.StoreStockOrderDTO;
+import de.fhdw.vendix.store.core.domain.store_stock_order.StoreStockOrderService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RestController;
@@ -15,26 +15,26 @@ import java.util.UUID;
 @RestController
 class ReplenishmentOrderController {
 
-    private final ReplenishmentOrderService replenishmentOrderService;
+    private final StoreStockOrderService storeStockOrderService;
 
-    ReplenishmentOrderController(ReplenishmentOrderService replenishmentOrderService) {
-        this.replenishmentOrderService = replenishmentOrderService;
+    ReplenishmentOrderController(StoreStockOrderService storeStockOrderService) {
+        this.storeStockOrderService = storeStockOrderService;
     }
 
-    public ResponseEntity<ReplenishmentOrderResponseDTO> createReplenishmentOrder(
-            ReplenishmentOrderRequestDTO replenishmentOrderRequestDTO
+    public ResponseEntity<StoreStockOrderResponseDTO> createReplenishmentOrder(
+            StoreStockOrderRequestDTO storeStockOrderRequestDTO
     ) {
         try {
             return ResponseEntity
                     .status(HttpStatus.ACCEPTED)
-                    .body(replenishmentOrderService.requestReplenishment(replenishmentOrderRequestDTO));
+                    .body(storeStockOrderService.requestReplenishment(storeStockOrderRequestDTO));
         } catch (RuntimeException e) {
             return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE).build();
         }
     }
 
-    public ResponseEntity<ReplenishmentOrderStatusDTO> getReplenishmentOrderStatus(UUID correlationId) {
-        return replenishmentOrderService.findStatus(correlationId)
+    public ResponseEntity<StoreStockOrderDTO> getReplenishmentOrderStatus(UUID correlationId) {
+        return storeStockOrderService.findStatus(correlationId)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }

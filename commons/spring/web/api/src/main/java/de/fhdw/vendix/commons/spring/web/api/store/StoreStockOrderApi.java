@@ -1,8 +1,8 @@
 package de.fhdw.vendix.commons.spring.web.api.store;
 
-import de.fhdw.vendix.commons.api.domain.replenishment.ReplenishmentOrderRequestDTO;
-import de.fhdw.vendix.commons.api.domain.replenishment.ReplenishmentOrderResponseDTO;
-import de.fhdw.vendix.commons.api.domain.replenishment.ReplenishmentOrderStatusDTO;
+import de.fhdw.vendix.commons.api.domain.store_stock_order.StoreStockOrderRequestDTO;
+import de.fhdw.vendix.commons.api.domain.store_stock_order.StoreStockOrderResponseDTO;
+import de.fhdw.vendix.commons.api.domain.store_stock_order.StoreStockOrderDTO;
 import de.fhdw.vendix.commons.spring.web.api.scheme.KeycloakOpenApiScheme;
 import de.fhdw.vendix.commons.spring.web.api.scheme.StoreRoutingOpenApiScheme;
 import io.swagger.v3.oas.annotations.Operation;
@@ -30,12 +30,12 @@ public interface StoreStockOrderApi {
             description = "Retrieves the current processing status of a stock order via its correlation ID."
     )
     @GetExchange("/correlation-id/{correlationId}")
-    ResponseEntity<ReplenishmentOrderStatusDTO> getStoreStockOrderStatus(@PathVariable UUID correlationId);
+    ResponseEntity<StoreStockOrderDTO> getStoreStockOrderStatus(@PathVariable UUID correlationId);
 
     @Operation(
             summary = "Request stock replenishment",
             description = "Validates a stock order and publishes an AMQP event. Returns a tracking correlation ID."
     )
     @PostExchange
-    ResponseEntity<ReplenishmentOrderResponseDTO> createStoreStockOrder(@RequestBody ReplenishmentOrderRequestDTO request);
+    ResponseEntity<StoreStockOrderResponseDTO> createStoreStockOrder(@RequestBody StoreStockOrderRequestDTO request);
 }

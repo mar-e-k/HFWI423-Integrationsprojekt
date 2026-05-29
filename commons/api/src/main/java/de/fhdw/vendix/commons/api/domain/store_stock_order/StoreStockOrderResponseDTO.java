@@ -1,16 +1,16 @@
-package de.fhdw.vendix.commons.api.domain.replenishment;
+package de.fhdw.vendix.commons.api.domain.store_stock_order;
 
 import de.fhdw.vendix.commons.api.structure.dto.ResponseDTO;
 
 import java.util.UUID;
 
-public record ReplenishmentOrderResponseDTO(
+public record StoreStockOrderResponseDTO(
         UUID correlationId,
-        ReplenishmentOrderStatus status,
+        OrderStatus status,
         String statusUrl
 ) implements ResponseDTO {
 
-    public ReplenishmentOrderResponseDTO {
+    public StoreStockOrderResponseDTO {
         if (correlationId == null) {
             throw new IllegalArgumentException("ReplenishmentOrderResponseDTO: 'correlationId' cannot be null");
         }

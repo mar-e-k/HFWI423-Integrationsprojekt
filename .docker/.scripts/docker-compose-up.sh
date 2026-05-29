@@ -27,5 +27,7 @@ docker compose \
   -f "$BASE_DIR/testing/docker-compose.yaml" \
   up -d
 
+# --profile testing \
+
 echo "Core stacks started."
 echo "To start the optional testing stack, run 'docker compose --project-name vendix --profile testing up -d'"

@@ -1,6 +1,7 @@
-package de.fhdw.vendix.store.core.domain.replenishment;
+package de.fhdw.vendix.store.core.domain.store_stock_order;
 
-import de.fhdw.vendix.commons.api.domain.replenishment.ReplenishmentOrderStatus;
+import de.fhdw.vendix.commons.api.domain.store_stock_order.OrderStatus;
+import de.fhdw.vendix.commons.api.structure.mapper.Default;
 import de.fhdw.vendix.commons.spring.data.persistance.entity.AbstractSpringDataAuditingEntity;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Min;
@@ -12,14 +13,14 @@ import java.util.UUID;
 @Entity
 @Table(
         uniqueConstraints = {
-                @UniqueConstraint(name = "uk_replenishment_order_correlation", columnNames = "correlation_id")
+                @UniqueConstraint(name = "uk_store_stock_order_correlation", columnNames = "correlation_id")
         },
         indexes = {
-                @Index(name = "idx_replenishment_order_correlation", columnList = "correlation_id"),
-                @Index(name = "idx_replenishment_order_store_article_status", columnList = "store_id, article_id, status")
+                @Index(name = "idx_store_stock_order_correlation", columnList = "correlation_id"),
+                @Index(name = "idx_store_stock_order_store_article_status", columnList = "store_id, article_id, status")
         }
 )
-public class ReplenishmentOrder extends AbstractSpringDataAuditingEntity<Long> {
+public class StoreStockOrder extends AbstractSpringDataAuditingEntity<Long> {
 
     @Column(name = "correlation_id", nullable = false, updatable = false)
     @NotNull(message = "Correlation ID cannot be null")
@@ -47,25 +48,54 @@ public class ReplenishmentOrder extends AbstractSpringDataAuditingEntity<Long> {
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     @NotNull(message = "Status cannot be null")
-    private ReplenishmentOrderStatus status;
+    private OrderStatus status;
 
     @Column(length = 512)
     @Nullable
     private String message;
 
-    protected ReplenishmentOrder() {}
+    protected StoreStockOrder() {}
 
-    ReplenishmentOrder(UUID correlationId, Long storeId, Long articleId, Long amount, Boolean urgent) {
+
+    public StoreStockOrder(
+            UUID correlationId,
+            Long storeId,
+            Long articleId,
+            Long amount,
+            Boolean urgent,
+            OrderStatus status
+    ) {
         this.correlationId = correlationId;
         this.storeId = storeId;
         this.articleId = articleId;
         this.amount = amount;
-        this.urgent = urgent != null && urgent;
-        this.status = ReplenishmentOrderStatus.PENDING;
+        this.urgent = urgent;
+        this.status = status;
         this.message = "Order accepted and waiting for AMQP publish";
     }
 
-    void mark(ReplenishmentOrderStatus status, @Nullable String message) {
+    @Default
+    protected StoreStockOrder(
+            @Nullable Long id,
+            UUID correlationId,
+            Long storeId,
+            Long articleId,
+            Long amount,
+            Boolean urgent,
+            OrderStatus status,
+            @Nullable String message
+    ) {
+        super(id);
+        this.correlationId = correlationId;
+        this.storeId = storeId;
+        this.articleId = articleId;
+        this.amount = amount;
+        this.urgent = urgent;
+        this.status = status;
+        this.message = message;
+    }
+
+    void mark(OrderStatus status, @Nullable String message) {
         if (status == null) {
             throw new IllegalArgumentException("Parameter 'status' cannot be null");
         }
@@ -93,7 +123,7 @@ public class ReplenishmentOrder extends AbstractSpringDataAuditingEntity<Long> {
         return urgent;
     }
 
-    ReplenishmentOrderStatus getStatus() {
+    OrderStatus getStatus() {
         return status;
     }
 
