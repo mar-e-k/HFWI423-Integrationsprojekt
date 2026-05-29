@@ -8,6 +8,7 @@ import jakarta.validation.constraints.Size;
 import java.time.LocalDateTime;
 
 @Entity
+@Table(name = "messaging_event", schema = "messaging")
 public class MessagingEvent extends AbstractEntity {
 
     @NotNull
