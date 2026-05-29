@@ -9,7 +9,7 @@ import jakarta.persistence.*;
  * direkt in Neon löschen: DROP TABLE contingent_lasttest;
  */
 @Entity
-@Table(name = "contingent_lasttest", indexes = {
+@Table(name = "contingent_lasttest", schema = "kontingent", indexes = {
     @Index(name = "idx_contingent_lt_article_id",  columnList = "article_id"),
     @Index(name = "idx_contingent_lt_sim_number",  columnList = "sim_article_number")
 })
