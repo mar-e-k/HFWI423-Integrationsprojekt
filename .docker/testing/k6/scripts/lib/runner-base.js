@@ -1,6 +1,5 @@
 import { setupAuth } from './auth.js';
-import { assertStoreReachable, preloadArticlePool } from './business.js';
-import { ORCHESTRATOR_URL, STORE_URL } from './config.js';
+import { assertStoreReachable, preloadArticlePool } from './client/article.js';
 
 export function executeSharedSetup(scenarioName) {
     const token = setupAuth();

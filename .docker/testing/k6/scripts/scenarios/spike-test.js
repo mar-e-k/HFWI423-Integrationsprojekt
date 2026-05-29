@@ -1,6 +1,7 @@
 import exec from 'k6/execution';
 import { executeSharedSetup, executeSharedTeardown, baseThresholds } from '../lib/runner-base.js';
-import { runFullBon, redeemVoucher } from '../lib/business.js';
+import { runFullBon } from '../lib/workflow/cashier-flow.js';
+import { redeemVoucher } from '../lib/client/voucher.js';
 import { DISCOUNT_RATES } from '../lib/config.js';
 
 export const options = {

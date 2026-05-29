@@ -1,6 +1,8 @@
 import exec from 'k6/execution';
 import { executeSharedSetup, executeSharedTeardown, baseThresholds } from '../lib/runner-base.js';
-import { checkout, redeemVoucher, pickRegisterId, pickCashierId } from '../lib/business.js';
+import { checkout } from '../lib/client/receipt.js';
+import { redeemVoucher } from '../lib/client/voucher.js';
+import { pickRegisterId, pickCashierId } from '../lib/utils.js';
 
 export const options = {
     scenarios: {

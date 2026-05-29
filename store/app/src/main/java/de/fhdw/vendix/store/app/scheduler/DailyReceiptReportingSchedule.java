@@ -7,7 +7,6 @@ import de.fhdw.vendix.store.core.domain.article.ArticleService;
 import de.fhdw.vendix.store.core.domain.receipt.ReceiptService;
 import de.fhdw.vendix.store.core.domain.store_stock.StoreStock;
 import de.fhdw.vendix.store.core.domain.store_stock.StoreStockService;
-import de.fhdw.vendix.store.core.messaging.ArticleOrderMessagingService;
 import jakarta.persistence.EntityNotFoundException;
 import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
@@ -22,29 +21,23 @@ import java.util.List;
  * below their preferred stock levels during the day.
  *
  * <p>The actual event publishing is delegated to
- * {@link ArticleOrderMessagingService} so that the AMQP library is not
- * referenced here directly, and the same logic can be reused by the test
- * controller.
  */
 @Component
 public class DailyReceiptReportingSchedule {
 
     private static final Logger log = LoggerFactory.getLogger(DailyReceiptReportingSchedule.class);
 
-    private final ArticleOrderMessagingService articleOrderMessagingService;
     private final StoreContext storeContext;
     private final ReceiptService receiptService;
     private final StoreStockService storeStockService;
     private final ArticleService articleService;
 
     public DailyReceiptReportingSchedule(
-            ArticleOrderMessagingService articleOrderMessagingService,
             StoreContext storeContext,
             ReceiptService receiptService,
             StoreStockService storeStockService,
             ArticleService articleService
     ) {
-        this.articleOrderMessagingService = articleOrderMessagingService;
         this.storeContext = storeContext;
         this.receiptService = receiptService;
         this.storeStockService = storeStockService;
@@ -78,7 +71,7 @@ public class DailyReceiptReportingSchedule {
             long deltaAmount = Math.max(0, stock.getPreferenceAmount().getMax() - currentAmount);
 
             if (currentAmount < stock.getPreferenceAmount().getMin()) {
-                articleOrderMessagingService.sendUrgentOrder(storeId, articleId, deltaAmount);
+//                articleOrderMessagingService.sendUrgentOrder(storeId, articleId, deltaAmount);
             } else if (currentAmount > stock.getPreferenceAmount().getAvg()) {
                 log.atInfo().log("Order ignored for article '{}' as current stock '{}' is higher than specified avg '{}'",
                         article,
@@ -86,7 +79,7 @@ public class DailyReceiptReportingSchedule {
                         stock.getPreferenceAmount().getAvg()
                         );
             } else {
-                articleOrderMessagingService.sendOrder(storeId, articleId, deltaAmount);
+//                articleOrderMessagingService.sendOrder(storeId, articleId, deltaAmount);
             }
         }
 

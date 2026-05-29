@@ -20,11 +20,6 @@ class StoreStockOrderServiceImpl extends AbstractCrudService<StoreStockOrder, Lo
 
     private static final Logger log = LoggerFactory.getLogger(StoreStockOrderServiceImpl.class);
 
-    private static final List<OrderStatus> OPEN_STATUSES = List.of(
-            OrderStatus.PENDING,
-            OrderStatus.ORDERED
-    );
-
     private final StoreStockOrderRepository storeStockOrderRepository;
 
     StoreStockOrderServiceImpl(StoreStockOrderRepository storeStockOrderRepository) {
@@ -47,9 +42,9 @@ class StoreStockOrderServiceImpl extends AbstractCrudService<StoreStockOrder, Lo
 
         try {
             if (Boolean.TRUE.equals(request.urgent())) {
-                articleOrderMessagingService.sendUrgentOrder(request.storeId(), request.articleId(), request.amount());
+//                articleOrderMessagingService.sendUrgentOrder(request.storeId(), request.articleId(), request.amount());
             } else {
-                articleOrderMessagingService.sendOrder(request.storeId(), request.articleId(), request.amount());
+//                articleOrderMessagingService.sendOrder(request.storeId(), request.articleId(), request.amount());
             }
 
             order.mark(OrderStatus.ORDERED, "Order published to AMQP");
@@ -78,15 +73,15 @@ class StoreStockOrderServiceImpl extends AbstractCrudService<StoreStockOrder, Lo
     @Override
     @Transactional
     public void markReceived(long storeId, long articleId, long amount) {
-        storeStockOrderRepository
-                .findFirstByStoreIdAndArticleIdAndStatusInOrderByCreatedAtAsc(storeId, articleId, OPEN_STATUSES)
-                .ifPresent(order -> {
-                    log.atDebug().log("Marking replenishment order {} as received", order.getCorrelationId());
-                    order.mark(
-                            OrderStatus.RECEIVED,
-                            "Received " + amount + " units from logistics event"
-                    );
-                });
+//        storeStockOrderRepository
+//                .findFirstByStoreIdAndArticleIdAndStatusInOrderByCreatedAtAsc(storeId, articleId, OPEN_STATUSES)
+//                .ifPresent(order -> {
+//                    log.atDebug().log("Marking replenishment order {} as received", order.getCorrelationId());
+//                    order.mark(
+//                            OrderStatus.RECEIVED,
+//                            "Received " + amount + " units from logistics event"
+//                    );
+//                });
     }
 
     private StoreStockOrderDTO toStatusDTO(StoreStockOrder order) {
