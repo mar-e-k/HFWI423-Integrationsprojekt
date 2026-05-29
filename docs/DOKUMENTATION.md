@@ -27,7 +27,8 @@
 10. [Performance & Qualität](#10-performance--qualität)
 11. [Reflexion: Domain Driven Design](#11-reflexion-domain-driven-design)
 12. [Lose Kopplung: Ist & Soll](#12-lose-kopplung-ist--soll)
-13. [Quellenverzeichnis](#13-quellenverzeichnis)
+13. [Mögliche Tests](#13-mögliche-tests)
+14. [Quellenverzeichnis](#14-quellenverzeichnis)
 
 ---
 
@@ -1321,7 +1322,108 @@ Die nächsten Quick-Wins: Konstruktorinjektion in `KommissionService`, Reinigung
 
 ---
 
-## 13. Quellenverzeichnis
+## 13. Mögliche Tests
+
+Dieses Kapitel beschreibt, wie die in Kapitel 12 dokumentierten Loose-Coupling-Maßnahmen messbar belegt werden können — statt sich auf Behauptungen zu verlassen. Vier Säulen, davon zwei ohne weiteren Aufwand sofort durchführbar.
+
+### 13.1 Statische Kopplungsmetriken (ohne Code-Änderung)
+
+**a) JDeps (im JDK enthalten)**
+
+Erzeugt eine Package-Abhängigkeitsgrafik des fertigen Builds:
+
+```bash
+./mvnw -q -DskipTests package
+jdeps -recursive -dotoutput target/jdeps target/logistik-1.0-SNAPSHOT.jar
+```
+
+Die erzeugten `.dot`-Dateien können mit Graphviz als PDF/PNG gerendert und als Vorher/Nachher-Diagramm in die Doku eingebettet werden.
+
+**b) Fan-In zählen (per Grep, kein Tool nötig)**
+
+Eine einzige Zahl macht den Effekt sichtbar:
+
+```bash
+# Wie viele Klassen kennen ArticleInfoRepository?
+grep -rln "ArticleInfoRepository" src/main/java | wc -l
+```
+
+Status Mai 2026: **16 Treffer**. Ziel-Wert nach Refactoring der Views + Listener: **≤ 8**.
+
+Die Differenz nach jeder Maßnahme dokumentieren — sie ist der Beweis.
+
+### 13.2 ArchUnit (Architektur-Regeln als ausführbare Tests)
+
+Architekturregeln werden als JUnit-Tests formuliert und scheitern beim nächsten Verstoß — der Build bricht. Das ist der stärkste Hebel, weil er Coupling nicht nur misst, sondern aktiv durchsetzt.
+
+Abhängigkeit (`pom.xml`):
+
+```xml
+<dependency>
+  <groupId>com.tngtech.archunit</groupId>
+  <artifactId>archunit-junit5</artifactId>
+  <version>1.3.0</version>
+  <scope>test</scope>
+</dependency>
+```
+
+Beispielregeln passend zum Projekt:
+
+```java
+@AnalyzeClasses(packages = "com.example.application")
+class LooseCouplingTest {
+
+    @ArchTest
+    static final ArchRule views_duerfen_keine_repositories_nutzen =
+        noClasses().that().resideInAPackage("..views..")
+            .should().dependOnClassesThat().resideInAPackage("..data..");
+
+    @ArchTest
+    static final ArchRule listener_duerfen_keine_repositories_nutzen =
+        noClasses().that().haveSimpleNameEndingWith("Listener")
+            .should().dependOnClassesThat().haveSimpleNameEndingWith("Repository");
+}
+```
+
+Effekt: Vor dem Refactoring → roter Build mit Auflistung jeder verbotenen Abhängigkeit. Nach dem Refactoring → grüner Test als harter Beweis.
+
+### 13.3 Vorher/Nachher-Vergleich pro Maßnahme
+
+Pro Loose-Coupling-Maßnahme aus Kapitel 12.0 wird eine konkrete Zahl als Beleg erhoben:
+
+| Maßnahme | Metrik | Messmethode |
+|---|---|---|
+| Domain-Slicing (1 → 8 Controller) | Endpoints / max. LOC pro Controller | `wc -l src/main/java/com/example/application/api/*/Controller.java` |
+| Observer statt direkter Aufruf | Imports von `RestockService` in `GoodsReceiptService` (vor: 1, nach: 0) | `grep RestockService .../GoodsReceiptService.java` |
+| API Gateway | Logging-/RateLimit-Code in Domain-Controllern (Ziel: 0) | `grep -rn "rateLimit\|RateLimiter" src/main/java/com/example/application/api/` |
+| OpenAPI | Anzahl maschinenlesbar dokumentierter Endpoints | `curl -s http://localhost:8080/api-docs \| jq '.paths \| length'` |
+
+### 13.4 Empirische Tests (Testbarkeit als direkte Folge loser Kopplung)
+
+- **Anzahl `@Mock` pro Unit-Test:** Viele Mocks deuten auf hohen Fan-Out. `ArticleInfoServiceTest` hat 2 Mocks → 🟢. Ein hypothetischer `KommissionServiceTest` bräuchte aktuell ~8 Mocks → 🔴.
+- **Test-Laufzeit:** Die bestehenden Unit-Tests laufen in 0,3–1,2 s (siehe `target/surefire-reports/*.txt`). Spring-Context-Tests bräuchten 5–15 s. Schnelle Tests sind ein indirekter, aber zuverlässiger Indikator loser Kopplung.
+- **JaCoCo Coverage:** Nicht direkt Coupling, aber gut testbarer Code → angestrebte Coverage > 70 %.
+
+### 13.5 Live-Demonstration (für Präsentation / Defense)
+
+Drei Dinge, die im Vortrag vorgeführt werden können, statt nur darüber zu reden:
+
+1. `http://localhost:8080/swagger-ui.html` öffnen → die API als formaler, maschinenlesbarer Vertrag.
+2. Gateway-Log zeigt `>> GET /api/artikels` — obwohl im Controller kein Logging-Code steht. Beleg für die saubere Trennung von Querschnittsbelang und Business-Logik.
+3. Wareneingang freigeben → im Log erscheint `[Observer] Wareneingang X abgeschlossen`, obwohl `GoodsReceiptService` den `RestockCheckListener` nicht kennt. Observer Pattern live.
+
+### 13.6 Empfohlene Reihenfolge
+
+| Schritt | Aufwand | Mehrwert |
+|---|---|---|
+| 1. ArchUnit-Test mit aktuell gültigen Regeln (13.2) | ~30 Min | Build-Bruch bei Regelverletzung — durchsetzbar |
+| 2. Metrik-Tabelle in Kapitel 12 ergänzen (13.1, 13.3) | ~15 Min | Zahlen statt Behauptungen |
+| 3. JDeps-Diagramm als PNG nach `docs/` (13.1a) | ~10 Min | Visuelle Evidenz |
+| 4. Live-Demo-Skript für Defense (13.5) | ~10 Min | Wirkung im Vortrag |
+
+---
+
+## 14. Quellenverzeichnis
 
 Alle referenzierten Dateien, geordnet nach Paket. Basispfad: `src/main/java/com/example/application/`
 
