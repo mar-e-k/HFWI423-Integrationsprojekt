@@ -1,0 +1,144 @@
+digraph G {
+  rankdir=LR;
+  ranksep=1.2;
+  nodesep=0.4;
+  splines=spline;
+  bgcolor="white";
+  node [shape=box, style="rounded,filled", fontname="Helvetica", fontsize=11];
+  edge [fontname="Helvetica", color="#888888"];
+
+  // Schichten farblich kodieren
+  "api.artikel"          [fillcolor="#cfe8ff"];
+  "api.kommission"       [fillcolor="#cfe8ff"];
+  "api.kontingent"       [fillcolor="#cfe8ff"];
+  "api.lagerplatz"       [fillcolor="#cfe8ff"];
+  "api.nachbestellung"   [fillcolor="#cfe8ff"];
+  "api.neueartikel"      [fillcolor="#cfe8ff"];
+  "api.wareneingang"     [fillcolor="#cfe8ff"];
+  "api.health"           [fillcolor="#cfe8ff"];
+
+  "views"                [fillcolor="#fff2cc"];
+  "views.components"     [fillcolor="#fff2cc"];
+  "views.goodsreceipt"   [fillcolor="#fff2cc"];
+  "views.logisticMainView" [fillcolor="#fff2cc"];
+  "views.messaging"      [fillcolor="#fff2cc"];
+  "views.monitoringView" [fillcolor="#fff2cc"];
+  "views.newArticleView" [fillcolor="#fff2cc"];
+  "views.orderPickingView"[fillcolor="#fff2cc"];
+  "views.restockView"    [fillcolor="#fff2cc"];
+  "views.storageLocationView"[fillcolor="#fff2cc"];
+
+  "services"             [fillcolor="#d5e8d4"];
+  "events"               [fillcolor="#e1d5e7"];
+
+  "amqp.einkaufEvents"   [fillcolor="#f8cecc"];
+  "amqp.storeEvents"     [fillcolor="#f8cecc"];
+
+  "data"                 [fillcolor="#dddddd"];
+  "data.articleInfo"     [fillcolor="#dddddd"];
+  "data.contingent"      [fillcolor="#dddddd"];
+  "data.externalArticle" [fillcolor="#dddddd"];
+  "data.goodsreceipts"   [fillcolor="#dddddd"];
+  "data.messagingEvent"  [fillcolor="#dddddd"];
+  "data.orderPicking"    [fillcolor="#dddddd"];
+  "data.restockorder"    [fillcolor="#dddddd"];
+  "data.storageLocation" [fillcolor="#dddddd"];
+
+  // Kanten (intern, ohne Self-Loops)
+  "amqp.einkaufEvents" -> "data.articleInfo";
+  "amqp.einkaufEvents" -> "data.contingent";
+  "amqp.einkaufEvents" -> "data.messagingEvent";
+  "amqp.einkaufEvents" -> "data.orderPicking";
+  "amqp.einkaufEvents" -> "data.storageLocation";
+  "amqp.einkaufEvents" -> "services";
+  "amqp.storeEvents" -> "data.articleInfo";
+  "amqp.storeEvents" -> "data.orderPicking";
+  "amqp.storeEvents" -> "services";
+
+  "api.artikel" -> "data";
+  "api.artikel" -> "data.articleInfo";
+  "api.artikel" -> "data.contingent";
+  "api.artikel" -> "data.goodsreceipts";
+  "api.artikel" -> "data.restockorder";
+  "api.artikel" -> "services";
+
+  "api.kommission" -> "amqp.storeEvents";
+  "api.kommission" -> "data.articleInfo";
+  "api.kommission" -> "data.orderPicking";
+  "api.kommission" -> "services";
+
+  "api.kontingent" -> "data.contingent";
+  "api.kontingent" -> "data.messagingEvent";
+  "api.kontingent" -> "services";
+
+  "api.lagerplatz" -> "data.storageLocation";
+  "api.lagerplatz" -> "services";
+
+  "api.nachbestellung" -> "data.articleInfo";
+  "api.nachbestellung" -> "data.restockorder";
+  "api.nachbestellung" -> "services";
+
+  "api.neueartikel" -> "data.articleInfo";
+  "api.neueartikel" -> "data.messagingEvent";
+  "api.neueartikel" -> "data.storageLocation";
+  "api.neueartikel" -> "services";
+
+  "api.wareneingang" -> "data";
+  "api.wareneingang" -> "data.articleInfo";
+  "api.wareneingang" -> "data.goodsreceipts";
+  "api.wareneingang" -> "data.restockorder";
+  "api.wareneingang" -> "services";
+
+  "data.articleInfo" -> "data";
+  "data.goodsreceipts" -> "data";
+  "data.goodsreceipts" -> "data.articleInfo";
+  "data.messagingEvent" -> "data";
+  "data.orderPicking" -> "data";
+  "data.orderPicking" -> "data.articleInfo";
+  "data.storageLocation" -> "data";
+
+  "services" -> "amqp.einkaufEvents";
+  "services" -> "amqp.storeEvents";
+  "services" -> "data";
+  "services" -> "data.articleInfo";
+  "services" -> "data.contingent";
+  "services" -> "data.externalArticle";
+  "services" -> "data.goodsreceipts";
+  "services" -> "data.messagingEvent";
+  "services" -> "data.orderPicking";
+  "services" -> "data.restockorder";
+  "services" -> "data.storageLocation";
+  "services" -> "events";
+
+  "views" -> "services";
+  "views.components" -> "data.articleInfo";
+  "views.components" -> "data.storageLocation";
+  "views.components" -> "services";
+  "views.goodsreceipt" -> "data.articleInfo";
+  "views.goodsreceipt" -> "data.goodsreceipts";
+  "views.goodsreceipt" -> "data.restockorder";
+  "views.goodsreceipt" -> "services";
+  "views.logisticMainView" -> "data";
+  "views.logisticMainView" -> "data.articleInfo";
+  "views.logisticMainView" -> "data.storageLocation";
+  "views.logisticMainView" -> "services";
+  "views.logisticMainView" -> "views.components";
+  "views.messaging" -> "amqp.einkaufEvents";
+  "views.messaging" -> "amqp.storeEvents";
+  "views.messaging" -> "data.messagingEvent";
+  "views.messaging" -> "services";
+  "views.newArticleView" -> "data.articleInfo";
+  "views.newArticleView" -> "data.storageLocation";
+  "views.newArticleView" -> "services";
+  "views.newArticleView" -> "views";
+  "views.newArticleView" -> "views.components";
+  "views.orderPickingView" -> "amqp.storeEvents";
+  "views.orderPickingView" -> "data.articleInfo";
+  "views.orderPickingView" -> "data.orderPicking";
+  "views.orderPickingView" -> "services";
+  "views.restockView" -> "data.articleInfo";
+  "views.restockView" -> "services";
+  "views.storageLocationView" -> "data";
+  "views.storageLocationView" -> "data.storageLocation";
+  "views.storageLocationView" -> "services";
+}

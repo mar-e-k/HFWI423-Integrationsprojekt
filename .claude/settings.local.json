@@ -74,7 +74,29 @@
       "Bash(grep -rl \"Workflow\\\\|Lasttest\\\\|jmeter\\\\|JMeter\" C:/Users/jason/IdeaProjects/HFWI423-Integrationsprojekt/src --include=*.java)",
       "Bash(\"C:/Users/jason/IdeaProjects/HFWI423-Integrationsprojekt/jmeter.log\")",
       "Skill(update-config)",
-      "Bash(find . -maxdepth 3 -type f \\\\\\(-name *.sh -o -name *.py -o -name README* \\\\\\))"
+      "Bash(find . -maxdepth 3 -type f \\\\\\(-name *.sh -o -name *.py -o -name README* \\\\\\))",
+      "Bash(pandoc --version)",
+      "PowerShell(Get-Command *)",
+      "PowerShell(winget *)",
+      "PowerShell(Test-Path *)",
+      "PowerShell(Get-Item *)",
+      "Bash(jdeps --version)",
+      "Bash(dot -V)",
+      "Bash(./mvnw -q -DskipTests package)",
+      "Bash(mkdir -p target/jdeps)",
+      "Bash(jdeps -recursive -dotoutput target/jdeps target/logistik-1.0-SNAPSHOT.jar)",
+      "Bash(winget list *)",
+      "Bash(winget install *)",
+      "Bash(\"/c/Program Files/Graphviz/bin/dot.exe\" -V)",
+      "Read(//tmp/**)",
+      "Bash(\"/c/Program Files/Graphviz/bin/dot.exe\" -Tpng docs/images/package-deps.dot -o docs/images/package-deps.png)",
+      "Bash(curl -s --max-time 5 http://localhost:8081/api-docs)",
+      "Bash(./mvnw -q test)",
+      "Bash(./mvnw -q org.jacoco:jacoco-maven-plugin:0.8.12:prepare-agent test org.jacoco:jacoco-maven-plugin:0.8.12:report -Dmaven.test.failure.ignore=true)",
+      "Bash(awk -F, 'NR>1 { *)",
+      "Bash(curl -s --max-time 3 http://localhost:8080/api/artikels)",
+      "Bash(awk -F'|' '$1!=$2 { print $1 }')",
+      "Bash(awk -F'|' '$1!=$2 { print $2 }')"
     ]
   }
 }
