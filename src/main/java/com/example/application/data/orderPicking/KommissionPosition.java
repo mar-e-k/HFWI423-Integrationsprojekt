@@ -5,7 +5,7 @@ import com.example.application.data.articleInfo.ArticleInfo;
 import jakarta.persistence.*;
 
 @Entity
-@Table(name = "kommission_position")
+@Table(name = "kommission_position", schema = "kommission")
 public class KommissionPosition extends AbstractEntity {
 
     @ManyToOne(optional = false)

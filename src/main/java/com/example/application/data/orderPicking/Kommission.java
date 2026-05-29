@@ -8,7 +8,7 @@ import jakarta.validation.constraints.Size;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "kommission", indexes = {
+@Table(name = "kommission", schema = "kommission", indexes = {
     @Index(name = "idx_kommission_finished_date",   columnList = "finished, date"),
     @Index(name = "idx_kommission_store_finished",  columnList = "store_id, finished"),
     @Index(name = "idx_kommission_order_picking_nr", columnList = "order_picking_nr")
