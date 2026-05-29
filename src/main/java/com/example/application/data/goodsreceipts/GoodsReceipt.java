@@ -6,7 +6,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 //hetuhghueghusghueguhieguhiegiuhe
 @Entity
-@Table(name = "goods_receipt", indexes = {
+@Table(name = "goods_receipt", schema = "wareneingang", indexes = {
     @Index(name = "idx_goods_receipt_status", columnList = "status")
 })
 public class GoodsReceipt extends AbstractEntity {
