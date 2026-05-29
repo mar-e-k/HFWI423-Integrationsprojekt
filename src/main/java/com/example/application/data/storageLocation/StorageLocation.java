@@ -6,6 +6,7 @@ import jakarta.persistence.*;
 @Entity
 @Table(
         name = "storage_location",
+        schema = "lager",
         uniqueConstraints = {
                 @UniqueConstraint(
                         name = "uc_zone_shelf_compartment",
