@@ -5,24 +5,34 @@ import de.fhdw.vendix.commons.api.domain.store_stock_order.StoreStockOrderRespon
 import de.fhdw.vendix.commons.api.domain.store_stock_order.OrderStatus;
 import de.fhdw.vendix.commons.api.domain.store_stock_order.StoreStockOrderDTO;
 import de.fhdw.vendix.commons.spring.data.persistance.crud.AbstractCrudService;
+import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.EnumSet;
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 
 @Service
 class StoreStockOrderServiceImpl extends AbstractCrudService<StoreStockOrder, Long> implements StoreStockOrderService {
 
     private static final Logger log = LoggerFactory.getLogger(StoreStockOrderServiceImpl.class);
+    private static final Set<OrderStatus> OPEN_STATUSES = EnumSet.of(OrderStatus.PENDING, OrderStatus.ORDERED);
 
     private final StoreStockOrderRepository storeStockOrderRepository;
+    private final ObjectProvider<ArticleOrderPublisher> articleOrderPublisherProvider;
 
-    StoreStockOrderServiceImpl(StoreStockOrderRepository storeStockOrderRepository) {
+    StoreStockOrderServiceImpl(
+            StoreStockOrderRepository storeStockOrderRepository,
+            ObjectProvider<ArticleOrderPublisher> articleOrderPublisherProvider
+    ) {
         super(storeStockOrderRepository);
         this.storeStockOrderRepository = storeStockOrderRepository;
+        this.articleOrderPublisherProvider = articleOrderPublisherProvider;
     }
 
     @Override
@@ -39,18 +49,23 @@ class StoreStockOrderServiceImpl extends AbstractCrudService<StoreStockOrder, Lo
         StoreStockOrder order = super.create(storeStockOrder);
 
         try {
-            if (Boolean.TRUE.equals(request.urgent())) {
-//                articleOrderMessagingService.sendUrgentOrder(request.storeId(), request.articleId(), request.amount());
-            } else {
-//                articleOrderMessagingService.sendOrder(request.storeId(), request.articleId(), request.amount());
+            @Nullable ArticleOrderPublisher articleOrderPublisher = articleOrderPublisherProvider.getIfAvailable();
+            if (articleOrderPublisher == null) {
+                throw new IllegalStateException("No ArticleOrderPublisher configured");
             }
+            articleOrderPublisher.publishOrder(
+                    request.storeId(),
+                    request.articleId(),
+                    request.amount(),
+                    Boolean.TRUE.equals(request.urgent())
+            );
 
             order.mark(OrderStatus.ORDERED, "Order published to AMQP");
             storeStockOrderRepository.save(order);
             return new StoreStockOrderResponseDTO(
                     correlationId,
                     OrderStatus.ORDERED,
-                    "/api/replenishment-orders/" + correlationId
+                    "/api/store-stock-order/correlation-id/" + correlationId
             );
         } catch (RuntimeException e) {
             order.mark(OrderStatus.FAILED, e.getMessage());
@@ -71,15 +86,20 @@ class StoreStockOrderServiceImpl extends AbstractCrudService<StoreStockOrder, Lo
     @Override
     @Transactional
     public void markReceived(long storeId, long articleId, long amount) {
-//        storeStockOrderRepository
-//                .findFirstByStoreIdAndArticleIdAndStatusInOrderByCreatedAtAsc(storeId, articleId, OPEN_STATUSES)
-//                .ifPresent(order -> {
-//                    log.atDebug().log("Marking replenishment order {} as received", order.getCorrelationId());
-//                    order.mark(
-//                            OrderStatus.RECEIVED,
-//                            "Received " + amount + " units from logistics event"
-//                    );
-//                });
+        storeStockOrderRepository
+                .findFirstByStoreIdAndArticleIdAndStatusInOrderByCreatedAtAsc(storeId, articleId, OPEN_STATUSES)
+                .ifPresentOrElse(order -> {
+                    log.atDebug().log("Marking replenishment order {} as received", order.getCorrelationId());
+                    order.mark(
+                            OrderStatus.RECEIVED,
+                            "Received " + amount + " units from logistics event"
+                    );
+                    storeStockOrderRepository.save(order);
+                }, () -> log.atDebug().log(
+                        "No open replenishment order found for storeId={} articleId={}",
+                        storeId,
+                        articleId
+                ));
     }
 
     private StoreStockOrderDTO toStatusDTO(StoreStockOrder order) {

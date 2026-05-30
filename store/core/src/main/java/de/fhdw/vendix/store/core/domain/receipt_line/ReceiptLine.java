@@ -95,4 +95,18 @@ public class ReceiptLine extends AbstractSpringDataAuditingEntity<Long> {
     public @Nullable PriceOverride getPriceOverride() {
         return priceOverride;
     }
+
+    public ReceiptLine withReceiptId(Long receiptId) {
+        if (receiptId == null || receiptId < 1) {
+            throw new IllegalArgumentException("Parameter 'receiptId' must be greater than or equal to 1");
+        }
+        return new ReceiptLine(
+                null,
+                receiptId,
+                articleId,
+                articleAmount,
+                discountOverride,
+                priceOverride
+        );
+    }
 }

@@ -35,13 +35,13 @@ export function createReplenishmentOrder(token, articleId, amount, isUrgent) {
         urgent: isUrgent
     });
 
-    const res = http.post(`${ORCHESTRATOR_URL}/api/replenishment/order`, payload, {
+    const res = http.post(`${ORCHESTRATOR_URL}/api/store-stock-order`, payload, {
         ...authHeaders(token, STORE_ID),
-        tags: {endpoint: 'create_replenishment'},
+        tags: {endpoint: 'create_store_stock_order'},
     });
 
     const isOk = check(res, {
-        'Replenishment order created': (r) => r.status === 202 || r.status === 201,
+        'Store stock order accepted': (r) => r.status === 202 || r.status === 201 || r.status === 200,
     });
 
     if (!isOk) {
@@ -59,9 +59,9 @@ export function createReplenishmentOrder(token, articleId, amount, isUrgent) {
 }
 
 export function getReplenishmentOrderStatus(token, correlationId) {
-    const res = http.get(`${ORCHESTRATOR_URL}/api/replenishment/status/${correlationId}`, {
+    const res = http.get(`${ORCHESTRATOR_URL}/api/store-stock-order/correlation-id/${correlationId}`, {
         ...authHeaders(token, STORE_ID),
-        tags: {endpoint: 'get_replenishment_status'},
+        tags: {endpoint: 'get_store_stock_order_status'},
     });
 
     if (res.status !== 200) return null;

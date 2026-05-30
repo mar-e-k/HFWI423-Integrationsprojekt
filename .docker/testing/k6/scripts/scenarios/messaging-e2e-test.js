@@ -5,7 +5,7 @@ import {
     getReplenishmentOrderStatus,
     getStoreStock,
 } from '../lib/client/messaging.js';
-import {executeSharedSetup, executeSharedSummary} from "../lib/runner-base";
+import {executeSharedSetup, executeSharedSummary} from '../lib/runner-base.js';
 
 const ORDER_RATE = Number(__ENV.ORDER_RATE || 30);
 const ORDER_DURATION = __ENV.ORDER_DURATION || '5m';

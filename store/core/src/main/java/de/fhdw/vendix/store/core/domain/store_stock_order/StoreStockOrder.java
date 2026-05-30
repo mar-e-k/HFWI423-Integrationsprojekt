@@ -103,31 +103,31 @@ public class StoreStockOrder extends AbstractSpringDataAuditingEntity<Long> {
         this.message = message;
     }
 
-    UUID getCorrelationId() {
+    public UUID getCorrelationId() {
         return correlationId;
     }
 
-    Long getStoreId() {
+    public Long getStoreId() {
         return storeId;
     }
 
-    Long getArticleId() {
+    public Long getArticleId() {
         return articleId;
     }
 
-    Long getAmount() {
+    public Long getAmount() {
         return amount;
     }
 
-    Boolean getUrgent() {
+    public Boolean getUrgent() {
         return urgent;
     }
 
-    OrderStatus getStatus() {
+    public OrderStatus getStatus() {
         return status;
     }
 
-    @Nullable String getMessage() {
+    public @Nullable String getMessage() {
         return message;
     }
 }

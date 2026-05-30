@@ -1,92 +1,122 @@
-# HFWI423-Integrationsprojekt: Filialen- und Kassensystem
+# Vendix - Filial-, Kassen- und Orchestrierungssystem
 
-Dieses Projekt implementiert ein verteiltes System, bestehend aus einem zentralen **Filialensystem** und mehreren dezentralen **Kassensystemen**. Die Kommunikation erfolgt über REST-Schnittstellen.
+Vendix ist ein verteiltes Spring-Boot-System für Filialbetrieb und Kassiervorgänge. Das Projekt besteht aus getrennt startbaren Anwendungen für Orchestrierung, Store und POS sowie gemeinsamen Vertrags- und Infrastrukturmodulen.
 
-## 1. Projektarchitektur
+## Systemueberblick
 
-Das System ist in drei Maven-Module unterteilt:
+- `orchestrator`: zentrale Einstiegsanwendung und Gateway. Verwaltet Filialen und Kassen, nutzt Consul/Redis fuer Service- und Locking-Kontext und routet Store-APIs ueber Header wie `X-Store-ID`.
+- `store`: fachlicher Store-Service fuer Artikel, Bestand, Bons, Checkout, Voucher und asynchrone Bestandsauffuellung ueber RabbitMQ.
+- `pos`: Point-of-Sale-Oberflaeche fuer Kassiervorgaenge. Die Kasse arbeitet gegen die API-Vertraege und soll fachlich nicht direkt auf Store-Datenhaltung zugreifen.
+- `commons`: Shared Kernel fuer DTOs, API-Interfaces, Mapper-/CRUD-Basis, Security-, Web- und Infrastrukturbausteine.
+- `.docker`: lokale Infrastruktur, Monitoring und k6-Lasttests.
 
--   **`commons`**: Eine Bibliothek, die von beiden anderen Modulen genutzt wird. Sie enthält gemeinsame Code-Bestandteile wie Datenübertragungsobjekte (DTOs), Entitätsklassen und Basis-UI-Komponenten.
--   **`filialensystem`**: Die zentrale Verwaltungsanwendung. Sie dient als "Single Source of Truth" für Artikeldaten und verwaltet die angeschlossenen Kassensysteme.
--   **`kassensystem`**: Die Anwendung für den Point of Sale. Mehrere Instanzen dieses Systems können gestartet werden. Jede Instanz registriert sich beim Filialensystem, um Artikeldaten abzurufen und Verkäufe abzuwickeln.
+## Voraussetzungen
 
-## 2. Build und Start der Anwendungen
+- Java 25
+- Maven 3.9+ oder die Maven-Integration der IDE
+- Docker Desktop oder kompatible Docker-Engine mit Docker Compose
+- Freie Ports: `3000`, `5432`, `5672`, `6379`, `8080`, `8090`, `8500`, `9090`, `15672`, `5665`
 
-### 2.1. Projekt bauen (Kompilieren)
+## Schnellstart mit Docker-Infrastruktur und lokalen Apps
 
-Bevor Sie die Anwendungen zum ersten Mal starten, muss das gesamte Projekt mit Maven gebaut werden. Dieser Befehl kompiliert alle drei Module und stellt sicher, dass die Abhängigkeiten korrekt aufgelöst werden.
+1. Infrastruktur starten:
 
-Öffnen Sie ein Terminal im Projekt-Hauptverzeichnis und führen Sie aus:
-
-```sh
-mvn clean install
+```bash
+cd .docker
+chmod +x .scripts/*.sh
+./.scripts/docker-compose-up.sh
 ```
 
-### 2.2. Anwendungen starten
+2. Orchestrator starten:
 
-Für einen funktionsfähigen Betrieb müssen sowohl das Filialensystem als auch mindestens ein Kassensystem gestartet werden.
+```bash
+mvn -pl orchestrator/app -am spring-boot:run
+```
 
-#### 1. Filialensystem starten
+3. Store starten:
 
-Das Filialensystem ist die zentrale Verwaltungsinstanz und läuft standardmäßig auf Port `8080`.
+```bash
+mvn -pl store/app -am spring-boot:run
+```
 
-1.  Öffnen Sie die Datei `filialensystem/src/main/java/de/fhdw/fillialensystem/Application.java`.
-2.  Klicken Sie auf den grünen "Play"-Button neben der `main`-Methode, um die Anwendung zu starten.
-3.  Die Anwendung ist unter `http://localhost:8080` erreichbar.
+4. POS starten:
 
-**Standard-Login:**
--   **Benutzername:** `A`
--   **Passwort:** `1234`
+```bash
+mvn -pl pos/app -am spring-boot:run
+```
 
-#### 2. Kassensystem starten
+Die Anwendungen verwenden standardmaessig das Profil `local`. Dafuer muessen Postgres, Redis, RabbitMQ, Keycloak und Consul laufen. Der Orchestrator ist unter `http://localhost:8080` erreichbar. Store und POS laufen standardmaessig auf zufaelligen Ports (`server.port=0`) und werden ueber Service Discovery beziehungsweise Gateway-Kontext verwendet.
 
-Das Kassensystem ist die Point-of-Sale-Anwendung. Es kann mehrfach gestartet werden und läuft standardmäßig auf Port `8081`.
+## Vollstaendiger Docker-Start inklusive Apps
 
-1.  Öffnen Sie die Datei `kassensystem/src/main/java/de/fhdw/kassensystem/Application.java`.
-2.  Klicken Sie auf den grünen "Play"-Button neben der `main`-Methode.
-3.  Die Anwendung ist unter `http://localhost:8081` erreichbar.
+Wenn auch Orchestrator, Store und POS als Container gebaut werden sollen:
 
-**Standard-Login:**
--   **Benutzername:** `C`
--   **Passwort:** `1234`
+```bash
+docker network create vendix-network 2>/dev/null || true
+docker compose \
+  --project-name vendix \
+  --project-directory .docker \
+  --env-file .docker/.env \
+  -f .docker/app/docker-compose.yaml \
+  -f .docker/monitor/docker-compose.yaml \
+  -f .docker/testing/docker-compose.yaml \
+  -f .docker/local/docker-compose.yaml \
+  up -d --build
+```
 
-Nach dem Start registriert sich das Kassensystem automatisch beim Filialensystem.
+Der Orchestrator wird auf `http://localhost:8080` gemappt. Store und POS laufen im Docker-Netzwerk und registrieren sich dort.
 
-## 3. Funktionsübersicht
+## Wichtige Oberflaechen
 
-### Filialensystem (`:8080`)
+- Orchestrator: `http://localhost:8080`
+- Keycloak: `http://localhost:8090`
+- Consul UI: `http://localhost:8500`
+- RabbitMQ Management: `http://localhost:15672` mit `admin/admin`
+- Grafana: `http://localhost:3000`
+- Prometheus: `http://localhost:9090`
+- k6 Web Dashboard: `http://localhost:5665`
 
--   **Dashboard (`MainView`):**
-    -   Zeigt eine Übersicht aller verbundenen Kassensystem-Instanzen.
-    -   Stellt den Online-Status, Host, Port und den Zeitpunkt der letzten Kommunikation dar.
-    -   Bietet einen direkten Link, um die `CashierView` der jeweiligen Kasseninstanz in einem neuen Tab zu öffnen. Der Name der Kasse (z.B. "Kasse 1") wird dabei als URL-Parameter übergeben.
--   **Artikelverwaltung (`AdminView`):**
-    -   Anzeige aller im System erfassten Artikel in einer Tabelle.
-    -   Suchfunktion zum Filtern der Artikelliste.
-    -   Möglichkeit, neue Artikel zu erstellen und bestehende zu bearbeiten.
+## Build und Tests
 
-### Kassensystem (`:8081`)
+Gesamtes Projekt bauen und testen:
 
--   **Kassenansicht (`CashierView`):**
-    -   Nimmt den übergebenen Kassennamen aus der URL entgegen und zeigt ihn im Titel an (z.B. "CashierView der Kasse 1"). Der Name bleibt auch nach einem Logout und erneutem Login erhalten.
-    -   **Artikelsuche:** Artikel können über ihre Artikelnummer gesucht und dem Warenkorb hinzugefügt werden.
-    -   **Warenkorb-Management:**
-        -   Artikel ohne vordefinierten Preis erfordern eine Preiseingabe durch den Kassierer.
-        -   Mengen und Preise können direkt im Warenkorb bearbeitet werden. Eine Preisänderung erfordert eine Passwort-Freigabe (`Initial: 1234`).
-        -   Artikel können vollständig oder in Teilmengen aus dem Warenkorb entfernt werden.
-        -   Rabatte können pro Position (prozentual, für eine bestimmte Menge) hinzugefügt werden.
-    -   **Kaufabschluss:** Führt zur Bezahlansicht (`PaymentView`).
+```bash
+mvn clean test
+```
 
-## 4. Live-Reload für die Entwicklung aktivieren
+Ein einzelnes App-Modul bauen:
 
-Live-Reload ermöglicht es, Änderungen am Code sofort im Browser zu sehen, ohne die Anwendung manuell neu starten zu müssen. Damit dies funktioniert, sind die folgenden IDE-Einstellungen (IntelliJ IDEA) erforderlich:
+```bash
+mvn -pl store/app -am clean package
+```
 
-1.  **Automatisches Bauen aktivieren:**
-    -   Gehen Sie zu `Settings/Preferences > Build, Execution, Deployment > Compiler`.
-    -   Aktivieren Sie die Option **`Build project automatically`**.
+## Lasttests mit k6
 
-2.  **Automatisches Bauen während der Ausführung erlauben:**
-    -   Gehen Sie zu `Settings/Preferences > Advanced Settings`.
-    -   Suchen Sie die Option **`Allow auto-make to start even if developed application is currently running`** und aktivieren Sie sie.
+1. Infrastruktur und mindestens Orchestrator + Store starten.
+2. k6-Szenario ausfuehren:
 
-Nachdem diese Einstellungen vorgenommen wurden, funktioniert der Live-Reload beim Start über die jeweilige `Application.java`.
+```bash
+cd .docker
+./.scripts/manage-k6-test.sh run load-test
+```
+
+Verfuegbare Szenarien:
+
+- `load-test`
+- `stress-test`
+- `spike-test`
+- `soak-test`
+- `capacity-test`
+- `messaging-e2e-test`
+
+Die k6-Skripte laufen gegen den Orchestrator (`ORCHESTRATOR_URL`, Standard: `http://host.docker.internal:8080`). Der Orchestrator routet die Store-Requests anhand des Store-Kontexts weiter. Reports werden unter `.docker/testing/k6/reports` abgelegt.
+
+## Stoppen
+
+```bash
+cd .docker
+./.scripts/manage-k6-test.sh stop
+./.scripts/docker-compose-down.sh
+```
+
+Falls die Apps lokal per Maven gestartet wurden, muessen die jeweiligen Prozesse im Terminal oder in der IDE beendet werden.
