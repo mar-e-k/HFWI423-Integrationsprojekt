@@ -296,7 +296,8 @@ Wareneingangs-Nummern werden aus einer PostgreSQL-Sequence generiert:
 ```
 WE-{JAHR}-{5-stellige Laufnummer}   →   z.B. WE-2026-00042
 ```
-> Quelle: `GoodsReceiptService.java:48` — `nextReceiptNumber()`
+Die Sequence `wareneingang.goods_receipt_seq` liegt im `wareneingang`-Schema und wird beim App-Start durch `DatabaseInitializer` angelegt, falls sie noch nicht existiert.
+> Quelle: `GoodsReceiptService.java:54` — `nextReceiptNumber()`
 
 #### Wareneingang aus Restock-Orders
 
@@ -401,9 +402,9 @@ if neuerBestand < 0: neuerBestand = 0
 
 Das Restock-Modul erkennt Artikel, deren Lagerbestand unter den Mindestbestand gefallen ist, und ermöglicht die Auslösung von Nachbestellungen.
 
-**Erkennung:** `RestockService.getArticlesToRestock()` ruft alle Artikel ab, bei denen `stockLevel < minStock`.
+**Erkennung:** `RestockService.getArticlesToRestock()` ruft alle Artikel ab, bei denen `reservePallets < minStock` (oder `minStock IS NULL`). Der Trigger basiert also auf den Reservepaletten, nicht auf dem Stückbestand — ein leeres Regal löst erst dann eine Nachbestellung aus, wenn die Palettenreserve unter den Mindestbestand fällt.
 > Quelle: `RestockService.java:22` — `getArticlesToRestock()`
-> DB-Query: `ArticleInfoRepository.findAllRequiringRestock()`
+> DB-Query: `ArticleInfoRepository.findAllRequiringRestock()` → `WHERE a.minStock IS NULL OR a.reservePallets < a.minStock`
 
 **Bestellprozess:**
 1. Liste der Nachbestellkandidaten wird in der UI angezeigt
@@ -527,9 +528,13 @@ Seit Mai 2026 sind alle Tabellen in domänenspezifische PostgreSQL-Schemas aufge
 | `nachbestellung` | `restock_order` | Nachbestellung |
 | `messaging` | `messaging_event` | Messaging & Events |
 
-Die Schemas werden durch `docker/init.sql` beim ersten Start des PostgreSQL-Containers angelegt. Hibernate erstellt die Tabellen beim App-Start automatisch in den korrekten Schemas (`spring.jpa.hibernate.ddl-auto=update`).
+Die Schemas werden auf zwei Wegen angelegt:
+1. **Docker:** `docker/init.sql` erstellt alle 7 Schemas beim ersten Start des PostgreSQL-Containers
+2. **Ohne Docker (z.B. Neon Cloud):** `spring.jpa.properties.hibernate.hbm2ddl.create_namespaces=true` veranlasst Hibernate, fehlende Schemas automatisch anzulegen
 
-Die gemeinsame `idgenerator`-Sequence (aus `AbstractEntity`) verbleibt im `public`-Schema und ist über PostgreSQLs Standard-`search_path` für alle Schemas erreichbar.
+Die `idgenerator`-Sequence (aus `AbstractEntity`, für JPA-generierte IDs) wird von Hibernate automatisch im jeweiligen Schema angelegt.
+
+Die `wareneingang.goods_receipt_seq` (für den Wareneingangs-Nummernkreis WE-YYYY-NNNNN) wird beim App-Start durch den `DatabaseInitializer` angelegt, falls sie noch nicht existiert.
 
 > Technische Umsetzung: `schema = "..."` in den `@Table`-Annotationen der Entitätsklassen.
 > Initialisierung: `docker/init.sql`
@@ -853,6 +858,7 @@ spring.datasource.hikari.connection-timeout=60000   # 60 Sekunden
 # JPA
 spring.jpa.hibernate.ddl-auto=update               # Schema wird automatisch migriert
 spring.jpa.properties.hibernate.jdbc.batch_size=50  # Batch-Inserts/-Updates
+spring.jpa.properties.hibernate.hbm2ddl.create_namespaces=true  # PostgreSQL-Schemas automatisch anlegen
 
 # Monitoring
 management.endpoints.web.exposure.include=health,info,prometheus,metrics
@@ -878,7 +884,9 @@ spring.rabbitmq.password=${RABBITMQ_PASS}
 ```
 Host:      localhost
 Port:      5432
-Datenbank: logistik (siehe docker/init.sql)
+Datenbank: appdb
+Benutzer:  app
+Passwort:  secret   (siehe application-local.properties)
 ```
 
 ### RabbitMQ
@@ -997,9 +1005,38 @@ docker exec pg psql -U app -d appdb -c "SELECT schemaname, tablename FROM pg_tab
 Der `WeeklyKommissionScheduler` verarbeitet alle Filialen, für die unverarbeitete `MessageLogistic`-Einträge vorliegen. Jede Filiale wird in einer eigenen Transaktion verarbeitet.
 > Quelle: `WeeklyKommissionScheduler.java:44` — `createWeeklyKommissionen()`, `WeeklyKommissionScheduler.java:53` — `processStore()`
 
+### Startup-Komponenten (ApplicationRunner)
+
+Beim App-Start werden zwei `ApplicationRunner`-Komponenten in definierter Reihenfolge ausgeführt:
+
+| Reihenfolge | Klasse | Quelle | Aufgabe |
+|---|---|---|---|
+| `@Order(1)` | `DatabaseInitializer` | `startup/DatabaseInitializer.java` | Legt `wareneingang.goods_receipt_seq` an, falls nicht vorhanden |
+| `@Order(2)` | `KontingentSimulationStartup` | `startup/KontingentSimulationStartup.java` | Befüllt `ContingentLasttest` mit 100 SIM-Artikeln, falls die Tabelle leer ist (Lasttest-Vorbefüllung) |
+
+Der `KontingentSimulationStartup` stellt sicher, dass der Tab "Neue Artikel → Lasttest" in der UI direkt nach dem Start Daten enthält — ohne manuellen Aufruf des Simulation-Endpoints.
+
 ---
 
 ## 10. Performance & Qualität
+
+### Lasttest-Ergebnisse (30.05.2026, Artikel-Workflow)
+
+Gemessen mit JMeter, Ergebnisse via InfluxDB in Grafana (95th Percentile):
+
+| Transaktion | Mean | Max (95p) | Bewertung |
+|---|---|---|---|
+| Workflow – Kommissionen triggern | 13,7 ms | 29 ms | 🟢 sehr gut |
+| Workflow – Lagerplatz anlegen | 25,1 ms | 40,9 ms | 🟢 sehr gut |
+| Workflow – Alle Kommissionen abschliessen | 19,5 ms | 33 ms | 🟢 sehr gut |
+| Workflow – Alle Positionen freigeben | 84,8 ms | 278 ms | 🟡 gut |
+| Workflow – Artikel anlegen | 93,2 ms | 185 ms | 🟡 gut |
+| Workflow – Pruefung abschliessen | 89,7 ms | 191 ms | 🟡 gut |
+| Workflow – Wareneingang anlegen | 194 ms | 345 ms | 🟡 akzeptabel |
+| Workflow – Alle Bestellungen freigeben | 463 ms | 800 ms | 🔴 Engpass |
+| **Gesamt (all)** | **248 ms** | **800 ms** | — |
+
+**Engpass-Analyse:** „Alle Bestellungen freigeben" (`POST /api/nachbestellungen/approve-all`) ist die langsamste Operation. Ursache: sequentieller Loop mit pessimistischem DB-Lock pro Artikel (`PESSIMISTIC_WRITE` auf `article_info`). Unter Parallellast blockieren sich die Threads gegenseitig in der Lock-Warteschlange.
 
 ### N+1-Vermeidung
 
