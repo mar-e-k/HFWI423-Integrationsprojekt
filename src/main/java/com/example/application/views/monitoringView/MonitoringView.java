@@ -411,12 +411,25 @@ public class MonitoringView extends Div {
     private void sendRequest(String method, String path, String body,
                               Span statusSpan, Span timeSpan, Span summarySpan,
                               HorizontalLayout resultArea, Button btn, UI ui, Duration timeout) {
+        sendRequestWithBase("/api/load", method, path, body, statusSpan, timeSpan, summarySpan, resultArea, btn, ui, timeout);
+    }
+
+    /** Ruft einen Endpunkt unter /api (ohne /load-Präfix) auf. */
+    private void sendRequestApi(String method, String path, String body,
+                                 Span statusSpan, Span timeSpan, Span summarySpan,
+                                 HorizontalLayout resultArea, Button btn, UI ui, Duration timeout) {
+        sendRequestWithBase("/api", method, path, body, statusSpan, timeSpan, summarySpan, resultArea, btn, ui, timeout);
+    }
+
+    private void sendRequestWithBase(String basePrefix, String method, String path, String body,
+                                      Span statusSpan, Span timeSpan, Span summarySpan,
+                                      HorizontalLayout resultArea, Button btn, UI ui, Duration timeout) {
         btn.setEnabled(false);
         Executors.newVirtualThreadPerTaskExecutor().submit(() -> {
             long start = System.currentTimeMillis();
             try {
                 HttpRequest.Builder reqBuilder = HttpRequest.newBuilder()
-                        .uri(URI.create("http://localhost:" + serverPort + "/api/load" + path))
+                        .uri(URI.create("http://localhost:" + serverPort + basePrefix + path))
                         .timeout(timeout)
                         .header("Content-Type", "application/json");
 
@@ -577,7 +590,7 @@ public class MonitoringView extends Div {
             int count = countField.getValue() != null ? countField.getValue() : 100;
             UI ui = UI.getCurrent();
             simResult.setVisible(false);
-            sendRequest("POST", "/contingents/simulate?count=" + count, null,
+            sendRequestApi("POST", "/kontingente/simulate?count=" + count, null,
                     simStatus, simTime, simSummary, simResult, simulateBtn, ui,
                     Duration.ofSeconds(120));
         });
@@ -607,8 +620,9 @@ public class MonitoringView extends Div {
         resetBtn.addClickListener(e -> {
             UI ui = UI.getCurrent();
             resetResult.setVisible(false);
-            sendRequest("DELETE", "/contingents/simulate", null,
-                    resetStatus, resetTime, resetSummary, resetResult, resetBtn, ui);
+            sendRequestApi("DELETE", "/kontingente/simulate", null,
+                    resetStatus, resetTime, resetSummary, resetResult, resetBtn, ui,
+                    Duration.ofSeconds(30));
         });
 
         HorizontalLayout resetRow = new HorizontalLayout(resetBtn, resetResult);

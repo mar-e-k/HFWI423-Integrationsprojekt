@@ -24,6 +24,6 @@ public interface GoodsReceiptItemRepository extends JpaRepository<GoodsReceiptIt
                                 @Param("oldStatus") GoodsReceiptItemStatus oldStatus);
 
     @Modifying(clearAutomatically = true, flushAutomatically = true)
-    @Query(value = "DELETE FROM goods_receipt_item WHERE article_info_id IN (:articleIds)", nativeQuery = true)
+    @Query(value = "DELETE FROM wareneingang.goods_receipt_item WHERE article_info_id IN (:articleIds)", nativeQuery = true)
     void deleteByArticleIdIn(@Param("articleIds") List<Long> articleIds);
 }

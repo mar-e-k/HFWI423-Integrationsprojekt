@@ -36,7 +36,7 @@ public interface ArticleInfoRepository
 
     boolean existsByStorageLocation(String storageLocation);
 
-    @Query(value = "SELECT * FROM article_info WHERE article_number = :articleNumber LIMIT 1", nativeQuery = true)
+    @Query(value = "SELECT * FROM artikel.article_info WHERE article_number = :articleNumber LIMIT 1", nativeQuery = true)
     ArticleInfo findByArticleNumber(@Param("articleNumber") String articleNumber);
 
     @Query("select a.articleNumber from ArticleInfo a")
@@ -45,7 +45,7 @@ public interface ArticleInfoRepository
     @Query("select a.articleId from ArticleInfo a where a.articleId is not null")
     Set<Long> findAllArticleIds();
 
-    @Query(value = "SELECT * FROM article_info WHERE article_id = :articleId LIMIT 1", nativeQuery = true)
+    @Query(value = "SELECT * FROM artikel.article_info WHERE article_id = :articleId LIMIT 1", nativeQuery = true)
     ArticleInfo findByArticleId(@Param("articleId") Long articleId);
 
     @Query("select a.storageLocation from ArticleInfo a where a.articleNumber = :articleNumber")
