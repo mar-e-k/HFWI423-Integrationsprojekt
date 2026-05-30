@@ -1038,6 +1038,31 @@ Gemessen mit JMeter, Ergebnisse via InfluxDB in Grafana (95th Percentile):
 
 **Engpass-Analyse:** „Alle Bestellungen freigeben" (`POST /api/nachbestellungen/approve-all`) ist die langsamste Operation. Ursache: sequentieller Loop mit pessimistischem DB-Lock pro Artikel (`PESSIMISTIC_WRITE` auf `article_info`). Unter Parallellast blockieren sich die Threads gegenseitig in der Lock-Warteschlange.
 
+---
+
+### Lasttest-Ergebnisse — Spike-Test (30.05.2026, 16:30–16:55 Uhr)
+
+Spike-Test mit erhöhter Parallellast ab ca. 16:40 Uhr. Gemessen mit JMeter, Ergebnisse via InfluxDB in Grafana (95th Percentile):
+
+| Transaktion | Mean | Max (95p) | Bewertung |
+|---|---|---|---|
+| Workflow – Kommissionen triggern | 13,2 ms | 39 ms | 🟢 unter Spike unberührt |
+| Workflow – Alle Kommissionen abschliessen | 20,0 ms | 120 ms | 🟢 unter Spike stabil |
+| Workflow – Lagerplatz anlegen | 35,7 ms | 73 ms | 🟢 unter Spike stabil |
+| Workflow – Artikel anlegen | 90,7 ms | 223 ms | 🟡 stabil |
+| Workflow – Pruefung abschliessen | 104 ms | 223 ms | 🟡 stabil |
+| Workflow – Alle Positionen freigeben | 135 ms | 251 ms | 🟡 leicht erhöht |
+| Nav – Wareneingaenge oeffnen | 116 ms | 216 ms | 🟡 stabil |
+| **Workflow – Alle Bestellungen freigeben** | **3,24 s** | **5,86 s** | 🔴 Engpass unter Spike |
+
+**Kernaussage für die Präsentation:**
+
+Der Spike-Test belegt das Loose-Coupling-Prinzip empirisch:
+
+- **Schema-Isolation wirkt:** Kommission (13ms), Lagerplatz (35ms) und Artikel-Anlage (90ms) bleiben auch unter Spike-Last stabil — obwohl das System insgesamt unter hoher Last steht. Die Domänen beeinflussen sich gegenseitig nicht.
+- **Einziger Engpass:** `approve-all` ist die einzige Operation mit enger Kopplung (sequentieller Loop + `PESSIMISTIC_WRITE`-Lock auf `artikel.article_info`). Genau diese Operation degradiert unter Spike von 463ms (Normallast) auf 3,24s — alle anderen bleiben stabil.
+- **Netzwerktraffic:** ~20 MiB Peak — der Test lief unter echter Last, kein Leerlauf.
+
 ### N+1-Vermeidung
 
 An mehreren Stellen im Code wurde gezielt auf Batch-Queries optimiert:
