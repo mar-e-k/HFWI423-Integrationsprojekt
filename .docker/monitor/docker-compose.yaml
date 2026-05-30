@@ -19,6 +19,8 @@ services:
       - prometheus
     networks:
       - vendix-network
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
 
   loki:
     image: grafana/loki:3.7.1
@@ -29,6 +31,8 @@ services:
       - "${LOKI_PORT}:3100"
     networks:
       - vendix-network
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
 
   prometheus:
     image: prom/prometheus:v3.11.2
@@ -41,6 +45,8 @@ services:
       - "${PROMETHEUS_PORT}:9090"
     networks:
       - vendix-network
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
 
 volumes:
   grafana-storage:

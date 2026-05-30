@@ -1,39 +1,39 @@
-name: vendix
+  name: vendix
 
-services:
+  services:
 
-  k6:
-    image: grafana/k6:1.7.1-with-browser
-    container_name: vendix-k6
-    profiles:
-      - testing
-    volumes:
-      - ./k6/scripts:/etc/k6/scripts
-      - ./k6/reports:/etc/k6/reports
-    entrypoint: ["sleep", "infinity"]
-    ports:
-      - "${K6_PORT}:3020"
-      - "5665:5665"
-    environment:
-      # K6
-      - K6_PROMETHEUS_RW_SERVER_URL=http://prometheus:9090/api/v1/write
-      - K6_PROMETHEUS_RW_TREND_STATS=p(50),p(90),p(95),p(99),min,max,avg
-      - K6_PROMETHEUS_RW_PUSH_INTERVAL=5s
-      - K6_PROMETHEUS_RW_STALE_MARKERS=true
-      - K6_WEB_DASHBOARD=true
-      - K6_WEB_DASHBOARD_HOST=0.0.0.0
-      - K6_WEB_DASHBOARD_PORT=5665
-      - K6_WEB_DASHBOARD_OPEN=false
-      # Keycloak
-      - KEYCLOAK_URL=${KEYCLOAK_URL}
-      - KEYCLOAK_REALM=${KEYCLOAK_REALM}
-      - KEYCLOAK_CLIENT_ID=${KEYCLOAK_CLIENT_ID}
-      - KEYCLOAK_CLIENT_SECRET=${KEYCLOAK_CLIENT_SECRET}
-      - KEYCLOAK_USERNAME=${KEYCLOAK_USERNAME}
-      - KEYCLOAK_PASSWORD=${KEYCLOAK_PASSWORD}
-    networks:
-      - vendix-network
+    k6:
+      image: grafana/k6:1.7.1-with-browser
+      container_name: vendix-k6
+      volumes:
+        - ./testing/k6/scripts:/etc/k6/scripts
+        - ./testing/k6/reports:/etc/k6/reports
+      entrypoint: ["sleep", "infinity"]
+      ports:
+        - "${K6_APP_PORT}:3020"
+        - "${K6_WEB_PORT}:5665"
+      environment:
+        # K6
+        - K6_PROMETHEUS_RW_SERVER_URL=http://prometheus:9090/api/v1/write
+        - K6_PROMETHEUS_RW_TREND_STATS=p(50),p(90),p(95),p(99),min,max,avg
+        - K6_PROMETHEUS_RW_PUSH_INTERVAL=5s
+        - K6_PROMETHEUS_RW_STALE_MARKERS=true
+        - K6_WEB_DASHBOARD=true
+        - K6_WEB_DASHBOARD_HOST=0.0.0.0
+        - K6_WEB_DASHBOARD_PORT=5665
+        - K6_WEB_DASHBOARD_OPEN=false
+        # Keycloak
+        - KEYCLOAK_URL=${KEYCLOAK_URL}
+        - KEYCLOAK_REALM=${KEYCLOAK_REALM}
+        - KEYCLOAK_CLIENT_ID=${KEYCLOAK_CLIENT_ID}
+        - KEYCLOAK_CLIENT_SECRET=${KEYCLOAK_CLIENT_SECRET}
+        - KEYCLOAK_USERNAME=${KEYCLOAK_USERNAME}
+        - KEYCLOAK_PASSWORD=${KEYCLOAK_PASSWORD}
+      networks:
+        - vendix-network
+      extra_hosts:
+        - "host.docker.internal:host-gateway"
 
-networks:
-  vendix-network:
-    external: true
+  networks:
+    vendix-network:
+      external: true

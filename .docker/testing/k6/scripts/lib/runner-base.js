@@ -1,19 +1,25 @@
-import { setupAuth } from './auth.js';
-import { assertStoreReachable, preloadArticlePool } from './client/article.js';
+import {setupAuth} from './auth.js';
+import {assertStoreReachable, preloadArticlePool} from './client/article.js';
 
 export function executeSharedSetup(scenarioName) {
     const token = setupAuth();
     assertStoreReachable(token);
-    const { articlePool, depositPool } = preloadArticlePool(token);
+    const {articlePool, depositPool} = preloadArticlePool(token);
 
     return {
         token,
-        pools: { articlePool, depositPool }
+        pools: {articlePool, depositPool}
     };
 }
 
-export function executeSharedTeardown(scenarioName) {
-    // Shared logging, cleanup, or metric reporting hook
+export function executeSharedSummary(data, scenarioName) {
+    const now = new Date();
+    const date = now.toISOString().split('T')[0];
+    const fileName = `vendix-${date}-${scenarioName}.json`;
+
+    return {
+        [`/etc/k6/reports/${fileName}`]: JSON.stringify(data, null, 2),
+    };
 }
 
 export const baseThresholds = {

@@ -7,7 +7,7 @@ import java.time.Instant;
 import java.util.UUID;
 
 public record VoucherDTO(
-        @Nullable Long id,
+        Long id,
         UUID code,
         @Nullable Instant expiresAt,
         @Nullable Instant redeemedAt

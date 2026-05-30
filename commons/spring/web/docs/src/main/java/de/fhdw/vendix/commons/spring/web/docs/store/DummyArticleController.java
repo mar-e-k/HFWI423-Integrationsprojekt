@@ -5,8 +5,15 @@ import de.fhdw.vendix.commons.spring.web.api.store.ArticleApi;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.List;
+
 @RestController
 class DummyArticleController implements ArticleApi {
+
+    @Override
+    public ResponseEntity<List<ArticleDTO>> getArticles() {
+        return ResponseEntity.noContent().build();
+    }
 
     @Override
     public ResponseEntity<ArticleDTO> getArticleByGtin(String gtin) {

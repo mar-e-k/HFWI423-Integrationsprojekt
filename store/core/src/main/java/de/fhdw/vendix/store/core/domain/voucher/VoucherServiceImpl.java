@@ -24,7 +24,7 @@ class VoucherServiceImpl extends AbstractCrudService<Voucher, Long> implements V
 
     @Override
     @Transactional(readOnly = true)
-    public Optional<Voucher> findByCode(UUID code) {
+    public Optional<Voucher> findByVoucherCode(UUID code) {
         if (code == null) {
             return Optional.empty();
         }
@@ -37,7 +37,7 @@ class VoucherServiceImpl extends AbstractCrudService<Voucher, Long> implements V
         if (code == null) {
             throw new IllegalArgumentException("Parameter 'code' cannot be null");
         }
-        Voucher voucher = findByCode(code).orElseThrow(EntityNotFoundException::new);
+        Voucher voucher = findByVoucherCode(code).orElseThrow(EntityNotFoundException::new);
         Voucher redeemed = voucher.redeem();
         log.atInfo().log("Redeeming receipt voucher with code: {}", code);
         super.update(redeemed);

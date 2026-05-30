@@ -45,20 +45,20 @@ public class Receipt extends AbstractSpringDataAuditingEntity<Long> {
     @Enumerated(EnumType.STRING)
     @NotNull(message = "Status cannot be null")
     @Column(nullable = false)
-    private ReceiptStatus status = ReceiptStatus.OPEN;
+    private ReceiptStatus status;
 
     protected Receipt() {}
 
-    public Receipt(Long storeId, Long registerId, UUID cashierUuid, PaymentMethod paymentMethod) {
+    public Receipt(Long storeId, Long registerId, UUID cashierUuid, PaymentMethod paymentMethod, ReceiptStatus status) {
         this.storeId = storeId;
         this.registerId = registerId;
         this.cashierUuid = cashierUuid;
         this.paymentMethod = paymentMethod;
-        this.status = ReceiptStatus.OPEN;
+        this.status = status;
     }
 
     @Default
-    protected Receipt(
+    public Receipt(
             @Nullable Long id,
             Long storeId,
             Long registerId,
@@ -74,12 +74,6 @@ public class Receipt extends AbstractSpringDataAuditingEntity<Long> {
         this.status = status != null ? status : ReceiptStatus.OPEN;
     }
 
-    // ─── Domain-Methoden ────────────────────────────────────────────────────────
-
-    /**
-     * Druckt den Bon ab (Kassenabschluss).
-     * Nur möglich wenn Status OPEN ist.
-     */
     public Receipt print() throws ReceiptAlreadyPrintedException, ReceiptAlreadyCancelledException {
         if (status == ReceiptStatus.PRINTED) {
             throw new ReceiptAlreadyPrintedException(
@@ -95,10 +89,6 @@ public class Receipt extends AbstractSpringDataAuditingEntity<Long> {
         return this;
     }
 
-    /**
-     * Storniert den Bon.
-     * Nur möglich wenn Status OPEN ist.
-     */
     public Receipt cancel() throws ReceiptAlreadyCancelledException, ReceiptAlreadyPrintedException {
         if (status == ReceiptStatus.CANCELLED) {
             throw new ReceiptAlreadyCancelledException(
@@ -113,8 +103,6 @@ public class Receipt extends AbstractSpringDataAuditingEntity<Long> {
         this.status = ReceiptStatus.CANCELLED;
         return this;
     }
-
-    // ─── Getter ──────────────────────────────────────────────────────────────────
 
     public Long getStoreId() {
         return storeId;

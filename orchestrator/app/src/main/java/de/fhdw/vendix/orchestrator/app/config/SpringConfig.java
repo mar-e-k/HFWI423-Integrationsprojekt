@@ -7,7 +7,6 @@ import org.springframework.data.domain.AuditorAware;
 import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.scheduling.annotation.EnableScheduling;
-import org.springframework.security.oauth2.core.oidc.user.OidcUser;
 
 import java.util.Optional;
 
@@ -25,18 +24,8 @@ class SpringConfig {
 
     @Bean
     public AuditorAware<String> auditorAware() {
-        return () -> authenticationContext.getAuthenticatedUser(OidcUser.class)
-                .map(oidcUser -> {
-                    String username = oidcUser.getPreferredUsername();
-                    return username != null ? username : oidcUser.getSubject();
-                })
-                .or(() -> authenticationContext.getPrincipalName()
-                        .map(name -> {
-                            if (name.isBlank()) {
-                                return "unknown";
-                            }
-                            return name;
-                        }))
+        return () -> authenticationContext.getPrincipalName()
+                .filter(name -> !name.isBlank())
                 .or(() -> Optional.of("system"));
     }
 }

@@ -17,6 +17,8 @@ services:
       - ./app/postgres/init:/docker-entrypoint-initdb.d:ro
     networks:
       - vendix-network
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
 
   redis:
     image: redis:8.6.2
@@ -33,6 +35,8 @@ services:
       - "${REDIS_PORT}:6379"
     networks:
       - vendix-network
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
 
   rabbitmq:
     image: rabbitmq:4.2.4-management
@@ -48,6 +52,8 @@ services:
       - rabbitmq_data:/var/lib/rabbitmq
     networks:
       - vendix-network
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
 
   keycloak:
     image: keycloak/keycloak:26.6
@@ -56,11 +62,11 @@ services:
     command: start-dev --import-realm
     environment:
       KC_DB: postgres
-      KC_DB_URL: jdbc:postgresql://postgres:5432/${POSTGRES_DB}
+      KC_DB_URL: jdbc:postgresql://postgres:${POSTGRES_PORT}/${POSTGRES_DB}
       KC_DB_USERNAME: ${POSTGRES_USER}
       KC_DB_PASSWORD: ${POSTGRES_PASSWORD}
-      KEYCLOAK_ADMIN: ${KEYCLOAK_ADMIN}
-      KEYCLOAK_ADMIN_PASSWORD: ${KEYCLOAK_ADMIN_PASSWORD}
+      KC_BOOTSTRAP_ADMIN_USERNAME: ${KEYCLOAK_BOOTSTRAP_ADMIN_USERNAME}
+      KC_BOOTSTRAP_ADMIN_PASSWORD: ${KEYCLOAK_BOOTSTRAP_ADMIN_PASSWORD}
       KC_HTTP_PORT: ${KEYCLOAK_PORT}
     ports:
       - "${KEYCLOAK_PORT}:8090"
@@ -70,6 +76,8 @@ services:
       - postgres
     networks:
       - vendix-network
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
 
   consul:
     image: hashicorp/consul:1.15.4
@@ -86,6 +94,8 @@ services:
       - consul_data:/consul/data
     networks:
       - vendix-network
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
 
 volumes:
   postgres_data:

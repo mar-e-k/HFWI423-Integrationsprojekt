@@ -3,7 +3,6 @@ package de.fhdw.vendix.commons.api.domain.store_stock_order;
 import de.fhdw.vendix.commons.api.structure.dto.DomainDTO;
 import org.jspecify.annotations.Nullable;
 
-import java.time.Instant;
 import java.util.UUID;
 
 public record StoreStockOrderDTO(
@@ -14,9 +13,7 @@ public record StoreStockOrderDTO(
         Long amount,
         Boolean urgent,
         OrderStatus status,
-        @Nullable String message,
-        Instant createdAt,
-        Instant updatedAt
+        @Nullable String message
 ) implements DomainDTO {
 
     public StoreStockOrderDTO {
@@ -38,12 +35,6 @@ public record StoreStockOrderDTO(
         urgent = urgent != null && urgent;
         if (status == null) {
             throw new IllegalArgumentException("StoreStockOrderDTO: 'status' cannot be null");
-        }
-        if (createdAt == null) {
-            throw new IllegalArgumentException("StoreStockOrderDTO: 'createdAt' cannot be null");
-        }
-        if (updatedAt == null) {
-            throw new IllegalArgumentException("StoreStockOrderDTO: 'updatedAt' cannot be null");
         }
     }
 }

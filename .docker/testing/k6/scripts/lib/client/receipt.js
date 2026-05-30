@@ -1,13 +1,21 @@
 import http from 'k6/http';
-import { check } from 'k6';
-import { authHeaders } from '../auth.js';
-import { ORCHESTRATOR_URL, STORE_ID } from '../config.js';
-import { pickRandom, pickPaymentMethod, pickGtin } from '../utils.js';
-import { scanArticleByGtin } from './article.js';
+import {check} from 'k6';
+import {authHeaders} from '../auth.js';
+import {ORCHESTRATOR_URL, STORE_ID} from '../config.js';
+import {generateUniqueId, pickRandom, pickPaymentMethod, pickGtin} from '../utils.js';
+import {scanArticleByGtin} from './article.js';
 import {
     bonsCreatedMetric, bonsFailedMetric, checkoutsMetric,
     articlesAddedMetric, discountsMetric, bonPrintsMetric, cancelsMetric, depositsMetric
 } from '../metrics.js';
+
+export function getReceipts(token) {
+    const res = http.get(`${ORCHESTRATOR_URL}/api/receipt`, {
+        ...authHeaders(token, STORE_ID),
+        tags: {endpoint: 'get_receipts'}
+    });
+    return res.status === 200 ? res.json() : [];
+}
 
 export function checkout(token, registerId, cashierId, articlePool, opts = {}) {
     const articleCount = opts.articleCount ?? 18;
@@ -16,57 +24,92 @@ export function checkout(token, registerId, cashierId, articlePool, opts = {}) {
     const scanGtins = opts.scanGtins ?? false;
     const pool = articlePool?.length > 0 ? articlePool : [1, 2, 3, 4, 5];
 
+    const transientReceiptId = generateUniqueId();
     const lines = [];
+
     for (let i = 0; i < articleCount; i++) {
-        let articleId = pickRandom(pool);
+        let articleId = pool[Math.floor(Math.random() * pool.length)];
         if (scanGtins) {
             const scanned = scanArticleByGtin(token, pickGtin());
             if (scanned) articleId = scanned;
         }
+
+        const applyDiscount = Math.random() < discountChance;
+
+        const discountOverride = applyDiscount
+            ? {
+                amount: pickRandom(discountRates),
+                reason: 'PROMOTIONAL_ADJUSTMENT'
+            }
+            : null;
+
+        const priceOverride = Math.random() < 0.1
+            ? {
+                amount: Math.floor(Math.random() * 1000) + 1,
+                reason: 'SYSTEM_CORRECTION'
+            }
+            : null;
+
         lines.push({
-            articleId,
+            id: null,
+            receiptId: transientReceiptId,
+            articleId: Number(articleId),
             articleAmount: 1,
-            discountPercent: Math.random() < discountChance ? pickRandom(discountRates) : null,
+            discountOverride,
+            priceOverride
         });
     }
 
-    // Requests are bound securely to the Orchestrator Proxy using context routing keys
-    const res = http.post(`${ORCHESTRATOR_URL}/api/receipt/checkout`, JSON.stringify({
-        storeId: STORE_ID, registerId, cashierId, paymentMethod: opts.paymentMethod ?? pickPaymentMethod(), lines, returnLineIds: false,
-    }), { ...authHeaders(token, STORE_ID, registerId), tags: { endpoint: 'checkout' } });
-
-    const ok = check(res, {
-        'Checkout returns 201': (r) => r.status === 201,
-        'Checkout body contains receiptId': (r) => r.json('receiptId') != null,
+    const payload = JSON.stringify({
+        storeId: Number(STORE_ID),
+        registerId: Number(registerId),
+        cashierUuid: cashierId,
+        paymentMethod: opts.paymentMethod ?? pickPaymentMethod(),
+        status: 'CANCELLED',
+        lines: lines,
+        vouchers: []
     });
 
-    if (!ok) { bonsFailedMetric.add(1); return null; }
+    const res = http.post(`${ORCHESTRATOR_URL}/api/receipt/checkout`, payload, {
+        ...authHeaders(token, STORE_ID, registerId),
+        tags: {endpoint: 'checkout'}
+    });
+
+    const ok = check(res, {
+        'Checkout status valid': (r) => r.status === 201 || r.status === 200,
+        'Response contains receipt id': (r) => r.json('id') != null,
+    });
+
+    if (!ok) {
+        bonsFailedMetric.add(1);
+        return null;
+    }
 
     checkoutsMetric.add(1);
     bonsCreatedMetric.add(1);
     articlesAddedMetric.add(lines.length);
-    if (lines.some(l => l.discountPercent != null)) discountsMetric.add(1);
+    if (lines.some(l => l.discountOverride !== null)) discountsMetric.add(1);
 
-    return res.json('receiptId');
+    return res.json('id');
 }
 
 export function printReceipt(token, receiptId) {
-    const res = http.post(`${ORCHESTRATOR_URL}/api/receipt/${receiptId}/print`, null, {
+    const res = http.put(`${ORCHESTRATOR_URL}/api/receipt/id/${receiptId}/print`, null, {
         ...authHeaders(token),
-        tags: { endpoint: 'print_receipt' },
+        tags: {endpoint: 'print_receipt'},
         responseCallback: http.expectedStatuses(200, 409),
     });
 
-    if (check(res, { 'Print returns 200 or 409': (r) => r.status === 200 || r.status === 409 })) {
+    if (check(res, {'Print processed successfully': (r) => r.status === 200 || r.status === 409})) {
         if (res.status === 200) bonPrintsMetric.add(1);
     }
     return res.status;
 }
 
 export function cancelReceipt(token, receiptId) {
-    const res = http.post(`${ORCHESTRATOR_URL}/api/receipt/${receiptId}/cancel`, null, {
+    const res = http.put(`${ORCHESTRATOR_URL}/api/receipt/id/${receiptId}/cancel`, null, {
         ...authHeaders(token),
-        tags: { endpoint: 'cancel_receipt' },
+        tags: {endpoint: 'cancel_receipt'},
         responseCallback: http.expectedStatuses(200, 409),
     });
 
@@ -76,18 +119,37 @@ export function cancelReceipt(token, receiptId) {
 
 export function depositReturn(token, registerId, cashierId, depositPool) {
     const pool = depositPool?.length > 0 ? depositPool : [1];
-    const res = http.post(`${ORCHESTRATOR_URL}/api/receipt/checkout`, JSON.stringify({
-        storeId: STORE_ID, registerId, cashierId,
-        paymentMethod: pickPaymentMethod(),
-        returnLineIds: false,
-        lines: [{ articleId: pickRandom(pool), articleAmount: 1, discountPercent: null }],
-    }), { ...authHeaders(token, STORE_ID, registerId), tags: { endpoint: 'deposit_return' } });
+    const transientReceiptId = generateUniqueId(); // Cleaned up random function fallback
+    const articleId = pool[Math.floor(Math.random() * pool.length)];
 
-    if (check(res, { 'Deposit returns 201': (r) => r.status === 201 })) {
+    const payload = JSON.stringify({
+        storeId: Number(STORE_ID),
+        registerId: Number(registerId),
+        cashierUuid: cashierId,
+        paymentMethod: pickPaymentMethod(),
+        status: 'CANCELLED',
+        lines: [{
+            id: null,
+            receiptId: transientReceiptId,
+            articleId: Number(articleId),
+            articleAmount: 1,
+            discountOverride: null,
+            priceOverride: null
+        }],
+        vouchers: []
+    });
+
+    const res = http.post(`${ORCHESTRATOR_URL}/api/receipt/checkout`, payload, {
+        ...authHeaders(token, STORE_ID, registerId),
+        tags: {endpoint: 'deposit_return'}
+    });
+
+    if (check(res, {'Deposit returns valid status': (r) => r.status === 201 || r.status === 200})) {
         depositsMetric.add(1);
         try {
-            const id = res.json('receiptId');
+            const id = res.json('id');
             if (id) printReceipt(token, id);
-        } catch (_) {}
+        } catch (_) {
+        }
     }
 }

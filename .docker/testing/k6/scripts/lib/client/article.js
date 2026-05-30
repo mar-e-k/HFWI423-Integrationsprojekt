@@ -1,13 +1,13 @@
 import http from 'k6/http';
-import { check } from 'k6';
-import { authHeaders } from '../auth.js';
-import { ORCHESTRATOR_URL, ARTICLE_GTINS } from '../config.js';
-import { gtinScansMetric } from '../metrics.js';
+import {check} from 'k6';
+import {authHeaders} from '../auth.js';
+import {ORCHESTRATOR_URL, STORE_ID} from '../config.js';
+import {gtinScansMetric} from '../metrics.js';
 
 export function assertStoreReachable(token) {
     const res = http.get(`${ORCHESTRATOR_URL}/actuator/health`, {
-        ...authHeaders(token),
-        tags: { endpoint: 'preflight_store' },
+        ...authHeaders(token, STORE_ID),
+        tags: {endpoint: 'preflight_store'},
         timeout: '5s',
         responseCallback: http.expectedStatuses(200, 401, 403, 404),
     });
@@ -19,37 +19,74 @@ export function assertStoreReachable(token) {
 
 export function scanArticleByGtin(token, gtin) {
     const res = http.get(`${ORCHESTRATOR_URL}/api/article/gtin/${gtin}`, {
-        ...authHeaders(token),
-        tags: { endpoint: 'scan_gtin' },
+        ...authHeaders(token, STORE_ID),
+        tags: {endpoint: 'scan_gtin'},
     });
 
-    if (!check(res, { 'GTIN scan returns 200': (r) => r.status === 200 })) return null;
+    if (!check(res, {'GTIN scan returns 200': (r) => r.status === 200})) return null;
 
     gtinScansMetric.add(1);
-    try { return res.json('id'); } catch (_) { return null; }
+    try {
+        return res.json('id');
+    } catch (_) {
+        return null;
+    }
+}
+
+export function getArticleById(token, id) {
+    const res = http.get(`${ORCHESTRATOR_URL}/api/article/id/${id}`, {
+        ...authHeaders(token, STORE_ID),
+        tags: {endpoint: 'get_article_by_id'},
+    });
+
+    return check(res, {'Get article by ID returns 200': (r) => r.status === 200})
+        ? res.json()
+        : null;
 }
 
 export function preloadArticlePool(token) {
-    const pool = [];
+    const articlePool = [];
     const depositPool = [];
+    const gtinPool = [];
 
-    for (const gtin of ARTICLE_GTINS) {
-        const res = http.get(`${ORCHESTRATOR_URL}/api/article/gtin/${gtin}`, {
-            ...authHeaders(token),
-            tags: { endpoint: 'preload_article' },
-        });
-        if (res.status === 200) {
-            try {
-                const item = res.json();
-                if (item?.id) {
-                    item.isDeposit ? depositPool.push(item.id) : pool.push(item.id);
-                }
-            } catch (_) {}
+    const res = http.get(`${ORCHESTRATOR_URL}/api/article`, {
+        ...authHeaders(token, STORE_ID),
+        tags: {endpoint: 'preload_articles_bulk'},
+    });
+
+    if (res.status !== 200) {
+        console.error(`[Articles] Response yielded: ${res.body}`)
+        throw new Error(`[Articles] Failed bulk fetch from gateway context: ${res.status} - ${res.body}`);
+    }
+
+    try {
+        const articles = res.json();
+
+        if (!Array.isArray(articles) || articles.length === 0) {
+            throw new Error('Article array returned from database is empty. Ensure data seeding is completed.');
         }
+
+        articles.forEach((item) => {
+            if (item?.id) {
+                if (item.isDeposit) {
+                    depositPool.push(item.id);
+                } else {
+                    articlePool.push(item.id);
+                }
+
+                if (item.gtin) {
+                    gtinPool.push(item.gtin);
+                }
+            }
+        });
+
+    } catch (e) {
+        throw new Error(`[Articles] Parsing error during setup data pooling: ${e.message}`);
     }
 
-    if (pool.length === 0) {
-        throw new Error(`[Articles] Failed to seed pool arrays via Gateway from target: ${ORCHESTRATOR_URL}`);
+    if (articlePool.length === 0) {
+        throw new Error(`[Articles] Seeding pool arrays failed. Zero items processed from target: ${ORCHESTRATOR_URL}`);
     }
-    return { articlePool: pool, depositPool };
+
+    return {articlePool, depositPool, gtinPool};
 }

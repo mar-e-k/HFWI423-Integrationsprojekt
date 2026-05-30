@@ -1,5 +1,5 @@
 import http from 'k6/http';
-import { check, fail } from 'k6';
+import {check, fail} from 'k6';
 
 export function setupAuth() {
     if (__ENV.K6_MASTER_TOKEN) {
@@ -17,7 +17,10 @@ export function setupAuth() {
     };
 
     const res = http.post(url, payload, {
-        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+            'Host': 'localhost:8090' // this is a hack solution as it tricks keycloak into setting the issuer to localhost. needed or otherwise orchestrator returns a 401
+        },
         timeout: '15s',
     });
 
@@ -39,10 +42,10 @@ export function setupAuth() {
 export function authHeaders(token, storeId = 1, registerId = 1) {
     return {
         headers: {
-            'Content-Type':  'application/json',
-            'Accept':        'application/json',
+            'Content-Type': 'application/json',
+            'Accept': 'application/json',
             'Authorization': `Bearer ${token}`,
-            'X-Store-ID':    String(storeId),
+            'X-Store-ID': String(storeId),
             'X-Register-ID': String(registerId),
         },
         timeout: '10s',

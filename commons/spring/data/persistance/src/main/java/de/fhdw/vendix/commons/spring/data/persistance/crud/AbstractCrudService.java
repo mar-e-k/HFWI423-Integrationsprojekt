@@ -2,7 +2,6 @@ package de.fhdw.vendix.commons.spring.data.persistance.crud;
 
 import de.fhdw.vendix.commons.spring.data.persistance.entity.AbstractSpringDataEntity;
 import de.fhdw.vendix.commons.spring.data.persistance.service.CrudService;
-import jakarta.persistence.EntityExistsException;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -32,8 +31,8 @@ public abstract class AbstractCrudService<ENT extends AbstractSpringDataEntity<I
         }
 
         ID id = entity.getId();
-        if (id != null && repository.existsById(id)) {
-            throw new EntityExistsException("Cannot create entity. Entity with ID '%s' already exists".formatted(id));
+        if (id != null) {
+            throw new IllegalArgumentException("Parameter 'id' must be null");
         }
 
         beforeCreate(entity);

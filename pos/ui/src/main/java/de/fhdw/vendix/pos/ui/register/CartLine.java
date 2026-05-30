@@ -5,7 +5,6 @@ import de.fhdw.vendix.commons.api.domain.receipt_line.ReceiptLineDTO;
 import de.fhdw.vendix.commons.api.embeddable.DiscountOverrideDTO;
 import de.fhdw.vendix.commons.api.embeddable.PriceOverrideDTO;
 import de.fhdw.vendix.pos.ui.register.receipt_view.PriceResult;
-import org.jspecify.annotations.Nullable;
 
 import java.math.BigDecimal;
 import java.util.Objects;
@@ -33,8 +32,8 @@ public record CartLine(
 
         BigDecimal originalTotal = baseUnitPrice.multiply(quantity);
 
-        @Nullable PriceOverrideDTO priceOverride = line.priceOverride();
-        @Nullable DiscountOverrideDTO discountOverride = line.discountOverride();
+        PriceOverrideDTO priceOverride = line.priceOverride();
+        DiscountOverrideDTO discountOverride = line.discountOverride();
 
         boolean overridden = priceOverride != null;
         boolean discounted = discountOverride != null;
@@ -60,6 +59,17 @@ public record CartLine(
                 total,
                 discounted,
                 overridden
+        );
+    }
+
+    public static ReceiptLineDTO toReceiptLine(CartLine cartLine) {
+        return new ReceiptLineDTO(
+                0L,
+                0L,
+                cartLine.line().articleId(),
+                cartLine.line().articleAmount(),
+                cartLine.line().discountOverride(),
+                cartLine.line().priceOverride()
         );
     }
 }

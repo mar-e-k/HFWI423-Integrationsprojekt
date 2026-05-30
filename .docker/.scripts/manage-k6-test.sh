@@ -1,15 +1,14 @@
 #!/usr/bin/env bash
 
-# Exit immediately if a command fails
-set -e
+set -euo pipefail
 
 CONTAINER_NAME="vendix-k6"
 SCRIPTS_DIR="/etc/k6/scripts"
+SHUTDOWN_TIMEOUT=30
 
 log() {
     local LEVEL="$1"
     local MESSAGE="$2"
-
     printf '[%s] [%s] %s\n' "$(date '+%Y-%m-%d %H:%M:%S')" "$LEVEL" "$MESSAGE"
 }
 
@@ -29,9 +28,14 @@ show_help() {
     echo "  $0 stop"
 }
 
-case "$1" in
+get_k6_pid() {
+    docker exec "$CONTAINER_NAME" pgrep -x k6 2>/dev/null | head -n 1 || true
+}
+
+case "${1:-}" in
+
     run)
-        if [ -z "$2" ]; then
+        if [ -z "${2:-}" ]; then
             log "ERROR" "Missing scenario name"
             echo "Usage: $0 run <scenario-name>"
             exit 1
@@ -39,16 +43,16 @@ case "$1" in
 
         SCENARIO_NAME="$2"
 
-        # Automatically append .js extension if omitted
         if [[ ! "$SCENARIO_NAME" == *.js ]]; then
             SCENARIO_NAME="${SCENARIO_NAME}.js"
         fi
 
+        SCENARIO_PATH="$SCRIPTS_DIR/scenarios/$SCENARIO_NAME"
+
         log "INFO" "Initializing execution for scenario [$SCENARIO_NAME]"
 
-        # Verify scenario exists inside container
-        if ! docker exec "$CONTAINER_NAME" test -f "$SCRIPTS_DIR/scenarios/$SCENARIO_NAME"; then
-            log "ERROR" "Scenario file not found: $SCRIPTS_DIR/scenarios/$SCENARIO_NAME"
+        if ! docker exec "$CONTAINER_NAME" test -f "$SCENARIO_PATH"; then
+            log "ERROR" "Scenario file not found: $SCENARIO_PATH"
             exit 1
         fi
 
@@ -60,27 +64,42 @@ case "$1" in
         docker exec -it "$CONTAINER_NAME" \
             k6 run \
             -o experimental-prometheus-rw \
-            "$SCRIPTS_DIR/scenarios/$SCENARIO_NAME"
+            "$SCENARIO_PATH"
         ;;
 
     stop)
         log "INFO" "Checking for active k6 processes"
 
-        if ! docker exec "$CONTAINER_NAME" pgrep -x "k6" > /dev/null; then
+        PID=$(get_k6_pid)
+
+        if [ -z "$PID" ]; then
             log "WARN" "No active k6 process found in container [$CONTAINER_NAME]"
             exit 0
         fi
 
-        # SIGINT allows teardown() and metric flushing
-        docker exec "$CONTAINER_NAME" pkill -2 -x "k6"
+        log "INFO" "Sending SIGINT to k6 PID=$PID"
 
-        log "INFO" "SIGINT signal dispatched to active k6 process"
-        log "INFO" "Awaiting graceful shutdown and metrics flush"
+        docker exec "$CONTAINER_NAME" kill -2 "$PID" || true
+
+        log "INFO" "Waiting for k6 graceful shutdown (timeout=${SHUTDOWN_TIMEOUT}s)"
+
+        for i in $(seq 1 "$SHUTDOWN_TIMEOUT"); do
+            if [ -z "$(get_k6_pid)" ]; then
+                log "INFO" "k6 terminated cleanly after ${i}s"
+                exit 0
+            fi
+            sleep 1
+        done
+
+        log "WARN" "k6 did not terminate within timeout (${SHUTDOWN_TIMEOUT}s)"
+        log "WARN" "You may need to inspect the container manually"
         ;;
 
     status)
-        if docker exec "$CONTAINER_NAME" pgrep -x "k6" > /dev/null; then
-            log "INFO" "k6 status=RUNNING container=$CONTAINER_NAME"
+        PID=$(get_k6_pid)
+
+        if [ -n "$PID" ]; then
+            log "INFO" "k6 status=RUNNING container=$CONTAINER_NAME pid=$PID"
         else
             log "INFO" "k6 status=IDLE container=$CONTAINER_NAME"
         fi

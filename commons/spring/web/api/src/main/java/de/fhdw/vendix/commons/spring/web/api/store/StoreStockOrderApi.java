@@ -16,7 +16,7 @@ import org.springframework.web.service.annotation.PostExchange;
 
 import java.util.UUID;
 
-@HttpExchange("/api/store/stock/order")
+@HttpExchange("/api/store-stock-order")
 @Tag(
         name = "Store Stock Order",
         description = "Operations for managing stock replenishment orders."

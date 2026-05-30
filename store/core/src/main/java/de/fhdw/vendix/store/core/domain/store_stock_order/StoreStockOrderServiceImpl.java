@@ -10,8 +10,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.Instant;
-import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -85,11 +83,6 @@ class StoreStockOrderServiceImpl extends AbstractCrudService<StoreStockOrder, Lo
     }
 
     private StoreStockOrderDTO toStatusDTO(StoreStockOrder order) {
-        Instant persistedCreatedAt = order.getCreatedAt();
-        Instant createdAt = persistedCreatedAt == null ? Instant.EPOCH : persistedCreatedAt;
-        Instant persistedChangedAt = order.getChangedAt();
-        Instant updatedAt = persistedChangedAt == null ? createdAt : persistedChangedAt;
-
         return new StoreStockOrderDTO(
                 order.getId(),
                 order.getCorrelationId(),
@@ -98,9 +91,7 @@ class StoreStockOrderServiceImpl extends AbstractCrudService<StoreStockOrder, Lo
                 order.getAmount(),
                 order.getUrgent(),
                 order.getStatus(),
-                order.getMessage(),
-                createdAt,
-                updatedAt
+                order.getMessage()
         );
     }
 }
