@@ -1,6 +1,7 @@
 package de.fhdw.vendix.commons.spring.web.core.filter;
 
 import de.fhdw.vendix.commons.spring.data.caching.RedissonKey;
+import de.fhdw.vendix.commons.spring.web.core.config.RequestRateProperties;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -13,18 +14,15 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
-import java.time.Duration;
 
 public final class RequestRateFilter extends OncePerRequestFilter {
 
     private final RedissonClient redissonClient;
+    private final RequestRateProperties requestRateProperties;
 
-    // TODO: externalize to configuration
-    private static final long MAX_REQUESTS = 60;
-    private static final Duration RESET_TIME_WINDOW = Duration.ofSeconds(60);
-
-    public RequestRateFilter(RedissonClient redissonClient) {
+    public RequestRateFilter(RedissonClient redissonClient, RequestRateProperties requestRateProperties) {
         this.redissonClient = redissonClient;
+        this.requestRateProperties = requestRateProperties;
     }
 
     @Override
@@ -33,6 +31,11 @@ public final class RequestRateFilter extends OncePerRequestFilter {
             @NonNull HttpServletResponse response,
             @NonNull FilterChain filterChain
     ) throws ServletException, IOException {
+        if (!requestRateProperties.isEnabled()) {
+            filterChain.doFilter(request, response);
+            return;
+        }
+
         String clientIp = resolveClientAddress(request);
         String key = RedissonKey.RATE_LIMIT.toIdentifier(clientIp);
         RRateLimiter limiter = redissonClient.getRateLimiter(key);
@@ -40,8 +43,8 @@ public final class RequestRateFilter extends OncePerRequestFilter {
         if (!limiter.isExists()) {
             limiter.trySetRate(
                     RateType.OVERALL,
-                    MAX_REQUESTS,
-                    RESET_TIME_WINDOW
+                    requestRateProperties.maxRequests(),
+                    requestRateProperties.resetTimeWindow()
             );
         }
 
@@ -53,7 +56,7 @@ public final class RequestRateFilter extends OncePerRequestFilter {
         response.setStatus(HttpStatus.TOO_MANY_REQUESTS.value());
         response.setContentType("application/json");
         response.setCharacterEncoding("UTF-8");
-        response.setHeader("Retry-After", String.valueOf(RESET_TIME_WINDOW.toSeconds()));
+        response.setHeader("Retry-After", String.valueOf(requestRateProperties.resetTimeWindow().toSeconds()));
         response.getWriter().write("""
                             {
                               "error": "Too many requests. Please try again later."

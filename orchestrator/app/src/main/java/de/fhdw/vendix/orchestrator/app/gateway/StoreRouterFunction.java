@@ -29,8 +29,9 @@ public class StoreRouterFunction {
         return RouterFunctions.route()
                 .nest(
                         GatewayRequestPredicates.path("/api/article/**")
-                                .or(GatewayRequestPredicates.path("/api/checkout/**"))
                                 .or(GatewayRequestPredicates.path("/api/receipt/**"))
+                                .or(GatewayRequestPredicates.path("/api/store-stock/**"))
+                                .or(GatewayRequestPredicates.path("/api/store-stock-order/**"))
                                 .or(GatewayRequestPredicates.path("/api/voucher/**")),
                         builder -> builder
                                 .filter(TokenRelayFilterFunctions.tokenRelay())

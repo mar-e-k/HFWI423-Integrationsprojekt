@@ -5,12 +5,10 @@ BASE_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 
 echo "Stopping Vendix platform..."
 
-# Validate docker.env (non-fatal)
 if [ ! -f "$BASE_DIR/.env" ]; then
   echo "Warning: .env file missing at $BASE_DIR/.env"
 fi
 
-# Stop all stacks
 echo "Stopping all stacks..."
 docker compose \
   --project-name vendix \

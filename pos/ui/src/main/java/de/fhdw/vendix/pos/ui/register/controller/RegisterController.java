@@ -2,9 +2,9 @@ package de.fhdw.vendix.pos.ui.register.controller;
 
 import com.vaadin.flow.component.notification.Notification;
 import de.fhdw.vendix.commons.api.domain.receipt.PaymentMethod;
+import de.fhdw.vendix.commons.api.domain.receipt.ReceiptResponseDTO;
 import de.fhdw.vendix.pos.ui.register.CartService;
 import de.fhdw.vendix.pos.ui.register.RegisterState;
-import org.jspecify.annotations.Nullable;
 import org.springframework.stereotype.Component;
 import org.springframework.web.context.annotation.SessionScope;
 
@@ -33,10 +33,10 @@ public class RegisterController {
 
     public void checkout() {
         try {
-            var response = cartService.checkout(PaymentMethod.CARD);
-            Notification.show("Checkout completed. Receipt ID: " + response.receiptId());
+            ReceiptResponseDTO response = cartService.checkout(PaymentMethod.CARD);
+            Notification.show("Checkout completed. Receipt ID: " + response.id());
         } catch (Exception e) {
-            @Nullable String message = e.getMessage();
+            String message = e.getMessage();
             Notification.show("Checkout failed: " + (message == null ? e.getClass().getSimpleName() : message));
         }
     }

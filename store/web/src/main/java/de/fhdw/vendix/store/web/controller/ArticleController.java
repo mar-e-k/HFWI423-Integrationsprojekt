@@ -7,6 +7,7 @@ import de.fhdw.vendix.store.core.domain.article.ArticleService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.List;
 import java.util.Optional;
 
 @RestController
@@ -18,6 +19,14 @@ class ArticleController implements ArticleApi {
     ArticleController(ArticleService articleService, ArticleMapper articleMapper) {
         this.articleService = articleService;
         this.articleMapper = articleMapper;
+    }
+
+    @Override
+    public ResponseEntity<List<ArticleDTO>> getArticles() {
+        List<ArticleDTO> articles = articleService.findAll().stream()
+                .map(articleMapper::toDTO)
+                .toList();
+        return ResponseEntity.ok(articles);
     }
 
     @Override

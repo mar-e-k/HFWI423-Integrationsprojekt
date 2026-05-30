@@ -10,6 +10,8 @@ services:
       - "8080:8080"
     networks:
       - vendix-network
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
 
   store:
     build:
@@ -20,6 +22,8 @@ services:
       - orchestrator
     networks:
       - vendix-network
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
 
   pos:
     build:
@@ -31,6 +35,8 @@ services:
       - store
     networks:
       - vendix-network
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
 
 networks:
   vendix-network:

@@ -7,9 +7,11 @@ import org.springframework.stereotype.Service;
 class ReceiptLineServiceImpl extends AbstractCrudService<ReceiptLine, Long> implements ReceiptLineService {
 
     private final ReceiptLineRepository receiptLineRepository;
+    private final ReceiptLineBulkRepository receiptLineBulkRepository;
 
-    ReceiptLineServiceImpl(ReceiptLineRepository receiptLineRepository) {
+    ReceiptLineServiceImpl(ReceiptLineRepository receiptLineRepository, ReceiptLineBulkRepository receiptLineBulkRepository) {
         super(receiptLineRepository);
         this.receiptLineRepository = receiptLineRepository;
+        this.receiptLineBulkRepository = receiptLineBulkRepository;
     }
 }

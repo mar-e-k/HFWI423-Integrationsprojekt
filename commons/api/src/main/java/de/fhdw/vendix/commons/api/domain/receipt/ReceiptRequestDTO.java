@@ -11,6 +11,8 @@ public record ReceiptRequestDTO(
         Long storeId,
         Long registerId,
         UUID cashierUuid,
+        PaymentMethod paymentMethod,
+        ReceiptStatus status,
         List<ReceiptLineDTO> lines,
         List<VoucherDTO> vouchers
 ) implements RequestDTO {
@@ -23,6 +25,12 @@ public record ReceiptRequestDTO(
         }
         if (cashierUuid == null) {
             throw new IllegalArgumentException("ReceiptRequestDTO parameter 'cashierUuid' cannot be null or negative");
+        }
+        if (paymentMethod == null) {
+            throw new IllegalArgumentException("ReceiptRequestDTO parameter 'paymentMethod' must not be null");
+        }
+        if (status == null) {
+            throw new IllegalArgumentException("ReceiptRequestDTO parameter 'status' must not be null");
         }
         if (lines == null) {
             throw new IllegalArgumentException("ReceiptRequestDTO parameter 'lines' cannot be null");

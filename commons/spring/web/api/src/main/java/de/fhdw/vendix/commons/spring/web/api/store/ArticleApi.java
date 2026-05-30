@@ -4,12 +4,13 @@ import de.fhdw.vendix.commons.api.domain.article.ArticleDTO;
 import de.fhdw.vendix.commons.spring.web.api.scheme.KeycloakOpenApiScheme;
 import de.fhdw.vendix.commons.spring.web.api.scheme.StoreRoutingOpenApiScheme;
 import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.service.annotation.GetExchange;
 import org.springframework.web.service.annotation.HttpExchange;
+
+import java.util.List;
 
 @HttpExchange("/api/article")
 @Tag(
@@ -19,6 +20,13 @@ import org.springframework.web.service.annotation.HttpExchange;
 @KeycloakOpenApiScheme
 @StoreRoutingOpenApiScheme
 public interface ArticleApi {
+
+    @Operation(
+            summary = "[DNT] Get a list of articles",
+            description = "[DNT] TODO"
+    )
+    @GetExchange
+    ResponseEntity<List<ArticleDTO>> getArticles();
 
     @Operation(
             summary = "Get an article by GTIN",

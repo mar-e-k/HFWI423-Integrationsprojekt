@@ -1,6 +1,7 @@
 package de.fhdw.vendix.commons.spring.web.docs.store;
 
-import de.fhdw.vendix.commons.api.domain.voucher.VoucherDTO;
+import de.fhdw.vendix.commons.api.domain.voucher.VoucherRequestDTO;
+import de.fhdw.vendix.commons.api.domain.voucher.VoucherResponseDTO;
 import de.fhdw.vendix.commons.spring.web.api.store.VoucherApi;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RestController;
@@ -11,12 +12,17 @@ import java.util.UUID;
 class DummyVoucherController implements VoucherApi {
 
     @Override
-    public ResponseEntity<VoucherDTO> getVoucherByCode(UUID code) {
+    public ResponseEntity<VoucherResponseDTO> getVoucherByCode(UUID voucherCode) {
         return ResponseEntity.noContent().build();
     }
 
     @Override
-    public ResponseEntity<VoucherDTO> redeemVoucherByCode(UUID code) {
+    public ResponseEntity<VoucherResponseDTO> createVoucher(VoucherRequestDTO requestDTO) {
+        return ResponseEntity.noContent().build();
+    }
+
+    @Override
+    public ResponseEntity<VoucherResponseDTO> redeemVoucherByCode(UUID voucherCode) {
         return ResponseEntity.noContent().build();
     }
 }

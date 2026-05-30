@@ -2,6 +2,7 @@ package de.fhdw.vendix.store.core.domain.receipt;
 
 import de.fhdw.vendix.commons.spring.data.persistance.service.CrudService;
 import de.fhdw.vendix.store.core.domain.receipt_line.ReceiptLine;
+import de.fhdw.vendix.store.core.domain.voucher.Voucher;
 
 import java.util.List;
 import java.util.UUID;
@@ -20,21 +21,13 @@ public interface ReceiptService extends CrudService<Receipt, Long> {
 
     List<ReceiptLine> findAllReceiptLinesByReceiptId(Long id);
 
-    /**
-     * Storniert einen Bon (OPEN → CANCELLED).
-     *
-     * @throws ReceiptAlreadyCancelledException            wenn bereits storniert
-     * @throws ReceiptAlreadyPrintedException              wenn bereits gedruckt
-     * @throws jakarta.persistence.EntityNotFoundException wenn nicht gefunden
-     */
+    Receipt checkoutReceipt(
+            Receipt receipt,
+            List<ReceiptLine> receiptLines,
+            List<Voucher> receiptVouchers
+    ) throws ReceiptAlreadyCheckedOutException;
+
     Receipt cancelReceipt(Long id) throws ReceiptAlreadyCancelledException, ReceiptAlreadyPrintedException;
 
-    /**
-     * Schließt einen Bon ab / druckt ihn (OPEN → PRINTED).
-     *
-     * @throws ReceiptAlreadyPrintedException              wenn bereits gedruckt
-     * @throws ReceiptAlreadyCancelledException            wenn bereits storniert
-     * @throws jakarta.persistence.EntityNotFoundException wenn nicht gefunden
-     */
     Receipt printReceipt(Long id) throws ReceiptAlreadyPrintedException, ReceiptAlreadyCancelledException;
 }

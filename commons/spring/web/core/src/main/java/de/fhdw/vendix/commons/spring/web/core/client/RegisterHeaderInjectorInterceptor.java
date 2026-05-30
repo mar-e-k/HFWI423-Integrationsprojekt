@@ -28,23 +28,20 @@ public final class RegisterHeaderInjectorInterceptor implements ClientHttpReques
             byte[] body,
             ClientHttpRequestExecution execution
     ) throws IOException {
-        RegisterDTO register = registerContext.getRegister();
-        if (register == null) {
-            throw new ContextNotSetException(
-                    "RegisterContext is not initialized for outbound request to " + request.getURI()
-            );
-        }
-
-        Long id = register.id();
-        if (id == null) {
-            throw new IllegalStateException(
-                    "RegisterDTO.id is null; cannot propagate register identity"
-            );
-        }
+        Long id = resolveRegisterContextId();
 
         HttpHeaders headers = request.getHeaders();
         headers.set(RoutingHeader.REGISTER_ROUTING.getHeader(), String.valueOf(id));
 
         return execution.execute(request, body);
+    }
+
+    private Long resolveRegisterContextId() {
+        if (registerContext.getRegister() instanceof RegisterDTO registerDTO && registerDTO.id() != null) {
+            return registerDTO.id();
+        }
+        throw new ContextNotSetException(
+                "Cannot find registerId based on current Context. RegisterContext not set yet."
+        );
     }
 }
