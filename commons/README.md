@@ -1,14 +1,30 @@
-# Commons Module
+# Vendix Commons
 
-The `commons` module is the foundational layer of the Vendix system, designed as a modular monolith. It centralizes and standardizes various cross-cutting concerns, providing a robust framework for the other applications (`orchestrator`, `store`, and `pos`). By leveraging Spring Boot's auto-configuration capabilities, `commons` delivers pre-configured beans and functionalities, which allows the other applications to be lightweight and focused on their specific business logic.
+`commons` ist kein eigener fachlicher Service, sondern der gemeinsame Shared Kernel des Projekts. Die Module enthalten gemeinsame DTOs, API-Vertraege, Mapper-Konfiguration, CRUD-Basis, Security-, Web- und Infrastrukturbausteine.
 
-## Sub-modules
+## Aufgabe im System
 
-The `commons` module is organized into the following sub-modules:
+- `commons/api`: DTOs, Enums und fachliche API-Modelle.
+- `commons/spring/web/api`: REST-API-Interfaces als gemeinsame Vertraege.
+- `commons/spring/web/core`: Gateway-/Web-Hilfen, Header und Filter.
+- `commons/spring/security`: Keycloak-/Security-Hilfen.
+- `commons/spring/data`: gemeinsame Persistenz-, Redis- und CRUD-Bausteine.
+- `commons/spring/starter`: gemeinsame Default-Konfigurationen fuer Apps.
 
-- **`api`**: This module defines the Data Transfer Objects (DTOs) that form the public API for communication between the different services. It ensures a consistent data contract across the system.
-- **`bom`**: The Bill of Materials (BOM) for the `commons` module. It manages the versions of all dependencies to ensure consistency and avoid conflicts.
-- **`core`**: This module contains the core domain models and business logic that are shared across all applications.
-- **`spring`**: This module contains a collection of Spring-based auto-configurations and utilities that provide the core functionalities for the applications. These include configurations for data persistence with PostgreSQL, caching with Redis, security with Keycloak, and the Vaadin UI framework.
+## Build
 
-This modular structure ensures a clear separation of concerns and enhances the maintainability of the entire system.
+Nur Commons inklusive benoetigter Abhaengigkeiten bauen:
+
+```bash
+mvn -pl commons -am test
+```
+
+Gesamtes Projekt testen:
+
+```bash
+mvn clean test
+```
+
+## Hinweise zur Kopplung
+
+`commons` sollte schlank bleiben. Fachlogik gehoert in `store`, `orchestrator` oder `pos`; in `commons` sollten nur stabile Vertraege und technische Querschnittsfunktionen liegen. Dadurch bleiben die Services deploybar und fachlich besser getrennt.

@@ -1,4 +1,3 @@
-import exec from 'k6/execution';
 import {executeSharedSetup, executeSharedSummary, baseThresholds} from '../lib/runner-base.js';
 import {runFullBon} from '../lib/workflow/cashier-flow.js';
 import {redeemVoucher} from '../lib/client/voucher.js';
@@ -33,7 +32,7 @@ export function setup() {
 }
 
 export default function (data) {
-    runFullBon(data.token, exec.vu.idInTest, data.pools, {
+    runFullBon(data.token, data.pools, {
         articleCount: 8,
         discountChance: 0.75,
         discountRates: DISCOUNT_RATES,

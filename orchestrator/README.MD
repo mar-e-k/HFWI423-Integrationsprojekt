@@ -1,21 +1,59 @@
-# Orchestrator Module
+# Vendix Orchestrator
 
-The `orchestrator` is a singleton application that acts as the central hub of the Vendix ecosystem. It is responsible for routing, service discovery, and the overall orchestration of the `store` and `pos` applications.
+Der Orchestrator ist die zentrale Einstiegsanwendung des Systems. Er verwaltet Stores und Register, nutzt Redis/Redisson fuer Locking, Consul fuer Service-Kontext und dient als Gateway fuer Store-bezogene APIs.
 
-## Core Responsibilities
+## Aufgabe im System
 
-- **API Gateway**: The `orchestrator` serves as the single entry point for all external traffic, running statically on `localhost:8080`. It routes incoming requests to the appropriate downstream `store` or `pos` service instance.
-- **Service Discovery**: It integrates with Consul to provide a dynamic service registry. `store` and `pos` instances, which run on random ports, register themselves with the `orchestrator`, making them discoverable by other services.
-- **Metadata Provider**: The `orchestrator` provides essential metadata to the `store` and `pos` applications at runtime. This allows each instance to configure its specific context, such as the store or register it represents.
+- Verwaltung von Filialen und Kassen.
+- Gateway-Routing anhand von Store-/Register-Kontext.
+- Zentrale UI fuer Administration und Kontextauswahl.
+- Integration mit Keycloak, Consul, Redis und Postgres.
 
-## Architecture
+## Lokal starten
 
-The `orchestrator` is structured as a modular monolith with the following sub-modules:
+Vorher die Docker-Infrastruktur starten:
 
-- **`orchestrator-app`**: The main application module, responsible for bootstrapping the orchestrator service.
-- **`orchestrator-bom`**: The Bill of Materials (BOM) for managing the versions of the orchestrator's dependencies.
-- **`orchestrator-core`**: Contains the core business logic for orchestration, routing, and service discovery.
-- **`orchestrator-ui`**: The user interface for the orchestrator, providing administrative and monitoring functionalities.
-- **`orchestrator-web`**: The web layer, responsible for handling HTTP requests and exposing the orchestrator's API.
+```bash
+cd ../.docker
+./.scripts/docker-compose-up.sh
+```
 
-By centralizing these critical functions, the `orchestrator` simplifies the overall architecture and allows the `store` and `pos` applications to remain focused on their respective domains.
+Dann aus dem Projekt-Root:
+
+```bash
+mvn -pl orchestrator/app -am spring-boot:run
+```
+
+Alternativ in der IDE die Klasse starten:
+
+```text
+orchestrator/app/src/main/java/de/fhdw/vendix/orchestrator/OrchestratorApplication.java
+```
+
+Der Orchestrator laeuft auf `http://localhost:8080`.
+
+## Docker-Start
+
+Aus dem Projekt-Root:
+
+```bash
+docker network create vendix-network 2>/dev/null || true
+docker compose \
+  --project-name vendix \
+  --project-directory .docker \
+  --env-file .docker/.env \
+  -f .docker/app/docker-compose.yaml \
+  -f .docker/local/docker-compose.yaml \
+  up -d --build orchestrator
+```
+
+## Wichtige Abhaengigkeiten
+
+- Postgres: Datenhaltung fuer Orchestrator-Daten.
+- Redis: Locking fuer Store-/Register-Kontext.
+- Consul: Discovery-/Routing-Kontext.
+- Keycloak: Login und Rollen.
+
+## Hinweise
+
+Store und POS sollten erst gestartet werden, wenn der Orchestrator und die Infrastruktur laufen. Fuer Lasttests muss der Orchestrator erreichbar sein, da k6 gegen das Gateway testet.

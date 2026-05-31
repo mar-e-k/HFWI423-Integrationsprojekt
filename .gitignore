@@ -3,6 +3,20 @@ target/
 !**/src/main/**/target/
 !**/src/test/**/target/
 
+### Local/generated artifacts ###
+.DS_Store
+**/.DS_Store
+.m2repo/
+node_modules/
+.docker/testing/k6/reports/
+**/src/main/frontend/generated/
+**/src/main/frontend/generated-flow-imports*
+**/src/main/frontend/index.html
+**/src/main/frontend/index.ts
+**/src/main/frontend/theme-generated.js
+**/src/main/bundles/
+**/ddl_*.sql
+
 ### STS ###
 .apt_generated
 .classpath

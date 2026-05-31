@@ -47,5 +47,5 @@ export default function (data) {
 }
 
 export function handleSummary(data) {
-    executeSharedSummary(data,'capacitytest');
+    return executeSharedSummary(data, 'capacitytest');
 }

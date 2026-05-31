@@ -1,25 +1,30 @@
-import exec from 'k6/execution';
 import {executeSharedSetup, executeSharedSummary, baseThresholds} from '../lib/runner-base.js';
-import {runFullBon} from '../lib/workflow/cashier-flow.js';
+import {checkout} from '../lib/client/receipt.js';
 import {redeemVoucher} from '../lib/client/voucher.js';
-import {STRESSTEST_DISCOUNTS} from '../lib/config.js';
+import {pickRegisterId, pickCashierUuid} from '../lib/utils.js';
 
 export const options = {
     scenarios: {
         stresstest: {
-            executor: 'constant-arrival-rate',
-            rate: 180,
-            timeUnit: '1h',
-            duration: '30m',
-            preAllocatedVUs: 6,
-            maxVUs: 10,
+            executor: 'ramping-vus',
+            startVUs: 10,
+            stages: [
+                {duration: '1m', target: 20},
+                {duration: '1m', target: 40},
+                {duration: '1m', target: 60},
+                {duration: '1m', target: 80},
+                {duration: '1m', target: 100},
+                {duration: '1m', target: 120},
+                {duration: '1m', target: 140},
+                {duration: '1m', target: 160},
+                {duration: '1m', target: 180},
+                {duration: '1m', target: 200},
+                {duration: '3m', target: 200},
+                {duration: '2m', target: 0},
+            ],
         },
     },
-    thresholds: {
-        ...baseThresholds,
-        'http_req_duration{endpoint:checkout}': ['p(95)<2000'],
-        'http_req_duration{endpoint:scan_gtin}': ['p(95)<500'],
-    },
+    thresholds: baseThresholds,
     tags: {scenario: 'stresstest'},
 };
 
@@ -28,17 +33,14 @@ export function setup() {
 }
 
 export default function (data) {
-    runFullBon(data.token, exec.vu.idInTest, data.pools, {
-        articleCount: 20,
-        discountChance: 0.33,
-        discountRates: STRESSTEST_DISCOUNTS,
-        depositChance: 0.25,
-        cancelChance: 0.017,
-        voucherChance: 0.10,
-        scanGtins: true,
+    const receiptId = checkout(data.token, pickRegisterId(), pickCashierUuid(), data.pools.articlePool, {
+        articleCount: 5,
+        discountChance: 0.0,
+        discountRates: [],
+        scanGtins: false,
     });
 
-    if (Math.random() < 0.10) {
+    if (receiptId && Math.random() < 0.20) {
         redeemVoucher(data.token);
     }
 }

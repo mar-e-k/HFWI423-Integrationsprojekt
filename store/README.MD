@@ -1,25 +1,62 @@
-# Store Module
+# Vendix Store
 
-The `store` application represents a single physical store within the Vendix system. It is a dynamically scalable application, meaning multiple instances can be run, each representing a unique store.
+Der Store-Service bildet den fachlichen Filialbetrieb ab. Er ist fuer Artikel, Bestand, Bons, Checkout, Voucher und Bestandsauffuellung verantwortlich.
 
-## Core Functionalities
+## Aufgabe im System
 
-- **Contextualization**: At startup, the application uses the `StoreContext` interface to set its specific store context (`StoreDTO`). This context is fetched from the `orchestrator` and determines the data and operations for that particular store instance.
-- **Article Management**: It provides information about articles, including pricing and availability, to the `pos` (Point of Sale) application.
-- **Receipt Processing**: It receives and processes receipts from the `pos` application.
+- Artikel lesen und ueber GTIN oder ID bereitstellen.
+- Checkout inklusive Bon-Positionen, Drucken und Stornieren.
+- Voucher pruefen und einloesen.
+- Store-Bestand lesen und aktualisieren.
+- Bestandsauffuellungen asynchron ueber RabbitMQ anstossen und Status bereitstellen.
 
-## Architecture
+## Lokal starten
 
-The `store` application is designed to be lightweight, relying heavily on the `commons` module for cross-cutting concerns. Its structure is as follows:
+Vorher muessen Docker-Infrastruktur und Orchestrator laufen:
 
-- **`store-app`**: The main application module that bootstraps the store service.
-- **`store-bom`**: The Bill of Materials (BOM) for managing the versions of the store's dependencies.
-- **`store-core`**: Contains the core business logic specific to a store's operations.
-- **`store-ui`**: The user interface for managing a store, used by store managers.
-- **`store-web`**: The web layer, exposing the store's API for communication with the `pos` application and other services.
+```bash
+cd ../.docker
+./.scripts/docker-compose-up.sh
+```
 
-## Interaction with Other Services
+Aus dem Projekt-Root:
 
-- **Orchestrator**: The `store` application registers with the `orchestrator` to become discoverable and to fetch its initial runtime context.
-- **POS/Register**: It communicates directly with the `pos` application, providing data and processing requests.
-- **Shared Services**: It utilizes the shared services defined in the main `docker-compose.yaml`, such as PostgreSQL for data persistence, Redis for caching, and RabbitMQ for asynchronous communication.
+```bash
+mvn -pl orchestrator/app -am spring-boot:run
+mvn -pl store/app -am spring-boot:run
+```
+
+Die Befehle sollten in getrennten Terminals laufen. Alternativ in der IDE starten:
+
+```text
+store/app/src/main/java/de/fhdw/vendix/store/StoreApplication.java
+```
+
+Der Store verwendet standardmaessig `server.port=0`, bekommt also einen freien Port. Fuer Clients ist normalerweise nicht der direkte Port relevant, sondern der Zugriff ueber den Orchestrator/Gateway-Kontext.
+
+## Docker-Start
+
+Aus dem Projekt-Root:
+
+```bash
+docker network create vendix-network 2>/dev/null || true
+docker compose \
+  --project-name vendix \
+  --project-directory .docker \
+  --env-file .docker/.env \
+  -f .docker/app/docker-compose.yaml \
+  -f .docker/local/docker-compose.yaml \
+  up -d --build orchestrator store
+```
+
+## Wichtige Abhaengigkeiten
+
+- Postgres: Store-Daten wie Artikel, Bons, Voucher und Bestand.
+- RabbitMQ: asynchrone Kommunikation fuer Bestell-/Auffuellprozesse.
+- Consul: Registrierung und Auffindbarkeit.
+- Keycloak: API-Security.
+- Orchestrator: Gateway fuer POS und Lasttests.
+
+## Lasttest-Relevanz
+
+Die k6-Tests erzeugen vor allem Last auf Store-Funktionen wie Artikelscan, Checkout, Bon-Druck, Storno, Voucher und Messaging-E2E. Fuer valide Ergebnisse muss der Store gestartet und mit Seed-Daten versorgt sein.

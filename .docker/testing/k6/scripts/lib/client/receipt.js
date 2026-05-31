@@ -65,7 +65,7 @@ export function checkout(token, registerId, cashierId, articlePool, opts = {}) {
         registerId: Number(registerId),
         cashierUuid: cashierId,
         paymentMethod: opts.paymentMethod ?? pickPaymentMethod(),
-        status: 'CANCELLED',
+        status: 'OPEN',
         lines: lines,
         vouchers: []
     });
@@ -127,7 +127,7 @@ export function depositReturn(token, registerId, cashierId, depositPool) {
         registerId: Number(registerId),
         cashierUuid: cashierId,
         paymentMethod: pickPaymentMethod(),
-        status: 'CANCELLED',
+        status: 'OPEN',
         lines: [{
             id: null,
             receiptId: transientReceiptId,

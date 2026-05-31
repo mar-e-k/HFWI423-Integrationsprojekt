@@ -4,8 +4,8 @@ import de.fhdw.vendix.commons.api.domain.store_stock_order.StoreStockOrderReques
 import de.fhdw.vendix.commons.api.domain.store_stock_order.StoreStockOrderResponseDTO;
 import de.fhdw.vendix.commons.api.domain.store_stock_order.StoreStockOrderDTO;
 import de.fhdw.vendix.commons.spring.web.api.store.StoreStockOrderApi;
-import de.fhdw.vendix.store.core.domain.store_stock.StoreStockMapper;
 import de.fhdw.vendix.store.core.domain.store_stock_order.StoreStockOrderService;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -15,23 +15,21 @@ import java.util.UUID;
 class StoreStockOrderController implements StoreStockOrderApi {
 
     private final StoreStockOrderService storeStockOrderService;
-    private final StoreStockMapper storeStockMapper;
 
-    StoreStockOrderController(
-            StoreStockOrderService storeStockOrderService,
-            StoreStockMapper storeStockMapper
-    ) {
+    StoreStockOrderController(StoreStockOrderService storeStockOrderService) {
         this.storeStockOrderService = storeStockOrderService;
-        this.storeStockMapper = storeStockMapper;
     }
 
     @Override
     public ResponseEntity<StoreStockOrderDTO> getStoreStockOrderStatus(UUID correlationId) {
-        return ResponseEntity.noContent().build();
+        return storeStockOrderService.findStatus(correlationId)
+                .map(ResponseEntity::ok)
+                .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
     @Override
     public ResponseEntity<StoreStockOrderResponseDTO> createStoreStockOrder(StoreStockOrderRequestDTO request) {
-        return ResponseEntity.noContent().build();
+        StoreStockOrderResponseDTO response = storeStockOrderService.requestReplenishment(request);
+        return ResponseEntity.status(HttpStatus.ACCEPTED).body(response);
     }
 }

@@ -1,23 +1,62 @@
-# POS (Point of Sale) Module
+# Vendix POS
 
-The `pos` application, also referred to as the register, represents a single cash register within a store. Similar to the `store` application, it is dynamically scalable, and each instance is configured at runtime to represent a unique register.
+POS ist die Kassenanwendung fuer den Point of Sale. Sie stellt die Kassenoberflaeche bereit und fuehrt Kassiervorgaenge gegen die API-Vertraege des Systems aus.
 
-## Core Functionalities
+## Aufgabe im System
 
-- **Sales Transactions**: The primary function of the `pos` application is to handle sales transactions. This includes scanning articles, calculating totals, and processing payments.
-- **Receipt Generation**: After a transaction is complete, the `pos` application generates a receipt and sends it to the corresponding `store` application for processing.
-- **Article Information**: It communicates with the `store` application to retrieve article information, such as price and description.
+- Auswahl und Nutzung eines Register-/Store-Kontexts.
+- Warenkorb, Artikelscan und Mengenverwaltung.
+- Checkout ueber den Store-Kontext.
+- Bon-Druck beziehungsweise Folgeaktionen ueber API-Aufrufe.
+- Keine eigene fachliche Store-Datenhaltung.
 
-## Architecture
+## Lokal starten
 
-The `pos` application follows the same lightweight, modular monolith pattern as the other services.
+Vorher Docker-Infrastruktur, Orchestrator und Store starten:
 
-- **`pos-app`**: The main application module that bootstraps the POS service.
-- **`pos-bom`**: The Bill of Materials (BOM) for managing the versions of the `pos` module's dependencies.
-- **`pos-ui`**: The user interface for the cash register, used by cashiers to process sales.
+```bash
+cd ../.docker
+./.scripts/docker-compose-up.sh
+```
 
-## Interaction with Other Services
+Aus dem Projekt-Root in getrennten Terminals:
 
-- **Orchestrator**: The `pos` application registers with the `orchestrator` to become discoverable and to fetch its initial runtime context (`RegisterDTO`) via the `RegisterContext` interface.
-- **Store**: It communicates directly with its parent `store` application to get article information and to post completed receipts.
-- **Shared Services**: It relies on the shared infrastructure, including PostgreSQL, Redis, and RabbitMQ, for its data and messaging needs.
+```bash
+mvn -pl orchestrator/app -am spring-boot:run
+mvn -pl store/app -am spring-boot:run
+mvn -pl pos/app -am spring-boot:run
+```
+
+Alternativ in der IDE starten:
+
+```text
+pos/app/src/main/java/de/fhdw/vendix/pos/PosApplication.java
+```
+
+POS verwendet standardmaessig `server.port=0`, bekommt also einen freien Port. Den konkreten Port sieht man im Spring-Boot-Log beim Start.
+
+## Docker-Start
+
+Aus dem Projekt-Root:
+
+```bash
+docker network create vendix-network 2>/dev/null || true
+docker compose \
+  --project-name vendix \
+  --project-directory .docker \
+  --env-file .docker/.env \
+  -f .docker/app/docker-compose.yaml \
+  -f .docker/local/docker-compose.yaml \
+  up -d --build orchestrator store pos
+```
+
+## Wichtige Abhaengigkeiten
+
+- Orchestrator: Kontextauswahl, Gateway und Routing.
+- Store: fachliche Checkout-/Artikel-/Bon-Funktionen.
+- Keycloak: Login und Rollen.
+- Consul: Service-Kontext.
+
+## Hinweis zu Lasttests
+
+Die k6-Lasttests testen nicht die Vaadin-POS-Oberflaeche direkt, sondern die fachlichen API-Flows, die ein POS typischerweise ausloest. Dafuer muessen Orchestrator und Store laufen; POS selbst ist fuer die k6-API-Lasttests nicht zwingend erforderlich.

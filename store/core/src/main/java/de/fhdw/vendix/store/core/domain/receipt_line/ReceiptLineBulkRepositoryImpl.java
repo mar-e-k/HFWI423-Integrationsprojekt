@@ -32,10 +32,11 @@ class ReceiptLineBulkRepositoryImpl implements ReceiptLineBulkRepository {
     private static final String COLUMNS = """
             (receipt_id, article_id, article_amount,
              discount_override_amount, discount_override_reason,
+             price_override_amount, price_override_reason,
              version, created_at, created_by, changed_at, changed_by)
             """;
 
-    private static final String ROW_PLACEHOLDER = "(?, ?, ?, ?, ?, 0, ?, ?, ?, ?)";
+    private static final String ROW_PLACEHOLDER = "(?, ?, ?, ?, ?, ?, ?, 0, ?, ?, ?, ?)";
 
     private final JdbcTemplate jdbcTemplate;
 
@@ -65,8 +66,8 @@ class ReceiptLineBulkRepositoryImpl implements ReceiptLineBulkRepository {
         sql.append(" RETURNING id");
 
         // ── Parameter-Array befüllen ──────────────────────────────────────
-        // 10 Parameter pro Zeile × N Zeilen
-        List<Object> params = new ArrayList<>(lines.size() * 10);
+        // 12 Parameter pro Zeile × N Zeilen
+        List<Object> params = new ArrayList<>(lines.size() * 12);
         for (ReceiptLine line : lines) {
             params.add(line.getReceiptId());
             params.add(line.getArticleId());
@@ -75,6 +76,14 @@ class ReceiptLineBulkRepositoryImpl implements ReceiptLineBulkRepository {
             if (line.getDiscountOverride() != null) {
                 params.add(line.getDiscountOverride().getAmount());
                 params.add(line.getDiscountOverride().getReason().name());
+            } else {
+                params.add(null);
+                params.add(null);
+            }
+
+            if (line.getPriceOverride() != null) {
+                params.add(line.getPriceOverride().getAmount());
+                params.add(line.getPriceOverride().getReason().name());
             } else {
                 params.add(null);
                 params.add(null);

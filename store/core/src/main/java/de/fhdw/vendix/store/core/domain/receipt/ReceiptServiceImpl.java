@@ -128,7 +128,6 @@ class ReceiptServiceImpl extends AbstractCrudService<Receipt, Long> implements R
                 )
         );
 
-        // TODO: fix id solution
         Receipt updated = new Receipt(
                 receipt.getStoreId(),
                 receipt.getRegisterId(),
@@ -139,7 +138,15 @@ class ReceiptServiceImpl extends AbstractCrudService<Receipt, Long> implements R
 
         Receipt created = super.create(updated);
 
-        receiptLineService.createAll(receiptLines);
+        Long createdReceiptId = Objects.requireNonNull(
+                created.getId(),
+                "Created receipt must have an id"
+        );
+        List<ReceiptLine> persistedReceiptLines = receiptLines.stream()
+                .map(receiptLine -> receiptLine.withReceiptId(createdReceiptId))
+                .toList();
+
+        receiptLineService.createAll(persistedReceiptLines);
         storeStockService.decrementArticles(created.getStoreId(), articlesAndAmounts);
 
         receiptVouchers.forEach(Voucher::redeem);
