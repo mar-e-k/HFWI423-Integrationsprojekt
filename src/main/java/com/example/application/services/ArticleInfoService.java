@@ -202,7 +202,7 @@ public class ArticleInfoService {
         // Schritt 0: Lagerplaetze der SIM-Artikel auf "Available" setzen,
         // damit beim naechsten Testlauf findAllAvailable() nicht leer ist.
         List<String> simLocations = jdbc.queryForList(
-                "SELECT storage_location FROM article_info WHERE article_number LIKE 'SIM-%' AND storage_location IS NOT NULL",
+                "SELECT storage_location FROM artikel.article_info WHERE article_number LIKE 'SIM-%' AND storage_location IS NOT NULL",
                 String.class
         );
         for (String generalId : simLocations) {
@@ -218,14 +218,14 @@ public class ArticleInfoService {
             }
         }
 
-        jdbc.update("DELETE FROM goods_receipt_item" +
-                    " WHERE article_info_id IN (SELECT id FROM article_info WHERE article_number LIKE 'SIM-%')");
-        jdbc.update("DELETE FROM goods_receipt" +
-                    " WHERE id NOT IN (SELECT DISTINCT goods_receipt_id FROM goods_receipt_item)");
-        jdbc.update("DELETE FROM contingent" +
-                    " WHERE article_id IN (SELECT id FROM article_info WHERE article_number LIKE 'SIM-%')");
-        jdbc.update("DELETE FROM restock_order WHERE article_number LIKE 'SIM-%'");
-        return jdbc.update("DELETE FROM article_info WHERE article_number LIKE 'SIM-%'");
+        jdbc.update("DELETE FROM wareneingang.goods_receipt_item" +
+                    " WHERE article_info_id IN (SELECT id FROM artikel.article_info WHERE article_number LIKE 'SIM-%')");
+        jdbc.update("DELETE FROM wareneingang.goods_receipt" +
+                    " WHERE id NOT IN (SELECT DISTINCT goods_receipt_id FROM wareneingang.goods_receipt_item)");
+        jdbc.update("DELETE FROM kontingent.contingent" +
+                    " WHERE article_id IN (SELECT id FROM artikel.article_info WHERE article_number LIKE 'SIM-%')");
+        jdbc.update("DELETE FROM nachbestellung.restock_order WHERE article_number LIKE 'SIM-%'");
+        return jdbc.update("DELETE FROM artikel.article_info WHERE article_number LIKE 'SIM-%'");
     }
 
     //Für spätere Logik

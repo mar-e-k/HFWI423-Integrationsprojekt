@@ -51,7 +51,7 @@ public class GoodsReceiptService {
 
     // Zieht die nächste Zahl aus goods_receipt_seq und formatiert WE-YYYY-00001
     private String nextReceiptNumber() {
-        Long next = jdbc.queryForObject("select nextval('goods_receipt_seq')", Long.class);
+        Long next = jdbc.queryForObject("select nextval('wareneingang.goods_receipt_seq')", Long.class);
         String year = String.valueOf(Year.now().getValue());
         return String.format("WE-%s-%05d", year, next);
     }

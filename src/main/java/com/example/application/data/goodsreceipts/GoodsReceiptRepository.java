@@ -13,6 +13,6 @@ public interface GoodsReceiptRepository extends JpaRepository<GoodsReceipt, Long
     List<String> findDistinctSupplierNames();
 
     @Modifying(clearAutomatically = true, flushAutomatically = true)
-    @Query(value = "DELETE FROM goods_receipt WHERE id NOT IN (SELECT DISTINCT goods_receipt_id FROM goods_receipt_item)", nativeQuery = true)
+    @Query(value = "DELETE FROM wareneingang.goods_receipt WHERE id NOT IN (SELECT DISTINCT goods_receipt_id FROM wareneingang.goods_receipt_item)", nativeQuery = true)
     int deleteReceiptsWithNoItems();
 }

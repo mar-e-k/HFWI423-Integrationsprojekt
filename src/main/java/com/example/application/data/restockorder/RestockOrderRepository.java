@@ -43,12 +43,12 @@ public interface RestockOrderRepository extends JpaRepository<RestockOrder, Long
      */
     @Modifying(clearAutomatically = true, flushAutomatically = true)
     @Query(value = """
-        DELETE FROM restock_order
+        DELETE FROM nachbestellung.restock_order
          WHERE article_number LIKE 'SIM-%'
            AND delivered = false
            AND approved  = true
            AND NOT EXISTS (
-               SELECT 1 FROM article_info ai
+               SELECT 1 FROM artikel.article_info ai
                 WHERE ai.article_number = restock_order.article_number
            )
         """, nativeQuery = true)

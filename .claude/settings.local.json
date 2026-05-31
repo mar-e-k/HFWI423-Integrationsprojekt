@@ -96,7 +96,9 @@
       "Bash(awk -F, 'NR>1 { *)",
       "Bash(curl -s --max-time 3 http://localhost:8080/api/artikels)",
       "Bash(awk -F'|' '$1!=$2 { print $1 }')",
-      "Bash(awk -F'|' '$1!=$2 { print $2 }')"
+      "Bash(awk -F'|' '$1!=$2 { print $2 }')",
+      "Bash(grep -rn \"jdbc.update\\\\|jdbc.query\\\\|queryForObject\" /c/Users/admin/Downloads/logistik/logistik/src/main/java --include=*.java)",
+      "Bash(grep:*)"
     ]
   }
 }

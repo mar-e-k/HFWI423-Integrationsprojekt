@@ -11,6 +11,7 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.jdbc.core.JdbcTemplate;
 
 import java.time.LocalDate;
@@ -35,6 +36,8 @@ class GoodsReceiptServiceTest {
     private RestockOrderRepository restockOrderRepo;
     @Mock
     private JdbcTemplate jdbc;
+    @Mock
+    private ApplicationEventPublisher eventPublisher;
 
     @InjectMocks
     private GoodsReceiptService service;
@@ -190,6 +193,7 @@ class GoodsReceiptServiceTest {
         doReturn(1L).when(jdbc).queryForObject(anyString(), eq(Long.class));
         when(receiptRepo.save(any())).thenReturn(savedReceipt);
         when(restockOrderRepo.findById(1L)).thenReturn(Optional.of(ro));
+        when(restockOrderRepo.markDeliveredIfOpen(1L)).thenReturn(1);
         when(articleRepo.findByArticleNumber("ART-1")).thenReturn(article);
 
         assertThatThrownBy(() ->
@@ -214,6 +218,7 @@ class GoodsReceiptServiceTest {
         doReturn(1L).when(jdbc).queryForObject(anyString(), eq(Long.class));
         when(receiptRepo.save(any())).thenReturn(savedReceipt);
         when(restockOrderRepo.findById(1L)).thenReturn(Optional.of(ro));
+        when(restockOrderRepo.markDeliveredIfOpen(1L)).thenReturn(1);
         when(articleRepo.findByArticleNumber(articleNumber)).thenReturn(article);
         when(itemRepo.save(any())).thenAnswer(inv -> inv.getArgument(0));
         when(itemRepo.findByGoodsReceiptId(99L)).thenReturn(List.of());
