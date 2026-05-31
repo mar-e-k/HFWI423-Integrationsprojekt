@@ -19,22 +19,16 @@ import java.util.stream.Collectors;
 public class KommissionService {
 
     private final KommissionRepository komRepo;
-    private final KommissionPositionRepository posRepo;
-    private final ArticleInfoService artikelService;
     private final MessageLogisticRepository msgRepo;
     private final ArticleInfoRepository articleRepo;
     private final ApplicationEventPublisher applicationEventPublisher;
 
     public KommissionService(
             KommissionRepository komRepo,
-            KommissionPositionRepository posRepo,
-            ArticleInfoService artikelService,
             MessageLogisticRepository msgRepo,
             ArticleInfoRepository articleRepo,
             ApplicationEventPublisher applicationEventPublisher) {
         this.komRepo = komRepo;
-        this.posRepo = posRepo;
-        this.artikelService = artikelService;
         this.msgRepo = msgRepo;
         this.articleRepo = articleRepo;
         this.applicationEventPublisher = applicationEventPublisher;
