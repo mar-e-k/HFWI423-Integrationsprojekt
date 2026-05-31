@@ -1,6 +1,6 @@
 package de.fhdw.vendix.commons.spring.web.core.filter;
 
-import de.fhdw.vendix.commons.spring.data.caching.RedissonKey;
+import de.fhdw.vendix.commons.spring.data.caching.RedissonLockKey;
 import de.fhdw.vendix.commons.spring.web.core.config.RequestRateProperties;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -37,7 +37,7 @@ public final class RequestRateFilter extends OncePerRequestFilter {
         }
 
         String clientIp = resolveClientAddress(request);
-        String key = RedissonKey.RATE_LIMIT.toIdentifier(clientIp);
+        String key = RedissonLockKey.RATE_LIMIT.toIdentifier(clientIp);
         RRateLimiter limiter = redissonClient.getRateLimiter(key);
 
         if (!limiter.isExists()) {

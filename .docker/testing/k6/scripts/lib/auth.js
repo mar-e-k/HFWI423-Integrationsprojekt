@@ -1,6 +1,7 @@
 import http from 'k6/http';
 import {check, fail} from 'k6';
 
+
 export function setupAuth() {
     if (__ENV.K6_MASTER_TOKEN) {
         return __ENV.K6_MASTER_TOKEN;

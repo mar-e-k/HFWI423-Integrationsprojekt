@@ -3,7 +3,7 @@ import {check} from 'k6';
 import {authHeaders} from '../auth.js';
 import {ORCHESTRATOR_URL, STORE_ID} from '../config.js';
 import {generateUniqueId, pickRandom, pickPaymentMethod, pickGtin} from '../utils.js';
-import {scanArticleByGtin} from './article.js';
+import {getArticleByGtin} from './article.js';
 import {
     bonsCreatedMetric, bonsFailedMetric, checkoutsMetric,
     articlesAddedMetric, discountsMetric, bonPrintsMetric, cancelsMetric, depositsMetric
@@ -17,21 +17,25 @@ export function getReceipts(token) {
     return res.status === 200 ? res.json() : [];
 }
 
-export function checkout(token, registerId, cashierId, articlePool, opts = {}) {
+export function checkout(token, registerId, cashierId, pools, opts = {}) {
     const articleCount = opts.articleCount ?? 18;
     const discountChance = opts.discountChance ?? 0.33;
     const discountRates = opts.discountRates ?? [10, 30];
     const scanGtins = opts.scanGtins ?? false;
-    const pool = articlePool?.length > 0 ? articlePool : [1, 2, 3, 4, 5];
+
+    const articlePool = pools?.articlePool?.length > 0 ? pools.articlePool : [1, 2, 3, 4, 5];
+    const gtinPool = pools?.gtinPool || [];
 
     const transientReceiptId = generateUniqueId();
     const lines = [];
 
     for (let i = 0; i < articleCount; i++) {
-        let articleId = pool[Math.floor(Math.random() * pool.length)];
-        if (scanGtins) {
-            const scanned = scanArticleByGtin(token, pickGtin());
-            if (scanned) articleId = scanned;
+        let articleId = articlePool[Math.floor(Math.random() * articlePool.length)];
+
+        if (scanGtins && gtinPool.length > 0) {
+            // Passes the active gtinPool array down to the picker utility
+            const scannedId = getArticleByGtin(token, pickGtin(gtinPool));
+            if (scannedId) articleId = scannedId;
         }
 
         const applyDiscount = Math.random() < discountChance;
@@ -119,7 +123,7 @@ export function cancelReceipt(token, receiptId) {
 
 export function depositReturn(token, registerId, cashierId, depositPool) {
     const pool = depositPool?.length > 0 ? depositPool : [1];
-    const transientReceiptId = generateUniqueId(); // Cleaned up random function fallback
+    const transientReceiptId = generateUniqueId();
     const articleId = pool[Math.floor(Math.random() * pool.length)];
 
     const payload = JSON.stringify({

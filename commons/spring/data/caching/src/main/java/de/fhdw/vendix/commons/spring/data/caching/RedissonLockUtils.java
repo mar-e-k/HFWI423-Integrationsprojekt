@@ -19,7 +19,7 @@ public final class RedissonLockUtils {
         this.redissonClient = redissonClient;
     }
 
-    public Set<Long> getActiveLockedIds(RedissonKey keyType) {
+    public Set<Long> getActiveLockedIds(RedissonLockKey keyType) {
         Set<Long> lockedIds = new HashSet<>();
         RKeys keys = redissonClient.getKeys();
 

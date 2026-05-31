@@ -14,6 +14,7 @@ import org.springframework.web.service.annotation.HttpExchange;
 import org.springframework.web.service.annotation.PostExchange;
 import org.springframework.web.service.annotation.PutExchange;
 
+import java.util.List;
 import java.util.UUID;
 
 @HttpExchange("/api/voucher")
@@ -24,6 +25,13 @@ import java.util.UUID;
 @KeycloakOpenApiScheme
 @StoreRoutingOpenApiScheme
 public interface VoucherApi {
+
+    @Operation(
+            summary = "[DNT] Get a List of all Vouchers",
+            description = "[DNT] Get a List of all Vouchers"
+    )
+    @GetExchange
+    ResponseEntity<List<VoucherResponseDTO>> getVouchers();
 
     @Operation(
             summary = "Get a voucher by code",

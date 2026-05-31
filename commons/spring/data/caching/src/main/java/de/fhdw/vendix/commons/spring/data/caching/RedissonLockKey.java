@@ -1,6 +1,6 @@
 package de.fhdw.vendix.commons.spring.data.caching;
 
-public enum RedissonKey {
+public enum RedissonLockKey {
 
     REGISTER_LOCK("register-id"),
     STORE_LOCK("store-id"),
@@ -8,7 +8,7 @@ public enum RedissonKey {
 
     private final String key;
 
-    RedissonKey(String key) {
+    RedissonLockKey(String key) {
         this.key = key;
     }
 

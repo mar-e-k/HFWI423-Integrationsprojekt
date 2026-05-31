@@ -9,6 +9,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -23,6 +24,15 @@ class VoucherController implements VoucherApi {
         this.voucherService = voucherService;
         this.voucherMapper = voucherMapper;
         this.voucherDTOMapper = voucherDTOMapper;
+    }
+
+    @Override
+    public ResponseEntity<List<VoucherResponseDTO>> getVouchers() {
+        List<VoucherResponseDTO> vouchers = voucherService.findAll().stream()
+                .map(voucherMapper::toDTO)
+                .map(voucherDTOMapper::toResponseDTO)
+                .toList();
+        return ResponseEntity.ok(vouchers);
     }
 
     @Override

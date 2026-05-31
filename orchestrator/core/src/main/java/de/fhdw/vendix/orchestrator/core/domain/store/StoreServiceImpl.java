@@ -1,6 +1,6 @@
 package de.fhdw.vendix.orchestrator.core.domain.store;
 
-import de.fhdw.vendix.commons.spring.data.caching.RedissonKey;
+import de.fhdw.vendix.commons.spring.data.caching.RedissonLockKey;
 import de.fhdw.vendix.commons.spring.data.caching.RedissonLockUtils;
 import de.fhdw.vendix.commons.spring.data.persistance.crud.AbstractCrudService;
 import org.springframework.stereotype.Service;
@@ -24,14 +24,14 @@ class StoreServiceImpl extends AbstractCrudService<Store, Long> implements Store
     @Override
     @Transactional(readOnly = true)
     public List<Store> findAllLockedStores() {
-        Set<Long> lockedStoreIds = redissonLockUtils.getActiveLockedIds(RedissonKey.STORE_LOCK);
+        Set<Long> lockedStoreIds = redissonLockUtils.getActiveLockedIds(RedissonLockKey.STORE_LOCK);
         return super.findAllById(lockedStoreIds);
     }
 
     @Override
     @Transactional(readOnly = true)
     public List<Store> findAllNonLockedStores() {
-        Set<Long> lockedStoreIds = redissonLockUtils.getActiveLockedIds(RedissonKey.STORE_LOCK);
+        Set<Long> lockedStoreIds = redissonLockUtils.getActiveLockedIds(RedissonLockKey.STORE_LOCK);
         return super.findAllByIdNotIn(lockedStoreIds);
     }
 }

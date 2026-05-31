@@ -9,7 +9,7 @@ export function runFullBon(token, pools, opts = {}) {
     const cancelChance = opts.cancelChance ?? 0.01;
     const voucherChance = opts.voucherChance ?? 0.10;
 
-    const receiptId = checkout(token, registerId, cashierId, pools.articlePool, opts);
+    const receiptId = checkout(token, registerId, cashierId, pools, opts);
     if (!receiptId) return false;
 
     if (Math.random() < cancelChance) {

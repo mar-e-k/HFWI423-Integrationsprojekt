@@ -8,7 +8,6 @@ target/
 **/.DS_Store
 .m2repo/
 node_modules/
-.docker/testing/k6/reports/
 **/src/main/frontend/generated/
 **/src/main/frontend/generated-flow-imports*
 **/src/main/frontend/index.html

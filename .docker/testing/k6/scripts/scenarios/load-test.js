@@ -1,7 +1,7 @@
 import {executeSharedSetup, executeSharedSummary, baseThresholds} from '../lib/runner-base.js';
 import {runFullBon} from '../lib/workflow/cashier-flow.js';
 import {redeemVoucher} from '../lib/client/voucher.js';
-import {STRESSTEST_DISCOUNTS} from '../lib/config.js';
+import {STRESSTEST_DISCOUNTS} from "../lib/config.js";
 
 export const options = {
     scenarios: {
@@ -38,7 +38,7 @@ export default function (data) {
     });
 
     if (Math.random() < 0.10) {
-        redeemVoucher(data.token);
+        redeemVoucher(data.token, data.pools.voucherPool);
     }
 }
 

@@ -23,7 +23,7 @@ class RedissonLockUtilsTest {
         when(redissonClient.getKeys()).thenReturn(keys);
         when(keys.getKeys(any(KeysScanOptions.class))).thenReturn(List.of("store-id:1", "store-id:abc", "store-id:2"));
 
-        Set<Long> lockedIds = new RedissonLockUtils(redissonClient).getActiveLockedIds(RedissonKey.STORE_LOCK);
+        Set<Long> lockedIds = new RedissonLockUtils(redissonClient).getActiveLockedIds(RedissonLockKey.STORE_LOCK);
 
         assertThat(lockedIds).containsExactlyInAnyOrder(1L, 2L);
     }

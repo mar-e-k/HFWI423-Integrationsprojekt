@@ -3,7 +3,7 @@ package de.fhdw.vendix.commons.spring.app.bundle.redis;
 import de.fhdw.vendix.commons.spring.app.context.DomainContextEvent;
 import de.fhdw.vendix.commons.spring.app.context.register.RegisterContextInitializedEvent;
 import de.fhdw.vendix.commons.spring.app.context.store.StoreContextInitializedEvent;
-import de.fhdw.vendix.commons.spring.data.caching.RedissonKey;
+import de.fhdw.vendix.commons.spring.data.caching.RedissonLockKey;
 import org.redisson.api.RLock;
 import org.redisson.api.RedissonClient;
 import org.slf4j.Logger;
@@ -33,9 +33,9 @@ public final class DefaultRedisInstanceContextListener implements RedisInstanceC
             return;
         }
 
-        RedissonKey keyType = switch (event) {
-            case RegisterContextInitializedEvent _ -> RedissonKey.REGISTER_LOCK;
-            case StoreContextInitializedEvent _ -> RedissonKey.STORE_LOCK;
+        RedissonLockKey keyType = switch (event) {
+            case RegisterContextInitializedEvent _ -> RedissonLockKey.REGISTER_LOCK;
+            case StoreContextInitializedEvent _ -> RedissonLockKey.STORE_LOCK;
             default -> throw new IllegalStateException("Unexpected event: " + event);
         };
 
