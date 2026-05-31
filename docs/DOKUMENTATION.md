@@ -122,7 +122,7 @@ Der Spring Cloud Gateway (Port 8080) leitet alle Anfragen an den Logistik-Servic
 Die REST-API ist in fachliche Domänen unterteilt. Jede Domäne hat ihren eigenen Controller und sein eigenes Package (`api/<domain>/`). Änderungen an einem Endpoint betreffen keine anderen Domänen.
 
 **Event-Driven statt direkter API-Aufrufe**
-Die Kommunikation zwischen den Systemen (Einkauf, Logistik, Filialen) erfolgt über RabbitMQ. Intern werden Spring ApplicationEvents für den Observer-Pattern genutzt (z.B. `GoodsReceiptApprovedEvent`). Damit sind Komponenten entkoppelt und können unabhängig voneinander skaliert oder deployed werden.
+Die Kommunikation zwischen den Systemen (Einkauf, Logistik, Filialen) erfolgt über RabbitMQ. Intern werden Spring ApplicationEvents für den Observer-Pattern genutzt (`GoodsReceiptApprovedEvent`, `KommissionAbgeschlossenEvent`). Damit sind Komponenten entkoppelt und können unabhängig voneinander skaliert oder deployed werden.
 
 **Transaktionsatomarität bei der Kommissionierung**
 Jede Filialkommission wird in einer eigenen Datenbanktransaktion (`REQUIRES_NEW`) verarbeitet. Schlägt eine Kommission fehl, wird nur diese zurückgerollt — alle anderen laufen weiter.
@@ -363,11 +363,12 @@ WeeklyKommissionScheduler.createWeeklyKommissionen()      ← Zeile 44
 KommissionService.finishAtomar(kommission)                ← Zeile 119, REQUIRES_NEW
   └── SELECT FOR UPDATE (MessageLogistic)
   └── Batch-Load Artikel (findAllById)
-  └── Stock-Updates in Memory berechnen
+  └── Stock-Updates in Memory berechnen + Deliveries sammeln
   └── articleRepo.saveAll()
   └── msgRepo.saveAll()
   └── kommission.setFinished(true)
-  └── AMQP-Events publishen (LogisticEventPublisher)
+  └── KommissionAbgeschlossenEvent publishen (ApplicationEventPublisher)
+        └── KommissionAbgeschlossenListener → LogisticEventPublisher
 ```
 
 > Quelle: `WeeklyKommissionScheduler.java:44` — `createWeeklyKommissionen()`
@@ -385,7 +386,7 @@ while (neuerBestand <= 0 && reservePallets > 0):
     reservePallets -= 1
 if neuerBestand < 0: neuerBestand = 0
 ```
-> Quelle: `KommissionService.java:158–176` — Palettenlogik innerhalb `finishAtomar()`
+> Quelle: `KommissionService.java:161–171` — Palettenlogik innerhalb `finishAtomar()`
 
 ---
 
@@ -1267,7 +1268,7 @@ Intern wird der Observer Pattern via Spring ApplicationEvents genutzt — an zwe
 
 #### Umgesetzt (Mai 2026)
 
-Das Abschliessen einer Kommission loest jetzt ein internes `KommissionAbgeschlossenEvent` aus. `KommissionAbgeschlossenListener` reagiert darauf und sendet die AMQP-Lieferbestaetigung. `KommissionService` kennt `LogisticEventPublisher` nicht mehr direkt — die Kopplung wurde eliminiert.
+Das Abschließen einer Kommission löst jetzt ein internes `KommissionAbgeschlossenEvent` aus. `KommissionAbgeschlossenListener` reagiert darauf und sendet die AMQP-Lieferbestätigung. `KommissionService` kennt `LogisticEventPublisher` nicht mehr direkt — die Kopplung wurde eliminiert.
 
 ---
 
@@ -1341,7 +1342,7 @@ Im Rahmen des Integrationsprojekts wurden folgende Loose-Coupling-Prinzipien kon
 | **SOA / Microservices** | API Gateway (Spring Cloud) als einziger Einstiegspunkt | Querschnittsbelange zentralisiert, Business-Code unberührt |
 | **Web Service Slicing** | 8 domain-sliced Controller statt 7 monolithischer LoadTest-Controller | Änderungen in einer Domäne betreffen keine andere |
 | **Observer / Pub-Sub** | Spring ApplicationEvent intern (2 Stellen: `GoodsReceiptApprovedEvent`, `KommissionAbgeschlossenEvent`); RabbitMQ extern | Services kennen ihre Reaktionspartner nicht |
-| **Dependency Injection** | Konstruktorinjektion in allen Controllern und Services inkl. `KommissionService` (Mai 2026) | Abhaengigkeiten sichtbar, final und testbar |
+| **Dependency Injection** | Konstruktorinjektion in allen Controllern und Services inkl. `KommissionService` (Mai 2026) | Abhängigkeiten sichtbar, final und testbar |
 | **Asynchrone Kommunikation** | RabbitMQ (bereits vorhanden) | Services müssen nicht auf Antworten warten |
 | **Lose gekoppelte Datenhaltung** | Schema-per-Bounded-Context: 7 PostgreSQL-Schemas, je eines pro Domäne (`artikel`, `lager`, `wareneingang`, `kommission`, `kontingent`, `nachbestellung`, `messaging`) | Jede Domäne besitzt ihre Tabellen — keine gemeinsame `public`-Ablage, keine domänenübergreifenden Tabellenabhängigkeiten |
 
@@ -1366,7 +1367,7 @@ Im Rahmen des Integrationsprojekts wurden folgende Loose-Coupling-Prinzipien kon
 
 #### 12.2.2 Service-zu-Service-Kopplung
 
-**Ist 🟡** — `KommissionService` ruft `LogisticEventPublisher` nicht mehr direkt auf — entkoppelt via `KommissionAbgeschlossenEvent` (Mai 2026). Verbleibende direkte Kopplung: `LogisticOrderListener.java:77` ruft `SonderkommissionSchedueler` synchron auf — der AMQP-Listener blockiert bis die Geschaeftslogik fertig ist.
+**Ist 🟡** — `KommissionService` ruft `LogisticEventPublisher` nicht mehr direkt auf — entkoppelt via `KommissionAbgeschlossenEvent` (Mai 2026). Verbleibende direkte Kopplung: `LogisticOrderListener.java:77` ruft `SonderkommissionSchedueler` synchron auf — der AMQP-Listener blockiert bis die Geschäftslogik fertig ist.
 
 **Soll 🟢** — `LogisticOrderListener` ebenfalls auf Spring ApplicationEvent umstellen, analog zu `KommissionAbgeschlossenEvent`.
 
@@ -1437,7 +1438,7 @@ Im Rahmen des Integrationsprojekts wurden folgende Loose-Coupling-Prinzipien kon
 
 Die implementierten Maßnahmen (OpenAPI, API Gateway, domain-sliced Controller, Observer Pattern, Konstruktorinjektion, `KommissionAbgeschlossenEvent`) haben sieben Kriterien auf 🟢 gehoben. Die verbleibenden roten Punkte (Repository-Streuung, Vaadin-UI) sind strukturell tiefer verankert und erfordern größere Eingriffe.
 
-Naechste Schritte: Reinigung der AMQP-Listener (insb. `LogisticOrderListener`), Umlenkung direkter Repository-Zugriffe aus den Views.
+Nächste Schritte: Reinigung der AMQP-Listener (insb. `LogisticOrderListener`), Umlenkung direkter Repository-Zugriffe aus den Views.
 
 ---
 
