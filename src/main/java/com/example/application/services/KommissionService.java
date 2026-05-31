@@ -1,14 +1,15 @@
 package com.example.application.services;
 
-import com.example.application.amqp.storeEvents.LogisticEventPublisher;
 import com.example.application.data.articleInfo.ArticleInfo;
 import com.example.application.data.articleInfo.ArticleInfoRepository;
 import com.example.application.data.orderPicking.*;
-import org.springframework.beans.factory.annotation.Autowired;
+import com.example.application.events.KommissionAbgeschlossenEvent;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -17,25 +18,29 @@ import java.util.stream.Collectors;
 @Service
 public class KommissionService {
 
-    @Autowired
-    private KommissionRepository komRepo;
+    private final KommissionRepository komRepo;
+    private final KommissionPositionRepository posRepo;
+    private final ArticleInfoService artikelService;
+    private final MessageLogisticRepository msgRepo;
+    private final ArticleInfoRepository articleRepo;
+    private final ApplicationEventPublisher applicationEventPublisher;
 
-    @Autowired
-    private KommissionPositionRepository posRepo;
+    public KommissionService(
+            KommissionRepository komRepo,
+            KommissionPositionRepository posRepo,
+            ArticleInfoService artikelService,
+            MessageLogisticRepository msgRepo,
+            ArticleInfoRepository articleRepo,
+            ApplicationEventPublisher applicationEventPublisher) {
+        this.komRepo = komRepo;
+        this.posRepo = posRepo;
+        this.artikelService = artikelService;
+        this.msgRepo = msgRepo;
+        this.articleRepo = articleRepo;
+        this.applicationEventPublisher = applicationEventPublisher;
+    }
 
-    @Autowired
-    private ArticleInfoService artikelService;
-
-    @Autowired
-    private MessageLogisticRepository msgRepo;
-
-    @Autowired
-    private ArticleInfoRepository articleRepo;
-
-    @Autowired
-    private LogisticEventPublisher logisticEventPublisher;
-
-    // Zentrale Auflösung: zuerst über articleId, dann Fallback über articleNumber
+    // Zentrale Aufloesung: zuerst ueber articleId, dann Fallback ueber articleNumber
     private ArticleInfo resolveArticle(Long articleId, String articleNumber) {
         if (articleId != null) {
             ArticleInfo article = articleRepo.findByArticleId(articleId);
@@ -51,7 +56,7 @@ public class KommissionService {
         return null;
     }
 
-    // Artikelnamen bevorzugt über articleId holen, sonst über articleNumber
+    // Artikelnamen bevorzugt ueber articleId holen, sonst ueber articleNumber
     public String getArticleName(Long articleId, String articleNumber) {
         ArticleInfo article = resolveArticle(articleId, articleNumber);
 
@@ -62,7 +67,7 @@ public class KommissionService {
         return article.getName();
     }
 
-    // Lagerplatz bevorzugt über articleId holen, sonst über articleNumber
+    // Lagerplatz bevorzugt ueber articleId holen, sonst ueber articleNumber
     public String getStorageLocationForArticle(Long articleId, String articleNumber) {
         ArticleInfo article = resolveArticle(articleId, articleNumber);
 
@@ -113,7 +118,7 @@ public class KommissionService {
 
     /**
      * Verarbeitet eine einzelne Kommission atomar in einer eigenen Transaktion.
-     * REQUIRES_NEW: schlaegt diese Kommission fehl, rollt nur sie zurueck –
+     * REQUIRES_NEW: schlaegt diese Kommission fehl, rollt nur sie zurueck -
      * finishAll() kann mit der naechsten weitermachen.
      */
     @Transactional(propagation = Propagation.REQUIRES_NEW)
@@ -138,6 +143,7 @@ public class KommissionService {
 
         // Stock-Updates in Memory berechnen
         Map<Long, ArticleInfo> articlesToSave = new LinkedHashMap<>();
+        List<KommissionAbgeschlossenEvent.ArticleDelivery> deliveries = new ArrayList<>();
 
         for (MessageLogistic msg : items) {
             // ArticleNumber bestimmen: direkt aus msg oder aus batch-geladenem Artikel
@@ -177,13 +183,11 @@ public class KommissionService {
             // Als verarbeitet markieren damit AMQP-Cleanup (deleteProcessedByStore) greift
             msg.setProcessed(true);
 
-            // Event publishen (kein DB-Query)
-            try {
-                if (storeIdLong >= 0 && msg.getArticleId() != null) {
-                    logisticEventPublisher.publishArticleDelivery(storeIdLong, msg.getArticleId(), msg.getQuantity());
-                }
-            } catch (Exception ignored) {
-                // Event-Publishing schlaegt fehl wenn AMQP nicht verfuegbar
+            // Delivery fuer Event sammeln (kein direkter AMQP-Aufruf mehr)
+            if (storeIdLong >= 0 && msg.getArticleId() != null) {
+                deliveries.add(new KommissionAbgeschlossenEvent.ArticleDelivery(
+                    msg.getArticleId(), msg.getQuantity()
+                ));
             }
         }
 
@@ -193,9 +197,16 @@ public class KommissionService {
 
         kommission.setFinished(true);
         komRepo.save(kommission);
+
+        // Domain Event publishen: KommissionService kennt LogisticEventPublisher nicht mehr
+        if (storeIdLong >= 0 && !deliveries.isEmpty()) {
+            applicationEventPublisher.publishEvent(
+                new KommissionAbgeschlossenEvent(this, storeIdLong, deliveries)
+            );
+        }
     }
 
-    // Prüft bevorzugt über articleId, sonst über articleNumber
+    // Prueft bevorzugt ueber articleId, sonst ueber articleNumber
     public boolean articleExists(Long articleId, String articleNumber) {
         return resolveArticle(articleId, articleNumber) != null;
     }
