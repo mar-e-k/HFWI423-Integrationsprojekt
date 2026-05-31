@@ -452,6 +452,8 @@ Lagerplätze können in der UI ausgewählt und Artikeln zugewiesen werden (über
 **Interne Events (Observer Pattern):**
 - `GoodsReceiptApprovedEvent` — `src/main/java/com/example/application/events/GoodsReceiptApprovedEvent.java`
 - `RestockCheckListener` — `src/main/java/com/example/application/events/RestockCheckListener.java`
+- `KommissionAbgeschlossenEvent` — `src/main/java/com/example/application/events/KommissionAbgeschlossenEvent.java`
+- `KommissionAbgeschlossenListener` — `src/main/java/com/example/application/events/KommissionAbgeschlossenListener.java`
 
 Das System kommuniziert über einen zentralen RabbitMQ-Exchange (`central`) mit anderen Systemen.
 
@@ -470,13 +472,25 @@ Das System kommuniziert über einen zentralen RabbitMQ-Exchange (`central`) mit 
 | `ArticleDeliveryEvent` | Filialen | Kommission abgeschlossen |
 | Einkauf-bezogene Events | Einkauf | Bestellvorgänge |
 
-> Quelle: `LogisticEventPublisher.java` — `publishArticleDelivery()`, aufgerufen in `KommissionService.java:182`
+> Quelle: `LogisticEventPublisher.java` — `publishArticleDelivery()`, aufgerufen durch `KommissionAbgeschlossenListener`
 
 #### Interner Observer (Spring ApplicationEvent)
 
-Neben AMQP werden intern Spring ApplicationEvents genutzt. `GoodsReceiptService` veröffentlicht nach `completeInspection()` ein `GoodsReceiptApprovedEvent`. `RestockCheckListener` reagiert via `@EventListener` — ohne dass der Service seinen Listener kennt.
+Neben AMQP werden intern Spring ApplicationEvents genutzt. Das System implementiert das Observer-Pattern an zwei Stellen:
 
-> Quellen: `events/GoodsReceiptApprovedEvent.java`, `events/RestockCheckListener.java`
+**1. Wareneingang:** `GoodsReceiptService` veröffentlicht nach `completeInspection()` ein `GoodsReceiptApprovedEvent`. `RestockCheckListener` reagiert via `@EventListener` — ohne dass der Service seinen Listener kennt.
+
+**2. Kommissionierung (Mai 2026):** `KommissionService.finishAtomar()` veröffentlicht am Ende ein `KommissionAbgeschlossenEvent` (mit `storeId` + Liste aller gelieferten Artikel). `KommissionAbgeschlossenListener` empfängt das Event und ruft `LogisticEventPublisher.publishArticleDelivery()` auf. `KommissionService` kennt `LogisticEventPublisher` nicht mehr direkt.
+
+```
+KommissionService.finishAtomar()
+    └── applicationEventPublisher.publishEvent(KommissionAbgeschlossenEvent)
+                └── KommissionAbgeschlossenListener.onKommissionAbgeschlossen()
+                          └── logisticEventPublisher.publishArticleDelivery()
+```
+
+> Quellen: `events/GoodsReceiptApprovedEvent.java`, `events/RestockCheckListener.java`,
+> `events/KommissionAbgeschlossenEvent.java`, `events/KommissionAbgeschlossenListener.java`
 
 #### Event-Persistenz
 
@@ -1182,13 +1196,16 @@ Das System nutzt AMQP-Events konsequent für die Kommunikation zwischen den Boun
 
 Das Muster entspricht dem DDD-Konzept von **Published Language** — einer formalen Sprache für die Kommunikation zwischen Kontexten.
 
-Intern wird der Observer Pattern via Spring ApplicationEvents genutzt (`GoodsReceiptApprovedEvent`): Services reagieren auf Events, ohne direkt voneinander zu wissen.
+Intern wird der Observer Pattern via Spring ApplicationEvents genutzt — an zwei Stellen:
+- `GoodsReceiptApprovedEvent`: `GoodsReceiptService` entkoppelt vom `RestockCheckListener`
+- `KommissionAbgeschlossenEvent` (Mai 2026): `KommissionService` entkoppelt vom `LogisticEventPublisher`
 
-> Quellen: `events/GoodsReceiptApprovedEvent.java`, `events/RestockCheckListener.java`
+> Quellen: `events/GoodsReceiptApprovedEvent.java`, `events/RestockCheckListener.java`,
+> `events/KommissionAbgeschlossenEvent.java`, `events/KommissionAbgeschlossenListener.java`
 
-#### Potential
+#### Umgesetzt (Mai 2026)
 
-In einem vollständigen DDD-Modell würde das Abschließen einer Kommission ein internes Event auslösen (z.B. `KommissionAbgeschlossenEvent`), auf das andere Teile des Systems reagieren — statt direkter Methodenaufrufe. Das würde die Kopplung innerhalb des Kontexts weiter reduzieren.
+Das Abschliessen einer Kommission loest jetzt ein internes `KommissionAbgeschlossenEvent` aus. `KommissionAbgeschlossenListener` reagiert darauf und sendet die AMQP-Lieferbestaetigung. `KommissionService` kennt `LogisticEventPublisher` nicht mehr direkt — die Kopplung wurde eliminiert.
 
 ---
 
@@ -1226,9 +1243,7 @@ Spring Data JPA Repositories sind korrekt je Aggregate Root angelegt und kapseln
 
 Wie in Abschnitt 11.3 beschrieben: `MessageLogisticRepository` ist direkt in zwei Services injiziert und wird nicht über `KommissionRepository` vermittelt. Das ist eine pragmatische, aber DDD-widrige Abkürzung.
 
-Außerdem gibt es mehrere `@Autowired`-Injektionen (Feldinjektion) statt Konstruktorinjektion in `KommissionService`, was die Testbarkeit einschränkt.
-
-> Quelle: `KommissionService.java:21–33` (Feldinjektion), vs. `GoodsReceiptService.java:31–38` (Konstruktorinjektion — besser)
+> Quelle: `GoodsReceiptService.java:31–38` (Konstruktorinjektion als Referenzmuster)
 
 ---
 
@@ -1263,8 +1278,8 @@ Im Rahmen des Integrationsprojekts wurden folgende Loose-Coupling-Prinzipien kon
 | **Abstraktion durch Schnittstellen** | OpenAPI via springdoc-openapi 3.0.3 — maschinenlesbare API-Verträge, Swagger UI | Konsumenten können unabhängig vom Backend entwickeln |
 | **SOA / Microservices** | API Gateway (Spring Cloud) als einziger Einstiegspunkt | Querschnittsbelange zentralisiert, Business-Code unberührt |
 | **Web Service Slicing** | 8 domain-sliced Controller statt 7 monolithischer LoadTest-Controller | Änderungen in einer Domäne betreffen keine andere |
-| **Observer / Pub-Sub** | Spring ApplicationEvent (`GoodsReceiptApprovedEvent`) intern; RabbitMQ extern | Services kennen ihre Reaktionspartner nicht |
-| **Dependency Injection** | Konstruktorinjektion in allen neuen Controllern und Services | Abhängigkeiten sichtbar und testbar |
+| **Observer / Pub-Sub** | Spring ApplicationEvent intern (2 Stellen: `GoodsReceiptApprovedEvent`, `KommissionAbgeschlossenEvent`); RabbitMQ extern | Services kennen ihre Reaktionspartner nicht |
+| **Dependency Injection** | Konstruktorinjektion in allen Controllern und Services inkl. `KommissionService` (Mai 2026) | Abhaengigkeiten sichtbar, final und testbar |
 | **Asynchrone Kommunikation** | RabbitMQ (bereits vorhanden) | Services müssen nicht auf Antworten warten |
 | **Lose gekoppelte Datenhaltung** | Schema-per-Bounded-Context: 7 PostgreSQL-Schemas, je eines pro Domäne (`artikel`, `lager`, `wareneingang`, `kommission`, `kontingent`, `nachbestellung`, `messaging`) | Jede Domäne besitzt ihre Tabellen — keine gemeinsame `public`-Ablage, keine domänenübergreifenden Tabellenabhängigkeiten |
 
@@ -1285,15 +1300,13 @@ Im Rahmen des Integrationsprojekts wurden folgende Loose-Coupling-Prinzipien kon
 
 #### 12.2.1 Dependency Injection
 
-**Ist 🟡** — Konstruktorinjektion dominiert (`GoodsReceiptService.java:31–41`, `ArticleSyncService.java:34–42`, alle neuen Controller). Ausreißer: `KommissionService.java:20–36` nutzt 6× Feldinjektion via `@Autowired`. Das versteckt Abhängigkeiten und erschwert Tests, weil Mocks nur über Reflection injizierbar sind.
-
-**Soll 🟢** — Feldinjektion in `KommissionService` durch finale Konstruktorparameter ersetzen.
+**Ist 🟢** — Konstruktorinjektion durchgehend umgesetzt: alle Controller, alle Services inkl. `KommissionService` (refaktoriert Mai 2026, Commit `650674c5`). Alle Felder sind `final`. Kein `@Autowired` mehr in der Service-Schicht.
 
 #### 12.2.2 Service-zu-Service-Kopplung
 
-**Ist 🔴** — `KommissionService` hat hohen Fan-Out: 5 Repositories, `ArticleInfoService` und `LogisticEventPublisher` werden direkt aufgerufen. `LogisticOrderListener.java:77` ruft `SonderkommissionSchedueler` synchron auf — der AMQP-Listener blockiert bis die Geschäftslogik fertig ist.
+**Ist 🟡** — `KommissionService` ruft `LogisticEventPublisher` nicht mehr direkt auf — entkoppelt via `KommissionAbgeschlossenEvent` (Mai 2026). Verbleibende direkte Kopplung: `LogisticOrderListener.java:77` ruft `SonderkommissionSchedueler` synchron auf — der AMQP-Listener blockiert bis die Geschaeftslogik fertig ist.
 
-**Soll 🟡** — Interne Domain Events (z.B. `KommissionAbgeschlossenEvent` über Spring `ApplicationEventPublisher`) statt direkter Service-Aufrufe. Analog zu `GoodsReceiptApprovedEvent` (bereits umgesetzt).
+**Soll 🟢** — `LogisticOrderListener` ebenfalls auf Spring ApplicationEvent umstellen, analog zu `KommissionAbgeschlossenEvent`.
 
 #### 12.2.3 Interfaces & Abstraktion
 
@@ -1344,25 +1357,25 @@ Im Rahmen des Integrationsprojekts wurden folgende Loose-Coupling-Prinzipien kon
 | Observer / ApplicationEvent | 🟢 | 🟢 | done |
 | Lose Datenhaltung (Schema-per-BC) | 🟢 | 🟢 | done |
 | Konfiguration / Magic Strings | 🟡 | 🟢 | sehr klein |
-| Dependency Injection | 🟡 | 🟢 | klein |
+| Dependency Injection | 🟢 | 🟢 | done |
 | AMQP-Listener | 🟡 | 🟢 | mittel |
 | Interfaces & Abstraktion | 🟡 | 🟢 | mittel |
 | Controller- & View-Kopplung | 🟡 | 🟢 | mittel |
-| Service-zu-Service | 🔴 | 🟡 | mittel–groß |
+| Service-zu-Service | 🟡 | 🟢 | mittel |
 | Repository-Streuung | 🔴 | 🟡 | groß (verteilt) |
 | Vaadin/UI | 🔴 | 🟡 | mittel |
 
 **Ampel-Saldo:**
-- Ist: 6× 🟢 · 5× 🟡 · 3× 🔴
-- Soll: 10× 🟢 · 4× 🟡 · 0× 🔴
+- Ist: 8× 🟢 · 4× 🟡 · 2× 🔴
+- Soll: 11× 🟢 · 3× 🟡 · 0× 🔴
 
 ---
 
 ### 12.4 Priorisierung & Fazit
 
-Die implementierten Maßnahmen (OpenAPI, API Gateway, domain-sliced Controller, Observer Pattern) haben fünf Kriterien auf 🟢 gehoben. Die verbleibenden roten Punkte (Service-zu-Service-Kopplung, Repository-Streuung, Vaadin-UI) sind strukturell tiefer verankert und erfordern größere Eingriffe.
+Die implementierten Maßnahmen (OpenAPI, API Gateway, domain-sliced Controller, Observer Pattern, Konstruktorinjektion, `KommissionAbgeschlossenEvent`) haben sieben Kriterien auf 🟢 gehoben. Die verbleibenden roten Punkte (Repository-Streuung, Vaadin-UI) sind strukturell tiefer verankert und erfordern größere Eingriffe.
 
-Die nächsten Quick-Wins: Konstruktorinjektion in `KommissionService`, Reinigung der AMQP-Listener, Umlenkung direkter Repository-Zugriffe aus den Views.
+Naechste Schritte: Reinigung der AMQP-Listener (insb. `LogisticOrderListener`), Umlenkung direkter Repository-Zugriffe aus den Views.
 
 ---
 
