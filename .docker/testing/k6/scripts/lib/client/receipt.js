@@ -2,7 +2,7 @@ import http from 'k6/http';
 import {check} from 'k6';
 import {authHeaders} from '../auth.js';
 import {ORCHESTRATOR_URL, STORE_ID} from '../config.js';
-import {generateUniqueId, pickRandom, pickPaymentMethod, pickGtin} from '../utils.js';
+import {generateUniqueId, pickRandom, pickPaymentMethod, pickGtin, sleepBetween} from '../utils.js';
 import {getArticleByGtin} from './article.js';
 import {
     bonsCreatedMetric, bonsFailedMetric, checkoutsMetric,
@@ -22,6 +22,8 @@ export function checkout(token, registerId, cashierId, pools, opts = {}) {
     const discountChance = opts.discountChance ?? 0.33;
     const discountRates = opts.discountRates ?? [10, 30];
     const scanGtins = opts.scanGtins ?? false;
+    const scanPaceMinMs = opts.scanPaceMinMs ?? 0;
+    const scanPaceMaxMs = opts.scanPaceMaxMs ?? scanPaceMinMs;
 
     const articlePool = pools?.articlePool?.length > 0 ? pools.articlePool : [1, 2, 3, 4, 5];
     const gtinPool = pools?.gtinPool || [];
@@ -36,6 +38,9 @@ export function checkout(token, registerId, cashierId, pools, opts = {}) {
             // Passes the active gtinPool array down to the picker utility
             const scannedId = getArticleByGtin(token, pickGtin(gtinPool));
             if (scannedId) articleId = scannedId;
+            if (i < articleCount - 1) {
+                sleepBetween(scanPaceMinMs, scanPaceMaxMs);
+            }
         }
 
         const applyDiscount = Math.random() < discountChance;

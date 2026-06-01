@@ -31,7 +31,7 @@ export function executeSharedSetup(scenarioName) {
     });
     
     vouchers.forEach((item) => {
-        if (item?.code) {
+        if (item?.code && !item.redeemedAt) {
             voucherPool.push(item.code);
         }
     });

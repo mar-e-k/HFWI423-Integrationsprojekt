@@ -3,7 +3,7 @@ import {check} from 'k6';
 import {authHeaders} from '../auth.js';
 import {ORCHESTRATOR_URL, STORE_ID} from '../config.js';
 import {voucherChecksMetric, voucherRedeemsMetric} from '../metrics.js';
-import {pickRandom} from "../utils.js";
+import {generateUuid, pickRandom} from '../utils.js';
 
 export function getAllVouchers(token) {
     const res = http.get(`${ORCHESTRATOR_URL}/api/voucher`, {
@@ -37,8 +37,7 @@ export function createVoucher(token, voucherCode, expiresAt = null) {
     return success ? res.json() : null;
 }
 
-export function redeemVoucher(token, voucherPool) {
-    const voucherCode = pickRandom(voucherPool);
+export function redeemVoucherCode(token, voucherCode) {
     if (!voucherCode) return null;
 
     const res = http.put(`${ORCHESTRATOR_URL}/api/voucher/${voucherCode}/redeem`, null, {
@@ -59,8 +58,18 @@ export function redeemVoucher(token, voucherPool) {
     return null;
 }
 
-export function checkAndRedeemVoucher(token, voucherPool) {
+export function redeemVoucher(token, voucherPool) {
     const voucherCode = pickRandom(voucherPool);
+    return redeemVoucherCode(token, voucherCode);
+}
+
+export function createAndRedeemVoucher(token) {
+    const voucherCode = generateUuid();
+    const voucher = createVoucher(token, voucherCode);
+    return voucher ? redeemVoucherCode(token, voucherCode) : null;
+}
+
+export function checkAndRedeemVoucherCode(token, voucherCode) {
     if (!voucherCode) return {checked: false, redeemed: false};
 
     const checkRes = http.get(`${ORCHESTRATOR_URL}/api/voucher/${voucherCode}`, {
@@ -94,4 +103,16 @@ export function checkAndRedeemVoucher(token, voucherPool) {
     }
 
     return {checked: true, redeemed: success};
+}
+
+export function checkAndRedeemVoucher(token, voucherPool) {
+    return checkAndRedeemVoucherCode(token, pickRandom(voucherPool));
+}
+
+export function createCheckAndRedeemVoucher(token) {
+    const voucherCode = generateUuid();
+    const voucher = createVoucher(token, voucherCode);
+    return voucher
+        ? checkAndRedeemVoucherCode(token, voucherCode)
+        : {checked: false, redeemed: false};
 }

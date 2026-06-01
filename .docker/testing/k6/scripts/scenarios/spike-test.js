@@ -1,6 +1,6 @@
 import {executeSharedSetup, executeSharedSummary, baseThresholds} from '../lib/runner-base.js';
 import {runFullBon} from '../lib/workflow/cashier-flow.js';
-import {redeemVoucher} from '../lib/client/voucher.js';
+import {createAndRedeemVoucher} from '../lib/client/voucher.js';
 import {DISCOUNT_RATES} from '../lib/config.js';
 
 export const options = {
@@ -43,7 +43,7 @@ export default function (data) {
     });
 
     if (Math.random() < 0.15) {
-        redeemVoucher(data.token);
+        createAndRedeemVoucher(data.token);
     }
 }
 

@@ -1,6 +1,6 @@
 import {executeSharedSetup, executeSharedSummary, baseThresholds} from '../lib/runner-base.js';
 import {checkout} from '../lib/client/receipt.js';
-import {redeemVoucher} from '../lib/client/voucher.js';
+import {createAndRedeemVoucher} from '../lib/client/voucher.js';
 import {pickRegisterId, pickCashierUuid} from '../lib/utils.js';
 
 export const options = {
@@ -41,7 +41,7 @@ export default function (data) {
     });
 
     if (receiptId && Math.random() < 0.20) {
-        redeemVoucher(data.token);
+        createAndRedeemVoucher(data.token);
     }
 }
 

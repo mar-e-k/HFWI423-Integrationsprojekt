@@ -1,7 +1,8 @@
 import {executeSharedSetup, executeSharedSummary, baseThresholds} from '../lib/runner-base.js';
 import {runFullBon} from '../lib/workflow/cashier-flow.js';
-import {redeemVoucher} from '../lib/client/voucher.js';
+import {createAndRedeemVoucher} from '../lib/client/voucher.js';
 import {STRESSTEST_DISCOUNTS} from '../lib/config.js';
+import {sleepBetween} from '../lib/utils.js';
 
 export const options = {
     scenarios: {
@@ -14,17 +15,13 @@ export const options = {
             maxVUs: 10,
         },
         soaktest: {
-            executor: 'ramping-vus',
-            startVUs: 6,
+            executor: 'constant-arrival-rate',
+            rate: 180,
+            timeUnit: '1h',
             startTime: '1h',
-            stages: [
-                {duration: '3h', target: 6},
-                {duration: '3h', target: 20},
-                {duration: '2h', target: 30},
-                {duration: '4h', target: 20},
-                {duration: '4h', target: 25},
-            ],
-            gracefulRampDown: '30s',
+            duration: '16h',
+            preAllocatedVUs: 6,
+            maxVUs: 30,
         },
     },
     thresholds: baseThresholds,
@@ -44,10 +41,15 @@ export default function (data) {
         cancelChance: 0.01,
         voucherChance: 0.08,
         scanGtins: true,
+        scanPaceMinMs: 600,
+        scanPaceMaxMs: 1100,
+        stepPaceMinMs: 250,
+        stepPaceMaxMs: 750,
     });
 
     if (Math.random() < 0.08) {
-        redeemVoucher(data.token);
+        sleepBetween(250, 750);
+        createAndRedeemVoucher(data.token);
     }
 }
 
