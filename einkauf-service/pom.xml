@@ -50,6 +50,24 @@
 				<type>pom</type>
 				<scope>import</scope>
 			</dependency>
+			<!-- Align swagger-* with the version pulled by springdoc-openapi 3.0.3
+			     (Hilla 25 transitively pulls older 2.2.38 which lacks
+			     Schema.getDefaultSetFlag() and breaks /v3/api-docs). -->
+			<dependency>
+				<groupId>io.swagger.core.v3</groupId>
+				<artifactId>swagger-core-jakarta</artifactId>
+				<version>2.2.47</version>
+			</dependency>
+			<dependency>
+				<groupId>io.swagger.core.v3</groupId>
+				<artifactId>swagger-models-jakarta</artifactId>
+				<version>2.2.47</version>
+			</dependency>
+			<dependency>
+				<groupId>io.swagger.core.v3</groupId>
+				<artifactId>swagger-annotations-jakarta</artifactId>
+				<version>2.2.47</version>
+			</dependency>
 		</dependencies>
 	</dependencyManagement>
 
@@ -78,7 +96,7 @@
 		<dependency>
 			<groupId>org.springdoc</groupId>
 			<artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
-			<version>2.6.0</version>
+			<version>3.0.3</version>
 		</dependency>
 
 		<dependency>
